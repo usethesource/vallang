@@ -63,9 +63,9 @@ public class XMLWriter implements IValueWriter {
             
 			t.transform(new DOMSource(doc), new StreamResult(stream));
 		} catch (ParserConfigurationException e) {
-			throw new IOException("XML configuration is invalid", e);
+			throw new IOException("XML configuration is invalid: " + e.getMessage());
 		} catch (TransformerException e) {
-			throw new IOException("Exception while serializing XML", e);
+			throw new IOException("Exception while serializing XML: " + e.getMessage());
 		}
 	}
 

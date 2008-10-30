@@ -86,11 +86,11 @@ public class XMLReader implements IValueReader {
 			Document doc = domFactory.newDocumentBuilder().parse(stream);
 			return parse(doc.getDocumentElement(), type);
 		} catch (SAXException se) {
-			throw new IOException("Parsing of value failed because XML was invalid", se);
+			throw new IOException("Parsing of value failed because XML was invalid: " + se.getMessage());
 		} catch (ParserConfigurationException pce) {
-			throw new IOException("Parsing of value failed because XML configuration is wrong", pce);
+			throw new IOException("Parsing of value failed because XML configuration is wrong: " + pce.getMessage());
 		} catch (DOMException de) {
-			throw new IOException("Parsing of value failed because of a XML document failure", de);
+			throw new IOException("Parsing of value failed because of a XML document failure: " + de.getMessage());
 		} catch (NumberFormatException nfe) {
 			throw new FactTypeError("Expected a number, got something different: " + nfe.getMessage(), nfe);
 		}
