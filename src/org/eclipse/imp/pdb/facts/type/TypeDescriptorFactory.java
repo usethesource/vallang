@@ -59,17 +59,35 @@ public class TypeDescriptorFactory {
 		return InstanceHolder.sInstance;
 	}
 	
+	/**
+	 * Create a representation of a type for use in (de)serialization or other
+	 * computations on types.
+	 * 
+	 * @param factory the factory to use to construct the values
+	 * @param type    the type to convert to a value
+	 * @return a value that represents this type and can be convert back to 
+	 *         the original type via {@link TypeDescriptorFactory#fromTypeDescriptor(ITree)}
+	 */
 	public IValue toTypeDescriptor(IValueFactory factory, Type type) {
 		return type.accept(new ToTypeVisitor(factory));
 	}
 	
-	public Type fromTypeDescriptor(ITree descriptor) throws FactTypeError {
+	/**
+	 * Construct a type that is represented by this value. Will only work for values
+	 * that have been constructed using {@link TypeDescriptorFactory#toTypeDescriptor(IValueFactory, Type)},
+	 * or something that exactly mimicked it.
+	 * 
+	 * @param descriptor a value that represents a type
+	 * @return a type that was represented by the descriptor
+	 * @throws TypeDeclarationException if the descriptor is not a valid type descriptor
+	 */
+	public Type fromTypeDescriptor(IValue descriptor) throws TypeDeclarationException {
 		try {
 			FromTypeVisitor v = new FromTypeVisitor();
 			descriptor.accept(v);
 			return v.getResult();
 		} catch (VisitorException e) {
-			throw new FactTypeError(e.getMessage(), e);
+			throw new TypeDeclarationException(e.getMessage());
 		}
 	}
 	
