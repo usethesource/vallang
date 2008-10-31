@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class IntegerType extends Type {
     private final static IntegerType sInstance= new IntegerType();
 
@@ -66,5 +68,10 @@ public class IntegerType extends Type {
     @Override
     public String toString() {
         return "integer";
+    }
+    
+    @Override
+    public IValue accept(ITypeVisitor visitor) {
+    	return visitor.visitInteger(this);
     }
 }

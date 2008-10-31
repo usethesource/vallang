@@ -12,7 +12,10 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-public class SourceLocationType extends LocationType {
+import org.eclipse.imp.pdb.facts.IValue;
+
+
+public class SourceLocationType  extends Type {
     private final static SourceLocationType sInstance= new SourceLocationType();
 
     /*package*/ static SourceLocationType getInstance() {
@@ -61,4 +64,10 @@ public class SourceLocationType extends LocationType {
     public String toString() {
         return "sourceLocation";
     }
+    
+    @Override
+    public IValue accept(ITypeVisitor visitor) {
+    	return visitor.visitSourceLocation(this);
+    }
+    
 }

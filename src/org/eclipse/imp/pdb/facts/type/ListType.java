@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class ListType extends Type {
 	/*package*/ Type fEltType;
 	
@@ -82,5 +84,10 @@ public class ListType extends Type {
 	@Override
 	public int hashCode() {
 		return 75703 + 104543 * fEltType.hashCode();
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitList(this);
 	}
 }

@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class StringType extends Type {
     private final static StringType sInstance= new StringType();
 
@@ -61,5 +63,10 @@ public class StringType extends Type {
     @Override
     public String toString() {
         return "string";
+    }
+    
+    @Override
+    public IValue accept(ITypeVisitor visitor) {
+    	return visitor.visitString(this);
     }
 }

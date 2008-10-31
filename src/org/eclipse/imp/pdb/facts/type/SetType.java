@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public final class SetType extends Type {
     /*package*/ Type fEltType;
 
@@ -109,5 +111,10 @@ public final class SetType extends Type {
     @Override
     public String toString() {
         return "set[" + fEltType.getTypeDescriptor() + "]";
+    }
+    
+    @Override
+    public IValue accept(ITypeVisitor visitor) {
+    	return visitor.visitSet(this);
     }
 }

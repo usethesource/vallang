@@ -11,6 +11,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 /**
  * A Tree Sort is an algebraic sort. A sort is produced by constructors, @see TreeType.
  * There can be many constructors for a single sort.
@@ -79,6 +81,15 @@ public class TreeSortType extends Type {
 			return fName.equals(other.fName);
 		}
 		return false;
+	}
+	
+	public String getName() {
+		return fName;
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitTreeSort(this);
 	}
 	
 }

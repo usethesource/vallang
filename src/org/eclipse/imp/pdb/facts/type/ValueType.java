@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class ValueType extends Type {
     private static final ValueType sInstance= new ValueType();
 
@@ -57,5 +59,10 @@ public class ValueType extends Type {
     @Override
     public int hashCode() {
     	return 2141;
+    }
+    
+    @Override
+    public IValue accept(ITypeVisitor visitor) {
+    	return visitor.visitValue(this);
     }
 }

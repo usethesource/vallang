@@ -14,6 +14,8 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class TupleType extends Type implements Iterable<Type> {
     protected Type[] fFieldTypes;
     protected String[] fFieldNames;
@@ -194,5 +196,10 @@ public class TupleType extends Type implements Iterable<Type> {
 				throw new UnsupportedOperationException();
 			}
 		};
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitTuple(this);
 	}
 }

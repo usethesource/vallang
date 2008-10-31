@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class ObjectType<T> extends Type {
     /*package*/ Class<T> fClass;
     
@@ -74,5 +76,10 @@ public class ObjectType<T> extends Type {
 
 	public boolean checkClass(Class<T> clazz) {
 		return fClass.equals(clazz);
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitObject(this);
 	}
 }

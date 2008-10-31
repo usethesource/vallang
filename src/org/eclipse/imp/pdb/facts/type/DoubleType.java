@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class DoubleType extends Type {
 	private final static DoubleType sInstance = new DoubleType();
 
@@ -68,5 +70,10 @@ public class DoubleType extends Type {
 	@Override
 	public String toString() {
 		return "double";
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitDouble(this);
 	}
 }

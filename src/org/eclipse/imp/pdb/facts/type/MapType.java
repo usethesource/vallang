@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public final class MapType extends Type {
     /*package*/ Type fKeyType;
     /*package*/ Type fValueType;
@@ -93,5 +95,10 @@ public final class MapType extends Type {
     @Override
     public String toString() {
         return "map[" + fKeyType.getTypeDescriptor() + "," + fValueType.getTypeDescriptor() + "]";
+    }
+    
+    @Override
+    public IValue accept(ITypeVisitor visitor) {
+    	return visitor.visitMap(this);
     }
 }

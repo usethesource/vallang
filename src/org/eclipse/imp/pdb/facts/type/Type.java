@@ -12,6 +12,9 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
+
 public abstract class Type {
     /**
      * @return the least upper bound type of the receiver and the argument type
@@ -20,6 +23,8 @@ public abstract class Type {
     
     public abstract boolean isSubtypeOf(Type other);
 
+    public abstract IValue accept(ITypeVisitor visitor);
+    
     /**
      * @return a type descriptor suitable for use in serialization, which can be
      * passed to <code>TypeFactory.getTypeByDescriptor()</code>
@@ -93,4 +98,5 @@ public abstract class Type {
 	public boolean isMapType() {
 		return false;
 	}
+	
 }

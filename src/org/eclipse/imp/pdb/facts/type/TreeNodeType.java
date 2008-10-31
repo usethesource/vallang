@@ -13,6 +13,8 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 /**
  * A tree type is a type of tree node, defined by its name, the types of
  * its children and the type it produces. Example tree types would be:
@@ -141,5 +143,10 @@ public class TreeNodeType extends Type {
 	@Override
 	public Type getBaseType() {
 		return fNodeType;
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitTreeNode(this);
 	}
 }

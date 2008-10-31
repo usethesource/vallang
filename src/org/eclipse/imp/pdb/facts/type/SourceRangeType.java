@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class SourceRangeType extends Type {
     private static final SourceRangeType sInstance= new SourceRangeType();
 
@@ -47,5 +49,10 @@ public class SourceRangeType extends Type {
     @Override
     public String toString() {
         return "sourceRange";
+    }
+    
+    @Override
+    public IValue accept(ITypeVisitor visitor) {
+    	return visitor.visitSourceRange(this);
     }
 }

@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 public class NamedType extends Type {
 	/* package */ String fName;
 	/* package */ Type fSuperType;
@@ -88,6 +90,11 @@ public class NamedType extends Type {
 			return fName.equals(other.fName) && fSuperType == other.fSuperType;
 		}
 		return false;
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitNamed(this);
 	}
 
 }

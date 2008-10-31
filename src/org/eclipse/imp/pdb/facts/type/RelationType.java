@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 
 public class RelationType extends Type {
     /*package*/ TupleType fTupleType;
@@ -203,5 +205,10 @@ public class RelationType extends Type {
 	
 	public SetType toSet() {
 		return TypeFactory.getInstance().setTypeOf(fTupleType);
+	}
+	
+	@Override
+	public IValue accept(ITypeVisitor visitor) {
+		return visitor.visitRelationType(this);
 	}
 }
