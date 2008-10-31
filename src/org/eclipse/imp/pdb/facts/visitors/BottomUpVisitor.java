@@ -33,7 +33,7 @@ public class BottomUpVisitor extends VisitorAdapter {
 	}
 	
 	@Override
-	public ITree visitTree(ITree o) throws VisitorException {
+	public IValue visitTree(ITree o) throws VisitorException {
 		for (int i = 0; i < o.arity(); i++) {
 			o = o.set(i, o.get(i).accept(this));
 		}
@@ -42,7 +42,7 @@ public class BottomUpVisitor extends VisitorAdapter {
 	}
 	
 	@Override
-	public IList visitList(IList o) throws VisitorException {
+	public IValue visitList(IList o) throws VisitorException {
 		IList result = fFactory.list(o.getElementType());
 		for (IValue elem : o) {
 			result.append(elem.accept(this));
@@ -52,7 +52,7 @@ public class BottomUpVisitor extends VisitorAdapter {
 	}
 	
 	@Override
-	public ISet visitSet(ISet o) throws VisitorException {
+	public IValue visitSet(ISet o) throws VisitorException {
 		ISet result = fFactory.set(o.getElementType());
 		for (IValue elem : o) {
 			result.insert(elem.accept(this));
@@ -62,7 +62,7 @@ public class BottomUpVisitor extends VisitorAdapter {
 	}
 	
 	@Override
-	public IMap visitMap(IMap o) throws VisitorException {
+	public IValue visitMap(IMap o) throws VisitorException {
 		IMap result = fFactory.map(o.getKeyType(), o.getValueType());
 		for (IValue elem : o) {
 			result.put(elem.accept(this), o.get(elem).accept(this));
@@ -72,7 +72,7 @@ public class BottomUpVisitor extends VisitorAdapter {
 	}
 
 	@Override
-	public IRelation visitRelation(IRelation o) throws VisitorException {
+	public IValue visitRelation(IRelation o) throws VisitorException {
 		IRelation result = fFactory.relation(o.getFieldTypes());
 		
 		for (ITuple tuple : o) {
@@ -83,7 +83,7 @@ public class BottomUpVisitor extends VisitorAdapter {
 	}
 	
 	@Override
-	public ITuple visitTuple(ITuple o) throws VisitorException {
+	public IValue visitTuple(ITuple o) throws VisitorException {
 		for (int i = 0; i < o.arity(); i++) {
 			o.set(i, o.get(i).accept(this));
 		}

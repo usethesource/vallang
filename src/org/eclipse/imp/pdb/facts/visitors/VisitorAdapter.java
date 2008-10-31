@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.IValue;
 
 /**
  * Extend this class to easily create a reusable generic visitor implementation.
@@ -34,51 +35,51 @@ public abstract class VisitorAdapter implements IValueVisitor {
 		this.fVisitor = visitor;
 	}
 
-	public IDouble visitDouble(IDouble o) throws VisitorException {
+	public IValue visitDouble(IDouble o) throws VisitorException {
 		return fVisitor.visitDouble(o);
 	}
 
-	public IInteger visitInteger(IInteger o) throws VisitorException {
+	public IValue visitInteger(IInteger o) throws VisitorException {
 		return fVisitor.visitInteger(o);
 	}
 
-	public IList visitList(IList o) throws VisitorException {
+	public IValue visitList(IList o) throws VisitorException {
 		return fVisitor.visitList(o);
 	}
 
-	public IMap visitMap(IMap o) throws VisitorException {
+	public IValue visitMap(IMap o) throws VisitorException {
 		return fVisitor.visitMap(o);
 	}
 
-	public <T> IObject<T> visitObject(IObject<T> o) throws VisitorException {
+	public <T> IValue visitObject(IObject<T> o) throws VisitorException {
 		return fVisitor.visitObject(o);
 	}
 
-	public IRelation visitRelation(IRelation o) throws VisitorException {
+	public IValue visitRelation(IRelation o) throws VisitorException {
 		return fVisitor.visitRelation(o);
 	}
 
-	public ISet visitSet(ISet o) throws VisitorException {
+	public IValue visitSet(ISet o) throws VisitorException {
 		return fVisitor.visitSet(o);
 	}
 
-	public ISourceLocation visitSourceLocation(ISourceLocation o) throws VisitorException {
+	public IValue visitSourceLocation(ISourceLocation o) throws VisitorException {
 		return fVisitor.visitSourceLocation(o);
 	}
 
-	public ISourceRange visitSourceRange(ISourceRange o) throws VisitorException {
+	public IValue visitSourceRange(ISourceRange o) throws VisitorException {
 		return fVisitor.visitSourceRange(o);
 	}
 
-	public IString visitString(IString o) throws VisitorException {
+	public IValue visitString(IString o) throws VisitorException {
 		return fVisitor.visitString(o);
 	}
 
-	public ITree visitTree(ITree o) throws VisitorException {
+	public IValue visitTree(ITree o) throws VisitorException {
 		return fVisitor.visitTree(o);
 	}
 
-	public ITuple visitTuple(ITuple o) throws VisitorException {
+	public IValue visitTuple(ITuple o) throws VisitorException {
 		return fVisitor.visitTuple(o);
 	}
 }
