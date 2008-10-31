@@ -24,11 +24,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
     /*package*/ StringValue(String value) {
         super(TypeFactory.getInstance().stringType());
+        if (value == null) {
+            throw new IllegalArgumentException("Null string value");
+        }
         fValue= value;
     }
 
     /*package*/ StringValue(NamedType type, String s) {
 		super(type);
+        if (s == null) {
+            throw new IllegalArgumentException("Null string value");
+        }
 		fValue = s;
 	}
 
