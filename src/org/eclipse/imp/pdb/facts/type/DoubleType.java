@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class DoubleType extends Type {
 	private final static DoubleType sInstance = new DoubleType();
@@ -48,11 +49,6 @@ public class DoubleType extends Type {
 		}
 	}
 
-	@Override
-	public String getTypeDescriptor() {
-		return toString();
-	}
-
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType
@@ -75,5 +71,9 @@ public class DoubleType extends Type {
 	@Override
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitDouble(this);
+	}
+	
+	public IValue make(IValueFactory f, double arg) {
+		return f.dubble(arg);
 	}
 }

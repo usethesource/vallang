@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.impl.WritableValue;
 import org.eclipse.imp.pdb.facts.impl.WriterBase;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.MapType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -58,13 +57,6 @@ class Map extends WritableValue<IMapWriter> implements IMap {
 	}
 
 	HashMap<IValue,IValue> fMap = new HashMap<IValue,IValue>();
-
-	/* package */Map(NamedType mapType) throws FactTypeError {
-		super(mapType);
-		if (!mapType.getBaseType().isMapType()) {
-			throw new FactTypeError("named type is not a set:" + mapType);
-		}
-	}
 
 	/* package */Map(MapType mapType) {
 		super(mapType);
@@ -169,14 +161,7 @@ class Map extends WritableValue<IMapWriter> implements IMap {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Map tmp;
-		
-		if (getType() instanceof NamedType) {
-		    tmp =  new Map((NamedType) getType());
-		}
-		else {
-			tmp = new Map(getKeyType(), getValueType());
-		}
+		Map tmp = new Map(getKeyType(), getValueType());
 	
 		// we don't have to clone fList if this instance is not mutable anymore,
 		// otherwise we certainly do, to prevent modification of the original list.

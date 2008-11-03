@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 /**
  * A Tree Sort is an algebraic sort. A sort is produced by constructors, @see TreeType.
@@ -36,11 +37,6 @@ public class TreeSortType extends Type {
 	 */
 	public Type getBaseType() {
 		return this;
-	}
-
-	@Override
-	public String getTypeDescriptor() {
-            return fName;
 	}
 
 	@Override
@@ -92,4 +88,39 @@ public class TreeSortType extends Type {
 		return visitor.visitTreeSort(this);
 	}
 	
+	public IValue make(IValueFactory vf, int arg) {
+		TypeFactory tf = TypeFactory.getInstance();
+		TreeNodeType node = tf.signatureGetAnonymous(this);
+		
+		if (node != null) {
+			return node.make(vf, arg);
+		}
+		else {
+			throw new FactTypeError("This sort does not have an anonymous int constructor: " + this);
+		}
+	}
+	
+	public IValue make(IValueFactory vf, double arg) {
+		TypeFactory tf = TypeFactory.getInstance();
+		TreeNodeType node = tf.signatureGetAnonymous(this);
+		
+		if (node != null) {
+			return node.make(vf, arg);
+		}
+		else {
+			throw new FactTypeError("This sort does not have an anonymous double constructor: " + this);
+		}
+	}
+	
+	public IValue make(IValueFactory vf, String arg) {
+		TypeFactory tf = TypeFactory.getInstance();
+		TreeNodeType node = tf.signatureGetAnonymous(this);
+		
+		if (node != null) {
+			return node.make(vf, arg);
+		}
+		else {
+			throw new FactTypeError("This sort does not have an anonymous string constructor: " + this);
+		}
+	}
 }

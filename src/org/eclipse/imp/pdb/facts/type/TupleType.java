@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class TupleType extends Type implements Iterable<Type> {
     protected Type[] fFieldTypes;
@@ -125,11 +126,6 @@ public class TupleType extends Type implements Iterable<Type> {
     }
 
     @Override
-    public String getTypeDescriptor() {
-        return toString();
-    }
-
-    @Override
     public int hashCode() {
         if (fHashcode == -1) {
             fHashcode= 55501;
@@ -169,14 +165,14 @@ public class TupleType extends Type implements Iterable<Type> {
     @Override
     public String toString() {
         StringBuilder sb= new StringBuilder();
-        sb.append("<");
+        sb.append("tuple[");
         int idx= 0;
         for(Type elemType: fFieldTypes) {
             if (idx++ > 0)
-                sb.append(", ");
+                sb.append(",");
             sb.append(elemType.toString());
         }
-        sb.append(">");
+        sb.append("]");
         return sb.toString();
     }
 
@@ -202,4 +198,13 @@ public class TupleType extends Type implements Iterable<Type> {
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitTuple(this);
 	}
+
+	public IValue make(IValueFactory f) {
+		return f.tuple();
+	}
+
+	public IValue make(IValueFactory f, IValue... elems) {
+		return f.tuple(elems);
+	}
+	
 }

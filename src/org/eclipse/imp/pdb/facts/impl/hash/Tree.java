@@ -179,14 +179,7 @@ public class Tree extends Value implements ITree {
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Tree tmp;
-		
-		if (getType() instanceof NamedType) {
-			tmp =  new Tree(fFactory, (NamedType) getType());
-		}
-		else {
-			tmp = new Tree(fFactory, getTreeNodeType());
-		}
+		Tree tmp = new Tree(fFactory, getTreeNodeType());
 		
 		// no need to clone children, since IValues are immutable
 		tmp.fChildren = fChildren;

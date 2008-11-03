@@ -163,7 +163,7 @@ public class XMLReader implements IValueReader {
 					elements[i] = parse(children.item(i++), tuple.getFieldType(j));
 				}
 				
-				key = vf.tuple(elements, tuple.getArity());
+				key = vf.tuple(elements);
 			}
 			else {
 			  key = parse(children.item(i++), keyType);
@@ -176,7 +176,7 @@ public class XMLReader implements IValueReader {
 					elements[i] = parse(children.item(i++), tuple.getFieldType(j));
 				}
 				
-				value = vf.tuple(elements, tuple.getArity());
+				value = vf.tuple(elements);
 			}
 			else {
 			  value = parse(children.item(i++), valueType);
@@ -203,7 +203,7 @@ public class XMLReader implements IValueReader {
 			   elements[j] = parse(children.item(i++), fields.getFieldType(j));	
 			}
 				
-				writer.insert(vf.tuple(elements, fields.getArity()));
+				writer.insert(vf.tuple(elements));
 		}
 		
 		writer.done();
@@ -230,7 +230,7 @@ public class XMLReader implements IValueReader {
 				  elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
 				}
 				
-				writer.insert(vf.tuple(elements, tuple.getArity()));
+				writer.insert(vf.tuple(elements));
 			}
 		}
 		
@@ -258,7 +258,7 @@ public class XMLReader implements IValueReader {
 				  elements[j] = parse(children.item(i++), tuple.getFieldType(j));	
 				}
 				
-				writer.append(vf.tuple(elements, tuple.getArity()));
+				writer.append(vf.tuple(elements));
 			}
 		}
 		
@@ -315,7 +315,7 @@ public class XMLReader implements IValueReader {
 				  elements[tupleIndex] = parse(children.item(sourceIndex), tuple.getFieldType(tupleIndex));
 			    }
 				
-				values[targetIndex++] = vf.tuple(elements, nodeType.getArity());
+				values[targetIndex++] = vf.tuple(elements);
 			}
 			else {
 			  values[targetIndex++] = parse(children.item(sourceIndex++), childType);
@@ -332,17 +332,17 @@ public class XMLReader implements IValueReader {
 		TypeFactory tf = TypeFactory.getInstance();
 		XMLReader testReader = new XMLReader();
 		TreeSortType Boolean = tf.treeSortType("Boolean");
-		tf.treeType(Boolean, "true");
-		tf.treeType(Boolean, "false");
-		tf.treeType(Boolean, "and", Boolean, Boolean);
-		tf.treeType(Boolean, "or", tf.listType(Boolean));
-		tf.treeType(Boolean, "not", Boolean);
-		tf.treeType(Boolean, "twotups", tf.tupleTypeOf(Boolean, Boolean), tf.tupleTypeOf(Boolean, Boolean));
+		tf.treeNodeType(Boolean, "true");
+		tf.treeNodeType(Boolean, "false");
+		tf.treeNodeType(Boolean, "and", Boolean, Boolean);
+		tf.treeNodeType(Boolean, "or", tf.listType(Boolean));
+		tf.treeNodeType(Boolean, "not", Boolean);
+		tf.treeNodeType(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
 		
 		TreeSortType Name = tf.treeSortType("Name");
-		tf.treeType(Name, "name", tf.stringType());
-		tf.treeType(Boolean, "friends", tf.listType(Name));
-		tf.treeType(Boolean, "couples", tf.listType(tf.tupleTypeOf(Name, Name)));
+		tf.treeNodeType(Name, "name", tf.stringType());
+		tf.treeNodeType(Boolean, "friends", tf.listType(Name));
+		tf.treeNodeType(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 		String[] tests = {
 			"<true/>",
 			"<and><true/><false/></and>",

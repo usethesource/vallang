@@ -14,7 +14,6 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -26,11 +25,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         super(TypeFactory.getInstance().doubleType());
         fValue= value;
     }
-
-    /*package*/ DoubleValue(NamedType type, double d) {
-		super(type);
-		fValue = d;
-	}
 
 	public double getValue() {
         return fValue;

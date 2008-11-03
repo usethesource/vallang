@@ -12,7 +12,9 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public final class MapType extends Type {
     /*package*/ Type fKeyType;
@@ -69,12 +71,6 @@ public final class MapType extends Type {
     	return TypeFactory.getInstance().valueType();
     }
 
-    
-    @Override
-    public String getTypeDescriptor() {
-        return toString();
-    }
-
     @Override
     public int hashCode() {
         return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode();
@@ -94,11 +90,17 @@ public final class MapType extends Type {
 
     @Override
     public String toString() {
-        return "map[" + fKeyType.getTypeDescriptor() + "," + fValueType.getTypeDescriptor() + "]";
+        return "map[" + fKeyType + "," + fValueType + "]";
     }
     
     @Override
     public IValue accept(ITypeVisitor visitor) {
     	return visitor.visitMap(this);
     }
+    
+    public IMap make(IValueFactory f) {
+    	return f.map(fKeyType, fValueType);
+    }
+    
+    
 }

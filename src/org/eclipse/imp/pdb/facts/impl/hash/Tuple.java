@@ -17,7 +17,6 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -31,43 +30,10 @@ class Tuple extends Value implements ITuple {
     	super(type);
     }
 
-    /*package*/ Tuple(IValue[] elements) {
-	super(TypeFactory.getInstance().tupleTypeOf(elements));
+    /*package*/ Tuple(IValue... elements) {
+	super(TypeFactory.getInstance().tupleType(elements));
 		this.fElements= elements;
     }
-
-    Tuple(IValue a) {
-    	this(new IValue[] { a });
-    }
-
-    Tuple(IValue a, IValue b) {
-	this(new IValue[] { a, b });
-    }
-
-    Tuple(IValue a, IValue b, IValue c) {
-	this(new IValue[] { a, b, c });
-    }
-
-    Tuple(IValue a, IValue b, IValue c, IValue d) {
-	this(new IValue[] { a, b, c, d });
-    }
-
-    Tuple(IValue a, IValue b, IValue c, IValue d, IValue e) {
-	this(new IValue[] { a, b, c, d, e });
-    }
-
-    Tuple(IValue a, IValue b, IValue c, IValue d, IValue e, IValue f) {
-	this(new IValue[] { a, b, c, d, e, f });
-    }
-
-    Tuple(IValue a, IValue b, IValue c, IValue d, IValue e, IValue f, IValue g) {
-	this(new IValue[] { a, b, c, d, e, f, g });
-    }
-
-    public Tuple(NamedType type, IValue[] tmp) {
-		super(type);
-		this.fElements = tmp;
-	}
 
 	public int arity() {
         return fElements.length;

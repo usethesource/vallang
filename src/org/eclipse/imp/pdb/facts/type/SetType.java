@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public final class SetType extends Type {
     /*package*/ Type fEltType;
@@ -62,7 +63,7 @@ public final class SetType extends Type {
     	else if (other.isSetType()) {
     		SetType o = (SetType) other;
         	
-    		return TypeFactory.getInstance().setTypeOf(fEltType.lub(o.fEltType));
+    		return TypeFactory.getInstance().setType(fEltType.lub(o.fEltType));
     	}
     	else if (other.isRelationType()) {
     		RelationType o = (RelationType) other;
@@ -76,19 +77,13 @@ public final class SetType extends Type {
             // so if the set's element type was tuple, but the arity didn't match,
             // just return set[Value].
             // N.B.: fEltType.lub(o.fEltType) would compute Value, so the below is just an optimization.
-            return TypeFactory.getInstance().setTypeOf(TypeFactory.getInstance().valueType());
+            return TypeFactory.getInstance().setType(TypeFactory.getInstance().valueType());
     	}
     	else if (other.isNamedType()) {
     		return lub(((NamedType) other).getSuperType());
     	}
     	
     	return TypeFactory.getInstance().valueType();
-    }
-
-    
-    @Override
-    public String getTypeDescriptor() {
-        return toString();
     }
 
     @Override
@@ -110,11 +105,15 @@ public final class SetType extends Type {
 
     @Override
     public String toString() {
-        return "set[" + fEltType.getTypeDescriptor() + "]";
+        return "set[" + fEltType + "]";
     }
     
     @Override
     public IValue accept(ITypeVisitor visitor) {
     	return visitor.visitSet(this);
     }
+
+	public IValue make(IValueFactory f) {
+		return f.set(fEltType);
+	}
 }

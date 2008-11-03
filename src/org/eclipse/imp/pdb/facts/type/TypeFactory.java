@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class TypeFactory {
     private static TypeFactory sInstance = new TypeFactory();
@@ -229,6 +230,9 @@ public class TypeFactory {
                 if (fFieldTypes[i] != other.fFieldTypes[j]) {
                     return false;
                 }
+                if (fFieldNames[i] != null && !fFieldNames[i].equals(other.fFieldNames[i])) {
+                	return false;
+                }
             }
             return true;
         }
@@ -289,316 +293,11 @@ public class TypeFactory {
     }
     
     /**
-     * Construct a unary tuple type.
-     * @param fieldType1 the type of the single field in this tuple type
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(1);
-        fieldTypes[0]= fieldType1;
-        return getOrCreateTuple(1, fieldTypes);
-    }
-    
-    /**
-     * Construct a unary labeled tuple type.
-     * @param fieldType1 the type of the single field
-     * @param label1     the label of the single field
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, String label1) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(1);
-        fieldTypes[0]= fieldType1;
-        String[] fieldNames = sProtoTuple.getFieldNames(1);
-        fieldNames[0] = label1;
-        return getOrCreateTuple(1, fieldTypes, fieldNames);
-    }
-
-    /**
-     * Construct a binary tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param fieldType2 the type of the second field in this tuple type
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, Type fieldType2) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(2);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        return getOrCreateTuple(2, fieldTypes);
-    }
-    
-    /**
-     * Construct a binary labeled tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param label1     the label of the first field
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param label2     the label of the second field
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, String label1, Type fieldType2, String label2) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(2);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        String[] fieldNames = sProtoTuple.getFieldNames(2);
-        fieldNames[0] = label1;
-        fieldNames[1]=  label2;
-        return getOrCreateTuple(2, fieldTypes, fieldNames);
-    }
-
-    /**
-     * Construct a ternary tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param fieldType3 the type of the third field in this tuple type
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, Type fieldType2, Type fieldType3) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(3);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        return getOrCreateTuple(3, fieldTypes);
-    }
-    
-    /**
-     * Construct a ternary labeled tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param label1     the label of the first field
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param label2     the label of the second field
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param label3     the label of the third field
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, String label1, Type fieldType2, String label2,Type fieldType3, String label3) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(3);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        String[] fieldNames = sProtoTuple.getFieldNames(3);
-        fieldNames[0] = label1;
-        fieldNames[1]=  label2;
-        fieldNames[3]=  label3;
-        return getOrCreateTuple(3, fieldTypes, fieldNames);
-    }
-
-    /**
-     * Construct a 4-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(4);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        return getOrCreateTuple(4, fieldTypes);
-    }
-
-    /**
-     * Construct a labeled 4-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param label1     the label of the first field
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param label2     the label of the second field
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param label3     the label of the third field
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @param label4     the label of the fourth field
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, String label1, Type fieldType2, String label2,Type fieldType3, String label3, Type fieldType4, String label4) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(4);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        String[] fieldNames = sProtoTuple.getFieldNames(4);
-        fieldNames[0] = label1;
-        fieldNames[1]=  label2;
-        fieldNames[2]=  label3;
-        fieldNames[3]=  label4;
-        
-        return getOrCreateTuple(4, fieldTypes, fieldNames);
-    }
-    
-    /**
-     * Construct a 5-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @param fieldType5 the type of the fifth field in this tuple type
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4, Type fieldType5) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(5);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        fieldTypes[4]= fieldType5;
-        return getOrCreateTuple(5, fieldTypes);
-    }
-    
-    /**
-     * Construct a labeled 5-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param label1     the label of the first field
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param label2     the label of the second field
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param label3     the label of the third field
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @param label4     the label of the fourth field
-     * @param fieldType5 the type of the fifth field in this tuple type
-     * @param label5     the label of the fifth field
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, String label1, Type fieldType2, String label2,Type fieldType3, String label3, Type fieldType4, String label4, Type fieldType5, String label5) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(4);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        fieldTypes[4]= fieldType5;
-        String[] fieldNames = sProtoTuple.getFieldNames(4);
-        fieldNames[0] = label1;
-        fieldNames[1]=  label2;
-        fieldNames[2]=  label3;
-        fieldNames[3]=  label4;
-        fieldNames[4]=  label5;
-        
-        return getOrCreateTuple(5, fieldTypes, fieldNames);
-    }
-
-    /**
-     * Construct a 6-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @param fieldType5 the type of the fifth field in this tuple type
-     * @param fieldType6 the type of the sixth field in this tuple type
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4, Type fieldType5, Type fieldType6) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(6);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        fieldTypes[4]= fieldType5;
-        fieldTypes[5]= fieldType6;
-        return getOrCreateTuple(6, fieldTypes);
-    }
-    
-    /**
-     * Construct a labeled 6-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param label1     the label of the first field
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param label2     the label of the second field
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param label3     the label of the third field
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @param label4     the label of the fourth field
-     * @param fieldType5 the type of the fifth field in this tuple type
-     * @param label5     the label of the fifth field
-     * @param fieldType6 the type of the sixth field in this tuple type
-     * @param label6     the label of the sixth field
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, String label1, Type fieldType2, String label2,Type fieldType3, String label3, Type fieldType4, String label4, Type fieldType5, String label5, Type fieldType6, String label6) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(4);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        fieldTypes[4]= fieldType5;
-        fieldTypes[5]= fieldType6;
-        String[] fieldNames = sProtoTuple.getFieldNames(4);
-        fieldNames[0] = label1;
-        fieldNames[1]=  label2;
-        fieldNames[2]=  label3;
-        fieldNames[3]=  label4;
-        fieldNames[4]=  label5;
-        fieldNames[5]=  label6;
-        
-        return getOrCreateTuple(6, fieldTypes, fieldNames);
-    }
-
-    /**
-     * Construct a labeled 7-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @param fieldType5 the type of the fifth field in this tuple type
-     * @param fieldType6 the type of the sixth field in this tuple type
-     * @param fieldType7 the type of the seventh field in this tuple type
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4, Type fieldType5, Type fieldType6, Type fieldType7) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(7);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        fieldTypes[4]= fieldType5;
-        fieldTypes[5]= fieldType6;
-        fieldTypes[6]= fieldType7;
-        return getOrCreateTuple(7, fieldTypes);
-    }
-    
-    /**
-     * Construct a labeled 7-tuple type.
-     * @param fieldType1 the type of the first field in this tuple type
-     * @param label1     the label of the first field
-     * @param fieldType2 the type of the second field in this tuple type
-     * @param label2     the label of the second field
-     * @param fieldType3 the type of the third field in this tuple type
-     * @param label3     the label of the third field
-     * @param fieldType4 the type of the fourth field in this tuple type
-     * @param label4     the label of the fourth field
-     * @param fieldType5 the type of the fifth field in this tuple type
-     * @param label5     the label of the fifth field
-     * @param fieldType6 the type of the sixth field in this tuple type
-     * @param label6     the label of the sixth field
-     * @param fieldType7 the type of the seventh field in this tuple type
-     * @param label7     the label of the seventh field
-     * @return a tuple type
-     */
-    public TupleType tupleTypeOf(Type fieldType1, String label1, Type fieldType2, String label2,Type fieldType3, String label3, Type fieldType4, String label4, Type fieldType5, String label5, Type fieldType6, String label6, Type fieldType7, String label7) {
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(4);
-        fieldTypes[0]= fieldType1;
-        fieldTypes[1]= fieldType2;
-        fieldTypes[2]= fieldType3;
-        fieldTypes[3]= fieldType4;
-        fieldTypes[4]= fieldType5;
-        fieldTypes[5]= fieldType6;
-        fieldTypes[6]= fieldType7;
-        String[] fieldNames = sProtoTuple.getFieldNames(4);
-        fieldNames[0] = label1;
-        fieldNames[1]=  label2;
-        fieldNames[2]=  label3;
-        fieldNames[3]=  label4;
-        fieldNames[4]=  label5;
-        fieldNames[5]=  label6;
-        fieldNames[6]=  label7;
-        
-        return getOrCreateTuple(7, fieldTypes, fieldNames);
-    }
-
-    /**
      * Construct a tuple type.
      * @param fieldTypes a list of field types in order of appearance. The list is copied.
      * @return a tuple type
      */
-    public TupleType tupleTypeOf(List<Type> fieldTypes) {
+    public TupleType tupleType(List<Type> fieldTypes) {
         int N= fieldTypes.size();
         Type[] protoFieldTypes= sProtoTuple.getFieldTypes(N);
         for(int i=0; i < N; i++) {
@@ -609,10 +308,36 @@ public class TypeFactory {
     
     /**
      * Construct a tuple type.
+     * @param fieldTypes a list of field types in order of appearance.
+     * @return a tuple type
+     */
+    public TupleType tupleType(Type... fieldTypes) {
+        int N= fieldTypes.length;
+        Type[] protoFieldTypes= sProtoTuple.getFieldTypes(N);
+        for(int i=0; i < N; i++) {
+            protoFieldTypes[i]= fieldTypes[i];
+        }
+        return getOrCreateTuple(N, protoFieldTypes);
+    }
+    
+    public TupleType tupleType(Object... fieldTypesAndLabels) {
+    	int N= fieldTypesAndLabels.length;
+        int arity = N / 2;
+		Type[] protoFieldTypes= sProtoTuple.getFieldTypes(arity);
+        String[] protoFieldNames = sProtoTuple.getFieldNames(arity);
+        for(int i=0; i < N; i+=2) {
+            protoFieldTypes[i / 2]= (Type) fieldTypesAndLabels[i];
+            protoFieldNames[i / 2] = (String) fieldTypesAndLabels[i+1];
+        }
+        return getOrCreateTuple(arity, protoFieldTypes, protoFieldNames);
+    }
+    
+    /**
+     * Construct a tuple type.
      * @param fieldTypes an array of field types in order of appearance. The array is copied.
      * @return a tuple type
      */
-    public TupleType tupleTypeOf(IValue[] elements) {
+    public TupleType tupleType(IValue... elements) {
         int N= elements.length;
         Type[] fieldTypes= sProtoTuple.getFieldTypes(N);
         for(int i=0; i < N; i++) {
@@ -663,7 +388,7 @@ public class TypeFactory {
      * @param eltType the type of elements in the set
      * @return a set type
      */
-    public SetType setTypeOf(Type eltType) {
+    public SetType setType(Type eltType) {
         sProtoSet.fEltType= eltType;
         Type result= fCache.get(sProtoSet);
 
@@ -681,40 +406,12 @@ public class TypeFactory {
      * @return a relation type with the same field types that the tuple type has
      * @throws FactTypeError when type is not a tuple
      */
-    public RelationType relType(Type type) throws FactTypeError {
-    	if (type.isNamedType()) {
-    		if (((NamedType) type).getBaseType().isTupleType()) {
-    		  return relType((NamedType) type);
-    		}
+    public RelationType relType(NamedType type) throws FactTypeError {
+    	try {
+    	  return relType((TupleType) type.getBaseType());
     	}
-    	else if (type.isTupleType()) {
-    		return relType((TupleType) type);
-    	}
-    	
-    		
-    	throw new FactTypeError("This is not a tuple type: " + type);
-    }
-    
-    /**
-     * Construct a new relation type from a named tuple type.
-     * @param namedType the tuple type used to construct the field types
-     * @return 
-     * @throws FactTypeError
-     */
-    public RelationType relType(NamedType namedType) throws FactTypeError {
-    	if (namedType.getBaseType().isTupleType()) {
-    		 sProtoRelation.fTupleType= (TupleType) namedType.getBaseType();
-
-    	        Type result= fCache.get(sProtoRelation);
-
-    	        if (result == null) {
-    	            result= new RelationType(namedType);
-    	            fCache.put(result, result);
-    	        }
-    	        return (RelationType) result;
-    	}
-    	else {
-    		throw new FactTypeError("Type " + namedType + " is not a tuple type");
+    	catch (ClassCastException e) {
+    		throw new FactTypeError("Type " + type + " is not a tuple type.", e);
     	}
     }
     
@@ -737,89 +434,23 @@ public class TypeFactory {
     }
 
     /**
-     * Construct a singleton relation type.
-     * @param fieldType the type of the single field of the relation
+     * Construct a relation type.
+     * @param fieldTypes the types of the fields of the relation
      * @return a relation type
      */
-    public RelationType relTypeOf(Type fieldType) {
-        return relType(tupleTypeOf(fieldType));
-    }
-
-    /**
-     * Construct a  binary relation. 
-     * @param fieldType1 the type of the first field
-     * @param fieldType2 the type of the second field
-     * @return a relation type
-     */
-    public RelationType relTypeOf(Type fieldType1, Type fieldType2) {
-        return relType(tupleTypeOf(fieldType1, fieldType2));
-    }
-
-    /**
-     * Construct a  ternary relation. 
-     * @param fieldType1 the type of the first field
-     * @param fieldType2 the type of the second field
-     * @param fieldType3 the type of the third field
-     * @return a relation type
-     */
-    public RelationType relTypeOf(Type fieldType1, Type fieldType2, Type fieldType3) {
-        return relType(tupleTypeOf(fieldType1, fieldType2, fieldType3));
-    }
-
-    /**
-     * Construct a 4-relation. 
-     * @param fieldType1 the type of the first field
-     * @param fieldType2 the type of the second field
-     * @param fieldType3 the type of the third field
-     * @param fieldType4 the type of the fourth field
-     * @return a relation type
-     */
-    public RelationType relTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4) {
-        return relType(tupleTypeOf(fieldType1, fieldType2, fieldType3, fieldType4));
-    }
-
-    /**
-     * Construct a 5-relation. 
-     * @param fieldType1 the type of the first field
-     * @param fieldType2 the type of the second field
-     * @param fieldType3 the type of the third field
-     * @param fieldType4 the type of the fourth field
-     * @param fieldType5 the type of the fifth field
-     * @return a relation type
-     */
-    public RelationType relTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4, Type fieldType5) {
-        return relType(tupleTypeOf(fieldType1, fieldType2, fieldType3, fieldType4, fieldType5));
-    }
-
-    /**
-     * Construct a 6-relation. 
-     * @param fieldType1 the type of the first field
-     * @param fieldType2 the type of the second field
-     * @param fieldType3 the type of the third field
-     * @param fieldType4 the type of the fourth field
-     * @param fieldType5 the type of the fifth field
-     * @param fieldType6 the type of the sixth field
-     * @return a relation type
-     */
-    public RelationType relTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4, Type fieldType5, Type fieldType6) {
-        return relType(tupleTypeOf(fieldType1, fieldType2, fieldType3, fieldType4, fieldType5, fieldType6));
-    }
-
-    /**
-     * Construct a 7-relation. 
-     * @param fieldType1 the type of the first field
-     * @param fieldType2 the type of the second field
-     * @param fieldType3 the type of the third field
-     * @param fieldType4 the type of the fourth field
-     * @param fieldType5 the type of the fifth field
-     * @param fieldType6 the type of the sixth field
-     * @param fieldType7 the type of the seventh field
-     * @return a relation type
-     */
-    public RelationType relTypeOf(Type fieldType1, Type fieldType2, Type fieldType3, Type fieldType4, Type fieldType5, Type fieldType6, Type fieldType7) {
-        return relType(tupleTypeOf(fieldType1, fieldType2, fieldType3, fieldType4, fieldType5, fieldType6, fieldType7));
+    public RelationType relType(Type... fieldTypes) {
+        return relType(tupleType(fieldTypes));
     }
     
+    /**
+     * Construct a relation type.
+     * @param fieldTypes the types of the fields of the relation
+     * @return a relation type
+     */
+    public RelationType relType(Object... fieldTypesAndLabels) {
+        return relType(tupleType(fieldTypesAndLabels));
+    }
+
     /** 
      * Construct a named type. Named types are subtypes of types. Note that in the near future
      * they will be type aliases.
@@ -890,7 +521,7 @@ public class TypeFactory {
             result= nt;
         }
         
-        // redeclaration of tree sort types is harmless
+        // re-declaration of tree sort types is harmless
         
         return (TreeSortType) result;
     }
@@ -926,6 +557,30 @@ public class TypeFactory {
     }
     
     /**
+     * Construct a new node type. A node type is always a subtype of a TreeSortType. It
+     * represents an alternative constructor for a specific TreeSortType. 
+     * @param nodeType the type of node this constructor builds
+     * @param name     the name of the node type
+     * @param children the types of the children of the tree node type
+     * @return a tree node type
+     */
+    public TreeNodeType treeNodeType(TreeSortType nodeType, String name, Type... children ) { 
+    	return treeNodeType(nodeType, name, tupleType(children));
+    }
+    
+    /**
+     * Construct a new node type. A node type is always a subtype of a TreeSortType. It
+     * represents an alternative constructor for a specific TreeSortType. 
+     * @param nodeType the type of node this constructor builds
+     * @param name     the name of the node type
+     * @param children the types of the children of the tree node type
+     * @return a tree node type
+     */
+    public TreeNodeType treeNodeType(TreeSortType nodeType, String name, Object... childrenAndLabels ) { 
+    	return treeNodeType(nodeType, name, tupleType(childrenAndLabels));
+    }
+    
+    /**
      * Construct a special kind of tree node. This tree node does not have
      * a name, always has exactly one child. It is used for serialized values
      * where one alternative for a TreeSortType does not have a wrapping node name.
@@ -939,249 +594,8 @@ public class TypeFactory {
      */
     public TreeNodeType anonymousTreeType(TreeSortType sort, String string,
 			Type argType, String label) {
-    	return treeNodeType(sort, null, TypeFactory.getInstance().tupleTypeOf(argType, label));
+    	return treeNodeType(sort, null, TypeFactory.getInstance().tupleType(argType, label));
 	}
-
-    /**
-     * Construct a nullary tree node type 
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleEmpty());
-    }
-    
-    /**
-     * Construct a tree node type with 1 labeled child type
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the  child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1));
-    	
-    }
-   
-    /**
-     * Construct a tree node type with 1 labeled child type
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the  child
-     * @param label1   the label of the  child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, String label1) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, label1));
-    }
-    
-    /**
-     * Construct a tree node type with 2 children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param arg2     the type of the second child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, Type arg2) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, arg2));
-    	
-    }
-   
-    /**
-     * Construct a tree node type with 2 labeled children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param label1   the label of the first child
-     * @param arg2     the type of the second child
-     * @param label2   the label of the first child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, String label1, Type arg2, String label2) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, label1, arg2, label2));
-    }
-    
-    /**
-     * Construct a tree node type with 3 children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param arg2     the type of the second child
-     * @param arg3     the type of the third child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, Type arg2, Type arg3) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, arg2, arg3));
-    	
-    }
-   
-    /**
-     * Construct a tree node type with 3 labeled children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param label1   the label of the first child
-     * @param arg2     the type of the second child
-     * @param label2   the label of the first child
-     * @param arg3     the type of the third child
-     * @param label3   the label of the third child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, String label1, Type arg2, String label2, Type arg3, String label3) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, label1, arg2, label2, arg3, label3));
-    }
-    
-    /**
-     * Construct a tree node type with 4  children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param arg2     the type of the second child
-     * @param arg3     the type of the third child
-     * @param arg4     the type of the fourth child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, Type arg2, Type arg3, Type arg4) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, arg2, arg3, arg4));
-    	
-    }
-   
-    /**
-     * Construct a tree node type with 4 labeled children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param label1   the label of the first child
-     * @param arg2     the type of the second child
-     * @param label2   the label of the first child
-     * @param arg3     the type of the third child
-     * @param label3   the label of the third child
-     * @param arg4     the type of the fourth child
-     * @param label4   the label of the fourth child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, String label1, Type arg2, String label2, Type arg3, String label3, Type arg4, String label4) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, label1, arg2, label2, arg3, label3, arg4, label4));
-    }
-    
-    /**
-     * Construct a tree node type with 5 children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param arg2     the type of the second child
-     * @param arg3     the type of the third child
-     * @param arg4     the type of the fourth child
-     * @param arg5     the type of the fifth child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, Type arg2, Type arg3, Type arg4, Type arg5) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, arg2, arg3, arg4, arg5));
-    	
-    }
-   
-    /**
-     * Construct a tree node type with 5 labeled children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param label1   the label of the first child
-     * @param arg2     the type of the second child
-     * @param label2   the label of the first child
-     * @param arg3     the type of the third child
-     * @param label3   the label of the third child
-     * @param arg4     the type of the fourth child
-     * @param label4   the label of the fourth child
-     * @param arg5     the type of the fifth child
-     * @param label5   the label of the fifth child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, String label1, Type arg2, String label2, Type arg3, String label3, Type arg4, String label4, Type arg5, String label5) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, label1, arg2, label2, arg3, label3, arg4, label4, arg5, label5));
-    }
-    
-    /**
-     * Construct a tree node type with 6 children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param arg2     the type of the second child
-     * @param arg3     the type of the third child
-     * @param arg4     the type of the fourth child
-     * @param arg5     the type of the fifth child
-     * @param arg6     the type of the sixth child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, Type arg2, Type arg3, Type arg4, Type arg5, Type arg6) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, arg2, arg3, arg4, arg5));
-    	
-    }
-   
-    /**
-     * Construct a tree node type with 6 labeled children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param label1   the label of the first child
-     * @param arg2     the type of the second child
-     * @param label2   the label of the first child
-     * @param arg3     the type of the third child
-     * @param label3   the label of the third child
-     * @param arg4     the type of the fourth child
-     * @param label4   the label of the fourth child
-     * @param arg5     the type of the fifth child
-     * @param label5   the label of the fifth child
-     * @param arg6     the type of the sixth child
-     * @param label6   the label of the sixth child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, String label1, Type arg2, String label2, Type arg3, String label3, Type arg4, String label4, Type arg5, String label5, Type arg6, String label6) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, label1, arg2, label2, arg3, label3, arg4, label4, arg5, label5, arg6, label6));
-    }
-    
-    /**
-     * Construct a tree node type with 7  children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param arg2     the type of the second child
-     * @param arg3     the type of the third child
-     * @param arg4     the type of the fourth child
-     * @param arg5     the type of the fifth child
-     * @param arg6     the type of the sixth child
-     * @param arg7     the type of the seventh child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, Type arg2, Type arg3, Type arg4, Type arg5, Type arg6, Type arg7) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, arg2, arg3, arg4, arg5));
-    	
-    }
-   
-    /**
-     * Construct a tree node type with 7 labeled children types
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the TreeNodeType
-     * @param arg1     the type of the first child
-     * @param label1   the label of the first child
-     * @param arg2     the type of the second child
-     * @param label2   the label of the first child
-     * @param arg3     the type of the third child
-     * @param label3   the label of the third child
-     * @param arg4     the type of the fourth child
-     * @param label4   the label of the fourth child
-     * @param arg5     the type of the fifth child
-     * @param label5   the label of the fifth child
-     * @param arg6     the type of the sixth child
-     * @param label6   the label of the sixth child
-     * @param arg7     the type of the seventh child
-     * @param label7   the label of the seventh child
-     * @return a tree node type
-     */
-    public TreeNodeType treeType(TreeSortType nodeType, String name, Type arg1, String label1, Type arg2, String label2, Type arg3, String label3, Type arg4, String label4, Type arg5, String label5, Type arg6, String label6, Type arg7, String label7) {
-    	return treeNodeType(nodeType, name, TypeFactory.getInstance().tupleTypeOf(arg1, label1, arg2, label2, arg3, label3, arg4, label4, arg5, label5, arg6, label6, arg7, label7));
-    }
 
     /**
      * Lookup a NamedType that was declared before by name
@@ -1350,7 +764,7 @@ public class TypeFactory {
     	}
     	
     	if (onType.isRelationType()) {
-    		SetType tmp = setTypeOf(((RelationType) onType).getFieldTypes());
+    		SetType tmp = setType(((RelationType) onType).getFieldTypes());
     		localAnnotations = fAnnotations.get(tmp);
     		if (localAnnotations != null) {
     		  result.putAll(localAnnotations);
@@ -1437,6 +851,16 @@ public class TypeFactory {
 		return true;
 	}
 
-	
-	
+	/**
+	 * Construct a type that is represented by this value. Will only work for values
+	 * that have been constructed using {@link TypeDescriptorFactory#toTypeDescriptor(IValueFactory, Type)},
+	 * or something that exactly mimicked it.
+	 * 
+	 * @param descriptor a value that represents a type
+	 * @return a type that was represented by the descriptor
+	 * @throws TypeDeclarationException if the descriptor is not a valid type descriptor
+	 */
+	Type fromDescriptor(IValue typeDescriptor) throws TypeDeclarationException {
+		return TypeDescriptorFactory.getInstance().fromTypeDescriptor(typeDescriptor);
+	}
 }

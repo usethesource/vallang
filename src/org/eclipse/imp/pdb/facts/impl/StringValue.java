@@ -14,7 +14,6 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -29,14 +28,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         }
         fValue= value;
     }
-
-    /*package*/ StringValue(NamedType type, String s) {
-		super(type);
-        if (s == null) {
-            throw new IllegalArgumentException("Null string value");
-        }
-		fValue = s;
-	}
 
 	public String getValue() {
         return fValue;

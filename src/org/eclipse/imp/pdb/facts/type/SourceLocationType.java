@@ -12,7 +12,9 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 
 public class SourceLocationType  extends Type {
@@ -42,11 +44,6 @@ public class SourceLocationType  extends Type {
         return TypeFactory.getInstance().valueType();
     }
 
-    @Override
-    public String getTypeDescriptor() {
-        return toString();
-    }
-
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -68,6 +65,11 @@ public class SourceLocationType  extends Type {
     @Override
     public IValue accept(ITypeVisitor visitor) {
     	return visitor.visitSourceLocation(this);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, String path, ISourceRange range) {
+    	return f.sourceLocation(path, range);
     }
     
 }

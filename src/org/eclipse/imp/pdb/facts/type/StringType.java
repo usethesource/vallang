@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class StringType extends Type {
     private final static StringType sInstance= new StringType();
@@ -42,11 +43,6 @@ public class StringType extends Type {
         return TypeFactory.getInstance().valueType();
     }
 
-    @Override
-    public String getTypeDescriptor() {
-        return toString();
-    }
-
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -69,4 +65,10 @@ public class StringType extends Type {
     public IValue accept(ITypeVisitor visitor) {
     	return visitor.visitString(this);
     }
+    
+    @Override
+    public IValue make(IValueFactory f, String arg) {
+    	return f.string(arg);
+    }
+
 }

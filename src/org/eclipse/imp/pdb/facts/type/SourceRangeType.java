@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class SourceRangeType extends Type {
     private static final SourceRangeType sInstance= new SourceRangeType();
@@ -28,11 +29,6 @@ public class SourceRangeType extends Type {
     	return true;
     }
     
-    @Override
-    public String getTypeDescriptor() {
-        return toString();
-    }
-
     @Override
     public boolean isSubtypeOf(Type other) {
         return other == this || other.isValueType();
@@ -54,5 +50,11 @@ public class SourceRangeType extends Type {
     @Override
     public IValue accept(ITypeVisitor visitor) {
     	return visitor.visitSourceRange(this);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, int startOffset, int length,
+    		int startLine, int endLine, int startCol, int endCol) {
+    	return f.sourceRange(startOffset, length, startLine, endLine, startCol, endCol);
     }
 }

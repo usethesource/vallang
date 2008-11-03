@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.WritableValue;
 import org.eclipse.imp.pdb.facts.impl.WriterBase;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
@@ -84,19 +83,12 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 
 	HashSet<IValue> fSet = new HashSet<IValue>();
 
-	/* package */Set(NamedType setType) throws FactTypeError {
-		super(setType);
-		if (!setType.getBaseType().isSetType()) {
-			throw new FactTypeError("named type is not a set:" + setType);
-		}
-	}
-
 	/* package */Set(SetType setType) {
 		super(setType);
 	}
 	
 	/* package */Set(Type eltType) {
-		super(TypeFactory.getInstance().setTypeOf(eltType));
+		super(TypeFactory.getInstance().setType(eltType));
 	}
 
 	@Override
@@ -195,14 +187,14 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ ");
+		sb.append("{");
 		int idx = 0;
 		for (IValue a : this) {
 			if (idx++ > 0)
-				sb.append(",\n  ");
+				sb.append(",");
 			sb.append(a.toString());
 		}
-		sb.append("\n}");
+		sb.append("}");
 		return sb.toString();
 	}
 
@@ -229,7 +221,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 
 	public IRelation product(IRelation r) {
 		TypeFactory f = TypeFactory.getInstance();
-		RelationType t1 = f.relType(f.tupleTypeOf(getElementType()));
+		RelationType t1 = f.relType(f.tupleType(getElementType()));
 		RelationType relType = t1.product((RelationType) r.getBaseType());
 		IRelation result = new Relation(relType);
 		int width = relType.getArity();
@@ -264,7 +256,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 	}
 	
 	public IRelation product(ISet set) {
-		TupleType resultType = TypeFactory.getInstance().tupleTypeOf(getElementType(), set.getElementType());
+		TupleType resultType = TypeFactory.getInstance().tupleType(getElementType(), set.getElementType());
 		IRelation result = new Relation(resultType);
 		IRelationWriter w = result.getWriter();
 
@@ -301,7 +293,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 		SetType ot = (SetType) other.getType().getBaseType();
 		Type eltType = t.getElementType().lub(ot.getElementType());
 		
-		return TypeFactory.getInstance().setTypeOf(eltType);
+		return TypeFactory.getInstance().setType(eltType);
 	}
 	
 	private RelationType checkRelation(IRelation o) throws FactTypeError {
@@ -367,14 +359,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Set tmp;
-		
-		if (getType() instanceof NamedType) {
-		    tmp =  new Set((NamedType) getType());
-		}
-		else {
-			tmp = new Set((SetType) getType());
-		}
+		Set tmp = new Set((SetType) getType());
 	
 		// we don't have to clone fList if this instance is not mutable anymore,
 		// otherwise we certainly do, to prevent modification of the original list.

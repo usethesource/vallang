@@ -33,21 +33,21 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class TypeDescriptorFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
 	private TreeSortType typeSort = tf.treeSortType("Type");
-	private TreeNodeType doubleType = tf.treeType(typeSort, "double");
-	private TreeNodeType integerType = tf.treeType(typeSort, "int");
-	private TreeNodeType listType = tf.treeType(typeSort, "list", typeSort, "element");
-	private TreeNodeType mapType = tf.treeType(typeSort, "map", typeSort, "key", typeSort, "value");
-	private TreeNodeType namedType = tf.treeType(typeSort, "named", typeSort, "super");
-	private TreeNodeType objectType = tf.treeType(typeSort, "object", tf.stringType(), "name");
-	private TreeNodeType relationType = tf.treeType(typeSort, "relation", tf.listType(typeSort), "fields");
-	private TreeNodeType setType = tf.treeType(typeSort, "set", typeSort, "element");
-	private TreeNodeType sourceLocationType = tf.treeType(typeSort, "sourceLocation");
-	private TreeNodeType sourceRangeType = tf.treeType(typeSort, "sourceRange");
-	private TreeNodeType stringType = tf.treeType(typeSort, "string");
-	private TreeNodeType treeNodeType = tf.treeType(typeSort, "tree", typeSort, "sort", tf.stringType(), "name", tf.listType(typeSort), "children");
-	private TreeNodeType treeSortType = tf.treeType(typeSort, "sort", tf.stringType(), "name");
-	private TreeNodeType tupleType = tf.treeType(typeSort, "tuple", tf.listType(typeSort), "fields");
-	private TreeNodeType valueType = tf.treeType(typeSort, "value");
+	private TreeNodeType doubleType = tf.treeNodeType(typeSort, "double");
+	private TreeNodeType integerType = tf.treeNodeType(typeSort, "int");
+	private TreeNodeType listType = tf.treeNodeType(typeSort, "list", typeSort, "element");
+	private TreeNodeType mapType = tf.treeNodeType(typeSort, "map", typeSort, "key", typeSort, "value");
+	private TreeNodeType namedType = tf.treeNodeType(typeSort, "named", typeSort, "super");
+	private TreeNodeType objectType = tf.treeNodeType(typeSort, "object", tf.stringType(), "name");
+	private TreeNodeType relationType = tf.treeNodeType(typeSort, "relation", tf.listType(typeSort), "fields");
+	private TreeNodeType setType = tf.treeNodeType(typeSort, "set", typeSort, "element");
+	private TreeNodeType sourceLocationType = tf.treeNodeType(typeSort, "sourceLocation");
+	private TreeNodeType sourceRangeType = tf.treeNodeType(typeSort, "sourceRange");
+	private TreeNodeType stringType = tf.treeNodeType(typeSort, "string");
+	private TreeNodeType treeNodeType = tf.treeNodeType(typeSort, "tree", typeSort, "sort", tf.stringType(), "name", tf.listType(typeSort), "children");
+	private TreeNodeType treeSortType = tf.treeNodeType(typeSort, "sort", tf.stringType(), "name");
+	private TreeNodeType tupleType = tf.treeNodeType(typeSort, "tuple", tf.listType(typeSort), "fields");
+	private TreeNodeType valueType = tf.treeNodeType(typeSort, "value");
 	
 	private static class InstanceHolder {
 		public static TypeDescriptorFactory sInstance = new TypeDescriptorFactory();
@@ -55,7 +55,7 @@ public class TypeDescriptorFactory {
 	
 	private TypeDescriptorFactory() {}
 
-	public TypeDescriptorFactory getInstance() {
+	public static TypeDescriptorFactory getInstance() {
 		return InstanceHolder.sInstance;
 	}
 	
@@ -127,11 +127,11 @@ public class TypeDescriptorFactory {
 					fieldTypes.add(result.pop());
 				}
 				
-				result.push(tf.relType(tf.tupleTypeOf(fieldTypes)));
+				result.push(tf.relType(tf.tupleType(fieldTypes)));
 			}
 			else if (node == setType) {
 				o.get("element").accept(this);
-				result.push(tf.setTypeOf(result.pop()));
+				result.push(tf.setType(result.pop()));
 			}
 			else if (node == sourceLocationType) {
 				result.push(tf.sourceLocationType());
@@ -156,7 +156,7 @@ public class TypeDescriptorFactory {
 					childrenTypes.add(result.pop());
 				}
 				
-				result.push(tf.treeNodeType(sort, name, tf.tupleTypeOf(childrenTypes)));
+				result.push(tf.treeNodeType(sort, name, tf.tupleType(childrenTypes)));
 			}
 			else if (node == treeSortType) {
 				String name = ((IString) o.get("name")).getValue();
@@ -171,7 +171,7 @@ public class TypeDescriptorFactory {
 					fieldTypes.add(result.pop());
 				}
 				
-				result.push(tf.tupleTypeOf(fieldTypes));	
+				result.push(tf.tupleType(fieldTypes));	
 			}
 			else if (node == valueType) {
 				result.push(tf.valueType());

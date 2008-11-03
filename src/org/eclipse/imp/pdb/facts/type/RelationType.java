@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 
 public class RelationType extends Type {
@@ -26,21 +27,6 @@ public class RelationType extends Type {
         fTupleType= tupleType;
     }
     
-    /**
-     * Create a new Relation type from a named tupled type
-     * @param namedType that must be a tuple
-     * @throws FactTypeError
-     */
-    /*package*/ RelationType(NamedType namedType) throws FactTypeError {
-    	Type baseType = namedType.getBaseType();
-    	
-    	if (!baseType.isTupleType()) {
-    		throw new FactTypeError("Type " + namedType + " is not a tuple type");
-    	}
-    	
-    	fTupleType = (TupleType) baseType;
-    }
-
     public int getArity() {
     	return fTupleType.getArity();
     }
@@ -105,7 +91,7 @@ public class RelationType extends Type {
             // so if the set's element type was tuple, but the arity didn't match,
             // just return set[lub].
             // N.B.: fTupleType.lub(eltType) would compute Value, so the below is just an optimization.
-        	return TypeFactory.getInstance().setTypeOf(lub);
+        	return TypeFactory.getInstance().setType(lub);
     	}
     	else if (other.isRelationType()) {
     		RelationType o = (RelationType) other;
@@ -115,18 +101,13 @@ public class RelationType extends Type {
     			return TypeFactory.getInstance().relType((TupleType) lub);
     		}
     		
-    		return TypeFactory.getInstance().setTypeOf(lub);
+    		return TypeFactory.getInstance().setType(lub);
     	}
     	else if (other.isNamedType()) {
     		return lub(((NamedType) other).getSuperType());
     	}
     	
     	return TypeFactory.getInstance().valueType();
-    }
-
-    @Override
-    public String getTypeDescriptor() {
-        return toString();
     }
 
     @Override
@@ -204,11 +185,15 @@ public class RelationType extends Type {
 	}
 	
 	public SetType toSet() {
-		return TypeFactory.getInstance().setTypeOf(fTupleType);
+		return TypeFactory.getInstance().setType(fTupleType);
 	}
 	
 	@Override
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitRelationType(this);
+	}
+
+	public IValue make(IValueFactory f) {
+		return f.relation(fTupleType);
 	}
 }

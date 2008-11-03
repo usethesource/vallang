@@ -29,11 +29,6 @@ public class ValueType extends Type {
     }
     
     @Override
-    public String getTypeDescriptor() {
-        return toString();
-    }
-
-    @Override
     public boolean isSubtypeOf(Type other) {
         return other == this;
     }

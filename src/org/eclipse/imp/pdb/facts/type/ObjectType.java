@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class ObjectType<T> extends Type {
     /*package*/ Class<T> fClass;
@@ -21,11 +22,6 @@ public class ObjectType<T> extends Type {
     	fClass = clazz;
 	}
     
-	@Override
-	public String getTypeDescriptor() {
-		return toString();
-	}
-
 	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (other == TypeFactory.getInstance().valueType()) {
@@ -81,5 +77,14 @@ public class ObjectType<T> extends Type {
 	@Override
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitObject(this);
+	}
+	
+	public <U> IValue make(IValueFactory f, U arg) {
+		if (fClass.equals(arg.getClass())) {
+	     return f.object(arg);
+		}
+		else {
+			throw new FactTypeError("This type can only wrap objects of class: " + fClass.getCanonicalName());
+		}
 	}
 }

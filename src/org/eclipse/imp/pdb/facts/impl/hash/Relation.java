@@ -91,14 +91,6 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 
 	/*package*/ java.util.HashSet<ITuple> fTuples = new HashSet<ITuple>();
 
-	/* package */Relation(NamedType relType) throws FactTypeError {
-		super(relType);
-		Type baseType = relType.getBaseType();
-		if (!baseType.isRelationType()) {
-			throw new FactTypeError("This is not a relation type:" + relType);
-		}
-	}
-
 	/* package */Relation(RelationType relType) {
 		super(relType);
 	}
@@ -177,7 +169,7 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 	}
 	
 	public IRelation product(ISet set) {
-		TupleType singleton = TypeFactory.getInstance().tupleTypeOf(set.getElementType());
+		TupleType singleton = TypeFactory.getInstance().tupleType(set.getElementType());
 		RelationType resultType = ((RelationType) getType().getBaseType()).product(singleton);
 		IRelation result = new Relation(resultType);
 		int width = resultType.getArity();
@@ -390,14 +382,14 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ ");
+		sb.append("{");
 		int idx = 0;
 		for (ITuple tuple : fTuples) {
 			if (idx++ > 0)
-				sb.append(",\n  ");
+				sb.append(",");
 			sb.append(tuple.toString());
 		}
-		sb.append("\n}");
+		sb.append("}");
 		return sb.toString();
 	}
 
@@ -512,7 +504,7 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 			result = result.lub(type.getFieldType(i));
 		}
 		
-		return TypeFactory.getInstance().setTypeOf(result);
+		return TypeFactory.getInstance().setType(result);
 	}
 	
 	@Override
@@ -534,14 +526,7 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Relation tmp;
-		
-		if (getType() instanceof NamedType) {
-		    tmp =  new Relation((NamedType) getType());
-		}
-		else {
-			tmp = new Relation((RelationType) getType());
-		}
+		Relation tmp = new Relation((RelationType) getType());
 	
 		// we don't have to clone fList if this instance is not mutable anymore,
 		// otherwise we certainly do, to prevent modification of the original list.

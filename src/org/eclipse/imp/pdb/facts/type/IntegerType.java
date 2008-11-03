@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class IntegerType extends Type {
     private final static IntegerType sInstance= new IntegerType();
@@ -47,11 +48,6 @@ public class IntegerType extends Type {
 		}
 	}
 
-    @Override
-    public String getTypeDescriptor() {
-        return toString();
-    }
-
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -73,5 +69,9 @@ public class IntegerType extends Type {
     @Override
     public IValue accept(ITypeVisitor visitor) {
     	return visitor.visitInteger(this);
+    }
+    
+    public IValue make(IValueFactory f, int arg) {
+    	return f.integer(arg);
     }
 }

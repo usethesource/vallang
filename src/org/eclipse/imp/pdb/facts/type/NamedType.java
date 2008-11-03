@@ -12,7 +12,10 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class NamedType extends Type {
 	/* package */ String fName;
@@ -41,11 +44,6 @@ public class NamedType extends Type {
 			baseType = ((NamedType) baseType).getSuperType();
 		}
 		return baseType;
-	}
-
-	@Override
-	public String getTypeDescriptor() {
-            return "<" + fName +  " = " + fSuperType.toString() + ">";
 	}
 
 	@Override
@@ -96,5 +94,46 @@ public class NamedType extends Type {
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitNamed(this);
 	}
-
+	
+	public IInteger make(IValueFactory f, int arg) {
+		if (getBaseType().isIntegerType()) {
+			return f.integer(arg);
+		}
+		else {
+			throw new FactTypeError("This is not a subtype of integer: " + toString());
+		}
+	}
+	
+	public IValue make(IValueFactory f) {
+		return getBaseType().make(f);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, IValue first, IValue... rest) {
+		Type type = first.getType();
+		for (IValue elem : rest) {
+			type = type.lub(elem.getType());
+		}
+		return type.getBaseType().make(f, first, rest);
+	}
+	
+	public <T> IValue make(IValueFactory f, T arg) {
+		return getBaseType().make(f, arg);
+	}
+	
+	public IValue make(IValueFactory f, String path, ISourceRange range) {
+	    return getBaseType().make(f, path, range);
+	}
+	
+	public IValue make(IValueFactory f,int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+		return getBaseType().make(f, startOffset, length, startLine, endLine, startCol, endCol);
+	}
+	
+	public IValue make(IValueFactory f, double arg) {
+		return getBaseType().make(f, arg);
+	}
+	
+	public IValue make(IValueFactory f, String arg) {
+		return getBaseType().make(f, arg);
+	}
 }

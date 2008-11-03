@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class ListType extends Type {
 	/*package*/ Type fEltType;
@@ -30,11 +31,6 @@ public class ListType extends Type {
 		return true;
 	}
 	
-	@Override
-	public String getTypeDescriptor() {
-		return toString();
-	}
-
 	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (this == other || other.isValueType()) {
@@ -89,5 +85,9 @@ public class ListType extends Type {
 	@Override
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitList(this);
+	}
+	
+	public IValue make(IValueFactory f) {
+		return f.list(fEltType);
 	}
 }

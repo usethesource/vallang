@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 /**
  * A tree type is a type of tree node, defined by its name, the types of
@@ -22,7 +23,7 @@ import org.eclipse.imp.pdb.facts.IValue;
  * Address ::= dutchAddress(Street, City, Postcode)
  * Address ::= usAddress(Street, City, State, PostalCode)
  * 
- * Here Address is the TreeSortType, the type a tree produces, dutchAddress
+ * Here Address is the TreeSortType, the type a tree produces. dutchAddress
  * and usAddress are the names of the node types and the other capitalized names
  * are the types of the children.
  * 
@@ -42,27 +43,6 @@ public class TreeNodeType extends Type {
 		fNodeType = nodeType;
 	}
 	
-	@Override
-	public String getTypeDescriptor() {
-	  StringBuilder builder = new StringBuilder();
-	  builder.append(fNodeType.getTypeDescriptor());
-	  builder.append("::=");
-	  builder.append(fName);
-	  builder.append("(");
-	  
-	  Iterator<Type> iter = fChildrenTypes.iterator();
-	  while(iter.hasNext()) {
-		  builder.append(iter.next().getTypeDescriptor());
-		  
-		  if (iter.hasNext()) {
-			  builder.append(",");
-		  }
-	  }
-	  builder.append(")");
-	  
-	  return builder.toString();
-	}
-
 	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (other == this) {
@@ -113,7 +93,23 @@ public class TreeNodeType extends Type {
 	
 	@Override
 	public String toString() {
-		return getTypeDescriptor();
+		StringBuilder builder = new StringBuilder();
+		builder.append(fNodeType);
+		builder.append("::=");
+		builder.append(fName);
+		builder.append("(");
+
+		Iterator<Type> iter = fChildrenTypes.iterator();
+		while(iter.hasNext()) {
+			builder.append(iter.next());
+
+			if (iter.hasNext()) {
+				builder.append(",");
+			}
+		}
+		builder.append(")");
+
+		return builder.toString();
 	}
 	
 	public int getArity() {
@@ -148,5 +144,30 @@ public class TreeNodeType extends Type {
 	@Override
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitTreeNode(this);
+	}
+
+	@Override
+	public IValue make(IValueFactory f) {
+		return f.tree(this);
+	}
+	
+	@Override
+	public IValue make(IValueFactory vf, int arg) {
+		return vf.tree(this, vf.integer(arg));
+	}
+	
+	@Override
+	public IValue make(IValueFactory vf, double arg) {
+		return vf.tree(this, vf.dubble(arg));
+	}
+	
+	@Override
+	public IValue make(IValueFactory vf, String arg) {
+		return vf.tree(this, vf.string(arg));
+	}
+	
+	@Override
+	public IValue make(IValueFactory vf, IValue... args) {
+		return vf.tree(this, args);
 	}
 }

@@ -14,7 +14,6 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -42,16 +41,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		fStartCol = startCol;
 		fEndCol = endCol;
 
-	}
-
-	public SourceRangeValue(NamedType type, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
-		super(type);
-		fStartOffset = startOffset;
-		fLength = length;
-		fStartLine = startLine;
-		fEndLine = endLine;
-		fStartCol = startCol;
-		fEndCol = endCol;
 	}
 
 	public int getEndColumn() {
@@ -109,11 +98,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		if (getType() instanceof NamedType) {
-		  return new SourceRangeValue((NamedType) getType(), fStartOffset, fLength, fStartLine, fEndLine, fStartCol, fEndCol );
-		}
-		else {
 	      return new SourceRangeValue(fStartOffset, fLength, fStartLine, fEndLine, fStartCol, fEndCol );
-		}
 	}
 }

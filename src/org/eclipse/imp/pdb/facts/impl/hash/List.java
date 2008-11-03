@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.impl.WritableValue;
 import org.eclipse.imp.pdb.facts.impl.WriterBase;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -94,18 +93,6 @@ public class List extends WritableValue<IListWriter> implements IList {
 		this.fEltType = eltType;
 	}
 	
-	/* package */List(NamedType namedType) throws FactTypeError {
-		super(namedType);
-		
-		if (!namedType.getBaseType().isListType()) {
-			throw new FactTypeError("Type " + namedType + " is not a list");
-		}
-		
-		ListType base = (ListType) namedType.getBaseType();
-		
-		this.fEltType = base.getElementType();
-	}
-
 	public Type getElementType() {
 		return fEltType;
 	}
@@ -207,14 +194,7 @@ public class List extends WritableValue<IListWriter> implements IList {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		List tmp;
-		
-		if (getType() instanceof NamedType) {
-		    tmp =  new List((NamedType) getType());
-		}
-		else {
-			tmp = new List(getElementType());
-		}
+		List tmp = new List(getElementType());
 	
 		// we don't have to clone fList if this instance is not mutable anymore,
 		// otherwise we certainly do, to prevent modification of the original list.
