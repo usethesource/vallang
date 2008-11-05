@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -137,5 +138,13 @@ public class ValueType extends Type {
     	TreeSortType sort = tf.treeSortType("org.eclipse.imp.pdb.values.AnonymousDefault");
     	TreeNodeType node = tf.anonymousTreeType(sort, name, childrenTypes, "children");
     	return node.make(f, childrenTypes.make(f, children));
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public IListWriter writer(IValueFactory f) {
+    	// if we don't care what kind of container to make
+    	// we make a list of values
+    	return (IListWriter) f.listWriter(TypeFactory.getInstance().valueType());
     }
 }

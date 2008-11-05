@@ -20,13 +20,9 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -153,8 +149,7 @@ public class XMLReader implements IValueReader {
 		Type keyType = mapType.getKeyType();
 		Type valueType = mapType.getValueType();
 		NodeList children = node.getChildNodes();
-		IMap map = vf.map(keyType, valueType);
-		IMapWriter writer = map.getWriter();
+		IMapWriter writer = mapType.writer(vf);
 		
 		for (int i = 0; i + 1 < children.getLength(); ) {
 			IValue key, value;
@@ -188,18 +183,18 @@ public class XMLReader implements IValueReader {
 			writer.put(key, value);
 		}
 		
-		writer.done();
-		return vf.tree(nodeType, map);
+		
+		return vf.tree(nodeType, writer.done());
 	}
 
 	private IValue parseRelation(Node node, TreeSortType expected) {
 		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
 		// TODO implement overloading
 		TreeNodeType nodeType = nodeTypes.get(0);
-		TupleType fields = ((RelationType) nodeType.getChildType(0)).getFieldTypes();
+		RelationType relType = (RelationType) nodeType.getChildType(0);
+		TupleType fields = relType.getFieldTypes();
 		NodeList children = node.getChildNodes();
-		IRelation relation = vf.relation(fields);
-		IRelationWriter writer = relation.getWriter();
+		IRelationWriter writer = relType.writer(vf);
 		
 		for (int i = 0; i < children.getLength(); ) {
 			IValue[] elements = new IValue[fields.getArity()];
@@ -211,18 +206,17 @@ public class XMLReader implements IValueReader {
 				writer.insert(vf.tuple(elements));
 		}
 		
-		writer.done();
-		return vf.tree(nodeType, relation);
+		return vf.tree(nodeType, writer.done());
 	}
 
 	private IValue parseSet(Node node, TreeSortType expected) {
 		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
 		// TODO implement overloading
 		TreeNodeType nodeType = nodeTypes.get(0);
-		Type elementType = ((SetType) nodeType.getChildType(0)).getElementType();
+		SetType setType = (SetType) nodeType.getChildType(0);
+		Type elementType = setType.getElementType();
 		NodeList children = node.getChildNodes();
-		ISet set = vf.set(elementType);
-		ISetWriter writer = set.getWriter();
+		ISetWriter writer = setType.writer(vf);
 		
 		if (!elementType.isTupleType()) {
 			for (int i = 0; i < children.getLength(); i++) {
@@ -241,18 +235,17 @@ public class XMLReader implements IValueReader {
 			}
 		}
 		
-		writer.done();
-		return vf.tree(nodeType, set);
+		return vf.tree(nodeType, writer.done());
 	}
 
 	private IValue parseList(Node node, TreeSortType expected) {
 		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
 		// TODO implement overloading
 		TreeNodeType nodeType = nodeTypes.get(0);
-		Type elementType = ((ListType) nodeType.getChildType(0)).getElementType();
+		ListType listType = (ListType) nodeType.getChildType(0);
+		Type elementType = listType.getElementType();
 		NodeList children = node.getChildNodes();
-		IList list = vf.list(elementType);
-		IListWriter writer = list.getWriter();
+		IListWriter writer = listType.writer(vf);
 		
 		if (!elementType.isTupleType()) {
 			for (int i = 0; i < children.getLength(); i++) {
@@ -271,8 +264,7 @@ public class XMLReader implements IValueReader {
 			}
 		}
 		
-		writer.done();
-		return vf.tree(nodeType, list);
+		return vf.tree(nodeType, writer.done());
 	}
 
     /*package*/ static boolean isListWrapper(String name, TreeSortType expected) {

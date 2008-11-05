@@ -221,15 +221,13 @@ public class TypeDescriptorFactory {
 		}
 		
 		public ITree visitRelationType(RelationType type) {
-			IList children = vf.list(typeSort);
-			IListWriter w = children.getWriter();
+			IListWriter w = vf.listWriter(typeSort);
 			
 			for (Type field : type.getFieldTypes()) {
 				w.append(field.accept(this));
 			}
-			w.done();
 			
-			return vf.tree(relationType, children);
+			return vf.tree(relationType, w.done());
 		}
 
 		public ITree visitSet(SetType type) {
@@ -249,15 +247,13 @@ public class TypeDescriptorFactory {
 		}
 
 		public ITree visitTreeNode(TreeNodeType type) {
-			IList children = vf.list(typeSort);
-			IListWriter w = children.getWriter();
+			IListWriter w = vf.listWriter(typeSort);
 			
 			for (Type field : type.getChildrenTypes()) {
 				w.append(field.accept(this));
 			}
-			w.done();
 			
-			return vf.tree(treeNodeType, type.getTreeSortType().accept(this), vf.string(type.getName()), children);
+			return vf.tree(treeNodeType, type.getTreeSortType().accept(this), vf.string(type.getName()), w.done());
 		}
 
 		public ITree visitTreeSort(TreeSortType type) {
@@ -265,15 +261,14 @@ public class TypeDescriptorFactory {
 		}
 
 		public ITree visitTuple(TupleType type) {
-			IList children = vf.list(typeSort);
-			IListWriter w = children.getWriter();
+			IListWriter w = vf.listWriter(typeSort);
 			
 			for (Type field : type) {
 				w.append(field.accept(this));
 			}
-			w.done();
 			
-			return vf.tree(tupleType, children);
+			
+			return vf.tree(tupleType, w.done());
 		}
 
 		public ITree visitValue(ValueType type) {

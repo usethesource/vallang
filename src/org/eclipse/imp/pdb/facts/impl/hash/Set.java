@@ -15,15 +15,13 @@ package org.eclipse.imp.pdb.facts.impl.hash;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.WritableValue;
-import org.eclipse.imp.pdb.facts.impl.WriterBase;
+import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
@@ -33,51 +31,29 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-class Set extends WritableValue<ISetWriter> implements ISet {
-	static class SetWriter extends WriterBase<ISetWriter> implements ISetWriter {
-		private Set fSet; // cached for convenience (avoids casts on every
+class Set extends Value implements ISet {
+	static class SetWriter  implements ISetWriter {
+		private final Set fSet; 
 
-		// insert)
-
-		public SetWriter(Set set) {
-			super(set);
-			fSet = set;
+		public SetWriter(Type eltType) {
+			fSet = new Set(eltType);
 		}
 
-		public ISet getSet() {
-			return fSet;
+		public void insert(IValue... elems) throws FactTypeError {
+			for (IValue v : elems) {
+			  fSet.checkInsert(v);
+			  fSet.fSet.add(v);
+			}
 		}
 
-		public void insert(IValue v) throws FactTypeError {
-			checkMutable();
-			fSet.checkInsert(v);
-			fSet.fSet.add(v);
-		}
-
-		public void insertAll(ISet other) throws FactTypeError {
-			checkMutable();
-			fSet.checkInsert(other.getElementType());
-			fSet.fSet.addAll(((Set) other).fSet);
-		}
-
-		public void insertAll(IRelation relation) throws FactTypeError {
-			checkMutable();
-			SetType setType = ((RelationType) relation.getType().getBaseType()).toSet();
-			fSet.checkInsert(setType.getElementType());
-			fSet.fSet.addAll(((Relation) relation).fTuples);
-		}
-
-		public void insertAll(IList list) throws FactTypeError {
-			checkMutable();
-			fSet.checkInsert(list.getElementType());
-			fSet.fSet.addAll(((List) list).fList);
-		}
-		
 		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeError {
-			checkMutable();
 			for (IValue v : collection) {
 				insert(v);
 			}
+		}
+		
+		public ISet done() {
+			return fSet;
 		}
 	}
 
@@ -91,20 +67,12 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 		super(TypeFactory.getInstance().setType(eltType));
 	}
 
-	@Override
-	protected ISetWriter createWriter() {
-		return new SetWriter(this);
-	}
-
 	public ISet insert(IValue element) throws FactTypeError {
 		SetType newType = checkInsert(element);
-		Set result = new Set(newType);
-		ISetWriter sw = result.getWriter();
+		ISetWriter sw = new SetWriter(newType.getElementType());
 		sw.insertAll(this);
 		sw.insert(element);
-		sw.done();
-
-		return result;
+		return sw.done();
 	}
 
 	public boolean contains(IValue element) throws FactTypeError {
@@ -114,8 +82,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 
 	public ISet intersect(ISet other) throws FactTypeError {
 		SetType newType = checkSet(other);
-		ISet result = new Set(newType);
-		ISetWriter w = result.getWriter();
+		ISetWriter w = new SetWriter(newType.getElementType());
 		Set o = (Set) other;
 		
 		for (IValue v : fSet) {
@@ -124,9 +91,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 			}
 		}
 		
-		w.done();
-		
-		return result;
+		return w.done();
 	}
 
 	public ISet invert(ISet universe) throws FactTypeError {
@@ -149,36 +114,27 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 
 	public ISet subtract(ISet other) throws FactTypeError {
 		SetType newType = checkSet(other);
-		ISet result = new Set(newType);
-		ISetWriter sw = result.getWriter();
+		ISetWriter sw = new SetWriter(newType.getElementType());
 		for (IValue a : fSet) {
 			if (!other.contains(a)) {
 				sw.insert(a);
 			}
 		}
-		sw.done();
-		return result;
+		return sw.done();
 	}
 
 	public ISet union(ISet other) {
 		SetType newType = checkSet(other);
-		Set result = new Set(newType);
-		ISetWriter w = result.getWriter();
+		ISetWriter w = new SetWriter(newType.getElementType());
 
 		try {
-			for (IValue a : this) {
-				w.insert(a);
-			}
-			for (IValue a : other) {
-				w.insert(a);
-			}
+			w.insertAll(this);
+			w.insertAll(other);
 		} catch (FactTypeError e) {
 			// this can not happen
 		}
 		
-		w.done();
-		
-		return result;
+		return w.done();
 	}
 
 	public Iterator<IValue> iterator() {
@@ -198,21 +154,21 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 		return sb.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	public IRelation toRelation() throws FactTypeError {
 		if (!getElementType().isTupleType()) {
 			throw new FactTypeError("toRelation: element type is not tuple");
 		}
 		
 		TupleType t = (TupleType) ((SetType) getType().getBaseType()).getElementType();
-		Relation result = new Relation(t);
-		IRelationWriter w = result.getWriter();
+		IRelationWriter w = new Relation.RelationWriter(t);
 		try {
-			w.insertAll(this);
+			w.insertAll((Iterable<? extends ITuple>) this);
 		} catch (FactTypeError e) {
 			// this will not happen
 		}
-		w.done();
-		return result;
+		
+		return w.done();
 	}
 
 	public Type getElementType() {
@@ -223,9 +179,8 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 		TypeFactory f = TypeFactory.getInstance();
 		RelationType t1 = f.relType(f.tupleType(getElementType()));
 		RelationType relType = t1.product((RelationType) r.getBaseType());
-		IRelation result = new Relation(relType);
+		IRelationWriter w = new Relation.RelationWriter(relType.getFieldTypes());
 		int width = relType.getArity();
-		IRelationWriter w= result.getWriter();
 
 		try {
 			for (IValue v1 : this) {
@@ -250,15 +205,12 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 			// above.
 		}
 		
-		w.done();
-
-		return result;
+		return w.done();
 	}
 	
 	public IRelation product(ISet set) {
 		TupleType resultType = TypeFactory.getInstance().tupleType(getElementType(), set.getElementType());
-		IRelation result = new Relation(resultType);
-		IRelationWriter w = result.getWriter();
+		IRelationWriter w = new Relation.RelationWriter(resultType);
 
 		try {
 			for (IValue t1 : this) {
@@ -272,9 +224,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 			// above.
 		}
 		
-		w.done();
-
-		return result;
+		return w.done();
 	}
 	
 	private SetType checkInsert(IValue element) throws FactTypeError {
@@ -309,7 +259,7 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 	
 	@Override
 	public boolean equals(Object o) {
-		// TODO: should we allow ISet here?
+		// TODO: should we allow IRelation here?
 		// TODO: should the types be equal?
 		if (!(o instanceof Set)) {
 			return false;
@@ -335,17 +285,15 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 	}
 
 	public IRelation subtract(IRelation rel) throws FactTypeError {
-		Type newType = checkRelation(rel);
-		IRelation result = new Relation(newType);
-		IRelationWriter sw = result.getWriter();
+		RelationType newType = checkRelation(rel);
+		IRelationWriter sw = new Relation.RelationWriter(newType.getFieldTypes());
 		for (IValue a : fSet) {
 			ITuple t = (ITuple) a;
 			if (!rel.contains(t)) {
 				sw.insert(t);
 			}
 		}
-		sw.done();
-		return result;
+		return sw.done();
 	}
 
 	public IRelation union(IRelation rel) throws FactTypeError {
@@ -356,21 +304,10 @@ class Set extends WritableValue<ISetWriter> implements ISet {
 		return v.visitSet(this);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		Set tmp = new Set((SetType) getType());
-	
-		// we don't have to clone fList if this instance is not mutable anymore,
-		// otherwise we certainly do, to prevent modification of the original list.
-		if (isMutable()) {
-			tmp.fSet = (HashSet<IValue>) fSet.clone();
-		}
-		else {
-			tmp.fSet = fSet;
-			tmp.getWriter().done();
-		}
-		
+		tmp.fSet = fSet;
 		return tmp;
 	}
 }

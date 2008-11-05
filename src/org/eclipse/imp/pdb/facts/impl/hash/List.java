@@ -21,8 +21,7 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.WritableValue;
-import org.eclipse.imp.pdb.facts.impl.WriterBase;
+import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
@@ -32,25 +31,25 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class List extends WritableValue<IListWriter> implements IList {
+public class List extends Value  implements IList {
 	/* package */LinkedList<IValue> fList = new LinkedList<IValue>();
 
-	static private class ListWriter extends WriterBase<IListWriter> implements
-			IListWriter {
+	/* package */ static class ListWriter implements IListWriter {
 		private List fValue;
 
-		public ListWriter(List value) {
-			super(value);
-			fValue = value;
+		public ListWriter(Type eltType) {
+			fValue = new List(eltType);
 		}
 
 		public IList getList() {
 			return fValue;
 		}
 
-		public void insert(IValue tuple) throws FactTypeError {
-			fValue.checkInsert(tuple);
-			fValue.fList.add(0, tuple);
+		public void insert(IValue... elems) throws FactTypeError {
+			for (IValue e : elems) {
+			  fValue.checkInsert(e);
+			  fValue.fList.add(0, e);
+			}
 		}
 
 		public void insertAll(IList other) throws FactTypeError {
@@ -79,9 +78,15 @@ public class List extends WritableValue<IListWriter> implements IList {
 			}
 		}
 
-		public void append(IValue e) throws FactTypeError {
-			fValue.checkInsert(e);
-			fValue.fList.add(e);
+		public void append(IValue... elems) throws FactTypeError {
+			for (IValue e : elems) {
+			  fValue.checkInsert(e);
+			  fValue.fList.add(e);
+			}
+		}
+		
+		public IList done() {
+			return fValue;
 		}
 
 	}
@@ -97,37 +102,23 @@ public class List extends WritableValue<IListWriter> implements IList {
 		return fEltType;
 	}
 
-	@Override
-	protected IListWriter createWriter() {
-		return new ListWriter(this);
-	}
-
-	@SuppressWarnings("unchecked")
 	public IList append(IValue e) throws FactTypeError {
-		List result = new List(checkInsert(e).getElementType());
-		IListWriter w = result.getWriter();
-		
-		result.fList = (LinkedList<IValue>) fList.clone();
+		IListWriter w = new ListWriter(checkInsert(e).getElementType());
+		w.insertAll(this);
 		w.append(e);
-		w.done();
-		return result;
+		return w.done();
 	}
-
-	
 
 	public IValue get(int i) {
 		return fList.get(i);
 	}
 
-	@SuppressWarnings("unchecked")
 	public IList insert(IValue e) throws FactTypeError {
-		List result = new List(checkInsert(e).getElementType());
-		IListWriter w = result.getWriter();
+		IListWriter w = new ListWriter(checkInsert(e).getElementType());
 		
-		result.fList = (LinkedList<IValue>) fList.clone();
+		w.insertAll(this);
 		w.insert(e);
-		w.done();
-		return result;
+		return w.done();
 	}
 
 	public int length() {
@@ -135,8 +126,7 @@ public class List extends WritableValue<IListWriter> implements IList {
 	}
 
 	public IList reverse() {
-		List result = new List(getElementType());
-		IListWriter w = result.getWriter();
+		IListWriter w = new ListWriter(getElementType());
 		try {
 			for (IValue v : this) {
 				w.insert(v);
@@ -144,8 +134,7 @@ public class List extends WritableValue<IListWriter> implements IList {
 		} catch (FactTypeError e) {
 			// this will never happen
 		} 
-		w.done();
-		return result;
+		return w.done();
 	}
 
 	public Iterator<IValue> iterator() {
@@ -191,21 +180,10 @@ public class List extends WritableValue<IListWriter> implements IList {
 		return v.visitList(this);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		List tmp = new List(getElementType());
-	
-		// we don't have to clone fList if this instance is not mutable anymore,
-		// otherwise we certainly do, to prevent modification of the original list.
-		if (isMutable()) {
-			tmp.fList = (LinkedList<IValue>) fList.clone();
-		}
-		else {
-			tmp.fList = fList;
-			tmp.getWriter().done();
-		}
-		
+		tmp.fList = fList;
 		return tmp;
 	}
 

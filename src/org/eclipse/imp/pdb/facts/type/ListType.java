@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -86,12 +87,20 @@ public class ListType extends Type {
 	public IValue accept(ITypeVisitor visitor) {
 		return visitor.visitList(this);
 	}
-	
+
+	@Override
 	public IValue make(IValueFactory f) {
 		return f.list(fEltType);
 	}
-	
+
+	@Override
 	public IValue make(IValueFactory f, IValue... elems) {
 		return f.list(elems);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IListWriter writer(IValueFactory f) {
+		return f.listWriter(fEltType);
 	}
 }

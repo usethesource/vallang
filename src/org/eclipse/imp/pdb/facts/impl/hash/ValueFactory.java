@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.impl.hash;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -42,65 +43,59 @@ public class ValueFactory extends BaseValueFactory {
 		return new Relation(TypeFactory.getInstance().relType(tupleType));
 	}
 	
-	public IRelation relation(IValue... rest) {
-		Type elementType = TypeFactory.getInstance().voidType();
-		for (IValue elem : rest) {
-			elementType = (TupleType) elementType.lub(elem.getType());
-		}
-		Relation result = (Relation) TypeFactory.getInstance().relType((TupleType) elementType.getBaseType()).make(this);
-		IRelationWriter rw = result.getWriter();
-		
+	public IRelation relation(IValue... tuples) {
+		Type elementType = lub(tuples);
+	
 		if (!elementType.getBaseType().isTupleType()) {
 			throw new FactTypeError("elements are not tuples");
 		}
-			
-		for (IValue elem : rest) {
-			rw.insert((ITuple) elem);
-		}
 		
-		rw.done();
-		return result;
+		IRelationWriter rw = relationWriter((TupleType) elementType);
+		rw.insert(tuples);
+		return rw.done();
+	}
+	
+	public IRelationWriter relationWriter(TupleType tupleType) {
+		return new Relation.RelationWriter(tupleType);
 	}
 
 	public ISet set(Type eltType) {
 		return new Set(eltType);
 	}
+	
+	public ISetWriter setWriter(Type eltType) {
+		return new Set.SetWriter(eltType);
+	}
 
-	public ISet set(IValue... rest) throws FactTypeError {
-		Type elementType = TypeFactory.getInstance().voidType();
+	public ISet set(IValue... elems) throws FactTypeError {
+		Type elementType = lub(elems);
 		
-		for (IValue elem : rest) {
-			elementType = elementType.lub(elem.getType());
-		}
-		Set result = (Set) TypeFactory.getInstance().setType(elementType).make(this);
-		ISetWriter sw = result.getWriter();
-		for (IValue elem : rest) {
-			sw.insert(elem);
-		}
-		
-		sw.done();
-
-		return result;
+		ISetWriter sw = new Set.SetWriter(elementType);
+		sw.insert(elems);
+		return sw.done();
 	}
 
 	public IList list(Type eltType) {
 		return new List(eltType);
 	}
+	
+	public IListWriter listWriter(Type eltType) {
+		return new List.ListWriter(eltType);
+	}
 
 	public IList list(IValue... rest) {
+		Type elementType = lub(rest);
+		IListWriter lw = new List.ListWriter(elementType);
+		lw.append(rest);
+		return lw.done();
+	}
+
+	private Type lub(IValue... elems) {
 		Type elementType = TypeFactory.getInstance().voidType();
-		for (IValue elem : rest) {
+		for (IValue elem : elems) {
 			elementType = elementType.lub(elem.getType());
 		}
-		
-		List result = (List) TypeFactory.getInstance().listType(elementType).make(this);
-		IListWriter lw = result.getWriter();
-		for (IValue elem : rest) {
-			lw.append(elem);
-		}
-
-		lw.done();
-		return result;
+		return elementType;
 	}
 
 	public ITuple tuple() {
@@ -127,5 +122,9 @@ public class ValueFactory extends BaseValueFactory {
 
 	public IMap map(Type key, Type value) {
 		return new Map(key, value);
+	}
+	
+	public IMapWriter mapWriter(Type key, Type value) {
+		return new Map.MapWriter(key, value);
 	}
 }

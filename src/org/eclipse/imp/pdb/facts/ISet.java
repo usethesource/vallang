@@ -42,8 +42,6 @@ public interface ISet extends Iterable<IValue>, IValue {
     
     public IRelation invert(IRelation universe)  throws FactTypeError;
 
-    public ISetWriter getWriter();
-    
     public IRelation toRelation() throws FactTypeError;
     
     public IRelation product(IRelation rel);

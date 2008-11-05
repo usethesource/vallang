@@ -20,8 +20,6 @@ public interface IMap extends Iterable<IValue>, IValue {
 
     public int size();
 
-    public IMapWriter getWriter();
-    
     public int arity();
 
     public IMap put(IValue key, IValue value) throws FactTypeError ;

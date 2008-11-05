@@ -18,8 +18,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.WritableValue;
-import org.eclipse.imp.pdb.facts.impl.WriterBase;
+import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -27,14 +26,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-class Map extends WritableValue<IMapWriter> implements IMap {
-	static class MapWriter extends WriterBase<IMapWriter> implements IMapWriter {
-		private Map fMap; // cached for convenience (avoids casts on every
-		// insert)
+class Map extends Value implements IMap {
+	static class MapWriter implements IMapWriter {
+		private Map fMap; 
 
-		public MapWriter(Map map) {
-			super(map);
-			fMap = map;
+		public MapWriter(Type key, Type value) {
+			fMap = new Map(key, value);
 		}
 
 		public IMap getMap() {
@@ -42,7 +39,6 @@ class Map extends WritableValue<IMapWriter> implements IMap {
 		}
 
 		public void putAll(IMap map) throws FactTypeError {
-			checkMutable();
 			MapType mapType = (MapType) map.getType().getBaseType();
 			fMap.check(mapType.getKeyType(), mapType.getValueType());
 			
@@ -50,9 +46,22 @@ class Map extends WritableValue<IMapWriter> implements IMap {
 			  fMap.put(key, map.get(key));
 			}
 		}
+		
+		public void putAll(java.util.Map<? extends IValue, ? extends IValue> map)
+				throws FactTypeError {
+			for (IValue key : map.keySet()) {
+				IValue value = map.get(key);
+				fMap.check(key.getType(), value.getType());
+				fMap.put(key, value);
+			}
+		}
 
 		public void put(IValue key, IValue value) throws FactTypeError {
 			fMap.put(key, value);
+		}
+		
+		public IMap done() {
+			return fMap;
 		}
 	}
 
@@ -64,11 +73,6 @@ class Map extends WritableValue<IMapWriter> implements IMap {
 	
 	/* package */Map(Type keyType, Type valueType) {
 		super(TypeFactory.getInstance().mapType(keyType, valueType));
-	}
-
-	@Override
-	protected IMapWriter createWriter() {
-		return new MapWriter(this);
 	}
 
 	public boolean isEmpty() {
@@ -149,30 +153,16 @@ class Map extends WritableValue<IMapWriter> implements IMap {
 	}
 
 	public IMap put(IValue key, IValue value) throws FactTypeError {
-		Map result = new Map(getKeyType(), getValueType());
-		IMapWriter sw = result.getWriter();
+		IMapWriter sw = new MapWriter(getKeyType(), getValueType());
 		sw.putAll(this);
 		sw.put(key, value);
-		sw.done();
-
-		return result;
+		return sw.done();
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		Map tmp = new Map(getKeyType(), getValueType());
-	
-		// we don't have to clone fList if this instance is not mutable anymore,
-		// otherwise we certainly do, to prevent modification of the original list.
-		if (isMutable()) {
-			tmp.fMap = (HashMap<IValue, IValue>) fMap.clone();
-		}
-		else {
-			tmp.fMap = fMap;
-			tmp.getWriter().done();
-		}
-		
+		tmp.fMap = fMap;
 		return tmp;
 	}
 }

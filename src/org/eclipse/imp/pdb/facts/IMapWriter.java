@@ -12,12 +12,14 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
 
 public interface IMapWriter {
     void put(IValue key, IValue value) throws FactTypeError ;
     void putAll(IMap map)  throws FactTypeError;
-    void done();
-    IMap getMap();
+    void putAll(Map<? extends IValue, ? extends IValue> map) throws FactTypeError;
+    IMap done();
 }

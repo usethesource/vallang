@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -102,5 +103,9 @@ public final class MapType extends Type {
     	return f.map(fKeyType, fValueType);
     }
     
-    
+    @SuppressWarnings("unchecked")
+	@Override
+    public IMapWriter writer(IValueFactory f) {
+    	return f.mapWriter(fKeyType, fValueType);
+    }
 }

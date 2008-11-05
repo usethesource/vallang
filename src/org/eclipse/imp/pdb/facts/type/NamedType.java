@@ -134,4 +134,9 @@ public class NamedType extends Type {
 	public IValue make(IValueFactory f, String arg) {
 		return getBaseType().make(f, arg);
 	}
+	
+	@Override
+	public <W> W writer(IValueFactory f) {
+		return getBaseType().writer(f);
+	}
 }

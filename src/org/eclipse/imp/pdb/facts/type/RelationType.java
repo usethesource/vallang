@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -199,5 +200,11 @@ public class RelationType extends Type {
 	
 	public IValue make(IValueFactory f, IValue...elems) {
 		return f.relation(elems);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public IRelationWriter writer(IValueFactory f) {
+		return f.relationWriter(getFieldTypes());
 	}
 }

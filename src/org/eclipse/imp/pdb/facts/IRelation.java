@@ -20,8 +20,6 @@ public interface IRelation extends Iterable<ITuple>, IValue {
 
     public int size();
 
-    public IRelationWriter getWriter();
-    
     public int arity();
 
     public IRelation insert(ITuple tuple) throws FactTypeError ;

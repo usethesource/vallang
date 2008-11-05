@@ -12,7 +12,6 @@
 
 package org.eclipse.imp.pdb.facts.impl.hash;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -23,10 +22,8 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.WritableValue;
-import org.eclipse.imp.pdb.facts.impl.WriterBase;
+import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
@@ -35,57 +32,30 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-class Relation extends WritableValue<IRelationWriter> implements IRelation {
-	static class RelationWriter extends WriterBase<IRelationWriter> implements
-			IRelationWriter {
-		private Relation fRelation; // cached for convenience (avoids casts on every insert)
+class Relation extends Value implements IRelation {
+	static class RelationWriter implements IRelationWriter {
+		private final Relation fRelation;
 
-		public RelationWriter(Relation relation) {
-			super(relation);
-			fRelation = relation;
+		public RelationWriter(TupleType elements) {
+			fRelation = new Relation(elements);
 		}
 
-		public IRelation getRelation() {
-			return fRelation;
-		}
-
-		public void insert(ITuple tuple) throws FactTypeError {
-			checkMutable();
-			fRelation.checkInsert(tuple);
-			fRelation.fTuples.add((Tuple) tuple);
-		}
-
-		public void insertAll(IRelation other) throws FactTypeError {
-			checkMutable();
-			fRelation.checkRelationType(other);
-			fRelation.fTuples.addAll(((Relation) other).fTuples);
-		}
-		
-		@SuppressWarnings("unchecked")
-		public void insertAll(IList other) throws FactTypeError {
-			checkMutable();
-			fRelation.checkInsert(other.getElementType());
-			// Perhaps a bug in javac 5.0 on MacOS X? The following cast fails with an
-			// "inconvertible type" error, even though the type arguments get erased:
-//                      fRelation.fTuples.addAll((Collection<? extends ITuple>) ((List) other).fList);
-			fRelation.fTuples.addAll((Collection) ((List) other).fList);
-		}
-
-		public void insertAll(ISet set) throws FactTypeError {
-			checkMutable();
-			fRelation.checkSetType(set);
-			
-			for (IValue v : set) {
-				ITuple t = (ITuple) v;
-				fRelation.fTuples.add(t);
+		public void insert(IValue... tuples) throws FactTypeError {
+			for (IValue e : tuples) {
+			  fRelation.checkInsert((ITuple) e);
+			  fRelation.fTuples.add((Tuple) e);
 			}
 		}
-		
+
 		public void insertAll(Iterable<? extends ITuple> collection) throws FactTypeError {
 			for (ITuple v : collection) {
 				insert(v);
 			}
 			
+		}
+		
+		public IRelation done() {
+			return fRelation;
 		}
 	}
 
@@ -115,28 +85,10 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 		return ((RelationType) getType().getBaseType()).getArity();
 	}
 	
-	protected IRelationWriter createWriter() {
-		return new RelationWriter(this);
-	}
-
-	protected Relation createRelationOfSameType() {
-		if (fType.isNamedType()) {
-			try {
-				return new Relation((NamedType) fType);
-			} catch (FactTypeError e) {
-				// will never happen because fType has been typechecked before.
-				return null;
-			}
-		} else {
-			return new Relation((RelationType) fType);
-		}
-	}
-
 	public IRelation product(IRelation r) {
 		RelationType newRelType = ((RelationType) getType().getBaseType()).product((RelationType) r.getType().getBaseType());
 		int width = newRelType.getArity();
-		Relation result = new Relation(newRelType);
-		IRelationWriter w = result.getWriter();
+		IRelationWriter w = new RelationWriter(newRelType.getFieldTypes());
 
 		try {
 			for (ITuple t1 : fTuples) {
@@ -163,18 +115,14 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 			// above.
 		}
 		
-		w.done();
-
-		return result;
+		return w.done();
 	}
 	
 	public IRelation product(ISet set) {
 		TupleType singleton = TypeFactory.getInstance().tupleType(set.getElementType());
 		RelationType resultType = ((RelationType) getType().getBaseType()).product(singleton);
-		IRelation result = new Relation(resultType);
 		int width = resultType.getArity();
-		IRelationWriter w = result.getWriter();
-
+		IRelationWriter w = new RelationWriter(resultType.getFieldTypes());
 		try {
 			for (ITuple t1 : fTuples) {
 				IValue[] e1 = ((Tuple) t1).fElements;
@@ -197,9 +145,7 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 			// above.
 		}
 		
-		w.done();
-
-		return result;
+		return w.done();
 	}
 
 	public IRelation closure() throws FactTypeError {
@@ -217,9 +163,8 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 	}
 
 	public IRelation compose(IRelation other) throws FactTypeError {
-		Type resultType = ((RelationType) getType().getBaseType()).compose((RelationType) other.getType().getBaseType());
-		IRelation result = new Relation(resultType);
-		IRelationWriter w = result.getWriter();
+		RelationType resultType = ((RelationType) getType().getBaseType()).compose((RelationType) other.getType().getBaseType());
+		IRelationWriter w = new RelationWriter(resultType.getFieldTypes());
 		int max1 = ((RelationType) getType().getBaseType()).getArity() - 1;
 		int max2 = ((RelationType) other.getType().getBaseType()).getArity() - 1;
 		int width = max1 + max2;
@@ -241,8 +186,7 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 				}
 			}
 		}
-		w.done();
-		return result;
+		return w.done();
 	}
 
 	public boolean contains(ITuple tuple) throws FactTypeError {
@@ -251,45 +195,41 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 	}
 
 	public IRelation insert(ITuple tuple) throws FactTypeError {
-		Type newType = checkInsert(tuple);
-		Relation newRel = new Relation(newType);
-		newRel.fTuples.addAll(fTuples);
-		newRel.fTuples.add(tuple);
-		newRel.getWriter().done();
-		return newRel;
+		TupleType newType = checkInsert(tuple);
+		IRelationWriter w = new RelationWriter(newType);
+		w.insertAll(fTuples);
+		w.insert(tuple);
+		return w.done();
 	}
 
 	
 
 	public IRelation intersect(IRelation o) throws FactTypeError {
-		Type newType = checkRelationType(o);
-		Relation newRel = new Relation(newType);
+		RelationType newType = checkRelationType(o);
+		IRelationWriter w = new RelationWriter(newType.getFieldTypes());
 		Relation other = (Relation) o;
 
 		for (ITuple t : this) {
 			if (other.fTuples.contains(t)) {
-				newRel.fTuples.add(t);
+				w.insert(t);
 			}
 		}
 
-		newRel.getWriter().done();
-		return newRel;
+		return w.done();
 	}
 
 	public IRelation intersect(ISet set) throws FactTypeError {
 		RelationType newType = checkSetType(set);
-
-		Relation newRel = new Relation((RelationType) newType);
+		IRelationWriter w = new RelationWriter(newType.getFieldTypes());
 		Set other = (Set) set;
 
 		for (ITuple t : this) {
 			if (other.fSet.contains(t)) {
-				newRel.fTuples.add(t);
+				w.insert(t);
 			}
 		}
 
-		newRel.getWriter().done();
-		return newRel;
+		return w.done();
 	}
 
 	public IRelation invert(IRelation universe) throws FactTypeError {
@@ -313,67 +253,50 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 	}
 
 	public IRelation subtract(IRelation o) throws FactTypeError {
-		Type newType = checkRelationType(o);
+		RelationType newType = checkRelationType(o);
 
-		Relation newRel = new Relation(newType);
+		IRelationWriter w = new RelationWriter(newType.getFieldTypes());
 		Relation other = (Relation) o;
 
 		for (ITuple t : fTuples) {
 			if (!other.fTuples.contains(t)) {
-				newRel.fTuples.add(t);
+				w.insert(t);
 			}
 		}
 
-		newRel.getWriter().done();
-
-		return newRel;
+		return w.done();
 	}
 
 	public IRelation subtract(ISet set) throws FactTypeError {
 		RelationType newType = checkSetType(set);
-		Relation newRel = new Relation(newType);
+		IRelationWriter newRel = new RelationWriter(newType.getFieldTypes());
 
 		for (ITuple t : fTuples) {
 			if (!set.contains(t)) {
-				newRel.fTuples.add(t);
+				newRel.insert(t);
 			}
 		}
 
-		newRel.getWriter().done();
-
-		return newRel;
+		return newRel.done();
 	}
 
 	public IRelation union(IRelation other) throws FactTypeError {
-		Type newType = checkRelationType(other);
-		IRelation newRel = new Relation(newType);
-		IRelationWriter w = newRel.getWriter();
+		RelationType newType = checkRelationType(other);
+		IRelationWriter w = new RelationWriter(newType.getFieldTypes());
 
-		for (ITuple t : fTuples) {
-			w.insert(t);
-		}
-		for (Iterator<ITuple> iter = other.iterator(); iter.hasNext();) {
-			ITuple tuple = iter.next();
-			w.insert(tuple);
-		}
-		w.done();
-		return newRel;
+		w.insertAll(this);
+		w.insertAll(other);
+		return w.done();
 	}
 
+	@SuppressWarnings("unchecked")
 	public IRelation union(ISet set) throws FactTypeError {
 		RelationType newType = checkSetType(set);
-		IRelation newRel = new Relation(newType);
-		IRelationWriter w = newRel.getWriter();
+		IRelationWriter w = new RelationWriter(newType.getFieldTypes());
 
-		for (ITuple t : fTuples) {
-			w.insert(t);
-		}
-		for (Iterator<IValue> iter = set.iterator(); iter.hasNext();) {
-			ITuple tuple = (ITuple) iter.next();
-			w.insert(tuple);
-		}
-		w.done();
-		return newRel;
+		w.insertAll(this);
+		w.insertAll((Iterable<? extends ITuple>) set);
+		return w.done();
 	}
 
 	public Iterator<ITuple> iterator() {
@@ -394,15 +317,13 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 	}
 
 	public ISet toSet() {
-		Set result = new Set(((RelationType) getType().getBaseType()).toSet());
-		ISetWriter w = result.getWriter();
+		ISetWriter w = new Set.SetWriter(getFieldTypes());
 		try {
-			w.insertAll((IRelation) this);
+			w.insertAll(this);
 		} catch (FactTypeError e) {
 			// this will not happen
 		}
-		w.done();
-		return result;
+		return w.done();
 	}
 
 	public IList topologicalOrderedList() throws FactTypeError {
@@ -413,31 +334,27 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 	
 	public ISet carrier() {
 		SetType newType = checkCarrier();
-		Set result = new Set(newType);
-		ISetWriter w = result.getWriter();
+		ISetWriter w = new Set.SetWriter(newType.getElementType());
 		
 		try {
 			for (ITuple t : this) {
-				for (IValue v : t) {
-					w.insert(v);
-				}
+				w.insertAll(t);
 			}
 		} catch (FactTypeError e) {
 			// this will not happen
 		}
-		w.done();
-		return result;
+		return w.done();
 	}
 
 	
-	private Type checkRelationType(IRelation other)
+	private RelationType checkRelationType(IRelation other)
 			throws FactTypeError {
 		Type otherType = other.getType();
 		return checkRelationType(otherType);
 	}
 
-	private Type checkRelationType(Type otherType) throws FactTypeError {
-		Type newType = getType().lub(otherType);
+	private RelationType checkRelationType(Type otherType) throws FactTypeError {
+		RelationType newType = (RelationType) getType().lub(otherType);
 		Type baseType = newType.getBaseType();
 
 		if (!baseType.isRelationType()) {
@@ -484,15 +401,15 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 		}
 	}
 
-	private Type checkInsert(ITuple tuple) throws FactTypeError {
-		return checkInsert(tuple.getType());
+	private TupleType checkInsert(ITuple tuple) throws FactTypeError {
+		return checkInsert((TupleType) tuple.getType());
 	}
 	
-	private Type checkInsert(Type type) throws FactTypeError {
+	private TupleType checkInsert(TupleType type) throws FactTypeError {
 		if (!((RelationType) getType().getBaseType()).acceptsElementOf(type)) {
 			throw new FactTypeError("Type " + type + " is not compatible for insert into " + getType());
 		}
-		return getType();
+		return type;
 	}
 
 	private SetType checkCarrier() {
@@ -523,22 +440,11 @@ class Relation extends WritableValue<IRelationWriter> implements IRelation {
 		return v.visitRelation(this);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Relation tmp = new Relation((RelationType) getType());
-	
-		// we don't have to clone fList if this instance is not mutable anymore,
-		// otherwise we certainly do, to prevent modification of the original list.
-		if (isMutable()) {
-			tmp.fTuples = (HashSet<ITuple>) fTuples.clone();
-		}
-		else {
-			tmp.fTuples = fTuples;
-			tmp.getWriter().done();
-		}
-		
-		return tmp;
+		RelationWriter w = new RelationWriter(getFieldTypes());
+		w.insertAll(fTuples);
+		return w.done();
 	}
 
 	public TupleType getFieldTypes() {

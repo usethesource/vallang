@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -119,5 +120,11 @@ public final class SetType extends Type {
 	
 	public IValue make(IValueFactory f, IValue... elems) {
 		return f.set(elems);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public ISetWriter writer(IValueFactory f) {
+		return f.setWriter(fEltType);
 	}
 }
