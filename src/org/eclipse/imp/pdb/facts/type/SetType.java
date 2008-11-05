@@ -116,4 +116,8 @@ public final class SetType extends Type {
 	public IValue make(IValueFactory f) {
 		return f.set(fEltType);
 	}
+	
+	public IValue make(IValueFactory f, IValue... elems) {
+		return f.set(elems);
+	}
 }

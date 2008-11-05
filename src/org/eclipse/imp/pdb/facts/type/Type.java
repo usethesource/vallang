@@ -150,24 +150,20 @@ public abstract class Type {
 				"This type does not have a zero argument constructor: " + this);
 	}
 
+	/**
+	 * Build a value that has a number of children. This method is supported by
+	 * tuples types and tree node types with the correct arity, also lists
+	 * relations and maps can be constructed with a fixed size.
+	 * 
+	 * @param f    factory to use
+	 * @param args arguments to use
+	 * @return a value of the apropriate type
+	 */
 	public IValue make(IValueFactory f, IValue...args) {
 		throw new FactTypeError(
 				"This type does not have an array or variable argument list constructor: " + this);
 	}
 	
-	/**
-	 * Build a value that has a number of children. This method is supported by tuple and
-	 * tree, set, list, relation and NamedTypes that are subtypes of any of the previous.
-	 * 
-	 * @param f
-	 * @param arg0
-	 * @return
-	 */
-	public IValue make(IValueFactory f, IValue first, IValue... rest) {
-		throw new FactTypeError(
-				"This type does not have an array or variable argument list constructor: " + this);
-	}
-
 	public <T> IValue make(IValueFactory f, T arg) {
 		throw new FactTypeError("This type is not an ObjectType: " + this);
 	}
@@ -180,5 +176,9 @@ public abstract class Type {
 	public IValue make(IValueFactory f, int startOffset, int length,
 			int startLine, int endLine, int startCol, int endCol) {
 		throw new FactTypeError("This type is not a SourceRangeType: " + this);
+	}
+
+	public IValue make(IValueFactory f, String name, IValue... children) {
+		throw new FactTypeError("This type is not a TreeSortType: " + this);
 	}
 }

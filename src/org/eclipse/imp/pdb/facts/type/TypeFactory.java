@@ -22,7 +22,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class TypeFactory {
-    private static TypeFactory sInstance = new TypeFactory();
+	private static class InstanceHolder {
+      public static TypeFactory sInstance = new TypeFactory();
+	}
 
     /**
      * Caches all types to implement canonicalization
@@ -45,6 +47,8 @@ public class TypeFactory {
     private Map<Type, Map<String, Type>> fAnnotations = new HashMap<Type, Map<String, Type>>();
 
     private ValueType sValueType= ValueType.getInstance();
+    
+    private VoidType sVoidType = VoidType.getInstance();
     
     @SuppressWarnings("unchecked")
 	private ObjectType sProtoObjectType = new ObjectType(null);
@@ -76,17 +80,28 @@ public class TypeFactory {
     private TreeNodeType sProtoTreeType = new TreeNodeType(null, null, null);
 
     public static TypeFactory getInstance() {
-        return sInstance;
+        return InstanceHolder.sInstance;
     }
 
     private TypeFactory() { }
 
     /**
-     * construct the value type, which is the root type of the type hierarchy
+     * construct the value type, which is the top type of the type hierarchy
+     * representing all possible values.
      * @return a unique reference to the value type
      */
     public Type valueType() {
         return sValueType;
+    }
+    
+    /**
+     * construct the void type, which is the bottom of the type hierarchy,
+     * representing no values at all.
+     * 
+     * @return a unique reference to the void type
+     */
+    public Type voidType() {
+    	return sVoidType;
     }
 
     /**
@@ -254,8 +269,6 @@ public class TypeFactory {
     private TupleType getOrCreateTuple(int size, Type[] fieldTypes, String[] fieldNames) {
     	Type result= fCache.get(sProtoTuple);
 
-    	// TODO: if the new type has labels, but the old one doesn't replace the old
-    	// one by the new one. We prefer labeled tuples and we prefer no loss of info.
         if (result == null) {
             result= new TupleType(size, sProtoTuple.fStart, fieldTypes, fieldNames);
             fCache.put(result, result);
@@ -602,7 +615,7 @@ public class TypeFactory {
      * @param name the name of the type to lookup
      * @return
      */
-    public NamedType lookup(String name) {
+    public NamedType lookupNamedType(String name) {
         return fNamedTypes.get(name);
     }
     
@@ -613,7 +626,7 @@ public class TypeFactory {
      * @param type
      * @return all tree node types that construct the given type
      */
-    public List<TreeNodeType> signature(TreeSortType type) {
+    public List<TreeNodeType> lookupTreeNodeTypes(TreeSortType type) {
     	return fSignatures.get(type);
     }
     
@@ -624,15 +637,20 @@ public class TypeFactory {
      * @return a TreeNodeType if it was declared before
      * @throws a FactTypeError if the type was not declared before
      */
-    public TreeNodeType signatureGet(TreeSortType type, String constructorName) throws FactTypeError {
+    public List<TreeNodeType> lookupTreeNodeType(TreeSortType type, String constructorName) throws FactTypeError {
+    	List<TreeNodeType> result = new LinkedList<TreeNodeType>();
+    	
     	for (TreeNodeType node : fSignatures.get(type)) {
     		String name = node.getName();
 			if (name != null && name.equals(constructorName)) {
-    			return node;
+    			result.add(node);
     		}
+			else if (name == null && constructorName == null) {
+				result.add(node);
+			}
     	}
-    	
-    	throw new FactTypeError("Type " + type + " does not have this constructor name:" + constructorName);
+
+    	return result;
     }
     
     /**
@@ -643,7 +661,7 @@ public class TypeFactory {
      * @return an anonymous tree node type
      * @throws FactTypeError if the type does not have an anonymous constructor
      */
-    public TreeNodeType signatureGetAnonymous(TreeSortType type) throws FactTypeError {
+    public TreeNodeType lookupAnonymousTreeNodeType(TreeSortType type) throws FactTypeError {
     	for (TreeNodeType node : fSignatures.get(type)) {
     		if (node.getName() == null) {
     			return node;
@@ -651,6 +669,25 @@ public class TypeFactory {
     	}
     	
     	throw new FactTypeError("Type does not have an anonymous constructor: " + type);
+    }
+    
+    /** 
+     * Retrieve all tree node types for a given constructor name, 
+     * regardless of tree sort type
+     * @param constructName the name of the tree node
+     */
+    public List<TreeNodeType> lookupTreeNodeType(String constructorName) {
+    	List<TreeNodeType> result = new LinkedList<TreeNodeType>();
+    	for (TreeSortType sort : fSignatures.keySet()) {
+    		for (TreeNodeType node : fSignatures.get(sort)) {
+        		String name = node.getName();
+    			if (name != null && name.equals(constructorName)) {
+        			result.add(node);
+        		}
+        	}	
+    	}
+    	
+    	return result;
     }
 
     /**

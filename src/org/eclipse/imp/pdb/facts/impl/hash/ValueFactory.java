@@ -42,16 +42,20 @@ public class ValueFactory extends BaseValueFactory {
 		return new Relation(TypeFactory.getInstance().relType(tupleType));
 	}
 	
-	public IRelation relation(ITuple first, ITuple... rest) {
-		Type elementType = first.getType();
-		for (ITuple elem : rest) {
+	public IRelation relation(IValue... rest) {
+		Type elementType = TypeFactory.getInstance().voidType();
+		for (IValue elem : rest) {
 			elementType = (TupleType) elementType.lub(elem.getType());
 		}
 		Relation result = (Relation) TypeFactory.getInstance().relType((TupleType) elementType.getBaseType()).make(this);
 		IRelationWriter rw = result.getWriter();
-		rw.insert(first);
-		for (ITuple elem : rest) {
-			rw.insert(elem);
+		
+		if (!elementType.getBaseType().isTupleType()) {
+			throw new FactTypeError("elements are not tuples");
+		}
+			
+		for (IValue elem : rest) {
+			rw.insert((ITuple) elem);
 		}
 		
 		rw.done();
@@ -62,14 +66,14 @@ public class ValueFactory extends BaseValueFactory {
 		return new Set(eltType);
 	}
 
-	public ISet set(IValue first, IValue... rest) throws FactTypeError {
-		Type elementType = first.getType();
+	public ISet set(IValue... rest) throws FactTypeError {
+		Type elementType = TypeFactory.getInstance().voidType();
+		
 		for (IValue elem : rest) {
 			elementType = elementType.lub(elem.getType());
 		}
 		Set result = (Set) TypeFactory.getInstance().setType(elementType).make(this);
 		ISetWriter sw = result.getWriter();
-		sw.insert(first);
 		for (IValue elem : rest) {
 			sw.insert(elem);
 		}
@@ -83,14 +87,14 @@ public class ValueFactory extends BaseValueFactory {
 		return new List(eltType);
 	}
 
-	public IList list(IValue first, IValue... rest) {
-		Type elementType = first.getType();
+	public IList list(IValue... rest) {
+		Type elementType = TypeFactory.getInstance().voidType();
 		for (IValue elem : rest) {
 			elementType = elementType.lub(elem.getType());
 		}
+		
 		List result = (List) TypeFactory.getInstance().listType(elementType).make(this);
 		IListWriter lw = result.getWriter();
-		lw.insert(first);
 		for (IValue elem : rest) {
 			lw.append(elem);
 		}

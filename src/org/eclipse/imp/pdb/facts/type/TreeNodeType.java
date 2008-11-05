@@ -168,6 +168,25 @@ public class TreeNodeType extends Type {
 	
 	@Override
 	public IValue make(IValueFactory vf, IValue... args) {
-		return vf.tree(this, args);
+		if (fName == null) { // anonymous constructor
+			return vf.tree(this, fChildrenTypes.getFieldType(0).make(vf, args));
+		}
+		else {
+		  return vf.tree(this, args);
+		}
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, String name, IValue... children) {
+		if (!name.equals(fName)) {
+			throw new FactTypeError("This constructor has a different name from: " + name);
+		}
+		
+		TupleType childrenTypes = TypeFactory.getInstance().tupleType(children);
+		if (!childrenTypes.isSubtypeOf(fChildrenTypes)) {
+			throw new FactTypeError("These children don't fit this tree node: " + fChildrenTypes);
+		}
+		
+		return make(f, children);
 	}
 }

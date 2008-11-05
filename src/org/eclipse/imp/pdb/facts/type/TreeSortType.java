@@ -11,6 +11,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -90,7 +92,7 @@ public class TreeSortType extends Type {
 	
 	public IValue make(IValueFactory vf, int arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		TreeNodeType node = tf.signatureGetAnonymous(this);
+		TreeNodeType node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -102,7 +104,7 @@ public class TreeSortType extends Type {
 	
 	public IValue make(IValueFactory vf, double arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		TreeNodeType node = tf.signatureGetAnonymous(this);
+		TreeNodeType node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -114,7 +116,7 @@ public class TreeSortType extends Type {
 	
 	public IValue make(IValueFactory vf, String arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		TreeNodeType node = tf.signatureGetAnonymous(this);
+		TreeNodeType node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -122,5 +124,19 @@ public class TreeSortType extends Type {
 		else {
 			throw new FactTypeError("This sort does not have an anonymous string constructor: " + this);
 		}
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, String name, IValue... children) {
+		List<TreeNodeType> possible = TypeFactory.getInstance().lookupTreeNodeType(this, name);
+		TupleType childrenTypes = TypeFactory.getInstance().tupleType(children);
+		
+		for (TreeNodeType node : possible) {
+			if (childrenTypes.isSubtypeOf(node.getChildrenTypes())) {
+				return node.make(f, children);
+			}
+		}
+		
+		throw new FactTypeError("This sort does not have a constructor with this signature: " + name + ":" + childrenTypes);
 	}
 }

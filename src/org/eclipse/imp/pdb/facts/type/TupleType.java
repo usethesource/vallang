@@ -137,8 +137,8 @@ public class TupleType extends Type implements Iterable<Type> {
     }
 
     /**
-     * Compute tuple type equality. Note that field labels are insignificant for
-     * the identity of a tuple type.
+     * Compute tuple type equality. Note that field labels are significant here
+     * for equality while they do not count for isSubtypeOf and lub.
      */
     @Override
     public boolean equals(Object obj) {
@@ -157,6 +157,10 @@ public class TupleType extends Type implements Iterable<Type> {
             // identity here for the fFieldTypes.
             if (fFieldTypes[i] != other.fFieldTypes[i]) {
                 return false;
+            }
+            
+            if (fFieldNames[i] != null && !fFieldNames[i].equals(other.fFieldNames[i])) {
+            	return false;
             }
         }
         return true;

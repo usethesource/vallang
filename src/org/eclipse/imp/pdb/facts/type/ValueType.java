@@ -12,13 +12,19 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.List;
+
+import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class ValueType extends Type {
-    private static final ValueType sInstance= new ValueType();
-
+	private static class InstanceHolder {
+		public static final ValueType sInstance= new ValueType();
+	}
+	
     public static ValueType getInstance() {
-        return sInstance;
+        return InstanceHolder.sInstance;
     }
 
     private ValueType() { }
@@ -59,5 +65,77 @@ public class ValueType extends Type {
     @Override
     public IValue accept(ITypeVisitor visitor) {
     	return visitor.visitValue(this);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f) {
+    	// if we don't care what kind of value to make, but it
+    	// should be something that is empty, we make the empty
+    	// tuple
+    	return TypeFactory.getInstance().tupleEmpty().make(f);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, double arg) {
+    	return TypeFactory.getInstance().doubleType().make(f, arg);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, int arg) {
+    	return TypeFactory.getInstance().integerType().make(f, arg);
+    }
+    
+    
+    @Override
+    public IValue make(IValueFactory f, int startOffset, int length,
+    		int startLine, int endLine, int startCol, int endCol) {
+    	return TypeFactory.getInstance().sourceRangeType().make(f, startOffset, length, startLine, endLine, startCol, endCol);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, IValue... args) {
+    	// this could be anything that takes variable sized argument lists.
+    	// for a default, lets construct a tuple:
+    	return TypeFactory.getInstance().tupleType(args).make(f, args);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, String arg) {
+    	return TypeFactory.getInstance().stringType().make(f, arg);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, String path, ISourceRange range) {
+    	return TypeFactory.getInstance().sourceLocationType().make(f, path, range);
+    }
+
+    @Override
+    public <T> IValue make(IValueFactory f, T arg) {
+    	return TypeFactory.getInstance().objectType(arg.getClass()).make(f, arg);
+    };
+   
+    /**
+     * This method will create a tree node, no-matter if it is defined
+     * or not. If a tree node is defined for this name already it will
+     * be used if the types of the children match. If no such node exists
+     * some kind of default node is constructed.
+     */
+    @Override
+    public IValue make(IValueFactory f, String name, IValue... children) {
+    	TypeFactory tf = TypeFactory.getInstance();
+    	
+		List<TreeNodeType> possible = tf.lookupTreeNodeType(name);
+    	TupleType childrenTypes = tf.tupleType(children);
+    	for (TreeNodeType node : possible) {
+    		if (childrenTypes.isSubtypeOf(node.getChildrenTypes())) {
+    			return node.make(f, children);
+    		}
+    	}
+    	
+    	// otherwise simply return an anonymous constructor for 
+    	// an anonymous sort:
+    	TreeSortType sort = tf.treeSortType("org.eclipse.imp.pdb.values.AnonymousDefault");
+    	TreeNodeType node = tf.anonymousTreeType(sort, name, childrenTypes, "children");
+    	return node.make(f, childrenTypes.make(f, children));
     }
 }

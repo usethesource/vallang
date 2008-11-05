@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.io;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -145,7 +146,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseMap(Node node, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, node.getNodeName());
+		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		// TODO: implement overloading
+		TreeNodeType nodeType = nodeTypes.get(0);
 		MapType mapType = (MapType) nodeType.getChildType(0);
 		Type keyType = mapType.getKeyType();
 		Type valueType = mapType.getValueType();
@@ -190,7 +193,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseRelation(Node node, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, node.getNodeName());
+		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		// TODO implement overloading
+		TreeNodeType nodeType = nodeTypes.get(0);
 		TupleType fields = ((RelationType) nodeType.getChildType(0)).getFieldTypes();
 		NodeList children = node.getChildNodes();
 		IRelation relation = vf.relation(fields);
@@ -211,7 +216,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseSet(Node node, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, node.getNodeName());
+		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		// TODO implement overloading
+		TreeNodeType nodeType = nodeTypes.get(0);
 		Type elementType = ((SetType) nodeType.getChildType(0)).getElementType();
 		NodeList children = node.getChildNodes();
 		ISet set = vf.set(elementType);
@@ -239,7 +246,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseList(Node node, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, node.getNodeName());
+		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		// TODO implement overloading
+		TreeNodeType nodeType = nodeTypes.get(0);
 		Type elementType = ((ListType) nodeType.getChildType(0)).getElementType();
 		NodeList children = node.getChildNodes();
 		IList list = vf.list(elementType);
@@ -267,35 +276,35 @@ public class XMLReader implements IValueReader {
 	}
 
     /*package*/ static boolean isListWrapper(String name, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, name);
+		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isListType();
 	}
 	
 	/*package*/ static boolean isSetWrapper(String name, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, name);
+		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isSetType();
 	}
 	
 	/*package*/ static boolean isRelationWrapper(String name, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, name);
+		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isRelationType();
 	}
 	
 	/*package*/ static boolean isMapWrapper(String name, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, name);
+		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isMapType();
 	}
 
 	private IValue parseTreeSort(Node node, TreeSortType expected) {
-		TreeNodeType nodeType = tf.signatureGet(expected, node.getNodeName());
+		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, node.getNodeName()).get(0);
 		TupleType childrenTypes = nodeType.getChildrenTypes();
 		NodeList children = node.getChildNodes();
 		

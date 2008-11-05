@@ -18,4 +18,5 @@ public interface ITypeVisitor {
 	IValue visitTreeSort(TreeSortType type);
 	IValue visitTuple(TupleType type);
 	IValue visitValue(ValueType type);
+	IValue visitVoid(VoidType type);
 }

@@ -196,4 +196,8 @@ public class RelationType extends Type {
 	public IValue make(IValueFactory f) {
 		return f.relation(fTupleType);
 	}
+	
+	public IValue make(IValueFactory f, IValue...elems) {
+		return f.relation(elems);
+	}
 }

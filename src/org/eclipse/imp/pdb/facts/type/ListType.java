@@ -90,4 +90,8 @@ public class ListType extends Type {
 	public IValue make(IValueFactory f) {
 		return f.list(fEltType);
 	}
+	
+	public IValue make(IValueFactory f, IValue... elems) {
+		return f.list(elems);
+	}
 }

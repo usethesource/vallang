@@ -121,7 +121,7 @@ public interface IValueFactory {
      * @param elems an array or variable argument list of values
      * @return a set containing all the elements 
      */
-    public ISet set(IValue first, IValue... rest);
+    public ISet set(IValue... elems);
     
     /**
      * Construct an empty still modifiable list.
@@ -135,7 +135,7 @@ public interface IValueFactory {
      * @param elems the elements to put in the list
      * @return a list [a] of type list[a.getType()]
      */
-    public IList list(IValue first, IValue... rest);
+    public IList list(IValue... elems);
     
     /**
      * Constructs an new relation, using the provided tuple type as a schema
@@ -149,7 +149,7 @@ public interface IValueFactory {
      * @param elems an array or variable length argument list of tuples
      * @return a relation containing a number of elements
      */
-    public IRelation relation(ITuple first, ITuple... rest);
+    public IRelation relation(IValue... elems);
     
     /**
      * Creates an empty still modifiable map.

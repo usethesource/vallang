@@ -73,6 +73,7 @@ public class DoubleType extends Type {
 		return visitor.visitDouble(this);
 	}
 	
+	@Override
 	public IValue make(IValueFactory f, double arg) {
 		return f.dubble(arg);
 	}

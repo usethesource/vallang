@@ -48,7 +48,8 @@ public class TypeDescriptorFactory {
 	private TreeNodeType treeSortType = tf.treeNodeType(typeSort, "sort", tf.stringType(), "name");
 	private TreeNodeType tupleType = tf.treeNodeType(typeSort, "tuple", tf.listType(typeSort), "fields");
 	private TreeNodeType valueType = tf.treeNodeType(typeSort, "value");
-	
+	private TreeNodeType voidType = tf.treeNodeType(typeSort, "void");
+
 	private static class InstanceHolder {
 		public static TypeDescriptorFactory sInstance = new TypeDescriptorFactory();
 	}
@@ -190,7 +191,7 @@ public class TypeDescriptorFactory {
 	
 	private class ToTypeVisitor implements ITypeVisitor {
 		private IValueFactory vf;
-
+		
 		public ToTypeVisitor(IValueFactory factory) {
 			this.vf = factory;
 		}
@@ -277,6 +278,10 @@ public class TypeDescriptorFactory {
 
 		public ITree visitValue(ValueType type) {
 			return vf.tree(valueType);
+		}
+
+		public IValue visitVoid(VoidType type) {
+			return vf.tree(voidType);
 		}
 	}
 }

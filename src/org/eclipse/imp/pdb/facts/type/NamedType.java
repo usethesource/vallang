@@ -95,44 +95,42 @@ public class NamedType extends Type {
 		return visitor.visitNamed(this);
 	}
 	
+	@Override
 	public IInteger make(IValueFactory f, int arg) {
-		if (getBaseType().isIntegerType()) {
-			return f.integer(arg);
-		}
-		else {
-			throw new FactTypeError("This is not a subtype of integer: " + toString());
-		}
+		return (IInteger) getBaseType().make(f, arg);
 	}
 	
+	@Override
 	public IValue make(IValueFactory f) {
 		return getBaseType().make(f);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, IValue first, IValue... rest) {
-		Type type = first.getType();
-		for (IValue elem : rest) {
-			type = type.lub(elem.getType());
-		}
-		return type.getBaseType().make(f, first, rest);
+	public IValue make(IValueFactory f, IValue... children) {
+		return getBaseType().make(f, children);
 	}
 	
+	@Override
 	public <T> IValue make(IValueFactory f, T arg) {
 		return getBaseType().make(f, arg);
 	}
 	
+	@Override
 	public IValue make(IValueFactory f, String path, ISourceRange range) {
 	    return getBaseType().make(f, path, range);
 	}
 	
+	@Override
 	public IValue make(IValueFactory f,int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
 		return getBaseType().make(f, startOffset, length, startLine, endLine, startCol, endCol);
 	}
 	
+	@Override
 	public IValue make(IValueFactory f, double arg) {
 		return getBaseType().make(f, arg);
 	}
 	
+	@Override
 	public IValue make(IValueFactory f, String arg) {
 		return getBaseType().make(f, arg);
 	}
