@@ -24,7 +24,7 @@ import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 
 /**
- * This abstract class does nothing except implementing identity. Extend it
+ * This abstract class does nothing except returning null. Extend it
  * to easily implement a visitor that visits selected types of IValues.
  * 
  */
