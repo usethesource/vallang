@@ -176,7 +176,7 @@ public class List extends Value  implements IList {
 		return fList.equals(other.fList);
 	}
 	
-	public IValue accept(IValueVisitor v) throws VisitorException {
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitList(this);
 	}
 	

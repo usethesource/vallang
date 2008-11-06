@@ -75,7 +75,7 @@ public class ObjectType<T> extends Type {
 	}
 	
 	@Override
-	public IValue accept(ITypeVisitor visitor) {
+	public <U> U accept(ITypeVisitor<U> visitor) {
 		return visitor.visitObject(this);
 	}
 	

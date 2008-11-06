@@ -22,59 +22,58 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
 
 /**
  * This abstract class does nothing except implementing identity. Extend it
  * to easily implement a visitor that visits selected types of IValues.
  * 
  */
-public abstract class IdentityVisitor implements IValueVisitor<IValue> {
-	public IValue visitDouble(IDouble o)  throws VisitorException{
-		return o;
+public abstract class NullVisitor<T> implements IValueVisitor<T> {
+	public T visitDouble(IDouble o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitInteger(IInteger o)  throws VisitorException{
-		return o;
+	public T visitInteger(IInteger o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitList(IList o)  throws VisitorException{
-		return o;
+	public T visitList(IList o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitMap(IMap o)  throws VisitorException{
-		return o;
+	public T visitMap(IMap o)  throws VisitorException{
+		return null;
 	}
 
-	public <T> IValue visitObject(IObject<T> o)  throws VisitorException{
-		return o;
+	public <U> T visitObject(IObject<U> o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitRelation(IRelation o)  throws VisitorException{
-		return o;
+	public T visitRelation(IRelation o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitSet(ISet o)  throws VisitorException{
-		return o;
+	public T visitSet(ISet o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitSourceLocation(ISourceLocation o)  throws VisitorException{
-		return o;
+	public T visitSourceLocation(ISourceLocation o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitSourceRange(ISourceRange o)  throws VisitorException{
-		return o;
+	public T visitSourceRange(ISourceRange o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitString(IString o)  throws VisitorException{
-		return o;
+	public T visitString(IString o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitTree(ITree o)  throws VisitorException{
-		return o;
+	public T visitTree(ITree o)  throws VisitorException{
+		return null;
 	}
 
-	public IValue visitTuple(ITuple o)  throws VisitorException{
-		return o;
+	public T visitTuple(ITuple o)  throws VisitorException{
+		return null;
 	}
 }

@@ -13,7 +13,6 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IDouble;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -49,7 +48,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return (int)(bits ^ (bits >>> 32));
     }
     
-    public IValue accept(IValueVisitor v) throws VisitorException {
+    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitDouble(this);
     };
     

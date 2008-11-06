@@ -110,7 +110,7 @@ public final class SetType extends Type {
     }
     
     @Override
-    public IValue accept(ITypeVisitor visitor) {
+    public <T> T accept(ITypeVisitor<T> visitor) {
     	return visitor.visitSet(this);
     }
 

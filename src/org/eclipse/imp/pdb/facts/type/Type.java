@@ -24,7 +24,7 @@ public abstract class Type {
 
 	public abstract boolean isSubtypeOf(Type other);
 
-	public abstract IValue accept(ITypeVisitor visitor);
+	public abstract <T> T accept(ITypeVisitor<T> visitor);
 
 	/**
 	 * @return a type descriptor suitable for use in serialization, which can be

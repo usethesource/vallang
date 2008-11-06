@@ -14,7 +14,6 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public final class MapType extends Type {
@@ -95,7 +94,7 @@ public final class MapType extends Type {
     }
     
     @Override
-    public IValue accept(ITypeVisitor visitor) {
+    public <T> T accept(ITypeVisitor<T> visitor) {
     	return visitor.visitMap(this);
     }
     

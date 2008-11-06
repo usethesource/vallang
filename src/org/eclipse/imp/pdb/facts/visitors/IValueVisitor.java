@@ -23,19 +23,18 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
 
-public interface IValueVisitor {
-   public IValue visitString(IString o) throws VisitorException;
-   public IValue visitDouble(IDouble o) throws VisitorException;
-   public IValue visitList(IList o) throws VisitorException;
-   public <T> IValue visitObject(IObject<T> o) throws VisitorException;
-   public IValue visitRelation(IRelation o) throws VisitorException;
-   public IValue visitSet(ISet o) throws VisitorException;
-   public IValue visitSourceLocation(ISourceLocation o) throws VisitorException;
-   public IValue visitSourceRange(ISourceRange o) throws VisitorException;
-   public IValue visitTuple(ITuple o) throws VisitorException;
-   public IValue visitTree(ITree o) throws VisitorException;
-   public IValue visitInteger(IInteger o) throws VisitorException;
-   public IValue visitMap(IMap o) throws VisitorException;
+public interface IValueVisitor<R> {
+   public R visitString(IString o) throws VisitorException;
+   public R visitDouble(IDouble o) throws VisitorException;
+   public R visitList(IList o) throws VisitorException;
+   public <T> R visitObject(IObject<T> o) throws VisitorException;
+   public R visitRelation(IRelation o) throws VisitorException;
+   public R visitSet(ISet o) throws VisitorException;
+   public R visitSourceLocation(ISourceLocation o) throws VisitorException;
+   public R visitSourceRange(ISourceRange o) throws VisitorException;
+   public R visitTuple(ITuple o) throws VisitorException;
+   public R visitTree(ITree o) throws VisitorException;
+   public R visitInteger(IInteger o) throws VisitorException;
+   public R visitMap(IMap o) throws VisitorException;
 }

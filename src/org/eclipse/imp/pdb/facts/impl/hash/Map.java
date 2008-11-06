@@ -132,7 +132,7 @@ class Map extends Value implements IMap {
 		return fMap.equals(other.fMap);
 	}
 
-	public IValue accept(IValueVisitor v) throws VisitorException {
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitMap(this);
 	}
 

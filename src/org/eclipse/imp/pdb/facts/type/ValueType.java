@@ -64,7 +64,7 @@ public class ValueType extends Type {
     }
     
     @Override
-    public IValue accept(ITypeVisitor visitor) {
+    public <T> T accept(ITypeVisitor<T> visitor) {
     	return visitor.visitValue(this);
     }
     

@@ -12,7 +12,6 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
 
 /** 
  * The void type represents an empty collection of values. I.e. it 
@@ -31,7 +30,7 @@ public class VoidType extends Type {
 	private VoidType() { }
 	
 	@Override
-	public IValue accept(ITypeVisitor visitor) {
+	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitVoid(this);
 	}
 

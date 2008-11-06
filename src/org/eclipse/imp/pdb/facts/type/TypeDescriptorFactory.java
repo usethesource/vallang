@@ -12,7 +12,6 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -22,7 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.IValueReader;
 import org.eclipse.imp.pdb.facts.io.IValueWriter;
-import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
+import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
@@ -84,112 +83,91 @@ public class TypeDescriptorFactory {
 	 */
 	public Type fromTypeDescriptor(IValue descriptor) throws TypeDeclarationException {
 		try {
-			FromTypeVisitor v = new FromTypeVisitor();
-			descriptor.accept(v);
-			return v.getResult();
+			return descriptor.accept(new FromTypeVisitor());
 		} catch (VisitorException e) {
 			throw new TypeDeclarationException(e.getMessage());
 		}
 	}
 	
-	private class FromTypeVisitor extends IdentityVisitor {
-		private Stack<Type> result = new Stack<Type>();
-
+	private class FromTypeVisitor extends NullVisitor<Type> {
 		@Override
-		public ITree visitTree(ITree o) throws VisitorException {
+		public Type visitTree(ITree o) throws VisitorException {
 			TreeNodeType node = o.getTreeNodeType();
 		
 			if (node == doubleType) {
-				result.push(tf.doubleType());
+				return tf.doubleType();
 			}
 			else if (node == integerType) {
-				result.push(tf.integerType());
+				return tf.integerType();
 			}
 			else if (node == listType) {
-				o.get("element").accept(this);
-				result.push(tf.listType(result.pop()));
+				return tf.listType(o.get("element").accept(this));
 			}
 			else if (node == mapType) {
-				o.get("value").accept(this);
-				o.get("key").accept(this);
-				result.push(tf.mapType(result.pop(), result.pop()));
+				return tf.mapType(o.get("key").accept(this), o.get("value").accept(this));
 			}
 			else if (node == namedType) {
-				o.get("super").accept(this);
-				String name = ((IString) o.get("name")).getValue();
-				result.push(tf.namedType(name, result.pop()));
+				return tf.namedType(((IString) o.get("name")).getValue(), o.get("super").accept(this));
 			}
 			else if (node == relationType) {
 				IList fieldValues = (IList) o.get("fields");
 				List<Type> fieldTypes = new LinkedList<Type>();
 				
 				for (IValue field : fieldValues) {
-					field.accept(this);
-					fieldTypes.add(result.pop());
+					fieldTypes.add(field.accept(this));
 				}
 				
-				result.push(tf.relType(tf.tupleType(fieldTypes)));
+				return tf.relType(tf.tupleType(fieldTypes));
 			}
 			else if (node == setType) {
-				o.get("element").accept(this);
-				result.push(tf.setType(result.pop()));
+				return tf.setType(o.get("element").accept(this));
 			}
 			else if (node == sourceLocationType) {
-				result.push(tf.sourceLocationType());
+				return tf.sourceLocationType();
 			}
 			else if (node == sourceRangeType) {
-				result.push(tf.sourceRangeType());
+				return tf.sourceRangeType();
 			}
 			else if (node == stringType) {
-				result.push(tf.stringType());
+				return tf.stringType();
 			}
 			else if (node == treeNodeType) {
-				o.get("sort").accept(this);
-				TreeSortType sort = (TreeSortType) result.pop();
-				
+				TreeSortType sort = (TreeSortType) o.get("sort").accept(this);
 				String name = ((IString) o.get("name")).getValue();
 				
 				IList childrenValues = (IList) o.get("children");
 				List<Type> childrenTypes = new LinkedList<Type>();
 				
 				for (IValue child : childrenValues) {
-					child.accept(this);
-					childrenTypes.add(result.pop());
+					childrenTypes.add(child.accept(this));
 				}
 				
-				result.push(tf.treeNodeType(sort, name, tf.tupleType(childrenTypes)));
+				return tf.treeNodeType(sort, name, tf.tupleType(childrenTypes));
 			}
 			else if (node == treeSortType) {
-				String name = ((IString) o.get("name")).getValue();
-				result.push(tf.treeSortType(name));
+				return tf.treeSortType(((IString) o.get("name")).getValue());
 			}
 			else if (node == tupleType) {
 				IList fieldValues = (IList) o.get("fields");
 				List<Type> fieldTypes = new LinkedList<Type>();
 				
 				for (IValue field : fieldValues) {
-					field.accept(this);
-					fieldTypes.add(result.pop());
+					fieldTypes.add(field.accept(this));
 				}
 				
-				result.push(tf.tupleType(fieldTypes));	
+				return tf.tupleType(fieldTypes);	
 			}
 			else if (node == valueType) {
-				result.push(tf.valueType());
-			}
-			else {
-				throw new FactTypeError("Unexpected type representation encountered: " + o);
+				return tf.valueType();
 			}
 			
-			return o;
+			
+			throw new FactTypeError("Unexpected type representation encountered: " + o);
 		}
 		
-		public Type getResult() {
-			return result.pop();
-		}
 	}
 	
-	private class ToTypeVisitor implements ITypeVisitor {
+	private class ToTypeVisitor implements ITypeVisitor<ITree> {
 		private IValueFactory vf;
 		
 		public ToTypeVisitor(IValueFactory factory) {
@@ -216,7 +194,7 @@ public class TypeDescriptorFactory {
 			return vf.tree(namedType, type.getSuperType().accept(this));
 		}
 
-		public <U> IValue visitObject(ObjectType<U> type) {
+		public <U> ITree visitObject(ObjectType<U> type) {
 			return vf.tree(objectType, vf.string(type.getClass().getCanonicalName()));
 		}
 		
@@ -275,7 +253,7 @@ public class TypeDescriptorFactory {
 			return vf.tree(valueType);
 		}
 
-		public IValue visitVoid(VoidType type) {
+		public ITree visitVoid(VoidType type) {
 			return vf.tree(voidType);
 		}
 	}

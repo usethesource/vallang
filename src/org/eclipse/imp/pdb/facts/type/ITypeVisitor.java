@@ -1,22 +1,21 @@
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
 
-public interface ITypeVisitor {
-	IValue visitDouble(DoubleType type);
-	IValue visitInteger(IntegerType type);
-	IValue visitList(ListType type);
-	IValue visitMap(MapType type);
-	IValue visitNamed(NamedType type);
-	<U> IValue visitObject(ObjectType<U> type);
-	IValue visitRelationType(RelationType type);
-	IValue visitSet(SetType type);
-	IValue visitSourceLocation(SourceLocationType type);
-	IValue visitSourceRange(SourceRangeType type);
-	IValue visitString(StringType type);
-	IValue visitTreeNode(TreeNodeType type);
-	IValue visitTreeSort(TreeSortType type);
-	IValue visitTuple(TupleType type);
-	IValue visitValue(ValueType type);
-	IValue visitVoid(VoidType type);
+public interface ITypeVisitor<T> {
+	T visitDouble(DoubleType type);
+	T visitInteger(IntegerType type);
+	T visitList(ListType type);
+	T visitMap(MapType type);
+	T visitNamed(NamedType type);
+	<U> T visitObject(ObjectType<U> type);
+	T visitRelationType(RelationType type);
+	T visitSet(SetType type);
+	T visitSourceLocation(SourceLocationType type);
+	T visitSourceRange(SourceRangeType type);
+	T visitString(StringType type);
+	T visitTreeNode(TreeNodeType type);
+	T visitTreeSort(TreeSortType type);
+	T visitTuple(TupleType type);
+	T visitValue(ValueType type);
+	T visitVoid(VoidType type);
 }

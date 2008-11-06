@@ -98,7 +98,7 @@ class Tuple extends Value implements ITuple {
         return 1;
     }
     
-    public IValue accept(IValueVisitor v) throws VisitorException {
+    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitTuple(this);
     }
     

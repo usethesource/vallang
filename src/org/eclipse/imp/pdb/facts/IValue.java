@@ -56,5 +56,5 @@ public interface IValue  {
      * 
      * @param
      */
-    IValue accept(IValueVisitor v) throws VisitorException;
+    <T> T accept(IValueVisitor<T> v) throws VisitorException;
 }

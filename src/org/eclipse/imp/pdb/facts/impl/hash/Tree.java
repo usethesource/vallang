@@ -76,7 +76,7 @@ public class Tree extends Value implements ITree {
 		fChildren.addAll(children);
 	}
 
-	public IValue accept(IValueVisitor v) throws VisitorException {
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitTree(this);
 	}
 

@@ -436,7 +436,7 @@ class Relation extends Value implements IRelation {
 		return fTuples.equals(other.fTuples);
 	}
 	
-	public IValue accept(IValueVisitor v) throws VisitorException {
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitRelation(this);
 	}
 	

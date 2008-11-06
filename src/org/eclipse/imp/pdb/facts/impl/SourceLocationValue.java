@@ -14,7 +14,6 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -56,7 +55,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return 10987 + 11923 * fPath.hashCode() + 9619 * fRange.hashCode();
     }
     
-    public IValue accept(IValueVisitor v) throws VisitorException {
+    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitSourceLocation(this);
     }
     

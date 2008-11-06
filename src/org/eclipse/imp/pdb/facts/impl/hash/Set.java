@@ -300,7 +300,7 @@ class Set extends Value implements ISet {
 		return rel.union(this);
 	}
 	
-	public IValue accept(IValueVisitor v) throws VisitorException {
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitSet(this);
 	}
 	

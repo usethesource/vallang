@@ -24,10 +24,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * This visitor will apply another visitor in a bottom-up fashion to an IValue 
  *
  */
-public class BottomUpVisitor extends VisitorAdapter {
+public class BottomUpVisitor extends VisitorAdapter<IValue> {
 	protected IValueFactory fFactory;
 
-	public BottomUpVisitor(IValueVisitor visitor, IValueFactory factory) {
+	public BottomUpVisitor(IValueVisitor<IValue> visitor, IValueFactory factory) {
 		super(visitor);
 		this.fFactory = factory;
 	}

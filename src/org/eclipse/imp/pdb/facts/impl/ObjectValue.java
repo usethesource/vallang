@@ -13,7 +13,6 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IObject;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -30,7 +29,7 @@ public class ObjectValue<T> extends Value implements IObject<T> {
 		return fValue;
 	}
 	
-	public IValue accept(IValueVisitor v) throws VisitorException {
+	public <U> U accept(IValueVisitor<U> v) throws VisitorException {
 		return v.visitObject(this);
 	}
 	

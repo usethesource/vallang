@@ -48,7 +48,7 @@ public class SourceRangeType extends Type {
     }
     
     @Override
-    public IValue accept(ITypeVisitor visitor) {
+    public <T> T accept(ITypeVisitor<T> visitor) {
     	return visitor.visitSourceRange(this);
     }
     
