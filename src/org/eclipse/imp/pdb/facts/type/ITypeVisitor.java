@@ -11,7 +11,11 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.type;
 
-
+/**
+ * Visitor interface for all kinds of IValues 
+ *
+ * @param <T> the result type of the visit methods
+ */
 public interface ITypeVisitor<T> {
 	T visitDouble(DoubleType type);
 	T visitInteger(IntegerType type);
