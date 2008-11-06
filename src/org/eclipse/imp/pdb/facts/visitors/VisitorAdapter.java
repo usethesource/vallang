@@ -27,58 +27,58 @@ import org.eclipse.imp.pdb.facts.ITuple;
  * Extend this class to easily create a reusable generic visitor implementation.
  *
  */
-public abstract class VisitorAdapter<R> implements IValueVisitor<R> {
-	protected IValueVisitor<R> fVisitor;
+public abstract class VisitorAdapter<T> implements IValueVisitor<T> {
+	protected IValueVisitor<T> fVisitor;
 
-	public VisitorAdapter(IValueVisitor<R> visitor) {
+	public VisitorAdapter(IValueVisitor<T> visitor) {
 		this.fVisitor = visitor;
 	}
 
-	public R visitDouble(IDouble o) throws VisitorException {
+	public T visitDouble(IDouble o) throws VisitorException {
 		return fVisitor.visitDouble(o);
 	}
 
-	public R visitInteger(IInteger o) throws VisitorException {
+	public T visitInteger(IInteger o) throws VisitorException {
 		return fVisitor.visitInteger(o);
 	}
 
-	public R visitList(IList o) throws VisitorException {
+	public T visitList(IList o) throws VisitorException {
 		return fVisitor.visitList(o);
 	}
 
-	public R visitMap(IMap o) throws VisitorException {
+	public T visitMap(IMap o) throws VisitorException {
 		return fVisitor.visitMap(o);
 	}
 
-	public <T> R visitObject(IObject<T> o) throws VisitorException {
+	public <U> T visitObject(IObject<U> o) throws VisitorException {
 		return fVisitor.visitObject(o);
 	}
 
-	public R visitRelation(IRelation o) throws VisitorException {
+	public T visitRelation(IRelation o) throws VisitorException {
 		return fVisitor.visitRelation(o);
 	}
 
-	public R visitSet(ISet o) throws VisitorException {
+	public T visitSet(ISet o) throws VisitorException {
 		return fVisitor.visitSet(o);
 	}
 
-	public R visitSourceLocation(ISourceLocation o) throws VisitorException {
+	public T visitSourceLocation(ISourceLocation o) throws VisitorException {
 		return fVisitor.visitSourceLocation(o);
 	}
 
-	public R visitSourceRange(ISourceRange o) throws VisitorException {
+	public T visitSourceRange(ISourceRange o) throws VisitorException {
 		return fVisitor.visitSourceRange(o);
 	}
 
-	public R visitString(IString o) throws VisitorException {
+	public T visitString(IString o) throws VisitorException {
 		return fVisitor.visitString(o);
 	}
 
-	public R visitTree(ITree o) throws VisitorException {
+	public T visitTree(ITree o) throws VisitorException {
 		return fVisitor.visitTree(o);
 	}
 
-	public R visitTuple(ITuple o) throws VisitorException {
+	public T visitTuple(ITuple o) throws VisitorException {
 		return fVisitor.visitTuple(o);
 	}
 }
