@@ -135,7 +135,7 @@ public class ValueType extends Type {
     	
     	// otherwise simply return an anonymous constructor for 
     	// an anonymous sort:
-    	TreeSortType sort = tf.treeSortType("org.eclipse.imp.pdb.values.AnonymousDefault");
+    	NamedTreeType sort = tf.namedTreeType("org.eclipse.imp.pdb.values.AnonymousDefault");
     	TreeNodeType node = tf.anonymousTreeType(sort, name, childrenTypes, "children");
     	return node.make(f, childrenTypes.make(f, children));
     }

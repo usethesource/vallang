@@ -34,10 +34,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  */
 public class TreeNodeType extends Type {
 	protected TupleType fChildrenTypes;
-	protected TreeSortType fNodeType;
+	protected NamedTreeType fNodeType;
 	protected String fName;
 	
-	/* package */ TreeNodeType(String name, TupleType childrenTypes, TreeSortType nodeType) {
+	/* package */ TreeNodeType(String name, TupleType childrenTypes, NamedTreeType nodeType) {
 		fName = name;
 		fChildrenTypes = childrenTypes;
 		fNodeType = nodeType;
@@ -128,7 +128,7 @@ public class TreeNodeType extends Type {
 		return fName;
 	}
 	
-	public TreeSortType getTreeSortType() {
+	public NamedTreeType getTreeSortType() {
 		return fNodeType;
 	}
 	

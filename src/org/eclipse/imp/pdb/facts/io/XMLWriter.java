@@ -36,7 +36,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeSortType;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,7 +73,7 @@ public class XMLWriter implements IValueWriter {
 		Type type = value.getType();
 		
 		if (type.isTreeSortType()) {
-			TreeSortType sort = (TreeSortType) type;
+			NamedTreeType sort = (NamedTreeType) type;
 			TreeNodeType node = ((ITree) value).getTreeNodeType();
 			String name = node.getName();
 			

@@ -22,10 +22,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * 
  * @see TreeNodeType
  */
-public class TreeSortType extends Type {
+public class NamedTreeType extends Type {
 	/* package */ String fName;
 	
-	/* package */ TreeSortType(String name) {
+	/* package */ NamedTreeType(String name) {
 		fName = name;
 	}
 	
@@ -87,7 +87,7 @@ public class TreeSortType extends Type {
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitTreeSort(this);
+		return visitor.visitNamedTree(this);
 	}
 	
 	public IValue make(IValueFactory vf, int arg) {

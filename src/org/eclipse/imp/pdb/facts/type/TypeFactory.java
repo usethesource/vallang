@@ -39,7 +39,7 @@ public class TypeFactory {
     /**
      * Keeps administration of declared tree node types
      */
-    private Map<TreeSortType, List<TreeNodeType>> fSignatures = new HashMap<TreeSortType, List<TreeNodeType>>();
+    private Map<NamedTreeType, List<TreeNodeType>> fSignatures = new HashMap<NamedTreeType, List<TreeNodeType>>();
 
     /**
      * Keeps administration of declared annotations 
@@ -73,7 +73,7 @@ public class TypeFactory {
     
     private NamedType sProtoNamedType = new NamedType(null, null);
     
-    private TreeSortType sProtoTreeSortType = new TreeSortType(null);
+    private NamedTreeType sProtoTreeSortType = new NamedTreeType(null);
 
     private ListType sProtoListType = new ListType(null);
     
@@ -492,7 +492,7 @@ public class TypeFactory {
      * @return a TreeSortType
      * @throws TypeDeclarationException when a NamedType with the same name was already declared. Redeclaration of a TreeSortType is ignored.
      */
-    public TreeSortType treeSortType(String name) throws TypeDeclarationException {
+    public NamedTreeType namedTreeType(String name) throws TypeDeclarationException {
     	sProtoTreeSortType.fName = name;
     	
     	Type result= fCache.get(sProtoTreeSortType);
@@ -507,7 +507,7 @@ public class TypeFactory {
              	throw new TypeDeclarationException("Can not redeclare a named type " + old + " with a tree sort type.");
             }
             
-            TreeSortType nt= new TreeSortType(name);
+            NamedTreeType nt= new NamedTreeType(name);
             fCache.put(nt, nt);
             
             fSignatures.put(nt, new LinkedList<TreeNodeType>());
@@ -516,7 +516,7 @@ public class TypeFactory {
         
         // re-declaration of tree sort types is harmless
         
-        return (TreeSortType) result;
+        return (NamedTreeType) result;
     }
     
     /**
@@ -527,7 +527,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public TreeNodeType treeNodeType(TreeSortType nodeType, String name, TupleType children) {
+    public TreeNodeType treeNodeType(NamedTreeType nodeType, String name, TupleType children) {
     	sProtoTreeType.fName = name;
     	sProtoTreeType.fChildrenTypes = children;
     	sProtoTreeType.fNodeType = nodeType;
@@ -557,7 +557,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public TreeNodeType treeNodeType(TreeSortType nodeType, String name, Type... children ) { 
+    public TreeNodeType treeNodeType(NamedTreeType nodeType, String name, Type... children ) { 
     	return treeNodeType(nodeType, name, tupleType(children));
     }
     
@@ -569,7 +569,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public TreeNodeType treeNodeType(TreeSortType nodeType, String name, Object... childrenAndLabels ) { 
+    public TreeNodeType treeNodeType(NamedTreeType nodeType, String name, Object... childrenAndLabels ) { 
     	return treeNodeType(nodeType, name, tupleType(childrenAndLabels));
     }
     
@@ -585,7 +585,7 @@ public class TypeFactory {
      * @param label       the label of the single child
      * @return
      */
-    public TreeNodeType anonymousTreeType(TreeSortType sort, String string,
+    public TreeNodeType anonymousTreeType(NamedTreeType sort, String string,
 			Type argType, String label) {
     	return treeNodeType(sort, null, TypeFactory.getInstance().tupleType(argType, label));
 	}
@@ -606,7 +606,7 @@ public class TypeFactory {
      * @param type
      * @return all tree node types that construct the given type
      */
-    public List<TreeNodeType> lookupTreeNodeTypes(TreeSortType type) {
+    public List<TreeNodeType> lookupTreeNodeTypes(NamedTreeType type) {
     	return fSignatures.get(type);
     }
     
@@ -617,7 +617,7 @@ public class TypeFactory {
      * @return a TreeNodeType if it was declared before
      * @throws a FactTypeError if the type was not declared before
      */
-    public List<TreeNodeType> lookupTreeNodeType(TreeSortType type, String constructorName) throws FactTypeError {
+    public List<TreeNodeType> lookupTreeNodeType(NamedTreeType type, String constructorName) throws FactTypeError {
     	List<TreeNodeType> result = new LinkedList<TreeNodeType>();
     	
     	for (TreeNodeType node : fSignatures.get(type)) {
@@ -635,13 +635,13 @@ public class TypeFactory {
     
     /**
      * Retrieve the type for an anonymous constructor.  
-     * See @link {@link TypeFactory#anonymousTreeType(TreeSortType, String, Type, String)})
+     * See @link {@link TypeFactory#anonymousTreeType(NamedTreeType, String, Type, String)})
      * for more information.
      * @param type TreeSortType to lookup the constructor for
      * @return an anonymous tree node type
      * @throws FactTypeError if the type does not have an anonymous constructor
      */
-    public TreeNodeType lookupAnonymousTreeNodeType(TreeSortType type) throws FactTypeError {
+    public TreeNodeType lookupAnonymousTreeNodeType(NamedTreeType type) throws FactTypeError {
     	for (TreeNodeType node : fSignatures.get(type)) {
     		if (node.getName() == null) {
     			return node;
@@ -658,7 +658,7 @@ public class TypeFactory {
      */
     public List<TreeNodeType> lookupTreeNodeType(String constructorName) {
     	List<TreeNodeType> result = new LinkedList<TreeNodeType>();
-    	for (TreeSortType sort : fSignatures.keySet()) {
+    	for (NamedTreeType sort : fSignatures.keySet()) {
     		for (TreeNodeType node : fSignatures.get(sort)) {
         		String name = node.getName();
     			if (name != null && name.equals(constructorName)) {

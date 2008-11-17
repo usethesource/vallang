@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  */
 public class TypeDescriptorFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
-	private TreeSortType typeSort = tf.treeSortType("Type");
+	private NamedTreeType typeSort = tf.namedTreeType("Type");
 	private TreeNodeType doubleType = tf.treeNodeType(typeSort, "double");
 	private TreeNodeType integerType = tf.treeNodeType(typeSort, "int");
 	private TreeNodeType listType = tf.treeNodeType(typeSort, "list", typeSort, "element");
@@ -44,7 +44,7 @@ public class TypeDescriptorFactory {
 	private TreeNodeType sourceRangeType = tf.treeNodeType(typeSort, "sourceRange");
 	private TreeNodeType stringType = tf.treeNodeType(typeSort, "string");
 	private TreeNodeType treeNodeType = tf.treeNodeType(typeSort, "tree", typeSort, "sort", tf.stringType(), "name", tf.listType(typeSort), "children");
-	private TreeNodeType treeSortType = tf.treeNodeType(typeSort, "sort", tf.stringType(), "name");
+	private TreeNodeType namedTreeType = tf.treeNodeType(typeSort, "sort", tf.stringType(), "name");
 	private TreeNodeType tupleType = tf.treeNodeType(typeSort, "tuple", tf.listType(typeSort), "fields");
 	private TreeNodeType valueType = tf.treeNodeType(typeSort, "value");
 	private TreeNodeType voidType = tf.treeNodeType(typeSort, "void");
@@ -132,7 +132,7 @@ public class TypeDescriptorFactory {
 				return tf.stringType();
 			}
 			else if (node == treeNodeType) {
-				TreeSortType sort = (TreeSortType) o.get("sort").accept(this);
+				NamedTreeType sort = (NamedTreeType) o.get("sort").accept(this);
 				String name = ((IString) o.get("name")).getValue();
 				
 				IList childrenValues = (IList) o.get("children");
@@ -144,8 +144,8 @@ public class TypeDescriptorFactory {
 				
 				return tf.treeNodeType(sort, name, tf.tupleType(childrenTypes));
 			}
-			else if (node == treeSortType) {
-				return tf.treeSortType(((IString) o.get("name")).getValue());
+			else if (node == namedTreeType) {
+				return tf.namedTreeType(((IString) o.get("name")).getValue());
 			}
 			else if (node == tupleType) {
 				IList fieldValues = (IList) o.get("fields");
@@ -234,8 +234,8 @@ public class TypeDescriptorFactory {
 			return vf.tree(treeNodeType, type.getTreeSortType().accept(this), vf.string(type.getName()), w.done());
 		}
 
-		public ITree visitTreeSort(TreeSortType type) {
-			return vf.tree(treeSortType, vf.string(type.getName()));
+		public ITree visitNamedTree(NamedTreeType type) {
+			return vf.tree(namedTreeType, vf.string(type.getName()));
 		}
 
 		public ITree visitTuple(TupleType type) {

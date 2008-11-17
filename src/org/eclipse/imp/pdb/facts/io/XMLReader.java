@@ -32,7 +32,7 @@ import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeSortType;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -94,7 +94,7 @@ public class XMLReader implements IValueReader {
 	
 	private IValue parse(Node node, Type expected) {
 		if (expected.isTreeSortType()) {
-			TreeSortType sort = (TreeSortType) expected;
+			NamedTreeType sort = (NamedTreeType) expected;
 			String name = node.getNodeName();
 			
 			if (isListWrapper(name,  sort)) {
@@ -140,7 +140,7 @@ public class XMLReader implements IValueReader {
 		return vf.string(node.getNodeValue());
 	}
 
-	private IValue parseMap(Node node, TreeSortType expected) {
+	private IValue parseMap(Node node, NamedTreeType expected) {
 		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
 		// TODO: implement overloading
 		TreeNodeType nodeType = nodeTypes.get(0);
@@ -186,7 +186,7 @@ public class XMLReader implements IValueReader {
 		return vf.tree(nodeType, writer.done());
 	}
 
-	private IValue parseRelation(Node node, TreeSortType expected) {
+	private IValue parseRelation(Node node, NamedTreeType expected) {
 		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
 		// TODO implement overloading
 		TreeNodeType nodeType = nodeTypes.get(0);
@@ -208,7 +208,7 @@ public class XMLReader implements IValueReader {
 		return vf.tree(nodeType, writer.done());
 	}
 
-	private IValue parseSet(Node node, TreeSortType expected) {
+	private IValue parseSet(Node node, NamedTreeType expected) {
 		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
 		// TODO implement overloading
 		TreeNodeType nodeType = nodeTypes.get(0);
@@ -237,7 +237,7 @@ public class XMLReader implements IValueReader {
 		return vf.tree(nodeType, writer.done());
 	}
 
-	private IValue parseList(Node node, TreeSortType expected) {
+	private IValue parseList(Node node, NamedTreeType expected) {
 		List<TreeNodeType> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
 		// TODO implement overloading
 		TreeNodeType nodeType = nodeTypes.get(0);
@@ -266,35 +266,35 @@ public class XMLReader implements IValueReader {
 		return vf.tree(nodeType, writer.done());
 	}
 
-    /*package*/ static boolean isListWrapper(String name, TreeSortType expected) {
+    /*package*/ static boolean isListWrapper(String name, NamedTreeType expected) {
 		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isListType();
 	}
 	
-	/*package*/ static boolean isSetWrapper(String name, TreeSortType expected) {
+	/*package*/ static boolean isSetWrapper(String name, NamedTreeType expected) {
 		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isSetType();
 	}
 	
-	/*package*/ static boolean isRelationWrapper(String name, TreeSortType expected) {
+	/*package*/ static boolean isRelationWrapper(String name, NamedTreeType expected) {
 		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isRelationType();
 	}
 	
-	/*package*/ static boolean isMapWrapper(String name, TreeSortType expected) {
+	/*package*/ static boolean isMapWrapper(String name, NamedTreeType expected) {
 		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, name).get(0);
 		
 		return nodeType.getArity() == 1 && 
 		nodeType.getChildrenTypes().getFieldType(0).isMapType();
 	}
 
-	private IValue parseTreeSort(Node node, TreeSortType expected) {
+	private IValue parseTreeSort(Node node, NamedTreeType expected) {
 		TreeNodeType nodeType = tf.lookupTreeNodeType(expected, node.getNodeName()).get(0);
 		TupleType childrenTypes = nodeType.getChildrenTypes();
 		NodeList children = node.getChildNodes();
@@ -331,7 +331,7 @@ public class XMLReader implements IValueReader {
 		IValueFactory vf = ValueFactory.getInstance();
 		TypeFactory tf = TypeFactory.getInstance();
 		XMLReader testReader = new XMLReader();
-		TreeSortType Boolean = tf.treeSortType("Boolean");
+		NamedTreeType Boolean = tf.namedTreeType("Boolean");
 		tf.treeNodeType(Boolean, "true");
 		tf.treeNodeType(Boolean, "false");
 		tf.treeNodeType(Boolean, "and", Boolean, Boolean);
@@ -339,7 +339,7 @@ public class XMLReader implements IValueReader {
 		tf.treeNodeType(Boolean, "not", Boolean);
 		tf.treeNodeType(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
 		
-		TreeSortType Name = tf.treeSortType("Name");
+		NamedTreeType Name = tf.namedTreeType("Name");
 		tf.treeNodeType(Name, "name", tf.stringType());
 		tf.treeNodeType(Boolean, "friends", tf.listType(Name));
 		tf.treeNodeType(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));

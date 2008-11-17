@@ -29,7 +29,7 @@ public interface ITypeVisitor<T> {
 	T visitSourceRange(SourceRangeType type);
 	T visitString(StringType type);
 	T visitTreeNode(TreeNodeType type);
-	T visitTreeSort(TreeSortType type);
+	T visitNamedTree(NamedTreeType type);
 	T visitTuple(TupleType type);
 	T visitValue(ValueType type);
 	T visitVoid(VoidType type);
