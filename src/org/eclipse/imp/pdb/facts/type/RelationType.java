@@ -12,12 +12,11 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 
-public class RelationType extends Type {
+public final class RelationType extends SetType {
     /*package*/ TupleType fTupleType;
 
     /**
@@ -25,7 +24,8 @@ public class RelationType extends Type {
      * @param tupleType
      */
     /*package*/ RelationType(TupleType tupleType) {
-        fTupleType= tupleType;
+        super(tupleType);
+        fTupleType = tupleType;
     }
     
     public int getArity() {
@@ -143,14 +143,6 @@ public class RelationType extends Type {
     	return b.toString();
     }
 
-	public RelationType product(RelationType r) {
-		return TypeFactory.getInstance().relationProduct(this, r);
-	}
-	
-	public RelationType product(TupleType r) {
-		return TypeFactory.getInstance().relType(TypeFactory.getInstance().tupleProduct(fTupleType, r));
-	}
-	
 	public boolean isReflexive() throws FactTypeError {
 		if (getArity() == 2) {
 			Type t1 = getFieldType(0);
@@ -200,11 +192,5 @@ public class RelationType extends Type {
 	
 	public IValue make(IValueFactory f, IValue...elems) {
 		return f.relation(elems);
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public IRelationWriter writer(IValueFactory f) {
-		return f.relationWriter(getFieldTypes());
 	}
 }

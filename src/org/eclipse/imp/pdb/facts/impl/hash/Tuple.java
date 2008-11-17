@@ -18,21 +18,21 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.TupleType;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Tuple extends Value implements ITuple {
-    protected IValue[] fElements;
-
-    /*package*/ Tuple(Type type) {
-    	super(type);
-    }
+    protected final IValue[] fElements;
 
     /*package*/ Tuple(IValue... elements) {
 	super(TypeFactory.getInstance().tupleType(elements));
 		this.fElements= elements;
+    }
+    
+    private Tuple(Tuple other) {
+    	super(other.getType());
+    	fElements = other.fElements;
     }
 
 	public int arity() {
@@ -104,12 +104,7 @@ class Tuple extends Value implements ITuple {
     
     @Override
     protected Object clone() throws CloneNotSupportedException {
-    	Tuple tmp = new Tuple(getType());
-    	
-    	// since tuples are immutable, no need to clone the elements
-    	tmp.fElements = fElements;
-    	
-    	return tmp;
+    	return new Tuple(this);
     }
 
 	public ITuple set(int i, IValue arg) {

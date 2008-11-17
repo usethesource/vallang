@@ -16,14 +16,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -33,16 +31,21 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Set extends Value implements ISet {
 	static class SetWriter  implements ISetWriter {
-		private final Set fSet; 
+		protected final ISet fSet; 
 
 		public SetWriter(Type eltType) {
-			fSet = new Set(eltType);
+			if (eltType.getBaseType().isTupleType()) {
+				fSet = new Relation((TupleType) eltType.getBaseType());
+			}
+			else {
+			  fSet = new Set(eltType);
+			}
 		}
 
 		public void insert(IValue... elems) throws FactTypeError {
 			for (IValue v : elems) {
-			  fSet.checkInsert(v);
-			  fSet.fSet.add(v);
+			  ((Set)fSet).checkInsert(v);
+			  ((Set)fSet).fSet.add(v);
 			}
 		}
 
@@ -52,21 +55,34 @@ class Set extends Value implements ISet {
 			}
 		}
 		
-		public ISet done() {
-			return fSet;
+		@SuppressWarnings("unchecked")
+		public <SetOrRel extends ISet> SetOrRel done() {
+			try {
+			  return (SetOrRel) fSet;
+			}
+			catch (ClassCastException e) {
+				throw new FactTypeError("done() returns a set or a relation");
+			}
 		}
 	}
 
-	HashSet<IValue> fSet = new HashSet<IValue>();
+	final HashSet<IValue> fSet;
 
 	/* package */Set(SetType setType) {
 		super(setType);
+		fSet = new HashSet<IValue>();
 	}
 	
 	/* package */Set(Type eltType) {
-		super(TypeFactory.getInstance().setType(eltType));
+		this(TypeFactory.getInstance().setType(eltType));
+	}
+	
+	protected Set(Set other) {
+		super(other.getType());
+		fSet = other.fSet;
 	}
 
+	@SuppressWarnings("unchecked")
 	public ISet insert(IValue element) throws FactTypeError {
 		SetType newType = checkInsert(element);
 		ISetWriter sw = new SetWriter(newType.getElementType());
@@ -80,6 +96,7 @@ class Set extends Value implements ISet {
 		return fSet.contains(element);
 	}
 
+	@SuppressWarnings("unchecked")
 	public ISet intersect(ISet other) throws FactTypeError {
 		SetType newType = checkSet(other);
 		ISetWriter w = new SetWriter(newType.getElementType());
@@ -94,6 +111,7 @@ class Set extends Value implements ISet {
 		return w.done();
 	}
 
+	@SuppressWarnings("unchecked")
 	public ISet invert(ISet universe) throws FactTypeError {
 		ISet result = universe.subtract(this);
 		
@@ -112,6 +130,7 @@ class Set extends Value implements ISet {
 		return fSet.size();
 	}
 
+	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other) throws FactTypeError {
 		SetType newType = checkSet(other);
 		ISetWriter sw = new SetWriter(newType.getElementType());
@@ -123,7 +142,8 @@ class Set extends Value implements ISet {
 		return sw.done();
 	}
 
-	public ISet union(ISet other) {
+	@SuppressWarnings("unchecked")
+	public <SetOrRel extends ISet> SetOrRel union(ISet other) {
 		SetType newType = checkSet(other);
 		ISetWriter w = new SetWriter(newType.getElementType());
 
@@ -134,7 +154,15 @@ class Set extends Value implements ISet {
 			// this can not happen
 		}
 		
-		return w.done();
+		try {
+			// either a set or a relation is returned. If the caller
+			// expected a relation, but the union constructed a set
+			// this will throw a ClassCastException
+			return (SetOrRel) w.done();
+		}
+		catch (ClassCastException e) {
+			throw new FactTypeError("Union did not result in a relation.", e);
+		}
 	}
 
 	public Iterator<IValue> iterator() {
@@ -154,63 +182,13 @@ class Set extends Value implements ISet {
 		return sb.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	public IRelation toRelation() throws FactTypeError {
-		if (!getElementType().isTupleType()) {
-			throw new FactTypeError("toRelation: element type is not tuple");
-		}
-		
-		TupleType t = (TupleType) ((SetType) getType().getBaseType()).getElementType();
-		IRelationWriter w = new Relation.RelationWriter(t);
-		try {
-			w.insertAll((Iterable<? extends ITuple>) this);
-		} catch (FactTypeError e) {
-			// this will not happen
-		}
-		
-		return w.done();
-	}
-
 	public Type getElementType() {
 		return ((SetType) fType.getBaseType()).getElementType();
 	}
 
-	public IRelation product(IRelation r) {
-		TypeFactory f = TypeFactory.getInstance();
-		RelationType t1 = f.relType(f.tupleType(getElementType()));
-		RelationType relType = t1.product((RelationType) r.getBaseType());
-		IRelationWriter w = new Relation.RelationWriter(relType.getFieldTypes());
-		int width = relType.getArity();
-
-		try {
-			for (IValue v1 : this) {
-				for (ITuple t2 : r) {
-					IValue[] e2 = ((Tuple) t2).fElements;
-					IValue[] e3 = new IValue[width];
-
-					e3[0] = v1;
-					
-					for (int i = 1; i < width; i++) {
-						e3[i] = e2[i - 1];
-					}
-
-					ITuple t3 = new Tuple(e3);
-
-					w.insert(t3);
-
-				}
-			}
-		} catch (FactTypeError e) {
-			// does not happen since we have constructed the correct types
-			// above.
-		}
-		
-		return w.done();
-	}
-	
 	public IRelation product(ISet set) {
-		TupleType resultType = TypeFactory.getInstance().tupleType(getElementType(), set.getElementType());
-		IRelationWriter w = new Relation.RelationWriter(resultType);
+		TupleType resultType = TypeFactory.getInstance().tupleType(getElementType(),set.getElementType());
+		ISetWriter w = new SetWriter(resultType);
 
 		try {
 			for (IValue t1 : this) {
@@ -224,7 +202,7 @@ class Set extends Value implements ISet {
 			// above.
 		}
 		
-		return w.done();
+		return (IRelation) w.done();
 	}
 	
 	private SetType checkInsert(IValue element) throws FactTypeError {
@@ -246,21 +224,8 @@ class Set extends Value implements ISet {
 		return TypeFactory.getInstance().setType(eltType);
 	}
 	
-	private RelationType checkRelation(IRelation o) throws FactTypeError {
-		SetType t = (SetType) getType().getBaseType();
-		RelationType newType = (RelationType) t.lub(o.getType());
-		
-		if (!newType.getBaseType().isRelationType()) {
-			throw new FactTypeError("relation type " + o.getType() + " is not compatible with this set's type: " + getType());
-		}
-		
-		return newType;
-	}
-	
 	@Override
 	public boolean equals(Object o) {
-		// TODO: should we allow IRelation here?
-		// TODO: should the types be equal?
 		if (!(o instanceof Set)) {
 			return false;
 		}
@@ -270,44 +235,12 @@ class Set extends Value implements ISet {
 		return fSet.equals(other.fSet);
 	}
 
-	public IRelation intersect(IRelation rel) throws FactTypeError {
-		return rel.intersect(this);
-	}
-
-	public IRelation invert(IRelation universe) throws FactTypeError {
-		IRelation result = universe.subtract(this);
-		
-		if (size() + result.size() != universe.size()) {
-			throw new FactTypeError("Universe is a not a superset of this set");
-		}
-		
-		return result;
-	}
-
-	public IRelation subtract(IRelation rel) throws FactTypeError {
-		RelationType newType = checkRelation(rel);
-		IRelationWriter sw = new Relation.RelationWriter(newType.getFieldTypes());
-		for (IValue a : fSet) {
-			ITuple t = (ITuple) a;
-			if (!rel.contains(t)) {
-				sw.insert(t);
-			}
-		}
-		return sw.done();
-	}
-
-	public IRelation union(IRelation rel) throws FactTypeError {
-		return rel.union(this);
-	}
-	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitSet(this);
 	}
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Set tmp = new Set((SetType) getType());
-		tmp.fSet = fSet;
-		return tmp;
+		return new Set(this);
 	}
 }

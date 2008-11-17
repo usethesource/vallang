@@ -22,7 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -194,7 +193,7 @@ public class XMLReader implements IValueReader {
 		RelationType relType = (RelationType) nodeType.getChildType(0);
 		TupleType fields = relType.getFieldTypes();
 		NodeList children = node.getChildNodes();
-		IRelationWriter writer = relType.writer(vf);
+		ISetWriter writer = relType.writer(vf);
 		
 		for (int i = 0; i < children.getLength(); ) {
 			IValue[] elements = new IValue[fields.getArity()];

@@ -155,8 +155,8 @@ public class XMLWriter implements IValueWriter {
 	private Node yieldRelation(ITree tree, Document doc) {
 		Element treeNode = doc.createElement(tree.getName());
 		IRelation relation = (IRelation) tree.get(0);
-		
-		for (ITuple tuple : relation) {
+		 
+		for (IValue tuple : relation) {
 			appendTupleElements(doc, treeNode, tuple);
 		}
 

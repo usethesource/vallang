@@ -18,5 +18,5 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 public interface ISetWriter {
     void insert(IValue... v) throws FactTypeError ;
     void insertAll(Iterable<? extends IValue> collection) throws FactTypeError;
-    ISet done();
+    <SetOrRel extends ISet> SetOrRel done();
 }

@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITree;
@@ -50,17 +49,22 @@ public class ValueFactory extends BaseValueFactory {
 			throw new FactTypeError("elements are not tuples");
 		}
 		
-		IRelationWriter rw = relationWriter((TupleType) elementType);
+		ISetWriter rw = setWriter((TupleType) elementType);
 		rw.insert(tuples);
-		return rw.done();
+		return (IRelation) rw.done();
 	}
 	
-	public IRelationWriter relationWriter(TupleType tupleType) {
-		return new Relation.RelationWriter(tupleType);
+	public ISetWriter relationWriter(TupleType tupleType) {
+		return new Set.SetWriter(tupleType);
 	}
 
 	public ISet set(Type eltType) {
-		return new Set(eltType);
+		if (eltType.getBaseType().isTupleType()) {
+			return new Relation(eltType);
+		}
+		else {
+		  return new Set(eltType);
+		}
 	}
 	
 	public ISetWriter setWriter(Type eltType) {

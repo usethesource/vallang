@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public abstract class Value implements IValue {
-    protected Map<String, IValue> fAnnotations = new HashMap<String, IValue>();
+    protected final Map<String, IValue> fAnnotations = new HashMap<String, IValue>();
     
 	/**
      * The type of this value

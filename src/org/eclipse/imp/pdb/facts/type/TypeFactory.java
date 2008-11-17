@@ -277,26 +277,6 @@ public class TypeFactory {
     }
 
     /**
-     * This method is not for public use. Computes a product of a tuple
-     * by concatenating the arrays of tuple types.
-     * @param t1
-     * @param t2
-     * @return
-     */
-    /*package */ TupleType tupleProduct(TupleType t1, TupleType t2) {
-    	int N = t1.getArity() + t2.getArity();
-    	Type[] fieldTypes = sProtoTuple.getFieldTypes(N);
-    	
-    	for(int i = 0; i < t1.getArity(); i++) {
-    		fieldTypes[i] = t1.getFieldType(i);
-    	}
-    	for (int i = t1.getArity(), j = 0; i < N; i++, j++) {
-    		fieldTypes[i] = t2.getFieldType(j);
-    	}
-    	return getOrCreateTuple(N, fieldTypes);
-    }
-    
-    /**
      * Construct a tuple type. 
      * @return a reference to the unique empty tuple type.
      */
@@ -844,21 +824,6 @@ public class TypeFactory {
 		return getOrCreateTuple(N, fieldTypes);
 	}
 
-	/*package*/ RelationType relationProduct(RelationType type1, RelationType type2) {
-		int N = type1.getArity() + type2.getArity();
-		Type[] fieldTypes = sProtoTuple.getFieldTypes(N);
-		
-		for (int i = 0; i < type1.getArity(); i++) {
-			fieldTypes[i] = type1.getFieldType(i);
-		}
-		
-		for (int i = type1.getArity(), j = 0; i < N; i++, j++) {
-			fieldTypes[i] = type2.getFieldType(j);
-		}
-		
-		return relType(getOrCreateTuple(N, fieldTypes));
-	}
-	
 	/**
 	 * Checks to see if a string is a valid PDB identifier
 	 * 

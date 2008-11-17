@@ -24,29 +24,15 @@ public interface ISet extends Iterable<IValue>, IValue {
 
     public boolean contains(IValue element) throws FactTypeError;
 
-    public ISet insert(IValue element) throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel insert(IValue element) throws FactTypeError;
 
-    public ISet union(ISet set)  throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel union(ISet set)  throws FactTypeError;
     
-    public IRelation union(IRelation rel)  throws FactTypeError;
-
-    public ISet intersect(ISet set)  throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel intersect(ISet set)  throws FactTypeError;
     
-    public IRelation intersect(IRelation rel) throws FactTypeError;
-
-    public ISet subtract(ISet set)  throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel subtract(ISet set)  throws FactTypeError;
     
-    public IRelation subtract(IRelation set)  throws FactTypeError;
-
-    public ISet invert(ISet universe)  throws FactTypeError;
-    
-    public IRelation invert(IRelation universe)  throws FactTypeError;
-
-    public IRelation toRelation() throws FactTypeError;
-    
-    public IRelation product(IRelation rel);
+    public <SetOrRel extends ISet> SetOrRel invert(ISet universe)  throws FactTypeError;
     
     public IRelation product(ISet set);
-
-	
 }

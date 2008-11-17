@@ -79,10 +79,6 @@ public class TupleType extends Type implements Iterable<Type> {
         return fFieldTypes.length;
     }
     
-    public TupleType product(TupleType other) {
-    	return TypeFactory.getInstance().tupleProduct(this, other);
-    }
-    
     public TupleType compose(TupleType other) {
     	return TypeFactory.getInstance().tupleCompose(this, other);
     }

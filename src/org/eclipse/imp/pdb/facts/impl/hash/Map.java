@@ -65,14 +65,24 @@ class Map extends Value implements IMap {
 		}
 	}
 
-	HashMap<IValue,IValue> fMap = new HashMap<IValue,IValue>();
+	final HashMap<IValue,IValue> fMap;
 
 	/* package */Map(MapType mapType) {
 		super(mapType);
+		fMap = new HashMap<IValue,IValue>();
 	}
 	
 	/* package */Map(Type keyType, Type valueType) {
-		super(TypeFactory.getInstance().mapType(keyType, valueType));
+		this(TypeFactory.getInstance().mapType(keyType, valueType));
+	}
+	
+	/**
+	 * Used for efficient cloning.
+	 * @param other
+	 */
+	private Map(Map other) {
+		super(other.fType);
+		fMap = other.fMap;
 	}
 
 	public boolean isEmpty() {
@@ -92,14 +102,15 @@ class Map extends Value implements IMap {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("{ ");
+		sb.append("(");
 		int idx = 0;
 		for (IValue a : this) {
-			if (idx++ > 0)
-				sb.append(",\n  ");
-			sb.append(a.toString());
+			if (idx++ > 0) {
+				sb.append(",");
+			}
+			sb.append(a.toString() + ":" + get(a).toString());
 		}
-		sb.append("\n}");
+		sb.append(")");
 		return sb.toString();
 	}
 
@@ -161,8 +172,6 @@ class Map extends Value implements IMap {
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Map tmp = new Map(getKeyType(), getValueType());
-		tmp.fMap = fMap;
-		return tmp;
+		return new Map(this);
 	}
 }

@@ -33,9 +33,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  *
  */
 public class Tree extends Value implements ITree {
-    protected ArrayList<IValue> fChildren;
-    protected IValueFactory fFactory;
-    protected TreeNodeType fType;
+    protected final ArrayList<IValue> fChildren;
+    protected final IValueFactory fFactory;
+    protected final TreeNodeType fType;
     
 	/*package*/ Tree(IValueFactory factory, NamedType type, IValue[] children) {
 		this(factory, (TreeNodeType) type.getBaseType(), children);
@@ -52,6 +52,9 @@ public class Tree extends Value implements ITree {
 			for (IValue child : children) {
 				fChildren.add(child);
 			}
+		}
+		else {
+			fChildren = new ArrayList<IValue>();
 		}
 	}
 
@@ -74,6 +77,20 @@ public class Tree extends Value implements ITree {
 		
 		fChildren = new ArrayList<IValue>();
 		fChildren.addAll(children);
+	}
+	
+	private Tree(Tree other) {
+		super(other.fType);
+		fType = other.fType;
+		fFactory = other.fFactory;
+		fChildren = other.fChildren;
+	}
+	
+	private Tree(Tree other, final ArrayList<IValue> newChildren) {
+		super(other.fType);
+		fType = other.fType;
+		fFactory = other.fFactory;
+		fChildren = newChildren;
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
@@ -123,10 +140,9 @@ public class Tree extends Value implements ITree {
 
 	@SuppressWarnings("unchecked")
 	public  ITree set(int i, IValue newChild) {
-		Tree tmp = new Tree(fFactory, fType, null);
-	    tmp.fChildren = (ArrayList<IValue>) fChildren.clone();
-		tmp.fChildren.set(i, newChild);
-		return tmp;
+		ArrayList<IValue> newChildren = (ArrayList<IValue>) fChildren.clone();
+		newChildren.set(i, newChild);
+		return new Tree(this, newChildren);
 	}
 	
 	public ITree set(String label, IValue newChild) {
@@ -179,10 +195,6 @@ public class Tree extends Value implements ITree {
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		Tree tmp = new Tree(fFactory, getTreeNodeType());
-		
-		// no need to clone children, since IValues are immutable
-		tmp.fChildren = fChildren;
-		return tmp;
+		return new Tree(this);
 	}
 }

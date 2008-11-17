@@ -17,22 +17,17 @@ import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
-import org.eclipse.imp.pdb.facts.type.RelationType;
-import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class List extends Value  implements IList {
-	/* package */LinkedList<IValue> fList = new LinkedList<IValue>();
+	/* package */final LinkedList<IValue> fList;
 
 	/* package */ static class ListWriter implements IListWriter {
 		private List fValue;
@@ -52,23 +47,10 @@ public class List extends Value  implements IList {
 			}
 		}
 
-		public void insertAll(IList other) throws FactTypeError {
-		    fValue.checkInsert(other.getElementType());
-			fValue.fList.addAll(0, ((List) other).fList);
-		}
-
-		public void insertAll(IRelation other) throws FactTypeError {
-			SetType st = ((RelationType) other.getType().getBaseType()).toSet();
-			fValue.checkInsert(st.getElementType());
-			for (ITuple t : other) {
-				fValue.fList.add(0, t);
-			}
-		}
-
-		public void insertAll(ISet set) throws FactTypeError {
-			fValue.checkInsert(set.getElementType());
-			for (IValue t : set) {
-				fValue.fList.add(0, t);
+		public void insert(int index, IValue... elems) throws FactTypeError {
+			for (IValue e : elems) {
+				fValue.checkInsert(e);
+				fValue.fList.add(index++, e);
 			}
 		}
 		
@@ -85,6 +67,8 @@ public class List extends Value  implements IList {
 			}
 		}
 		
+		
+		
 		public IList done() {
 			return fValue;
 		}
@@ -96,6 +80,12 @@ public class List extends Value  implements IList {
 	/* package */List(Type eltType) {
 		super(TypeFactory.getInstance().listType(eltType));
 		this.fEltType = eltType;
+		fList = new LinkedList<IValue>();
+	}
+	
+	private List(List other) {
+		super(other.getType());
+		fList = other.fList;
 	}
 	
 	public Type getElementType() {
@@ -182,9 +172,7 @@ public class List extends Value  implements IList {
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		List tmp = new List(getElementType());
-		tmp.fList = fList;
-		return tmp;
+		return new List(this);
 	}
 
 	public boolean isEmpty() {

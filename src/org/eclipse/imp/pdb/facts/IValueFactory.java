@@ -169,7 +169,7 @@ public interface IValueFactory {
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
-    public IRelationWriter relationWriter(TupleType tupleType);
+    public ISetWriter relationWriter(TupleType tupleType);
     
     /**
      * Construct a relation with a fixed number of tuples in it

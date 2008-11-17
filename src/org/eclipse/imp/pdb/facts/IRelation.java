@@ -15,46 +15,37 @@ package org.eclipse.imp.pdb.facts;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 
-public interface IRelation extends Iterable<ITuple>, IValue {
-    public boolean isEmpty();
-
-    public int size();
-
+public interface IRelation extends ISet, IValue {
     public int arity();
 
-    public IRelation insert(ITuple tuple) throws FactTypeError ;
-
-    public boolean contains(ITuple tuple) throws FactTypeError ;
-
-    public IRelation union(IRelation rel)  throws FactTypeError;
-
-    public IRelation intersect(IRelation rel) throws FactTypeError;
-
-    public IRelation subtract(IRelation rel) throws FactTypeError;
-
-    public IRelation invert(IRelation universe) throws FactTypeError;
-    
-    public IRelation product(IRelation rel);
-    
-    public IRelation product(ISet set);
-
+    /**
+     * Computes the composition of this relation, with type rel[t_1...t_n]
+     * with another relation with type rel[u_1...u_m].
+     * 
+     * @param rel another relation 
+     * @return a relation with type rel[t_1,...,t_n-1,u_2...u_m]
+     * @throws FactTypeError when t_n is not a sub-type of u_1
+     */
     public IRelation compose(IRelation rel) throws FactTypeError;
 
+    /**
+     * Computes non-reflexive closure of a relation, but only
+     * if this is a binary and symmetric relation (the field types are
+     * equivalent)
+     * 
+     * @return a relation with the same type as the receiver
+     * @throws FactTypeError if this relation is not a binary or symmetric.
+     */
     public IRelation closure() throws FactTypeError;
 
-    public IRelation union(ISet set) throws FactTypeError;
-
-    public IRelation intersect(ISet set) throws FactTypeError;
-
-    public IRelation subtract(ISet set) throws FactTypeError;
-
-    public IRelation invert(ISet universe) throws FactTypeError;
-    
-    public ISet toSet();
-    
+    /**
+     * Computes the carrier of the relation, which is the set
+     * of all elements of all tuples that it is composed of.
+     * 
+     * @return a set with as element type the least upperbound
+     * of the field types of the relation.
+     */
     public ISet carrier();
-    
-    public IList topologicalOrderedList() throws FactTypeError;
     
     public TupleType getFieldTypes();
 }

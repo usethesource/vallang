@@ -75,7 +75,7 @@ public class BottomUpVisitor extends VisitorAdapter<IValue> {
 	public IValue visitRelation(IRelation o) throws VisitorException {
 		IRelation result = fFactory.relation(o.getFieldTypes());
 		
-		for (ITuple tuple : o) {
+		for (IValue tuple : o) {
 			result.insert((ITuple) tuple.accept(this));
 		}
 		
