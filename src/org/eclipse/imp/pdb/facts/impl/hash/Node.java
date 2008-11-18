@@ -37,7 +37,7 @@ public class Node extends Tree implements INode {
 
 	@Override
 	public Type getType() {
-		return fType.getNamedTreeType();
+		return fType.getSuperType();
 	}
 
 	public ITree set(String label, IValue newChild) {

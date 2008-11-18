@@ -123,17 +123,12 @@ public class TreeNodeType extends Type {
 		return fName;
 	}
 	
-	public NamedTreeType getNamedTreeType() {
+	public NamedTreeType getSuperType() {
 		return fTreeType;
 	}
 	
 	public Type getChildType(int i) {
 		return fChildrenTypes.getFieldType(i);
-	}
-	
-	@Override
-	public Type getBaseType() {
-		return fTreeType;
 	}
 	
 	@Override

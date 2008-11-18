@@ -235,7 +235,7 @@ public class TypeDescriptorFactory {
 				w.append(field.accept(this));
 			}
 			
-			return vf.tree(treeNodeType, type.getNamedTreeType().accept(this), vf.string(type.getName()), w.done());
+			return vf.tree(treeNodeType, type.getSuperType().accept(this), vf.string(type.getName()), w.done());
 		}
 
 		public ITree visitNamedTree(NamedTreeType type) {

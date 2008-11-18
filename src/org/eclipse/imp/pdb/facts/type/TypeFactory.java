@@ -524,7 +524,7 @@ public class TypeFactory {
     	}
     	
     	if (onType.isTreeNodeType()) {
-    		localAnnotations = fAnnotations.get(((TreeNodeType) onType).getNamedTreeType());
+    		localAnnotations = fAnnotations.get(((TreeNodeType) onType).getSuperType());
     		if (localAnnotations != null) {
     		  result.putAll(localAnnotations);
     		}
