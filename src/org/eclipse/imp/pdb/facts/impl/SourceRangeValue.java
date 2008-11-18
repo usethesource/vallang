@@ -42,6 +42,16 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	}
 
+	private SourceRangeValue(SourceRangeValue other) {
+		super(other);
+		fStartOffset = other.fStartOffset;
+		fLength = other.fLength;
+		fStartLine = other.fStartLine;
+		fEndLine = other.fEndLine;
+		fStartCol = other.fStartCol;
+		fEndCol = other.fEndCol;
+	}
+
 	public int getEndColumn() {
 		return fEndCol;
 	}
@@ -97,6 +107,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-	      return new SourceRangeValue(fStartOffset, fLength, fStartLine, fEndLine, fStartCol, fEndCol );
+	      return new SourceRangeValue(this);
 	}
 }

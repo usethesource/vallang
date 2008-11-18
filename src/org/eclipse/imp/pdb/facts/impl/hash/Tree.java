@@ -11,173 +11,112 @@
 
 package org.eclipse.imp.pdb.facts.impl.hash;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
- * Naive implementation of a typed tree node, using array of children.
- * 
- *
+ * Naive implementation of an untyped tree node, using array of children.
  */
 public class Tree extends Value implements ITree {
-    protected final ArrayList<IValue> fChildren;
-    protected final IValueFactory fFactory;
-    protected final TreeNodeType fType;
-    
-	/*package*/ Tree(IValueFactory factory, NamedType type, IValue[] children) {
-		this(factory, (TreeNodeType) type.getBaseType(), children);
-		
+    protected final IValue[] fChildren;
+    protected final String fName;
+	
+	/*package*/ Tree(String name, IValue[] children) {
+		super(TypeFactory.getInstance().treeType());
+		fName = name;
+		fChildren = new IValue[children.length];
+		System.arraycopy(children, 0, fChildren, 0, children.length);
 	}
 	
-	/*package*/ Tree(IValueFactory factory, TreeNodeType type, IValue[] children) {
-		super(type);
-		fType = type;
-		fFactory = factory;
-		
-		if (children != null) {
-			fChildren = new ArrayList<IValue>(children.length);
-			for (IValue child : children) {
-				fChildren.add(child);
-			}
-		}
-		else {
-			fChildren = new ArrayList<IValue>();
-		}
+	/*package*/ Tree(String name) {
+		this(name, new IValue[0]);
 	}
 
-	public Tree(IValueFactory factory, TreeNodeType type) {
-		super(type);
-		fType = type;
-		fFactory = factory;
-		fChildren = new ArrayList<IValue>();
-	}
-
-	public Tree(IValueFactory factory, NamedType type) {
-		this(factory, (TreeNodeType) type.getBaseType());
-	}
-
-	
-	public Tree(ValueFactory factory, TreeNodeType type, List<IValue> children) {
-		super(type);
-		fType = type;
-		fFactory = factory;
-		
-		fChildren = new ArrayList<IValue>();
-		fChildren.addAll(children);
-	}
-	
 	private Tree(Tree other) {
-		super(other.fType);
-		fType = other.fType;
-		fFactory = other.fFactory;
+		super(other);
+		fName = other.fName;
 		fChildren = other.fChildren;
 	}
 	
-	private Tree(Tree other, final ArrayList<IValue> newChildren) {
-		super(other.fType);
-		fType = other.fType;
-		fFactory = other.fFactory;
-		fChildren = newChildren;
-	}
-
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitTree(this);
 	}
 
 	public int arity() {
-		return ((TreeNodeType) fType).getArity();
+		return fChildren.length;
 	}
 
 	public IValue get(int i) {
 		try {
-		 return fChildren.get(i);
+		 return fChildren[i];
 		}
 		catch (ArrayIndexOutOfBoundsException e) {
 			throw new FactTypeError("Tree node does not have child at pos " + i, e);
 		}
 	}
 
-	public IValue get(String label) {
-		return get(((TreeNodeType) fType).getChildIndex(label));
-	}
-
 	public Iterable<IValue> getChildren() {
 		return this;
 	}
 
-	public TupleType getChildrenTypes() {
-		return ((TreeNodeType) fType).getChildrenTypes();
-	}
-
 	public String getName() {
-		return ((TreeNodeType) fType).getName();
-	}
-
-	public TreeNodeType getTreeNodeType() {
-		return fType;
-	}
-	
-	@Override
-	/**
-	 * returns the type this tree node produces
-	 */
-	public Type getType() {
-		return fType.getTreeSortType();
+		return fName;
 	}
 
 	@SuppressWarnings("unchecked")
 	public  ITree set(int i, IValue newChild) {
-		ArrayList<IValue> newChildren = (ArrayList<IValue>) fChildren.clone();
-		newChildren.set(i, newChild);
-		return new Tree(this, newChildren);
+		try {
+			Tree clone = (Tree) clone();
+			clone.fChildren[i] = newChild;
+			return clone;
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new FactTypeError("Tree node does not have child at pos " + i, e);
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException("Internal error: all IValues should implement clone method", e); 
+		}
 	}
 	
-	public ITree set(String label, IValue newChild) {
-		return set(((TreeNodeType) fType).getChildIndex(label), newChild);
-	}
 
 	public Iterator<IValue> iterator() {
-		return fChildren.iterator();
+		return new Iterator<IValue>() {
+			private int i = 0;
+
+			public boolean hasNext() {
+				return i < fChildren.length;
+			}
+
+			public IValue next() {
+				return fChildren[i++];
+			}
+
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		String name = fType.getName();
 		
-		if (name != null) {
-			builder.append(name);
-		}
+		builder.append(fName);
+		builder.append("(");
 		
-		if (name != null) {
-			if (fChildren.size() > 0) {
-				builder.append("(");
-				Iterator<IValue> it = iterator();
-				while (it.hasNext()) {
-					builder.append(it.next().toString());
-					if (it.hasNext()) {
-						builder.append(",");
-					}
-				}
-				builder.append(")");
+		Iterator<IValue> it = iterator();
+		while (it.hasNext()) {
+			builder.append(it.next().toString());
+			if (it.hasNext()) {
+				builder.append(",");
 			}
-		} else {
-			// anonymous constructors always have one child
-			builder.append(fChildren.get(0).toString());
 		}
+		builder.append(")");
 		
 		return builder.toString();
 	}
@@ -186,7 +125,18 @@ public class Tree extends Value implements ITree {
 	public boolean equals(Object obj) {
 		if (obj instanceof Tree) {
 			Tree other = (Tree) obj;
-		   return fType == 	other.fType && fChildren.equals(other.fChildren);
+			if (fType != other.fType) {
+				return false;
+			}
+			if (fChildren.length != other.fChildren.length) {
+				return false;		
+			}
+			for (int i = 0; i < fChildren.length; i++) {
+				if (!fChildren[i].equals(other.fChildren[i])) {
+					return false;
+				}
+			}
+			return true;
 		}
 		else {
 			return false;

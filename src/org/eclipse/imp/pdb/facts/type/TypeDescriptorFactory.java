@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -34,6 +35,7 @@ public class TypeDescriptorFactory {
 	private NamedTreeType typeSort = tf.namedTreeType("Type");
 	private TreeNodeType doubleType = tf.treeNodeType(typeSort, "double");
 	private TreeNodeType integerType = tf.treeNodeType(typeSort, "int");
+	private TreeNodeType treeType = tf.treeNodeType(typeSort, "tree");
 	private TreeNodeType listType = tf.treeNodeType(typeSort, "list", typeSort, "element");
 	private TreeNodeType mapType = tf.treeNodeType(typeSort, "map", typeSort, "key", typeSort, "value");
 	private TreeNodeType namedType = tf.treeNodeType(typeSort, "named", typeSort, "super");
@@ -91,7 +93,7 @@ public class TypeDescriptorFactory {
 	
 	private class FromTypeVisitor extends NullVisitor<Type> {
 		@Override
-		public Type visitTree(ITree o) throws VisitorException {
+		public Type visitNode(INode o) throws VisitorException {
 			TreeNodeType node = o.getTreeNodeType();
 		
 			if (node == doubleType) {
@@ -99,6 +101,9 @@ public class TypeDescriptorFactory {
 			}
 			else if (node == integerType) {
 				return tf.integerType();
+			}
+			else if (node == treeType) {
+				return tf.treeType();
 			}
 			else if (node == listType) {
 				return tf.listType(o.get("element").accept(this));
@@ -164,7 +169,6 @@ public class TypeDescriptorFactory {
 			
 			throw new FactTypeError("Unexpected type representation encountered: " + o);
 		}
-		
 	}
 	
 	private class ToTypeVisitor implements ITypeVisitor<ITree> {
@@ -231,7 +235,7 @@ public class TypeDescriptorFactory {
 				w.append(field.accept(this));
 			}
 			
-			return vf.tree(treeNodeType, type.getTreeSortType().accept(this), vf.string(type.getName()), w.done());
+			return vf.tree(treeNodeType, type.getNamedTreeType().accept(this), vf.string(type.getName()), w.done());
 		}
 
 		public ITree visitNamedTree(NamedTreeType type) {
@@ -255,6 +259,10 @@ public class TypeDescriptorFactory {
 
 		public ITree visitVoid(VoidType type) {
 			return vf.tree(voidType);
+		}
+
+		public ITree visitTree(TreeType type) {
+			return vf.tree(treeType);
 		}
 	}
 }

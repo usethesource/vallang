@@ -27,6 +27,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fPath= path;
         fRange= range;
     }
+    
+    private SourceLocationValue(SourceLocationValue other) {
+    	super(other);
+    	fPath = other.fPath;
+    	fRange = other.fRange;
+	}
 
 	public String getPath() {
         return fPath;
@@ -61,6 +67,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     protected Object clone() throws CloneNotSupportedException {
-    		return new SourceLocationValue(fPath, fRange);
+    		return new SourceLocationValue(this);
     }
 }

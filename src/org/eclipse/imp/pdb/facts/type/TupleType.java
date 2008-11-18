@@ -79,46 +79,80 @@ public class TupleType extends Type implements Iterable<Type> {
         return fFieldTypes.length;
     }
     
+    private TupleType tupleCompose(TupleType type, TupleType other) {
+		int N = type.getArity() + other.getArity() - 2;
+		Type[] fieldTypes = new Type[N];
+		
+		for (int i = 0; i < type.getArity() - 1; i++) {
+			fieldTypes[i] = type.getFieldType(i);
+		}
+		
+		for (int i = type.getArity() - 1, j = 1; i < N; i++, j++) {
+			fieldTypes[i] = other.getFieldType(j);
+		}
+		
+		return TypeFactory.getInstance().tupleType(fieldTypes);
+	}
+    
     public TupleType compose(TupleType other) {
-    	return TypeFactory.getInstance().tupleCompose(this, other);
+    	return tupleCompose(this, other);
     }
 
     @Override
     public boolean isSubtypeOf(Type other) {
-        if (other == this || other.isValueType()) {
-        	return true;
-        }
-        else if (other.isTupleType()) {
-        	TupleType o = (TupleType) other;
-        	if (getArity() == o.getArity()) {
-        		for (int i = 0; i < getArity(); i++) {
-        			if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
-        				return false;
-        			}
-        		}
-        		return true;
-        	}
-        }
-        	
-        return false;
+    	if (other == this) {
+			return true; // optimize to prevent loop
+		} else if (other.isTupleType()) {
+			TupleType o = (TupleType) other;
+			if (getArity() == o.getArity()) {
+				for (int i = 0; i < getArity(); i++) {
+					if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+
+		return super.isSubtypeOf(other);
     }
 
-    @Override
-    public Type lub(Type other) {
-    	if (other.isSubtypeOf(this)) {
-    		return this;
-    	}
-    	else if (other.isTupleType()) {
-    		TupleType o = (TupleType) other;
-    		if (getArity() == o.getArity()) {
-    	      return TypeFactory.getInstance().lubTupleTypes(this, o);
-    		}
-    	}
-    	else if (other.isNamedType()) {
-    		return lub(((NamedType) other).getSuperType());
+    /**
+     * Compute a new tupletype that is the lub of t1 and t2. 
+     * Precondition: t1 and t2 have the same arity.
+     * @param t1
+     * @param t2
+     * @return a TupleType which is the lub of t1 and t2
+     */
+    private TupleType lubTupleTypes(TupleType t1, TupleType t2) {
+    	int N = t1.getArity();
+    	
+    	
+    	// Note that this function may eventually be recursive (via lub) in the case of nested tuples.
+    	// This poses a problem since we would overwrite sPrototuple.fFieldTypes
+    	// Therefore fFieldTypes in the prototype is used as a stack, and fStart points to the
+    	// bottom of the current stack frame.
+    	// The goal is to prevent any kind of memory allocation when computing lub (for efficiency).
+    	Type[] fieldTypes = new Type[N];
+    	
+    	for (int i = 0; i < N; i++) {
+    		fieldTypes[i] = t1.getFieldType(i).lub(t2.getFieldType(i));
     	}
     	
-    	return TypeFactory.getInstance().valueType();
+    	TupleType result = TypeFactory.getInstance().tupleType(fieldTypes);
+    	
+    	return result;
+    }
+    
+    @Override
+    public Type lub(Type other) {
+    	if (other.isTupleType()) {
+    		TupleType o = (TupleType) other;
+    		if (getArity() == o.getArity()) {
+    	      return lubTupleTypes(this, o);
+    		}
+    	}
+    	return super.lub(other);
     }
 
     @Override
@@ -154,11 +188,16 @@ public class TupleType extends Type implements Iterable<Type> {
             if (fFieldTypes[i] != other.fFieldTypes[i]) {
                 return false;
             }
-            
-            if (fFieldNames[i] != null && !fFieldNames[i].equals(other.fFieldNames[i])) {
-            	return false;
-            }
         }
+        
+        if (fFieldNames != null) {
+        	for (int i = 0; i < fFieldNames.length; i++) {
+              if (!fFieldNames[i].equals(other.fFieldNames[i])) {
+            	  return false;
+              }
+        	}
+        }
+        
         return true;
     }
 

@@ -34,33 +34,24 @@ public class ListType extends Type {
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (this == other || other.isValueType()) {
-			return true;
-		}
-		else if (other.isListType()) {
+		if (other.isListType()) {
 			ListType o = (ListType) other;
 			return fEltType.isSubtypeOf(o.getElementType());
 		}
-		return false;
+		else {
+			return super.isSubtypeOf(other);
+		}
 	}
 
 	@Override
 	public Type lub(Type other) {
-		if (this == other) {
-			return this;
-		}
-		else if (other.isValueType()) {
-			return other;
-		}
-		else if (other.isListType()) {
+		if (other.isListType()) {
 			ListType o = (ListType) other;
 			return TypeFactory.getInstance().listType(fEltType.lub(o.getElementType()));
 		}
-		else if (other.isNamedType()) {
-			return lub(other.getBaseType());
+		else {
+			return super.lub(other);
 		}
-		
-		return TypeFactory.getInstance().valueType();
 	}
 	
 	@Override

@@ -93,7 +93,7 @@ public class XMLReader implements IValueReader {
 	}
 	
 	private IValue parse(Node node, Type expected) {
-		if (expected.isTreeSortType()) {
+		if (expected.isNamedTreeType()) {
 			NamedTreeType sort = (NamedTreeType) expected;
 			String name = node.getNodeName();
 			

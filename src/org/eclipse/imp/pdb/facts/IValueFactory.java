@@ -12,8 +12,6 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
@@ -88,29 +86,35 @@ public interface IValueFactory {
     public ITuple tuple(IValue... args);
     
     /**
-     * Construct a nullary tree node
+     * Construct a nullary generic tree node
+     * @param name the name of the tree node
+     * @return a new tree value
+     */
+    public ITree tree(String name);
+    
+    /**
+     * Construct a generic tree node
+     * @param name     the name of the node
+     * @param children the edges (children) of the node
+     * @return a new tree node
+     */
+    public ITree tree(String name, IValue... children);
+    
+    /**
+     * Construct a typed nullary tree node
      * @param type     the tree node type to use
      * @return a new tree value
      */
-    public ITree tree(TreeNodeType type);
+    public INode tree(TreeNodeType type);
     
     /**
-     * Construct a tree node
+     * Construct a typed tree node
      * @param type     the tree node type to use
      * @param children an array or variable length argument list of children
      * @return a new tree value
      * @throws FactTypeError if the children are not of the expected types for this node type
      */
-    public ITree tree(TreeNodeType type, IValue... children) throws FactTypeError;
-    
-    /**
-     * Construct a tree node
-     * @param type     the tree node type to use
-     * @param children a list of children
-     * @return a new tree value
-     * @throws FactTypeError if the children are not of the expected types for this node type
-     */
-    public IValue tree(TreeNodeType type, List<IValue> children)  throws FactTypeError;
+    public INode tree(TreeNodeType type, IValue... children) throws FactTypeError;
     
     /**
      * Construct an empty unmodifiable set

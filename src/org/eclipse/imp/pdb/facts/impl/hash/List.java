@@ -84,7 +84,7 @@ public class List extends Value  implements IList {
 	}
 	
 	private List(List other) {
-		super(other.getType());
+		super(other);
 		fList = other.fList;
 	}
 	

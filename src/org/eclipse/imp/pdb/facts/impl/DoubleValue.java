@@ -24,6 +24,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         super(TypeFactory.getInstance().doubleType());
         fValue= value;
     }
+    
+    private DoubleValue(DoubleValue other) {
+    	super(other);
+    	fValue = other.fValue;
+    }
 
 	public double getValue() {
         return fValue;
@@ -54,6 +59,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     protected Object clone() throws CloneNotSupportedException {
-    	return new DoubleValue(fValue);
+    	return new DoubleValue(this);
     }
 }

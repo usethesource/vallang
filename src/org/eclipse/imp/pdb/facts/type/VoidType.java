@@ -43,8 +43,6 @@ public class VoidType extends Type {
 
 	@Override
 	public Type lub(Type other) {
-		// since void is the subtype of all other types
-		// the lub is trivially the other type
 		return other;
 	}
 	

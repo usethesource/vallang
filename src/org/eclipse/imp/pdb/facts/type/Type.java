@@ -20,9 +20,25 @@ public abstract class Type {
 	/**
 	 * @return the least upper bound type of the receiver and the argument type
 	 */
-	public abstract Type lub(Type other);
+	public Type lub(Type other) {
+		// this is the default implementation. Subclasses should override
+		// to take their immediate super types into account.
+		if (other == this) {
+			return this;
+		}
+		else if (other.isNamedType()) {
+			return other.lub(this);
+		}
+		else {
+			return TypeFactory.getInstance().valueType();
+		}
+	}
 
-	public abstract boolean isSubtypeOf(Type other);
+	public boolean isSubtypeOf(Type other) {
+		// this is the default implementation. Subclasses should override
+		// to take their immediate super types into account.
+		return other.isValueType() || other == this;
+	}
 
 	public abstract <T> T accept(ITypeVisitor<T> visitor);
 
@@ -86,11 +102,15 @@ public abstract class Type {
 		return false;
 	}
 
+	public boolean isTreeType() {
+		return false;
+	}
+	
 	public boolean isTreeNodeType() {
 		return false;
 	}
 
-	public boolean isTreeSortType() {
+	public boolean isNamedTreeType() {
 		return false;
 	}
 

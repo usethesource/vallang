@@ -25,6 +25,11 @@ public class ObjectValue<T> extends Value implements IObject<T> {
     	fValue = o;
 	}
     
+    private ObjectValue(ObjectValue<T> other) {
+    	super(other);
+    	fValue = other.fValue;
+    }
+    
 	public T getValue() {
 		return fValue;
 	}
@@ -35,6 +40,6 @@ public class ObjectValue<T> extends Value implements IObject<T> {
 	
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		return new ObjectValue<T>(getType(), fValue);
+		return new ObjectValue<T>(this);
 	}
 }

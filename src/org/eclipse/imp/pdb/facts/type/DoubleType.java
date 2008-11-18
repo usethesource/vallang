@@ -30,25 +30,6 @@ public class DoubleType extends Type {
 		return true;
 	}
 	
-	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other.isValueType()) {
-			return true;
-		} else {
-			return other == this;
-		}
-	}
-
-	@Override
-	public Type lub(Type other) {
-		if (other.isSubtypeOf(this)) {
-			return this;
-		}
-		else {
-			return TypeFactory.getInstance().valueType();
-		}
-	}
-
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType

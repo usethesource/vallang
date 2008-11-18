@@ -46,69 +46,24 @@ public final class RelationType extends SetType {
     }
     
     public boolean isSubtypeOf(Type other) {
-        if (other == this || other.isValueType()) {
-        	return true;
-        }
-        else if (other.isSetType()) {
-        	SetType o = (SetType) other;
-        	Type eltType = o.getElementType();
-        	
-        	if (fTupleType == eltType) {
-        		return true;
-        	}
-        	else if (eltType.isTupleType()) {
-        		return fTupleType.isSubtypeOf(eltType);
-        	}
-        	else if (eltType.isValueType()) {
-        		return true;
-        	}
-        }
-        else if (other.isRelationType()) {
+        if (other.isRelationType()) {
         	RelationType o = (RelationType) other;
         	return fTupleType.isSubtypeOf(o.fTupleType);
         }
-        
-        return false;
+        else {
+        	return super.isSubtypeOf(other);
+        }
     }
 
     @Override
     public Type lub(Type other) {
-    	if (other == this) {
-    		return this;
-    	}
-    	else if (other.isValueType()) {
-    		return other;
-    	}
-    	else if (other.isSetType()) {
-    		SetType o = (SetType) other;
-        	Type eltType = o.getElementType();
-        	Type lub = fTupleType.lub(eltType);
-        	
-        	if (lub.isTupleType()) {
-        		return  TypeFactory.getInstance().relType((TupleType) lub);
-        	}
-        	
-            // The upper bound on tuples of different arity is just ValueType,
-            // so if the set's element type was tuple, but the arity didn't match,
-            // just return set[lub].
-            // N.B.: fTupleType.lub(eltType) would compute Value, so the below is just an optimization.
-        	return TypeFactory.getInstance().setType(lub);
-    	}
-    	else if (other.isRelationType()) {
+    	if (other.isRelationType()) {
     		RelationType o = (RelationType) other;
-    		Type lub = fTupleType.lub(o.fTupleType);
-    		
-    		if (lub.isTupleType()) {
-    			return TypeFactory.getInstance().relType((TupleType) lub);
-    		}
-    		
-    		return TypeFactory.getInstance().setType(lub);
+    		return TypeFactory.getInstance().setType(fTupleType.lub(o.fTupleType));
     	}
-    	else if (other.isNamedType()) {
-    		return lub(((NamedType) other).getSuperType());
+    	else {
+    		return super.lub(other);
     	}
-    	
-    	return TypeFactory.getInstance().valueType();
     }
 
     @Override

@@ -12,8 +12,6 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -115,29 +113,9 @@ public class ValueType extends Type {
     	return TypeFactory.getInstance().objectType(arg.getClass()).make(f, arg);
     };
    
-    /**
-     * This method will create a tree node, no-matter if it is defined
-     * or not. If a tree node is defined for this name already it will
-     * be used if the types of the children match. If no such node exists
-     * some kind of default node is constructed.
-     */
     @Override
     public IValue make(IValueFactory f, String name, IValue... children) {
-    	TypeFactory tf = TypeFactory.getInstance();
-    	
-		List<TreeNodeType> possible = tf.lookupTreeNodeType(name);
-    	TupleType childrenTypes = tf.tupleType(children);
-    	for (TreeNodeType node : possible) {
-    		if (childrenTypes.isSubtypeOf(node.getChildrenTypes())) {
-    			return node.make(f, children);
-    		}
-    	}
-    	
-    	// otherwise simply return an anonymous constructor for 
-    	// an anonymous sort:
-    	NamedTreeType sort = tf.namedTreeType("org.eclipse.imp.pdb.values.AnonymousDefault");
-    	TreeNodeType node = tf.anonymousTreeType(sort, name, childrenTypes, "children");
-    	return node.make(f, childrenTypes.make(f, children));
+    	return f.tree(name, children);
     }
     
     @SuppressWarnings("unchecked")

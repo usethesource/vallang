@@ -12,25 +12,42 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
- * Typed trees. Trees are typed according to an algebraic signature (grammar).
- * @see TypeFactory and @see TreeType and @see TreeSortType
- * 
- * @author jurgenv
+ * Untyped tree representation, can iterate over the list of children.
  *
  */
 public interface ITree extends IValue, Iterable<IValue> {
+	/**
+	 * Get a child
+	 * @param i the zero based index of the child
+	 * @return a value
+	 */
 	public IValue get(int i);
-	public IValue get(String label);
-	public ITree  set(int i, IValue newChild);
-	public ITree  set(String label, IValue newChild);
+	
+	/**
+	 * Change this tree to have a different child at a certain position.
+	 * 
+	 * @param <TreeOrNode> may be a untyped tree or a typed tree node that is returned, depending on the receiver.
+	 * @param i            the zero based index of the child to be replaced
+	 * @param newChild     the new value for the child
+	 * @return an untyped tree with the new child at position i, if the receiver was untyped,
+	 *         or a typed tree node if it was typed.
+	 */
+	public <TreeOrNode extends ITree> TreeOrNode set(int i, IValue newChild);
+	
+	/**
+	 * @return the (fixed) number of children of this tree
+	 */
 	public int arity();
+	
+	/**
+	 * @return the name of this tree (an identifier)
+	 */
 	public String getName();
-	public TreeNodeType getTreeNodeType();
-	public TupleType getChildrenTypes();
+	
+	/**
+	 * @return an iterator over the children, equivalent to 'this'.
+	 */
 	public Iterable<IValue> getChildren();
 }

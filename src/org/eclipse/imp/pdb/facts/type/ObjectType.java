@@ -22,28 +22,6 @@ public class ObjectType<T> extends Type {
     	fClass = clazz;
 	}
     
-	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == TypeFactory.getInstance().valueType()) {
-			return true;
-		}
-		else {
-			return other == this;
-		}
-	}
-
-	@Override
-	public Type lub(Type other) {
-		if (other == this) {
-			return this;
-		}
-		else if (other.isNamedType()) {
-    		return lub(((NamedType) other).getSuperType());
-    	}
-		
-		return TypeFactory.getInstance().valueType();
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object o) {

@@ -15,44 +15,52 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class IntegerType extends Type {
-    private final static IntegerType sInstance= new IntegerType();
-
-    /*package*/ static IntegerType getInstance() {
-        return sInstance;
+public class TreeType extends Type {
+	private static class InstanceHolder {
+		public static final TreeType sInstance= new TreeType();
+	}
+	
+    public static TreeType getInstance() {
+        return InstanceHolder.sInstance;
     }
 
-    private IntegerType() { }
+    private TreeType() { }
 
     @Override
-    public boolean isIntegerType() {
+    public boolean isTreeType() {
     	return true;
     }
     
-    /**
-     * Should never need to be called; there should be only one instance of IntegerType
-     */
-    @Override
-    public boolean equals(Object obj) {
-        return (obj instanceof IntegerType);
-    }
-
-    @Override
-    public int hashCode() {
-        return 74843;
-    }
-
     @Override
     public String toString() {
-        return "integer";
+        return "tree";
+    }
+    
+    /**
+     * Should never be called, TreeType is a singleton 
+     */
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof TreeType);
+    }
+    
+    @Override
+    public int hashCode() {
+    	return 20102;
     }
     
     @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitInteger(this);
+    	return visitor.visitTree(this);
     }
     
-    public IValue make(IValueFactory f, int arg) {
-    	return f.integer(arg);
+    @Override
+    public IValue make(IValueFactory f, String name) {
+    	return f.tree(name);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, String name, IValue... children) {
+    	return f.tree(name, children);
     }
 }

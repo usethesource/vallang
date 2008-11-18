@@ -23,61 +23,28 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class TypeFactory {
 	private static class InstanceHolder {
-      public static TypeFactory sInstance = new TypeFactory();
+      public static final TypeFactory sInstance = new TypeFactory();
 	}
 
     /**
      * Caches all types to implement canonicalization
      */
-    private Map<Type,Type> fCache = new WeakHashMap<Type,Type>();
+	private final Map<Type,Type> fCache = new WeakHashMap<Type,Type>();
 
     /**
      * Keeps administration of declared type aliases (NamedTypes)
      */
-    private Map<String, NamedType> fNamedTypes= new HashMap<String, NamedType>();
+    private final Map<String, NamedType> fNamedTypes= new HashMap<String, NamedType>();
     
     /**
      * Keeps administration of declared tree node types
      */
-    private Map<NamedTreeType, List<TreeNodeType>> fSignatures = new HashMap<NamedTreeType, List<TreeNodeType>>();
+    private final Map<NamedTreeType, List<TreeNodeType>> fSignatures = new HashMap<NamedTreeType, List<TreeNodeType>>();
 
     /**
      * Keeps administration of declared annotations 
      */
-    private Map<Type, Map<String, Type>> fAnnotations = new HashMap<Type, Map<String, Type>>();
-
-    private ValueType sValueType= ValueType.getInstance();
-    
-    private VoidType sVoidType = VoidType.getInstance();
-    
-    @SuppressWarnings("unchecked")
-	private ObjectType sProtoObjectType = new ObjectType(null);
-
-    private IntegerType sIntegerType= IntegerType.getInstance();
-
-    private DoubleType sDoubleType= DoubleType.getInstance();
-    
-    private StringType sStringType= StringType.getInstance();
-
-    private SourceRangeType sSourceRangeType= SourceRangeType.getInstance();
-
-    private SourceLocationType sSourceLocationType= SourceLocationType.getInstance();
-
-    private SetType sProtoSet = new SetType(null);
-    
-    private MapType sProtoMap = new MapType(null, null);
-
-    private RelationType sProtoRelation= new RelationType((TupleType) null);
-
-    private TuplePrototype sProtoTuple= TuplePrototype.getInstance();
-    
-    private NamedType sProtoNamedType = new NamedType(null, null);
-    
-    private NamedTreeType sProtoTreeSortType = new NamedTreeType(null);
-
-    private ListType sProtoListType = new ListType(null);
-    
-    private TreeNodeType sProtoTreeType = new TreeNodeType(null, null, null);
+    private final Map<Type, Map<String, Type>> fAnnotations = new HashMap<Type, Map<String, Type>>();
 
     public static TypeFactory getInstance() {
         return InstanceHolder.sInstance;
@@ -91,7 +58,7 @@ public class TypeFactory {
      * @return a unique reference to the value type
      */
     public Type valueType() {
-        return sValueType;
+        return ValueType.getInstance();
     }
     
     /**
@@ -101,31 +68,35 @@ public class TypeFactory {
      * @return a unique reference to the void type
      */
     public Type voidType() {
-    	return sVoidType;
+    	return VoidType.getInstance();
     }
 
+    private Type getFromCache(final Type t) {
+    	synchronized(fCache){
+			final Type result = fCache.get(t);
+	
+			if (result == null) {
+				fCache.put(t, t);
+				return t;
+			}
+			else {
+			  return result;
+			}
+    	}
+    }
     /**
      * Construct a new type. An object type imports a Java class into the PDB type hierarchy.
      * An ObjectType is a sub type of value. The Java type hierarchy is of no influence in the
-     * PDB type hierarchy, so if class A is a subclass of class B, then Object[A] is not 
+     * PDB type hierarchy, and vice versa. E.g if class A is a subclass of class B, then Object[A] is not 
      * a sub type of Object[B] in the PDB class hierarchy.
      * 
-     * @param <T>   The type of object that this objecttype wraps
+     * @param <T>   The type of object that this ObjectType wraps
      * @param clazz A class literal for <T>
      * @return a unique reference to a type that represents Java classes.
      */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public <T> ObjectType<T> objectType(Class<T> clazz) {
-    	synchronized(fCache){
-	    	sProtoObjectType.fClass = (Class<T>) clazz;
-			Type result = fCache.get(sProtoObjectType);
-	
-			if (result == null) {
-				result = new ObjectType(clazz);
-				fCache.put(result, result);
-			}
-			return (ObjectType<T>) result;
-    	}
+    	return (ObjectType<T>) getFromCache(new ObjectType<T>(clazz));
     }
     
     
@@ -134,7 +105,7 @@ public class TypeFactory {
      * @return a reference to the unique integer type of the PDB.
      */
     public IntegerType integerType() {
-        return sIntegerType;
+        return IntegerType.getInstance();
     }
 
     /**
@@ -142,7 +113,7 @@ public class TypeFactory {
      * @return a reference to the unique double type of the PDB.
      */
     public DoubleType doubleType() {
-        return sDoubleType;
+        return DoubleType.getInstance();
     }
 
     /**
@@ -150,7 +121,7 @@ public class TypeFactory {
      * @return a reference to the unique string type of the PDB.
      */
     public StringType stringType() {
-        return sStringType;
+        return StringType.getInstance();
     }
 
     /**
@@ -158,7 +129,7 @@ public class TypeFactory {
      * @return a reference to the unique sourceRange type of the PDB.
      */
     public SourceRangeType sourceRangeType() {
-        return sSourceRangeType;
+        return SourceRangeType.getInstance();
     }
 
     /**
@@ -166,137 +137,19 @@ public class TypeFactory {
      * @return a reference to the unique sourceLocation type of the PDB.
      */
     public SourceLocationType sourceLocationType() {
-        return sSourceLocationType;
+        return SourceLocationType.getInstance();
     }
-
-    /**
-     * A special subclass of TupleType to construct a prototype
-     * with resizeable arrays for the field types and names.
-     *
-     */
-    private static class TuplePrototype extends TupleType {
-        private static final TuplePrototype sInstance= new TuplePrototype();
-
-        public static TuplePrototype getInstance() {
-            return sInstance;
-        }
-
-        private int fAllocatedWidth;
-        private int fWidth;
-        private int fStart = 0;
-
-        private TuplePrototype() {
-            super(7, 0, new Type[7], new String[7]);
-        }
-
-        /**
-         * Sets the number of fields in this prototype tuple type. This forces the
-         * recomputation of the (otherwise cached) hashcode.
-         */
-        private void setWidth(int N) {
-            if ((fStart + N) > fAllocatedWidth) {
-            	fAllocatedWidth= (fStart + N)*2;
-                Type[] newFieldTypes = new Type[fAllocatedWidth];
-                System.arraycopy(fFieldTypes, 0, newFieldTypes, 0, fStart);
-                fFieldTypes = newFieldTypes;
-                
-                String[] newFieldNames = new String[fAllocatedWidth];
-                System.arraycopy(fFieldNames, 0, newFieldNames, 0, fStart);
-                fFieldNames = newFieldNames;
-            }
-            fWidth= N;
-            fHashcode= -1;
-        }
-
-        /*package*/ Type[] getFieldTypes(int N) {
-            setWidth(N);
-            return fFieldTypes;
-        }
-        
-        /*package*/ String[] getFieldNames(int N) {
-        	setWidth(N);
-        	return fFieldNames;
-        }
-        
-        @Override
-        public int hashCode() {
-            if (fHashcode == -1) {
-                fHashcode= 55501;
-                for(int i= fStart, end = fStart + fWidth; i < end; i++) {
-                    fHashcode= fHashcode * 44927 + fFieldTypes[i].hashCode();
-                }
-            }
-            return fHashcode;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof TupleType)) {
-                return false;
-            }
-            TupleType other= (TupleType) obj;
-            if (fWidth != other.fFieldTypes.length) {
-                return false;
-            }
-            for(int i=fStart, j = 0, end = fStart + fWidth; i < end; i++, j++) {
-                // N.B.: The field types must have been created and canonicalized before any
-                // attempt to manipulate the outer type (i.e. SetType), so we can use object
-                // identity here for the fFieldTypes.
-                if (fFieldTypes[i] != other.fFieldTypes[j]) {
-                    return false;
-                }
-                if (fFieldNames[i] != null && !fFieldNames[i].equals(other.fFieldNames[i])) {
-                	return false;
-                }
-            }
-            return true;
-        }
-    }
-
-   
 
     private TupleType getOrCreateTuple(int size, Type[] fieldTypes) {
-    	Type result= fCache.get(sProtoTuple);
-
-        if (result == null) {
-            result= new TupleType(size, sProtoTuple.fStart, fieldTypes);
-            fCache.put(result, result);
-        }
-        return (TupleType) result;
+    	return (TupleType) getFromCache(new TupleType(size, 0, fieldTypes));
     }
     
-
-    private TupleType getOrCreateTuple(int size, Type[] fieldTypes, String[] fieldNames) {
-    	Type result= fCache.get(sProtoTuple);
-
-        if (result == null) {
-            result= new TupleType(size, sProtoTuple.fStart, fieldTypes, fieldNames);
-            fCache.put(result, result);
-        }
-        return (TupleType) result;
-    }
-
     /**
      * Construct a tuple type. 
      * @return a reference to the unique empty tuple type.
      */
     public TupleType tupleEmpty() {
-    	Type[] fieldTypes = sProtoTuple.getFieldTypes(0);
-    	return getOrCreateTuple(0, fieldTypes);
-    }
-    
-    /**
-     * Construct a tuple type.
-     * @param fieldTypes a list of field types in order of appearance. The list is copied.
-     * @return a tuple type
-     */
-    public TupleType tupleType(List<Type> fieldTypes) {
-        int N= fieldTypes.size();
-        Type[] protoFieldTypes= sProtoTuple.getFieldTypes(N);
-        for(int i=0; i < N; i++) {
-            protoFieldTypes[i]= fieldTypes.get(i);
-        }
-        return getOrCreateTuple(N, protoFieldTypes);
+    	return (TupleType) getFromCache(new TupleType(0, 0, new Type[0]));
     }
     
     /**
@@ -305,24 +158,20 @@ public class TypeFactory {
      * @return a tuple type
      */
     public TupleType tupleType(Type... fieldTypes) {
-        int N= fieldTypes.length;
-        Type[] protoFieldTypes= sProtoTuple.getFieldTypes(N);
-        for(int i=0; i < N; i++) {
-            protoFieldTypes[i]= fieldTypes[i];
-        }
-        return getOrCreateTuple(N, protoFieldTypes);
+    	return (TupleType) getFromCache(new TupleType(fieldTypes.length, 0, fieldTypes));
     }
     
     public TupleType tupleType(Object... fieldTypesAndLabels) {
     	int N= fieldTypesAndLabels.length;
         int arity = N / 2;
-		Type[] protoFieldTypes= sProtoTuple.getFieldTypes(arity);
-        String[] protoFieldNames = sProtoTuple.getFieldNames(arity);
+		Type[] protoFieldTypes= new Type[arity];
+        String[] protoFieldNames = new String[arity];
         for(int i=0; i < N; i+=2) {
-            protoFieldTypes[i / 2]= (Type) fieldTypesAndLabels[i];
-            protoFieldNames[i / 2] = (String) fieldTypesAndLabels[i+1];
+            int pos = i / 2;
+			protoFieldTypes[pos]= (Type) fieldTypesAndLabels[i];
+            protoFieldNames[pos] = (String) fieldTypesAndLabels[i+1];
         }
-        return getOrCreateTuple(arity, protoFieldTypes, protoFieldNames);
+        return (TupleType) getFromCache(new TupleType(arity, 0, protoFieldTypes, protoFieldNames));
     }
     
     /**
@@ -332,7 +181,7 @@ public class TypeFactory {
      */
     public TupleType tupleType(IValue... elements) {
         int N= elements.length;
-        Type[] fieldTypes= sProtoTuple.getFieldTypes(N);
+        Type[] fieldTypes= new Type[N];
         for(int i=0; i < N; i++) {
             fieldTypes[i]= elements[i].getType();
         }
@@ -340,74 +189,19 @@ public class TypeFactory {
     }
     
     /**
-     * Compute a new tupletype that is the lub of t1 and t2. 
-     * Precondition: t1 and t2 have the same arity.
-     * @param t1
-     * @param t2
-     * @return a TupleType which is the lub of t1 and t2
-     */
-    /* package */ TupleType lubTupleTypes(TupleType t1, TupleType t2) {
-    	int N = t1.getArity();
-    	
-    	
-    	// Note that this function may eventually be recursive (via lub) in the case of nested tuples.
-    	// This poses a problem since we would overwrite sPrototuple.fFieldTypes
-    	// Therefore fFieldTypes in the prototype is used as a stack, and fStart points to the
-    	// bottom of the current stack frame.
-    	// The goal is to prevent any kind of memory allocation when computing lub (for efficiency).
-    	Type[] fieldTypes = sProtoTuple.getFieldTypes(N);
-    	
-    	// push the current frame to make room for the nested calls
-    	int safeStart = sProtoTuple.fStart;
-    	int safeWidth = sProtoTuple.fWidth;
-    	sProtoTuple.fStart += N;
-        
-    	for (int i = safeStart, j = 0, end = safeStart + N; i < end; i++, j++) {
-    		fieldTypes[i] = t1.getFieldType(j).lub(t2.getFieldType(j));
-    	}
-    	
-    	// restore the current frame for creation of the tuple
-    	sProtoTuple.fStart = safeStart;
-    	sProtoTuple.fWidth = safeWidth;
-    	sProtoTuple.fHashcode = -1;
-    	TupleType result = getOrCreateTuple(N, fieldTypes);
-    	
-    	return result;
-    }
-    
-
-    /**
      * Construct a set type
      * @param eltType the type of elements in the set
      * @return a set type
      */
     public SetType setType(Type eltType) {
-        sProtoSet.fEltType= eltType;
-        Type result= fCache.get(sProtoSet);
-
-        if (result == null) {
-            result= new SetType(eltType);
-            fCache.put(result, result);
-        }
-        return (SetType) result;
-    }
-
-    /**
-     * Constructs a new relation type from a tuple type. The tuple type
-     * may be a named type (when type.getBaseType is a tuple type).
-     * @param type a NamedType <= TupleType, or a TupleType
-     * @return a relation type with the same field types that the tuple type has
-     * @throws FactTypeError when type is not a tuple
-     */
-    public RelationType relType(NamedType type) throws FactTypeError {
-    	try {
-    	  return relType((TupleType) type.getBaseType());
+    	if (eltType.getBaseType().isTupleType()) {
+    		return relType((TupleType) eltType.getBaseType());
     	}
-    	catch (ClassCastException e) {
-    		throw new FactTypeError("Type " + type + " is not a tuple type.", e);
+    	else {
+          return (SetType) getFromCache(new SetType(eltType));
     	}
     }
-    
+
     /**
      * Construct a new relation type from a tuple type.
      * @param namedType the tuple type used to construct the field types
@@ -415,15 +209,7 @@ public class TypeFactory {
      * @throws FactTypeError
      */
     public RelationType relType(TupleType tupleType) {
-        sProtoRelation.fTupleType= tupleType;
-
-        Type result= fCache.get(sProtoRelation);
-
-        if (result == null) {
-            result= new RelationType(tupleType);
-            fCache.put(result, result);
-        }
-        return (RelationType) result;
+        return (RelationType) getFromCache(new RelationType(tupleType));
     }
 
     /**
@@ -433,6 +219,10 @@ public class TypeFactory {
      */
     public RelationType relType(Type... fieldTypes) {
         return relType(tupleType(fieldTypes));
+    }
+    
+    public RelationType relType(NamedType tupleType) {
+    	return relType((TupleType) tupleType.getBaseType());
     }
     
     /**
@@ -450,108 +240,91 @@ public class TypeFactory {
      * @param name      the name of the type
      * @param superType the type it should be a subtype of (alias)
      * @return a named type
-     * @throws TypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a TreeSortType.
+     * @throws TypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a NamedTreeType.
      */
     public NamedType namedType(String name, Type superType) throws TypeDeclarationException {
-    	sProtoNamedType.fName = name;
-    	sProtoNamedType.fSuperType = superType;
-    	
-    	Type result= fCache.get(sProtoNamedType);
+    	synchronized (fNamedTypes) {
+    		if (!isIdentifier(name)) {
+    			throw new TypeDeclarationException("This is not a valid identifier: " + name);
+    		}
 
-        if (result == null) {
-        	NamedType old = fNamedTypes.get(name);
-            if (old != null && !old.equals(result)) {
-             	throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + superType);
-            }
-            
-            sProtoTreeSortType.fName = name;
-        	Type sort= fCache.get(sProtoTreeSortType);
-        	if (result != null) {
-        		throw new TypeDeclarationException("Can not redeclare tree sort type " + sort + " with a named type");
-        	}
-        	 
-            if (!isIdentifier(name)) {
-            	throw new TypeDeclarationException("This is not a valid identifier: " + name);
-            }
-            
-            NamedType nt= new NamedType(name, superType);
-            fCache.put(nt, nt);
-            
-           
-            fNamedTypes.put(name, nt);
-            result= nt;
-        }
-        return (NamedType) result;
+    		Type result = getFromCache(new NamedType(name, superType));
+
+    		NamedType old = fNamedTypes.get(name);
+    		if (old != null && !old.equals(result)) {
+    			throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + superType);
+    		}
+
+    		NamedTreeType tmp2 = new NamedTreeType(name);
+    		Type sort= fCache.get(tmp2);
+
+    		if (sort != null) {
+    			throw new TypeDeclarationException("Can not redeclare tree sort type " + sort + " with a named type");
+    		}
+
+    		fNamedTypes.put(name, (NamedType) result);
+    		return (NamedType) result;
+    	}
+    }
+
+    public TreeType treeType() {
+    	return TreeType.getInstance();
     }
     
     /**
-     * Construct a TreeSortType. A Tree sort is a kind of tree node. Each kind of tree node
+     * Construct a NamedTreeType, which is a kind of tree node. Each kind of tree node
      * may have different alternatives, which are TreeNodeTypes. A TreeNodeType is always a
-     * sub type of a TreeSortType. A TreeSortType is always a sub type of value.
+     * sub type of a NamedTreeType. A NamedTreeType is always a sub type of value.
      * @param name the name of the tree sort
-     * @return a TreeSortType
-     * @throws TypeDeclarationException when a NamedType with the same name was already declared. Redeclaration of a TreeSortType is ignored.
+     * @return a NamedTreeType
+     * @throws TypeDeclarationException when a NamedType with the same name was already declared. Redeclaration of a NamedTreeType is ignored.
      */
     public NamedTreeType namedTreeType(String name) throws TypeDeclarationException {
-    	sProtoTreeSortType.fName = name;
-    	
-    	Type result= fCache.get(sProtoTreeSortType);
+    	synchronized (fSignatures) {
+    		if (!isIdentifier(name)) {
+    			throw new TypeDeclarationException("This is not a valid identifier: " + name);
+    		}
 
-        if (result == null) {
-            if (!isIdentifier(name)) {
-            	throw new TypeDeclarationException("This is not a valid identifier: " + name);
-            }
-            
-            NamedType old = fNamedTypes.get(name);
-            if (old != null) {
-             	throw new TypeDeclarationException("Can not redeclare a named type " + old + " with a tree sort type.");
-            }
-            
-            NamedTreeType nt= new NamedTreeType(name);
-            fCache.put(nt, nt);
-            
-            fSignatures.put(nt, new LinkedList<TreeNodeType>());
-            result= nt;
-        }
-        
-        // re-declaration of tree sort types is harmless
-        
-        return (NamedTreeType) result;
+    		NamedType old = fNamedTypes.get(name);
+    		if (old != null) {
+    			throw new TypeDeclarationException("Can not redeclare a named type " + old + " with a tree sort type.");
+    		}
+
+    		NamedTreeType tmp = (NamedTreeType) getFromCache(new NamedTreeType(name));
+    		
+    		if (fSignatures.get(tmp) == null) {
+    		  fSignatures.put(tmp, new LinkedList<TreeNodeType>());
+    		}
+    		return tmp;
+    	}
     }
     
     /**
-     * Construct a new node type. A node type is always a subtype of a TreeSortType. It
-     * represents an alternative constructor for a specific TreeSortType. 
+     * Construct a new node type. A node type is always a subtype of a NamedTreeType. It
+     * represents an alternative constructor for a specific NamedTreeType. 
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
     public TreeNodeType treeNodeType(NamedTreeType nodeType, String name, TupleType children) {
-    	sProtoTreeType.fName = name;
-    	sProtoTreeType.fChildrenTypes = children;
-    	sProtoTreeType.fNodeType = nodeType;
-    	
-    	Type result = fCache.get(sProtoTreeType);
-    	
-    	if (result == null) {
-			result = new TreeNodeType(name, children, nodeType);
-			fCache.put(result, result);
+    	synchronized(fSignatures) {
+    		List<TreeNodeType> signature = fSignatures.get(nodeType);
+    		if (signature == null) {
+    			throw new TypeDeclarationException("Unknown named tree type: " + nodeType);
+    		}
+    		
+    		Type result = getFromCache(new TreeNodeType(name, children, nodeType));
+    		signature.add((TreeNodeType) result);
+    		fSignatures.put(nodeType, signature);
 
-			List<TreeNodeType> signature = fSignatures.get(nodeType);
-			if (signature == null) {
-				throw new TypeDeclarationException("Unknown tree sort type: " + nodeType);
-			}
-			signature.add((TreeNodeType) result);
-			fSignatures.put(nodeType, signature);
-		}
-    	
-    	return (TreeNodeType) result;
+    		return (TreeNodeType) result;
+    	}
     }
     
     /**
-     * Construct a new node type. A node type is always a subtype of a TreeSortType. It
-     * represents an alternative constructor for a specific TreeSortType. 
+     * Construct a new node type. A node type is always a subtype of a NamedTreeType. It
+     * represents an alternative constructor for a specific NamedTreeType. 
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
@@ -562,8 +335,8 @@ public class TypeFactory {
     }
     
     /**
-     * Construct a new node type. A node type is always a subtype of a TreeSortType. It
-     * represents an alternative constructor for a specific TreeSortType. 
+     * Construct a new node type. A node type is always a subtype of a NamedTreeType. It
+     * represents an alternative constructor for a specific NamedTreeType. 
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
@@ -576,8 +349,8 @@ public class TypeFactory {
     /**
      * Construct a special kind of tree node. This tree node does not have
      * a name, always has exactly one child. It is used for serialized values
-     * where one alternative for a TreeSortType does not have a wrapping node name.
-     * Each TreeSortType may maximally have one anonymous tree node type.
+     * where one alternative for a NamedTreeType does not have a wrapping node name.
+     * Each NamedTreeType may maximally have one anonymous tree node type.
      * 
      * @param sort        the sort this constructor builds      
      * @param string      the name of the alternative (even though it will not be used)
@@ -611,8 +384,8 @@ public class TypeFactory {
     }
     
     /**
-     * Lookup a TreeNodeType by name, and in the context of a certain TreeSortType
-     * @param type             the TreeSortType context
+     * Lookup a TreeNodeType by name, and in the context of a certain NamedTreeType
+     * @param type             the NamedTreeType context
      * @param constructorName  the name of the TreeNodeType
      * @return a TreeNodeType if it was declared before
      * @throws a FactTypeError if the type was not declared before
@@ -637,7 +410,7 @@ public class TypeFactory {
      * Retrieve the type for an anonymous constructor.  
      * See @link {@link TypeFactory#anonymousTreeType(NamedTreeType, String, Type, String)})
      * for more information.
-     * @param type TreeSortType to lookup the constructor for
+     * @param type NamedTreeType to lookup the constructor for
      * @return an anonymous tree node type
      * @throws FactTypeError if the type does not have an anonymous constructor
      */
@@ -676,14 +449,7 @@ public class TypeFactory {
      * @return a list type
      */
     public ListType listType(Type elementType) {
-		sProtoListType.fEltType = elementType;
-		Type result= fCache.get(sProtoListType);
-
-        if (result == null) {
-            result= new ListType(elementType);
-            fCache.put(result, result);
-        }
-        return (ListType) result;
+		return (ListType) getFromCache(new ListType(elementType));
 	}
     
     /**
@@ -693,16 +459,7 @@ public class TypeFactory {
      * @return a map type
      */
     public MapType mapType(Type key, Type value) {
-    	sProtoMap.fKeyType = key;
-    	sProtoMap.fValueType = value;
-		Type result= fCache.get(sProtoMap);
-
-        if (result == null) {
-            result= new MapType(key, value);
-            fCache.put(result, result);
-        }
-        
-        return (MapType) result;
+    	return (MapType) getFromCache(new MapType(key, value));
 	}
     
     /**
@@ -714,27 +471,28 @@ public class TypeFactory {
      * @param valueType the type of values that represent the annotation
      */
     public void declareAnnotation(Type onType, String key, Type valueType) {
-    	Map<String, Type> annotationsForType = fAnnotations.get(onType);
-    	
-    	if (!isIdentifier(key)) {
-    		throw new FactTypeError("Key " + key + " is not an identifier.");
+    	synchronized (fAnnotations) {
+    		Map<String, Type> annotationsForType = fAnnotations.get(onType);
+
+    		if (!isIdentifier(key)) {
+    			throw new FactTypeError("Key " + key + " is not an identifier.");
+    		}
+
+    		if (annotationsForType == null) {
+    			annotationsForType = new HashMap<String, Type>();
+    			fAnnotations.put(onType, annotationsForType);
+    		}
+
+    		Map<String, Type> declaredEarlier = getAnnotations(onType);
+
+    		if (!declaredEarlier.containsKey(key)) {
+    			annotationsForType.put(key, valueType);
+    		}
+    		else if (!declaredEarlier.get(key).equals(valueType)) {
+    			throw new FactTypeError("Annotation was declared previously with different type: " + declaredEarlier.get(key));
+    		}
+    		// otherwise its a safe re-declaration and we do nothing
     	}
-    	
-    	if (annotationsForType == null) {
-    		annotationsForType = new HashMap<String, Type>();
-    		fAnnotations.put(onType, annotationsForType);
-    	}
-    	
-    	Map<String, Type> declaredEarlier = getAnnotations(onType);
-    	
-    	if (!declaredEarlier.containsKey(key)) {
-    	  annotationsForType.put(key, valueType);
-    	}
-    	else if (!declaredEarlier.get(key).equals(valueType)) {
-    		throw new FactTypeError("Annotation was declared previously with different type: " + declaredEarlier.get(key));
-    	}
-    	
-    	// otherwise its a safe re-declaration and we do nothing
     }
     
     /**
@@ -747,7 +505,7 @@ public class TypeFactory {
     public Map<String, Type> getAnnotations(Type onType) {
     	Map<String, Type> result = new HashMap<String,Type>();
     	
-    	Map<String, Type> valueAnnotations = fAnnotations.get(sValueType);
+    	Map<String, Type> valueAnnotations = fAnnotations.get(valueType());
     	if (valueAnnotations != null) {
     		result.putAll(valueAnnotations);
     	}
@@ -766,7 +524,7 @@ public class TypeFactory {
     	}
     	
     	if (onType.isTreeNodeType()) {
-    		localAnnotations = fAnnotations.get(((TreeNodeType) onType).getTreeSortType());
+    		localAnnotations = fAnnotations.get(((TreeNodeType) onType).getNamedTreeType());
     		if (localAnnotations != null) {
     		  result.putAll(localAnnotations);
     		}
@@ -809,28 +567,13 @@ public class TypeFactory {
     	return null;
     }
 
-	/*package*/ TupleType tupleCompose(TupleType type, TupleType other) {
-		int N = type.getArity() + other.getArity() - 2;
-		Type[] fieldTypes = sProtoTuple.getFieldTypes(N);
-		
-		for (int i = 0; i < type.getArity() - 1; i++) {
-			fieldTypes[i] = type.getFieldType(i);
-		}
-		
-		for (int i = type.getArity() - 1, j = 1; i < N; i++, j++) {
-			fieldTypes[i] = other.getFieldType(j);
-		}
-		
-		return getOrCreateTuple(N, fieldTypes);
-	}
-
 	/**
 	 * Checks to see if a string is a valid PDB identifier
 	 * 
 	 * @param str
 	 * @return
 	 */
-	/* package */ static boolean isIdentifier(String str) {
+	public boolean isIdentifier(String str) {
 		byte[] contents = str.getBytes();
 
 		if (str.length() == 0) {

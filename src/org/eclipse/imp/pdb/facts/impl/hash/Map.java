@@ -81,7 +81,7 @@ class Map extends Value implements IMap {
 	 * @param other
 	 */
 	private Map(Map other) {
-		super(other.fType);
+		super(other);
 		fMap = other.fMap;
 	}
 

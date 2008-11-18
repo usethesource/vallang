@@ -28,6 +28,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fValue= value;
     }
 
+    private StringValue(StringValue other) {
+    	super(other);
+    	fValue = other.fValue;
+    }
+    
 	public String getValue() {
         return fValue;
     }
@@ -56,6 +61,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     protected Object clone() throws CloneNotSupportedException {
-    	return new StringValue(fValue);
+    	return new StringValue(this);
     }
 }

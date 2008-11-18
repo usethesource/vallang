@@ -31,19 +31,6 @@ public class SourceLocationType  extends Type {
     	return true;
     }
     
-    @Override
-    public boolean isSubtypeOf(Type other) {
-       return other == this || other.isValueType();
-    }
-
-    @Override
-    public Type lub(Type other) {
-        if (other.isSubtypeOf(this)) {
-            return this;
-        }
-        return TypeFactory.getInstance().valueType();
-    }
-
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */

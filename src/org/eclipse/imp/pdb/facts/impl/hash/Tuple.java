@@ -31,7 +31,7 @@ class Tuple extends Value implements ITuple {
     }
     
     private Tuple(Tuple other) {
-    	super(other.getType());
+    	super(other);
     	fElements = other.fElements;
     }
 

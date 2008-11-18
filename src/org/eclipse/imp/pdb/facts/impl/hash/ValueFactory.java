@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -112,16 +113,20 @@ public class ValueFactory extends BaseValueFactory {
 		return new Tuple(tmp);
 	}
 	
-	public ITree tree(TreeNodeType type, IValue... children) {
-		return new Tree(this, type, children);
+	public ITree tree(String name) {
+		return new Tree(name);
 	}
 	
-	public ITree tree(TreeNodeType type, java.util.List<IValue> children) {
-		return new Tree(this, type, children);
+	public ITree tree(String name, IValue... children) {
+		return new Tree(name, children);
 	}
 	
-	public ITree tree(TreeNodeType type) {
-		return new Tree(this, type);
+	public INode tree(TreeNodeType type, IValue... children) {
+		return new Node(type, children);
+	}
+	
+	public INode tree(TreeNodeType type) {
+		return new Node(type);
 	}
 
 	public IMap map(Type key, Type value) {

@@ -78,7 +78,7 @@ class Set extends Value implements ISet {
 	}
 	
 	protected Set(Set other) {
-		super(other.getType());
+		super(other);
 		fSet = other.fSet;
 	}
 

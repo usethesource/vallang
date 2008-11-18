@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITree;
@@ -39,6 +40,14 @@ public class BottomUpVisitor extends VisitorAdapter<IValue> {
 		}
 		
 		return fVisitor.visitTree(o);
+	}
+	
+	public IValue visitNode(INode o) throws VisitorException {
+		for (int i = 0; i < o.arity(); i++) {
+			o = o.set(i, o.get(i).accept(this));
+		}
+		
+		return fVisitor.visitNode(o);
 	}
 	
 	@Override

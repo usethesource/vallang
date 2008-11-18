@@ -34,57 +34,25 @@ public class SetType extends Type {
   
     @Override
     public boolean isSubtypeOf(Type other) {
-        if (other == this || other.isValueType()) {
-        	return true;
-        }
-        else if (other.isSetType()) {
+        if (other.isSetType()) {
         	SetType o = (SetType) other;
         	
         	return fEltType.isSubtypeOf(o.fEltType);
         }
-        else if (other.isRelationType()) {
-        	RelationType o = (RelationType) other;
-        	
-        	if (fEltType.isTupleType()) {
-        		TupleType t = (TupleType) fEltType;
-        		
-        		return t.isSubtypeOf(o.fTupleType);
-        	}
+        else {
+        	return super.isSubtypeOf(other);
         }
-        
-        
-        return false;
     }
 
     @Override
     public Type lub(Type other) {
-    	if (other.isSubtypeOf(this)) {
-    		return this;
-    	}
-    	else if (other.isSetType()) {
+    	if (other.isSetType()) {
     		SetType o = (SetType) other;
-        	
     		return TypeFactory.getInstance().setType(fEltType.lub(o.fEltType));
     	}
-    	else if (other.isRelationType()) {
-    		RelationType o = (RelationType) other;
-    		Type lub = fEltType.lub(o.fTupleType);
-    		
-    		if (lub.isTupleType()) {
-				return TypeFactory.getInstance().relType((TupleType) lub);
-    		}
-    		
-            // The upper bound on tuples of different arity is just ValueType,
-            // so if the set's element type was tuple, but the arity didn't match,
-            // just return set[Value].
-            // N.B.: fEltType.lub(o.fEltType) would compute Value, so the below is just an optimization.
-            return TypeFactory.getInstance().setType(TypeFactory.getInstance().valueType());
+    	else {
+    		return super.lub(other);
     	}
-    	else if (other.isNamedType()) {
-    		return lub(((NamedType) other).getSuperType());
-    	}
-    	
-    	return TypeFactory.getInstance().valueType();
     }
 
     @Override

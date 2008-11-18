@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
@@ -72,9 +73,9 @@ public class XMLWriter implements IValueWriter {
 	private Node yield(IValue value, Document doc) {
 		Type type = value.getType();
 		
-		if (type.isTreeSortType()) {
+		if (type.isNamedTreeType()) {
 			NamedTreeType sort = (NamedTreeType) type;
-			TreeNodeType node = ((ITree) value).getTreeNodeType();
+			TreeNodeType node = ((INode) value).getTreeNodeType();
 			String name = node.getName();
 			
 			if (XMLReader.isListWrapper(name,  sort)) {

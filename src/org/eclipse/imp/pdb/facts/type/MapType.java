@@ -41,34 +41,27 @@ public final class MapType extends Type {
   
     @Override
     public boolean isSubtypeOf(Type other) {
-        if (other == this || other.isValueType()) {
-        	return true;
-        }
-        else if (other.isMapType()) {
+        if (other.isMapType()) {
         	MapType o = (MapType) other;
         	
         	return fKeyType.isSubtypeOf(o.fKeyType) && fValueType.isSubtypeOf(o.fValueType);
         }
-        
-        return false;
+        else {
+        	return super.isSubtypeOf(other);
+        }
     }
 
     @Override
     public Type lub(Type other) {
-    	if (other.isSubtypeOf(this)) {
-    		return this;
-    	}
-    	else if (other.isMapType()) {
+    	if (other.isMapType()) {
     		MapType o = (MapType) other;
         	
     		return TypeFactory.getInstance().mapType(fKeyType.lub(o.fKeyType),
     				                                 fValueType.lub(o.fValueType));
     	}
-    	else if (other.isNamedType()) {
-    		return other.lub(this);
+    	else {
+    		return super.lub(other);
     	}
-    	
-    	return TypeFactory.getInstance().valueType();
     }
 
     @Override

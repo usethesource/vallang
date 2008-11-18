@@ -24,6 +24,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         super(TypeFactory.getInstance().integerType());
         fValue= i;
     }
+    
+    private IntegerValue(IntegerValue other) {
+    	super(other);
+    	fValue = other.fValue;
+    }
 
 	public int getValue() {
         return fValue;
@@ -53,6 +58,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     protected Object clone() throws CloneNotSupportedException {
-    	return new IntegerValue(fValue);
+    	return new IntegerValue(this);
     }
 }

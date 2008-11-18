@@ -28,6 +28,7 @@ public interface ITypeVisitor<T> {
 	T visitSourceLocation(SourceLocationType type);
 	T visitSourceRange(SourceRangeType type);
 	T visitString(StringType type);
+	T visitTree(TreeType type);
 	T visitTreeNode(TreeNodeType type);
 	T visitNamedTree(NamedTreeType type);
 	T visitTuple(TupleType type);

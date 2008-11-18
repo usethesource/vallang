@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * Address ::= dutchAddress(Street, City, Postcode)
  * Address ::= usAddress(Street, City, State, PostalCode)
  * 
- * Here Address is the TreeSortType, the type a tree produces. dutchAddress
+ * Here Address is the NamedTreeType, the type a tree produces. dutchAddress
  * and usAddress are the names of the node types and the other capitalized names
  * are the types of the children.
  * 
@@ -34,45 +34,40 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  */
 public class TreeNodeType extends Type {
 	protected TupleType fChildrenTypes;
-	protected NamedTreeType fNodeType;
+	protected NamedTreeType fTreeType;
 	protected String fName;
 	
-	/* package */ TreeNodeType(String name, TupleType childrenTypes, NamedTreeType nodeType) {
+	/* package */ TreeNodeType(String name, TupleType childrenTypes, NamedTreeType treeType) {
 		fName = name;
 		fChildrenTypes = childrenTypes;
-		fNodeType = nodeType;
+		fTreeType = treeType;
 	}
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == this) {
-			return true;
-		}
-		else if (other == fNodeType) {
+		if (other == fTreeType) {
 			return true;
 		}
 		else {
-			return fNodeType.isSubtypeOf(other);
+			return fTreeType.isSubtypeOf(other);
 		}
 	}
 
 	@Override
 	public Type lub(Type other) {
-		if (this == other) {
-			return this;
+		if (other.isTreeNodeType()) {
+			return fTreeType.lub(((TreeNodeType) other).fTreeType);
 		}
-		else if (other.isTreeNodeType()) {
-			return fNodeType.lub(((TreeNodeType) other).fNodeType);
+		else {
+			return super.lub(other);
 		}
-		
-		return TypeFactory.getInstance().valueType();
 	}
 
 	@Override
 	public int hashCode() {
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
-		354767453 * fNodeType.hashCode();
+		354767453 * fTreeType.hashCode();
 	}
 	
 	@Override
@@ -81,7 +76,7 @@ public class TreeNodeType extends Type {
 			return ((fName == null) ? ((TreeNodeType) o).fName == null : fName
 					.equals(((TreeNodeType) o).fName))
 					&& fChildrenTypes == ((TreeNodeType) o).fChildrenTypes
-					&& fNodeType == fNodeType;
+					&& fTreeType == fTreeType;
 		}
 		return false;
 	}
@@ -94,7 +89,7 @@ public class TreeNodeType extends Type {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(fNodeType);
+		builder.append(fTreeType);
 		builder.append("::=");
 		builder.append(fName);
 		builder.append("(");
@@ -128,8 +123,8 @@ public class TreeNodeType extends Type {
 		return fName;
 	}
 	
-	public NamedTreeType getTreeSortType() {
-		return fNodeType;
+	public NamedTreeType getNamedTreeType() {
+		return fTreeType;
 	}
 	
 	public Type getChildType(int i) {
@@ -138,7 +133,7 @@ public class TreeNodeType extends Type {
 	
 	@Override
 	public Type getBaseType() {
-		return fNodeType;
+		return fTreeType;
 	}
 	
 	@Override

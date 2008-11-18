@@ -48,11 +48,12 @@ public class NamedType extends Type {
 
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == this || other.isValueType()) {
+		if (other == this) {
 			return true;
 		}
-		
-		return fSuperType.isSubtypeOf(other);
+		else {
+			return fSuperType.isSubtypeOf(other);
+		}
 	}
 
 	@Override
@@ -60,14 +61,8 @@ public class NamedType extends Type {
 		if (other == this) {
 			return this;
 		}
-		else if (other.isSubtypeOf(this)) {
-			return this;
-		}
-		else if (this.isSubtypeOf(other)) {
-			return other;
-		}
 		else {
-			return getBaseType().lub(other.getBaseType());
+			return getBaseType().lub(other);
 		}
 	}
 	

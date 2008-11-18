@@ -21,7 +21,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public abstract class Value implements IValue {
-    protected final Map<String, IValue> fAnnotations = new HashMap<String, IValue>();
+	/**
+	 * Keeps the annotations of this value 
+	 */
+    protected final Map<String, IValue> fAnnotations;
     
 	/**
      * The type of this value
@@ -30,6 +33,16 @@ public abstract class Value implements IValue {
 
     protected Value(Type type) {
     	fType= type;
+    	fAnnotations = new HashMap<String, IValue>();
+    }
+    
+    /**
+     * Used for cloning values.
+     * @param other
+     */
+    protected Value(Value other) {
+    	fType = other.fType;
+    	fAnnotations = other.fAnnotations;
     }
 
 	/**

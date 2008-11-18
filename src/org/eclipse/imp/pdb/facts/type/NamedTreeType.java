@@ -30,7 +30,7 @@ public class NamedTreeType extends Type {
 	}
 	
 	@Override
-	public boolean isTreeSortType() {
+	public boolean isNamedTreeType() {
 		return true;
 	}
 	
@@ -43,23 +43,22 @@ public class NamedTreeType extends Type {
 
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == this) {
+		if (other.isTreeType()) {
 			return true;
 		}
-		
-		return false;
+		else {
+			return super.isSubtypeOf(other);
+		}
 	}
 
 	@Override
 	public Type lub(Type other) {
-		if (other == this) {
-			return this;
+		if (other.isTreeType()) {
+			return other;
 		}
-		else if (other.isNamedType()) {
-    		return other.lub(this);
-    	}
-		
-		return TypeFactory.getInstance().valueType();
+		else {
+			return super.lub(other);
+		}
 	}
 	
 	@Override
