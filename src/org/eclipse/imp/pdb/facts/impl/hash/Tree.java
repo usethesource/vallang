@@ -106,17 +106,22 @@ public class Tree extends Value implements ITree {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append(fName);
-		builder.append("(");
-		
-		Iterator<IValue> it = iterator();
-		while (it.hasNext()) {
-			builder.append(it.next().toString());
-			if (it.hasNext()) {
-				builder.append(",");
-			}
+		if (fName == null) {
+			builder.append(fChildren[0].toString());
 		}
-		builder.append(")");
+		else {
+			builder.append(fName);
+			builder.append("(");
+
+			Iterator<IValue> it = iterator();
+			while (it.hasNext()) {
+				builder.append(it.next().toString());
+				if (it.hasNext()) {
+					builder.append(",");
+				}
+			}
+			builder.append(")");
+		}
 		
 		return builder.toString();
 	}
