@@ -23,6 +23,11 @@ public class Node extends Tree implements INode {
 		this(type, new IValue[0]);
 	}
 
+	public Node(Node node) {
+		super(node);
+		fType = node.fType;
+	}
+
 	protected final TreeNodeType fType;
 
 	public IValue get(String label) {
@@ -57,6 +62,10 @@ public class Node extends Tree implements INode {
 	@Override
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitNode(this);
-		
+	}
+	
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new Node(this);
 	}
 }

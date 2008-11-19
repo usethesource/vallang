@@ -39,10 +39,10 @@ public class Tree extends Value implements ITree {
 		this(name, new IValue[0]);
 	}
 
-	private Tree(Tree other) {
+	protected Tree(Tree other) {
 		super(other);
 		fName = other.fName;
-		fChildren = other.fChildren;
+		fChildren = other.fChildren.clone();
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
