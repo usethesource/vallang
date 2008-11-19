@@ -6,6 +6,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of a typed tree node with access to children via labels
@@ -50,5 +52,11 @@ public class Node extends Tree implements INode {
 		  return fType == ((Node) obj).fType && super.equals(obj);
 		}
 		return false;
+	}
+	
+	@Override
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		return v.visitNode(this);
+		
 	}
 }
