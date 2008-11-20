@@ -164,7 +164,7 @@ class Map extends Value implements IMap {
 	}
 
 	public IMap put(IValue key, IValue value) throws FactTypeError {
-		IMapWriter sw = new MapWriter(getKeyType(), getValueType());
+		IMapWriter sw = new MapWriter(getKeyType().lub(key.getType()), getValueType().lub(value.getType()));
 		sw.putAll(this);
 		sw.put(key, value);
 		return sw.done();

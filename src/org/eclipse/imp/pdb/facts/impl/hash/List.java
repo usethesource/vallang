@@ -93,7 +93,7 @@ public class List extends Value  implements IList {
 	}
 
 	public IList append(IValue e) throws FactTypeError {
-		IListWriter w = new ListWriter(checkInsert(e).getElementType());
+		IListWriter w = new ListWriter(getElementType().lub(e.getType()));
 		w.insertAll(this);
 		w.append(e);
 		return w.done();
@@ -104,7 +104,7 @@ public class List extends Value  implements IList {
 	}
 
 	public IList insert(IValue e) throws FactTypeError {
-		IListWriter w = new ListWriter(checkInsert(e).getElementType());
+		IListWriter w = new ListWriter(getElementType().lub(e.getType()));
 		
 		w.insertAll(this);
 		w.insert(e);
@@ -177,5 +177,12 @@ public class List extends Value  implements IList {
 
 	public boolean isEmpty() {
 		return fList.isEmpty();
+	}
+	
+	public IList concat(IList o) throws FactTypeError {
+		IListWriter w = new ListWriter(o.getElementType().lub(getElementType()));
+		w.insertAll(o);
+		w.insertAll(this);
+		return w.done();
 	}
 }

@@ -84,22 +84,19 @@ class Set extends Value implements ISet {
 
 	@SuppressWarnings("unchecked")
 	public ISet insert(IValue element) throws FactTypeError {
-		SetType newType = checkInsert(element);
-		ISetWriter sw = new SetWriter(newType.getElementType());
+		ISetWriter sw = new SetWriter(getElementType().lub(element.getType()));
 		sw.insertAll(this);
 		sw.insert(element);
 		return sw.done();
 	}
 
 	public boolean contains(IValue element) throws FactTypeError {
-		checkInsert(element);
 		return fSet.contains(element);
 	}
 
 	@SuppressWarnings("unchecked")
 	public ISet intersect(ISet other) throws FactTypeError {
-		SetType newType = checkSet(other);
-		ISetWriter w = new SetWriter(newType.getElementType());
+		ISetWriter w = new SetWriter(other.getElementType().lub(getElementType()));
 		Set o = (Set) other;
 		
 		for (IValue v : fSet) {
@@ -132,8 +129,7 @@ class Set extends Value implements ISet {
 
 	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other) throws FactTypeError {
-		SetType newType = checkSet(other);
-		ISetWriter sw = new SetWriter(newType.getElementType());
+		ISetWriter sw = new SetWriter(other.getElementType().lub(getElementType()));
 		for (IValue a : fSet) {
 			if (!other.contains(a)) {
 				sw.insert(a);
@@ -144,15 +140,9 @@ class Set extends Value implements ISet {
 
 	@SuppressWarnings("unchecked")
 	public <SetOrRel extends ISet> SetOrRel union(ISet other) {
-		SetType newType = checkSet(other);
-		ISetWriter w = new SetWriter(newType.getElementType());
-
-		try {
-			w.insertAll(this);
-			w.insertAll(other);
-		} catch (FactTypeError e) {
-			// this can not happen
-		}
+		ISetWriter w = new SetWriter(other.getElementType().lub(getElementType()));
+		w.insertAll(this);
+		w.insertAll(other);
 		
 		try {
 			// either a set or a relation is returned. If the caller
@@ -214,14 +204,6 @@ class Set extends Value implements ISet {
 		if (!eltType.isSubtypeOf(getElementType())) {
 			throw new FactTypeError("Element type " + eltType + " is not a subtype of " + getElementType());
 		}
-	}
-	
-	private SetType checkSet(ISet other) {
-		SetType t = (SetType) getType().getBaseType();
-		SetType ot = (SetType) other.getType().getBaseType();
-		Type eltType = t.getElementType().lub(ot.getElementType());
-		
-		return TypeFactory.getInstance().setType(eltType);
 	}
 	
 	@Override
