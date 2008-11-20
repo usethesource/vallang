@@ -117,6 +117,10 @@ public abstract class Type {
 	public boolean isMapType() {
 		return false;
 	}
+	
+	public boolean isBoolType() {
+		return false;
+	}
 
 	/**
 	 * Build a double value. This method is supported by the DoubleType
@@ -202,6 +206,10 @@ public abstract class Type {
 		throw new FactTypeError("This type is not a TreeSortType: " + this);
 	}
 	
+	public IValue make(IValueFactory f, boolean arg) {
+		throw new FactTypeError("This type is not a BoolType: " + this);
+	}
+	
 	/**
 	 * Return a writer object. This works for Lists, Sets, Relations and Maps.
 	 * Caller is responsible for assigning the result to I{List,Set,Relation,Map}Writer
@@ -213,4 +221,8 @@ public abstract class Type {
 	public <W> W writer(IValueFactory f) {
 		throw new FactTypeError("This type does not provide a writer interface: " + this);
 	}
+
+	
+
+	
 }

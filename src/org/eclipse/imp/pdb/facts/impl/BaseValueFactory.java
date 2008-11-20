@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IObject;
@@ -47,4 +48,12 @@ public abstract class BaseValueFactory implements IValueFactory {
 		Type type = TypeFactory.getInstance().objectType(o.getClass());
 		return new ObjectValue<T>(type, o);
 	}
+    
+    public IBool False() {
+    	return new BoolValue(false);
+    }
+    
+    public IBool True() {
+    	return new BoolValue(true);
+    }
 }

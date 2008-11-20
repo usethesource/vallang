@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class TypeDescriptorFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
 	private NamedTreeType typeSort = tf.namedTreeType("Type");
+	private TreeNodeType boolType = tf.treeNodeType(typeSort, "bool");
 	private TreeNodeType doubleType = tf.treeNodeType(typeSort, "double");
 	private TreeNodeType integerType = tf.treeNodeType(typeSort, "int");
 	private TreeNodeType treeType = tf.treeNodeType(typeSort, "tree");
@@ -96,7 +97,10 @@ public class TypeDescriptorFactory {
 		public Type visitNode(INode o) throws VisitorException {
 			TreeNodeType node = o.getTreeNodeType();
 		
-			if (node == doubleType) {
+			if (node == boolType) {
+				return tf.boolType();
+			}
+			else if (node == doubleType) {
 				return tf.doubleType();
 			}
 			else if (node == integerType) {
@@ -263,6 +267,10 @@ public class TypeDescriptorFactory {
 
 		public ITree visitTree(TreeType type) {
 			return vf.tree(treeType);
+		}
+
+		public ITree visitBool(BoolType type) {
+			return vf.tree(boolType);
 		}
 	}
 }

@@ -34,4 +34,5 @@ public interface ITypeVisitor<T> {
 	T visitTuple(TupleType type);
 	T visitValue(ValueType type);
 	T visitVoid(VoidType type);
+	T visitBool(BoolType boolType);
 }

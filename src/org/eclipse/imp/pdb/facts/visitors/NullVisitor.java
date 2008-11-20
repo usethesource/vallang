@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.impl.BoolValue;
 
 /**
  * This abstract class does nothing except returning null. Extend it
@@ -79,6 +80,10 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 	}
 	
 	public T visitTuple(ITuple o)  throws VisitorException{
+		return null;
+	}
+	
+	public T visitBoolean(BoolValue boolValue) throws VisitorException {
 		return null;
 	}
 }

@@ -118,6 +118,11 @@ public class ValueType extends Type {
     	return f.tree(name, children);
     }
     
+    @Override
+    public IValue make(IValueFactory f, boolean arg) {
+    	return TypeFactory.getInstance().boolType().make(f, arg);
+    }
+    
     @SuppressWarnings("unchecked")
 	@Override
     public IListWriter writer(IValueFactory f) {

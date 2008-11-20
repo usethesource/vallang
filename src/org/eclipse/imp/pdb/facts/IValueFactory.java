@@ -198,4 +198,16 @@ public interface IValueFactory {
 	 * @return a map writer
 	 */
 	public IMapWriter mapWriter(Type key, Type value);
+
+	/**
+	 * Create a boolean with value true
+	 * @return true
+	 */
+	public IBool True();
+	
+	/**
+	 * Create a boolean with value false
+	 * @return false
+	 */
+	public IBool False();
 }

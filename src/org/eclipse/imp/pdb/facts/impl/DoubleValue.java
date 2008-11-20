@@ -61,4 +61,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     protected Object clone() throws CloneNotSupportedException {
     	return new DoubleValue(this);
     }
+    
+    
 }

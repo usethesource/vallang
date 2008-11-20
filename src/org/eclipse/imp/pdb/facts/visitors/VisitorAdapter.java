@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.impl.BoolValue;
 
 /**
  * Extend this class to easily create a reusable generic visitor implementation.
@@ -85,5 +86,9 @@ public abstract class VisitorAdapter<T> implements IValueVisitor<T> {
 	
 	public T visitTuple(ITuple o) throws VisitorException {
 		return fVisitor.visitTuple(o);
+	}
+	
+	public T visitBoolean(BoolValue o) throws VisitorException {
+		return fVisitor.visitBoolean(o);
 	}
 }

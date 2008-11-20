@@ -117,6 +117,14 @@ public class TypeFactory {
     }
 
     /**
+     * Construct a new bool type
+     * @return a reference to the unique boolean type of the PDB.
+     */
+    public BoolType boolType() {
+		return BoolType.getInstance();
+	}
+    
+    /**
      * Construct a new type. 
      * @return a reference to the unique string type of the PDB.
      */
@@ -608,4 +616,6 @@ public class TypeFactory {
 	Type fromDescriptor(IValue typeDescriptor) throws TypeDeclarationException {
 		return TypeDescriptorFactory.getInstance().fromTypeDescriptor(typeDescriptor);
 	}
+
+	
 }

@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.impl.BoolValue;
 
 public interface IValueVisitor<R> {
    public R visitString(IString o) throws VisitorException;
@@ -39,4 +40,5 @@ public interface IValueVisitor<R> {
    public R visitNode(INode o) throws VisitorException;
    public R visitInteger(IInteger o) throws VisitorException;
    public R visitMap(IMap o) throws VisitorException;
+   public R visitBoolean(BoolValue boolValue) throws VisitorException;
 }
