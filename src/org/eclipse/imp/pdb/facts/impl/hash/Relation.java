@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.impl.hash;
 
+import java.util.HashSet;
+
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -27,20 +29,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Relation extends Set implements IRelation {
-	/* package */Relation(RelationType relType) {
-		super(relType);
-	}
-	
-	/*package*/ Relation(Type relType) {
-		super(relType);
-	}
 
-	/* package */Relation(TupleType type) {
-		this(TypeFactory.getInstance().relType(type));
+	/* package */Relation(TupleType type, HashSet<IValue> content) {
+		super(TypeFactory.getInstance().relType(type), content);
 	}
 	
 	private Relation(Relation other) {
-		super((Set) other);
+		super(other);
 	}
 
 	public int arity() {
@@ -70,12 +65,12 @@ class Relation extends Set implements IRelation {
 
 	public IRelation compose(IRelation other) throws FactTypeError {
 		RelationType resultType = ((RelationType) getType().getBaseType()).compose((RelationType) other.getType().getBaseType());
-		ISetWriter w = new SetWriter(resultType.getFieldTypes());
+		ISetWriter w = Set.createSetWriter(resultType.getFieldTypes());
 		int max1 = ((RelationType) getType().getBaseType()).getArity() - 1;
 		int max2 = ((RelationType) other.getType().getBaseType()).getArity() - 1;
 		int width = max1 + max2;
 
-		for (IValue v1 : fSet) {
+		for (IValue v1 : content) {
 			ITuple t1 = (ITuple) v1;
 			for (IValue t2 : other) {
 				IValue[] values = new IValue[width];
@@ -98,7 +93,7 @@ class Relation extends Set implements IRelation {
 
 	public ISet carrier() {
 		SetType newType = checkCarrier();
-		ISetWriter w = new Set.SetWriter(newType.getElementType());
+		ISetWriter w = Set.createSetWriter(newType.getElementType());
 		
 		try {
 			for (IValue t : this) {

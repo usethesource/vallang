@@ -26,54 +26,13 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-class Map extends Value implements IMap {
-	static class MapWriter implements IMapWriter {
-		private Map fMap; 
-
-		public MapWriter(Type key, Type value) {
-			fMap = new Map(key, value);
-		}
-
-		public IMap getMap() {
-			return fMap;
-		}
-
-		public void putAll(IMap map) throws FactTypeError {
-			MapType mapType = (MapType) map.getType().getBaseType();
-			fMap.check(mapType.getKeyType(), mapType.getValueType());
-			
-			for (IValue key : map) {
-			  fMap.put(key, map.get(key));
-			}
-		}
-		
-		public void putAll(java.util.Map<? extends IValue, ? extends IValue> map)
-				throws FactTypeError {
-			for (IValue key : map.keySet()) {
-				IValue value = map.get(key);
-				fMap.check(key.getType(), value.getType());
-				fMap.put(key, value);
-			}
-		}
-
-		public void put(IValue key, IValue value) throws FactTypeError {
-			fMap.put(key, value);
-		}
-		
-		public IMap done() {
-			return fMap;
-		}
-	}
-
-	final HashMap<IValue,IValue> fMap;
-
-	/* package */Map(MapType mapType) {
-		super(mapType);
-		fMap = new HashMap<IValue,IValue>();
-	}
+class Map extends Value implements IMap{
+	private final HashMap<IValue,IValue> content;
 	
-	/* package */Map(Type keyType, Type valueType) {
-		this(TypeFactory.getInstance().mapType(keyType, valueType));
+	/* package */Map(Type keyType, Type valueType, HashMap<IValue, IValue> content){
+		super(TypeFactory.getInstance().mapType(keyType, valueType));
+		
+		this.content = content;
 	}
 	
 	/**
@@ -82,96 +41,150 @@ class Map extends Value implements IMap {
 	 */
 	private Map(Map other) {
 		super(other);
-		fMap = other.fMap;
+		
+		content = other.content;
+	}
+
+	public int size(){
+		return content.size();
+	}
+
+	public int arity(){
+		return content.size();
 	}
 
 	public boolean isEmpty() {
-		return fMap.isEmpty();
+		return content.isEmpty();
 	}
 
-	public int size() {
-		return fMap.size();
-	}
-
-	/**
-	 * iterates over the keys of the map
-	 */
-	public Iterator<IValue> iterator() {
-		return fMap.keySet().iterator();
-	}
-
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		int idx = 0;
-		for (IValue a : this) {
-			if (idx++ > 0) {
-				sb.append(",");
-			}
-			sb.append(a.toString() + ":" + get(a).toString());
-		}
-		sb.append(")");
-		return sb.toString();
-	}
-
-	public Type getKeyType() {
-		return ((MapType) fType.getBaseType()).getKeyType();
+	public IValue get(IValue key){
+		return content.get(key);
 	}
 	
-	public Type getValueType() {
-		return ((MapType) fType.getBaseType()).getValueType();
+	public Iterator<IValue> iterator(){
+		return content.keySet().iterator();
 	}
 
-	private void check(Type eltType, Type valueType) throws FactTypeError {
-		if (!eltType.isSubtypeOf(getKeyType())) {
-			throw new FactTypeError("Key type " + eltType + " is not a subtype of " + getKeyType());
-		}
-	    if (!valueType.isSubtypeOf(getValueType())) {
-			throw new FactTypeError("Value type " + eltType + " is not a subtype of " + getKeyType());
-		}
+	public boolean containsKey(IValue key) throws FactTypeError{
+		return content.containsKey(key);
 	}
 
-	
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof Map)) {
-			return false;
-		}
-		
-		Map other = (Map) o;
-		
-		return fMap.equals(other.fMap);
+	public boolean containsValue(IValue value) throws FactTypeError{
+		return content.containsValue(value);
 	}
 
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-		return v.visitMap(this);
-	}
-
-	public int arity() {
-		return fMap.size();
-	}
-
-	public boolean containsKey(IValue key) throws FactTypeError {
-		return fMap.containsKey(key);
-	}
-
-	public boolean containsValue(IValue value) throws FactTypeError {
-		return fMap.containsValue(value);
-	}
-
-	public IValue get(IValue key) {
-		return fMap.get(key);
-	}
-
-	public IMap put(IValue key, IValue value) throws FactTypeError {
+	public IMap put(IValue key, IValue value) throws FactTypeError{
 		IMapWriter sw = new MapWriter(getKeyType().lub(key.getType()), getValueType().lub(value.getType()));
 		sw.putAll(this);
 		sw.put(key, value);
 		return sw.done();
 	}
 	
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	public boolean equals(Object o){
+		if(!(o instanceof Map)) return false;
+		
+		Map other = (Map) o;
+		
+		return content.equals(other.content);
+	}
+
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("(");
+		
+		Iterator<IValue> mapIterator = iterator();
+		if(mapIterator.hasNext()){
+			IValue key = mapIterator.next();
+			sb.append(key + ":" + get(key));
+			
+			while(mapIterator.hasNext()){
+				sb.append(",");
+				key = mapIterator.next();
+				sb.append(key + ":" + get(key));
+			}
+		}
+		
+		sb.append(")");
+		
+		return sb.toString();
+	}
+
+	public Type getKeyType(){
+		return ((MapType) fType.getBaseType()).getKeyType();
+	}
+	
+	public Type getValueType(){
+		return ((MapType) fType.getBaseType()).getValueType();
+	}
+
+	private static void check(Type key, Type value, Type keyType, Type valueType) throws FactTypeError{
+		if(!key.isSubtypeOf(keyType)) throw new FactTypeError("Key type " + key + " is not a subtype of " + keyType);
+		if(!value.isSubtypeOf(valueType)) throw new FactTypeError("Value type " + value + " is not a subtype of " + valueType);
+	}
+
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
+		return v.visitMap(this);
+	}
+	
+	protected Object clone() throws CloneNotSupportedException{
 		return new Map(this);
+	}
+	
+	static MapWriter createMapWriter(Type keyType, Type valueType){
+		return new MapWriter(keyType, valueType);
+	}
+	
+	private static class MapWriter implements IMapWriter{
+		private final Type keyType;
+		private final Type valueType;
+		private final HashMap<IValue, IValue> mapContent;
+		
+		private Map constructedMap; 
+
+		public MapWriter(Type keyType, Type valueType){
+			super();
+			
+			this.keyType = keyType;
+			this.valueType = valueType;
+			
+			mapContent = new HashMap<IValue, IValue>();
+		}
+
+		private void checkMutation(){
+			if(constructedMap != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
+		}
+		
+		public void putAll(IMap map) throws FactTypeError{
+			checkMutation();
+			MapType mapType = (MapType) map.getType().getBaseType();
+			check(mapType.getKeyType(), mapType.getValueType(), keyType, valueType);
+			
+			for(IValue key : map){
+				mapContent.put(key, map.get(key));
+			}
+		}
+		
+		public void putAll(java.util.Map<? extends IValue, ? extends IValue> map) throws FactTypeError{
+			checkMutation();
+			for(IValue key : map.keySet()){
+				IValue value = map.get(key);
+				check(key.getType(), value.getType(), keyType, valueType);
+				mapContent.put(key, value);
+			}
+		}
+
+		public void put(IValue key, IValue value) throws FactTypeError{
+			checkMutation();
+			mapContent.put(key, value);
+		}
+		
+		public IMap done(){
+			if(constructedMap == null) {
+				constructedMap = new Map(keyType, valueType, mapContent);
+			}
+			
+			return constructedMap;
+		}
 	}
 }

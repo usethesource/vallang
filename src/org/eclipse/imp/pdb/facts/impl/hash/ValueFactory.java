@@ -37,10 +37,11 @@ public class ValueFactory extends BaseValueFactory {
 	}
 
 	private ValueFactory() {
+		super();
 	}
 
 	public IRelation relation(TupleType tupleType) {
-		return new Relation(TypeFactory.getInstance().relType(tupleType));
+		return setWriter(tupleType).done();
 	}
 	
 	public IRelation relation(IValue... tuples) {
@@ -56,26 +57,21 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public ISetWriter relationWriter(TupleType tupleType) {
-		return new Set.SetWriter(tupleType);
+		return setWriter(tupleType);
 	}
 
-	public ISet set(Type eltType) {
-		if (eltType.getBaseType().isTupleType()) {
-			return new Relation(eltType);
-		}
-		else {
-		  return new Set(eltType);
-		}
+	public ISet set(Type eltType){
+		return setWriter(eltType).done();
 	}
 	
 	public ISetWriter setWriter(Type eltType) {
-		return new Set.SetWriter(eltType);
+		return Set.createSetWriter(eltType);
 	}
 
 	public ISet set(IValue... elems) throws FactTypeError {
 		Type elementType = lub(elems);
 		
-		ISetWriter sw = new Set.SetWriter(elementType);
+		ISetWriter sw = setWriter(elementType);
 		sw.insert(elems);
 		return sw.done();
 	}
@@ -90,7 +86,7 @@ public class ValueFactory extends BaseValueFactory {
 
 	public IList list(IValue... rest) {
 		Type eltType = lub(rest);
-		IListWriter lw =  List.createListWriter(eltType);
+		IListWriter lw =  listWriter(eltType);
 		lw.append(rest);
 		return lw.done();
 	}
@@ -129,11 +125,11 @@ public class ValueFactory extends BaseValueFactory {
 		return new Node(type);
 	}
 
-	public IMap map(Type key, Type value) {
-		return new Map(key, value);
+	public IMap map(Type keyType, Type valueType) {
+		return mapWriter(keyType, valueType).done();
 	}
 	
-	public IMapWriter mapWriter(Type key, Type value) {
-		return new Map.MapWriter(key, value);
+	public IMapWriter mapWriter(Type keyType, Type valueType) {
+		return Map.createMapWriter(keyType, valueType);
 	}
 }

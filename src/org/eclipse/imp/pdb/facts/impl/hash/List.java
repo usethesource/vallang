@@ -44,8 +44,6 @@ public class List extends Value implements IList {
 		content = other.content;
 	}
 	
-	
-
 	public Type getElementType(){
 		return eltType;
 	}
@@ -149,7 +147,7 @@ public class List extends Value implements IList {
 	private static void checkInsert(IValue elem, Type eltType) throws FactTypeError{
 		Type type = elem.getType();
 		if(!type.isSubtypeOf(eltType)){
-			throw new FactTypeError("Element type " + eltType + " is not compatible with " + eltType);
+			throw new FactTypeError("Element type " + type + " is not compatible with " + eltType);
 		}
 	}
 	
