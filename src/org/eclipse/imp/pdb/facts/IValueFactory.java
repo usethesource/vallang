@@ -204,14 +204,8 @@ public interface IValueFactory {
 	public IMapWriter mapWriter(Type key, Type value);
 
 	/**
-	 * Create a boolean with value true
-	 * @return true
+	 * Create a boolean with a certain value
+	 * @return a boolean
 	 */
-	public IBool True();
-	
-	/**
-	 * Create a boolean with value false
-	 * @return false
-	 */
-	public IBool False();
+	public IBool bool(boolean value);
 }

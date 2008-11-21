@@ -56,6 +56,6 @@ public class BoolType extends Type {
 	
 	@Override
 	public IValue make(IValueFactory f, boolean arg) {
-		return arg ? f.True() : f.False();
+		return f.bool(arg);
 	}
 }

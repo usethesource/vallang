@@ -49,11 +49,7 @@ public abstract class BaseValueFactory implements IValueFactory {
 		return new ObjectValue<T>(type, o);
 	}
     
-    public IBool False() {
-    	return new BoolValue(false);
-    }
-    
-    public IBool True() {
-    	return new BoolValue(true);
+    public IBool bool(boolean value) {
+    	return new BoolValue(value);
     }
 }
