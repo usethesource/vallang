@@ -117,14 +117,17 @@ public interface IValueFactory {
     public INode tree(TreeNodeType type, IValue... children) throws FactTypeError;
     
     /**
-     * Construct an empty unmodifiable set
+     * Construct an empty unmodifiable set. If the element type is a tuple type,
+     * this will actually construct a relation.
+     * 
      * @param eltType type of set elements
      * @return an empty set of SetType set[eltType]
      */
     public ISet set(Type eltType);
     
     /**
-     * Get a set writer for a specific kind of set
+     * Get a set writer for a specific kind of set. If the element type is
+     * a tuple type, this will return a writer for a relation.
      * 
      * @param eltType the type of the elements of the set
      * @return a set writer
@@ -132,7 +135,8 @@ public interface IValueFactory {
     public ISetWriter setWriter(Type eltType);
     
     /**
-     * Construct a set with a fixed number of elements in it.
+     * Construct a set with a fixed number of elements in it. If the 
+     * elements are compatible tuples, this will construct a relation.
      * 
      * @param elems an array or variable argument list of values
      * @return a set containing all the elements 
