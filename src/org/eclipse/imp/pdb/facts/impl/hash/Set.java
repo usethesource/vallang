@@ -143,12 +143,13 @@ class Set extends Value implements ISet {
 		ISetWriter w = new SetWriter(other.getElementType().lub(getElementType()));
 		w.insertAll(this);
 		w.insertAll(other);
+		ISet result = w.done();
 		
 		try {
 			// either a set or a relation is returned. If the caller
 			// expected a relation, but the union constructed a set
 			// this will throw a ClassCastException
-			return (SetOrRel) w.done();
+			return (SetOrRel) result;
 		}
 		catch (ClassCastException e) {
 			throw new FactTypeError("Union did not result in a relation.", e);
