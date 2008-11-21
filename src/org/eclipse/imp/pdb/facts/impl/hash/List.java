@@ -119,7 +119,7 @@ public class List extends Value implements IList {
 			sb.append(listIterator.next());
 			
 			while(listIterator.hasNext()){
-				sb.append(", ");
+				sb.append(",");
 				sb.append(listIterator.next());
 			}
 		}
