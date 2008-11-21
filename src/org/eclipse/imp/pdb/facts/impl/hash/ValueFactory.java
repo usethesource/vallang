@@ -12,7 +12,6 @@
 
 package org.eclipse.imp.pdb.facts.impl.hash;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -82,16 +81,16 @@ public class ValueFactory extends BaseValueFactory {
 	}
 
 	public IList list(Type eltType) {
-		return new List(eltType);
+		return listWriter(eltType).done();
 	}
 	
 	public IListWriter listWriter(Type eltType) {
-		return new List.ListWriter(eltType);
+		return List.createListWriter(eltType);
 	}
 
 	public IList list(IValue... rest) {
-		Type elementType = lub(rest);
-		IListWriter lw = new List.ListWriter(elementType);
+		Type eltType = lub(rest);
+		IListWriter lw =  List.createListWriter(eltType);
 		lw.append(rest);
 		return lw.done();
 	}

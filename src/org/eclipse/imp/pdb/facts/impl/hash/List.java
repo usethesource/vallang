@@ -1,14 +1,14 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
-*******************************************************************************/
+ * Copyright (c) 2008 IBM Corporation & CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *    Jurgen Vinju (jurgen@vinju.org)
+ ********************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl.hash;
 
@@ -26,163 +26,230 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class List extends Value  implements IList {
-	/* package */final LinkedList<IValue> fList;
+public class List extends Value implements IList {
+	private final Type eltType;
+	private final LinkedList<IValue> content;
 
-	/* package */ static class ListWriter implements IListWriter {
-		private List fValue;
-
-		public ListWriter(Type eltType) {
-			fValue = new List(eltType);
-		}
-
-		public IList getList() {
-			return fValue;
-		}
-
-		public void insert(IValue... elems) throws FactTypeError {
-			for (IValue e : elems) {
-			  fValue.checkInsert(e);
-			  fValue.fList.add(0, e);
-			}
-		}
-
-		public void insert(int index, IValue... elems) throws FactTypeError {
-			for (IValue e : elems) {
-				fValue.checkInsert(e);
-				fValue.fList.add(index++, e);
-			}
-		}
-		
-		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeError {
-			for (IValue v : collection) {
-				insert(v);
-			}
-		}
-
-		public void append(IValue... elems) throws FactTypeError {
-			for (IValue e : elems) {
-			  fValue.checkInsert(e);
-			  fValue.fList.add(e);
-			}
-		}
-		
-		
-		
-		public IList done() {
-			return fValue;
-		}
-
-	}
-
-	private Type fEltType;
-
-	/* package */List(Type eltType) {
+	private List(Type eltType, LinkedList<IValue> content){
 		super(TypeFactory.getInstance().listType(eltType));
-		this.fEltType = eltType;
-		fList = new LinkedList<IValue>();
-	}
-	
-	private List(List other) {
-		super(other);
-		fList = other.fList;
-	}
-	
-	public Type getElementType() {
-		return fEltType;
-	}
-
-	public IList append(IValue e) throws FactTypeError {
-		IListWriter w = new ListWriter(getElementType().lub(e.getType()));
-		w.insertAll(this);
-		w.append(e);
-		return w.done();
-	}
-
-	public IValue get(int i) {
-		return fList.get(i);
-	}
-
-	public IList insert(IValue e) throws FactTypeError {
-		IListWriter w = new ListWriter(getElementType().lub(e.getType()));
 		
-		w.insertAll(this);
-		w.insert(e);
+		this.eltType = eltType;
+		this.content = content;
+	}
+	
+	private List(List other){
+		super(other);
+		
+		eltType = other.eltType;
+		content = other.content;
+	}
+	
+	
+
+	public Type getElementType(){
+		return eltType;
+	}
+
+	public Iterator<IValue> iterator(){
+		return content.iterator();
+	}
+
+	public int length(){
+		return content.size();
+	}
+
+	public boolean isEmpty(){
+		return content.isEmpty();
+	}
+
+	public IValue get(int i){
+		return content.get(i);
+	}
+
+	public IList insert(IValue elem) throws FactTypeError{
+		ListWriter w = new ListWriter(checkInsert(elem).getElementType());
+		w.appendAll(this);
+		w.insert(elem);
+		
 		return w.done();
 	}
 
-	public int length() {
-		return fList.size();
+	public IList append(IValue elem) throws FactTypeError{
+		ListWriter w = new ListWriter(checkInsert(elem).getElementType());
+		w.appendAll(this);
+		w.append(elem);
+		
+		return w.done();
 	}
 
-	public IList reverse() {
-		IListWriter w = new ListWriter(getElementType());
-		try {
-			for (IValue v : this) {
-				w.insert(v);
-			}
-		} catch (FactTypeError e) {
-			// this will never happen
+	public IList reverse(){
+		ListWriter w = new ListWriter(getElementType());
+		for (IValue e : this) {
+			w.insert(e);
+		}
+		return w.done();
+	}
+	
+	public IList concat(IList other) {
+		ListWriter w = new ListWriter(getElementType());
+		try{
+			w.appendAll(this);
+			w.appendAll(other);
+		}catch(FactTypeError e){
+			// This will never happen
 		} 
 		return w.done();
 	}
-
-	public Iterator<IValue> iterator() {
-		return fList.iterator();
-	}
-
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[ ");
-		int idx = 0;
-		for (IValue a : this) {
-			if (idx++ > 0)
-				sb.append(", ");
-			sb.append(a.toString());
-		}
-		sb.append(" ]");
-		return sb.toString();
-	}
-
-	private ListType checkInsert(IValue e) throws FactTypeError {
-		checkInsert(e.getType());
-		return (ListType) getType().getBaseType();
-	}
 	
-	private void checkInsert(Type eltType) throws FactTypeError {
-		if (!eltType.isSubtypeOf(fEltType)) {
-			throw new FactTypeError("Element type " + eltType + " is not compatible with " + fEltType);
-		}
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		// TODO: should we allow IList here?
-		// TODO: should the types be equal?
-		if (!(o instanceof List)) {
-			return false;
-		}
-		List other = (List) o;
-		return fList.equals(other.fList);
-	}
-	
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
 		return v.visitList(this);
 	}
 	
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	protected Object clone() throws CloneNotSupportedException{
 		return new List(this);
 	}
 
-	public boolean isEmpty() {
-		return fList.isEmpty();
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("[");
+		
+		Iterator<IValue> listIterator = iterator();
+		if(listIterator.hasNext()){
+			sb.append(listIterator.next());
+			
+			while(listIterator.hasNext()){
+				sb.append(", ");
+				sb.append(listIterator.next());
+			}
+		}
+		
+		sb.append("]");
+		
+		return sb.toString();
 	}
 	
-	public IList concat(IList o) throws FactTypeError {
-		IListWriter w = new ListWriter(o.getElementType().lub(getElementType()));
-		w.insertAll(o);
-		w.insertAll(this);
-		return w.done();
+	public boolean equals(Object o){
+		if(!(o instanceof List)){
+			return false;
+		}
+		List other = (List) o;
+		return content.equals(other.content);
+	}
+	
+    /*package*/ static ListWriter createListWriter(Type eltType){
+		return new ListWriter(eltType);
+	}
+	
+	private ListType checkInsert(IValue elem) throws FactTypeError{
+		checkInsert(elem, eltType);
+		return (ListType) getType().getBaseType();
+	}
+	
+	private static void checkInsert(IValue elem, Type eltType) throws FactTypeError{
+		Type type = elem.getType();
+		if(!type.isSubtypeOf(eltType)){
+			throw new FactTypeError("Element type " + eltType + " is not compatible with " + eltType);
+		}
+	}
+	
+	/**
+	 * This class does not guarantee thread-safety. Users must lock the writer object for thread safety.
+	 * It is thread-friendly however.
+	 */
+	private static class ListWriter implements IListWriter{
+		private final Type eltType;
+		private final LinkedList<IValue> listContent;
+		
+		private List constructedList;
+		
+		public ListWriter(Type eltType){
+			super();
+			
+			this.eltType = eltType;
+			listContent = new LinkedList<IValue>();
+			
+			constructedList = null;
+		}
+		
+		private void checkMutation(){
+			if(constructedList != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
+		}
+		
+		private void put(int index, IValue elem){
+			checkInsert(elem, eltType);
+			listContent.add(index, elem);
+		}
+		
+		public void insert(IValue elem) throws FactTypeError{
+			checkMutation();
+			
+			put(0, elem);
+		}
+		
+		public void insert(IValue[] elems, int start, int length) throws FactTypeError{
+			checkMutation();
+			checkBounds(elems, start, length);
+			
+			for(int i = start + length - 1; i >= start; i--){
+				put(0, elems[i]);
+			}
+		}
+
+		public void insert(IValue... elems) throws FactTypeError{
+			insert(elems, 0, elems.length);
+		}
+		
+		public void insert(int index, IValue elem) throws FactTypeError{
+			checkMutation();
+			
+			put(index, elem);
+		}
+		
+		public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeError{
+			checkMutation();
+			checkBounds(elems, start, length);
+			
+			for(int i = start + length - 1; i >= start; i--){
+				put(index, elems[i]);
+			}
+		}
+
+		public void insert(int index, IValue... elems) throws FactTypeError{
+			insertAt(index,  elems, 0, 0);
+		}
+		
+		public void append(IValue elem) throws FactTypeError{
+			checkMutation();
+			
+			put(listContent.size(), elem);
+		}
+
+		public void append(IValue... elems) throws FactTypeError{
+			checkMutation();
+			
+			for(IValue elem : elems){
+				put(listContent.size(), elem);
+			}
+		}
+		
+		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeError{
+			checkMutation();
+			
+			for(IValue v : collection){
+				put(listContent.size(), v);
+			}
+		}
+
+		public IList done(){
+			if(constructedList == null) constructedList = new List(eltType, listContent);
+			
+			return constructedList;
+		}
+		
+		private void checkBounds(IValue[] elems, int start, int length){
+			if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
+			if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
+		}
 	}
 }
