@@ -13,7 +13,6 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -24,7 +23,7 @@ public abstract class Value implements IValue {
 	/**
 	 * Keeps the annotations of this value 
 	 */
-    protected final Map<String, IValue> fAnnotations;
+    protected final HashMap<String, IValue> fAnnotations;
     
 	/**
      * The type of this value
@@ -40,9 +39,10 @@ public abstract class Value implements IValue {
      * Used for cloning values.
      * @param other
      */
-    protected Value(Value other) {
+    @SuppressWarnings("unchecked")
+	protected Value(Value other) {
     	fType = other.fType;
-    	fAnnotations = other.fAnnotations;
+    	fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
     }
 
 	/**

@@ -6,16 +6,16 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class BoolValue extends Value implements IBool {
-	private final boolean value;
+	private final boolean fValue;
 
 	public BoolValue(boolean b) {
 		super(TypeFactory.getInstance().boolType());
-		this.value = b;
+		this.fValue = b;
 	}
 	
 	private BoolValue(BoolValue other) {
 		super(other);
-    	value = other.value;
+    	fValue = other.fValue;
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class BoolValue extends Value implements IBool {
 	}
 
 	public boolean getValue() {
-		return value;
+		return fValue;
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
@@ -33,7 +33,19 @@ public class BoolValue extends Value implements IBool {
 	
 	@Override
 	public String toString() {
-		return value ? "true" : "false";
+		return fValue ? "true" : "false";
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof BoolValue) {
+			return fValue == ((BoolValue) obj).fValue;
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return fValue ? 1 : 3;
+	}
 }
