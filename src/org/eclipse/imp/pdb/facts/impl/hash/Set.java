@@ -248,5 +248,9 @@ class Set extends Value implements ISet{
 		private void checkMutation(){
 			if(constructedSet != null) throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
 		}
+		
+		public int size() {
+			return constructedSet.size();
+		}
 	}
 }

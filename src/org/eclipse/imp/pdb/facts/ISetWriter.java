@@ -19,4 +19,5 @@ public interface ISetWriter {
     void insert(IValue... v) throws FactTypeError ;
     void insertAll(Iterable<? extends IValue> collection) throws FactTypeError;
     <SetOrRel extends ISet> SetOrRel done();
+    int size();
 }
