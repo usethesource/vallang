@@ -52,6 +52,11 @@ public class Node extends Tree implements INode {
 		return fType.getSuperType();
 	}
 
+	@Override
+	public ITree set(int i, IValue newChild) {
+		return new Node(this, i, newChild);
+	}
+	
 	public ITree set(String label, IValue newChild) {
 		return new Node(this, ((TreeNodeType) fType).getChildIndex(label), newChild);
 	}
