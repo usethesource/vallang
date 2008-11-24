@@ -83,17 +83,6 @@ class Set extends Value implements ISet{
 	}
 
 	@SuppressWarnings("unchecked")
-	public ISet invert(ISet universe) throws FactTypeError{
-		ISet result = universe.subtract(this);
-		
-		if(size() + result.size() != universe.size()){
-			throw new FactTypeError("Universe is not a superset of this set");
-		}
-		
-		return result;
-	}
-
-	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other) throws FactTypeError{
 		ISetWriter sw = new SetWriter(other.getElementType().lub(getElementType()));
 		for (IValue a : content){
@@ -104,6 +93,15 @@ class Set extends Value implements ISet{
 		return sw.done();
 	}
 
+	public boolean isSubSet(ISet other) {
+		for (IValue elem : this) {
+			if (!other.contains(elem)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <SetOrRel extends ISet> SetOrRel union(ISet other){
 		ISetWriter w = new SetWriter(other.getElementType().lub(getElementType()));
