@@ -45,6 +45,13 @@ public class Tree extends Value implements ITree {
 		fChildren = other.fChildren.clone();
 	}
 	
+	protected Tree(Tree other, int index, IValue newChild) {
+		super(other);
+		fName = other.fName;
+		fChildren = other.fChildren.clone();
+		fChildren[index] = newChild;
+	}
+	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitTree(this);
 	}
@@ -73,16 +80,11 @@ public class Tree extends Value implements ITree {
 	@SuppressWarnings("unchecked")
 	public  ITree set(int i, IValue newChild) {
 		try {
-			Tree clone = (Tree) clone();
-			clone.fChildren[i] = newChild;
-			return clone;
+			return new Tree(this, i, newChild);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new FactTypeError("Tree node does not have child at pos " + i, e);
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("Internal error: all IValues should implement clone method", e); 
 		}
 	}
-	
 
 	public Iterator<IValue> iterator() {
 		return new Iterator<IValue>() {

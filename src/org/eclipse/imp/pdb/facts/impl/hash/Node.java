@@ -28,6 +28,11 @@ public class Node extends Tree implements INode {
 		fType = node.fType;
 	}
 
+	private Node(Node other, int childIndex, IValue newChild) {
+		super(other, childIndex, newChild);
+		fType = other.fType;
+	}
+
 	protected final TreeNodeType fType;
 
 	public IValue get(String label) {
@@ -48,7 +53,7 @@ public class Node extends Tree implements INode {
 	}
 
 	public ITree set(String label, IValue newChild) {
-		return super.set(((TreeNodeType) fType).getChildIndex(label), newChild);
+		return new Node(this, ((TreeNodeType) fType).getChildIndex(label), newChild);
 	}
 	
 	@Override
