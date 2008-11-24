@@ -77,6 +77,51 @@ class Map extends Value implements IMap{
 		return sw.done();
 	}
 	
+	public IMap join(IMap other) {
+		IMapWriter sw = new MapWriter(getKeyType().lub(other.getKeyType()), getValueType().lub(other.getValueType()));
+		sw.putAll(this);
+		sw.putAll(other);
+		return sw.done();
+	}
+	
+	public IMap common(IMap other) {
+		IMapWriter sw = new MapWriter(getKeyType().lub(other.getKeyType()), getValueType().lub(other.getValueType()));
+		for (IValue key : this) {
+			IValue thisValue = get(key);
+			IValue otherValue = other.get(key);
+			if (otherValue != null && thisValue.equals(otherValue)) {
+				sw.put(key, thisValue);
+			}
+		}
+		return sw.done();
+	}
+	
+	public IMap remove(IMap other) {
+		IMapWriter sw = new MapWriter(getKeyType().lub(other.getKeyType()), getValueType().lub(other.getValueType()));
+		for (IValue key : this) {
+			if (!other.containsKey(key)) {
+				sw.put(key, get(key));
+			}
+		}
+		return sw.done();
+	}
+	
+	public boolean isSubMap(IMap other) {
+		for (IValue key : this) {
+			IValue thisValue = get(key);
+			IValue otherValue = other.get(key);
+			
+			if (otherValue == null) {
+				return false;
+			}
+			else if (!thisValue.equals(otherValue)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	public boolean equals(Object o){
 		if(!(o instanceof Map)) return false;
 		
