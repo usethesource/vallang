@@ -62,6 +62,20 @@ class Relation extends Set implements IRelation {
 
 		return tmp;
 	}
+	
+	public IRelation closureStar() throws FactTypeError {
+		checkReflexivity();
+		IRelation closure = closure();
+		ISet domain = closure.domain();
+		Type elementType = domain.getElementType();
+		ISetWriter reflex = Set.createSetWriter(TypeFactory.getInstance().tupleType(elementType, elementType));
+		
+		for (IValue e: domain) {
+			reflex.insert(new Tuple(new IValue[] {e, e}));
+		}
+		
+		return closure.union(reflex.done());
+	}
 
 	public IRelation compose(IRelation other) throws FactTypeError {
 		RelationType resultType = ((RelationType) getType().getBaseType()).compose((RelationType) other.getType().getBaseType());
@@ -105,6 +119,29 @@ class Relation extends Set implements IRelation {
 		return w.done();
 	}
 
+	public ISet domain() {
+		RelationType relType = (RelationType) getType();
+		ISetWriter w = Set.createSetWriter(relType.getFieldType(0));
+		
+		for (IValue elem : this) {
+			ITuple tuple = (ITuple) elem;
+			w.insert(tuple.get(0));
+		}
+		return w.done();
+	}
+	
+	public ISet range() {
+		RelationType relType = (RelationType) getType();
+		int last = relType.getArity() - 1;
+		ISetWriter w = Set.createSetWriter(relType.getFieldType(last));
+		
+		for (IValue elem : this) {
+			ITuple tuple = (ITuple) elem;
+			w.insert(tuple.get(last));
+		}
+		
+		return w.done();
+	}
 	
 	private boolean checkReflexivity() throws FactTypeError {
 		RelationType type = (RelationType) getType().getBaseType();
