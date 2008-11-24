@@ -34,8 +34,8 @@ class Relation extends Set implements IRelation {
 		super(TypeFactory.getInstance().relType(type), content);
 	}
 	
-	private Relation(Relation other) {
-		super(other);
+	private Relation(Relation other, String label, IValue anno) {
+		super(other, label, anno);
 	}
 
 	public int arity() {
@@ -151,7 +151,7 @@ class Relation extends Set implements IRelation {
 	}
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		return new Relation(this);
+	protected IValue clone(String label, IValue anno)  {
+		return new Relation(this, label, anno);
 	}
 }

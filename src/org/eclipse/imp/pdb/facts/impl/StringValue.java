@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -28,8 +29,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fValue= value;
     }
 
-    private StringValue(StringValue other) {
-    	super(other);
+    private StringValue(StringValue other,String label, IValue anno) {
+    	super(other, label, anno);
     	fValue = other.fValue;
     }
     
@@ -60,7 +61,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     }
     
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-    	return new StringValue(this);
+    protected IValue clone(String label, IValue anno) {
+    	return new StringValue(this, label, anno);
     }
 }

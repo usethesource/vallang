@@ -84,21 +84,6 @@ public class TypeFactory {
 			}
     	}
     }
-    /**
-     * Construct a new type. An object type imports a Java class into the PDB type hierarchy.
-     * An ObjectType is a sub type of value. The Java type hierarchy is of no influence in the
-     * PDB type hierarchy, and vice versa. E.g if class A is a subclass of class B, then Object[A] is not 
-     * a sub type of Object[B] in the PDB class hierarchy.
-     * 
-     * @param <T>   The type of object that this ObjectType wraps
-     * @param clazz A class literal for <T>
-     * @return a unique reference to a type that represents Java classes.
-     */
-	@SuppressWarnings("unchecked")
-	public <T> ObjectType<T> objectType(Class<T> clazz) {
-    	return (ObjectType<T>) getFromCache(new ObjectType<T>(clazz));
-    }
-    
     
     /**
      * Construct a new type. 

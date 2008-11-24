@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -42,8 +43,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	}
 
-	private SourceRangeValue(SourceRangeValue other) {
-		super(other);
+	private SourceRangeValue(SourceRangeValue other, String label, IValue anno) {
+		super(other, label, anno);
 		fStartOffset = other.fStartOffset;
 		fLength = other.fLength;
 		fStartLine = other.fStartLine;
@@ -106,7 +107,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
-	      return new SourceRangeValue(this);
+	protected IValue clone(String label, IValue anno) {
+	      return new SourceRangeValue(this,label, anno);
 	}
 }

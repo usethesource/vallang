@@ -39,8 +39,8 @@ public class Tree extends Value implements ITree {
 		this(name, new IValue[0]);
 	}
 
-	protected Tree(Tree other) {
-		super(other);
+	protected Tree(Tree other, String label, IValue anno) {
+		super(other, label, anno);
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 	}
@@ -149,7 +149,7 @@ public class Tree extends Value implements ITree {
 	}
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		return new Tree(this);
+	protected IValue clone(String label, IValue anno)  {
+		return new Tree(this, label, anno);
 	}
 }

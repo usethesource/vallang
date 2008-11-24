@@ -35,14 +35,11 @@ class Map extends Value implements IMap{
 		this.content = content;
 	}
 	
-	/**
-	 * Used for efficient cloning.
-	 * @param other
-	 */
-	private Map(Map other) {
-		super(other);
+	@SuppressWarnings("unchecked")
+	private Map(Map other, String label, IValue anno) {
+		super(other, label, anno);
 		
-		content = other.content;
+		content = (HashMap<IValue, IValue>) other.content.clone();
 	}
 
 	public int size(){
@@ -127,8 +124,8 @@ class Map extends Value implements IMap{
 		return v.visitMap(this);
 	}
 	
-	protected Object clone() throws CloneNotSupportedException{
-		return new Map(this);
+	protected IValue clone(String label, IValue anno)  {
+		return new Map(this, label, anno);
 	}
 	
 	static MapWriter createMapWriter(Type keyType, Type valueType){

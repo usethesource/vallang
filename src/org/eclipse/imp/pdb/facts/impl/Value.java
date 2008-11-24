@@ -36,14 +36,21 @@ public abstract class Value implements IValue {
     }
     
     /**
-     * Used for cloning values.
-     * @param other
+     * Create new value with changed annotation. Used to implement clone() method.
+     * @param other the other value
+     * @param label the label of the annotation to set
+     * @param anno  the new value of the annotation
      */
-    @SuppressWarnings("unchecked")
-	protected Value(Value other) {
-    	fType = other.fType;
-    	fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
+	protected Value(Value other, String label, IValue anno) {
+    	this(other);
+    	fAnnotations.put(label, anno);
     }
+	
+   @SuppressWarnings("unchecked")
+	public Value(Value other) {
+		fType = other.fType;
+		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
+	}
 
 	/**
      * @return the type of this value
@@ -64,8 +71,6 @@ public abstract class Value implements IValue {
     }
     
     public IValue setAnnotation(String label, IValue value) {
-    	Value clone;
-    	
     	Type expected = TypeFactory.getInstance().getAnnotationType(getType(), label);
     	
     	if (expected == null) {
@@ -76,13 +81,7 @@ public abstract class Value implements IValue {
     		throw new FactTypeError("The type of this annotation should be a subtype of " + expected + " and not " + value.getType());
     	}
         
-		try {
-			clone = (Value) clone();
-			clone.fAnnotations.put(label, value);
-	    	return clone;
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("Internal error: all IValues should implement clone method", e);
-		}
+        return (Value) clone(label, value);
     }
     
     public IValue getAnnotation(String label) {
@@ -90,9 +89,10 @@ public abstract class Value implements IValue {
     }
     
     /**
-     * clone must be implemented in order to make setAnnotation implementable
-     * without mutating the original object.
+     * Should clone the value and set the annotation in the constructor.
+     * @param label the label of the annotation to set
+     * @param value the new value of the annotation
+     * @return the exact same value, with the same type, but with a new value for the chosen annotation label
      */
-    @Override
-    protected abstract Object clone() throws CloneNotSupportedException;
+    protected abstract IValue clone(String label, IValue value);
 }

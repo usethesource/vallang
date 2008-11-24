@@ -15,13 +15,10 @@ package org.eclipse.imp.pdb.facts.impl;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IObject;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public abstract class BaseValueFactory implements IValueFactory {
     public IInteger integer(int i) {
@@ -43,11 +40,6 @@ public abstract class BaseValueFactory implements IValueFactory {
     public ISourceRange sourceRange(int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
         return new SourceRangeValue(startOffset, length, startLine, endLine, startCol, endCol);
     }
-    
-    public <T> IObject<T> object(T o) {
-		Type type = TypeFactory.getInstance().objectType(o.getClass());
-		return new ObjectValue<T>(type, o);
-	}
     
     public IBool bool(boolean value) {
     	return new BoolValue(value);

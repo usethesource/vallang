@@ -98,10 +98,6 @@ public abstract class Type {
 		return false;
 	}
 
-	public boolean isObjectType() {
-		return false;
-	}
-
 	public boolean isTreeType() {
 		return false;
 	}

@@ -30,11 +30,17 @@ class Tuple extends Value implements ITuple {
 		this.fElements= elements;
     }
     
-    private Tuple(Tuple other) {
-    	super(other);
-    	fElements = other.fElements;
+    private Tuple(Tuple other, String label, IValue anno) {
+    	super(other, label, anno);
+    	fElements = other.fElements.clone();
     }
 
+    private Tuple(Tuple other, int i, IValue elem) {
+    	super(other);
+    	fElements = other.fElements.clone();
+    	fElements[i] = elem;
+    }
+    
 	public int arity() {
         return fElements.length;
     }
@@ -106,29 +112,16 @@ class Tuple extends Value implements ITuple {
     }
     
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-    	return new Tuple(this);
+    protected IValue clone(String label, IValue anno) {
+    	return new Tuple(this, label, anno);
     }
 
 	public ITuple set(int i, IValue arg) {
-		try {
-			Tuple tmp = (Tuple) clone();
-			tmp.fElements[i] = arg;
-			return tmp;
-		} catch (CloneNotSupportedException e) {
-			// does not happen
-			return null;
-		}
+		return new Tuple(this, i, arg);
 	}
 
 	public ITuple set(String label, IValue arg) {
-		try {
-			Tuple tmp = (Tuple) clone();
-			tmp.fElements[((TupleType) fType).getFieldIndex(label)] = arg;
-			return tmp;
-		} catch (CloneNotSupportedException e) {
-			// does not happen
-			return null;
-		}
+		int i = ((TupleType) fType).getFieldIndex(label);
+		return new Tuple(this, i, arg);
 	}
 }

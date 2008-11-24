@@ -65,13 +65,6 @@ public interface IValueFactory {
     public ISourceLocation sourceLocation(String path, ISourceRange range);
     
     /**
-     * @param <T> the class of the object
-     * @param o   the object itself
-     * @return a value wrapping this object
-     */
-    public <T> IObject<T> object(T o);
-    
-    /**
      * Construct the nullary tuple
      * @return the nullary tuple
      */

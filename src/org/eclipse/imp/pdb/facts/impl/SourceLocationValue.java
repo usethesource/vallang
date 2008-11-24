@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -28,8 +29,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fRange= range;
     }
     
-    private SourceLocationValue(SourceLocationValue other) {
-    	super(other);
+    private SourceLocationValue(SourceLocationValue other, String label, IValue anno) {
+    	super(other,label, anno);
     	fPath = other.fPath;
     	fRange = other.fRange;
 	}
@@ -66,7 +67,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     }
     
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-    		return new SourceLocationValue(this);
+    protected IValue clone(String label, IValue anno)  {
+    		return new SourceLocationValue(this, label, anno);
     }
 }

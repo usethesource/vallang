@@ -109,11 +109,6 @@ public class ValueType extends Type {
     }
 
     @Override
-    public <T> IValue make(IValueFactory f, T arg) {
-    	return TypeFactory.getInstance().objectType(arg.getClass()).make(f, arg);
-    };
-   
-    @Override
     public IValue make(IValueFactory f, String name, IValue... children) {
     	return f.tree(name, children);
     }

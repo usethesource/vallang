@@ -40,7 +40,6 @@ public class TypeDescriptorFactory {
 	private TreeNodeType listType = tf.treeNodeType(typeSort, "list", typeSort, "element");
 	private TreeNodeType mapType = tf.treeNodeType(typeSort, "map", typeSort, "key", typeSort, "value");
 	private TreeNodeType namedType = tf.treeNodeType(typeSort, "named", typeSort, "super");
-	private TreeNodeType objectType = tf.treeNodeType(typeSort, "object", tf.stringType(), "name");
 	private TreeNodeType relationType = tf.treeNodeType(typeSort, "relation", tf.listType(typeSort), "fields");
 	private TreeNodeType setType = tf.treeNodeType(typeSort, "set", typeSort, "element");
 	private TreeNodeType sourceLocationType = tf.treeNodeType(typeSort, "sourceLocation");
@@ -202,10 +201,6 @@ public class TypeDescriptorFactory {
 			return vf.tree(namedType, type.getSuperType().accept(this));
 		}
 
-		public <U> ITree visitObject(ObjectType<U> type) {
-			return vf.tree(objectType, vf.string(type.getClass().getCanonicalName()));
-		}
-		
 		public ITree visitRelationType(RelationType type) {
 			IListWriter w = vf.listWriter(typeSort);
 			

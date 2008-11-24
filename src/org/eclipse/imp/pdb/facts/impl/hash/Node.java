@@ -23,8 +23,8 @@ public class Node extends Tree implements INode {
 		this(type, new IValue[0]);
 	}
 
-	public Node(Node node) {
-		super(node);
+	private Node(Node node, String label, IValue anno) {
+		super(node, label, anno);
 		fType = node.fType;
 	}
 
@@ -65,7 +65,7 @@ public class Node extends Tree implements INode {
 	}
 	
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		return new Node(this);
+	protected IValue clone(String label, IValue anno) {
+		return new Node(this, label, anno);
 	}
 }

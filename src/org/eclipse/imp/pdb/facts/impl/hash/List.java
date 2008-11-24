@@ -37,8 +37,8 @@ public class List extends Value implements IList {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List(List other){
-		super(other);
+	private List(List other, String label, IValue anno){
+		super(other, label, anno);
 		
 		eltType = other.eltType;
 		content = (LinkedList<IValue>) other.content.clone();
@@ -111,8 +111,8 @@ public class List extends Value implements IList {
 		return v.visitList(this);
 	}
 	
-	protected Object clone() throws CloneNotSupportedException{
-		return new List(this);
+	protected IValue clone(String label, IValue anno) {
+		return new List(this, label, anno);
 	}
 
 	public String toString(){

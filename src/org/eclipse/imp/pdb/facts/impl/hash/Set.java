@@ -31,20 +31,21 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 class Set extends Value implements ISet{
 	final HashSet<IValue> content;
 
-	Set(SetType setType, HashSet<IValue> content){
+	/*package*/ Set(SetType setType, HashSet<IValue> content){
 		super(setType);
 		
 		this.content = content;
 	}
 	
-	Set(Type eltType, HashSet<IValue> content){
+	private Set(Type eltType, HashSet<IValue> content){
 		this(TypeFactory.getInstance().setType(eltType), content);
 	}
 	
-	Set(Set other){
-		super(other);
+	@SuppressWarnings("unchecked")
+	protected Set(Set other, String label, IValue anno) {
+		super(other, label, other);
 		
-		content = other.content;
+		content = (HashSet<IValue>) other.content.clone();
 	}
 
 	public boolean contains(IValue element) throws FactTypeError{
@@ -180,8 +181,8 @@ class Set extends Value implements ISet{
 		return v.visitSet(this);
 	}
 	
-	protected Object clone() throws CloneNotSupportedException{
-		return new Set(this);
+	protected IValue clone(String label, IValue anno) {
+		return new Set(this, label, anno);
 	}
 	
 	private static void checkInsert(IValue elem, Type eltType) throws FactTypeError{

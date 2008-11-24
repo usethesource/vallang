@@ -22,7 +22,6 @@ public interface ITypeVisitor<T> {
 	T visitList(ListType type);
 	T visitMap(MapType type);
 	T visitNamed(NamedType type);
-	<U> T visitObject(ObjectType<U> type);
 	T visitRelationType(RelationType type);
 	T visitSet(SetType type);
 	T visitSourceLocation(SourceLocationType type);
