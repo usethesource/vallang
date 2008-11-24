@@ -16,12 +16,67 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public interface IList extends Iterable<IValue>, IValue {
+	/**
+	 * @return the type of the elements in the list
+	 */
     public Type getElementType();
+    
+    /**
+     * @return the number of elements in the list
+     */
     public int length();
+    
+    /**
+     * @return a new list with all elements in reverse order
+     */
     public IList reverse();
+    
+    /**
+     * Appends an element to the end of the list
+     * 
+     * @param e the new element
+     * @return a new list with the element at the end
+     * @throws FactTypeError
+     */
     public IList append(IValue e) throws FactTypeError;
+    
+    /**
+     * Insers an element in front of the list
+     * @param e the new element
+     * @return a new list with the element in front
+     * @throws FactTypeError
+     */
     public IList insert(IValue e) throws FactTypeError;
+    
+    /**
+     * Concatenates this list with another
+     * @param o another list
+     * @return a concatenated list with the elements of the 
+     *         receiver before the elements of o.
+     * @throws FactTypeError
+     */
     public IList concat(IList o) throws FactTypeError;
-    public IValue get(int i);
+    
+    /**
+     * Replaces the value of the ith element in the list with a new value
+     * @param i index to replace a value at.
+     * @param e the new value to replace the old one
+     * @return a new list with the element replaced
+     * @throws FactTypeError when the type of the element is not a subtype of the element type
+     * @throws IndexOutOfBoundsException when the i < 0 or i >= IList.length()
+     */
+    public IList put(int i, IValue e) throws FactTypeError, IndexOutOfBoundsException;
+    
+    /**
+     * Return the ith element of the list.
+     * @param i
+     * @return the ith element of the list
+     * @throws IndexOutOfBoundsException when i < 0 or i >= IList.length
+     */
+    public IValue get(int i) throws IndexOutOfBoundsException;
+    
+    /**
+     * @return true iff the list is non-empty
+     */
     public boolean isEmpty();
 }

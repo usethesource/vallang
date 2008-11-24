@@ -37,11 +37,12 @@ public class List extends Value implements IList {
 		this.content = content;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private List(List other){
 		super(other);
 		
 		eltType = other.eltType;
-		content = other.content;
+		content = (LinkedList<IValue>) other.content.clone();
 	}
 	
 	public Type getElementType(){
@@ -62,6 +63,18 @@ public class List extends Value implements IList {
 
 	public IValue get(int i){
 		return content.get(i);
+	}
+	
+	public IList put(int i, IValue elem) throws FactTypeError,
+			IndexOutOfBoundsException {
+		try {
+			List l = (List) clone();
+			l.content.set(i, elem);
+			return l;
+		} catch (CloneNotSupportedException e) {
+			System.err.println("bug: this should not happen:" + e);
+			return null;
+		}
 	}
 
 	public IList insert(IValue elem) throws FactTypeError{
