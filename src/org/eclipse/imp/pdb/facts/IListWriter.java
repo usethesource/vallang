@@ -68,6 +68,14 @@ public interface IListWriter {
     void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeError, IndexOutOfBoundsException;
     
     /**
+     * Replaces an existing element at index in the list.
+     * @param index the location where to replace the element
+     * @param elem the new element
+     * @throws FactTypeError when the type of the new element is not a subtype of the element type
+     * @throws IndexOutOfBoundsException
+     */
+    void replaceAt(int index, IValue elem) throws FactTypeError, IndexOutOfBoundsException;
+    /**
      * Append elements at the end.
      * 
      * @param value array of elements to append

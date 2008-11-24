@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -67,18 +66,14 @@ public class List extends Value implements IList {
 	
 	public IList put(int i, IValue elem) throws FactTypeError,
 			IndexOutOfBoundsException {
-		try {
-			List l = (List) clone();
-			l.content.set(i, elem);
-			return l;
-		} catch (CloneNotSupportedException e) {
-			System.err.println("bug: this should not happen:" + e);
-			return null;
-		}
+		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
+		w.appendAll(this);
+		w.replaceAt(i, elem);
+		return w.done();
 	}
 
 	public IList insert(IValue elem) throws FactTypeError{
-		ListWriter w = new ListWriter(checkInsert(elem).getElementType());
+		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.insert(elem);
 		
@@ -86,7 +81,7 @@ public class List extends Value implements IList {
 	}
 
 	public IList append(IValue elem) throws FactTypeError{
-		ListWriter w = new ListWriter(checkInsert(elem).getElementType());
+		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.append(elem);
 		
@@ -102,7 +97,7 @@ public class List extends Value implements IList {
 	}
 	
 	public IList concat(IList other) {
-		ListWriter w = new ListWriter(getElementType());
+		ListWriter w = new ListWriter(getElementType().lub(other.getElementType()));
 		try{
 			w.appendAll(this);
 			w.appendAll(other);
@@ -150,11 +145,6 @@ public class List extends Value implements IList {
 	
     /*package*/ static ListWriter createListWriter(Type eltType){
 		return new ListWriter(eltType);
-	}
-	
-	private ListType checkInsert(IValue elem) throws FactTypeError{
-		checkInsert(elem, eltType);
-		return (ListType) getType().getBaseType();
 	}
 	
 	private static void checkInsert(IValue elem, Type eltType) throws FactTypeError{
@@ -207,6 +197,12 @@ public class List extends Value implements IList {
 			}
 		}
 
+		public void replaceAt(int index, IValue elem) throws FactTypeError, IndexOutOfBoundsException {
+			checkMutation();
+			checkInsert(elem, eltType);
+			listContent.set(index, elem);
+		}
+		
 		public void insert(IValue... elems) throws FactTypeError{
 			insert(elems, 0, elems.length);
 		}
