@@ -15,4 +15,11 @@ package org.eclipse.imp.pdb.facts;
 public interface IString extends IValue {
     String getValue();
     IString concat(IString other);
+    
+    /**
+     * Compares two strings lexicographically
+     * @param other
+     * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
+     */
+    int compare(IString other);
 }

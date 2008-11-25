@@ -47,6 +47,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new StringValue(fValue.concat(other.getValue()));
     }
     
+    public int compare(IString other) {
+    	int result = fValue.compareTo(other.getValue());
+    	return result < 0 ? -1 : (result > 0) ? 1 : 0;
+    }
+    
     @Override
     public boolean equals(Object o) {
     	if (o instanceof StringValue) {
