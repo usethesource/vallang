@@ -82,6 +82,18 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new BoolValue(fValue >= other.getValue());
     }
     
+    public int compare(IDouble other) {
+    	if (fValue < other.getValue()) {
+    		return -1;
+    	}
+    	else if (fValue > other.getValue()) {
+    		return 1;
+    	}
+    	else {
+    		return 0;
+    	}
+    }
+    
     @Override
     public boolean equals(Object o) {
     	if (o instanceof DoubleValue) {

@@ -90,6 +90,18 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new DoubleValue(fValue);
     }
     
+    public int compare(IInteger other) {
+    	if (fValue < other.getValue()) {
+    		return -1;
+    	}
+    	else if (fValue > other.getValue()) {
+    		return 1;
+    	}
+    	else {
+    		return 0;
+    	}
+    }
+    
     @Override
     public int hashCode() {
     	return fValue;

@@ -25,4 +25,11 @@ public interface IInteger extends IValue {
     IBool greater(IInteger other);
     IBool lessEqual(IInteger other);
     IBool greaterEqual(IInteger other);
+    
+    /**
+     * Compares two integers
+     * @param other
+     * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
+     */
+    int compare(IInteger other);
 }

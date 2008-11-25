@@ -24,4 +24,11 @@ public interface IDouble extends IValue {
     IBool greater(IDouble other);
     IBool lessEqual(IDouble other);
     IBool greaterEqual(IDouble other);
+    
+    /**
+     * Compares two doubles
+     * @param other
+     * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
+     */
+    int compare(IDouble other);
 }
