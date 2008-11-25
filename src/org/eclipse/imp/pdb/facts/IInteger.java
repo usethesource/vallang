@@ -15,4 +15,14 @@ package org.eclipse.imp.pdb.facts;
 
 public interface IInteger extends IValue {
     int getValue();
+    IInteger add(IInteger other);
+    IInteger subtract(IInteger other);
+    IInteger multiply(IInteger other);
+    IInteger divide(IInteger other);
+    IInteger remainder(IInteger other);
+    IDouble  toDouble();
+    IBool less(IInteger other);
+    IBool greater(IInteger other);
+    IBool lessEqual(IInteger other);
+    IBool greaterEqual(IInteger other);
 }

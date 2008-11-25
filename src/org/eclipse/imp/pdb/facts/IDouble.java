@@ -14,4 +14,14 @@ package org.eclipse.imp.pdb.facts;
 
 public interface IDouble extends IValue {
     double getValue();
+    IDouble add(IDouble other);
+    IDouble subtract(IDouble other);
+    IDouble multiply(IDouble other);
+    IDouble divide(IDouble other);
+    IInteger floor();
+    IInteger round();
+    IBool less(IDouble other);
+    IBool greater(IDouble other);
+    IBool lessEqual(IDouble other);
+    IBool greaterEqual(IDouble other);
 }

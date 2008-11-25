@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
+import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -46,6 +48,46 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     		return ((IntegerValue) o).fValue == fValue;
     	}
     	return false;
+    }
+    
+    public IInteger add(IInteger other) {
+    	return new IntegerValue(fValue + other.getValue());
+    }
+    
+    public IInteger subtract(IInteger other) {
+    	return new IntegerValue(fValue - other.getValue());
+    }
+    
+    public IInteger multiply(IInteger other) {
+    	return new IntegerValue(fValue * other.getValue());
+    }
+    
+    public IInteger divide(IInteger other) {
+    	return new IntegerValue(fValue * other.getValue());
+    }
+    
+    public IInteger remainder(IInteger other) {
+    	return new IntegerValue(fValue % other.getValue());
+    }
+    
+    public IBool less(IInteger other) {
+    	return new BoolValue(fValue < other.getValue());
+    }
+    
+    public IBool lessEqual(IInteger other) {
+    	return new BoolValue(fValue <= other.getValue());
+    }
+    
+    public IBool greater(IInteger other) {
+    	return new BoolValue(fValue > other.getValue());
+    }
+    
+    public IBool greaterEqual(IInteger other) {
+    	return new BoolValue(fValue >= other.getValue());
+    }
+    
+    public IDouble toDouble() {
+    	return new DoubleValue(fValue);
     }
     
     @Override

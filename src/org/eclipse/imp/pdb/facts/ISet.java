@@ -72,9 +72,9 @@ public interface ISet extends Iterable<IValue>, IValue {
     public <SetOrRel extends ISet> SetOrRel subtract(ISet set)  throws FactTypeError;
     
     /**
-     * Computes the cartesion product of two sets
+     * Computes the Cartesian product of two sets
      * @param set
-     * @return a relation representing the cartesion product
+     * @return a relation representing the Cartesian product
      */
     public IRelation product(ISet set);
     

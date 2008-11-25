@@ -43,6 +43,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         return "\"" + fValue.replaceAll("\"", "\\\"") + "\"";
     }
     
+    public IString concat(IString other) {
+    	return new StringValue(fValue.concat(other.getValue()));
+    }
+    
     @Override
     public boolean equals(Object o) {
     	if (o instanceof StringValue) {
