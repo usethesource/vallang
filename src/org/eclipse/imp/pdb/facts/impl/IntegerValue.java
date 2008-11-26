@@ -63,7 +63,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     }
     
     public IInteger divide(IInteger other) {
-    	return new IntegerValue(fValue * other.getValue());
+    	return new IntegerValue(fValue / other.getValue());
     }
     
     public IInteger remainder(IInteger other) {

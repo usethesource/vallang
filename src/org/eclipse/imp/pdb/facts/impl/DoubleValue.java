@@ -55,7 +55,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     }
     
     public IDouble divide(IDouble other) {
-    	return new DoubleValue(fValue * other.getValue());
+    	return new DoubleValue(fValue / other.getValue());
     }
     
     public IInteger round() {
