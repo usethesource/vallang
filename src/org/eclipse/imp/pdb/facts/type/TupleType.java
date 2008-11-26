@@ -245,5 +245,8 @@ public class TupleType extends Type implements Iterable<Type> {
 	public IValue make(IValueFactory f, IValue... elems) {
 		return f.tuple(elems);
 	}
-	
+
+	public String getFieldName(int i) {
+		return fFieldNames[i];
+	}
 }
