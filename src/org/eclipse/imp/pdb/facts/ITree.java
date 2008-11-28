@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.util.Iterator;
+
 
 /**
  * Untyped tree representation, can iterate over the list of children.
@@ -47,7 +49,12 @@ public interface ITree extends IValue, Iterable<IValue> {
 	public String getName();
 	
 	/**
-	 * @return an iterator over the children, equivalent to 'this'.
+	 * @return an iterator over the direct children, equivalent to 'this'.
 	 */
 	public Iterable<IValue> getChildren();
+	
+	/**
+	 * @return an iterator over the direct children.
+	 */
+	public Iterator<IValue> iterator();
 }
