@@ -48,6 +48,10 @@ public class TupleType extends Type implements Iterable<Type> {
        }
     }
     
+    public boolean hasFieldNames() {
+    	return fFieldNames != null;
+    }
+    
     @Override
     public boolean isTupleType() {
     	return true;
@@ -126,17 +130,46 @@ public class TupleType extends Type implements Iterable<Type> {
      */
     private TupleType lubTupleTypes(TupleType t1, TupleType t2) {
     	int N = t1.getArity();
-    	
-    	
-    	// Note that this function may eventually be recursive (via lub) in the case of nested tuples.
-    	// This poses a problem since we would overwrite sPrototuple.fFieldTypes
-    	// Therefore fFieldTypes in the prototype is used as a stack, and fStart points to the
-    	// bottom of the current stack frame.
-    	// The goal is to prevent any kind of memory allocation when computing lub (for efficiency).
     	Type[] fieldTypes = new Type[N];
+    	String[] fieldNames = new String[N];
     	
     	for (int i = 0; i < N; i++) {
     		fieldTypes[i] = t1.getFieldType(i).lub(t2.getFieldType(i));
+    		
+    		if (t1.hasFieldNames()) {
+    			fieldNames[i] = t1.getFieldName(i);
+    		}
+    		else if (t1.hasFieldNames()) {
+    			fieldNames[i] = t2.getFieldName(i);
+    		}
+    	}
+    	
+    	TupleType result = TypeFactory.getInstance().tupleType(fieldTypes);
+    	
+    	return result;
+    }
+    
+    /**
+     * Compute a new tupletype that is the lub of t1 and t2. 
+     * Precondition: t1 and t2 have the same arity.
+     * @param t1
+     * @param t2
+     * @return a TupleType which is the lub of t1 and t2
+     */
+    private TupleType lubNamedTupleTypes(TupleType t1, TupleType t2) {
+    	int N = t1.getArity();
+    	Object[] fieldTypes = new Object[N*2];
+    	boolean first = t1.hasFieldNames();
+    	
+    	for (int i = 0, j = 0; i < N; i++, j++) {
+    		fieldTypes[j++] = t1.getFieldType(i).lub(t2.getFieldType(i));
+    		
+			if (first) {
+    			fieldTypes[j] = t1.getFieldName(i);
+    		}
+    		else {
+    			fieldTypes[j] = t2.getFieldName(i);
+    		}
     	}
     	
     	TupleType result = TypeFactory.getInstance().tupleType(fieldTypes);
@@ -149,7 +182,12 @@ public class TupleType extends Type implements Iterable<Type> {
     	if (other.isTupleType()) {
     		TupleType o = (TupleType) other;
     		if (getArity() == o.getArity()) {
-    	      return lubTupleTypes(this, o);
+    			if (hasFieldNames() || ((TupleType) other).hasFieldNames()) {
+    				return lubNamedTupleTypes(this, o);
+    			}
+    			else {
+    	          return lubTupleTypes(this, o);
+    			}
     		}
     	}
     	return super.lub(other);
