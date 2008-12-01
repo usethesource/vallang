@@ -12,10 +12,13 @@
 package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -52,43 +55,43 @@ public class BottomUpVisitor extends VisitorAdapter<IValue> {
 	
 	@Override
 	public IValue visitList(IList o) throws VisitorException {
-		IList result = fFactory.list(o.getElementType());
+		IListWriter w = fFactory.listWriter(o.getElementType());
 		for (IValue elem : o) {
-			result.append(elem.accept(this));
+			w.append(elem.accept(this));
 		}
 		
-		return fVisitor.visitList(result);
+		return fVisitor.visitList(w.done());
 	}
 	
 	@Override
 	public IValue visitSet(ISet o) throws VisitorException {
-		ISet result = fFactory.set(o.getElementType());
+		ISetWriter w = fFactory.setWriter(o.getElementType());
 		for (IValue elem : o) {
-			result.insert(elem.accept(this));
+			w.insert(elem.accept(this));
 		}
 		
-		return fVisitor.visitSet(result);
+		return fVisitor.visitSet(w.done());
 	}
 	
 	@Override
 	public IValue visitMap(IMap o) throws VisitorException {
-		IMap result = fFactory.map(o.getKeyType(), o.getValueType());
+		IMapWriter w = fFactory.mapWriter(o.getKeyType(), o.getValueType());
 		for (IValue elem : o) {
-			result.put(elem.accept(this), o.get(elem).accept(this));
+			w.put(elem.accept(this), o.get(elem).accept(this));
 		}
 		
-		return fVisitor.visitMap(result);
+		return fVisitor.visitMap(w.done());
 	}
 
 	@Override
 	public IValue visitRelation(IRelation o) throws VisitorException {
-		IRelation result = fFactory.relation(o.getFieldTypes());
+		ISetWriter w = fFactory.relationWriter(o.getFieldTypes());
 		
 		for (IValue tuple : o) {
-			result.insert((ITuple) tuple.accept(this));
+			w.insert((ITuple) tuple.accept(this));
 		}
 		
-		return fVisitor.visitRelation(o);
+		return fVisitor.visitRelation((IRelation) w.done());
 	}
 	
 	@Override
