@@ -42,6 +42,11 @@ public class VoidType extends Type {
 	}
 
 	@Override
+	public boolean isVoidType() {
+		return true;
+	}
+	
+	@Override
 	public Type lub(Type other) {
 		return other;
 	}

@@ -26,6 +26,9 @@ public abstract class Type {
 		if (other == this) {
 			return this;
 		}
+		else if (other.isVoidType()) {
+			return this;
+		}
 		else if (other.isNamedType()) {
 			return other.lub(this);
 		}
@@ -33,6 +36,8 @@ public abstract class Type {
 			return TypeFactory.getInstance().valueType();
 		}
 	}
+
+	
 
 	public boolean isSubtypeOf(Type other) {
 		// this is the default implementation. Subclasses should override
@@ -95,6 +100,10 @@ public abstract class Type {
 	}
 
 	public boolean isValueType() {
+		return false;
+	}
+	
+	public boolean isVoidType() {
 		return false;
 	}
 
