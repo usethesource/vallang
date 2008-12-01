@@ -135,6 +135,11 @@ class Set extends Value implements ISet{
 		
 		return content.equals(other.content);
 	}
+	
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
