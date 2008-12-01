@@ -143,6 +143,11 @@ public class List extends Value implements IList {
 		return content.equals(other.content);
 	}
 	
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
+	
     /*package*/ static ListWriter createListWriter(Type eltType){
 		return new ListWriter(eltType);
 	}

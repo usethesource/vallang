@@ -104,7 +104,11 @@ class Tuple extends Value implements ITuple {
 
     @Override
     public int hashCode() {
-        return 1;
+       int hash = 0;
+ 	   for (int i = 0; i < fElements.length; i++) {
+ 		 hash = (hash << 1) ^ (hash >> 1) ^ fElements[i].hashCode();
+ 	   }
+ 	   return hash;
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {

@@ -151,6 +151,15 @@ public class Tree extends Value implements ITree {
 	}
 	
 	@Override
+	public int hashCode() {
+       int hash = fName.hashCode();
+	   for (int i = 0; i < fChildren.length; i++) {
+	     hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
+	   }
+	   return hash;
+	}
+	
+	@Override
 	protected IValue clone(String label, IValue anno)  {
 		return new Tree(this, label, anno);
 	}
