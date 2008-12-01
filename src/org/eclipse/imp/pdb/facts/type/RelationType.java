@@ -40,6 +40,10 @@ public final class RelationType extends SetType {
     	return fTupleType;
     }
     
+    public String getFieldName(int i) {
+		return fTupleType.getFieldName(i);
+    }
+    
     @Override
     public boolean isRelationType() {
     	return true;
@@ -148,4 +152,6 @@ public final class RelationType extends SetType {
 	public IValue make(IValueFactory f, IValue...elems) {
 		return f.relation(elems);
 	}
+
+	
 }

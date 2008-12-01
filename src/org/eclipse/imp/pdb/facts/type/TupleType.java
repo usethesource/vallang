@@ -247,6 +247,6 @@ public class TupleType extends Type implements Iterable<Type> {
 	}
 
 	public String getFieldName(int i) {
-		return fFieldNames[i];
+		return fFieldNames != null ? fFieldNames[i] : null;
 	}
 }
