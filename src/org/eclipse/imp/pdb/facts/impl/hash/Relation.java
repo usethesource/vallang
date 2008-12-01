@@ -66,11 +66,11 @@ class Relation extends Set implements IRelation {
 	public IRelation closureStar() throws FactTypeError {
 		checkReflexivity();
 		IRelation closure = closure();
-		ISet domain = closure.domain();
-		Type elementType = domain.getElementType();
+		ISet carrier = closure.carrier();
+		Type elementType = carrier.getElementType();
 		ISetWriter reflex = Set.createSetWriter(TypeFactory.getInstance().tupleType(elementType, elementType));
 		
-		for (IValue e: domain) {
+		for (IValue e: carrier) {
 			reflex.insert(new Tuple(new IValue[] {e, e}));
 		}
 		
