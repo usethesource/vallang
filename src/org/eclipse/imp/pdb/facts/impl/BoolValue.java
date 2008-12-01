@@ -72,6 +72,6 @@ public class BoolValue extends Value implements IBool {
 	
 	@Override
 	public int hashCode() {
-		return fValue ? 1 : 3;
+		return fValue ? 1231 : 1237;
 	}
 }
