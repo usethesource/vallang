@@ -106,11 +106,6 @@ public class NamedType extends Type {
 	}
 	
 	@Override
-	public <T> IValue make(IValueFactory f, T arg) {
-		return getBaseType().make(f, arg);
-	}
-	
-	@Override
 	public IValue make(IValueFactory f, String path, ISourceRange range) {
 	    return getBaseType().make(f, path, range);
 	}

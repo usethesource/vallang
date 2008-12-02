@@ -193,10 +193,6 @@ public abstract class Type {
 				"This type does not have an array or variable argument list constructor: " + this);
 	}
 	
-	public <T> IValue make(IValueFactory f, T arg) {
-		throw new FactTypeError("This type is not an ObjectType: " + this);
-	}
-
 	public IValue make(IValueFactory f, String path, ISourceRange range) {
 		throw new FactTypeError("This type is not a SourceLocationType: "
 				+ this);
