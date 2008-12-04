@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.impl.hash;
 import java.util.HashSet;
 
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -79,7 +80,7 @@ class Relation extends Set implements IRelation {
 
 	public IRelation compose(IRelation other) throws FactTypeError {
 		RelationType resultType = ((RelationType) getType().getBaseType()).compose((RelationType) other.getType().getBaseType());
-		ISetWriter w = Set.createSetWriter(resultType.getFieldTypes());
+		IRelationWriter w = ValueFactory.getInstance().relationWriter(resultType.getFieldTypes());
 		int max1 = ((RelationType) getType().getBaseType()).getArity() - 1;
 		int max2 = ((RelationType) other.getType().getBaseType()).getArity() - 1;
 		int width = max1 + max2;
@@ -102,7 +103,7 @@ class Relation extends Set implements IRelation {
 				}
 			}
 		}
-		return (IRelation) w.done();
+		return w.done();
 	}
 
 	public ISet carrier() {
@@ -190,5 +191,22 @@ class Relation extends Set implements IRelation {
 	@Override
 	protected IValue clone(String label, IValue anno)  {
 		return new Relation(this, label, anno);
+	}
+
+	public static IRelationWriter createRelationWriter(TupleType fieldTypes) {
+		return new RelationWriter(fieldTypes);
+	}
+	
+	protected static class RelationWriter  extends Set.SetWriter implements IRelationWriter {
+		public RelationWriter(Type eltType) {
+			super(eltType);
+		}
+			
+		public IRelation done() {
+			if(constructedSet == null){
+				constructedSet = new Relation((TupleType) eltType, setContent);
+			}
+			return  (IRelation) constructedSet;
+		}
 	}
 }

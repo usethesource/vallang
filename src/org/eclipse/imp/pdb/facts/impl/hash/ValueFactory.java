@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITree;
@@ -41,7 +42,7 @@ public class ValueFactory extends BaseValueFactory {
 	}
 
 	public IRelation relation(TupleType tupleType) {
-		return setWriter(tupleType).done();
+		return relationWriter(tupleType).done();
 	}
 	
 	public IRelation relation(IValue... tuples) {
@@ -56,8 +57,8 @@ public class ValueFactory extends BaseValueFactory {
 		return (IRelation) rw.done();
 	}
 	
-	public ISetWriter relationWriter(TupleType tupleType) {
-		return setWriter(tupleType);
+	public IRelationWriter relationWriter(TupleType tupleType) {
+		return Relation.createRelationWriter(tupleType);
 	}
 
 	public ISet set(Type eltType){
@@ -65,7 +66,12 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public ISetWriter setWriter(Type eltType) {
-		return Set.createSetWriter(eltType);
+		if (eltType.getBaseType().isTupleType()) {
+			return relationWriter((TupleType) eltType);
+		}
+		else {
+		  return Set.createSetWriter(eltType);
+		}
 	}
 
 	public ISet set(IValue... elems) throws FactTypeError {

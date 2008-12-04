@@ -12,12 +12,6 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
-
-
-public interface ISetWriter {
-    void insert(IValue... v) throws FactTypeError ;
-    void insertAll(Iterable<? extends IValue> collection) throws FactTypeError;
-    ISet done();
-    int size();
+public interface IRelationWriter extends ISetWriter {
+	IRelation done();
 }

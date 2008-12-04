@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -62,7 +63,7 @@ class Set extends Value implements ISet{
 
 	@SuppressWarnings("unchecked")
 	public ISet insert(IValue element) throws FactTypeError{
-		ISetWriter sw = new SetWriter(getElementType().lub(element.getType()));
+		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType().lub(element.getType()));
 		sw.insertAll(this);
 		sw.insert(element);
 		return sw.done();
@@ -70,7 +71,7 @@ class Set extends Value implements ISet{
 
 	@SuppressWarnings("unchecked")
 	public ISet intersect(ISet other) throws FactTypeError{
-		ISetWriter w = new SetWriter(other.getElementType().lub(getElementType()));
+		ISetWriter w = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
 		Set o = (Set) other;
 		
 		for(IValue v : content){
@@ -84,7 +85,7 @@ class Set extends Value implements ISet{
 
 	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other) throws FactTypeError{
-		ISetWriter sw = new SetWriter(other.getElementType().lub(getElementType()));
+		ISetWriter sw = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
 		for (IValue a : content){
 			if (!other.contains(a)){
 				sw.insert(a);
@@ -104,7 +105,7 @@ class Set extends Value implements ISet{
 	
 	@SuppressWarnings("unchecked")
 	public <SetOrRel extends ISet> SetOrRel union(ISet other){
-		ISetWriter w = new SetWriter(other.getElementType().lub(getElementType()));
+		ISetWriter w = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
 		w.insertAll(this);
 		w.insertAll(other);
 		ISet result = w.done();
@@ -163,7 +164,7 @@ class Set extends Value implements ISet{
 
 	public IRelation product(ISet set){
 		TupleType resultType = TypeFactory.getInstance().tupleType(getElementType(),set.getElementType());
-		ISetWriter w = new SetWriter(resultType);
+		IRelationWriter w = new Relation.RelationWriter(resultType);
 
 		try{
 			for(IValue t1 : this){
@@ -177,7 +178,7 @@ class Set extends Value implements ISet{
 			// above.
 		}
 		
-		return (IRelation) w.done();
+		return w.done();
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
@@ -199,11 +200,11 @@ class Set extends Value implements ISet{
 		return new SetWriter(eltType);
 	}
 	
-	private static class SetWriter  implements ISetWriter{
-		private final Type eltType;
-		private final HashSet<IValue> setContent;
+	protected static class SetWriter  implements ISetWriter{
+		protected final Type eltType;
+		protected final HashSet<IValue> setContent;
 		
-		private Set constructedSet;
+		protected Set constructedSet;
 
 		public SetWriter(Type eltType){
 			super();
@@ -233,21 +234,11 @@ class Set extends Value implements ISet{
 			}
 		}
 		
-		@SuppressWarnings("unchecked")
-		public <SetOrRel extends ISet> SetOrRel done(){
+		public ISet done(){
 			if(constructedSet == null){
-				if(eltType.isTupleType()){
-					constructedSet = new Relation((TupleType) eltType, setContent);
-				}else{
-					constructedSet = new Set(eltType, setContent);
-				}
+				constructedSet = new Set(eltType, setContent);
 			}
-			
-			try{
-				return (SetOrRel) constructedSet;
-			}catch(ClassCastException e){
-				throw new FactTypeError("done() returns a set or a relation");
-			}
+			return  constructedSet;
 		}
 		
 		private void checkMutation(){
