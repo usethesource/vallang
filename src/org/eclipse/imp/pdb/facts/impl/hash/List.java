@@ -227,7 +227,7 @@ public class List extends Value implements IList {
 			}
 		}
 
-		public void insert(int index, IValue... elems) throws FactTypeError{
+		public void insertAt(int index, IValue... elems) throws FactTypeError{
 			insertAt(index,  elems, 0, 0);
 		}
 		

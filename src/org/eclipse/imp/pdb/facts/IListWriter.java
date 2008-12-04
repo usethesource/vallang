@@ -40,7 +40,7 @@ public interface IListWriter {
 	 * @throws FactTypeError when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException 
 	 */
-    void insert(int index, IValue... value) throws FactTypeError, IndexOutOfBoundsException;
+    void insertAt(int index, IValue... value) throws FactTypeError, IndexOutOfBoundsException;
     
     /**
 	 * Inserts elements in front, keeping the argument in order of appearance.
