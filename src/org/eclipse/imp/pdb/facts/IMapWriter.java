@@ -17,9 +17,9 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
 
-public interface IMapWriter {
+public interface IMapWriter extends IWriter {
     void put(IValue key, IValue value) throws FactTypeError ;
     void putAll(IMap map)  throws FactTypeError;
-    void putAll(Map<? extends IValue, ? extends IValue> map) throws FactTypeError;
+    void putAll(Map<IValue, IValue> map) throws FactTypeError;
     IMap done();
 }

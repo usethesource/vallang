@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.impl.hash;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -29,13 +30,6 @@ public class List extends Value implements IList {
 	private final Type eltType;
 	private final LinkedList<IValue> content;
 
-	private List(Type eltType, LinkedList<IValue> content){
-		super(TypeFactory.getInstance().listType(eltType));
-		
-		this.eltType = eltType;
-		this.content = content;
-	}
-	
 	@SuppressWarnings("unchecked")
 	private List(List other, String label, IValue anno){
 		super(other, label, anno);
@@ -44,6 +38,14 @@ public class List extends Value implements IList {
 		content = (LinkedList<IValue>) other.content.clone();
 	}
 	
+	public List(Type eltType, LinkedList<IValue> listContent,
+			HashMap<String, IValue> annotations) {
+		super(TypeFactory.getInstance().listType(eltType), annotations);
+		
+		this.eltType = eltType;
+		this.content = listContent;
+	}
+
 	public Type getElementType(){
 		return eltType;
 	}
@@ -163,7 +165,7 @@ public class List extends Value implements IList {
 	 * This class does not guarantee thread-safety. Users must lock the writer object for thread safety.
 	 * It is thread-friendly however.
 	 */
-	private static class ListWriter implements IListWriter{
+	private static class ListWriter extends Writer implements IListWriter{
 		private final Type eltType;
 		private final LinkedList<IValue> listContent;
 		
@@ -254,7 +256,7 @@ public class List extends Value implements IList {
 		}
 
 		public IList done(){
-			if(constructedList == null) constructedList = new List(eltType, listContent);
+			if(constructedList == null) constructedList = new List(eltType, listContent, fAnnotations);
 			
 			return constructedList;
 		}

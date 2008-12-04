@@ -11,6 +11,7 @@
 
 package org.eclipse.imp.pdb.facts.impl.hash;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -38,15 +39,17 @@ class Set extends Value implements ISet{
 		this.content = content;
 	}
 	
-	private Set(Type eltType, HashSet<IValue> content){
-		this(TypeFactory.getInstance().setType(eltType), content);
-	}
-	
 	@SuppressWarnings("unchecked")
 	protected Set(Set other, String label, IValue anno) {
 		super(other, label, other);
 		
 		content = (HashSet<IValue>) other.content.clone();
+	}
+
+	/*package*/ Set(Type eltType, HashSet<IValue> setContent,
+			HashMap<String, IValue> annotations) {
+		super(TypeFactory.getInstance().setType(eltType), annotations);
+		content = (HashSet<IValue>) setContent;
 	}
 
 	public boolean contains(IValue element) throws FactTypeError{
@@ -200,7 +203,7 @@ class Set extends Value implements ISet{
 		return new SetWriter(eltType);
 	}
 	
-	protected static class SetWriter  implements ISetWriter{
+	protected static class SetWriter extends Writer implements ISetWriter{
 		protected final Type eltType;
 		protected final HashSet<IValue> setContent;
 		
@@ -236,7 +239,7 @@ class Set extends Value implements ISet{
 		
 		public ISet done(){
 			if(constructedSet == null){
-				constructedSet = new Set(eltType, setContent);
+				constructedSet = new Set(eltType, setContent, fAnnotations);
 			}
 			return  constructedSet;
 		}

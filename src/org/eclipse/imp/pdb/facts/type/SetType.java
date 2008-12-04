@@ -90,7 +90,6 @@ public class SetType extends Type {
 		return f.set(elems);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public ISetWriter writer(IValueFactory f) {
 		return f.setWriter(fEltType);

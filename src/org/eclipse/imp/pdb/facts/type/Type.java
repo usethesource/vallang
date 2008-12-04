@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWriter;
 
 public abstract class Type {
 	/**
@@ -215,11 +216,10 @@ public abstract class Type {
 	 * Return a writer object. This works for Lists, Sets, Relations and Maps.
 	 * Caller is responsible for assigning the result to I{List,Set,Relation,Map}Writer
 	 * variable.
-	 * @param <W> IListWriter, ISetWriter, IMapWriter or IRelationWriter
 	 * @param f   factory to use 
 	 * @return a writer
 	 */
-	public <W> W writer(IValueFactory f) {
+	public IWriter writer(IValueFactory f) {
 		throw new FactTypeError("This type does not provide a writer interface: " + this);
 	}
 

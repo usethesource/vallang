@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWriter;
 
 public class NamedType extends Type {
 	/* package */ String fName;
@@ -126,7 +127,7 @@ public class NamedType extends Type {
 	}
 	
 	@Override
-	public <W> W writer(IValueFactory f) {
+	public IWriter writer(IValueFactory f) {
 		return getBaseType().writer(f);
 	}
 }

@@ -17,6 +17,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -40,6 +41,14 @@ class Map extends Value implements IMap{
 		super(other, label, anno);
 		
 		content = (HashMap<IValue, IValue>) other.content.clone();
+	}
+
+	/*package*/ Map(Type keyType, Type valueType,
+			HashMap<IValue, IValue> mapContent,
+			HashMap<String, IValue> annotations) {
+		super(TypeFactory.getInstance().mapType(keyType, valueType), annotations);
+		
+		this.content = mapContent;
 	}
 
 	public int size(){
@@ -177,7 +186,7 @@ class Map extends Value implements IMap{
 		return new MapWriter(keyType, valueType);
 	}
 	
-	private static class MapWriter implements IMapWriter{
+	private static class MapWriter extends Writer implements IMapWriter{
 		private final Type keyType;
 		private final Type valueType;
 		private final HashMap<IValue, IValue> mapContent;
@@ -207,7 +216,7 @@ class Map extends Value implements IMap{
 			}
 		}
 		
-		public void putAll(java.util.Map<? extends IValue, ? extends IValue> map) throws FactTypeError{
+		public void putAll(java.util.Map<IValue, IValue> map) throws FactTypeError{
 			checkMutation();
 			for(IValue key : map.keySet()){
 				IValue value = map.get(key);
@@ -221,12 +230,20 @@ class Map extends Value implements IMap{
 			mapContent.put(key, value);
 		}
 		
+		public void insert(IValue... value) throws FactTypeError {
+			for(IValue key : value){
+				ITuple t = (ITuple) key;
+				put(t.get(0), t.get(1));
+			}
+		}
+		
 		public IMap done(){
 			if(constructedMap == null) {
-				constructedMap = new Map(keyType, valueType, mapContent);
+				constructedMap = new Map(keyType, valueType, mapContent, fAnnotations);
 			}
 			
 			return constructedMap;
 		}
+
 	}
 }

@@ -89,7 +89,6 @@ public class ListType extends Type {
 		return f.list(elems);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public IListWriter writer(IValueFactory f) {
 		return f.listWriter(fEltType);

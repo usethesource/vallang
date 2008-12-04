@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
 
@@ -22,7 +24,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
  * 
  * Note: implementations are not required to guarantee thread-safe access to the writer object.
  */
-public interface IListWriter {
+public interface IListWriter extends IWriter {
 	
 	/**
 	 * Inserts elements in front, keeping the argument in order of appearance.

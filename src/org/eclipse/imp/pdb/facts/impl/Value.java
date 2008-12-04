@@ -35,6 +35,11 @@ public abstract class Value implements IValue {
     	fAnnotations = new HashMap<String, IValue>();
     }
     
+	protected Value(Type type, HashMap<String, IValue> annotations) {
+		fType= type;
+    	fAnnotations = annotations;
+	}
+    
     /**
      * Create new value with changed annotation. Used to implement clone() method.
      * @param other the other value
@@ -51,6 +56,8 @@ public abstract class Value implements IValue {
 		fType = other.fType;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 	}
+
+
 
 	/**
      * @return the type of this value

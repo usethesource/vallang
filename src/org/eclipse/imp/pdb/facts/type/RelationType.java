@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -151,6 +152,11 @@ public final class RelationType extends SetType {
 	
 	public IValue make(IValueFactory f, IValue...elems) {
 		return f.relation(elems);
+	}
+	
+	@Override
+	public IRelationWriter writer(IValueFactory f) {
+		return f.relationWriter(fTupleType);
 	}
 
 	
