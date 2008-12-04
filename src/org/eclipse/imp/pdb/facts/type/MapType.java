@@ -95,6 +95,7 @@ public final class MapType extends Type {
     	return f.map(fKeyType, fValueType);
     }
     
+	@SuppressWarnings("unchecked")
 	@Override
     public IMapWriter writer(IValueFactory f) {
     	return f.mapWriter(fKeyType, fValueType);
