@@ -18,4 +18,10 @@ public abstract class Writer implements IWriter {
 			throws FactTypeError {
 		fAnnotations.putAll(annotations);
 	}
+	
+	public void insertAll(Iterable<IValue> collection) throws FactTypeError {
+		for (IValue v : collection) {
+			insert(v);
+		}
+	}
 }
