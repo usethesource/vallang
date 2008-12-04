@@ -12,8 +12,6 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import java.util.Map;
-
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
 
