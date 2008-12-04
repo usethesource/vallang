@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.type.TupleType;
  */
 public interface INode extends ITree {
 	public IValue get(String label);
-	public ITree  set(String label, IValue newChild);
+	public INode  set(String label, IValue newChild);
 	public TreeNodeType getTreeNodeType();
 	public TupleType getChildrenTypes();
 }

@@ -57,7 +57,7 @@ public class Node extends Tree implements INode {
 		return new Node(this, i, newChild);
 	}
 	
-	public ITree set(String label, IValue newChild) {
+	public INode set(String label, IValue newChild) {
 		return new Node(this, ((TreeNodeType) fType).getChildIndex(label), newChild);
 	}
 	
