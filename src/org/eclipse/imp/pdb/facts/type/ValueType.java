@@ -118,6 +118,7 @@ public class ValueType extends Type {
     	return TypeFactory.getInstance().boolType().make(f, arg);
     }
     
+	@SuppressWarnings("unchecked")
 	@Override
     public IListWriter writer(IValueFactory f) {
     	// if we don't care what kind of container to make

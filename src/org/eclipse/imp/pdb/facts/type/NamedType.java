@@ -127,7 +127,7 @@ public class NamedType extends Type {
 	}
 	
 	@Override
-	public IWriter writer(IValueFactory f) {
+	public <T extends IWriter> T writer(IValueFactory f) {
 		return getBaseType().writer(f);
 	}
 }

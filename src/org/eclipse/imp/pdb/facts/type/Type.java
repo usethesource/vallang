@@ -219,7 +219,7 @@ public abstract class Type {
 	 * @param f   factory to use 
 	 * @return a writer
 	 */
-	public IWriter writer(IValueFactory f) {
+	public <T extends IWriter> T writer(IValueFactory f) {
 		throw new FactTypeError("This type does not provide a writer interface: " + this);
 	}
 
