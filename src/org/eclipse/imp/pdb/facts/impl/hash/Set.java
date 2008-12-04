@@ -69,6 +69,7 @@ class Set extends Value implements ISet{
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType().lub(element.getType()));
 		sw.insertAll(this);
 		sw.insert(element);
+		sw.setAnnotations(fAnnotations);
 		return sw.done();
 	}
 

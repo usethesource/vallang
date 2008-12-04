@@ -83,6 +83,7 @@ class Map extends Value implements IMap{
 		IMapWriter sw = new MapWriter(getKeyType().lub(key.getType()), getValueType().lub(value.getType()));
 		sw.putAll(this);
 		sw.put(key, value);
+		sw.setAnnotations(fAnnotations);
 		return sw.done();
 	}
 	

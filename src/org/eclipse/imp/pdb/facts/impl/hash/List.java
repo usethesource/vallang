@@ -78,6 +78,7 @@ public class List extends Value implements IList {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.insert(elem);
+		w.setAnnotations(fAnnotations);
 		
 		return w.done();
 	}
@@ -86,6 +87,7 @@ public class List extends Value implements IList {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.append(elem);
+		w.setAnnotations(fAnnotations);
 		
 		return w.done();
 	}
@@ -95,6 +97,7 @@ public class List extends Value implements IList {
 		for (IValue e : this) {
 			w.insert(e);
 		}
+		w.setAnnotations(fAnnotations);
 		return w.done();
 	}
 	
