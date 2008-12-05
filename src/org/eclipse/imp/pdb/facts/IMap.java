@@ -12,6 +12,9 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 
@@ -101,4 +104,19 @@ public interface IMap extends Iterable<IValue>, IValue {
      * @return true iff all key values pairs of the receiver exist in the other map.
      */
     public boolean isSubMap(IMap other);
+    
+    /**
+     * @return an iterator over the keys of the map 
+     */
+    public Iterator<IValue> iterator();
+    
+    /**
+     * @return an iterator over the values of the map
+     */
+    public Iterator<IValue> valueIterator();
+ 
+    /**
+     * @return an iterator over the keys-value pairs of the map
+     */
+    public Iterator<Entry<IValue, IValue>> entryIterator();
 }

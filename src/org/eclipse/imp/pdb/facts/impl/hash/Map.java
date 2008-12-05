@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.impl.hash;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -71,6 +72,14 @@ class Map extends Value implements IMap{
 	public Iterator<IValue> iterator(){
 		return content.keySet().iterator();
 	}
+	
+	public Iterator<Entry<IValue,IValue>> entryIterator() {
+		return content.entrySet().iterator();
+	}
+
+	public Iterator<IValue> valueIterator() {
+		return content.values().iterator();
+	}
 
 	public boolean containsKey(IValue key) throws FactTypeError{
 		return content.containsKey(key);
@@ -97,6 +106,7 @@ class Map extends Value implements IMap{
 	
 	public IMap common(IMap other) {
 		IMapWriter sw = new MapWriter(getKeyType().lub(other.getKeyType()), getValueType().lub(other.getValueType()));
+		
 		for (IValue key : this) {
 			IValue thisValue = get(key);
 			IValue otherValue = other.get(key);
@@ -248,4 +258,6 @@ class Map extends Value implements IMap{
 		}
 
 	}
+
+
 }
