@@ -32,12 +32,12 @@ public abstract class Value implements IValue {
 
     protected Value(Type type) {
     	fType= type;
-    	fAnnotations = new HashMap<String, IValue>();
+    	fAnnotations = BaseValueFactory.EMPTY_ANNOTATIONS;
     }
     
 	protected Value(Type type, HashMap<String, IValue> annotations) {
 		fType= type;
-    	fAnnotations = annotations;
+    	fAnnotations = annotations.isEmpty() ? BaseValueFactory.EMPTY_ANNOTATIONS : annotations;
 	}
     
     /**
