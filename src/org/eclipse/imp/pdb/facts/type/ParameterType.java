@@ -67,7 +67,7 @@ public class ParameterType extends Type {
 	
 	@Override
 	public String toString() {
-		return fBound.isValueType() ? fName : fName + "<:" + fBound.toString(); 
+		return fBound.isValueType() ? "&" + fName : "&" + fName + "<:" + fBound.toString();
 	}
 	
 	@Override
