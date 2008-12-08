@@ -19,8 +19,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 
 public class NamedType extends Type {
-	/* package */ String fName;
-	/* package */ Type fSuperType;
+	/* package */ final String fName;
+	/* package */ final Type fSuperType;
 	
 	/* package */ NamedType(String name, Type superType) {
 		fName = name;

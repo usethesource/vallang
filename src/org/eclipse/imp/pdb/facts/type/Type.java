@@ -46,6 +46,24 @@ public abstract class Type {
 		return other.isValueType() || other.getBaseType() == this;
 	}
 
+	/**
+	 * If this type has parameters and they are parameter types,
+	 * instantiate will replace the parameter types by the given types.
+	 * The first instance of a parameter type will be bound to the first
+	 * actual type given, after this when a second instance of this parameter
+	 * type is found, the same actual type will be used.
+	 * 
+	 * So the user of this method is supposed to supply as many actual
+	 * types as there are unique type parameters embedded (recursively) 
+	 * in the type.
+	 * 
+	 * @param actuals
+	 * @return
+	 */
+	public Type instantiate(Type... actuals) {
+		return accept(new TypeInstantiator(actuals));
+	}
+	
 	public abstract <T> T accept(ITypeVisitor<T> visitor);
 
 	/**
@@ -125,6 +143,10 @@ public abstract class Type {
 	}
 	
 	public boolean isBoolType() {
+		return false;
+	}
+	
+	public boolean isParameterType() {
 		return false;
 	}
 

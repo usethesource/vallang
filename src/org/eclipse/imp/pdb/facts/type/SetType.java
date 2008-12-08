@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class SetType extends Type {
-    /*package*/ Type fEltType;
+    /*package*/ final Type fEltType;
 
     /*package*/ SetType(Type eltType) {
     	fEltType= eltType;

@@ -18,8 +18,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class TupleType extends Type implements Iterable<Type> {
-    protected Type[] fFieldTypes;
-    protected String[] fFieldNames;
+    protected final Type[] fFieldTypes;
+    protected final String[] fFieldNames;
     protected int fHashcode= -1;
 
     /**
@@ -28,6 +28,7 @@ public class TupleType extends Type implements Iterable<Type> {
     /*package*/ TupleType(int len, int start, Type[] fieldTypes) {
         if (fieldTypes != null && len >= 0) {
             fFieldTypes= new Type[len];
+            fFieldNames= null;
             System.arraycopy(fieldTypes, start, fFieldTypes, 0, len);
         } else {
             throw new IllegalArgumentException("Null array of field types or non-positive length passed to TupleType ctor!");
@@ -38,14 +39,19 @@ public class TupleType extends Type implements Iterable<Type> {
      * Creates a tuple type with the given field types and names. Copies the arrays.
      */
     /*package*/ TupleType(int len, int start, Type[] fieldTypes,String[] fieldNames) {
-       this(len, start, fieldTypes);
-       if (fieldNames != null && len >= 0 && fieldTypes.length == fieldNames.length) {
-    	   fFieldNames = new String[len];
-    	   System.arraycopy(fieldNames, start, fFieldNames, 0, len);
-       }
-       else {
-    	   throw new IllegalArgumentException("Unequal amounts of field names and field types");
-       }
+    	if (fieldTypes != null && len >= 0) {
+    		fFieldTypes= new Type[len];
+    		System.arraycopy(fieldTypes, start, fFieldTypes, 0, len);
+    	} else {
+    		throw new IllegalArgumentException("Null array of field types or non-positive length passed to TupleType ctor!");
+    	}
+    	if (fieldNames != null && len >= 0 && fieldTypes.length == fieldNames.length) {
+    		fFieldNames = new String[len];
+    		System.arraycopy(fieldNames, start, fFieldNames, 0, len);
+    	}
+    	else {
+    		throw new IllegalArgumentException("Unequal amounts of field names and field types");
+    	}
     }
     
     public boolean hasFieldNames() {

@@ -454,7 +454,26 @@ public class TypeFactory {
     public MapType mapType(Type key, Type value) {
     	return (MapType) getFromCache(new MapType(key, value));
 	}
-    
+
+    /** 
+     * Construct a type parameter, which can later be instantiated.
+     * @param name   the name of the type parameter
+     * @param bound  the widest type that is acceptible when this type is instantiated
+     * @return a parameter type
+     */
+	public Type parameterType(String name, Type bound) {
+		return (ParameterType) getFromCache(new ParameterType(name, bound));
+	}
+
+    /** 
+     * Construct a type parameter, which can later be instantiated.
+     * @param name   the name of the type parameter
+     * @return a parameter type
+     */
+	public Type parameterType(String name) {
+		return (ParameterType) getFromCache(new ParameterType(name));
+	}
+
     /**
      * Declare that certain types of values may have an annotation with a certain
      * label. The annotation with that label will have a specific type.
@@ -601,6 +620,7 @@ public class TypeFactory {
 	Type fromDescriptor(IValue typeDescriptor) throws TypeDeclarationException {
 		return TypeDescriptorFactory.getInstance().fromTypeDescriptor(typeDescriptor);
 	}
+
 
 	
 }

@@ -47,6 +47,7 @@ public class TypeDescriptorFactory {
 	private TreeNodeType stringType = tf.treeNodeType(typeSort, "string");
 	private TreeNodeType treeNodeType = tf.treeNodeType(typeSort, "tree", typeSort, "sort", tf.stringType(), "name", tf.listType(typeSort), "children");
 	private TreeNodeType namedTreeType = tf.treeNodeType(typeSort, "sort", tf.stringType(), "name");
+	private TreeNodeType parameterType = tf.treeNodeType(typeSort, "parameter", tf.stringType(), "name", typeSort, "bound");
 	private TreeNodeType tupleType = tf.treeNodeType(typeSort, "tuple", tf.listType(typeSort), "fields");
 	private TreeNodeType valueType = tf.treeNodeType(typeSort, "value");
 	private TreeNodeType voidType = tf.treeNodeType(typeSort, "void");
@@ -154,6 +155,9 @@ public class TypeDescriptorFactory {
 			}
 			else if (node == namedTreeType) {
 				return tf.namedTreeType(((IString) o.get("name")).getValue());
+			}
+			else if (node == parameterType) {
+				return tf.parameterType(((IString) o.get("name")).getValue(), o.get("bound").accept(this));
 			}
 			else if (node == tupleType) {
 				IList fieldValues = (IList) o.get("fields");
@@ -266,6 +270,10 @@ public class TypeDescriptorFactory {
 
 		public ITree visitBool(BoolType type) {
 			return vf.tree(boolType);
+		}
+
+		public ITree visitParameter(ParameterType type) {
+			return vf.tree(parameterType, vf.string(type.getName()), type.getBound().accept(this));
 		}
 	}
 }

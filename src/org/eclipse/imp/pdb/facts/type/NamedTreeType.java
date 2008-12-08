@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * @see TreeNodeType
  */
 public class NamedTreeType extends Type {
-	/* package */ String fName;
+	/* package */ final String fName;
 	
 	/* package */ NamedTreeType(String name) {
 		fName = name;

@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public class ListType extends Type {
-	/*package*/ Type fEltType;
+	/*package*/ final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
 		fEltType = eltType;

@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
 
 public final class RelationType extends SetType {
-    /*package*/ TupleType fTupleType;
+    /*package*/ final TupleType fTupleType;
 
     /**
      * Create a new relation type from a tuple type.

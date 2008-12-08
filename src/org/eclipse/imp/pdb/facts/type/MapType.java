@@ -17,8 +17,8 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 public final class MapType extends Type {
-    /*package*/ Type fKeyType;
-    /*package*/ Type fValueType;
+    /*package*/ final Type fKeyType;
+    /*package*/ final Type fValueType;
     
 
     /*package*/ MapType(Type keyType, Type valueType) {

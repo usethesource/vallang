@@ -33,9 +33,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * 
  */
 public class TreeNodeType extends Type {
-	protected TupleType fChildrenTypes;
-	protected NamedTreeType fTreeType;
-	protected String fName;
+	protected final TupleType fChildrenTypes;
+	protected final NamedTreeType fTreeType;
+	protected final String fName;
 	
 	/* package */ TreeNodeType(String name, TupleType childrenTypes, NamedTreeType treeType) {
 		fName = name;
