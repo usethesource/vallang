@@ -472,7 +472,7 @@ public class TypeFactory {
      * @param bound  the widest type that is acceptible when this type is instantiated
      * @return a parameter type
      */
-	public Type parameterType(String name, Type bound) {
+	public ParameterType parameterType(String name, Type bound) {
 		return (ParameterType) getFromCache(new ParameterType(name, bound));
 	}
 
@@ -481,7 +481,7 @@ public class TypeFactory {
      * @param name   the name of the type parameter
      * @return a parameter type
      */
-	public Type parameterType(String name) {
+	public ParameterType parameterType(String name) {
 		return (ParameterType) getFromCache(new ParameterType(name));
 	}
 

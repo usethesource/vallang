@@ -74,13 +74,13 @@ public class TypeInstantiator implements ITypeVisitor<Type> {
 	}
 
 	public Type visitParameter(ParameterType parameterType) {
-		Type boundTo = fBindings.get(parameterType);
+		Type boundTo = fBindings.get(parameterType.getName().toString());
 		if (boundTo == null) {
 			if (fActuals == null) {
-				throw new FactTypeError("Unbound parameter type: " + parameterType);
+				return parameterType;
 			}
 			else if (fActualIndex >= fActuals.length) {
-				throw new FactTypeError("Not enough actual types to instantiate " + parameterType);
+				return parameterType;
 			}
 			boundTo = fActuals[fActualIndex++];
 			fBindings.put(parameterType.getName(), boundTo);
