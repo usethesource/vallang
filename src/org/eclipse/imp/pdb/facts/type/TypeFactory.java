@@ -168,6 +168,17 @@ public class TypeFactory {
     }
     
     /**
+     * Construct a tuple type. The length of the types and labels arrays should be equal.
+     * 
+     * @param types  the types of the fields
+     * @param labels the labels of the fields (in respective order)
+     * @return
+     */
+    public TupleType tupleType(Type[] types, String[] labels) {
+    	return (TupleType) getFromCache(new TupleType(types.length, 0, types, labels));
+    }
+    
+    /**
      * Construct a tuple type.
      * @param fieldTypes an array of field types in order of appearance. The array is copied.
      * @return a tuple type
