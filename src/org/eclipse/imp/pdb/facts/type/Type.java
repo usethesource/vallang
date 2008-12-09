@@ -45,7 +45,8 @@ public abstract class Type {
 	public boolean isSubtypeOf(Type other) {
 		// this is the default implementation. Subclasses should override
 		// to take their immediate super types into account.
-		return other.isValueType() || other.getBaseType() == this || other.getBaseType().isValueType();
+		Type base = other.getBaseType();
+		return other.isValueType() || base.isValueType() || base == this;
 	}
 
 	/**
