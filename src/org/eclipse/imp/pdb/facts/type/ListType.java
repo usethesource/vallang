@@ -98,14 +98,14 @@ public class ListType extends Type {
 	}
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public void match(Type matched, Map<ParameterType, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
 		getElementType().match(((ListType) matched.getBaseType()).getElementType(), bindings);
 	}
 	
 	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(Map<ParameterType, Type> bindings) {
 		return TypeFactory.getInstance().listType(getElementType().instantiate(bindings));
 	}
 }

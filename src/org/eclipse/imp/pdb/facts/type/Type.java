@@ -56,7 +56,7 @@ public abstract class Type {
 	 * @param bindings a map from parameter type names to actual types.
 	 * @return a type with all parameter types substituted.
 	 */
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(Map<ParameterType, Type> bindings) {
 		return this;
 	}
 	
@@ -70,7 +70,7 @@ public abstract class Type {
 	 *         or when a pattern simply can not be matched because of 
 	 *         incompatibility.         
 	 */
-	public void match(Type matched, Map<Type, Type> bindings) throws FactTypeError {
+	public void match(Type matched, Map<ParameterType, Type> bindings) throws FactTypeError {
 		if (!matched.isSubtypeOf(this)) {
 			throw new FactTypeError(this + " does not match " + matched);
 		}

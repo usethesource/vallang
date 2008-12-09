@@ -182,7 +182,7 @@ public class TreeNodeType extends Type {
 	}
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public void match(Type matched, Map<ParameterType, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
 		TreeNodeType base = (TreeNodeType) matched.getBaseType();
@@ -191,7 +191,7 @@ public class TreeNodeType extends Type {
 	}
 	
 	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(Map<ParameterType, Type> bindings) {
 		return TypeFactory.getInstance().treeNodeType((NamedTreeType) getSuperType().instantiate(bindings), getName(), (TupleType) getChildrenTypes().instantiate(bindings));
 	}
 }

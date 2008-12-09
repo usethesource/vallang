@@ -97,7 +97,7 @@ public class ParameterType extends Type {
 	}
 
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public void match(Type matched, Map<ParameterType, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
 		
@@ -117,7 +117,7 @@ public class ParameterType extends Type {
 	}
 	
 	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(Map<ParameterType, Type> bindings) {
 		Type result = bindings.get(this);
 		return result != null ? result : this;
 	}

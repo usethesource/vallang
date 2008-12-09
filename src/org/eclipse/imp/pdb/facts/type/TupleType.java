@@ -296,7 +296,7 @@ public class TupleType extends Type implements Iterable<Type> {
 	}
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public void match(Type matched, Map<ParameterType, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
 		
@@ -307,7 +307,7 @@ public class TupleType extends Type implements Iterable<Type> {
 	}
 	
 	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(Map<ParameterType, Type> bindings) {
 		if (hasFieldNames()) {
 			Type[] fTypes = new Type[getArity()];
 			String[] fLabels = new String[getArity()];
