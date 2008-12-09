@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -47,7 +49,7 @@ public abstract class Type {
 	}
 
 	/**
-	 * If this type has parameters and they are parameter types,
+	 * If this type has parameters and there are parameter types embedded in it,
 	 * instantiate will replace the parameter types by the given types.
 	 * The first instance of a parameter type will be bound to the first
 	 * actual type given, after this when a second instance of this parameter
@@ -61,7 +63,18 @@ public abstract class Type {
 	 * @return
 	 */
 	public Type instantiate(Type... actuals) {
-		return accept(new TypeInstantiator(actuals));
+		return TypeInstantiator.instantiate(this, actuals);
+	}
+	
+	/**
+	 * If this type has parameters and there are parameter types embedded in it,
+	 * instantiate will replace the parameter types using the given bindings.
+	 * 
+	 * @param bindings a map from parameter type names to actual types.
+	 * @return a type with all parameter types substituted.
+	 */
+	public Type instantiate(Map<String,Type> bindings) {
+		return TypeInstantiator.instantiate(this, bindings);
 	}
 	
 	public abstract <T> T accept(ITypeVisitor<T> visitor);

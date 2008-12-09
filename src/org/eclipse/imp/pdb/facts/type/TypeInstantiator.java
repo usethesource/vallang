@@ -9,13 +9,26 @@ import java.util.Map;
 public class TypeInstantiator implements ITypeVisitor<Type> {
 	private final Type[] fActuals;
 	private int fActualIndex;
-	private final Map<Type, Type> fBindings;
+	private final Map<String, Type> fBindings;
 	private final TypeFactory tf = TypeFactory.getInstance();
 
-	public TypeInstantiator(Type... actuals) {
+	/**
+	 * When this constructor is used the parameter types will
+	 * be bound in order of appearance to the actual types.
+	 * 
+	 * @param actuals an array of actual types, with equal length to the number of
+	 *        type parameters embedded in the type to be instantiated.
+	 */
+	private TypeInstantiator(Type... actuals) {
 		fActuals = actuals;
-		fBindings = new HashMap<Type,Type>();
+		fBindings = new HashMap<String,Type>();
 		fActualIndex = 0;
+	}
+	
+	private TypeInstantiator(Map<String, Type> bindings) {
+		fActuals = null;
+		fActualIndex = -1;
+		fBindings = bindings;
 	}
 	
 	/**
@@ -24,8 +37,12 @@ public class TypeInstantiator implements ITypeVisitor<Type> {
 	 * @param actuals      the actual types to replace the parameterized types with
 	 * @return a new type with the parameter types replaced by the given actual types.
 	 */
-	public Type instantiate(Type abstractType, Type... actuals) {
-		return abstractType.accept(this);
+	public static Type instantiate(Type abstractType, Type... actuals) {
+		return abstractType.accept(new TypeInstantiator(actuals));
+	}
+	
+	public static Type instantiate(Type abstractType, Map<String, Type> bindings) {
+		return abstractType.accept(new TypeInstantiator(bindings));
 	}
 	
 	public Type visitBool(BoolType boolType) {
@@ -59,12 +76,20 @@ public class TypeInstantiator implements ITypeVisitor<Type> {
 	public Type visitParameter(ParameterType parameterType) {
 		Type boundTo = fBindings.get(parameterType);
 		if (boundTo == null) {
-			if (fActualIndex >= fActuals.length) {
+			if (fActuals == null) {
+				throw new FactTypeError("Unbound parameter type: " + parameterType);
+			}
+			else if (fActualIndex >= fActuals.length) {
 				throw new FactTypeError("Not enough actual types to instantiate " + parameterType);
 			}
 			boundTo = fActuals[fActualIndex++];
-			fBindings.put(parameterType, boundTo);
+			fBindings.put(parameterType.getName(), boundTo);
 		}
+		
+		if (!boundTo.isSubtypeOf(parameterType.getBound())) {
+			throw new FactTypeError("Actual type " + boundTo + " is not a subtype of the bound " + parameterType.getBound() + " of the parameter type " + parameterType);
+		}
+		
 		return boundTo;
 	}
 
