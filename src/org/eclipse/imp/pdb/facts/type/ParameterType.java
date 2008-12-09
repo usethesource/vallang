@@ -46,6 +46,11 @@ public class ParameterType extends Type {
 	}
 	
 	@Override
+	public Type getBaseType() {
+		return fBound;
+	}
+	
+	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (other == this) {
 			return true;
