@@ -138,6 +138,13 @@ public class Tree extends Value implements ITree {
 			if (fChildren.length != other.fChildren.length) {
 				return false;		
 			}
+			
+			if ((fName == null && other.fName != null)
+					|| (other.fName == null && fName == null)
+					|| !fName.equals(other.fName)) {
+				return false;
+			}
+			
 			for (int i = 0; i < fChildren.length; i++) {
 				if (!fChildren[i].equals(other.fChildren[i])) {
 					return false;
