@@ -236,6 +236,9 @@ public class TupleType extends Type implements Iterable<Type> {
         }
         
         if (fFieldNames != null) {
+        	if (other.fFieldNames == null) {
+        		return false;
+        	}
         	for (int i = 0; i < fFieldNames.length; i++) {
               if (!fFieldNames[i].equals(other.fFieldNames[i])) {
             	  return false;
