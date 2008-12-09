@@ -11,6 +11,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Map;
+
 
 
 /**
@@ -94,5 +96,29 @@ public class ParameterType extends Type {
 		return visitor.visitParameter(this);
 	}
 
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeError {
+		super.match(matched, bindings);
+		
+		Type earlier = bindings.get(this);
+		if (earlier != null) {
+			Type lub = earlier.lub(matched);
+			if (!lub.isSubtypeOf(getBound())) {
+				throw new FactTypeError(matched + " can not be matched with " + earlier);
+			}
+			else {
+				bindings.put(this, lub);
+			}
+		}
+		else {
+			bindings.put(this, matched);
+		}
+	}
 	
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		Type result = bindings.get(this);
+		return result != null ? result : this;
+	}
 }

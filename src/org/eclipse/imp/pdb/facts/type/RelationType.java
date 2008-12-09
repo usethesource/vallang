@@ -158,6 +158,4 @@ public final class RelationType extends SetType {
 	public IRelationWriter writer(IValueFactory f) {
 		return f.relationWriter(fTupleType);
 	}
-
-	
 }

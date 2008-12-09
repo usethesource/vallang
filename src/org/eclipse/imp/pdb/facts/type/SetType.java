@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -95,4 +97,17 @@ public class SetType extends Type {
 	public ISetWriter writer(IValueFactory f) {
 		return f.setWriter(fEltType);
 	}
+	
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeError {
+		super.match(matched, bindings);
+		getElementType().match(((SetType) matched.getBaseType()).getElementType(), bindings);
+	}
+	
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		return TypeFactory.getInstance().setType(getElementType().instantiate(bindings));
+	}
 }
+

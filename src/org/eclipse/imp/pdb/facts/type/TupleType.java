@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -292,5 +293,39 @@ public class TupleType extends Type implements Iterable<Type> {
 
 	public String getFieldName(int i) {
 		return fFieldNames != null ? fFieldNames[i] : null;
+	}
+	
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeError {
+		super.match(matched, bindings);
+		
+		TupleType tuple = (TupleType) matched.getBaseType();
+		for (int i = 0; i < getArity(); i++) {
+			getFieldType(i).match(tuple.getFieldType(i), bindings);
+		}
+	}
+	
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		if (hasFieldNames()) {
+			Type[] fTypes = new Type[getArity()];
+			String[] fLabels = new String[getArity()];
+
+			for (int i = 0; i < fTypes.length; i++) {
+				fTypes[i] = getFieldType(i).instantiate(bindings);
+				fLabels[i] = getFieldName(i);
+			}
+
+			return TypeFactory.getInstance().tupleType(fTypes, fLabels);
+		}
+		else {
+			Type[] fChildren = new Type[getArity()];
+			for (int i = 0; i < fChildren.length; i++) {
+				fChildren[i] = getFieldType(i).instantiate(bindings);
+			}
+
+			return TypeFactory.getInstance().tupleType(fChildren);
+		}
 	}
 }

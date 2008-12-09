@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -100,4 +102,18 @@ public final class MapType extends Type {
     public IMapWriter writer(IValueFactory f) {
     	return f.mapWriter(fKeyType, fValueType);
     }
+	
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeError {
+		super.match(matched, bindings);
+		MapType base = (MapType) matched.getBaseType();
+		getKeyType().match(base.getKeyType(), bindings);
+		getValueType().match(base.getValueType(), bindings);
+	}
+	
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
+	}
 }

@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceRange;
@@ -51,31 +52,29 @@ public abstract class Type {
 
 	/**
 	 * If this type has parameters and there are parameter types embedded in it,
-	 * instantiate will replace the parameter types by the given types.
-	 * The first instance of a parameter type will be bound to the first
-	 * actual type given, after this when a second instance of this parameter
-	 * type is found, the same actual type will be used.
-	 * 
-	 * So the user of this method is supposed to supply as many actual
-	 * types as there are unique type parameters embedded (recursively) 
-	 * in the type.
-	 * 
-	 * @param actuals
-	 * @return
-	 */
-	public Type instantiate(Type... actuals) {
-		return TypeInstantiator.instantiate(this, actuals);
-	}
-	
-	/**
-	 * If this type has parameters and there are parameter types embedded in it,
 	 * instantiate will replace the parameter types using the given bindings.
 	 * 
 	 * @param bindings a map from parameter type names to actual types.
 	 * @return a type with all parameter types substituted.
 	 */
-	public Type instantiate(Map<String,Type> bindings) {
-		return TypeInstantiator.instantiate(this, bindings);
+	public Type instantiate(Map<Type, Type> bindings) {
+		return this;
+	}
+	
+	/**
+	 * Construct a map of parameter type names to actual type names.
+	 * The receiver is a pattern that may contain parameter types.
+	 * 
+	 * @param matched a type to matched to the receiver.
+	 * @throws FactTypeError when a pattern can not be matches because the
+	 *         matched types do not fit the bounds of the parameter types,
+	 *         or when a pattern simply can not be matched because of 
+	 *         incompatibility.         
+	 */
+	public void match(Type matched, Map<Type, Type> bindings) throws FactTypeError {
+		if (!matched.isSubtypeOf(this)) {
+			throw new FactTypeError(this + " does not match " + matched);
+		}
 	}
 	
 	public abstract <T> T accept(ITypeVisitor<T> visitor);

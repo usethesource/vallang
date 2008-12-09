@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -178,5 +179,19 @@ public class TreeNodeType extends Type {
 		}
 		
 		return make(f, children);
+	}
+	
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeError {
+		super.match(matched, bindings);
+		TreeNodeType base = (TreeNodeType) matched.getBaseType();
+		getSuperType().match(base.getSuperType(), bindings);
+		getChildrenTypes().match(base.getChildrenTypes(), bindings);
+	}
+	
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		return TypeFactory.getInstance().treeNodeType((NamedTreeType) getSuperType().instantiate(bindings), getName(), (TupleType) getChildrenTypes().instantiate(bindings));
 	}
 }

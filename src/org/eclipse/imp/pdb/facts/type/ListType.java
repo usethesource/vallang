@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -93,5 +95,17 @@ public class ListType extends Type {
 	@Override
 	public IListWriter writer(IValueFactory f) {
 		return f.listWriter(fEltType);
+	}
+	
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeError {
+		super.match(matched, bindings);
+		getElementType().match(((ListType) matched.getBaseType()).getElementType(), bindings);
+	}
+	
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		return TypeFactory.getInstance().listType(getElementType().instantiate(bindings));
 	}
 }
