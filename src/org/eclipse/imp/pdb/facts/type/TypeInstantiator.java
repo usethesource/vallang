@@ -123,21 +123,22 @@ public class TypeInstantiator implements ITypeVisitor<Type> {
 
 	public Type visitTuple(TupleType type) {
 		if (type.hasFieldNames()) {
-		  Object[] fChildren = new Type[2 * type.getArity()];
-		
-		  for (int i = 0, j = 0; i < fChildren.length; i++, j++) {
-			 fChildren[i++] = type.getFieldType(j).accept(this);
-			 fChildren[i] = type.getFieldName(i);
-		  }
-		  
-		  return tf.tupleType(fChildren);
+			Type[] fTypes = new Type[type.getArity()];
+			String[] fLabels = new String[type.getArity()];
+
+			for (int i = 0; i < fTypes.length; i++) {
+				fTypes[i] = type.getFieldType(i).accept(this);
+				fLabels[i] = type.getFieldName(i);
+			}
+
+			return tf.tupleType(fTypes, fLabels);
 		}
 		else {
 			Type[] fChildren = new Type[type.getArity()];
 			for (int i = 0; i < fChildren.length; i++) {
 				fChildren[i] = type.getFieldType(i).accept(this);
 			}
-			
+
 			return tf.tupleType(fChildren);
 		}
 	}
