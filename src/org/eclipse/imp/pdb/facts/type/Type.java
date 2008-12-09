@@ -12,7 +12,6 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceRange;
