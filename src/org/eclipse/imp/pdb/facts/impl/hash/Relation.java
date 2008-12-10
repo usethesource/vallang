@@ -67,7 +67,7 @@ class Relation extends Set implements IRelation {
 	public IRelation closureStar() throws FactTypeError {
 		checkReflexivity();
 		IRelation closure = closure();
-		ISet carrier = closure.carrier();
+		ISet carrier = carrier();
 		Type elementType = carrier.getElementType();
 		ISetWriter reflex = Set.createSetWriter(TypeFactory.getInstance().tupleType(elementType, elementType));
 		
