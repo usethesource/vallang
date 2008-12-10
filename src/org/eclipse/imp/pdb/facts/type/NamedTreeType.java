@@ -68,13 +68,13 @@ public class NamedTreeType extends Type {
 	
 	@Override
 	public int hashCode() {
-		return 49991 + 49831 * fName.hashCode() + 67349;
+		return 49991 + 49831 * fName.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof NamedType) {
-			NamedType other = (NamedType) o;
+		if (o instanceof NamedTreeType) {
+			NamedTreeType other = (NamedTreeType) o;
 			return fName.equals(other.fName);
 		}
 		return false;
