@@ -446,7 +446,22 @@ public class TypeFactory {
     	
     	return result;
     }
-
+    
+    /**
+     * See if a certain tree type was declared
+     * @param name  the supposed name of the named tree type
+     * @return null if such type does not exist, or the type if it was declared earlier
+     */
+    NamedTreeType lookupNamedTreeType(String name) {
+    	for (NamedTreeType sort : fSignatures.keySet()) {
+    		if (sort.getName().equals(name)) {
+    			return sort;
+    		}
+    	}
+    	
+    	return null;
+    }
+    
     /**
      * Construct a list type
      * @param elementType the type of the elements in the list
