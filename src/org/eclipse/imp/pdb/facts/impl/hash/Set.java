@@ -90,7 +90,7 @@ class Set extends Value implements ISet{
 
 	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other) throws FactTypeError{
-		ISetWriter sw = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
+		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
 		for (IValue a : content){
 			if (!other.contains(a)){
 				sw.insert(a);
