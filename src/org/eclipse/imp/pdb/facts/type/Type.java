@@ -48,6 +48,15 @@ public abstract class Type {
 		Type base = other.getBaseType();
 		return other.isValueType() || base.isValueType() || base == this;
 	}
+	
+	/**
+	 * Compute whether this type is a subtype of the other or vice versa
+	 * @param other type to compare to
+	 * @return true iff the types are comparable.
+	 */
+	public boolean comparable(Type other) {
+		return isSubtypeOf(other) || other.isSubtypeOf(this);
+	}
 
 	/**
 	 * If this type has parameters and there are parameter types embedded in it,
