@@ -320,7 +320,6 @@ public class TypeFactory {
     		
     		Type result = getFromCache(new TreeNodeType(name, children, nodeType));
     		signature.add((TreeNodeType) result);
-    		fSignatures.put(nodeType, signature);
 
     		return (TreeNodeType) result;
     	}
@@ -452,7 +451,7 @@ public class TypeFactory {
      * @param name  the supposed name of the named tree type
      * @return null if such type does not exist, or the type if it was declared earlier
      */
-    NamedTreeType lookupNamedTreeType(String name) {
+    public NamedTreeType lookupNamedTreeType(String name) {
     	for (NamedTreeType sort : fSignatures.keySet()) {
     		if (sort.getName().equals(name)) {
     			return sort;
