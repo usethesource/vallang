@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.TupleType;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -41,6 +42,11 @@ class Tuple extends Value implements ITuple {
     	fElements[i] = elem;
     }
     
+	private Tuple(TupleType type, IValue[] elems) {
+		super(type);
+		fElements = elems;
+	}
+
 	public int arity() {
         return fElements.length;
     }
@@ -127,5 +133,43 @@ class Tuple extends Value implements ITuple {
 	public ITuple set(String label, IValue arg) {
 		int i = ((TupleType) fType).getFieldIndex(label);
 		return new Tuple(this, i, arg);
+	}
+
+	public IValue select(int... fields) {
+		Type type = ((TupleType) fType).select(fields);
+		
+		if (type.isTupleType()) {
+			return doSelect(type, fields);
+		}
+		else {
+			return get(fields[0]);
+		}
+	}
+
+	private IValue doSelect(Type type, int... fields) {
+		IValue[] elems = new IValue[fields.length];
+		
+		for (int i = 0; i < fields.length; i++) {
+			elems[i] = get(fields[i]);
+		}
+		
+		return new Tuple((TupleType) type, elems);
+	}
+
+	public IValue select(String... fields) {
+		Type type = ((TupleType) fType).select(fields);
+		
+		if (type.isTupleType()) {
+			int[] indexes = new int[fields.length];
+			int i = 0;
+			for (String name : fields) {
+				indexes[i] = ((TupleType) type).getFieldIndex(name);
+			}
+			
+			return doSelect(type, indexes);
+		}
+		else {
+			return get(fields[0]);
+		}
 	}
 }

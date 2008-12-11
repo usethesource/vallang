@@ -331,4 +331,50 @@ public class TupleType extends Type implements Iterable<Type> {
 			return TypeFactory.getInstance().tupleType(fChildren);
 		}
 	}
+
+	public Type select(int... fields) {
+        int width = fields.length;
+        
+        if (width == 0) {
+        	return TypeFactory.getInstance().voidType();
+        }
+        else if (width == 1) {
+        	return getFieldType(fields[0]);
+        }
+        else {
+        	if (!hasFieldNames()) {
+        		Type[] fieldTypes = new Type[fields.length];
+    		    for (int i = 0; i < fields.length; i++) {
+    		    	fieldTypes[i] = getFieldType(fields[i]);
+    		    }
+    		    
+    		    return TypeFactory.getInstance().tupleType(fieldTypes);
+        	}
+        	else {
+        		Type[] fieldTypes = new Type[fields.length];
+        		String[] fieldNames = new String[fields.length];
+        		
+    		    for (int i = 0; i < fields.length; i++) {
+    		    	fieldTypes[i] = getFieldType(fields[i]);
+    		    	fieldNames[i] = getFieldName(fields[i]);
+    		    }
+    		    
+    		    return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
+        	}
+        }
+	}
+	
+	public Type select(String... names) {
+		if (!hasFieldNames()) {
+			throw new FactTypeError("Tuple has no field names");
+		}
+		
+		int[] indexes = new int[names.length];
+		int i = 0;
+		for (String name : names) {
+			indexes[i] = getFieldIndex(name);
+		}
+		
+		return select(indexes);
+	}
 }

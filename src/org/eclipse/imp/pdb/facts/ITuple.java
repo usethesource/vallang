@@ -24,4 +24,8 @@ public abstract interface ITuple extends Iterable<IValue>, IValue {
     public int arity();
 
     public boolean equals(Object o);
+    
+    public IValue select(int... fields);
+    
+    public IValue select(String... fields);
 }

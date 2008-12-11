@@ -209,4 +209,31 @@ class Relation extends Set implements IRelation {
 			return  (IRelation) constructedSet;
 		}
 	}
+	
+	public ISet select(int... fields) {
+		Type eltType = getFieldTypes().select(fields);
+		ISetWriter w = ValueFactory.getInstance().setWriter(eltType);
+		
+		for (IValue v : this) {
+			w.insert(((ITuple) v).select(fields));
+		}
+		
+		return w.done();
+	}
+	
+	public ISet select(String... fields) {
+		int[] indexes = new int[fields.length];
+		int i = 0;
+		
+		if (getFieldTypes().hasFieldNames()) {
+			for (String field : fields) {
+				indexes[i++] = getFieldTypes().getFieldIndex(field);
+			}
+			
+			return select(indexes);
+		}
+		else {
+			throw new FactTypeError("Relation does not have field names");
+		}
+	}
 }
