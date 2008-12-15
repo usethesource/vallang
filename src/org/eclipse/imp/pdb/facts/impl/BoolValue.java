@@ -6,10 +6,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class BoolValue extends Value implements IBool {
+/*package*/ class BoolValue extends Value implements IBool {
 	private final boolean fValue;
 
-	public BoolValue(boolean b) {
+	/*package*/ BoolValue(boolean b) {
 		super(TypeFactory.getInstance().boolType());
 		this.fValue = b;
 	}

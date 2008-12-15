@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.BoolValue;
+import org.eclipse.imp.pdb.facts.IBool;
 
 /**
  * This abstract class does nothing except implementing identity. Extend it
@@ -79,7 +79,7 @@ public abstract class IdentityVisitor implements IValueVisitor<IValue> {
 		return o;
 	}
 	
-	public IValue visitBoolean(BoolValue o) throws VisitorException {
+	public IValue visitBoolean(IBool o) throws VisitorException {
 		return o;
 	}
 }

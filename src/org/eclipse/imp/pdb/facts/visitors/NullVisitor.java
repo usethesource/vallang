@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.visitors;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -22,7 +23,6 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.impl.BoolValue;
 
 /**
  * This abstract class does nothing except returning null. Extend it
@@ -78,7 +78,7 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 		return null;
 	}
 	
-	public T visitBoolean(BoolValue boolValue) throws VisitorException {
+	public T visitBoolean(IBool boolValue) throws VisitorException {
 		return null;
 	}
 }
