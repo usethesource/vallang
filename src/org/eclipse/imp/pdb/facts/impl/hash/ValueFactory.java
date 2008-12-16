@@ -97,7 +97,7 @@ public class ValueFactory extends BaseValueFactory {
 		return lw.done();
 	}
 
-	private Type lub(IValue... elems) {
+	private static Type lub(IValue... elems) {
 		Type elementType = TypeFactory.getInstance().voidType();
 		for (IValue elem : elems) {
 			elementType = elementType.lub(elem.getType());
