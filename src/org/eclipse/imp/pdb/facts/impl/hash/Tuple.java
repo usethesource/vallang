@@ -97,13 +97,13 @@ class Tuple extends Value implements ITuple {
 
     @Override
     public boolean equals(Object o) {
-    	if (o instanceof ITuple) {
+    	if (getClass() == o.getClass()) {
     		ITuple peer= (ITuple) o;
     		int arity= arity();
-    		if (arity() != peer.arity()) {
+    		if (arity != peer.arity()) {
     			return false;
     		}
-    		for(int i= 0; i < arity; i++) {
+    		for (int i= 0; i < arity; i++) {
     			if (!get(i).equals(peer.get(i))) {
     				return false;
     			}
@@ -116,6 +116,9 @@ class Tuple extends Value implements ITuple {
     @Override
     public int hashCode() {
        int hash = 0;
+       hash += fAnnotations.hashCode() << 8;
+       hash += fType.hashCode();
+       
  	   for (int i = 0; i < fElements.length; i++) {
  		 hash = (hash << 1) ^ (hash >> 1) ^ fElements[i].hashCode();
  	   }

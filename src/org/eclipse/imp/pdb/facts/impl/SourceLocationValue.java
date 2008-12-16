@@ -50,16 +50,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public boolean equals(Object o) {
-    	if (o instanceof SourceLocationValue) {
+    	if (getClass() == o.getClass()) {
     		SourceLocationValue other = (SourceLocationValue) o;
-    		return other.fPath.equals(fPath) && other.fRange.equals(fRange);
+    		return equalAnnotations((Value) o) &&
+    		other.fPath.equals(fPath) && other.fRange.equals(fRange);
     	}
     	return false;
     }
     
     @Override
     public int hashCode() {
-    	return 10987 + 11923 * fPath.hashCode() + 9619 * fRange.hashCode();
+    	return fAnnotations.hashCode() << 8 + 10987 + 11923 * fPath.hashCode() + 9619 * fRange.hashCode();
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {

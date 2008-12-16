@@ -107,6 +107,7 @@ public class Tree extends Value implements ITree {
 		StringBuilder builder = new StringBuilder();
 		
 		if (fName == null) {
+			// if no name there is always exactly one child
 			builder.append(fChildren[0].toString());
 		}
 		else {
@@ -128,17 +129,19 @@ public class Tree extends Value implements ITree {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Tree) {
+		if (getClass() == obj.getClass()) {
 			Tree other = (Tree) obj;
+			
 			if (fType != other.fType) {
 				return false;
 			}
+			
 			if (fChildren.length != other.fChildren.length) {
 				return false;		
 			}
 			
 			if ((fName == null && other.fName != null)
-					|| (other.fName == null && fName == null)
+					|| (other.fName == null && fName != null)
 					|| !fName.equals(other.fName)) {
 				return false;
 			}
@@ -148,16 +151,19 @@ public class Tree extends Value implements ITree {
 					return false;
 				}
 			}
+			
 			return true;
 		}
-		else {
-			return false;
-		}
+		
+		return false;
 	}
 	
 	@Override
 	public int hashCode() {
        int hash = fName != null ? fName.hashCode() : 0;
+       hash += fAnnotations.hashCode() << 8;
+       hash += fType.hashCode();
+       
 	   for (int i = 0; i < fChildren.length; i++) {
 	     hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
 	   }

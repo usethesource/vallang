@@ -44,8 +44,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public boolean equals(Object o) {
-    	if (o instanceof IntegerValue) {
-    		return ((IntegerValue) o).fValue == fValue;
+    	if (getClass() == o.getClass()) {
+    		return equalAnnotations((Value) o) && ((IntegerValue) o).fValue == fValue;
     	}
     	return false;
     }
@@ -104,7 +104,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public int hashCode() {
-    	return fValue;
+    	return fAnnotations.hashCode() << 8 + fValue;
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {

@@ -39,8 +39,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof BoolValue) {
-			return fValue == ((BoolValue) obj).fValue;
+		if (getClass() == obj.getClass()) {
+			return equalAnnotations((Value) obj) && fValue == ((BoolValue) obj).fValue;
 		}
 		return false;
 	}
@@ -66,12 +66,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public IBool xor(IBool other) {
-		boolean otherValue = other.getValue();
-		return new BoolValue((fValue || otherValue) && !(fValue && otherValue));
+		return new BoolValue(fValue ^ other.getValue());
 	}
 	
 	@Override
 	public int hashCode() {
-		return fValue ? 1231 : 1237;
+		return fAnnotations.hashCode() << 8 + (fValue ? 1231 : 1237);
 	}
 }

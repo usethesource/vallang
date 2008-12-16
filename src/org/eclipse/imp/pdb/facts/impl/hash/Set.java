@@ -135,16 +135,17 @@ class Set extends Value implements ISet{
 	}
 	
 	public boolean equals(Object o){
-		if(!(o instanceof Set)) return false;
-		
-		Set other = (Set) o;
-		
-		return content.equals(other.content);
+		if (getClass() == o.getClass()) {
+			Set other = (Set) o;
+			
+			return fType == other.fType && content.equals(other.content);
+		}
+		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return content.hashCode();
+		return fAnnotations.hashCode() << 8 + fType.hashCode() + content.hashCode();
 	}
 
 	public String toString(){

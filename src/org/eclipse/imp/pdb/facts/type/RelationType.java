@@ -122,7 +122,11 @@ public final class RelationType extends SetType {
 		if (this == other && isReflexive()) {
 			return this;
 		}
-		
+		else {
+			if (getArity() < 2 || other.getArity() < 2) {
+				throw new FactTypeError("Compose will not work on relations with arity < 2");
+			}
+		}
 		TupleType t1 = fTupleType;
 		TupleType t2 = other.fTupleType;
 

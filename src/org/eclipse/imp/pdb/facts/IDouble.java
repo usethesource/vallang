@@ -18,8 +18,9 @@ public interface IDouble extends IValue {
     IDouble subtract(IDouble other);
     IDouble multiply(IDouble other);
     IDouble divide(IDouble other);
-    IInteger floor();
-    IInteger round();
+    IDouble floor();
+    IDouble round();
+    IInteger toInteger();
     IBool less(IDouble other);
     IBool greater(IDouble other);
     IBool lessEqual(IDouble other);

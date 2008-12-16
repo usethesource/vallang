@@ -144,13 +144,18 @@ class Map extends Value implements IMap{
 	}
 	
 	public boolean equals(Object o){
-		if(!(o instanceof Map)) return false;
-		
-		Map other = (Map) o;
-		
-		return content.equals(other.content);
+		if(getClass() == o.getClass()) {
+			Map other = (Map) o;
+			return fType == other.fType && equalAnnotations((Value) o) && content.equals(other.content);
+		}
+		return false;
 	}
 
+	@Override
+	public int hashCode() {
+		return  fAnnotations.hashCode() << 8 + fType.hashCode() + content.hashCode();
+	}
+	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		

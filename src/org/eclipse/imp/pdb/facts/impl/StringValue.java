@@ -54,15 +54,15 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public boolean equals(Object o) {
-    	if (o instanceof StringValue) {
-    		return ((StringValue) o).fValue.equals(fValue);
+    	if (getClass() == o.getClass()) {
+    		return equalAnnotations((Value) o) && ((StringValue) o).fValue.equals(fValue);
     	}
     	return false;
     }
     
     @Override
     public int hashCode() {
-    	return fValue.hashCode();
+    	return fAnnotations.hashCode() << 8 + fValue.hashCode();
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {

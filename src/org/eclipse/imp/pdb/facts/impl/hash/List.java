@@ -137,16 +137,16 @@ public class List extends Value implements IList {
 	}
 	
 	public boolean equals(Object o){
-		if(!(o instanceof List)){
-			return false;
+		if (getClass() == o.getClass()) {
+			List other = (List) o;
+			return fType == other.fType && equalAnnotations((Value) o) && content.equals(other.content);
 		}
-		List other = (List) o;
-		return content.equals(other.content);
+		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return content.hashCode();
+		return fAnnotations.hashCode() << 8 + fType.hashCode() + content.hashCode();
 	}
 	
     /*package*/ static ListWriter createListWriter(Type eltType){

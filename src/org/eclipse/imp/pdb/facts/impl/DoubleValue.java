@@ -58,11 +58,15 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new DoubleValue(fValue / other.getValue());
     }
     
-    public IInteger round() {
-    	return new IntegerValue((int) Math.round(fValue));
+    public IDouble round() {
+    	return new DoubleValue(Math.round(fValue));
     }
     
-    public IInteger floor() {
+    public IDouble floor() {
+    	return new DoubleValue(Math.floor(fValue));
+    }
+    
+    public IInteger toInteger() {
     	return new IntegerValue((int) Math.floor(fValue));
     }
     
@@ -96,8 +100,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public boolean equals(Object o) {
-    	if (o instanceof DoubleValue) {
-    		return ((DoubleValue) o).fValue == fValue;
+    	if (getClass() == o.getClass()) {
+    		return equalAnnotations((Value) o) && 
+    		Double.compare(fValue, ((DoubleValue) o).fValue) == 0 ;
     	}
     	return false;
     }
@@ -105,7 +110,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     @Override
     public int hashCode() {
     	long bits = Double.doubleToLongBits(fValue);
-    	return (int)(bits ^ (bits >>> 32));
+    	return fAnnotations.hashCode() << 8 + (int)(bits ^ (bits >>> 32));
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {

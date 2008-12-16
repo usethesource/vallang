@@ -85,9 +85,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof SourceRangeValue) {
+		if (getClass() == o.getClass()) {
 			SourceRangeValue other = (SourceRangeValue) o;
-			return other.fStartOffset == fStartOffset
+			return equalAnnotations((Value) o)
+			        && other.fStartOffset == fStartOffset
 					&& other.fLength == fLength
 					&& other.fStartLine == fStartLine
 					&& other.fEndLine == fEndLine
@@ -98,8 +99,14 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	@Override
 	public int hashCode() {
-		return 24551 + 2 * fStartOffset + 3 * fLength + 5 * fStartLine + 7 * fEndLine
-				+ 11 * fStartCol + 13 * fEndCol;
+		return fAnnotations.hashCode() << 8 + 
+		24551 + 
+		(fStartOffset << 5)+ 
+		(fLength << 10) + 
+		(fStartLine << 15) + 
+		(fEndLine << 20) + 
+		(fStartCol << 25) + 
+		(fEndCol << 30);
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

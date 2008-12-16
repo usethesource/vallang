@@ -75,10 +75,15 @@ public class Node extends Tree implements INode {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Node) {
+		if (getClass() == obj.getClass()) {
 		  return fType == ((Node) obj).fType && super.equals(obj);
 		}
 		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		 return fType.hashCode() + ~super.hashCode();
 	}
 	
 	@Override

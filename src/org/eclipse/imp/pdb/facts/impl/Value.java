@@ -57,7 +57,12 @@ public abstract class Value implements IValue {
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 	}
 
-
+    protected boolean equalAnnotations(Value o) {
+    	if (!fAnnotations.equals(o.fAnnotations)) {
+    		return false;
+    	}
+    	return true;
+	}
 
 	/**
      * @return the type of this value
@@ -102,4 +107,6 @@ public abstract class Value implements IValue {
      * @return the exact same value, with the same type, but with a new value for the chosen annotation label
      */
     protected abstract IValue clone(String label, IValue value);
+
+	
 }
