@@ -260,10 +260,12 @@ public class TypeFactory {
     		}
 
     		NamedTreeType tmp2 = new NamedTreeType(name);
-    		Type sort= fCache.get(tmp2);
+    		synchronized (fCache) {
+    			Type sort= fCache.get(tmp2);
 
-    		if (sort != null) {
-    			throw new TypeDeclarationException("Can not redeclare tree sort type " + sort + " with a named type");
+    			if (sort != null) {
+    				throw new TypeDeclarationException("Can not redeclare tree sort type " + sort + " with a named type");
+    			}
     		}
 
     		fNamedTypes.put(name, (NamedType) result);
