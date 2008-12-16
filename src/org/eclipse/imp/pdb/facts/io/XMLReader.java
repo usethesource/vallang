@@ -324,45 +324,4 @@ public class XMLReader implements IValueReader {
 		
 		return vf.tree(nodeType, values);
 	}
-
-
-
-	public static void main(String[] args) {
-		IValueFactory vf = ValueFactory.getInstance();
-		TypeFactory tf = TypeFactory.getInstance();
-		XMLReader testReader = new XMLReader();
-		NamedTreeType Boolean = tf.namedTreeType("Boolean");
-		tf.treeNodeType(Boolean, "true");
-		tf.treeNodeType(Boolean, "false");
-		tf.treeNodeType(Boolean, "and", Boolean, Boolean);
-		tf.treeNodeType(Boolean, "or", tf.listType(Boolean));
-		tf.treeNodeType(Boolean, "not", Boolean);
-		tf.treeNodeType(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
-		
-		NamedTreeType Name = tf.namedTreeType("Name");
-		tf.treeNodeType(Name, "name", tf.stringType());
-		tf.treeNodeType(Boolean, "friends", tf.listType(Name));
-		tf.treeNodeType(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
-		String[] tests = {
-			"<true/>",
-			"<and><true/><false/></and>",
-		    "<not><and><true/><false/></and></not>",
-		    "<twotups><true/><false/><true/><false/></twotups>",
-	        "<or><true/><false/><true/></or>",
-	        "<friends><name>Hans</name><name>Bob</name></friends>",
-	        "<or/>",
-	        "<couples><name>A</name><name>B</name><name>C</name><name>D</name></couples>"
-	        };
-		
-		try {
-			for (String test : tests) {
-				IValue result = testReader.read(vf, Boolean, new ByteArrayInputStream(test.getBytes()));
-				System.err.println(test + " -> " + result);
-			}
-		} catch (FactTypeError e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 }
