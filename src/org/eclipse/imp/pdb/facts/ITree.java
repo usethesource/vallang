@@ -25,18 +25,17 @@ public interface ITree extends IValue, Iterable<IValue> {
 	 * @param i the zero based index of the child
 	 * @return a value
 	 */
-	public IValue get(int i);
+	public IValue get(int i) throws IndexOutOfBoundsException;
 	
 	/**
 	 * Change this tree to have a different child at a certain position.
 	 * 
-	 * @param <TreeOrNode> may be a untyped tree or a typed tree node that is returned, depending on the receiver.
 	 * @param i            the zero based index of the child to be replaced
 	 * @param newChild     the new value for the child
 	 * @return an untyped tree with the new child at position i, if the receiver was untyped,
 	 *         or a typed tree node if it was typed.
 	 */
-	public <TreeOrNode extends ITree> TreeOrNode set(int i, IValue newChild);
+	public ITree set(int i, IValue newChild) throws IndexOutOfBoundsException;
 	
 	/**
 	 * @return the (fixed) number of children of this tree

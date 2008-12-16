@@ -67,15 +67,14 @@ public class List extends Value implements IList {
 		return content.get(i);
 	}
 	
-	public IList put(int i, IValue elem) throws FactTypeError,
-			IndexOutOfBoundsException {
+	public IList put(int i, IValue elem) throws IndexOutOfBoundsException {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.replaceAt(i, elem);
 		return w.done();
 	}
 
-	public IList insert(IValue elem) throws FactTypeError{
+	public IList insert(IValue elem) {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.insert(elem);
@@ -84,7 +83,7 @@ public class List extends Value implements IList {
 		return w.done();
 	}
 
-	public IList append(IValue elem) throws FactTypeError{
+	public IList append(IValue elem) {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.append(elem);
@@ -104,12 +103,8 @@ public class List extends Value implements IList {
 	
 	public IList concat(IList other) {
 		ListWriter w = new ListWriter(getElementType().lub(other.getElementType()));
-		try{
-			w.appendAll(this);
-			w.appendAll(other);
-		}catch(FactTypeError e){
-			// This will never happen
-		} 
+		w.appendAll(this);
+		w.appendAll(other);
 		return w.done();
 	}
 	

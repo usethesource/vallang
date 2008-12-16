@@ -72,7 +72,7 @@ public class TupleType extends Type implements Iterable<Type> {
     	return getFieldType(getFieldIndex(fieldName));
     }
     
-    public int getFieldIndex(String fieldName) {
+    public int getFieldIndex(String fieldName) throws FactTypeError {
     	if (fFieldNames != null) {
     		for (int i = 0; i < fFieldNames.length; i++) {
     			if (fFieldNames[i].equals(fieldName)) {

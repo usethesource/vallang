@@ -12,20 +12,22 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import org.eclipse.imp.pdb.facts.type.FactTypeError;
+
 public abstract interface ITuple extends Iterable<IValue>, IValue {
-    public IValue get(int i);
+    public IValue get(int i) throws IndexOutOfBoundsException;
     
-    public IValue get(String label);
+    public IValue get(String label) throws FactTypeError;
     
-    public ITuple set(int i, IValue arg);
+    public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException;
     
-    public ITuple set(String label, IValue arg);
+    public ITuple set(String label, IValue arg) throws FactTypeError;
 
     public int arity();
 
     public boolean equals(Object o);
     
-    public IValue select(int... fields);
+    public IValue select(int... fields) throws IndexOutOfBoundsException;
     
-    public IValue select(String... fields);
+    public IValue select(String... fields) throws FactTypeError;
 }

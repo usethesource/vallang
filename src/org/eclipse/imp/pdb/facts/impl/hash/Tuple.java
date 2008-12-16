@@ -17,6 +17,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
+import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -51,14 +52,18 @@ class Tuple extends Value implements ITuple {
         return fElements.length;
     }
 
-    public IValue get(int i) {
-        return fElements[i];
+    public IValue get(int i) throws IndexOutOfBoundsException {
+    	try {
+    		return fElements[i];
+    	}
+    	catch (ArrayIndexOutOfBoundsException e) {
+    		throw new IndexOutOfBoundsException("Tuple index " + i + " is larger than tuple width " + arity());
+    	}
     }
     
-    public IValue get(String label) {
+    public IValue get(String label) throws FactTypeError {
 		return fElements[((TupleType) fType).getFieldIndex(label)];
 	}
-
 
     public Iterator<IValue> iterator() {
         return new Iterator<IValue>() {
@@ -126,16 +131,16 @@ class Tuple extends Value implements ITuple {
     	return new Tuple(this, label, anno);
     }
 
-	public ITuple set(int i, IValue arg) {
+	public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
 		return new Tuple(this, i, arg);
 	}
 
-	public ITuple set(String label, IValue arg) {
+	public ITuple set(String label, IValue arg) throws FactTypeError {
 		int i = ((TupleType) fType).getFieldIndex(label);
 		return new Tuple(this, i, arg);
 	}
 
-	public IValue select(int... fields) {
+	public IValue select(int... fields) throws IndexOutOfBoundsException {
 		Type type = ((TupleType) fType).select(fields);
 		
 		if (type.isTupleType()) {
@@ -146,7 +151,7 @@ class Tuple extends Value implements ITuple {
 		}
 	}
 
-	private IValue doSelect(Type type, int... fields) {
+	private IValue doSelect(Type type, int... fields) throws IndexOutOfBoundsException {
 		IValue[] elems = new IValue[fields.length];
 		
 		for (int i = 0; i < fields.length; i++) {
@@ -156,7 +161,7 @@ class Tuple extends Value implements ITuple {
 		return new Tuple((TupleType) type, elems);
 	}
 
-	public IValue select(String... fields) {
+	public IValue select(String... fields) throws FactTypeError {
 		Type type = ((TupleType) fType).select(fields);
 		
 		if (type.isTupleType()) {

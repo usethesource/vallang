@@ -110,12 +110,8 @@ class Relation extends Set implements IRelation {
 		SetType newType = checkCarrier();
 		ISetWriter w = Set.createSetWriter(newType.getElementType());
 		
-		try {
-			for (IValue t : this) {
-				w.insertAll((ITuple) t);
-			}
-		} catch (FactTypeError e) {
-			// this will not happen
+		for (IValue t : this) {
+			w.insertAll((ITuple) t);
 		}
 		return w.done();
 	}
@@ -161,7 +157,7 @@ class Relation extends Set implements IRelation {
 
 	private void checkSubtypesOfEachother(Type t1, Type t2)
 			throws FactTypeError {
-		if (!t1.isSubtypeOf(t2) && !t1.isSubtypeOf(t2)) {
+		if (!t1.comparable(t2)) {
 			throw new FactTypeError(
 					"Elements of binary relations are not subtypes of eachother:"
 							+ t1 + " and " + t2);

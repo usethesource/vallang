@@ -81,15 +81,15 @@ class Map extends Value implements IMap{
 		return content.values().iterator();
 	}
 
-	public boolean containsKey(IValue key) throws FactTypeError{
+	public boolean containsKey(IValue key) {
 		return content.containsKey(key);
 	}
 
-	public boolean containsValue(IValue value) throws FactTypeError{
+	public boolean containsValue(IValue value) {
 		return content.containsValue(value);
 	}
 
-	public IMap put(IValue key, IValue value) throws FactTypeError{
+	public IMap put(IValue key, IValue value) {
 		IMapWriter sw = new MapWriter(getKeyType().lub(key.getType()), getValueType().lub(value.getType()));
 		sw.putAll(this);
 		sw.put(key, value);

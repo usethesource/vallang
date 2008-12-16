@@ -36,26 +36,23 @@ public interface IList extends Iterable<IValue>, IValue {
      * 
      * @param e the new element
      * @return a new list with the element at the end
-     * @throws FactTypeError
      */
-    public IList append(IValue e) throws FactTypeError;
+    public IList append(IValue e);
     
     /**
      * Insers an element in front of the list
      * @param e the new element
      * @return a new list with the element in front
-     * @throws FactTypeError
      */
-    public IList insert(IValue e) throws FactTypeError;
+    public IList insert(IValue e);
     
     /**
      * Concatenates this list with another
      * @param o another list
      * @return a concatenated list with the elements of the 
      *         receiver before the elements of o.
-     * @throws FactTypeError
      */
-    public IList concat(IList o) throws FactTypeError;
+    public IList concat(IList o);
     
     /**
      * Replaces the value of the ith element in the list with a new value

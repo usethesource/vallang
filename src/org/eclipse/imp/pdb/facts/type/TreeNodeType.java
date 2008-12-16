@@ -112,7 +112,7 @@ public class TreeNodeType extends Type {
 		return fChildrenTypes.getArity();
 	}
 	
-	public int getChildIndex(String fieldName) {
+	public int getChildIndex(String fieldName) throws FactTypeError {
 		return fChildrenTypes.getFieldIndex(fieldName);
 	}
 	

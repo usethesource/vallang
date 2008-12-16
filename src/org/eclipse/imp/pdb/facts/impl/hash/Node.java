@@ -1,8 +1,8 @@
 package org.eclipse.imp.pdb.facts.impl.hash;
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -53,12 +53,24 @@ public class Node extends Tree implements INode {
 	}
 
 	@Override
-	public ITree set(int i, IValue newChild) {
+	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
+		checkChildType(i, newChild);
 		return new Node(this, i, newChild);
 	}
+
 	
-	public INode set(String label, IValue newChild) {
-		return new Node(this, ((TreeNodeType) fType).getChildIndex(label), newChild);
+	public INode set(String label, IValue newChild) throws FactTypeError {
+		int childIndex = ((TreeNodeType) fType).getChildIndex(label);
+		checkChildType(childIndex, newChild);
+		return new Node(this, childIndex, newChild);
+	}
+	
+	private void checkChildType(int i, IValue newChild) {
+		Type type = newChild.getType();
+		Type expectedType = getTreeNodeType().getChildType(i);
+		if (!type.isSubtypeOf(expectedType)) {
+			throw new FactTypeError("New child type " + type + " is not a subtype of " + expectedType);
+		}
 	}
 	
 	@Override

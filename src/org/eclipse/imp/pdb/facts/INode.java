@@ -1,5 +1,6 @@
 package org.eclipse.imp.pdb.facts;
 
+import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 
@@ -10,7 +11,8 @@ import org.eclipse.imp.pdb.facts.type.TupleType;
  */
 public interface INode extends ITree {
 	public IValue get(String label);
-	public INode  set(String label, IValue newChild);
+	public INode  set(String label, IValue newChild) throws FactTypeError;
+	public INode  set(int index, IValue newChild) throws FactTypeError;
 	public TreeNodeType getTreeNodeType();
 	public TupleType getChildrenTypes();
 }

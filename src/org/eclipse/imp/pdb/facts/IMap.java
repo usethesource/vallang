@@ -15,7 +15,6 @@ package org.eclipse.imp.pdb.facts;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public interface IMap extends Iterable<IValue>, IValue {
@@ -35,10 +34,8 @@ public interface IMap extends Iterable<IValue>, IValue {
      * @param key   
      * @param value
      * @return
-     * @throws FactTypeError when either the key or the value are not subtypes
-     *         of the declared key and value types, respectively.
      */
-    public IMap put(IValue key, IValue value) throws FactTypeError ;
+    public IMap put(IValue key, IValue value);
     
     /**
      * @param key
@@ -50,19 +47,15 @@ public interface IMap extends Iterable<IValue>, IValue {
      * Determine whether a certain key exists in this map.
      * @param key
      * @return true iff there is a value mapped to this key
-     * @throws FactTypeError when this key type can not be in this map because its
-     *         type is not a subtype of the key type of this map
      */
-    public boolean containsKey(IValue key) throws FactTypeError ;
+    public boolean containsKey(IValue key);
     
     /**
      * Determine whether a certain value exists in this map.
      * @param value 
      * @return true iff there is at least one key that maps to the given value.
-     * @throws FactTypeError if the value given could not possibly be mapped in because
-     *         its type is not a subtype of the value type of this map.
      */
-    public boolean containsValue(IValue value) throws FactTypeError ;
+    public boolean containsValue(IValue value);
 
     /**
      * @return the key type for this map

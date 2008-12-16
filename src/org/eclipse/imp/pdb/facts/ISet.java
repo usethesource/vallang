@@ -12,7 +12,6 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public interface ISet extends Iterable<IValue>, IValue {
@@ -34,10 +33,8 @@ public interface ISet extends Iterable<IValue>, IValue {
     /**
      * @param element
      * @return true iff this is an element of the set
-     * @throws FactTypeError if this element could never be an element of this set
-     *         because its type is not a subtype of the elementType
      */
-    public boolean contains(IValue element) throws FactTypeError;
+    public boolean contains(IValue element);
 
     /**
      * Add an element to the set. 
@@ -45,7 +42,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel insert(IValue element) throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel insert(IValue element);
 
     /**
      * Computes the union of two sets
@@ -53,7 +50,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel union(ISet set)  throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel union(ISet set);
     
     /**
      * Computes the intersection of two sets
@@ -61,7 +58,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel intersect(ISet set)  throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel intersect(ISet set);
     
     /**
      * Subtracts one set from the other
@@ -69,7 +66,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param set
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel subtract(ISet set)  throws FactTypeError;
+    public <SetOrRel extends ISet> SetOrRel subtract(ISet set);
     
     /**
      * Computes the Cartesian product of two sets

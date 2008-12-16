@@ -16,7 +16,6 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -60,12 +59,12 @@ public class Tree extends Value implements ITree {
 		return fChildren.length;
 	}
 
-	public IValue get(int i) {
+	public IValue get(int i) throws IndexOutOfBoundsException {
 		try {
 		 return fChildren[i];
 		}
 		catch (ArrayIndexOutOfBoundsException e) {
-			throw new FactTypeError("Tree node does not have child at pos " + i, e);
+			throw new IndexOutOfBoundsException("Tree node does not have child at pos " + i);
 		}
 	}
 
@@ -77,12 +76,11 @@ public class Tree extends Value implements ITree {
 		return fName;
 	}
 
-	@SuppressWarnings("unchecked")
-	public  ITree set(int i, IValue newChild) {
+	public  ITree set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		try {
 			return new Tree(this, i, newChild);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new FactTypeError("Tree node does not have child at pos " + i, e);
+			throw new IndexOutOfBoundsException("Tree node does not have child at pos " + i);
 		}
 	}
 

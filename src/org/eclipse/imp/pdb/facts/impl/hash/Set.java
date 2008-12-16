@@ -66,7 +66,7 @@ class Set extends Value implements ISet{
 	}
 
 	@SuppressWarnings("unchecked")
-	public ISet insert(IValue element) throws FactTypeError{
+	public ISet insert(IValue element) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType().lub(element.getType()));
 		sw.insertAll(this);
 		sw.insert(element);
@@ -75,7 +75,7 @@ class Set extends Value implements ISet{
 	}
 
 	@SuppressWarnings("unchecked")
-	public ISet intersect(ISet other) throws FactTypeError{
+	public ISet intersect(ISet other) {
 		ISetWriter w = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
 		Set o = (Set) other;
 		
@@ -89,7 +89,7 @@ class Set extends Value implements ISet{
 	}
 
 	@SuppressWarnings("unchecked")
-	public ISet subtract(ISet other) throws FactTypeError{
+	public ISet subtract(ISet other) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
 		for (IValue a : content){
 			if (!other.contains(a)){
@@ -171,18 +171,13 @@ class Set extends Value implements ISet{
 		TupleType resultType = TypeFactory.getInstance().tupleType(getElementType(),set.getElementType());
 		IRelationWriter w = new Relation.RelationWriter(resultType);
 
-		try{
-			for(IValue t1 : this){
-				for(IValue t2 : set){
-					ITuple t3 = new Tuple(t1,t2);
-					w.insert(t3);
-				}
+		for(IValue t1 : this){
+			for(IValue t2 : set){
+				ITuple t3 = new Tuple(t1,t2);
+				w.insert(t3);
 			}
-		} catch (FactTypeError e) {
-			// does not happen since we have constructed the correct types
-			// above.
 		}
-		
+
 		return w.done();
 	}
 
