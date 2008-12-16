@@ -32,6 +32,10 @@ public class NamedType extends Type {
 		return true;
 	}
 	
+	public String getName() {
+		return fName;
+	}
+	
 	public Type getSuperType() {
 		return fSuperType;
 	}
