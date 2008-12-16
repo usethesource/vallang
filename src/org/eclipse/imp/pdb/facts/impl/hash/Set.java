@@ -138,7 +138,7 @@ class Set extends Value implements ISet{
 		if (getClass() == o.getClass()) {
 			Set other = (Set) o;
 			
-			return fType == other.fType && content.equals(other.content);
+			return fType.comparable(other.fType) && content.equals(other.content);
 		}
 		return false;
 	}

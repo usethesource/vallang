@@ -139,7 +139,7 @@ public class List extends Value implements IList {
 	public boolean equals(Object o){
 		if (getClass() == o.getClass()) {
 			List other = (List) o;
-			return fType == other.fType && equalAnnotations((Value) o) && content.equals(other.content);
+			return fType.comparable(other.fType) && equalAnnotations((Value) o) && content.equals(other.content);
 		}
 		return false;
 	}

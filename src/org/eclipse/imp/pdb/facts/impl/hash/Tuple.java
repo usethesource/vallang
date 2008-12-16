@@ -98,7 +98,12 @@ class Tuple extends Value implements ITuple {
     @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
-    		ITuple peer= (ITuple) o;
+    		Tuple peer= (Tuple) o;
+    		
+    		if (!fType.comparable(peer.fType)) {
+    			return false;
+    		}
+    		
     		int arity= arity();
     		if (arity != peer.arity()) {
     			return false;

@@ -53,6 +53,11 @@ public class TreeNodeType extends Type {
 			return fTreeType.isSubtypeOf(other);
 		}
 	}
+	
+	@Override
+	public Type getBaseType() {
+		return fTreeType;
+	}
 
 	@Override
 	public Type lub(Type other) {

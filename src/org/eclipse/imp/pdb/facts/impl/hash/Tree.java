@@ -132,7 +132,7 @@ public class Tree extends Value implements ITree {
 		if (getClass() == obj.getClass()) {
 			Tree other = (Tree) obj;
 			
-			if (fType != other.fType) {
+			if (!fType.comparable(other.fType)) {
 				return false;
 			}
 			

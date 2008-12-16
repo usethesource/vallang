@@ -146,7 +146,7 @@ class Map extends Value implements IMap{
 	public boolean equals(Object o){
 		if(getClass() == o.getClass()) {
 			Map other = (Map) o;
-			return fType == other.fType && equalAnnotations((Value) o) && content.equals(other.content);
+			return fType.comparable(other.fType) && equalAnnotations((Value) o) && content.equals(other.content);
 		}
 		return false;
 	}

@@ -76,7 +76,7 @@ public class Node extends Tree implements INode {
 	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
-		  return fType == ((Node) obj).fType && super.equals(obj);
+		  return fType.comparable(((Node) obj).fType) && super.equals(obj);
 		}
 		return false;
 	}
