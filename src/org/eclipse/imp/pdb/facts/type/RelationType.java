@@ -37,6 +37,10 @@ public final class RelationType extends SetType {
     	return fTupleType.getFieldType(i);
     }
     
+    public Type getFieldType(String label) {
+    	return fTupleType.getFieldType(label);
+    }
+    
     public TupleType getFieldTypes() {
     	return fTupleType;
     }
