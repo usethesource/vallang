@@ -51,6 +51,11 @@ public abstract class Value implements IValue {
     	fAnnotations.put(label, anno);
     }
 	
+	public boolean isEqual(IValue other) {
+		// TODO: reimplement this for all sub-types of Value
+		return equals(other);
+	}
+	
    @SuppressWarnings("unchecked")
 	public Value(Value other) {
 		fType = other.fType;

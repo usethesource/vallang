@@ -18,6 +18,22 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 
 public interface IValue  {
+	/**
+	 * Implements logical equality with another value. Two objects X and Y 
+	 * are equal if and only if X and Y have comparable types (@see {@link Type#comparable(Type)})
+	 * and they represent equal contents. This concept of equal contents is defined
+	 * by each sub-type of IValue. Annotations never play a role in equality. 
+	 * 
+	 * <p> Please do not confuse this
+	 * method with @see {@link Object#equals(Object)} which is commonly used for the
+	 * implementation of IValue. That equals() might imply annotation equality and
+	 * type equality.
+	 * 
+	 * @return true iff the value is equal to the other value. (the types of
+	 *         the values have to be compatible but not equal)
+	 */
+	boolean isEqual(IValue other);
+	
 	/** 
 	 * @return the Type of a value
 	 */
