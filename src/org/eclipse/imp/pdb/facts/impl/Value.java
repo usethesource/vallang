@@ -56,6 +56,11 @@ public abstract class Value implements IValue {
 		return equals(other);
 	}
 	
+	public boolean isIdentical(IValue other) throws FactTypeError {
+		// TODO: reimplement this for all sub-types of Value
+		return equals(other);
+	}
+	
    @SuppressWarnings("unchecked")
 	public Value(Value other) {
 		fType = other.fType;
