@@ -76,11 +76,6 @@ public interface IValue  {
     Type getType();
     
     /**
-     * @return the smallest super type of getType() that is not a named type.
-     */
-    Type getBaseType();
-    
-    /**
      * get the value of an annotation on this value
      * @param label
      * @return the value of the annotation labeled 'label' of this value, or null

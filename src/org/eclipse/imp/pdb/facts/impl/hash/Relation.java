@@ -21,9 +21,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.RelationType;
-import org.eclipse.imp.pdb.facts.type.SetType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -31,8 +28,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Relation extends Set implements IRelation {
 
-	/* package */Relation(TupleType type, HashSet<IValue> content) {
-		super(TypeFactory.getInstance().relType(type), content);
+	/* package */Relation(Type type, HashSet<IValue> content) {
+		super(TypeFactory.getInstance().relTypeFromTuple(type), content);
 	}
 	
 	private Relation(Relation other, String label, IValue anno) {
@@ -40,7 +37,7 @@ class Relation extends Set implements IRelation {
 	}
 
 	public int arity() {
-		return ((RelationType) getType().getBaseType()).getArity();
+		return getType().getArity();
 	}
 	
 	@Override
@@ -79,10 +76,10 @@ class Relation extends Set implements IRelation {
 	}
 
 	public IRelation compose(IRelation other) throws FactTypeError {
-		RelationType resultType = ((RelationType) getType().getBaseType()).compose((RelationType) other.getType().getBaseType());
+		Type resultType = getType().compose(other.getType());
 		IRelationWriter w = ValueFactory.getInstance().relationWriter(resultType.getFieldTypes());
-		int max1 = ((RelationType) getType().getBaseType()).getArity() - 1;
-		int max2 = ((RelationType) other.getType().getBaseType()).getArity() - 1;
+		int max1 = arity() - 1;
+		int max2 = other.arity() - 1;
 		int width = max1 + max2;
 
 		for (IValue v1 : content) {
@@ -107,7 +104,7 @@ class Relation extends Set implements IRelation {
 	}
 
 	public ISet carrier() {
-		SetType newType = checkCarrier();
+		Type newType = checkCarrier();
 		ISetWriter w = Set.createSetWriter(newType.getElementType());
 		
 		for (IValue t : this) {
@@ -117,7 +114,7 @@ class Relation extends Set implements IRelation {
 	}
 
 	public ISet domain() {
-		RelationType relType = (RelationType) getType();
+		Type relType = getType();
 		ISetWriter w = Set.createSetWriter(relType.getFieldType(0));
 		
 		for (IValue elem : this) {
@@ -128,7 +125,7 @@ class Relation extends Set implements IRelation {
 	}
 	
 	public ISet range() {
-		RelationType relType = (RelationType) getType();
+		Type relType = getType();
 		int last = relType.getArity() - 1;
 		ISetWriter w = Set.createSetWriter(relType.getFieldType(last));
 		
@@ -141,7 +138,7 @@ class Relation extends Set implements IRelation {
 	}
 	
 	private boolean checkReflexivity() throws FactTypeError {
-		RelationType type = (RelationType) getType().getBaseType();
+		Type type = getType();
 		
 		if (type.getArity() == 2) {
 			Type t1 = type.getFieldType(0);
@@ -164,13 +161,12 @@ class Relation extends Set implements IRelation {
 		}
 	}
 
-	private SetType checkCarrier() {
-		RelationType type = (RelationType) getType().getBaseType();
-		Type result = type.getFieldType(0);
-		int width = type.getArity();
+	private Type checkCarrier() {
+		Type result = fType.getFieldType(0);
+		int width = fType.getArity();
 		
 		for (int i = 1; i < width; i++) {
-			result = result.lub(type.getFieldType(i));
+			result = result.lub(fType.getFieldType(i));
 		}
 		
 		return TypeFactory.getInstance().setType(result);
@@ -180,8 +176,8 @@ class Relation extends Set implements IRelation {
 		return v.visitRelation(this);
 	}
 	
-	public TupleType getFieldTypes() {
-		return ((RelationType) fType).getFieldTypes();
+	public Type getFieldTypes() {
+		return fType.getFieldTypes();
 	}
 	
 	@Override
@@ -189,8 +185,8 @@ class Relation extends Set implements IRelation {
 		return new Relation(this, label, anno);
 	}
 
-	public static IRelationWriter createRelationWriter(TupleType fieldTypes) {
-		return new RelationWriter(fieldTypes);
+	public static IRelationWriter createRelationWriter(Type tupleType) {
+		return new RelationWriter(tupleType);
 	}
 	
 	protected static class RelationWriter  extends Set.SetWriter implements IRelationWriter {
@@ -200,7 +196,7 @@ class Relation extends Set implements IRelation {
 			
 		public IRelation done() {
 			if(constructedSet == null){
-				constructedSet = new Relation((TupleType) eltType, setContent);
+				constructedSet = new Relation(eltType, setContent);
 			}
 			return  (IRelation) constructedSet;
 		}

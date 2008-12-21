@@ -1,8 +1,7 @@
 package org.eclipse.imp.pdb.facts;
 
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
  * Typed tree representation. An INode is a specific kind of ITree, namely one
@@ -13,6 +12,5 @@ public interface INode extends ITree {
 	public IValue get(String label);
 	public INode  set(String label, IValue newChild) throws FactTypeError;
 	public INode  set(int index, IValue newChild) throws FactTypeError;
-	public TreeNodeType getTreeNodeType();
-	public TupleType getChildrenTypes();
+	public Type getChildrenTypes();
 }

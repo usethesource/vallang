@@ -36,8 +36,6 @@ import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,9 +71,9 @@ public class XMLWriter implements IValueWriter {
 	private Node yield(IValue value, Document doc) {
 		Type type = value.getType();
 		
-		if (type.isNamedTreeType()) {
-			NamedTreeType sort = (NamedTreeType) type;
-			TreeNodeType node = ((INode) value).getTreeNodeType();
+		if (type.isTreeNodeType()) {
+			Type sort = type;
+			Type node = ((INode) value).getType();
 			String name = node.getName();
 			
 			if (XMLReader.isListWrapper(name,  sort)) {
@@ -127,14 +125,14 @@ public class XMLWriter implements IValueWriter {
 		for (IValue key : map) {
 			IValue value = map.get(key);
 			
-			if (key.getBaseType().isTupleType()) {
+			if (key.getType().isTupleType()) {
 				appendTupleElements(doc, treeNode, key);
 			}
 			else {
 			  treeNode.appendChild(yield(key, doc));
 			}
 			
-			if (value.getBaseType().isTupleType()) {
+			if (value.getType().isTupleType()) {
                 appendTupleElements(doc, treeNode, value);
 			}
 			else {
@@ -169,7 +167,7 @@ public class XMLWriter implements IValueWriter {
 		ISet set = (ISet) tree.get(0);
 		
 		for (IValue elem : set) {
-			if (elem.getBaseType().isTupleType()) {
+			if (elem.getType().isTupleType()) {
 			  appendTupleElements(doc, treeNode, elem);
 			}
 			else {
@@ -185,7 +183,7 @@ public class XMLWriter implements IValueWriter {
 		IList list = (IList) tree.get(0);
 		
 		for (IValue elem : list) {
-			if (elem.getBaseType().isTupleType()) {
+			if (elem.getType().isTupleType()) {
 				appendTupleElements(doc, treeNode, elem);
 			}
 			else {
@@ -200,7 +198,7 @@ public class XMLWriter implements IValueWriter {
 		Element treeNode = doc.createElement(value.getName());
 		
 		for (IValue child : value) {
-			if (child.getBaseType().isTupleType()) {
+			if (child.getType().isTupleType()) {
 				appendTupleElements(doc, treeNode, child);
 			}
 			else {

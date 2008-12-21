@@ -17,34 +17,39 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 
-public final class RelationType extends SetType {
-    /*package*/ final TupleType fTupleType;
+/*package*/ final class RelationType extends SetType {
+    /*package*/ final Type fTupleType;
 
     /**
      * Create a new relation type from a tuple type.
      * @param tupleType
      */
-    /*package*/ RelationType(TupleType tupleType) {
+    /*package*/ RelationType(Type tupleType) {
         super(tupleType);
         fTupleType = tupleType;
     }
     
+    @Override
     public int getArity() {
     	return fTupleType.getArity();
     }
     
+    @Override
     public Type getFieldType(int i) {
     	return fTupleType.getFieldType(i);
     }
     
+    @Override
     public Type getFieldType(String label) {
     	return fTupleType.getFieldType(label);
     }
     
-    public TupleType getFieldTypes() {
+    @Override
+    public Type getFieldTypes() {
     	return fTupleType;
     }
     
+    @Override
     public String getFieldName(int i) {
 		return fTupleType.getFieldName(i);
     }
@@ -54,24 +59,23 @@ public final class RelationType extends SetType {
     	return true;
     }
     
-    public boolean isSubtypeOf(Type other) {
-        if (other.isRelationType()) {
-        	RelationType o = (RelationType) other;
-        	return fTupleType.isSubtypeOf(o.fTupleType);
+    @Override
+    public boolean isSubtypeOf(Type o) {
+        if (o.isRelationType()) {
+        	return fTupleType.isSubtypeOf(o.getFieldTypes());
         }
         else {
-        	return super.isSubtypeOf(other);
+        	return super.isSubtypeOf(o);
         }
     }
 
     @Override
-    public Type lub(Type other) {
-    	if (other.isRelationType()) {
-    		RelationType o = (RelationType) other;
-    		return TypeFactory.getInstance().setType(fTupleType.lub(o.fTupleType));
+    public Type lub(Type o) {
+    	if (o.isRelationType()) {
+    		return TypeFactory.getInstance().setType(fTupleType.lub(o.getFieldTypes()));
     	}
     	else {
-    		return super.lub(other);
+    		return super.lub(o);
     	}
     }
 
@@ -97,7 +101,7 @@ public final class RelationType extends SetType {
 
     	b.append("rel[");
     	int idx = 0;
-    	for (Type t : fTupleType.fFieldTypes) {
+    	for (Type t : fTupleType) {
     		if (idx++ > 0) {
     			b.append(", ");
     		}
@@ -107,7 +111,7 @@ public final class RelationType extends SetType {
     	return b.toString();
     }
 
-	public boolean isReflexive() throws FactTypeError {
+	private boolean isReflexive() throws FactTypeError {
 		if (getArity() == 2) {
 			Type t1 = getFieldType(0);
 			Type t2 = getFieldType(1);
@@ -118,11 +122,8 @@ public final class RelationType extends SetType {
 		return false;
 	}
 	
-	public boolean acceptsElementOf(Type eltType) {
-		return eltType.isSubtypeOf(fTupleType);
-	}
-
-	public RelationType compose(RelationType other) throws FactTypeError {
+	@Override
+	public Type compose(Type other) throws FactTypeError {
 		if (this == other && isReflexive()) {
 			return this;
 		}
@@ -131,8 +132,8 @@ public final class RelationType extends SetType {
 				throw new FactTypeError("Compose will not work on relations with arity < 2");
 			}
 		}
-		TupleType t1 = fTupleType;
-		TupleType t2 = other.fTupleType;
+		Type t1 = fTupleType;
+		Type t2 = other.getFieldTypes();
 
 		Type last = t1.getFieldType(t1.getArity() - 1);
 		Type first = t2.getFieldType(0);
@@ -141,12 +142,7 @@ public final class RelationType extends SetType {
 			throw new FactTypeError("composition works only when the last type of the first relation is compatible with the first type of the second relation");
 		}
 		
-		TupleType resultType = t1.compose(t2);
-		return TypeFactory.getInstance().relType(resultType);
-	}
-	
-	public SetType toSet() {
-		return TypeFactory.getInstance().setType(fTupleType);
+		return TypeFactory.getInstance().relTypeFromTuple(t1.compose(t2));
 	}
 	
 	@Override
@@ -154,10 +150,12 @@ public final class RelationType extends SetType {
 		return visitor.visitRelationType(this);
 	}
 
+	@Override
 	public IValue make(IValueFactory f) {
 		return f.relation(fTupleType);
 	}
 	
+	@Override
 	public IValue make(IValueFactory f, IValue...elems) {
 		return f.relation(elems);
 	}

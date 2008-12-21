@@ -12,13 +12,27 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 
-public class NamedType extends Type {
+/**
+ * A NamedType is a named for a type, i.e. a type alias that can be
+ * used to abstract from types that have a complex structure. Since a 
+ * @{link Type} represents a set of values, a NamedType is defined to 
+ * be an alias (because it represents the same set of values).
+ * <p>
+ * Detail: This API does not allow @{link IValue}'s of the basic types (int, 
+ * double, etc) to be tagged with a NamedType. Instead the immediately
+ * surrounding structure, such as a set or a relation will refer to the
+ * NamedType.
+ */
+/*package*/ final class NamedType extends Type {
 	/* package */ final String fName;
 	/* package */ final Type fSuperType;
 	
@@ -32,10 +46,12 @@ public class NamedType extends Type {
 		return true;
 	}
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
+	@Override
 	public Type getSuperType() {
 		return fSuperType;
 	}
@@ -43,12 +59,9 @@ public class NamedType extends Type {
 	/**
 	 * @return the first super type of this type that is not a NamedType.
 	 */
-	public Type getBaseType() {
-		Type baseType = fSuperType;
-		while (baseType.isNamedType()) {
-			baseType = ((NamedType) baseType).getSuperType();
-		}
-		return baseType;
+	@Override
+	public Type getHiddenType() {
+		return fSuperType;
 	}
 
 	@Override
@@ -67,7 +80,7 @@ public class NamedType extends Type {
 			return this;
 		}
 		else {
-			return getBaseType().lub(other);
+			return fSuperType.lub(other);
 		}
 	}
 	
@@ -97,41 +110,221 @@ public class NamedType extends Type {
 	
 	@Override
 	public IInteger make(IValueFactory f, int arg) {
-		return (IInteger) getBaseType().make(f, arg);
+		return (IInteger) fSuperType.make(f, arg);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f) {
-		return getBaseType().make(f);
+		return fSuperType.make(f);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, IValue... children) {
-		return getBaseType().make(f, children);
+		return fSuperType.make(f, children);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, String path, ISourceRange range) {
-	    return getBaseType().make(f, path, range);
+	    return fSuperType.make(f, path, range);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f,int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
-		return getBaseType().make(f, startOffset, length, startLine, endLine, startCol, endCol);
+		return fSuperType.make(f, startOffset, length, startLine, endLine, startCol, endCol);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, double arg) {
-		return getBaseType().make(f, arg);
+		return fSuperType.make(f, arg);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, String arg) {
-		return getBaseType().make(f, arg);
+		return fSuperType.make(f, arg);
 	}
 	
 	@Override
 	public <T extends IWriter> T writer(IValueFactory f) {
-		return getBaseType().writer(f);
+		return fSuperType.writer(f);
+	}
+
+	@Override
+	public int getArity() {
+		return fSuperType.getArity();
+	}
+	
+	@Override
+	public Type getBound() {
+		return fSuperType.getBound();
+	}
+	
+	@Override
+	public Type getElementType() {
+		return fSuperType.getElementType();
+	}
+	
+	@Override
+	public int getFieldIndex(String fieldName) {
+		return fSuperType.getFieldIndex(fieldName);
+	}
+	
+	@Override
+	public String getFieldName(int i) {
+		return fSuperType.getFieldName(i);
+	}
+	
+	@Override
+	public Type getFieldType(int i) {
+		return fSuperType.getFieldType(i);
+	}
+	
+	@Override
+	public Type getFieldType(String fieldName) {
+		return fSuperType.getFieldType(fieldName);
+	}
+	
+	@Override
+	public Type getFieldTypes() {
+		return fSuperType.getFieldTypes();
+	}
+	
+	@Override
+	public Type getKeyType() {
+		return fSuperType.getKeyType();
+	}
+	
+	@Override
+	public Type getValueType() {
+		return fSuperType.getValueType();
+	}
+
+	@Override
+	public boolean comparable(Type other) {
+		return fSuperType.comparable(other);
+	}
+
+	@Override
+	public Type compose(Type other) {
+		return fSuperType.compose(other);
+	}
+
+	@Override
+	public boolean hasFieldNames() {
+		return fSuperType.hasFieldNames();
+	}
+
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		return this;
+	}
+
+	@Override
+	public boolean isBoolType() {
+		return fSuperType.isBoolType();
+	}
+
+	@Override
+	public boolean isDoubleType() {
+		return fSuperType.isDoubleType();
+	}
+
+	@Override
+	public boolean isIntegerType() {
+		return fSuperType.isIntegerType();
+	}
+
+	@Override
+	public boolean isListType() {
+		return fSuperType.isListType();
+	}
+
+	@Override
+	public boolean isMapType() {
+		return fSuperType.isMapType();
+	}
+
+	@Override
+	public boolean isNamedTreeType() {
+		return fSuperType.isNamedTreeType();
+	}
+
+	@Override
+	public boolean isParameterType() {
+		return fSuperType.isParameterType();
+	}
+
+	@Override
+	public boolean isRelationType() {
+		return fSuperType.isRelationType();
+	}
+
+	@Override
+	public boolean isSetType() {
+		return fSuperType.isSetType();
+	}
+
+	@Override
+	public boolean isSourceLocationType() {
+		return fSuperType.isSourceLocationType();
+	}
+
+	@Override
+	public boolean isSourceRangeType() {
+		return fSuperType.isSourceRangeType();
+	}
+
+	@Override
+	public boolean isStringType() {
+		return fSuperType.isStringType();
+	}
+
+	@Override
+	public boolean isTreeNodeType() {
+		return fSuperType.isTreeNodeType();
+	}
+
+	@Override
+	public boolean isTreeType() {
+		return fSuperType.isTreeType();
+	}
+
+	@Override
+	public boolean isTupleType() {
+		return fSuperType.isTupleType();
+	}
+
+	@Override
+	public boolean isValueType() {
+		return fSuperType.isValueType();
+	}
+
+	@Override
+	public boolean isVoidType() {
+		return fSuperType.isVoidType();
+	}
+
+	@Override
+	public Iterator<Type> iterator() {
+		return fSuperType.iterator();
+	}
+
+	@Override
+	public IValue make(IValueFactory f, boolean arg) {
+		return fSuperType.make(f, arg);
+	}
+
+	@Override
+	public IValue make(IValueFactory f, String name, IValue... children) {
+		return fSuperType.make(f, name, children);
+	}
+
+	@Override
+	public Type select(int... fields) {
+		return fSuperType.select(fields);
+	}
+
+	@Override
+	public Type select(String... names) {
+		return fSuperType.select(names);
 	}
 }

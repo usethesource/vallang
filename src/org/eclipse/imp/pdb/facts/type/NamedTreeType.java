@@ -17,12 +17,12 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 /**
- * A Tree Sort is an algebraic sort. A sort is produced by constructors, @see TreeType.
+ * A NamedTreeType is an algebraic sort. A sort is produced by constructors, @see TreeType.
  * There can be many constructors for a single sort.
  * 
  * @see TreeNodeType
  */
-public class NamedTreeType extends Type {
+/*package*/ final class NamedTreeType extends Type {
 	/* package */ final String fName;
 	
 	/* package */ NamedTreeType(String name) {
@@ -34,13 +34,6 @@ public class NamedTreeType extends Type {
 		return true;
 	}
 	
-	/**
-	 * @return the first super type of this type that is not a NamedType.
-	 */
-	public Type getBaseType() {
-		return this;
-	}
-
 	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (other.isTreeType()) {
@@ -80,6 +73,7 @@ public class NamedTreeType extends Type {
 		return false;
 	}
 	
+	@Override
 	public String getName() {
 		return fName;
 	}
@@ -89,9 +83,10 @@ public class NamedTreeType extends Type {
 		return visitor.visitNamedTree(this);
 	}
 	
+	@Override
 	public IValue make(IValueFactory vf, int arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		TreeNodeType node = tf.lookupAnonymousTreeNodeType(this);
+		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -101,9 +96,10 @@ public class NamedTreeType extends Type {
 		}
 	}
 	
+	@Override
 	public IValue make(IValueFactory vf, double arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		TreeNodeType node = tf.lookupAnonymousTreeNodeType(this);
+		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -113,9 +109,10 @@ public class NamedTreeType extends Type {
 		}
 	}
 	
+	@Override
 	public IValue make(IValueFactory vf, String arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		TreeNodeType node = tf.lookupAnonymousTreeNodeType(this);
+		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -127,11 +124,11 @@ public class NamedTreeType extends Type {
 	
 	@Override
 	public IValue make(IValueFactory f, String name, IValue... children) {
-		List<TreeNodeType> possible = TypeFactory.getInstance().lookupTreeNodeType(this, name);
-		TupleType childrenTypes = TypeFactory.getInstance().tupleType(children);
+		List<Type> possible = TypeFactory.getInstance().lookupTreeNodeType(this, name);
+		Type childrenTypes = TypeFactory.getInstance().tupleType(children);
 		
-		for (TreeNodeType node : possible) {
-			if (childrenTypes.isSubtypeOf(node.getChildrenTypes())) {
+		for (Type node : possible) {
+			if (childrenTypes.isSubtypeOf(node.getFieldTypes())) {
 				return node.make(f, children);
 			}
 		}

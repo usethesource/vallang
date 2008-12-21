@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -43,8 +42,8 @@ class Tuple extends Value implements ITuple {
     	fElements[i] = elem;
     }
     
-	private Tuple(TupleType type, IValue[] elems) {
-		super(type);
+	private Tuple(Type tupleType, IValue[] elems) {
+		super(tupleType);
 		fElements = elems;
 	}
 
@@ -62,7 +61,7 @@ class Tuple extends Value implements ITuple {
     }
     
     public IValue get(String label) throws FactTypeError {
-		return fElements[((TupleType) fType).getFieldIndex(label)];
+		return fElements[fType.getFieldIndex(label)];
 	}
 
     public Iterator<IValue> iterator() {
@@ -144,12 +143,12 @@ class Tuple extends Value implements ITuple {
 	}
 
 	public ITuple set(String label, IValue arg) throws FactTypeError {
-		int i = ((TupleType) fType).getFieldIndex(label);
+		int i = fType.getFieldIndex(label);
 		return new Tuple(this, i, arg);
 	}
 
 	public IValue select(int... fields) throws IndexOutOfBoundsException {
-		Type type = ((TupleType) fType).select(fields);
+		Type type = fType.select(fields);
 		
 		if (type.isTupleType()) {
 			return doSelect(type, fields);
@@ -166,17 +165,17 @@ class Tuple extends Value implements ITuple {
 			elems[i] = get(fields[i]);
 		}
 		
-		return new Tuple((TupleType) type, elems);
+		return new Tuple(type, elems);
 	}
 
 	public IValue select(String... fields) throws FactTypeError {
-		Type type = ((TupleType) fType).select(fields);
+		Type type = fType.select(fields);
 		
 		if (type.isTupleType()) {
 			int[] indexes = new int[fields.length];
 			int i = 0;
 			for (String name : fields) {
-				indexes[i] = ((TupleType) type).getFieldIndex(name);
+				indexes[i] = type.getFieldIndex(name);
 			}
 			
 			return doSelect(type, indexes);

@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TupleType;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 public interface IRelation extends ISet, IValue {
     public int arity();
@@ -60,7 +60,7 @@ public interface IRelation extends ISet, IValue {
     /**
      * @return the field types represented as a tuple type
      */
-    public TupleType getFieldTypes();
+    public Type getFieldTypes();
     
     /**
      * @return the set of elements in the first field of the relation

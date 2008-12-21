@@ -33,7 +33,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * Boolean ::= or(Boolean lhs, Boolean rhs)
  * 
  */
-public class TreeNodeType extends Type {
+/*package*/ final class TreeNodeType extends Type {
 	protected final TupleType fChildrenTypes;
 	protected final NamedTreeType fTreeType;
 	protected final String fName;
@@ -46,7 +46,7 @@ public class TreeNodeType extends Type {
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == fTreeType) {
+		if (other == this || other == fTreeType) {
 			return true;
 		}
 		else {
@@ -55,14 +55,9 @@ public class TreeNodeType extends Type {
 	}
 	
 	@Override
-	public Type getBaseType() {
-		return fTreeType;
-	}
-
-	@Override
 	public Type lub(Type other) {
 		if (other.isTreeNodeType()) {
-			return fTreeType.lub(((TreeNodeType) other).fTreeType);
+			return fTreeType.lub(other.getSuperType());
 		}
 		else {
 			return super.lub(other);
@@ -113,27 +108,33 @@ public class TreeNodeType extends Type {
 		return builder.toString();
 	}
 	
+	@Override
 	public int getArity() {
 		return fChildrenTypes.getArity();
 	}
 	
-	public int getChildIndex(String fieldName) throws FactTypeError {
+	@Override
+	public int getFieldIndex(String fieldName) throws FactTypeError {
 		return fChildrenTypes.getFieldIndex(fieldName);
 	}
 	
-	public TupleType getChildrenTypes() {
+	@Override
+	public TupleType getFieldTypes() {
 		return fChildrenTypes;
 	}
 
+	@Override
 	public String getName() {
 		return fName;
 	}
 	
-	public NamedTreeType getSuperType() {
+	@Override
+	public Type getSuperType() {
 		return fTreeType;
 	}
 	
-	public Type getChildType(int i) {
+	@Override
+	public Type getFieldType(int i) {
 		return fChildrenTypes.getFieldType(i);
 	}
 	
@@ -178,7 +179,7 @@ public class TreeNodeType extends Type {
 			throw new FactTypeError("This constructor has a different name from: " + name);
 		}
 		
-		TupleType childrenTypes = TypeFactory.getInstance().tupleType(children);
+		Type childrenTypes = TypeFactory.getInstance().tupleType(children);
 		if (!childrenTypes.isSubtypeOf(fChildrenTypes)) {
 			throw new FactTypeError("These children don't fit this tree node: " + fChildrenTypes);
 		}
@@ -187,16 +188,15 @@ public class TreeNodeType extends Type {
 	}
 	
 	@Override
-	public void match(Type matched, Map<ParameterType, Type> bindings)
+	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
-		TreeNodeType base = (TreeNodeType) matched.getBaseType();
-		getSuperType().match(base.getSuperType(), bindings);
-		getChildrenTypes().match(base.getChildrenTypes(), bindings);
+		getSuperType().match(matched.getSuperType(), bindings);
+		getFieldTypes().match(matched.getFieldTypes(), bindings);
 	}
 	
 	@Override
-	public Type instantiate(Map<ParameterType, Type> bindings) {
-		return TypeFactory.getInstance().treeNodeType((NamedTreeType) getSuperType().instantiate(bindings), getName(), (TupleType) getChildrenTypes().instantiate(bindings));
+	public Type instantiate(Map<Type, Type> bindings) {
+		return TypeFactory.getInstance().treeNodeType((NamedTreeType) getSuperType().instantiate(bindings), getName(), (TupleType) getFieldTypes().instantiate(bindings));
 	}
 }

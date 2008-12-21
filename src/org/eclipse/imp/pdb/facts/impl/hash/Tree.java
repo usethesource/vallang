@@ -16,6 +16,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -29,6 +30,13 @@ public class Tree extends Value implements ITree {
 	
 	/*package*/ Tree(String name, IValue[] children) {
 		super(TypeFactory.getInstance().treeType());
+		fName = name;
+		fChildren = new IValue[children.length];
+		System.arraycopy(children, 0, fChildren, 0, children.length);
+	}
+	
+	protected Tree(String name, Type type, IValue[] children) {
+		super(type);
 		fName = name;
 		fChildren = new IValue[children.length];
 		System.arraycopy(children, 0, fChildren, 0, children.length);
@@ -51,6 +59,8 @@ public class Tree extends Value implements ITree {
 		fChildren[index] = newChild;
 	}
 	
+	
+
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitTree(this);
 	}

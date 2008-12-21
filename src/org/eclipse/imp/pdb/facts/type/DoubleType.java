@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class DoubleType extends Type {
+/*package*/ final class DoubleType extends Type {
 	private final static DoubleType sInstance = new DoubleType();
 
 	/* package */static DoubleType getInstance() {

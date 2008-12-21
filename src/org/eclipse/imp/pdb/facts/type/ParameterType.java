@@ -20,7 +20,7 @@ import java.util.Map;
  * i.e. a type that needs to be instantiated with an actual type
  * later.
  */
-public class ParameterType extends Type {
+/*package*/ final class ParameterType extends Type {
 	/* package */ final String fName;
 	/* package */ final Type fBound;
 	
@@ -39,17 +39,99 @@ public class ParameterType extends Type {
 		return true;
 	}
 	
+	@Override
+	public boolean isValueType() {
+		return fBound.isValueType();
+	}
+	
+	@Override
+	public boolean isBoolType() {
+		return fBound.isBoolType();
+	}
+	
+	@Override
+	public boolean isDoubleType() {
+		return fBound.isDoubleType();
+	}
+	
+	@Override
+	public boolean isIntegerType() {
+		return fBound.isIntegerType();
+	}
+	
+	@Override
+	public boolean isListType() {
+		return fBound.isListType();
+	}
+	
+	@Override
+	public boolean isMapType() {
+		return fBound.isMapType();
+	}
+	
+	@Override
+	public boolean isNamedTreeType() {
+		return fBound.isNamedTreeType();
+	}
+	
+	@Override
+	public boolean isNamedType() {
+		return fBound.isNamedType();
+	}
+	
+	@Override
+	public boolean isRelationType() {
+		return fBound.isRelationType();
+	}
+	
+	@Override
+	public boolean isSetType() {
+		return fBound.isSetType();
+	}
+	
+	@Override
+	public boolean isSourceLocationType() {
+		return fBound.isSourceLocationType();
+	}
+	
+	@Override
+	public boolean isSourceRangeType() {
+		return fBound.isSourceRangeType();
+	}
+	
+	@Override
+	public boolean isStringType() {
+		return fBound.isStringType();
+	}
+	
+	@Override
+	public boolean isTreeNodeType() {
+		return fBound.isTreeNodeType();
+	}
+	
+	@Override
+	public boolean isTreeType() {
+		return fBound.isTreeType();
+	}
+	
+	@Override
+	public boolean isTupleType() {
+		return fBound.isTupleType();
+	}
+	
+	@Override
+	public boolean isVoidType() {
+		return fBound.isVoidType();
+	}
+	
+	@Override
 	public Type getBound() {
 		return fBound;
 	}
 	
+	@Override
 	public String getName() {
 		return fName;
-	}
-	
-	@Override
-	public Type getBaseType() {
-		return fBound;
 	}
 	
 	@Override
@@ -97,7 +179,7 @@ public class ParameterType extends Type {
 	}
 
 	@Override
-	public void match(Type matched, Map<ParameterType, Type> bindings)
+	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
 		
@@ -117,7 +199,7 @@ public class ParameterType extends Type {
 	}
 	
 	@Override
-	public Type instantiate(Map<ParameterType, Type> bindings) {
+	public Type instantiate(Map<Type, Type> bindings) {
 		Type result = bindings.get(this);
 		return result != null ? result : this;
 	}

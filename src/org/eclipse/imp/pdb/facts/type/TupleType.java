@@ -18,7 +18,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class TupleType extends Type implements Iterable<Type> {
+/*package*/ final class TupleType extends Type implements Iterable<Type> {
     protected final Type[] fFieldTypes;
     protected final String[] fFieldNames;
     protected int fHashcode= -1;
@@ -55,6 +55,7 @@ public class TupleType extends Type implements Iterable<Type> {
     	}
     }
     
+    @Override
     public boolean hasFieldNames() {
     	return fFieldNames != null;
     }
@@ -64,14 +65,17 @@ public class TupleType extends Type implements Iterable<Type> {
     	return true;
     }
     
+    @Override
     public Type getFieldType(int i) {
         return fFieldTypes[i];
     }
 
+    @Override
     public Type getFieldType(String fieldName) {
     	return getFieldType(getFieldIndex(fieldName));
     }
     
+    @Override
     public int getFieldIndex(String fieldName) throws FactTypeError {
     	if (fFieldNames != null) {
     		for (int i = 0; i < fFieldNames.length; i++) {
@@ -86,11 +90,12 @@ public class TupleType extends Type implements Iterable<Type> {
     	throw new FactTypeError("tuple type has no labels");
     }
     
+    @Override
     public int getArity() {
         return fFieldTypes.length;
     }
     
-    private TupleType tupleCompose(TupleType type, TupleType other) {
+    private Type tupleCompose(Type type, Type other) {
 		int N = type.getArity() + other.getArity() - 2;
 		Type[] fieldTypes = new Type[N];
 		
@@ -105,16 +110,16 @@ public class TupleType extends Type implements Iterable<Type> {
 		return TypeFactory.getInstance().tupleType(fieldTypes);
 	}
     
-    public TupleType compose(TupleType other) {
+    @Override
+    public Type compose(Type other) {
     	return tupleCompose(this, other);
     }
 
     @Override
-    public boolean isSubtypeOf(Type other) {
-    	if (other == this) {
+    public boolean isSubtypeOf(Type o) {
+    	if (o == this) {
 			return true; // optimize to prevent loop
-		} else if (other.isTupleType()) {
-			TupleType o = (TupleType) other;
+		} else if (o.isTupleType()) {
 			if (getArity() == o.getArity()) {
 				for (int i = 0; i < getArity(); i++) {
 					if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
@@ -125,7 +130,7 @@ public class TupleType extends Type implements Iterable<Type> {
 			}
 		}
 
-		return super.isSubtypeOf(other);
+		return super.isSubtypeOf(o);
     }
 
     /**
@@ -135,7 +140,7 @@ public class TupleType extends Type implements Iterable<Type> {
      * @param t2
      * @return a TupleType which is the lub of t1 and t2
      */
-    private TupleType lubTupleTypes(TupleType t1, TupleType t2) {
+    private Type lubTupleTypes(Type t1, Type t2) {
     	int N = t1.getArity();
     	Type[] fieldTypes = new Type[N];
     	String[] fieldNames = new String[N];
@@ -151,9 +156,7 @@ public class TupleType extends Type implements Iterable<Type> {
     		}
     	}
     	
-    	TupleType result = TypeFactory.getInstance().tupleType(fieldTypes);
-    	
-    	return result;
+    	return TypeFactory.getInstance().tupleType(fieldTypes);
     }
     
     /**
@@ -163,7 +166,7 @@ public class TupleType extends Type implements Iterable<Type> {
      * @param t2
      * @return a TupleType which is the lub of t1 and t2
      */
-    private TupleType lubNamedTupleTypes(TupleType t1, TupleType t2) {
+    private Type lubNamedTupleTypes(Type t1, Type t2) {
     	int N = t1.getArity();
     	Object[] fieldTypes = new Object[N*2];
     	boolean first = t1.hasFieldNames();
@@ -179,17 +182,14 @@ public class TupleType extends Type implements Iterable<Type> {
     		}
     	}
     	
-    	TupleType result = TypeFactory.getInstance().tupleType(fieldTypes);
-    	
-    	return result;
+    	return TypeFactory.getInstance().tupleType(fieldTypes);
     }
     
     @Override
-    public Type lub(Type other) {
-    	if (other.isTupleType()) {
-    		TupleType o = (TupleType) other;
+    public Type lub(Type o) {
+    	if (o.isTupleType()) {
     		if (getArity() == o.getArity()) {
-    			if (hasFieldNames() || ((TupleType) other).hasFieldNames()) {
+    			if (hasFieldNames() || ((TupleType) o).hasFieldNames()) {
     				return lubNamedTupleTypes(this, o);
     			}
     			else {
@@ -197,7 +197,7 @@ public class TupleType extends Type implements Iterable<Type> {
     			}
     		}
     	}
-    	return super.lub(other);
+    	return super.lub(o);
     }
 
     @Override
@@ -263,6 +263,7 @@ public class TupleType extends Type implements Iterable<Type> {
         return sb.toString();
     }
 
+    @Override
 	public Iterator<Type> iterator() {
 		return new Iterator<Type>() {
 			private int cursor = 0;
@@ -286,31 +287,33 @@ public class TupleType extends Type implements Iterable<Type> {
 		return visitor.visitTuple(this);
 	}
 
+	 @Override
 	public IValue make(IValueFactory f) {
 		return f.tuple();
 	}
 
+	 @Override
 	public IValue make(IValueFactory f, IValue... elems) {
 		return f.tuple(elems);
 	}
 
+	 @Override
 	public String getFieldName(int i) {
 		return fFieldNames != null ? fFieldNames[i] : null;
 	}
 	
 	@Override
-	public void match(Type matched, Map<ParameterType, Type> bindings)
+	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
 		
-		TupleType tuple = (TupleType) matched.getBaseType();
 		for (int i = 0; i < getArity(); i++) {
-			getFieldType(i).match(tuple.getFieldType(i), bindings);
+			getFieldType(i).match(matched.getFieldType(i), bindings);
 		}
 	}
 	
 	@Override
-	public Type instantiate(Map<ParameterType, Type> bindings) {
+	public Type instantiate(Map<Type, Type> bindings) {
 		if (hasFieldNames()) {
 			Type[] fTypes = new Type[getArity()];
 			String[] fLabels = new String[getArity()];
@@ -332,6 +335,7 @@ public class TupleType extends Type implements Iterable<Type> {
 		}
 	}
 
+	 @Override
 	public Type select(int... fields) {
         int width = fields.length;
         
@@ -364,6 +368,7 @@ public class TupleType extends Type implements Iterable<Type> {
         }
 	}
 	
+	 @Override
 	public Type select(String... names) {
 		if (!hasFieldNames()) {
 			throw new FactTypeError("Tuple has no field names");

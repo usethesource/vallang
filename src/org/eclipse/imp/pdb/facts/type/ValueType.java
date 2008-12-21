@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class ValueType extends Type {
+/* package */ final class ValueType extends Type {
 	private static class InstanceHolder {
 		public static final ValueType sInstance= new ValueType();
 	}

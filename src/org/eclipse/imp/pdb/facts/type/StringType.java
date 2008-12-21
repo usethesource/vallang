@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class StringType extends Type {
+/*package*/ final class StringType extends Type {
     private final static StringType sInstance= new StringType();
 
     /*package*/ static StringType getInstance() {

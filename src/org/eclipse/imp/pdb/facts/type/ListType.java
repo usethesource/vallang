@@ -18,13 +18,14 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class ListType extends Type {
+/*package*/ final class ListType extends Type {
 	/*package*/ final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
 		fEltType = eltType;
 	}
 
+	@Override
 	public Type getElementType() {
 		return fEltType;
 	}
@@ -37,8 +38,7 @@ public class ListType extends Type {
 	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (other.isListType()) {
-			ListType o = (ListType) other;
-			return fEltType.isSubtypeOf(o.getElementType());
+			return fEltType.isSubtypeOf(other.getElementType());
 		}
 		else {
 			return super.isSubtypeOf(other);
@@ -46,13 +46,12 @@ public class ListType extends Type {
 	}
 
 	@Override
-	public Type lub(Type other) {
-		if (other.isListType()) {
-			ListType o = (ListType) other;
+	public Type lub(Type o) {
+		if (o.isListType()) {
 			return TypeFactory.getInstance().listType(fEltType.lub(o.getElementType()));
 		}
 		else {
-			return super.lub(other);
+			return super.lub(o);
 		}
 	}
 	
@@ -98,14 +97,14 @@ public class ListType extends Type {
 	}
 	
 	@Override
-	public void match(Type matched, Map<ParameterType, Type> bindings)
+	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
-		getElementType().match(((ListType) matched.getBaseType()).getElementType(), bindings);
+		getElementType().match(matched.getElementType(), bindings);
 	}
 	
 	@Override
-	public Type instantiate(Map<ParameterType, Type> bindings) {
+	public Type instantiate(Map<Type, Type> bindings) {
 		return TypeFactory.getInstance().listType(getElementType().instantiate(bindings));
 	}
 }

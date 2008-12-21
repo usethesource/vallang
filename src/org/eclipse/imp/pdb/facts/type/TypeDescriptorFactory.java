@@ -32,25 +32,25 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  */
 public class TypeDescriptorFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
-	private NamedTreeType typeSort = tf.namedTreeType("Type");
-	private TreeNodeType boolType = tf.treeNodeType(typeSort, "bool");
-	private TreeNodeType doubleType = tf.treeNodeType(typeSort, "double");
-	private TreeNodeType integerType = tf.treeNodeType(typeSort, "int");
-	private TreeNodeType treeType = tf.treeNodeType(typeSort, "tree");
-	private TreeNodeType listType = tf.treeNodeType(typeSort, "list", typeSort, "element");
-	private TreeNodeType mapType = tf.treeNodeType(typeSort, "map", typeSort, "key", typeSort, "value");
-	private TreeNodeType namedType = tf.treeNodeType(typeSort, "named", typeSort, "super");
-	private TreeNodeType relationType = tf.treeNodeType(typeSort, "relation", tf.listType(typeSort), "fields");
-	private TreeNodeType setType = tf.treeNodeType(typeSort, "set", typeSort, "element");
-	private TreeNodeType sourceLocationType = tf.treeNodeType(typeSort, "sourceLocation");
-	private TreeNodeType sourceRangeType = tf.treeNodeType(typeSort, "sourceRange");
-	private TreeNodeType stringType = tf.treeNodeType(typeSort, "string");
-	private TreeNodeType treeNodeType = tf.treeNodeType(typeSort, "tree", typeSort, "sort", tf.stringType(), "name", tf.listType(typeSort), "children");
-	private TreeNodeType namedTreeType = tf.treeNodeType(typeSort, "sort", tf.stringType(), "name");
-	private TreeNodeType parameterType = tf.treeNodeType(typeSort, "parameter", tf.stringType(), "name", typeSort, "bound");
-	private TreeNodeType tupleType = tf.treeNodeType(typeSort, "tuple", tf.listType(typeSort), "fields");
-	private TreeNodeType valueType = tf.treeNodeType(typeSort, "value");
-	private TreeNodeType voidType = tf.treeNodeType(typeSort, "void");
+	private Type typeSort = tf.namedTreeType("Type");
+	private Type boolType = tf.treeNodeType(typeSort, "bool");
+	private Type doubleType = tf.treeNodeType(typeSort, "double");
+	private Type integerType = tf.treeNodeType(typeSort, "int");
+	private Type treeType = tf.treeNodeType(typeSort, "tree");
+	private Type listType = tf.treeNodeType(typeSort, "list", typeSort, "element");
+	private Type mapType = tf.treeNodeType(typeSort, "map", typeSort, "key", typeSort, "value");
+	private Type namedType = tf.treeNodeType(typeSort, "named", typeSort, "super");
+	private Type relationType = tf.treeNodeType(typeSort, "relation", tf.listType(typeSort), "fields");
+	private Type setType = tf.treeNodeType(typeSort, "set", typeSort, "element");
+	private Type sourceLocationType = tf.treeNodeType(typeSort, "sourceLocation");
+	private Type sourceRangeType = tf.treeNodeType(typeSort, "sourceRange");
+	private Type stringType = tf.treeNodeType(typeSort, "string");
+	private Type treeNodeType = tf.treeNodeType(typeSort, "tree", typeSort, "sort", tf.stringType(), "name", tf.listType(typeSort), "children");
+	private Type namedTreeType = tf.treeNodeType(typeSort, "sort", tf.stringType(), "name");
+	private Type parameterType = tf.treeNodeType(typeSort, "parameter", tf.stringType(), "name", typeSort, "bound");
+	private Type tupleType = tf.treeNodeType(typeSort, "tuple", tf.listType(typeSort), "fields");
+	private Type valueType = tf.treeNodeType(typeSort, "value");
+	private Type voidType = tf.treeNodeType(typeSort, "void");
 
 	private static class InstanceHolder {
 		public static TypeDescriptorFactory sInstance = new TypeDescriptorFactory();
@@ -95,7 +95,7 @@ public class TypeDescriptorFactory {
 	private class FromTypeVisitor extends NullVisitor<Type> {
 		@Override
 		public Type visitNode(INode o) throws VisitorException {
-			TreeNodeType node = o.getTreeNodeType();
+			Type node = o.getType();
 		
 			if (node == boolType) {
 				return tf.boolType();
@@ -126,7 +126,7 @@ public class TypeDescriptorFactory {
 					fieldTypes.add(field.accept(this));
 				}
 				
-				return tf.relType(tf.tupleType(fieldTypes));
+				return tf.relTypeFromTuple(tf.tupleType(fieldTypes));
 			}
 			else if (node == setType) {
 				return tf.setType(o.get("element").accept(this));
@@ -185,27 +185,27 @@ public class TypeDescriptorFactory {
 			this.vf = factory;
 		}
 		
-		public ITree visitDouble(DoubleType type) {
+		public ITree visitDouble(Type type) {
 			return vf.tree(doubleType);
 		}
 
-		public ITree visitInteger(IntegerType type) {
+		public ITree visitInteger(Type type) {
 			return vf.tree(integerType);
 		}
 
-		public ITree visitList(ListType type) {
+		public ITree visitList(Type type) {
 			return vf.tree(listType, type.getElementType().accept(this));
 		}
 
-		public ITree visitMap(MapType type) {
+		public ITree visitMap(Type type) {
 			return vf.tree(mapType, type.getKeyType().accept(this), type.getValueType().accept(this));
 		}
 
-		public ITree visitNamed(NamedType type) {
+		public ITree visitNamed(Type type) {
 			return vf.tree(namedType, type.getSuperType().accept(this));
 		}
 
-		public ITree visitRelationType(RelationType type) {
+		public ITree visitRelationType(Type type) {
 			IListWriter w = vf.listWriter(typeSort);
 			
 			for (Type field : type.getFieldTypes()) {
@@ -215,37 +215,37 @@ public class TypeDescriptorFactory {
 			return vf.tree(relationType, w.done());
 		}
 
-		public ITree visitSet(SetType type) {
+		public ITree visitSet(Type type) {
 			return vf.tree(setType, type.getElementType().accept(this));
 		}
 
-		public ITree visitSourceLocation(SourceLocationType type) {
+		public ITree visitSourceLocation(Type type) {
 			return vf.tree(sourceLocationType);
 		}
 
-		public ITree visitSourceRange(SourceRangeType type) {
+		public ITree visitSourceRange(Type type) {
 			return vf.tree(sourceRangeType);
 		}
 
-		public ITree visitString(StringType type) {
+		public ITree visitString(Type type) {
 			return vf.tree(stringType);
 		}
 
-		public ITree visitTreeNode(TreeNodeType type) {
+		public ITree visitTreeNode(Type type) {
 			IListWriter w = vf.listWriter(typeSort);
 			
-			for (Type field : type.getChildrenTypes()) {
+			for (Type field : type.getFieldTypes()) {
 				w.append(field.accept(this));
 			}
 			
 			return vf.tree(treeNodeType, type.getSuperType().accept(this), vf.string(type.getName()), w.done());
 		}
 
-		public ITree visitNamedTree(NamedTreeType type) {
+		public ITree visitNamedTree(Type type) {
 			return vf.tree(namedTreeType, vf.string(type.getName()));
 		}
 
-		public ITree visitTuple(TupleType type) {
+		public ITree visitTuple(Type type) {
 			IListWriter w = vf.listWriter(typeSort);
 			
 			for (Type field : type) {
@@ -256,23 +256,23 @@ public class TypeDescriptorFactory {
 			return vf.tree(tupleType, w.done());
 		}
 
-		public ITree visitValue(ValueType type) {
+		public ITree visitValue(Type type) {
 			return vf.tree(valueType);
 		}
 
-		public ITree visitVoid(VoidType type) {
+		public ITree visitVoid(Type type) {
 			return vf.tree(voidType);
 		}
 
-		public ITree visitTree(TreeType type) {
+		public ITree visitTree(Type type) {
 			return vf.tree(treeType);
 		}
 
-		public ITree visitBool(BoolType type) {
+		public ITree visitBool(Type type) {
 			return vf.tree(boolType);
 		}
 
-		public ITree visitParameter(ParameterType type) {
+		public ITree visitParameter(Type type) {
 			return vf.tree(parameterType, vf.string(type.getName()), type.getBound().accept(this));
 		}
 	}

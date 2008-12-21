@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class SourceRangeType extends Type {
+/*package*/ final class SourceRangeType extends Type {
     private static final SourceRangeType sInstance= new SourceRangeType();
 
     public static SourceRangeType getInstance() {

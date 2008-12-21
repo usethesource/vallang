@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class IntegerType extends Type {
+/*package*/ final class IntegerType extends Type {
     private final static IntegerType sInstance= new IntegerType();
 
     /*package*/ static IntegerType getInstance() {
@@ -52,6 +52,7 @@ public class IntegerType extends Type {
     	return visitor.visitInteger(this);
     }
     
+    @Override
     public IValue make(IValueFactory f, int arg) {
     	return f.integer(arg);
     }

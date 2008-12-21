@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class BoolType extends Type {
+/*package*/ final class BoolType extends Type {
 	private final static BoolType sInstance = new BoolType();
 
 	/* package */static BoolType getInstance() {

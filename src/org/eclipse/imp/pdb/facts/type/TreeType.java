@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class TreeType extends Type {
+/*package*/ final class TreeType extends Type {
 	private static class InstanceHolder {
 		public static final TreeType sInstance= new TreeType();
 	}

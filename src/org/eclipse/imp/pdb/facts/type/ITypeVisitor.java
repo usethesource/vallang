@@ -17,22 +17,22 @@ package org.eclipse.imp.pdb.facts.type;
  * @param <T> the result type of the visit methods
  */
 public interface ITypeVisitor<T> {
-	T visitDouble(DoubleType type);
-	T visitInteger(IntegerType type);
-	T visitList(ListType type);
-	T visitMap(MapType type);
-	T visitNamed(NamedType type);
-	T visitRelationType(RelationType type);
-	T visitSet(SetType type);
-	T visitSourceLocation(SourceLocationType type);
-	T visitSourceRange(SourceRangeType type);
-	T visitString(StringType type);
-	T visitTree(TreeType type);
-	T visitTreeNode(TreeNodeType type);
-	T visitNamedTree(NamedTreeType type);
-	T visitTuple(TupleType type);
-	T visitValue(ValueType type);
-	T visitVoid(VoidType type);
-	T visitBool(BoolType boolType);
-	T visitParameter(ParameterType parameterType);
+	T visitDouble(Type type);
+	T visitInteger(Type type);
+	T visitList(Type type);
+	T visitMap(Type type);
+	T visitNamed(Type type);
+	T visitRelationType(Type type);
+	T visitSet(Type type);
+	T visitSourceLocation(Type type);
+	T visitSourceRange(Type type);
+	T visitString(Type type);
+	T visitTree(Type type);
+	T visitTreeNode(Type type);
+	T visitNamedTree(Type type);
+	T visitTuple(Type type);
+	T visitValue(Type type);
+	T visitVoid(Type type);
+	T visitBool(Type boolType);
+	T visitParameter(Type parameterType);
 }

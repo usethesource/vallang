@@ -18,13 +18,14 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public class SetType extends Type {
+/*package*/ class SetType extends Type {
     /*package*/ final Type fEltType;
 
     /*package*/ SetType(Type eltType) {
     	fEltType= eltType;
     }
     
+    @Override
     public Type getElementType() {
     	return fEltType;
     }
@@ -37,9 +38,7 @@ public class SetType extends Type {
     @Override
     public boolean isSubtypeOf(Type other) {
         if (other.isSetType()) {
-        	SetType o = (SetType) other;
-        	
-        	return fEltType.isSubtypeOf(o.fEltType);
+        	return fEltType.isSubtypeOf(other.getElementType());
         }
         else {
         	return super.isSubtypeOf(other);
@@ -47,13 +46,12 @@ public class SetType extends Type {
     }
 
     @Override
-    public Type lub(Type other) {
-    	if (other.isSetType()) {
-    		SetType o = (SetType) other;
-    		return TypeFactory.getInstance().setType(fEltType.lub(o.fEltType));
+    public Type lub(Type o) {
+    	if (o.isSetType()) {
+    		return TypeFactory.getInstance().setType(fEltType.lub(o.getElementType()));
     	}
     	else {
-    		return super.lub(other);
+    		return super.lub(o);
     	}
     }
 
@@ -84,10 +82,12 @@ public class SetType extends Type {
     	return visitor.visitSet(this);
     }
 
+    @Override
 	public IValue make(IValueFactory f) {
 		return f.set(fEltType);
 	}
 	
+    @Override
 	public IValue make(IValueFactory f, IValue... elems) {
 		return f.set(elems);
 	}
@@ -99,14 +99,14 @@ public class SetType extends Type {
 	}
 	
 	@Override
-	public void match(Type matched, Map<ParameterType, Type> bindings)
+	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
-		getElementType().match(((SetType) matched.getBaseType()).getElementType(), bindings);
+		getElementType().match(matched.getElementType(), bindings);
 	}
 	
 	@Override
-	public Type instantiate(Map<ParameterType, Type> bindings) {
+	public Type instantiate(Map<Type, Type> bindings) {
 		return TypeFactory.getInstance().setType(getElementType().instantiate(bindings));
 	}
 }

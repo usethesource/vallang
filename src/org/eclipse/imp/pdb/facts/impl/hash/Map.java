@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -179,11 +178,11 @@ class Map extends Value implements IMap{
 	}
 
 	public Type getKeyType(){
-		return ((MapType) fType.getBaseType()).getKeyType();
+		return fType.getKeyType();
 	}
 	
 	public Type getValueType(){
-		return ((MapType) fType.getBaseType()).getValueType();
+		return fType.getValueType();
 	}
 
 	private static void check(Type key, Type value, Type keyType, Type valueType) throws FactTypeError{
@@ -225,7 +224,7 @@ class Map extends Value implements IMap{
 		
 		public void putAll(IMap map) throws FactTypeError{
 			checkMutation();
-			MapType mapType = (MapType) map.getType().getBaseType();
+			Type mapType = map.getType();
 			check(mapType.getKeyType(), mapType.getValueType(), keyType, valueType);
 			
 			for(IValue key : map){

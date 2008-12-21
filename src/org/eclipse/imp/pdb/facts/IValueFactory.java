@@ -13,8 +13,6 @@
 package org.eclipse.imp.pdb.facts;
 
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
@@ -98,7 +96,7 @@ public interface IValueFactory {
      * @param type     the tree node type to use
      * @return a new tree value
      */
-    public INode tree(TreeNodeType type);
+    public INode tree(Type type);
     
     /**
      * Construct a typed tree node
@@ -107,7 +105,7 @@ public interface IValueFactory {
      * @return a new tree value
      * @throws FactTypeError if the children are not of the expected types for this node type
      */
-    public INode tree(TreeNodeType type, IValue... children) throws FactTypeError;
+    public INode tree(Type type, IValue... children) throws FactTypeError;
     
     /**
      * Construct an empty unmodifiable set. If the element type is a tuple type,
@@ -163,14 +161,14 @@ public interface IValueFactory {
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
-    public IRelation relation(TupleType tupleType);
+    public IRelation relation(Type tupleType);
     
     /**
      * Constructs a relation writer, using the provided tuple type as a schema
-     * @param tupleType of type TupleType &lt;t1,...,tn&gt;
+     * @param type of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
-    public IRelationWriter relationWriter(TupleType tupleType);
+    public IRelationWriter relationWriter(Type type);
     
     /**
      * Construct a relation with a fixed number of tuples in it

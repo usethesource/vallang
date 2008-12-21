@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 
-public class SourceLocationType  extends Type {
+/*package*/ final class SourceLocationType  extends Type {
     private final static SourceLocationType sInstance= new SourceLocationType();
 
     /*package*/ static SourceLocationType getInstance() {

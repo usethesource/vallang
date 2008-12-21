@@ -81,13 +81,6 @@ public abstract class Value implements IValue {
     	return fType;
     }
     
-    /**
-	 * @return the smallest super type of this type that is not a NamedType.
-	 */
-    public Type getBaseType() {
-    	return fType.getBaseType();
-    }
-    
     public boolean hasAnnotation(String label) {
     	return fAnnotations.containsKey(label);
     }

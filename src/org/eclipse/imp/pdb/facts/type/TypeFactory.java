@@ -21,6 +21,14 @@ import java.util.WeakHashMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
+/**
+ * Use this class to produce any kind of {@link Type}, after which
+ * the make methods of Type can be used in conjunction with a reference
+ * to an {@link IValueFactory} to produce {@link IValue}'s of a certain
+ * type. 
+ * <p>
+ * @see {@link Type} and {@link IValueFactory} for more information.
+ */
 public class TypeFactory {
 	private static class InstanceHolder {
       public static final TypeFactory sInstance = new TypeFactory();
@@ -34,12 +42,12 @@ public class TypeFactory {
     /**
      * Keeps administration of declared type aliases (NamedTypes)
      */
-    private final Map<String, NamedType> fNamedTypes= new HashMap<String, NamedType>();
+    private final Map<String, Type> fNamedTypes= new HashMap<String, Type>();
     
     /**
      * Keeps administration of declared tree node types
      */
-    private final Map<NamedTreeType, List<TreeNodeType>> fSignatures = new HashMap<NamedTreeType, List<TreeNodeType>>();
+    private final Map<Type, List<Type>> fSignatures = new HashMap<Type, List<Type>>();
 
     /**
      * Keeps administration of declared annotations 
@@ -89,7 +97,7 @@ public class TypeFactory {
      * Construct a new type. 
      * @return a reference to the unique integer type of the PDB.
      */
-    public IntegerType integerType() {
+    public Type integerType() {
         return IntegerType.getInstance();
     }
 
@@ -97,7 +105,7 @@ public class TypeFactory {
      * Construct a new type. 
      * @return a reference to the unique double type of the PDB.
      */
-    public DoubleType doubleType() {
+    public Type doubleType() {
         return DoubleType.getInstance();
     }
 
@@ -105,7 +113,7 @@ public class TypeFactory {
      * Construct a new bool type
      * @return a reference to the unique boolean type of the PDB.
      */
-    public BoolType boolType() {
+    public Type boolType() {
 		return BoolType.getInstance();
 	}
     
@@ -113,7 +121,7 @@ public class TypeFactory {
      * Construct a new type. 
      * @return a reference to the unique string type of the PDB.
      */
-    public StringType stringType() {
+    public Type stringType() {
         return StringType.getInstance();
     }
 
@@ -121,7 +129,7 @@ public class TypeFactory {
      * Construct a new type. 
      * @return a reference to the unique sourceRange type of the PDB.
      */
-    public SourceRangeType sourceRangeType() {
+    public Type sourceRangeType() {
         return SourceRangeType.getInstance();
     }
 
@@ -129,7 +137,7 @@ public class TypeFactory {
      * Construct a new type. 
      * @return a reference to the unique sourceLocation type of the PDB.
      */
-    public SourceLocationType sourceLocationType() {
+    public Type sourceLocationType() {
         return SourceLocationType.getInstance();
     }
 
@@ -141,7 +149,7 @@ public class TypeFactory {
      * Construct a tuple type. 
      * @return a reference to the unique empty tuple type.
      */
-    public TupleType tupleEmpty() {
+    public Type tupleEmpty() {
     	return (TupleType) getFromCache(new TupleType(0, 0, new Type[0]));
     }
     
@@ -150,11 +158,11 @@ public class TypeFactory {
      * @param fieldTypes a list of field types in order of appearance.
      * @return a tuple type
      */
-    public TupleType tupleType(Type... fieldTypes) {
+    public Type tupleType(Type... fieldTypes) {
     	return (TupleType) getFromCache(new TupleType(fieldTypes.length, 0, fieldTypes));
     }
     
-    public TupleType tupleType(Object... fieldTypesAndLabels) {
+    public Type tupleType(Object... fieldTypesAndLabels) {
     	int N= fieldTypesAndLabels.length;
         int arity = N / 2;
 		Type[] protoFieldTypes= new Type[arity];
@@ -174,7 +182,7 @@ public class TypeFactory {
      * @param labels the labels of the fields (in respective order)
      * @return
      */
-    public TupleType tupleType(Type[] types, String[] labels) {
+    public Type tupleType(Type[] types, String[] labels) {
     	return (TupleType) getFromCache(new TupleType(types.length, 0, types, labels));
     }
     
@@ -183,7 +191,7 @@ public class TypeFactory {
      * @param fieldTypes an array of field types in order of appearance. The array is copied.
      * @return a tuple type
      */
-    public TupleType tupleType(IValue... elements) {
+    public Type tupleType(IValue... elements) {
         int N= elements.length;
         Type[] fieldTypes= new Type[N];
         for(int i=0; i < N; i++) {
@@ -197,36 +205,17 @@ public class TypeFactory {
      * @param eltType the type of elements in the set
      * @return a set type
      */
-    public SetType setType(Type eltType) {
-    	if (eltType.getBaseType().isTupleType()) {
-    		return relType((TupleType) eltType.getBaseType());
+    public Type setType(Type eltType) {
+    	if (eltType.isTupleType()) {
+    		return relTypeFromTuple(eltType);
     	}
     	else {
           return (SetType) getFromCache(new SetType(eltType));
     	}
     }
 
-    /**
-     * Construct a new relation type from a tuple type.
-     * @param namedType the tuple type used to construct the field types
-     * @return 
-     * @throws FactTypeError
-     */
-    public RelationType relType(TupleType tupleType) {
-        return (RelationType) getFromCache(new RelationType(tupleType));
-    }
-
-    /**
-     * Construct a relation type.
-     * @param fieldTypes the types of the fields of the relation
-     * @return a relation type
-     */
-    public RelationType relType(Type... fieldTypes) {
-        return relType(tupleType(fieldTypes));
-    }
-    
-    public RelationType relType(NamedType tupleType) {
-    	return relType((TupleType) tupleType.getBaseType());
+    public Type relTypeFromTuple(Type tupleType) {
+    	return getFromCache(new RelationType(tupleType));
     }
     
     /**
@@ -234,8 +223,17 @@ public class TypeFactory {
      * @param fieldTypes the types of the fields of the relation
      * @return a relation type
      */
-    public RelationType relType(Object... fieldTypesAndLabels) {
-        return relType(tupleType(fieldTypesAndLabels));
+    public Type relType(Type... fieldTypes) {
+        return getFromCache(new RelationType(tupleType(fieldTypes)));
+    }
+    
+    /**
+     * Construct a relation type.
+     * @param fieldTypes the types of the fields of the relation
+     * @return a relation type
+     */
+    public Type relType(Object... fieldTypesAndLabels) {
+        return relTypeFromTuple(tupleType(fieldTypesAndLabels));
     }
 
     /** 
@@ -246,7 +244,7 @@ public class TypeFactory {
      * @return a named type
      * @throws TypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a NamedTreeType.
      */
-    public NamedType namedType(String name, Type superType) throws TypeDeclarationException {
+    public Type namedType(String name, Type superType) throws TypeDeclarationException {
     	synchronized (fNamedTypes) {
     		if (!isIdentifier(name)) {
     			throw new TypeDeclarationException("This is not a valid identifier: " + name);
@@ -254,12 +252,12 @@ public class TypeFactory {
 
     		Type result = getFromCache(new NamedType(name, superType));
 
-    		NamedType old = fNamedTypes.get(name);
+    		Type old = fNamedTypes.get(name);
     		if (old != null && !old.equals(result)) {
     			throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + superType);
     		}
 
-    		NamedTreeType tmp2 = new NamedTreeType(name);
+    		Type tmp2 = new NamedTreeType(name);
     		synchronized (fCache) {
     			Type sort= fCache.get(tmp2);
 
@@ -273,7 +271,7 @@ public class TypeFactory {
     	}
     }
 
-    public TreeType treeType() {
+    public Type treeType() {
     	return TreeType.getInstance();
     }
     
@@ -285,21 +283,21 @@ public class TypeFactory {
      * @return a NamedTreeType
      * @throws TypeDeclarationException when a NamedType with the same name was already declared. Redeclaration of a NamedTreeType is ignored.
      */
-    public NamedTreeType namedTreeType(String name) throws TypeDeclarationException {
+    public Type namedTreeType(String name) throws TypeDeclarationException {
     	synchronized (fSignatures) {
     		if (!isIdentifier(name)) {
     			throw new TypeDeclarationException("This is not a valid identifier: " + name);
     		}
 
-    		NamedType old = fNamedTypes.get(name);
+    		Type old = fNamedTypes.get(name);
     		if (old != null) {
     			throw new TypeDeclarationException("Can not redeclare a named type " + old + " with a tree sort type.");
     		}
 
-    		NamedTreeType tmp = (NamedTreeType) getFromCache(new NamedTreeType(name));
+    		Type tmp = (NamedTreeType) getFromCache(new NamedTreeType(name));
     		
     		if (fSignatures.get(tmp) == null) {
-    		  fSignatures.put(tmp, new LinkedList<TreeNodeType>());
+    		  fSignatures.put(tmp, new LinkedList<Type>());
     		}
     		return tmp;
     	}
@@ -313,17 +311,17 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public TreeNodeType treeNodeType(NamedTreeType nodeType, String name, TupleType children) {
+    public Type treeNodeTypeFromTupleType(Type nodeType, String name, Type tupleType) {
     	synchronized(fSignatures) {
-    		List<TreeNodeType> signature = fSignatures.get(nodeType);
+    		List<Type> signature = fSignatures.get(nodeType);
     		if (signature == null) {
     			throw new TypeDeclarationException("Unknown named tree type: " + nodeType);
     		}
     		
-    		Type result = getFromCache(new TreeNodeType(name, children, nodeType));
-    		signature.add((TreeNodeType) result);
+    		Type result = getFromCache(new TreeNodeType(name, (TupleType) tupleType, (NamedTreeType) nodeType));
+    		signature.add((Type) result);
 
-    		return (TreeNodeType) result;
+    		return (Type) result;
     	}
     }
     
@@ -335,8 +333,8 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public TreeNodeType treeNodeType(NamedTreeType nodeType, String name, Type... children ) { 
-    	return treeNodeType(nodeType, name, tupleType(children));
+    public Type treeNodeType(Type nodeType, String name, Type... children ) { 
+    	return treeNodeTypeFromTupleType(nodeType, name, tupleType(children));
     }
     
     /**
@@ -347,8 +345,8 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public TreeNodeType treeNodeType(NamedTreeType nodeType, String name, Object... childrenAndLabels ) { 
-    	return treeNodeType(nodeType, name, tupleType(childrenAndLabels));
+    public Type treeNodeType(Type nodeType, String name, Object... childrenAndLabels ) { 
+    	return treeNodeTypeFromTupleType(nodeType, name, tupleType(childrenAndLabels));
     }
     
     /**
@@ -363,9 +361,9 @@ public class TypeFactory {
      * @param label       the label of the single child
      * @return
      */
-    public TreeNodeType anonymousTreeType(NamedTreeType sort, String string,
+    public Type anonymousTreeType(Type sort, String string,
 			Type argType, String label) {
-    	return treeNodeType(sort, null, TypeFactory.getInstance().tupleType(argType, label));
+    	return treeNodeTypeFromTupleType(sort, null, TypeFactory.getInstance().tupleType(argType, label));
 	}
 
     /**
@@ -373,7 +371,7 @@ public class TypeFactory {
      * @param name the name of the type to lookup
      * @return
      */
-    public NamedType lookupNamedType(String name) {
+    public Type lookupNamedType(String name) {
         return fNamedTypes.get(name);
     }
     
@@ -384,7 +382,7 @@ public class TypeFactory {
      * @param type
      * @return all tree node types that construct the given type
      */
-    public List<TreeNodeType> lookupTreeNodeTypes(NamedTreeType type) {
+    public List<Type> lookupTreeNodeTypes(Type type) {
     	return fSignatures.get(type);
     }
     
@@ -395,10 +393,10 @@ public class TypeFactory {
      * @return a TreeNodeType if it was declared before
      * @throws a FactTypeError if the type was not declared before
      */
-    public List<TreeNodeType> lookupTreeNodeType(NamedTreeType type, String constructorName) throws FactTypeError {
-    	List<TreeNodeType> result = new LinkedList<TreeNodeType>();
+    public List<Type> lookupTreeNodeType(Type type, String constructorName) throws FactTypeError {
+    	List<Type> result = new LinkedList<Type>();
     	
-    	for (TreeNodeType node : fSignatures.get(type)) {
+    	for (Type node : fSignatures.get(type)) {
     		String name = node.getName();
 			if (name != null && name.equals(constructorName)) {
     			result.add(node);
@@ -419,8 +417,8 @@ public class TypeFactory {
      * @return an anonymous tree node type
      * @throws FactTypeError if the type does not have an anonymous constructor
      */
-    public TreeNodeType lookupAnonymousTreeNodeType(NamedTreeType type) throws FactTypeError {
-    	for (TreeNodeType node : fSignatures.get(type)) {
+    public Type lookupAnonymousTreeNodeType(Type type) throws FactTypeError {
+    	for (Type node : fSignatures.get(type)) {
     		if (node.getName() == null) {
     			return node;
     		}
@@ -434,10 +432,10 @@ public class TypeFactory {
      * regardless of tree sort type
      * @param constructName the name of the tree node
      */
-    public List<TreeNodeType> lookupTreeNodeType(String constructorName) {
-    	List<TreeNodeType> result = new LinkedList<TreeNodeType>();
-    	for (NamedTreeType sort : fSignatures.keySet()) {
-    		for (TreeNodeType node : fSignatures.get(sort)) {
+    public List<Type> lookupTreeNodeType(String constructorName) {
+    	List<Type> result = new LinkedList<Type>();
+    	for (Type sort : fSignatures.keySet()) {
+    		for (Type node : fSignatures.get(sort)) {
         		String name = node.getName();
     			if (name != null && name.equals(constructorName)) {
         			result.add(node);
@@ -453,8 +451,8 @@ public class TypeFactory {
      * @param name  the supposed name of the named tree type
      * @return null if such type does not exist, or the type if it was declared earlier
      */
-    public NamedTreeType lookupNamedTreeType(String name) {
-    	for (NamedTreeType sort : fSignatures.keySet()) {
+    public Type lookupNamedTreeType(String name) {
+    	for (Type sort : fSignatures.keySet()) {
     		if (sort.getName().equals(name)) {
     			return sort;
     		}
@@ -468,7 +466,7 @@ public class TypeFactory {
      * @param elementType the type of the elements in the list
      * @return a list type
      */
-    public ListType listType(Type elementType) {
+    public Type listType(Type elementType) {
 		return (ListType) getFromCache(new ListType(elementType));
 	}
     
@@ -478,7 +476,7 @@ public class TypeFactory {
      * @param value  the type of the values in the map
      * @return a map type
      */
-    public MapType mapType(Type key, Type value) {
+    public Type mapType(Type key, Type value) {
     	return (MapType) getFromCache(new MapType(key, value));
 	}
 
@@ -488,7 +486,7 @@ public class TypeFactory {
      * @param bound  the widest type that is acceptible when this type is instantiated
      * @return a parameter type
      */
-	public ParameterType parameterType(String name, Type bound) {
+	public Type parameterType(String name, Type bound) {
 		return (ParameterType) getFromCache(new ParameterType(name, bound));
 	}
 
@@ -497,7 +495,7 @@ public class TypeFactory {
      * @param name   the name of the type parameter
      * @return a parameter type
      */
-	public ParameterType parameterType(String name) {
+	public Type parameterType(String name) {
 		return (ParameterType) getFromCache(new ParameterType(name));
 	}
 
@@ -570,7 +568,7 @@ public class TypeFactory {
     	}
     	
     	if (onType.isSetType() && ((SetType) onType).getElementType().isTupleType()) {
-    		RelationType tmp = relType(((SetType) onType).getElementType());
+    		Type tmp = relTypeFromTuple(((Type) onType).getElementType());
     		localAnnotations = fAnnotations.get(tmp);
     		if (localAnnotations != null) {
     		  result.putAll(localAnnotations);
@@ -578,7 +576,7 @@ public class TypeFactory {
     	}
     	
     	if (onType.isRelationType()) {
-    		SetType tmp = setType(((RelationType) onType).getFieldTypes());
+    		Type tmp = setType(((Type) onType).getFieldTypes());
     		localAnnotations = fAnnotations.get(tmp);
     		if (localAnnotations != null) {
     		  result.putAll(localAnnotations);

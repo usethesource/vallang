@@ -24,8 +24,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.SetType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -34,7 +32,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 class Set extends Value implements ISet{
 	final HashSet<IValue> content;
 
-	/*package*/ Set(SetType setType, HashSet<IValue> content){
+	/*package*/ Set(Type setType, HashSet<IValue> content){
 		super(setType);
 		
 		this.content = content;
@@ -131,7 +129,7 @@ class Set extends Value implements ISet{
 	}
 
 	public Type getElementType(){
-		return ((SetType) fType.getBaseType()).getElementType();
+		return fType.getElementType();
 	}
 	
 	public boolean equals(Object o){
@@ -169,7 +167,7 @@ class Set extends Value implements ISet{
 	}
 
 	public IRelation product(ISet set){
-		TupleType resultType = TypeFactory.getInstance().tupleType(getElementType(),set.getElementType());
+		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),set.getElementType());
 		IRelationWriter w = new Relation.RelationWriter(resultType);
 
 		for(IValue t1 : this){

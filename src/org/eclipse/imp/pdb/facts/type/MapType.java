@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-public final class MapType extends Type {
+/*package*/ final class MapType extends Type {
     /*package*/ final Type fKeyType;
     /*package*/ final Type fValueType;
     
@@ -28,10 +28,12 @@ public final class MapType extends Type {
     	fValueType = valueType;
     }
     
+    @Override
     public Type getKeyType() {
     	return fKeyType;
     }
     
+    @Override
     public Type getValueType() {
     	return fValueType;
     }
@@ -42,27 +44,23 @@ public final class MapType extends Type {
     }
   
     @Override
-    public boolean isSubtypeOf(Type other) {
-        if (other.isMapType()) {
-        	MapType o = (MapType) other;
-        	
-        	return fKeyType.isSubtypeOf(o.fKeyType) && fValueType.isSubtypeOf(o.fValueType);
+    public boolean isSubtypeOf(Type o) {
+        if (o.isMapType()) {
+        	return fKeyType.isSubtypeOf(o.getKeyType()) && fValueType.isSubtypeOf(o.getValueType());
         }
         else {
-        	return super.isSubtypeOf(other);
+        	return super.isSubtypeOf(o);
         }
     }
 
     @Override
-    public Type lub(Type other) {
-    	if (other.isMapType()) {
-    		MapType o = (MapType) other;
-        	
-    		return TypeFactory.getInstance().mapType(fKeyType.lub(o.fKeyType),
-    				                                 fValueType.lub(o.fValueType));
+    public Type lub(Type o) {
+    	if (o.isMapType()) {
+    		return TypeFactory.getInstance().mapType(fKeyType.lub(o.getKeyType()),
+    				                                 fValueType.lub(o.getValueType()));
     	}
     	else {
-    		return super.lub(other);
+    		return super.lub(o);
     	}
     }
 
@@ -93,6 +91,7 @@ public final class MapType extends Type {
     	return visitor.visitMap(this);
     }
     
+    @Override
     public IMap make(IValueFactory f) {
     	return f.map(fKeyType, fValueType);
     }
@@ -104,16 +103,15 @@ public final class MapType extends Type {
     }
 	
 	@Override
-	public void match(Type matched, Map<ParameterType, Type> bindings)
+	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
-		MapType base = (MapType) matched.getBaseType();
-		getKeyType().match(base.getKeyType(), bindings);
-		getValueType().match(base.getValueType(), bindings);
+		getKeyType().match(matched.getKeyType(), bindings);
+		getValueType().match(matched.getValueType(), bindings);
 	}
 	
 	@Override
-	public Type instantiate(Map<ParameterType, Type> bindings) {
+	public Type instantiate(Map<Type, Type> bindings) {
 		return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
 	}
 }

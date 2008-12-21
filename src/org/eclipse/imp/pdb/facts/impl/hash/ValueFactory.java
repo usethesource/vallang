@@ -7,7 +7,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Jurgen Vinju (jurgen@vinju.org)         
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl.hash;
@@ -26,11 +26,15 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
+/**
+ * This is a reference implementation for an @{link IValueFactory}. It uses
+ * the Java standard library to implement it in a most straightforward but
+ * not necessarily very efficient manner.
+ *
+ */
 public class ValueFactory extends BaseValueFactory {
 	private static final ValueFactory sInstance = new ValueFactory();
 	public static ValueFactory getInstance() {
@@ -41,23 +45,23 @@ public class ValueFactory extends BaseValueFactory {
 		super();
 	}
 
-	public IRelation relation(TupleType tupleType) {
+	public IRelation relation(Type tupleType) {
 		return relationWriter(tupleType).done();
 	}
 	
 	public IRelation relation(IValue... tuples) {
 		Type elementType = lub(tuples);
 	
-		if (!elementType.getBaseType().isTupleType()) {
+		if (!elementType.isTupleType()) {
 			throw new FactTypeError("elements are not tuples");
 		}
 		
-		ISetWriter rw = setWriter((TupleType) elementType);
+		ISetWriter rw = setWriter(elementType);
 		rw.insert(tuples);
 		return (IRelation) rw.done();
 	}
 	
-	public IRelationWriter relationWriter(TupleType tupleType) {
+	public IRelationWriter relationWriter(Type tupleType) {
 		return Relation.createRelationWriter(tupleType);
 	}
 
@@ -66,8 +70,8 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public ISetWriter setWriter(Type eltType) {
-		if (eltType.getBaseType().isTupleType()) {
-			return relationWriter((TupleType) eltType);
+		if (eltType.isTupleType()) {
+			return relationWriter(eltType);
 		}
 		else {
 		  return Set.createSetWriter(eltType);
@@ -123,12 +127,12 @@ public class ValueFactory extends BaseValueFactory {
 		return new Tree(name, children);
 	}
 	
-	public INode tree(TreeNodeType type, IValue... children) {
-		return new Node(type, children);
+	public INode tree(Type treeNodeType, IValue... children) {
+		return new Node(treeNodeType, children);
 	}
 	
-	public INode tree(TreeNodeType type) {
-		return new Node(type);
+	public INode tree(Type treenodetype) {
+		return new Node(treenodetype);
 	}
 
 	public IMap map(Type keyType, Type valueType) {
