@@ -85,12 +85,12 @@ import java.util.Map;
 	
 	@Override
 	public int getFieldIndex(String fieldName) {
-		throw new FactTypeError("void does not have fields");
+		throw new FactTypeError("void tuple has no labels");
 	}
 	
 	@Override
 	public String getFieldName(int i) {
-		throw new FactTypeError("void does not have fields");
+		return null;
 	}
 	
 	@Override
