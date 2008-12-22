@@ -128,8 +128,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			return this;
 		}
 		else {
-			if (getArity() < 2 || other.getArity() < 2) {
-				throw new FactTypeError("Compose will not work on relations with arity < 2");
+			if (getArity() == 1 || other.getArity() == 1) {
+				throw new FactTypeError("Compose will not work on relations with arity == 1.");
 			}
 		}
 		Type t1 = fTupleType;
