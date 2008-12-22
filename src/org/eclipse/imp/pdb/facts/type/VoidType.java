@@ -247,6 +247,7 @@ import java.util.Map;
 			}
 
 			public Type next() {
+				once = true;
 				return VoidType.this;
 			}
 
