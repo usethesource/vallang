@@ -89,6 +89,11 @@ import java.util.Map;
 	}
 	
 	@Override
+	public boolean hasFieldNames() {
+		return false;
+	}
+	
+	@Override
 	public String getFieldName(int i) {
 		return null;
 	}

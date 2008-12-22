@@ -139,8 +139,9 @@ class Relation extends Set implements IRelation {
 	
 	private boolean checkReflexivity() throws FactTypeError {
 		Type type = getType();
+		int arity = type.getArity();
 		
-		if (type.getArity() == 2) {
+		if (arity == 2 || arity == 0) {
 			Type t1 = type.getFieldType(0);
 			Type t2 = type.getFieldType(1);
 

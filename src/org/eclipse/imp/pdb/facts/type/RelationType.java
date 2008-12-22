@@ -123,6 +123,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public boolean hasFieldNames() {
+		return fTupleType.hasFieldNames();
+	}
+	
+	@Override
 	public Type compose(Type other) throws FactTypeError {
 		if (this == other && isReflexive()) {
 			return this;
