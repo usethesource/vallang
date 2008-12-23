@@ -99,6 +99,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 		int N = type.getArity() + other.getArity() - 2;
 		Type[] fieldTypes = new Type[N];
 		
+		if (N == 0) {
+			return TypeFactory.getInstance().tupleEmpty();
+		}
+		
 		for (int i = 0; i < type.getArity() - 1; i++) {
 			fieldTypes[i] = type.getFieldType(i);
 		}
