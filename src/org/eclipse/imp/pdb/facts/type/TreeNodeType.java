@@ -197,6 +197,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return TypeFactory.getInstance().treeNodeType((NamedTreeType) getSuperType().instantiate(bindings), getName(), (TupleType) getFieldTypes().instantiate(bindings));
+		return TypeFactory.getInstance().treeNodeTypeFromTupleType(getSuperType().instantiate(bindings), getName(), getFieldTypes().instantiate(bindings));
 	}
 }
