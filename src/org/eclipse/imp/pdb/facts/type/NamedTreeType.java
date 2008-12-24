@@ -43,6 +43,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			return super.isSubtypeOf(other);
 		}
 	}
+	
+	@Override
+	public boolean isTreeType() {
+		return true;
+	}
 
 	@Override
 	public Type lub(Type other) {
