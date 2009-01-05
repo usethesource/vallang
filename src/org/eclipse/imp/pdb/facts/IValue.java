@@ -30,7 +30,6 @@ public interface IValue  {
 	 * @param obj another value to compare to
 	 * @return true iff the contents, the type and the annotations are equal
 	 */
-	@Override
 	public boolean equals(Object obj);
 	
 	/**
