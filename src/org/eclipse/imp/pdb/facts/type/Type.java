@@ -67,7 +67,7 @@ public abstract class Type implements Iterable<Type> {
 	
 	/**
 	 * Retrieve the name of a named type, a tree node type or 
-	 * a parameter typee.
+	 * a parameter type.
 	 *  
 	 * @return name of the type
 	 */
@@ -250,9 +250,19 @@ public abstract class Type implements Iterable<Type> {
 		if (other.isNamedType()) {
 			return other.isSubtypeOf(this);
 		}
+		if (other.isTreeNodeType() && other.getName() == null) {
+			return isSubtypeOf(other.getFieldType(0));
+		}
+		if (other.isNamedTreeType() && other.hasAnonymousConstructorFor(this)) {
+			return true;
+		}
 		return false;
 	}
 	
+	public boolean hasAnonymousConstructorFor(Type type) {
+		return false;
+	}
+
 	/**
 	 * Compute whether this type is a subtype of the other or vice versa
 	 * @param other type to compare to
@@ -464,5 +474,9 @@ public abstract class Type implements Iterable<Type> {
 	 */
 	public <T extends IWriter> T writer(IValueFactory f) {
 		throw new FactTypeError("This type does not provide a writer interface: " + this);
+	}
+
+	public boolean isAnonymousTreeNodeType() {
+		return false;
 	}
 }

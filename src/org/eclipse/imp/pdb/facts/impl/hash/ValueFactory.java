@@ -128,6 +128,9 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public INode tree(Type treeNodeType, IValue... children) {
+		if (treeNodeType.isAnonymousTreeNodeType()) {
+			throw new FactTypeError("Should not construct node for anonymous tree type");
+		}
 		return new Node(treeNodeType, children);
 	}
 	

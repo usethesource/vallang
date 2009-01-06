@@ -91,7 +91,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public IValue make(IValueFactory vf, int arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this);
+		Type node = tf.lookupAnonymousTreeNodeType(this, tf.integerType());
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -104,7 +104,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public IValue make(IValueFactory vf, double arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this);
+		Type node = tf.lookupAnonymousTreeNodeType(this, tf.doubleType());
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -117,7 +117,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public IValue make(IValueFactory vf, String arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this);
+		Type node = tf.lookupAnonymousTreeNodeType(this, tf.stringType());
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -139,5 +139,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 		}
 		
 		throw new FactTypeError("This sort does not have a constructor with this signature: " + name + ":" + childrenTypes);
+	}
+	
+	@Override
+	public boolean hasAnonymousConstructorFor(Type type) {
+		Type node = TypeFactory.getInstance().lookupAnonymousTreeNodeType(this, type);
+		
+		return node != null;
 	}
 }

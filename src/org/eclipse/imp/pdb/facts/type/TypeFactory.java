@@ -305,17 +305,33 @@ public class TypeFactory {
     
     /**
      * Construct a new node type. A node type is always a subtype of a NamedTreeType. It
-     * represents an alternative constructor for a specific NamedTreeType. 
+     * represents an alternative constructor for a specific NamedTreeType.
+     * 
+     * When name == null, an anonymous tree node type is constructed, which should always
+     * have a single child. No more than one of these may be constructed per NamedTreeType.
+     * 
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
+     * @throws TypeDeclarationException when a second anonymous tree is declared for the same NamedTreeType, or when
+     *         name == null and tupleType has an arity != 1.
      */
-    public Type treeNodeTypeFromTupleType(Type nodeType, String name, Type tupleType) {
+    public Type treeNodeTypeFromTupleType(Type nodeType, String name, Type tupleType) throws TypeDeclarationException {
     	synchronized(fSignatures) {
     		List<Type> signature = fSignatures.get(nodeType);
     		if (signature == null) {
     			throw new TypeDeclarationException("Unknown named tree type: " + nodeType);
+    		}
+    		
+    		if (name == null) {
+    			if (tupleType.getArity() != 1) {
+    				throw new TypeDeclarationException("Anonymous trees should have only one child");
+    			}
+    			Type before = lookupAnonymousTreeNodeType(nodeType, tupleType.getFieldType(0));
+    			if (before != null) {
+    				throw new TypeDeclarationException("Can only declare one anonymous tree type");
+    			}
     		}
     		
     		Type result = getFromCache(new TreeNodeType(name, (TupleType) tupleType, (NamedTreeType) nodeType));
@@ -333,7 +349,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type treeNodeType(Type nodeType, String name, Type... children ) { 
+    public Type treeNodeType(Type nodeType, String name, Type... children ) throws TypeDeclarationException { 
     	return treeNodeTypeFromTupleType(nodeType, name, tupleType(children));
     }
     
@@ -345,7 +361,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type treeNodeType(Type nodeType, String name, Object... childrenAndLabels ) { 
+    public Type treeNodeType(Type nodeType, String name, Object... childrenAndLabels ) throws TypeDeclarationException { 
     	return treeNodeTypeFromTupleType(nodeType, name, tupleType(childrenAndLabels));
     }
     
@@ -408,23 +424,26 @@ public class TypeFactory {
 
     	return result;
     }
-    
+
     /**
      * Retrieve the type for an anonymous constructor.  
      * See @link {@link TypeFactory#anonymousTreeType(NamedTreeType, String, Type, String)})
      * for more information.
      * @param type NamedTreeType to lookup the constructor for
+     * @param wrapped 
      * @return an anonymous tree node type
      * @throws FactTypeError if the type does not have an anonymous constructor
      */
-    public Type lookupAnonymousTreeNodeType(Type type) throws FactTypeError {
+    public Type lookupAnonymousTreeNodeType(Type type, Type wrapped) throws FactTypeError {
     	for (Type node : fSignatures.get(type)) {
     		if (node.getName() == null) {
-    			return node;
+    			if (wrapped.isSubtypeOf(node.getFieldType(0))) {
+    				return node;
+    			}
     		}
     	}
     	
-    	throw new FactTypeError("Type does not have an anonymous constructor: " + type);
+    	return null;
     }
     
     /** 

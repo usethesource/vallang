@@ -93,6 +93,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public boolean isAnonymousTreeNodeType() {
+		return fName == null;
+	}
+	
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(fTreeType);
@@ -155,26 +160,40 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public IValue make(IValueFactory vf, int arg) {
-		return vf.tree(this, vf.integer(arg));
+		if (isAnonymousTreeNodeType() && TypeFactory.getInstance().integerType().isSubtypeOf(getFieldType(0))) {
+			return getFieldType(0).make(vf, arg);
+		}
+		throw new FactTypeError("This type can not construct integers");
 	}
 	
 	@Override
 	public IValue make(IValueFactory vf, double arg) {
-		return vf.tree(this, vf.dubble(arg));
+		if (isAnonymousTreeNodeType() && TypeFactory.getInstance().doubleType().isSubtypeOf(getFieldType(0))) {
+			return getFieldType(0).make(vf, arg);
+		}
+		throw new FactTypeError("This type can not construct doubles");
 	}
 	
 	@Override
 	public IValue make(IValueFactory vf, String arg) {
-		return vf.tree(this, vf.string(arg));
+		if (isAnonymousTreeNodeType() && TypeFactory.getInstance().stringType().isSubtypeOf(getFieldType(0))) {
+			return getFieldType(0).make(vf, arg);
+		}
+		throw new FactTypeError("This type can not construct strings");
 	}
 	
 	@Override
 	public IValue make(IValueFactory vf, IValue... args) {
-		if (fName == null) { // anonymous constructor
-			return vf.tree(this, fChildrenTypes.getFieldType(0).make(vf, args));
+		if (isAnonymousTreeNodeType() && args.length == 1) {
+			IValue arg = args[0];
+			Type type = arg.getType();
+			if (type.isSubtypeOf(getFieldType(0))) {
+				return getFieldType(0).make(vf, arg);
+			}
+			throw new FactTypeError("This anonymous tree type expects a " + getFieldType(0) + " not a " + type);
 		}
 		else {
-		  return vf.tree(this, args);
+			return vf.tree(this, args);
 		}
 	}
 	
