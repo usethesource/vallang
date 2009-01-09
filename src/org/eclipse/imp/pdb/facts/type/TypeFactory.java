@@ -328,9 +328,9 @@ public class TypeFactory {
     			if (tupleType.getArity() != 1) {
     				throw new TypeDeclarationException("Anonymous trees should have only one child");
     			}
-    			Type before = lookupAnonymousTreeNodeType(nodeType, tupleType.getFieldType(0));
-    			if (before != null) {
-    				throw new TypeDeclarationException("Can only declare one anonymous tree type");
+    			Type argType = tupleType.getFieldType(0);
+    			if (!(argType.isBoolType() || argType.isIntegerType() || argType.isDoubleType() || argType.isStringType())) {
+    				throw new TypeDeclarationException("Anonymous trees may only wrap bool, integer, double, or string values");
     			}
     		}
     		
