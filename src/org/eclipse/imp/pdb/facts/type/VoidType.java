@@ -100,12 +100,12 @@ import java.util.Map;
 	
 	@Override
 	public Type select(int... fields) {
-		throw new FactTypeError("void does not have fields");
+		return this;
 	}
 	
 	@Override
 	public Type select(String... names) {
-		throw new FactTypeError("void does not have fields");
+		return this;
 	}
 	
 	@Override
