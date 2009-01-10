@@ -224,6 +224,12 @@ public abstract class Type implements Iterable<Type> {
 		else if (other.isNamedType()) {
 			return other.lub(this);
 		}
+		else if (other.isAnonymousTreeNodeType()) {
+			return other.getFieldType(0).lub(this);
+		}
+		else if (other.isNamedTreeType() && other.hasAnonymousConstructorFor(this)) {
+			return other;
+		}
 		else {
 			return TypeFactory.getInstance().valueType();
 		}
@@ -250,7 +256,7 @@ public abstract class Type implements Iterable<Type> {
 		if (other.isNamedType()) {
 			return other.isSubtypeOf(this);
 		}
-		if (other.isTreeNodeType() && other.getName() == null) {
+		if (other.isAnonymousTreeNodeType()) {
 			return isSubtypeOf(other.getFieldType(0));
 		}
 		if (other.isNamedTreeType() && other.hasAnonymousConstructorFor(this)) {

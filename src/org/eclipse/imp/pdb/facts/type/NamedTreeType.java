@@ -91,7 +91,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public IValue make(IValueFactory vf, int arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this, tf.integerType());
+		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -104,7 +104,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public IValue make(IValueFactory vf, double arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this, tf.doubleType());
+		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -117,7 +117,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public IValue make(IValueFactory vf, String arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this, tf.stringType());
+		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
 		if (node != null) {
 			return node.make(vf, arg);
@@ -143,8 +143,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public boolean hasAnonymousConstructorFor(Type type) {
-		Type node = TypeFactory.getInstance().lookupAnonymousTreeNodeType(this, type);
+		Type node = TypeFactory.getInstance().lookupAnonymousTreeNodeType(this);
 		
-		return node != null;
+		if (node != null) {
+			return type.isSubtypeOf(node.getFieldType(0));
+		}
+		else {
+			return false;
+		}
 	}
 }

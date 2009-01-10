@@ -48,6 +48,11 @@ public class TypeFactory {
      * Keeps administration of declared tree node types
      */
     private final Map<Type, List<Type>> fSignatures = new HashMap<Type, List<Type>>();
+    
+    /**
+     * Keeps administration of anonymous tree node types
+     */
+    private final Map<Type,Type> fAnonymousSignature = new HashMap<Type, Type>();
 
     /**
      * Keeps administration of declared annotations 
@@ -323,21 +328,15 @@ public class TypeFactory {
     		if (signature == null) {
     			throw new TypeDeclarationException("Unknown named tree type: " + nodeType);
     		}
-    		
+
     		if (name == null) {
-    			if (tupleType.getArity() != 1) {
-    				throw new TypeDeclarationException("Anonymous trees should have only one child");
-    			}
-    			Type argType = tupleType.getFieldType(0);
-    			if (!(argType.isBoolType() || argType.isIntegerType() || argType.isDoubleType() || argType.isStringType())) {
-    				throw new TypeDeclarationException("Anonymous trees may only wrap bool, integer, double, or string values");
-    			}
+    			throw new TypeDeclarationException("Node name can not be null, use anonymousTreeType() instead");
     		}
     		
     		Type result = getFromCache(new TreeNodeType(name, (TupleType) tupleType, (NamedTreeType) nodeType));
-    		signature.add((Type) result);
+    		signature.add(result);
 
-    		return (Type) result;
+    		return result;
     	}
     }
     
@@ -369,17 +368,34 @@ public class TypeFactory {
      * Construct a special kind of tree node. This tree node does not have
      * a name, always has exactly one child. It is used for serialized values
      * where one alternative for a NamedTreeType does not have a wrapping node name.
-     * Each NamedTreeType may maximally have one anonymous tree node type.
      * 
-     * @param sort        the sort this constructor builds      
+     * The argType must be a subtype of bool, int, double, string, sourceRange or sourceLoc.
+     * Each NamedTreeType can only have one anonymous constructor.
+     * 
+     * @param sort        the sort (NamedTreeType) this constructor builds      
      * @param string      the name of the alternative (even though it will not be used)
      * @param argType     the type of the single child
      * @param label       the label of the single child
-     * @return
+     * @return a TreeNodeType
+     * @throws TypeDeclarationException when a second anonymous constructor is defined or when
+     * argType is not one of integer, bool, double, string, sourceRange or sourceLocation.
      */
     public Type anonymousTreeType(Type sort, String string,
-			Type argType, String label) {
-    	return treeNodeTypeFromTupleType(sort, null, TypeFactory.getInstance().tupleType(argType, label));
+			Type argType, String label) throws TypeDeclarationException {
+    	synchronized(fAnonymousSignature) {
+    		if (fAnonymousSignature.get(sort) != null) {
+    			throw new TypeDeclarationException("Can only have one anonymous constructor per type");
+    		}
+
+    		if (!(argType.isSourceLocationType() || argType.isSourceRangeType() || argType.isBoolType() || argType.isIntegerType() || argType.isDoubleType() || argType.isStringType())) {
+    			throw new TypeDeclarationException("Anonymous trees may only wrap bool, integer, double, or string values");
+    		}
+
+    		Type result = getFromCache(new TreeNodeType(null, (TupleType) TypeFactory.getInstance().tupleType(argType, label), (NamedTreeType) sort));
+
+    		fAnonymousSignature.put(sort, result);
+    		return result;
+    	}
 	}
 
     /**
@@ -399,7 +415,12 @@ public class TypeFactory {
      * @return all tree node types that construct the given type
      */
     public List<Type> lookupTreeNodeTypes(Type type) {
-    	return fSignatures.get(type);
+    	List<Type> signature = fSignatures.get(type);
+    	Type anonymous = fAnonymousSignature.get(type);
+    	if (anonymous != null) {
+    		signature.add(anonymous);
+    	}
+    	return signature;
     }
     
     /**
@@ -412,14 +433,19 @@ public class TypeFactory {
     public List<Type> lookupTreeNodeType(Type type, String constructorName) throws FactTypeError {
     	List<Type> result = new LinkedList<Type>();
     	
-    	for (Type node : fSignatures.get(type)) {
-    		String name = node.getName();
-			if (name != null && name.equals(constructorName)) {
-    			result.add(node);
+    	if (constructorName == null) {
+    		Type anonymous = lookupAnonymousTreeNodeType(type);
+    		if (anonymous != null) {
+    			result.add(anonymous);
     		}
-			else if (name == null && constructorName == null) {
-				result.add(node);
-			}
+    	}
+    	else {
+    		for (Type node : fSignatures.get(type)) {
+    			String name = node.getName();
+    			if (name.equals(constructorName)) {
+    				result.add(node);
+    			}
+    		}
     	}
 
     	return result;
@@ -430,36 +456,35 @@ public class TypeFactory {
      * See @link {@link TypeFactory#anonymousTreeType(NamedTreeType, String, Type, String)})
      * for more information.
      * @param type NamedTreeType to lookup the constructor for
-     * @param wrapped 
      * @return an anonymous tree node type
      * @throws FactTypeError if the type does not have an anonymous constructor
      */
-    public Type lookupAnonymousTreeNodeType(Type type, Type wrapped) throws FactTypeError {
-    	for (Type node : fSignatures.get(type)) {
-    		if (node.getName() == null) {
-    			if (wrapped.isSubtypeOf(node.getFieldType(0))) {
-    				return node;
-    			}
-    		}
-    	}
-    	
-    	return null;
+    public Type lookupAnonymousTreeNodeType(Type type) throws FactTypeError {
+    	return fAnonymousSignature.get(type);
     }
     
     /** 
      * Retrieve all tree node types for a given constructor name, 
-     * regardless of tree sort type
+     * regardless of tree sort type. If constructorName == null, it will
+     * return all types that have an anonymous constructor.
+     * 
      * @param constructName the name of the tree node
      */
     public List<Type> lookupTreeNodeType(String constructorName) {
     	List<Type> result = new LinkedList<Type>();
-    	for (Type sort : fSignatures.keySet()) {
-    		for (Type node : fSignatures.get(sort)) {
-        		String name = node.getName();
-    			if (name != null && name.equals(constructorName)) {
-        			result.add(node);
-        		}
-        	}	
+    	
+    	if (constructorName != null) {
+    		for (Type sort : fSignatures.keySet()) {
+    			for (Type node : fSignatures.get(sort)) {
+    				String name = node.getName();
+    				if (name.equals(constructorName)) {
+    					result.add(node);
+    				}
+    			}	
+    		}
+    	}
+    	else {
+    		result.addAll(fAnonymousSignature.keySet());
     	}
     	
     	return result;
