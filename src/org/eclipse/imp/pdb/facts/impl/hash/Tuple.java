@@ -121,7 +121,6 @@ class Tuple extends Value implements ITuple {
     public int hashCode() {
        int hash = 0;
        hash += fAnnotations.hashCode() << 8;
-       hash += fType.hashCode();
        
  	   for (int i = 0; i < fElements.length; i++) {
  		 hash = (hash << 1) ^ (hash >> 1) ^ fElements[i].hashCode();

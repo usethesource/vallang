@@ -73,7 +73,7 @@ public class Node extends Tree implements INode {
 	
 	@Override
 	public int hashCode() {
-		 return fType.hashCode() + ~super.hashCode();
+		 return 17 + ~super.hashCode();
 	}
 	
 	@Override

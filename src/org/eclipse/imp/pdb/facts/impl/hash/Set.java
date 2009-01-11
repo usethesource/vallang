@@ -143,7 +143,7 @@ class Set extends Value implements ISet{
 	
 	@Override
 	public int hashCode() {
-		return fAnnotations.hashCode() << 8 + fType.hashCode() + content.hashCode();
+		return fAnnotations.hashCode() << 8 + content.hashCode();
 	}
 
 	public String toString(){

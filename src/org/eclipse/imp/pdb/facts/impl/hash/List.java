@@ -146,7 +146,7 @@ public class List extends Value implements IList {
 	
 	@Override
 	public int hashCode() {
-		return fAnnotations.hashCode() << 8 + fType.hashCode() + content.hashCode();
+		return fAnnotations.hashCode() << 8 + content.hashCode();
 	}
 	
     /*package*/ static ListWriter createListWriter(Type eltType){

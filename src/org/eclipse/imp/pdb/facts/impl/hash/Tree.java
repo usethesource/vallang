@@ -168,7 +168,6 @@ public class Tree extends Value implements ITree {
 	public int hashCode() {
        int hash = fName != null ? fName.hashCode() : 0;
        hash += fAnnotations.hashCode() << 8;
-       hash += fType.hashCode();
        
 	   for (int i = 0; i < fChildren.length; i++) {
 	     hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
