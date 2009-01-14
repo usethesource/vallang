@@ -10,7 +10,7 @@
 *    Jurgen Vinju (jurgen@vinju.org)         
 *******************************************************************************/
 
-package org.eclipse.imp.pdb.facts.impl.hash;
+package org.eclipse.imp.pdb.facts.impl.reference;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;

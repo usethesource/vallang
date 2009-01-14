@@ -1,4 +1,4 @@
-package org.eclipse.imp.pdb.facts.impl.hash;
+package org.eclipse.imp.pdb.facts.impl.reference;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;

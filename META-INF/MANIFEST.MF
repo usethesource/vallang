@@ -8,7 +8,7 @@ Eclipse-LazyStart: true
 Export-Package: 
  org.eclipse.imp.pdb.facts,
  org.eclipse.imp.pdb.facts.impl,
- org.eclipse.imp.pdb.facts.impl.hash,
+ org.eclipse.imp.pdb.facts.impl.reference,
  org.eclipse.imp.pdb.facts.io,
  org.eclipse.imp.pdb.facts.type,
  org.eclipse.imp.pdb.facts.visitors

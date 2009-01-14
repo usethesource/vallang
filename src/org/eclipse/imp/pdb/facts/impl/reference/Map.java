@@ -10,7 +10,7 @@
 
 *******************************************************************************/
 
-package org.eclipse.imp.pdb.facts.impl.hash;
+package org.eclipse.imp.pdb.facts.impl.reference;
 
 import java.util.HashMap;
 import java.util.Iterator;
