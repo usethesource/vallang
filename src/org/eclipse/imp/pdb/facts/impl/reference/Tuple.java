@@ -31,11 +31,6 @@ class Tuple extends Value implements ITuple {
 		this.fElements= elements;
     }
     
-    private Tuple(Tuple other, String label, IValue anno) {
-    	super(other, label, anno);
-    	fElements = other.fElements.clone();
-    }
-
     private Tuple(Tuple other, int i, IValue elem) {
     	super(other);
     	fElements = other.fElements.clone();
@@ -120,7 +115,6 @@ class Tuple extends Value implements ITuple {
     @Override
     public int hashCode() {
        int hash = 0;
-       hash += fAnnotations.hashCode() << 8;
        
  	   for (int i = 0; i < fElements.length; i++) {
  		 hash = (hash << 1) ^ (hash >> 1) ^ fElements[i].hashCode();
@@ -132,11 +126,6 @@ class Tuple extends Value implements ITuple {
     	return v.visitTuple(this);
     }
     
-    @Override
-    protected IValue clone(String label, IValue anno) {
-    	return new Tuple(this, label, anno);
-    }
-
 	public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
 		return new Tuple(this, i, arg);
 	}

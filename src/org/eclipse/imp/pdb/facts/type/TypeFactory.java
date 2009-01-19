@@ -66,6 +66,19 @@ public class TypeFactory {
     private TypeFactory() { }
 
     /**
+     * Resets all state information of the TypeFactory, i.e. declared types and annotations. 
+     * Use this method in only for testing purposes and for nothing else. 
+     * By calling this method other clients of the TypeFactory will break.
+     */
+    public void reset() {
+    	fCache.clear();
+    	fNamedTypes.clear();
+    	fSignatures.clear();
+    	fAnonymousSignature.clear();
+    	fAnnotations.clear();
+    }
+    
+    /**
      * construct the value type, which is the top type of the type hierarchy
      * representing all possible values.
      * @return a unique reference to the value type
@@ -383,7 +396,9 @@ public class TypeFactory {
     public Type anonymousTreeType(Type sort, String string,
 			Type argType, String label) throws TypeDeclarationException {
     	synchronized(fAnonymousSignature) {
-    		if (fAnonymousSignature.get(sort) != null) {
+    		Type earlierType = fAnonymousSignature.get(sort);
+    		
+			if (earlierType != argType) {
     			throw new TypeDeclarationException("Can only have one anonymous constructor per type");
     		}
 
@@ -544,14 +559,24 @@ public class TypeFactory {
 	}
 
     /**
-     * Declare that certain types of values may have an annotation with a certain
+     * Declare that certain tree node types may have an annotation with a certain
      * label. The annotation with that label will have a specific type.
      * 
      * @param onType the type of values that carry this annotation
      * @param key    the label of the annotation
      * @param valueType the type of values that represent the annotation
+     * @throws TypeDeclarationException when an attempt is made to define annotations for anything
+     * but NamedTreeTypes orTreeNodeTypes.
      */
     public void declareAnnotation(Type onType, String key, Type valueType) {
+    	if (!onType.isTreeNodeType() && !onType.isNamedTreeType()) {
+    		throw new TypeDeclarationException("Can not define annotations on anything but trees");
+    	}
+    	
+    	if (onType.isAnonymousTreeNodeType()) {
+    		throw new TypeDeclarationException("Can not define annotations on anonymous tree nodes");
+    	}
+    	
     	synchronized (fAnnotations) {
     		Map<String, Type> annotationsForType = fAnnotations.get(onType);
 
@@ -570,7 +595,7 @@ public class TypeFactory {
     			annotationsForType.put(key, valueType);
     		}
     		else if (!declaredEarlier.get(key).equals(valueType)) {
-    			throw new FactTypeError("Annotation was declared previously with different type: " + declaredEarlier.get(key));
+    			throw new TypeDeclarationException("Annotation was declared previously with different type: " + declaredEarlier.get(key));
     		}
     		// otherwise its a safe re-declaration and we do nothing
     	}
@@ -635,7 +660,7 @@ public class TypeFactory {
      * annotations on certain kinds of values
      * @param onType the type of values that this annotation can be found on
      * @param key    the label of the annotation to find the corresponding type of
-     * @return the type of the requested annotation value
+     * @return the type of the requested annotation value or null if none exists
      */
     public Type getAnnotationType(Type onType, String key) {
     	Map<String, Type> annotationsFor = getAnnotations(onType);

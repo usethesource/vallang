@@ -15,7 +15,6 @@ package org.eclipse.imp.pdb.facts.impl;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -28,11 +27,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fValue= value;
     }
     
-    private DoubleValue(DoubleValue other, String label, IValue anno) {
-    	super(other, label, anno);
-    	fValue = other.fValue;
-    }
-
 	public double getValue() {
         return fValue;
     }
@@ -101,8 +95,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
-    		return equalAnnotations((Value) o) && 
-    		Double.compare(fValue, ((DoubleValue) o).fValue) == 0 ;
+    		return Double.compare(fValue, ((DoubleValue) o).fValue) == 0 ;
     	}
     	return false;
     }
@@ -110,15 +103,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     @Override
     public int hashCode() {
     	long bits = Double.doubleToLongBits(fValue);
-    	return fAnnotations.hashCode() << 8 + (int)(bits ^ (bits >>> 32));
+    	return (int)(bits ^ (bits >>> 32));
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitDouble(this);
     };
-    
-    @Override
-    protected IValue clone(String label, IValue anno) {
-    	return new DoubleValue(this, label, anno);
-    }
 }

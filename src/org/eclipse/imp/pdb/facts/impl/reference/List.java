@@ -12,7 +12,6 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -31,17 +30,8 @@ public class List extends Value implements IList {
 	private final Type eltType;
 	private final LinkedList<IValue> content;
 
-	@SuppressWarnings("unchecked")
-	private List(List other, String label, IValue anno){
-		super(other, label, anno);
-		
-		eltType = other.eltType;
-		content = (LinkedList<IValue>) other.content.clone();
-	}
-	
-	public List(Type eltType, LinkedList<IValue> listContent,
-			HashMap<String, IValue> annotations) {
-		super(TypeFactory.getInstance().listType(eltType), annotations);
+	public List(Type eltType, LinkedList<IValue> listContent) {
+		super(TypeFactory.getInstance().listType(eltType));
 		
 		this.eltType = eltType;
 		this.content = listContent;
@@ -78,7 +68,6 @@ public class List extends Value implements IList {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.insert(elem);
-		w.setAnnotations(fAnnotations);
 		
 		return w.done();
 	}
@@ -87,7 +76,6 @@ public class List extends Value implements IList {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.append(elem);
-		w.setAnnotations(fAnnotations);
 		
 		return w.done();
 	}
@@ -97,7 +85,6 @@ public class List extends Value implements IList {
 		for (IValue e : this) {
 			w.insert(e);
 		}
-		w.setAnnotations(fAnnotations);
 		return w.done();
 	}
 	
@@ -112,10 +99,6 @@ public class List extends Value implements IList {
 		return v.visitList(this);
 	}
 	
-	protected IValue clone(String label, IValue anno) {
-		return new List(this, label, anno);
-	}
-
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
@@ -139,14 +122,14 @@ public class List extends Value implements IList {
 	public boolean equals(Object o){
 		if (getClass() == o.getClass()) {
 			List other = (List) o;
-			return fType.comparable(other.fType) && equalAnnotations((Value) o) && content.equals(other.content);
+			return fType.comparable(other.fType) && content.equals(other.content);
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return fAnnotations.hashCode() << 8 + content.hashCode();
+		return content.hashCode();
 	}
 	
     /*package*/ static ListWriter createListWriter(Type eltType){
@@ -255,7 +238,7 @@ public class List extends Value implements IList {
 		}
 
 		public IList done(){
-			if(constructedList == null) constructedList = new List(eltType, listContent, fAnnotations);
+			if(constructedList == null) constructedList = new List(eltType, listContent);
 			
 			return constructedList;
 		}

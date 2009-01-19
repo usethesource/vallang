@@ -37,21 +37,6 @@ class Map extends Value implements IMap{
 		this.content = content;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private Map(Map other, String label, IValue anno) {
-		super(other, label, anno);
-		
-		content = (HashMap<IValue, IValue>) other.content.clone();
-	}
-
-	/*package*/ Map(Type keyType, Type valueType,
-			HashMap<IValue, IValue> mapContent,
-			HashMap<String, IValue> annotations) {
-		super(TypeFactory.getInstance().mapType(keyType, valueType), annotations);
-		
-		this.content = mapContent;
-	}
-
 	public int size(){
 		return content.size();
 	}
@@ -92,7 +77,6 @@ class Map extends Value implements IMap{
 		IMapWriter sw = new MapWriter(getKeyType().lub(key.getType()), getValueType().lub(value.getType()));
 		sw.putAll(this);
 		sw.put(key, value);
-		sw.setAnnotations(fAnnotations);
 		return sw.done();
 	}
 	
@@ -145,14 +129,14 @@ class Map extends Value implements IMap{
 	public boolean equals(Object o){
 		if(getClass() == o.getClass()) {
 			Map other = (Map) o;
-			return fType.comparable(other.fType) && equalAnnotations((Value) o) && content.equals(other.content);
+			return fType.comparable(other.fType) && content.equals(other.content);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return  fAnnotations.hashCode() << 8 + content.hashCode();
+		return content.hashCode();
 	}
 	
 	public String toString(){
@@ -192,10 +176,6 @@ class Map extends Value implements IMap{
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
 		return v.visitMap(this);
-	}
-	
-	protected IValue clone(String label, IValue anno)  {
-		return new Map(this, label, anno);
 	}
 	
 	static MapWriter createMapWriter(Type keyType, Type valueType){
@@ -255,13 +235,10 @@ class Map extends Value implements IMap{
 		
 		public IMap done(){
 			if(constructedMap == null) {
-				constructedMap = new Map(keyType, valueType, mapContent, fAnnotations);
+				constructedMap = new Map(keyType, valueType, mapContent);
 			}
 			
 			return constructedMap;
 		}
-
 	}
-
-
 }

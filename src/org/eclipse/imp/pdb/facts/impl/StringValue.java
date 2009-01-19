@@ -13,7 +13,6 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -29,11 +28,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fValue= value;
     }
 
-    private StringValue(StringValue other,String label, IValue anno) {
-    	super(other, label, anno);
-    	fValue = other.fValue;
-    }
-    
 	public String getValue() {
         return fValue;
     }
@@ -55,22 +49,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
-    		return equalAnnotations((Value) o) && ((StringValue) o).fValue.equals(fValue);
+    		return ((StringValue) o).fValue.equals(fValue);
     	}
     	return false;
     }
     
     @Override
     public int hashCode() {
-    	return fAnnotations.hashCode() << 8 + fValue.hashCode();
+    	return fValue.hashCode();
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitString(this);
-    }
-    
-    @Override
-    protected IValue clone(String label, IValue anno) {
-    	return new StringValue(this, label, anno);
     }
 }

@@ -14,7 +14,6 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -29,12 +28,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fRange= range;
     }
     
-    private SourceLocationValue(SourceLocationValue other, String label, IValue anno) {
-    	super(other,label, anno);
-    	fPath = other.fPath;
-    	fRange = other.fRange;
-	}
-
 	public String getPath() {
         return fPath;
     }
@@ -52,23 +45,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
     		SourceLocationValue other = (SourceLocationValue) o;
-    		return equalAnnotations((Value) o) &&
-    		other.fPath.equals(fPath) && other.fRange.equals(fRange);
+    		return other.fPath.equals(fPath) && other.fRange.equals(fRange);
     	}
     	return false;
     }
     
     @Override
     public int hashCode() {
-    	return fAnnotations.hashCode() << 8 + 10987 + 11923 * fPath.hashCode() + 9619 * fRange.hashCode();
+    	return 10987 + 11923 * fPath.hashCode() + 9619 * fRange.hashCode();
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitSourceLocation(this);
-    }
-    
-    @Override
-    protected IValue clone(String label, IValue anno)  {
-    		return new SourceLocationValue(this, label, anno);
     }
 }

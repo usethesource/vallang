@@ -1,7 +1,6 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -14,16 +13,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		this.fValue = b;
 	}
 	
-	private BoolValue(BoolValue other, String label, IValue anno) {
-		super(other, label, anno);
-    	fValue = other.fValue;
-	}
-	
-	@Override
-	protected IValue clone(String label, IValue value) {
-		return new BoolValue(this, label, value);
-	}
-
 	public boolean getValue() {
 		return fValue;
 	}
@@ -40,7 +29,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
-			return equalAnnotations((Value) obj) && fValue == ((BoolValue) obj).fValue;
+			return fValue == ((BoolValue) obj).fValue;
 		}
 		return false;
 	}
@@ -71,6 +60,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	@Override
 	public int hashCode() {
-		return fAnnotations.hashCode() << 8 + (fValue ? 1231 : 1237);
+		return fValue ? 1231 : 1237;
 	}
 }

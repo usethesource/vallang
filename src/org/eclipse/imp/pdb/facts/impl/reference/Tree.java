@@ -46,12 +46,6 @@ public class Tree extends Value implements ITree {
 		this(name, new IValue[0]);
 	}
 
-	protected Tree(Tree other, String label, IValue anno) {
-		super(other, label, anno);
-		fName = other.fName;
-		fChildren = other.fChildren.clone();
-	}
-	
 	protected Tree(Tree other, int index, IValue newChild) {
 		super(other);
 		fName = other.fName;
@@ -59,8 +53,6 @@ public class Tree extends Value implements ITree {
 		fChildren[index] = newChild;
 	}
 	
-	
-
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitTree(this);
 	}
@@ -167,16 +159,10 @@ public class Tree extends Value implements ITree {
 	@Override
 	public int hashCode() {
        int hash = fName != null ? fName.hashCode() : 0;
-       hash += fAnnotations.hashCode() << 8;
        
 	   for (int i = 0; i < fChildren.length; i++) {
 	     hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
 	   }
 	   return hash;
-	}
-	
-	@Override
-	protected IValue clone(String label, IValue anno)  {
-		return new Tree(this, label, anno);
 	}
 }

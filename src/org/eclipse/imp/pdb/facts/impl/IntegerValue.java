@@ -15,7 +15,6 @@ package org.eclipse.imp.pdb.facts.impl;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -28,11 +27,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fValue= i;
     }
     
-    private IntegerValue(IntegerValue other, String label, IValue anno) {
-    	super(other, label, anno);
-    	fValue = other.fValue;
-    }
-
 	public int getValue() {
         return fValue;
     }
@@ -45,7 +39,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
-    		return equalAnnotations((Value) o) && ((IntegerValue) o).fValue == fValue;
+    		return ((IntegerValue) o).fValue == fValue;
     	}
     	return false;
     }
@@ -104,15 +98,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public int hashCode() {
-    	return fAnnotations.hashCode() << 8 + fValue;
+    	return fValue;
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitInteger(this);
-    }
-    
-    @Override
-    protected IValue clone(String label, IValue anno)  {
-    	return new IntegerValue(this, label, anno);
     }
 }

@@ -32,10 +32,6 @@ class Relation extends Set implements IRelation {
 		super(TypeFactory.getInstance().relTypeFromTuple(type), content);
 	}
 	
-	private Relation(Relation other, String label, IValue anno) {
-		super(other, label, anno);
-	}
-
 	public int arity() {
 		return getType().getArity();
 	}
@@ -181,11 +177,6 @@ class Relation extends Set implements IRelation {
 		return fType.getFieldTypes();
 	}
 	
-	@Override
-	protected IValue clone(String label, IValue anno)  {
-		return new Relation(this, label, anno);
-	}
-
 	public static IRelationWriter createRelationWriter(Type tupleType) {
 		return new RelationWriter(tupleType);
 	}

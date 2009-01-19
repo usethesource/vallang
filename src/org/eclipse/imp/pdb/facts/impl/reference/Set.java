@@ -11,7 +11,6 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -38,19 +37,6 @@ class Set extends Value implements ISet{
 		this.content = content;
 	}
 	
-	@SuppressWarnings("unchecked")
-	protected Set(Set other, String label, IValue anno) {
-		super(other, label, other);
-		
-		content = (HashSet<IValue>) other.content.clone();
-	}
-
-	/*package*/ Set(Type eltType, HashSet<IValue> setContent,
-			HashMap<String, IValue> annotations) {
-		super(TypeFactory.getInstance().setType(eltType), annotations);
-		content = (HashSet<IValue>) setContent;
-	}
-
 	public boolean contains(IValue element) throws FactTypeError{
 		return content.contains(element);
 	}
@@ -68,7 +54,6 @@ class Set extends Value implements ISet{
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType().lub(element.getType()));
 		sw.insertAll(this);
 		sw.insert(element);
-		sw.setAnnotations(fAnnotations);
 		return sw.done();
 	}
 
@@ -142,8 +127,8 @@ class Set extends Value implements ISet{
 	}
 	
 	@Override
-	public int hashCode() {
-		return fAnnotations.hashCode() << 8 + content.hashCode();
+	public int hashCode() { 
+		return content.hashCode();
 	}
 
 	public String toString(){
@@ -182,10 +167,6 @@ class Set extends Value implements ISet{
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
 		return v.visitSet(this);
-	}
-	
-	protected IValue clone(String label, IValue anno) {
-		return new Set(this, label, anno);
 	}
 	
 	private static void checkInsert(IValue elem, Type eltType) throws FactTypeError{
@@ -235,7 +216,7 @@ class Set extends Value implements ISet{
 		
 		public ISet done(){
 			if(constructedSet == null){
-				constructedSet = new Set(eltType, setContent, fAnnotations);
+				constructedSet = new Set(TypeFactory.getInstance().setType(eltType), setContent);
 			}
 			return  constructedSet;
 		}

@@ -19,6 +19,7 @@ import java.util.ListIterator;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -269,7 +270,10 @@ public class ATermReader implements IValueReader {
 				if (reader.readSkippingWS() == ',') {
 					reader.readSkippingWS();
 					IValue value = parse(reader, annoType);
-					result = result.setAnnotation(key, value);
+					
+					if (result.getType().isTreeNodeType() || result.getType().isNamedTreeType()) {
+						result = ((INode) result).setAnnotation(key, value);
+					}
 					
 					if (reader.getLastChar() != ']') {
 						throw new FactTypeError("expected a ] but got a " + reader.getLastChar());

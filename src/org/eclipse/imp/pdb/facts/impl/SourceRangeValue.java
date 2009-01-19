@@ -13,7 +13,6 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.ISourceRange;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -41,16 +40,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		fStartCol = startCol;
 		fEndCol = endCol;
 
-	}
-
-	private SourceRangeValue(SourceRangeValue other, String label, IValue anno) {
-		super(other, label, anno);
-		fStartOffset = other.fStartOffset;
-		fLength = other.fLength;
-		fStartLine = other.fStartLine;
-		fEndLine = other.fEndLine;
-		fStartCol = other.fStartCol;
-		fEndCol = other.fEndCol;
 	}
 
 	public int getEndColumn() {
@@ -87,8 +76,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public boolean equals(Object o) {
 		if (getClass() == o.getClass()) {
 			SourceRangeValue other = (SourceRangeValue) o;
-			return equalAnnotations((Value) o)
-			        && other.fStartOffset == fStartOffset
+			return other.fStartOffset == fStartOffset
 					&& other.fLength == fLength
 					&& other.fStartLine == fStartLine
 					&& other.fEndLine == fEndLine
@@ -99,8 +87,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	@Override
 	public int hashCode() {
-		return fAnnotations.hashCode() << 8 + 
-		24551 + 
+		return 24551 + 
 		(fStartOffset << 5)+ 
 		(fLength << 10) + 
 		(fStartLine << 15) + 
@@ -111,10 +98,5 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		return v.visitSourceRange(this);
-	}
-	
-	@Override
-	protected IValue clone(String label, IValue anno) {
-	      return new SourceRangeValue(this,label, anno);
 	}
 }
