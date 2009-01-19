@@ -611,42 +611,13 @@ public class TypeFactory {
     public Map<String, Type> getAnnotations(Type onType) {
     	Map<String, Type> result = new HashMap<String,Type>();
     	
-    	Map<String, Type> valueAnnotations = fAnnotations.get(valueType());
-    	if (valueAnnotations != null) {
-    		result.putAll(valueAnnotations);
-    	}
-    	
     	Map<String, Type> localAnnotations = fAnnotations.get(onType);
     	if (localAnnotations != null) {
     	  result.putAll(localAnnotations);
     	}
     	
-    	while (onType.isNamedType()) {
-    		onType = ((NamedType) onType).getSuperType();
-    		localAnnotations = fAnnotations.get(onType);
-    		if (localAnnotations != null) {
-    		  result.putAll(localAnnotations);
-    		}
-    	}
-    	
     	if (onType.isTreeNodeType()) {
     		localAnnotations = fAnnotations.get(((TreeNodeType) onType).getSuperType());
-    		if (localAnnotations != null) {
-    		  result.putAll(localAnnotations);
-    		}
-    	}
-    	
-    	if (onType.isSetType() && ((SetType) onType).getElementType().isTupleType()) {
-    		Type tmp = relTypeFromTuple(((Type) onType).getElementType());
-    		localAnnotations = fAnnotations.get(tmp);
-    		if (localAnnotations != null) {
-    		  result.putAll(localAnnotations);
-    		}
-    	}
-    	
-    	if (onType.isRelationType()) {
-    		Type tmp = setType(((Type) onType).getFieldTypes());
-    		localAnnotations = fAnnotations.get(tmp);
     		if (localAnnotations != null) {
     		  result.putAll(localAnnotations);
     		}

@@ -210,6 +210,21 @@ public abstract class Type implements Iterable<Type> {
 	}
 	
 	/**
+	 * For a NamedTreeType or a TreeNodeType, return whether a certain
+	 * annotation label was declared.
+	 * 
+	 * @param label
+	 * @return true iff this type has an annotation named label declared for it. 
+	 */
+	public boolean declaresAnnotation(String label) {
+		return false;
+	}
+	
+	public Type getAnnotationType(String label) throws FactTypeError {
+		throw new FactTypeError("This type does not have support for annotations");
+	}
+	
+	/**
 	 * @return the least upper bound type of the receiver and the argument type
 	 */
 	public Type lub(Type other) {

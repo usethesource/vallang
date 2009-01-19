@@ -152,4 +152,20 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			return false;
 		}
 	}
+	
+	@Override
+	public boolean declaresAnnotation(String label) {
+		return TypeFactory.getInstance().getAnnotationType(this, label) != null;
+	}
+	
+	@Override
+	public Type getAnnotationType(String label) throws FactTypeError {
+		Type type = TypeFactory.getInstance().getAnnotationType(this, label);
+		
+		if (type == null) {
+			throw new FactTypeError("This type does not have an annotation labeled " + label);
+		}
+		
+		return type;
+	}
 }
