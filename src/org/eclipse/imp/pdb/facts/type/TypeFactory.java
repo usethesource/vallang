@@ -398,7 +398,7 @@ public class TypeFactory {
     	synchronized(fAnonymousSignature) {
     		Type earlierType = fAnonymousSignature.get(sort);
     		
-			if (earlierType != argType) {
+			if (earlierType != null && earlierType != argType) {
     			throw new TypeDeclarationException("Can only have one anonymous constructor per type");
     		}
 
