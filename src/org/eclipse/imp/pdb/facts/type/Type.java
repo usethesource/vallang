@@ -189,7 +189,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a type
 	 */
 	public Type getAbstractDataType() {
-		throw new FactTypeError("This type does not have a super type");
+		throw new FactTypeError("This type does not have an abstract data-type.");
 	}
 	
 	/**
