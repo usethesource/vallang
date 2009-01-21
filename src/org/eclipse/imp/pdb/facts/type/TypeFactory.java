@@ -277,7 +277,7 @@ public class TypeFactory {
     	}
     }
 
-    public Type treeType() {
+    public Type nodeType() {
     	return NodeType.getInstance();
     }
     
@@ -374,7 +374,7 @@ public class TypeFactory {
      * @param adt
      * @param extension
      * @param label
-     * @return
+     * @return the adt parameter, for convenience
      * @throws TypeDeclarationException
      */
     public Type define(Type adt, Type extension,

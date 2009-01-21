@@ -107,7 +107,7 @@ public class TypeDescriptorFactory {
 				return tf.integerType();
 			}
 			else if (node == treeType) {
-				return tf.treeType();
+				return tf.nodeType();
 			}
 			else if (node == listType) {
 				return tf.listType(o.get("element").accept(this));

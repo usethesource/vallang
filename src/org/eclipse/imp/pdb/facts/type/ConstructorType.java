@@ -46,11 +46,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == this || other == fADT) {
+		if (other == this || other == fADT || other.isNodeType()) {
 			return true;
 		}
 		else {
-			return fADT.isSubtypeOf(other);
+			return fADT.isSubtypeOf(other) || TypeFactory.getInstance().nodeType().isSubtypeOf(other);
 		}
 	}
 	
@@ -58,6 +58,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public Type lub(Type other) {
 		if (other.isConstructorType()) {
 			return fADT.lub(other.getAbstractDataType());
+		}
+		else if (other == fADT) {
+			return fADT;
+		}
+		else if (other.isNodeType()) {
+			return other;
 		}
 		else {
 			return super.lub(other);
@@ -84,11 +90,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public boolean isConstructorType() {
-		return true;
-	}
-	
-	@Override
-	public boolean isNodeType() {
 		return true;
 	}
 	
