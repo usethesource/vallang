@@ -249,6 +249,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
               }
         	}
         }
+        else if (other.fFieldNames != null) {
+        	return false;
+        }
         
         return true;
     }
