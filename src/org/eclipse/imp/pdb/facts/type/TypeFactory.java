@@ -66,19 +66,6 @@ public class TypeFactory {
     private TypeFactory() { }
 
     /**
-     * Resets all state information of the TypeFactory, i.e. declared types and annotations. 
-     * Use this method in only for testing purposes and for nothing else. 
-     * By calling this method other clients of the TypeFactory will break.
-     */
-    public void reset() {
-    	fCache.clear();
-    	fNamedTypes.clear();
-    	fSignatures.clear();
-    	fAnonymousSignature.clear();
-    	fAnnotations.clear();
-    }
-    
-    /**
      * construct the value type, which is the top type of the type hierarchy
      * representing all possible values.
      * @return a unique reference to the value type
@@ -398,7 +385,7 @@ public class TypeFactory {
     	synchronized(fAnonymousSignature) {
     		Type earlierType = fAnonymousSignature.get(sort);
     		
-			if (earlierType != null && earlierType != argType) {
+			if (earlierType != null && !earlierType.equivalent(argType)) {
     			throw new TypeDeclarationException("Can only have one anonymous constructor per type");
     		}
 

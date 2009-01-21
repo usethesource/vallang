@@ -290,9 +290,18 @@ public abstract class Type implements Iterable<Type> {
 	 * @return true iff the types are comparable.
 	 */
 	public boolean comparable(Type other) {
-		return isSubtypeOf(other) || other.isSubtypeOf(this);
+		return (other == this) || isSubtypeOf(other) || other.isSubtypeOf(this);
 	}
 
+	/**
+	 * Computer whether this type is equivalent to another. 
+	 * @param other type to compare to
+	 * @return true iff the two types are sub-types of each-other;
+	 */
+	public boolean equivalent(Type other) {
+		return (other == this) || (isSubtypeOf(other) && other.isSubtypeOf(this));
+	}
+	
 	/**
 	 * If this type has parameters and there are parameter types embedded in it,
 	 * instantiate will replace the parameter types using the given bindings.
