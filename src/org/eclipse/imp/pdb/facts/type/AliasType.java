@@ -42,7 +42,7 @@ import org.eclipse.imp.pdb.facts.IWriter;
 	}
 	
 	@Override
-	public boolean isNamedType() {
+	public boolean isAliasType() {
 		return true;
 	}
 	

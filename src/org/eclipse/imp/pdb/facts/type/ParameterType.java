@@ -75,8 +75,8 @@ import java.util.Map;
 	}
 	
 	@Override
-	public boolean isNamedType() {
-		return fBound.isNamedType();
+	public boolean isAliasType() {
+		return fBound.isAliasType();
 	}
 	
 	@Override

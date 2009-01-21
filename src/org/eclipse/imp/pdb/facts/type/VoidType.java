@@ -169,7 +169,7 @@ import java.util.Map;
 	}
 	
 	@Override
-	public boolean isNamedType() {
+	public boolean isAliasType() {
 		return true;
 	}
 	

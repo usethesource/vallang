@@ -244,7 +244,7 @@ public abstract class Type implements Iterable<Type> {
 		else if (other.isVoidType()) {
 			return this;
 		}
-		else if (other.isNamedType()) {
+		else if (other.isAliasType()) {
 			return other.lub(this);
 		}
 		else if (other.isAnonymousTreeNodeType()) {
@@ -276,7 +276,7 @@ public abstract class Type implements Iterable<Type> {
 		if (other == this) {
 			return true;
 		}
-		if (other.isNamedType()) {
+		if (other.isAliasType()) {
 			return other.isSubtypeOf(this);
 		}
 		if (other.isAnonymousTreeNodeType()) {
@@ -388,7 +388,7 @@ public abstract class Type implements Iterable<Type> {
 		return false;
 	}
 
-	public boolean isNamedType() {
+	public boolean isAliasType() {
 		return false;
 	}
 
