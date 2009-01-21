@@ -35,6 +35,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public boolean isDefinedBy(Type type) {
+		return TypeFactory.getInstance().isDefinedBy(this, type);
+	}
+	
+	@Override
 	public String toString() {
 		return fName;
 	}

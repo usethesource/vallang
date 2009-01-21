@@ -382,13 +382,28 @@ public class TypeFactory {
     	synchronized(fExtensions) {
     		List<Type> alternatives = fExtensions.get(adt);
     		
+    		while (extension.isAliasType()) {
+    			extension = extension.getAliased();
+    		}
+    		
+    		if (extension.isAbstractDataType()) {
+    			throw new TypeDeclarationException("To prevent ambiguity it is not allowed to directly nested abstract data-type.");
+    		}
+    		
     		if (alternatives == null) {
     			alternatives = new LinkedList<Type>();
     			fExtensions.put(adt, alternatives);
     		}
     		
-    		alternatives.add(extension);
+    		for (Type alternative : alternatives) {
+    			if (!alternative.equivalent(extension)) { // equivalent redefinitions are allowed
+    				if (alternative.comparable(extension)) { // but overlapping definitions are not
+    					throw new TypeDeclarationException("Adding " + extension + " to " + adt + " is not allowed, since it introduces ambiguity with " + alternative);
+    				}
+    			}
+    		}
     		
+    		alternatives.add(extension);
     	
     		return adt;
     	}
@@ -565,11 +580,7 @@ public class TypeFactory {
      */
     public void declareAnnotation(Type onType, String key, Type valueType) {
     	if (!onType.isConstructorType() && !onType.isAbstractDataType()) {
-    		throw new TypeDeclarationException("Can not define annotations on anything but trees");
-    	}
-    	
-    	if (onType.isAnonymousTreeNodeType()) {
-    		throw new TypeDeclarationException("Can not define annotations on anonymous tree nodes");
+    		throw new TypeDeclarationException("Can not define annotations on anything but abstract data types");
     	}
     	
     	synchronized (fAnnotations) {

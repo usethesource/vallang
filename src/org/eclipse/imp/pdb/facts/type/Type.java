@@ -247,9 +247,6 @@ public abstract class Type implements Iterable<Type> {
 		else if (other.isAliasType()) {
 			return other.lub(this);
 		}
-		else if (other.isAnonymousTreeNodeType()) {
-			return other.getFieldType(0).lub(this);
-		}
 		else if (other.isAbstractDataType() && other.isDefinedBy(this)) {
 			return other;
 		}
@@ -278,9 +275,6 @@ public abstract class Type implements Iterable<Type> {
 		}
 		if (other.isAliasType()) {
 			return other.isSubtypeOf(this);
-		}
-		if (other.isAnonymousTreeNodeType()) {
-			return isSubtypeOf(other.getFieldType(0));
 		}
 		if (other.isAbstractDataType() && other.isDefinedBy(this)) {
 			return true;
@@ -517,9 +511,5 @@ public abstract class Type implements Iterable<Type> {
 	 */
 	public <T extends IWriter> T writer(IValueFactory f) {
 		throw new FactTypeError("This type does not provide a writer interface: " + this);
-	}
-
-	public boolean isAnonymousTreeNodeType() {
-		return false;
 	}
 }

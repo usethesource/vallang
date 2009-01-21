@@ -127,15 +127,12 @@ public class ValueFactory extends BaseValueFactory {
 		return new Node(name, children);
 	}
 	
-	public IConstructor constructor(Type treeNodeType, IValue... children) {
-		if (treeNodeType.isAnonymousTreeNodeType()) {
-			throw new FactTypeError("Should not construct node for anonymous tree type");
-		}
-		return new Constructor(treeNodeType, children);
+	public IConstructor constructor(Type constructorType, IValue... children) {
+		return new Constructor(constructorType, children);
 	}
 	
-	public IConstructor constructor(Type treenodetype) {
-		return new Constructor(treenodetype);
+	public IConstructor constructor(Type constructorType) {
+		return new Constructor(constructorType);
 	}
 
 	public IMap map(Type keyType, Type valueType) {
