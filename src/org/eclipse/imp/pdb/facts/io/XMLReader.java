@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
  * value types. In particular, it allows: <ul>
  *   <li> TreeSortTypes and TreeNodeTypes </li>
  *   <li> lists, sets, relations and maps, but not unless they are wrapped by a single
- *     TreeNodeType. I.o.w. a container must be the only child of a tree node.
+ *     ConstructorType. I.o.w. a container must be the only child of a tree node.
  *     Elements of containers are juxtapositioned as children of this node.</li>
  *   <li> tuples, but not nested ones. And tuples of containers are not allowed.
  *     elements of tuples are juxtapositioned in the xml files.</li>
@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
  *     lists of lists, tuples of tuples, lists in tuples, sets in tuples, etc.
  *     If such nesting is needed, it is required to use a wrapping tree node.</li>
  * </ul>
- * There is no support for NamedTypes yet, only TreeSortType and TreeNodeType are 
+ * There is no support for NamedTypes yet, only TreeSortType and ConstructorType are 
  * allowed.
  *     
  * The limitations of this class are governed by wanting to avoid ambiguity
@@ -84,7 +84,7 @@ public class XMLReader implements IValueReader {
 	}
 	
 	private IValue parse(Node node, Type expected) {
-		if (expected.isNamedTreeType()) {
+		if (expected.isAbstractDataType()) {
 			Type sort = expected;
 			String name = node.getNodeName();
 			
@@ -132,7 +132,7 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseMap(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
 		// TODO: implement overloading
 		Type nodeType = nodeTypes.get(0);
 		Type mapType = nodeType.getFieldType(0);
@@ -174,11 +174,11 @@ public class XMLReader implements IValueReader {
 		}
 		
 		
-		return vf.tree(nodeType, writer.done());
+		return vf.constructor(nodeType, writer.done());
 	}
 
 	private IValue parseRelation(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
 		// TODO implement overloading
 		Type nodeType = nodeTypes.get(0);
 		Type relType = nodeType.getFieldType(0);
@@ -196,11 +196,11 @@ public class XMLReader implements IValueReader {
 				writer.insert(vf.tuple(elements));
 		}
 		
-		return vf.tree(nodeType, writer.done());
+		return vf.constructor(nodeType, writer.done());
 	}
 
 	private IValue parseSet(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
 		// TODO implement overloading
 		Type nodeType = nodeTypes.get(0);
 		Type setType = (Type) nodeType.getFieldType(0);
@@ -225,11 +225,11 @@ public class XMLReader implements IValueReader {
 			}
 		}
 		
-		return vf.tree(nodeType, writer.done());
+		return vf.constructor(nodeType, writer.done());
 	}
 
 	private IValue parseList(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupTreeNodeType(expected, node.getNodeName());
+		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
 		// TODO implement overloading
 		Type nodeType = nodeTypes.get(0);
 		Type listType = nodeType.getFieldType(0);
@@ -254,14 +254,14 @@ public class XMLReader implements IValueReader {
 			}
 		}
 		
-		return vf.tree(nodeType, writer.done());
+		return vf.constructor(nodeType, writer.done());
 	}
 
     /*package*/ static boolean isListWrapper(String name, Type expected) {
     	Type nodeType;
     	
-    	if (expected.isNamedTreeType()) {
-    		nodeType = tf.lookupTreeNodeType(expected, name).get(0);
+    	if (expected.isAbstractDataType()) {
+    		nodeType = tf.lookupConstructor(expected, name).get(0);
     	}
     	else {
     		nodeType = expected;
@@ -274,8 +274,8 @@ public class XMLReader implements IValueReader {
 	/*package*/ static boolean isSetWrapper(String name, Type expected) {
 		Type nodeType;
     	
-    	if (expected.isNamedTreeType()) {
-    		nodeType = tf.lookupTreeNodeType(expected, name).get(0);
+    	if (expected.isAbstractDataType()) {
+    		nodeType = tf.lookupConstructor(expected, name).get(0);
     	}
     	else {
     		nodeType = expected;
@@ -288,8 +288,8 @@ public class XMLReader implements IValueReader {
 	/*package*/ static boolean isRelationWrapper(String name, Type expected) {
 		Type nodeType;
     	
-    	if (expected.isNamedTreeType()) {
-    		nodeType = tf.lookupTreeNodeType(expected, name).get(0);
+    	if (expected.isAbstractDataType()) {
+    		nodeType = tf.lookupConstructor(expected, name).get(0);
     	}
     	else {
     		nodeType = expected;
@@ -302,8 +302,8 @@ public class XMLReader implements IValueReader {
 	/*package*/ static boolean isMapWrapper(String name, Type expected) {
 		Type nodeType;
     	
-    	if (expected.isNamedTreeType()) {
-    		nodeType = tf.lookupTreeNodeType(expected, name).get(0);
+    	if (expected.isAbstractDataType()) {
+    		nodeType = tf.lookupConstructor(expected, name).get(0);
     	}
     	else {
     		nodeType = expected;
@@ -314,7 +314,7 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseTreeSort(Node node, Type expected) {
-		Type  nodeType = tf.lookupTreeNodeType(expected, node.getNodeName()).get(0);
+		Type  nodeType = tf.lookupConstructor(expected, node.getNodeName()).get(0);
 		Type childrenTypes = nodeType.getFieldTypes();
 		NodeList children = node.getChildNodes();
 		
@@ -341,6 +341,6 @@ public class XMLReader implements IValueReader {
 			}
 		}
 		
-		return vf.tree(nodeType, values);
+		return vf.constructor(nodeType, values);
 	}
 }

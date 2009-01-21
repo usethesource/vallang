@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,14 +46,14 @@ public class TypeFactory {
     private final Map<String, Type> fNamedTypes= new HashMap<String, Type>();
     
     /**
-     * Keeps administration of declared tree node types
+     * Keeps administration of declared constructor alternatives for abstract data types
      */
-    private final Map<Type, List<Type>> fSignatures = new HashMap<Type, List<Type>>();
+    private final Map<Type, List<Type>> fConstructors = new HashMap<Type, List<Type>>();
     
     /**
-     * Keeps administration of anonymous tree node types
+     * Keeps administration of declared extensions for abstract data types
      */
-    private final Map<Type,Type> fAnonymousSignature = new HashMap<Type, Type>();
+    private final Map<Type,List<Type>> fExtensions = new HashMap<Type, List<Type>>();
 
     /**
      * Keeps administration of declared annotations 
@@ -242,98 +243,95 @@ public class TypeFactory {
     }
 
     /** 
-     * Construct a named type. Named types are subtypes of types. Note that in the near future
-     * they will be type aliases.
+     * Construct an alias type. 
+     * 
      * @param name      the name of the type
-     * @param superType the type it should be a subtype of (alias)
+     * @param aliased the type it should be an alias for
      * @return a named type
-     * @throws TypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a NamedTreeType.
+     * @throws TypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
      */
-    public Type namedType(String name, Type superType) throws TypeDeclarationException {
+    public Type aliasType(String name, Type aliased) throws TypeDeclarationException {
     	synchronized (fNamedTypes) {
     		if (!isIdentifier(name)) {
     			throw new TypeDeclarationException("This is not a valid identifier: " + name);
     		}
 
-    		Type result = getFromCache(new NamedType(name, superType));
+    		Type result = getFromCache(new AliasType(name, aliased));
 
     		Type old = fNamedTypes.get(name);
     		if (old != null && !old.equals(result)) {
-    			throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + superType);
+    			throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + aliased);
     		}
 
-    		Type tmp2 = new NamedTreeType(name);
+    		Type tmp2 = new AbstractDataType(name);
     		synchronized (fCache) {
-    			Type sort= fCache.get(tmp2);
+    			Type adt= fCache.get(tmp2);
 
-    			if (sort != null) {
-    				throw new TypeDeclarationException("Can not redeclare tree sort type " + sort + " with a named type");
+    			if (adt != null) {
+    				throw new TypeDeclarationException("Can not redeclare abstract data-type " + adt + " with a named type");
     			}
     		}
 
-    		fNamedTypes.put(name, (NamedType) result);
-    		return (NamedType) result;
+    		fNamedTypes.put(name, (AliasType) result);
+    		return (AliasType) result;
     	}
     }
 
     public Type treeType() {
-    	return TreeType.getInstance();
+    	return NodeType.getInstance();
     }
     
     /**
-     * Construct a NamedTreeType, which is a kind of tree node. Each kind of tree node
-     * may have different alternatives, which are TreeNodeTypes. A TreeNodeType is always a
-     * sub type of a NamedTreeType. A NamedTreeType is always a sub type of value.
-     * @param name the name of the tree sort
-     * @return a NamedTreeType
-     * @throws TypeDeclarationException when a NamedType with the same name was already declared. Redeclaration of a NamedTreeType is ignored.
+     * Construct a AbstractDataType, which is a kind of tree node. Each kind of tree node
+     * may have different alternatives, which are TreeNodeTypes. A ConstructorType is always a
+     * sub type of a AbstractDataType. A AbstractDataType is always a sub type of value.
+     * @param name the name of the abstract data-type
+     * @return a AbstractDataType
+     * @throws TypeDeclarationException when a AliasType with the same name was already declared. Redeclaration of a AbstractDataType is ignored.
      */
-    public Type namedTreeType(String name) throws TypeDeclarationException {
-    	synchronized (fSignatures) {
+    public Type abstractDataType(String name) throws TypeDeclarationException {
+    	synchronized (fConstructors) {
     		if (!isIdentifier(name)) {
     			throw new TypeDeclarationException("This is not a valid identifier: " + name);
     		}
 
     		Type old = fNamedTypes.get(name);
     		if (old != null) {
-    			throw new TypeDeclarationException("Can not redeclare a named type " + old + " with a tree sort type.");
+    			throw new TypeDeclarationException("Can not redeclare a named type " + old + " with an abstract data-type.");
     		}
 
-    		Type tmp = (NamedTreeType) getFromCache(new NamedTreeType(name));
+    		Type tmp = (AbstractDataType) getFromCache(new AbstractDataType(name));
     		
-    		if (fSignatures.get(tmp) == null) {
-    		  fSignatures.put(tmp, new LinkedList<Type>());
+    		if (fConstructors.get(tmp) == null) {
+    		  fConstructors.put(tmp, new LinkedList<Type>());
     		}
     		return tmp;
     	}
     }
     
     /**
-     * Construct a new node type. A node type is always a subtype of a NamedTreeType. It
-     * represents an alternative constructor for a specific NamedTreeType.
-     * 
-     * When name == null, an anonymous tree node type is constructed, which should always
-     * have a single child. No more than one of these may be constructed per NamedTreeType.
+    * Make a new constructor type. A constructor type extends an abstract data type such
+     * that it represents more values.
      * 
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
-     * @throws TypeDeclarationException when a second anonymous tree is declared for the same NamedTreeType, or when
-     *         name == null and tupleType has an arity != 1.
+     * @throws TypeDeclarationException when a second anonymous tree is declared for the same AbstractDataType, or when
+     *         name == null.
      */
-    public Type treeNodeTypeFromTupleType(Type nodeType, String name, Type tupleType) throws TypeDeclarationException {
-    	synchronized(fSignatures) {
-    		List<Type> signature = fSignatures.get(nodeType);
+    public Type constructorFromTuple(Type nodeType, String name, Type tupleType) throws TypeDeclarationException {
+    	synchronized(fConstructors) {
+    		List<Type> signature = fConstructors.get(nodeType);
     		if (signature == null) {
     			throw new TypeDeclarationException("Unknown named tree type: " + nodeType);
     		}
 
     		if (name == null) {
-    			throw new TypeDeclarationException("Node name can not be null, use anonymousTreeType() instead");
+    			throw new TypeDeclarationException("Constructor name can not be null, use extendAbstractDataType() instead");
     		}
     		
-    		Type result = getFromCache(new TreeNodeType(name, (TupleType) tupleType, (NamedTreeType) nodeType));
+    		Type result = getFromCache(new ConstructorType(name, (TupleType) tupleType, (AbstractDataType) nodeType));
     		signature.add(result);
 
     		return result;
@@ -341,134 +339,138 @@ public class TypeFactory {
     }
     
     /**
-     * Construct a new node type. A node type is always a subtype of a NamedTreeType. It
-     * represents an alternative constructor for a specific NamedTreeType. 
+     * Make a new constructor type. A constructor type extends an abstract data type such
+     * that it represents more values.
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type treeNodeType(Type nodeType, String name, Type... children ) throws TypeDeclarationException { 
-    	return treeNodeTypeFromTupleType(nodeType, name, tupleType(children));
+    public Type constructor(Type nodeType, String name, Type... children ) throws TypeDeclarationException { 
+    	return constructorFromTuple(nodeType, name, tupleType(children));
     }
     
     /**
-     * Construct a new node type. A node type is always a subtype of a NamedTreeType. It
-     * represents an alternative constructor for a specific NamedTreeType. 
+     * Make a new constructor type. A constructor type extends an abstract data type such
+     * that it represents more values.
+     * 
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type treeNodeType(Type nodeType, String name, Object... childrenAndLabels ) throws TypeDeclarationException { 
-    	return treeNodeTypeFromTupleType(nodeType, name, tupleType(childrenAndLabels));
+    public Type constructor(Type nodeType, String name, Object... childrenAndLabels ) throws TypeDeclarationException { 
+    	return constructorFromTuple(nodeType, name, tupleType(childrenAndLabels));
     }
     
+   
     /**
-     * Construct a special kind of tree node. This tree node does not have
-     * a name, always has exactly one child. It is used for serialized values
-     * where one alternative for a NamedTreeType does not have a wrapping node name.
+     * Define an abstract data-type by enlarging it with another type. This is only allowed
+     * if the existing set of values represented by the abstract data-type does not overlap
+     * with the set of values to be added (which are represented by argType). 
+     * <br>
+     * For another way to define/enlarge an abstract data-type use constructor()
      * 
-     * The argType must be a subtype of bool, int, double, string, sourceRange or sourceLoc.
-     * Each NamedTreeType can only have one anonymous constructor.
-     * 
-     * @param sort        the sort (NamedTreeType) this constructor builds      
-     * @param string      the name of the alternative (even though it will not be used)
-     * @param argType     the type of the single child
-     * @param label       the label of the single child
-     * @return a TreeNodeType
-     * @throws TypeDeclarationException when a second anonymous constructor is defined or when
-     * argType is not one of integer, bool, double, string, sourceRange or sourceLocation.
+     * @param adt
+     * @param extension
+     * @param label
+     * @return
+     * @throws TypeDeclarationException
      */
-    public Type anonymousTreeType(Type sort, String string,
-			Type argType, String label) throws TypeDeclarationException {
-    	synchronized(fAnonymousSignature) {
-    		Type earlierType = fAnonymousSignature.get(sort);
+    public Type define(Type adt, Type extension,
+			String label) throws TypeDeclarationException {
+    	synchronized(fExtensions) {
+    		List<Type> alternatives = fExtensions.get(adt);
     		
-			if (earlierType != null && !earlierType.equivalent(argType)) {
-    			throw new TypeDeclarationException("Can only have one anonymous constructor per type");
+    		if (alternatives == null) {
+    			alternatives = new LinkedList<Type>();
+    			fExtensions.put(adt, alternatives);
     		}
-
-    		if (!(argType.isSourceLocationType() || argType.isSourceRangeType() || argType.isBoolType() || argType.isIntegerType() || argType.isDoubleType() || argType.isStringType())) {
-    			throw new TypeDeclarationException("Anonymous trees may only wrap bool, integer, double, or string values");
-    		}
-
-    		Type result = getFromCache(new TreeNodeType(null, (TupleType) TypeFactory.getInstance().tupleType(argType, label), (NamedTreeType) sort));
-
-    		fAnonymousSignature.put(sort, result);
-    		return result;
+    		
+    		alternatives.add(extension);
+    		
+    	
+    		return adt;
     	}
 	}
 
     /**
-     * Lookup a NamedType that was declared before by name
+     * Lookup a AliasType that was declared before by name
      * @param name the name of the type to lookup
      * @return
      */
-    public Type lookupNamedType(String name) {
+    public Type lookupAlias(String name) {
         return fNamedTypes.get(name);
     }
     
     /**
-     * Returns all alternative ways of constructing a certain type name using
-     * a tree type.
+     * Returns all alternative ways of constructing a certain abstract data type.
      * 
-     * @param type
-     * @return all tree node types that construct the given type
+     * @param adt
+     * @return all types that construct the given type
      */
-    public List<Type> lookupTreeNodeTypes(Type type) {
-    	List<Type> signature = fSignatures.get(type);
-    	Type anonymous = fAnonymousSignature.get(type);
-    	if (anonymous != null) {
-    		signature.add(anonymous);
+    public List<Type> lookupAlternatives(Type adt) {
+    	List<Type> signature = fConstructors.get(adt);
+    	List<Type> extensions = fExtensions.get(adt);
+    	if (extensions != null) {
+    		signature.addAll(extensions);
     	}
     	return signature;
     }
     
     /**
-     * Lookup a TreeNodeType by name, and in the context of a certain NamedTreeType
-     * @param type             the NamedTreeType context
-     * @param constructorName  the name of the TreeNodeType
-     * @return a TreeNodeType if it was declared before
+     * Retrieve all extensions for a certain abstract data-type. These are the ways
+     * of constructing the ADT without using a constructor.
+     *  
+     * See @link {@link TypeFactory#define(AbstractDataType, Type, String)})
+     * for more information.
+     * 
+     * @param adt AbstractDataType to lookup the constructor for
+     * @return a list of types
+     */
+    @SuppressWarnings("unchecked")
+	public List<Type> lookupDefinitions(Type adt) {
+    	List<Type> result = fExtensions.get(adt);
+    	return result != null ? result : Collections.EMPTY_LIST;
+    }
+    
+    /**
+     * Compute whether a certain type defines an algebraic data-type, i.e. whether
+     * it should be allowed wherever the algebraic type is allowed (is a sub-type of the
+     * algebraic data-type).
+     * 
+     * @param adt
+     * @param subType
+     * @return
+     */
+    public boolean isDefinedBy(Type adt, Type subType) {
+    	return lookupDefinitions(adt).contains(subType);
+    }
+    
+    /**
+     * Lookup a ConstructorType by name, and in the context of a certain AbstractDataType
+     * @param adt             the AbstractDataType context
+     * @param constructorName  the name of the ConstructorType
+     * @return a ConstructorType if it was declared before
      * @throws a FactTypeError if the type was not declared before
      */
-    public List<Type> lookupTreeNodeType(Type type, String constructorName) throws FactTypeError {
+    public List<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeError {
     	List<Type> result = new LinkedList<Type>();
     	
-    	if (constructorName == null) {
-    		Type anonymous = lookupAnonymousTreeNodeType(type);
-    		if (anonymous != null) {
-    			result.add(anonymous);
-    		}
-    	}
-    	else {
-    		for (Type node : fSignatures.get(type)) {
-    			String name = node.getName();
-    			if (name.equals(constructorName)) {
-    				result.add(node);
-    			}
+    	for (Type node : fConstructors.get(adt)) {
+    		String name = node.getName();
+    		if (name.equals(constructorName)) {
+    			result.add(node);
     		}
     	}
 
     	return result;
     }
 
-    /**
-     * Retrieve the type for an anonymous constructor.  
-     * See @link {@link TypeFactory#anonymousTreeType(NamedTreeType, String, Type, String)})
-     * for more information.
-     * @param type NamedTreeType to lookup the constructor for
-     * @return an anonymous tree node type
-     * @throws FactTypeError if the type does not have an anonymous constructor
-     */
-    public Type lookupAnonymousTreeNodeType(Type type) throws FactTypeError {
-    	return fAnonymousSignature.get(type);
-    }
     
     /** 
      * Retrieve all tree node types for a given constructor name, 
-     * regardless of tree sort type. If constructorName == null, it will
-     * return all types that have an anonymous constructor.
+     * regardless of abstract data-type. 
      * 
      * @param constructName the name of the tree node
      */
@@ -476,8 +478,8 @@ public class TypeFactory {
     	List<Type> result = new LinkedList<Type>();
     	
     	if (constructorName != null) {
-    		for (Type sort : fSignatures.keySet()) {
-    			for (Type node : fSignatures.get(sort)) {
+    		for (Type adt : fConstructors.keySet()) {
+    			for (Type node : fConstructors.get(adt)) {
     				String name = node.getName();
     				if (name.equals(constructorName)) {
     					result.add(node);
@@ -486,7 +488,7 @@ public class TypeFactory {
     		}
     	}
     	else {
-    		result.addAll(fAnonymousSignature.keySet());
+    		result.addAll(fExtensions.keySet());
     	}
     	
     	return result;
@@ -497,10 +499,16 @@ public class TypeFactory {
      * @param name  the supposed name of the named tree type
      * @return null if such type does not exist, or the type if it was declared earlier
      */
-    public Type lookupNamedTreeType(String name) {
-    	for (Type sort : fSignatures.keySet()) {
-    		if (sort.getName().equals(name)) {
-    			return sort;
+    public Type lookupAbstractDataType(String name) {
+    	for (Type adt : fConstructors.keySet()) {
+    		if (adt.getName().equals(name)) {
+    			return adt;
+    		}
+    	}
+    	
+    	for (Type adt : fExtensions.keySet()) {
+    		if (adt.getName().equals(name)) {
+    			return adt;
     		}
     	}
     	
@@ -556,7 +564,7 @@ public class TypeFactory {
      * but NamedTreeTypes orTreeNodeTypes.
      */
     public void declareAnnotation(Type onType, String key, Type valueType) {
-    	if (!onType.isTreeNodeType() && !onType.isNamedTreeType()) {
+    	if (!onType.isConstructorType() && !onType.isAbstractDataType()) {
     		throw new TypeDeclarationException("Can not define annotations on anything but trees");
     	}
     	
@@ -603,8 +611,8 @@ public class TypeFactory {
     	  result.putAll(localAnnotations);
     	}
     	
-    	if (onType.isTreeNodeType()) {
-    		localAnnotations = fAnnotations.get(((TreeNodeType) onType).getSuperType());
+    	if (onType.isConstructorType()) {
+    		localAnnotations = fAnnotations.get(((ConstructorType) onType).getAbstractDataType());
     		if (localAnnotations != null) {
     		  result.putAll(localAnnotations);
     		}

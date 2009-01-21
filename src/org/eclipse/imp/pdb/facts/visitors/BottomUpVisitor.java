@@ -15,11 +15,11 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -37,20 +37,20 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 	}
 	
 	@Override
-	public T visitTree(ITree o) throws VisitorException {
-		for (int i = 0; i < o.arity(); i++) {
-			o.get(i).accept(this);
-		}
-		
-		return fVisitor.visitTree(o);
-	}
-	
 	public T visitNode(INode o) throws VisitorException {
 		for (int i = 0; i < o.arity(); i++) {
 			o.get(i).accept(this);
 		}
 		
 		return fVisitor.visitNode(o);
+	}
+	
+	public T visitConstructor(IConstructor o) throws VisitorException {
+		for (int i = 0; i < o.arity(); i++) {
+			o.get(i).accept(this);
+		}
+		
+		return fVisitor.visitConstructor(o);
 	}
 	
 	@Override

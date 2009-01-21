@@ -19,7 +19,7 @@ import java.util.ListIterator;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -139,11 +139,11 @@ public class ATermReader implements IValueReader {
 
 			String funname = parseId(reader);
 			
-			if (!expected.isNamedTreeType()) {
+			if (!expected.isAbstractDataType()) {
 				throw new FactTypeError("Expected a " + expected + " but got a tree node");
 			}
 			
-			List<Type> nodes = tf.lookupTreeNodeType(expected, funname);
+			List<Type> nodes = tf.lookupConstructor(expected, funname);
 			Type node = nodes.get(0); // TODO deal with overloading
 			
 			c = reader.skipWS();
@@ -153,7 +153,7 @@ public class ATermReader implements IValueReader {
 					throw new FactTypeError("premature EOF encountered.");
 				}
 				if (reader.getLastChar() == ')') {
-					result = vf.tree(node, new IValue[0]);
+					result = vf.constructor(node, new IValue[0]);
 				} else {
 					IValue[] list = parseFixedSizeATermsArray(reader, node.getFieldTypes());
 
@@ -271,8 +271,8 @@ public class ATermReader implements IValueReader {
 					reader.readSkippingWS();
 					IValue value = parse(reader, annoType);
 					
-					if (result.getType().isTreeNodeType() || result.getType().isNamedTreeType()) {
-						result = ((INode) result).setAnnotation(key, value);
+					if (result.getType().isConstructorType() || result.getType().isAbstractDataType()) {
+						result = ((IConstructor) result).setAnnotation(key, value);
 					}
 					
 					if (reader.getLastChar() != ']') {

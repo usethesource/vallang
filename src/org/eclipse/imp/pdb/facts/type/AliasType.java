@@ -22,23 +22,23 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 
 /**
- * A NamedType is a named for a type, i.e. a type alias that can be
+ * A AliasType is a named for a type, i.e. a type alias that can be
  * used to abstract from types that have a complex structure. Since a 
- * @{link Type} represents a set of values, a NamedType is defined to 
+ * @{link Type} represents a set of values, a AliasType is defined to 
  * be an alias (because it represents the same set of values).
  * <p>
  * Detail: This API does not allow @{link IValue}'s of the basic types (int, 
- * double, etc) to be tagged with a NamedType. Instead the immediately
+ * double, etc) to be tagged with a AliasType. Instead the immediately
  * surrounding structure, such as a set or a relation will refer to the
- * NamedType.
+ * AliasType.
  */
-/*package*/ final class NamedType extends Type {
+/*package*/ final class AliasType extends Type {
 	/* package */ final String fName;
-	/* package */ final Type fSuperType;
+	/* package */ final Type fAliased;
 	
-	/* package */ NamedType(String name, Type superType) {
+	/* package */ AliasType(String name, Type aliased) {
 		fName = name;
-		fSuperType = superType;
+		fAliased = aliased;
 	}
 	
 	@Override
@@ -52,16 +52,16 @@ import org.eclipse.imp.pdb.facts.IWriter;
 	}
 	
 	@Override
-	public Type getSuperType() {
-		return fSuperType;
+	public Type getAliased() {
+		return fAliased;
 	}
 	
 	/**
-	 * @return the first super type of this type that is not a NamedType.
+	 * @return the first super type of this type that is not a AliasType.
 	 */
 	@Override
 	public Type getHiddenType() {
-		return fSuperType;
+		return fAliased;
 	}
 
 	@Override
@@ -70,7 +70,7 @@ import org.eclipse.imp.pdb.facts.IWriter;
 			return true;
 		}
 		else {
-			return fSuperType.isSubtypeOf(other);
+			return fAliased.isSubtypeOf(other);
 		}
 	}
 
@@ -80,7 +80,7 @@ import org.eclipse.imp.pdb.facts.IWriter;
 			return this;
 		}
 		else {
-			return fSuperType.lub(other);
+			return fAliased.lub(other);
 		}
 	}
 	
@@ -91,126 +91,126 @@ import org.eclipse.imp.pdb.facts.IWriter;
 	
 	@Override
 	public int hashCode() {
-		return 49991 + 49831 * fName.hashCode() + 67349 * fSuperType.hashCode();
+		return 49991 + 49831 * fName.hashCode() + 67349 * fAliased.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof NamedType) {
-			NamedType other = (NamedType) o;
-			return fName.equals(other.fName) && fSuperType == other.fSuperType;
+		if (o instanceof AliasType) {
+			AliasType other = (AliasType) o;
+			return fName.equals(other.fName) && fAliased == other.fAliased;
 		}
 		return false;
 	}
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitNamed(this);
+		return visitor.visitAlias(this);
 	}
 	
 	@Override
 	public IInteger make(IValueFactory f, int arg) {
-		return (IInteger) fSuperType.make(f, arg);
+		return (IInteger) fAliased.make(f, arg);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f) {
-		return fSuperType.make(f);
+		return fAliased.make(f);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, IValue... children) {
-		return fSuperType.make(f, children);
+		return fAliased.make(f, children);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, String path, ISourceRange range) {
-	    return fSuperType.make(f, path, range);
+	    return fAliased.make(f, path, range);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f,int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
-		return fSuperType.make(f, startOffset, length, startLine, endLine, startCol, endCol);
+		return fAliased.make(f, startOffset, length, startLine, endLine, startCol, endCol);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, double arg) {
-		return fSuperType.make(f, arg);
+		return fAliased.make(f, arg);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, String arg) {
-		return fSuperType.make(f, arg);
+		return fAliased.make(f, arg);
 	}
 	
 	@Override
 	public <T extends IWriter> T writer(IValueFactory f) {
-		return fSuperType.writer(f);
+		return fAliased.writer(f);
 	}
 
 	@Override
 	public int getArity() {
-		return fSuperType.getArity();
+		return fAliased.getArity();
 	}
 	
 	@Override
 	public Type getBound() {
-		return fSuperType.getBound();
+		return fAliased.getBound();
 	}
 	
 	@Override
 	public Type getElementType() {
-		return fSuperType.getElementType();
+		return fAliased.getElementType();
 	}
 	
 	@Override
 	public int getFieldIndex(String fieldName) {
-		return fSuperType.getFieldIndex(fieldName);
+		return fAliased.getFieldIndex(fieldName);
 	}
 	
 	@Override
 	public String getFieldName(int i) {
-		return fSuperType.getFieldName(i);
+		return fAliased.getFieldName(i);
 	}
 	
 	@Override
 	public Type getFieldType(int i) {
-		return fSuperType.getFieldType(i);
+		return fAliased.getFieldType(i);
 	}
 	
 	@Override
 	public Type getFieldType(String fieldName) {
-		return fSuperType.getFieldType(fieldName);
+		return fAliased.getFieldType(fieldName);
 	}
 	
 	@Override
 	public Type getFieldTypes() {
-		return fSuperType.getFieldTypes();
+		return fAliased.getFieldTypes();
 	}
 	
 	@Override
 	public Type getKeyType() {
-		return fSuperType.getKeyType();
+		return fAliased.getKeyType();
 	}
 	
 	@Override
 	public Type getValueType() {
-		return fSuperType.getValueType();
+		return fAliased.getValueType();
 	}
 
 	@Override
 	public boolean comparable(Type other) {
-		return fSuperType.comparable(other);
+		return fAliased.comparable(other);
 	}
 
 	@Override
 	public Type compose(Type other) {
-		return fSuperType.compose(other);
+		return fAliased.compose(other);
 	}
 
 	@Override
 	public boolean hasFieldNames() {
-		return fSuperType.hasFieldNames();
+		return fAliased.hasFieldNames();
 	}
 
 	@Override
@@ -220,111 +220,111 @@ import org.eclipse.imp.pdb.facts.IWriter;
 
 	@Override
 	public boolean isBoolType() {
-		return fSuperType.isBoolType();
+		return fAliased.isBoolType();
 	}
 
 	@Override
 	public boolean isDoubleType() {
-		return fSuperType.isDoubleType();
+		return fAliased.isDoubleType();
 	}
 
 	@Override
 	public boolean isIntegerType() {
-		return fSuperType.isIntegerType();
+		return fAliased.isIntegerType();
 	}
 
 	@Override
 	public boolean isListType() {
-		return fSuperType.isListType();
+		return fAliased.isListType();
 	}
 
 	@Override
 	public boolean isMapType() {
-		return fSuperType.isMapType();
+		return fAliased.isMapType();
 	}
 
 	@Override
-	public boolean isNamedTreeType() {
-		return fSuperType.isNamedTreeType();
+	public boolean isAbstractDataType() {
+		return fAliased.isAbstractDataType();
 	}
 
 	@Override
 	public boolean isParameterType() {
-		return fSuperType.isParameterType();
+		return fAliased.isParameterType();
 	}
 
 	@Override
 	public boolean isRelationType() {
-		return fSuperType.isRelationType();
+		return fAliased.isRelationType();
 	}
 
 	@Override
 	public boolean isSetType() {
-		return fSuperType.isSetType();
+		return fAliased.isSetType();
 	}
 
 	@Override
 	public boolean isSourceLocationType() {
-		return fSuperType.isSourceLocationType();
+		return fAliased.isSourceLocationType();
 	}
 
 	@Override
 	public boolean isSourceRangeType() {
-		return fSuperType.isSourceRangeType();
+		return fAliased.isSourceRangeType();
 	}
 
 	@Override
 	public boolean isStringType() {
-		return fSuperType.isStringType();
+		return fAliased.isStringType();
 	}
 
 	@Override
-	public boolean isTreeNodeType() {
-		return fSuperType.isTreeNodeType();
+	public boolean isConstructorType() {
+		return fAliased.isConstructorType();
 	}
 
 	@Override
-	public boolean isTreeType() {
-		return fSuperType.isTreeType();
+	public boolean isNodeType() {
+		return fAliased.isNodeType();
 	}
 
 	@Override
 	public boolean isTupleType() {
-		return fSuperType.isTupleType();
+		return fAliased.isTupleType();
 	}
 
 	@Override
 	public boolean isValueType() {
-		return fSuperType.isValueType();
+		return fAliased.isValueType();
 	}
 
 	@Override
 	public boolean isVoidType() {
-		return fSuperType.isVoidType();
+		return fAliased.isVoidType();
 	}
 
 	@Override
 	public Iterator<Type> iterator() {
-		return fSuperType.iterator();
+		return fAliased.iterator();
 	}
 
 	@Override
 	public IValue make(IValueFactory f, boolean arg) {
-		return fSuperType.make(f, arg);
+		return fAliased.make(f, arg);
 	}
 
 	@Override
 	public IValue make(IValueFactory f, String name, IValue... children) {
-		return fSuperType.make(f, name, children);
+		return fAliased.make(f, name, children);
 	}
 
 	@Override
 	public Type select(int... fields) {
-		return fSuperType.select(fields);
+		return fAliased.select(fields);
 	}
 
 	@Override
 	public Type select(String... names) {
-		return fSuperType.select(names);
+		return fAliased.select(names);
 	}
 }

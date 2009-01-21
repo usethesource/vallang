@@ -16,12 +16,12 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
@@ -119,23 +119,23 @@ public class ValueFactory extends BaseValueFactory {
 		return new Tuple(tmp);
 	}
 	
-	public ITree tree(String name) {
-		return new Tree(name);
+	public INode node(String name) {
+		return new Node(name);
 	}
 	
-	public ITree tree(String name, IValue... children) {
-		return new Tree(name, children);
+	public INode node(String name, IValue... children) {
+		return new Node(name, children);
 	}
 	
-	public INode tree(Type treeNodeType, IValue... children) {
+	public IConstructor constructor(Type treeNodeType, IValue... children) {
 		if (treeNodeType.isAnonymousTreeNodeType()) {
 			throw new FactTypeError("Should not construct node for anonymous tree type");
 		}
-		return new Node(treeNodeType, children);
+		return new Constructor(treeNodeType, children);
 	}
 	
-	public INode tree(Type treenodetype) {
-		return new Node(treenodetype);
+	public IConstructor constructor(Type treenodetype) {
+		return new Constructor(treenodetype);
 	}
 
 	public IMap map(Type keyType, Type valueType) {

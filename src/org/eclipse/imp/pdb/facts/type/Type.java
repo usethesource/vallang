@@ -185,11 +185,19 @@ public abstract class Type implements Iterable<Type> {
 	}
 	
 	/**
-	 * For a tree node type, return the named tree type it constructs.
+	 * For a constructor, return the algebraic data-type it constructs
 	 * @return a type
 	 */
-	public Type getSuperType() {
+	public Type getAbstractDataType() {
 		throw new FactTypeError("This type does not have a super type");
+	}
+	
+	/**
+	 * For an alias type, return which type it aliases.
+	 * @return a type
+	 */ 
+	public Type getAliased() {
+		throw new FactTypeError("This type is not an alias for anything");
 	}
 	
 	/**
@@ -210,7 +218,7 @@ public abstract class Type implements Iterable<Type> {
 	}
 	
 	/**
-	 * For a NamedTreeType or a TreeNodeType, return whether a certain
+	 * For a AbstractDataType or a ConstructorType, return whether a certain
 	 * annotation label was declared.
 	 * 
 	 * @param label
@@ -242,7 +250,7 @@ public abstract class Type implements Iterable<Type> {
 		else if (other.isAnonymousTreeNodeType()) {
 			return other.getFieldType(0).lub(this);
 		}
-		else if (other.isNamedTreeType() && other.hasAnonymousConstructorFor(this)) {
+		else if (other.isAbstractDataType() && other.isDefinedBy(this)) {
 			return other;
 		}
 		else {
@@ -274,13 +282,18 @@ public abstract class Type implements Iterable<Type> {
 		if (other.isAnonymousTreeNodeType()) {
 			return isSubtypeOf(other.getFieldType(0));
 		}
-		if (other.isNamedTreeType() && other.hasAnonymousConstructorFor(this)) {
+		if (other.isAbstractDataType() && other.isDefinedBy(this)) {
 			return true;
 		}
 		return false;
 	}
 	
-	public boolean hasAnonymousConstructorFor(Type type) {
+	/**
+	 * Return whether an ADT is defined by a certain type (is extended by a certain by).
+	 * @param type 
+	 * @return true iff this ADT can be constructed using values of the given type.
+	 */
+	public boolean isDefinedBy(Type type) {
 		return false;
 	}
 
@@ -387,15 +400,15 @@ public abstract class Type implements Iterable<Type> {
 		return false;
 	}
 
-	public boolean isTreeType() {
+	public boolean isNodeType() {
 		return false;
 	}
 	
-	public boolean isTreeNodeType() {
+	public boolean isConstructorType() {
 		return false;
 	}
 
-	public boolean isNamedTreeType() {
+	public boolean isAbstractDataType() {
 		return false;
 	}
 

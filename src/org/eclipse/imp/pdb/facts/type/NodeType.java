@@ -15,19 +15,23 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-/*package*/ final class TreeType extends Type {
+/**
+ * A type for values that are nodes. All INode have the type NodeType, 
+ * and all IConstructors have NodeType as a supertype.
+ */
+/*package*/ final class NodeType extends Type {
 	private static class InstanceHolder {
-		public static final TreeType sInstance= new TreeType();
+		public static final NodeType sInstance= new NodeType();
 	}
 	
-    public static TreeType getInstance() {
+    public static NodeType getInstance() {
         return InstanceHolder.sInstance;
     }
 
-    private TreeType() { }
+    private NodeType() { }
 
     @Override
-    public boolean isTreeType() {
+    public boolean isNodeType() {
     	return true;
     }
     
@@ -37,11 +41,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     /**
-     * Should never be called, TreeType is a singleton 
+     * Should never be called, NodeType is a singleton 
      */
     @Override
     public boolean equals(Object o) {
-        return (o instanceof TreeType);
+        return (o instanceof NodeType);
     }
     
     @Override
@@ -51,16 +55,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     
     @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitTree(this);
+    	return visitor.visitNode(this);
     }
     
     @Override
     public IValue make(IValueFactory f, String name) {
-    	return f.tree(name);
+    	return f.node(name);
     }
     
     @Override
     public IValue make(IValueFactory f, String name, IValue... children) {
-    	return f.tree(name, children);
+    	return f.node(name, children);
     }
 }

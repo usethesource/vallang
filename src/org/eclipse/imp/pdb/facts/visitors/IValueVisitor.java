@@ -16,13 +16,13 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 
 public interface IValueVisitor<R> {
@@ -34,8 +34,8 @@ public interface IValueVisitor<R> {
    public R visitSourceLocation(ISourceLocation o) throws VisitorException;
    public R visitSourceRange(ISourceRange o) throws VisitorException;
    public R visitTuple(ITuple o) throws VisitorException;
-   public R visitTree(ITree o) throws VisitorException;
    public R visitNode(INode o) throws VisitorException;
+   public R visitConstructor(IConstructor o) throws VisitorException;
    public R visitInteger(IInteger o) throws VisitorException;
    public R visitMap(IMap o) throws VisitorException;
    public R visitBoolean(IBool boolValue) throws VisitorException;

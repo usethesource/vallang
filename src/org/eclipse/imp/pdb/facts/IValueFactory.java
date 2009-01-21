@@ -81,31 +81,31 @@ public interface IValueFactory {
      * @param name the name of the tree node
      * @return a new tree value
      */
-    public ITree tree(String name);
+    public INode node(String name);
     
     /**
-     * Construct a generic tree node
+     * Construct a node
      * @param name     the name of the node
      * @param children the edges (children) of the node
      * @return a new tree node
      */
-    public ITree tree(String name, IValue... children);
+    public INode node(String name, IValue... children);
     
     /**
-     * Construct a typed nullary tree node
-     * @param type     the tree node type to use
-     * @return a new tree value
+     * Make a nullary constructor (a typed nullary node)
+     * @param constructor     the constructor to use
+     * @return a new constructor value
      */
-    public INode tree(Type type);
+    public IConstructor constructor(Type constructor);
     
     /**
-     * Construct a typed tree node
-     * @param type     the tree node type to use
+     * Make a constructor value.
+     * @param constructor the constructor to use
      * @param children an array or variable length argument list of children
      * @return a new tree value
      * @throws FactTypeError if the children are not of the expected types for this node type
      */
-    public INode tree(Type type, IValue... children) throws FactTypeError;
+    public IConstructor constructor(Type constructor, IValue... children) throws FactTypeError;
     
     /**
      * Construct an empty unmodifiable set. If the element type is a tuple type,

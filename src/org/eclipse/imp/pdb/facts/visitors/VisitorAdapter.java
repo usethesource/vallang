@@ -15,13 +15,13 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 
 /**
@@ -71,12 +71,12 @@ public abstract class VisitorAdapter<T> implements IValueVisitor<T> {
 		return fVisitor.visitString(o);
 	}
 
-	public T visitTree(ITree o) throws VisitorException {
-		return fVisitor.visitTree(o);
+	public T visitNode(INode o) throws VisitorException {
+		return fVisitor.visitNode(o);
 	}
 
-	public T visitNode(INode o) throws VisitorException {
-		return fVisitor.visitTree(o);
+	public T visitConstructor(IConstructor o) throws VisitorException {
+		return fVisitor.visitNode(o);
 	}
 	
 	public T visitTuple(ITuple o) throws VisitorException {

@@ -17,46 +17,21 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 /**
- * A NamedTreeType is an algebraic sort. A sort is produced by constructors, @see TreeType.
+ * A AbstractDataType is an algebraic sort. A sort is produced by constructors, @see NodeType.
  * There can be many constructors for a single sort.
  * 
- * @see TreeNodeType
+ * @see ConstructorType
  */
-/*package*/ final class NamedTreeType extends Type {
+/*package*/ final class AbstractDataType extends Type {
 	/* package */ final String fName;
 	
-	/* package */ NamedTreeType(String name) {
+	/* package */ AbstractDataType(String name) {
 		fName = name;
 	}
 	
 	@Override
-	public boolean isNamedTreeType() {
+	public boolean isAbstractDataType() {
 		return true;
-	}
-	
-	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other.isTreeType()) {
-			return true;
-		}
-		else {
-			return super.isSubtypeOf(other);
-		}
-	}
-	
-	@Override
-	public boolean isTreeType() {
-		return true;
-	}
-
-	@Override
-	public Type lub(Type other) {
-		if (other.isTreeType()) {
-			return other;
-		}
-		else {
-			return super.lub(other);
-		}
 	}
 	
 	@Override
@@ -71,8 +46,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof NamedTreeType) {
-			NamedTreeType other = (NamedTreeType) o;
+		if (o instanceof AbstractDataType) {
+			AbstractDataType other = (AbstractDataType) o;
 			return fName.equals(other.fName);
 		}
 		return false;
@@ -85,51 +60,48 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitNamedTree(this);
+		return visitor.visitAbstractData(this);
 	}
 	
 	@Override
 	public IValue make(IValueFactory vf, int arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
-		if (node != null) {
-			return node.make(vf, arg);
+		if (tf.isDefinedBy(this, tf.integerType())) {
+			return vf.integer(arg);
 		}
 		else {
-			throw new FactTypeError("This sort does not have an anonymous int constructor: " + this);
+			throw new FactTypeError("This adt is not extended by integer." + this);
 		}
 	}
 	
 	@Override
 	public IValue make(IValueFactory vf, double arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
-		if (node != null) {
-			return node.make(vf, arg);
+		if (tf.isDefinedBy(this, tf.doubleType())) {
+			return vf.dubble(arg);
 		}
 		else {
-			throw new FactTypeError("This sort does not have an anonymous double constructor: " + this);
+			throw new FactTypeError("This adt is not extended by double: " + this);
 		}
 	}
 	
 	@Override
 	public IValue make(IValueFactory vf, String arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		Type node = tf.lookupAnonymousTreeNodeType(this);
 		
-		if (node != null) {
-			return node.make(vf, arg);
+		if (tf.isDefinedBy(this, tf.stringType())) {
+			return vf.string(arg);
 		}
 		else {
-			throw new FactTypeError("This sort does not have an anonymous string constructor: " + this);
+			throw new FactTypeError("This adt is not extended by string" + this);
 		}
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, String name, IValue... children) {
-		List<Type> possible = TypeFactory.getInstance().lookupTreeNodeType(this, name);
+		List<Type> possible = TypeFactory.getInstance().lookupConstructor(this, name);
 		Type childrenTypes = TypeFactory.getInstance().tupleType(children);
 		
 		for (Type node : possible) {
@@ -138,19 +110,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			}
 		}
 		
-		throw new FactTypeError("This sort does not have a constructor with this signature: " + name + ":" + childrenTypes);
-	}
-	
-	@Override
-	public boolean hasAnonymousConstructorFor(Type type) {
-		Type node = TypeFactory.getInstance().lookupAnonymousTreeNodeType(this);
-		
-		if (node != null) {
-			return type.isSubtypeOf(node.getFieldType(0));
-		}
-		else {
-			return false;
-		}
+		throw new FactTypeError("This adt does not have a constructor with this signature: " + name + ":" + childrenTypes);
 	}
 	
 	@Override

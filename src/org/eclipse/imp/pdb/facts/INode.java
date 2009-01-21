@@ -1,88 +1,60 @@
+/*******************************************************************************
+* Copyright (c) CWI 2008 
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Jurgen Vinju (jurgenv@cwi.nl) - initial API and implementation
+
+*******************************************************************************/
+
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.Type;
+import java.util.Iterator;
+
 
 /**
- * Typed tree representation. An INode is a specific kind of ITree, namely one
- * that adheres to a specific schema see @link{TreeNodeType}.
- *
+ * Untyped node representation (a container that has a limited amount of children and a name), 
+ * can iterate over the list of children. This data construct can be used to make trees by applying
+ * it recursively.
  */
-public interface INode extends ITree {
+public interface INode extends IValue, Iterable<IValue> {
 	/**
-	 * Get a child from a labeled position in the tree.
-	 * @param label the name of the child
-	 * @return a value at the position indicated by the label.
+	 * Get a child
+	 * @param i the zero based index of the child
+	 * @return a value
 	 */
-	public IValue  get(String label);
+	public IValue get(int i) throws IndexOutOfBoundsException;
 	
 	/**
-	 * Replace a child at a labeled position in the tree. 
-	 * @param label    the label of the position
-	 * @param newChild the new value of the child
-	 * @return a new tree node that is the same as the receiver except for
-	 * the fact that at the labeled position the new value has replaced the old value.
-	 * All annotations remain equal.
+	 * Change this tree to have a different child at a certain position.
 	 * 
-	 * @throws FactTypeError when this label does not exist for the given tree node, or 
-	 *         when the given value has a type that is not a sub-type of the declared type
-	 *         of the child with this label.
+	 * @param i            the zero based index of the child to be replaced
+	 * @param newChild     the new value for the child
+	 * @return an untyped tree with the new child at position i, if the receiver was untyped,
+	 *         or a typed tree node if it was typed.
 	 */
-	public INode   set(String label, IValue newChild) throws FactTypeError;
+	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException;
 	
 	/**
-	 * Replace a child at an indexed position in the tree. 
-	 * @param label    the label of the position
-	 * @param newChild the new value of the child
-	 * @return a new tree node that is the same as the receiver except for
-	 * the fact that at the labeled position the new value has replaced the old value.
-	 * All annotations remain equal.
-	 * 
-	 * @throws FactTypeError when the index is greater than the arity of this tree node, or 
-	 *         when the given value has a type that is not a sub-type of the declared type
-	 *         of the child at this index.
+	 * @return the (fixed) number of children of this node
 	 */
-	public INode   set(int index, IValue newChild) throws FactTypeError;
+	public int arity();
 	
 	/**
-	 * @return a tuple type representing the children types of this node/
+	 * @return the name of this node (an identifier)
 	 */
-	public Type    getChildrenTypes();
+	public String getName();
 	
 	/**
-	 * Check whether a certain annotation is set.
-	 * 
-	 * @param label identifies the annotation
-	 * @return true iff the annotation has a value on this node
-	 * @throws FactTypeError when no annotation with this label is defined for this type of node.
+	 * @return an iterator over the direct children, equivalent to 'this'.
 	 */
-	public boolean hasAnnotation(String label) throws FactTypeError;
+	public Iterable<IValue> getChildren();
 	
 	/**
-	 * Check whether a certain annotation label is declared for this type of node.
-	 * @param label
-	 * @return true iff the given annotation label was declared for this type of node.
+	 * @return an iterator over the direct children.
 	 */
-	public boolean declaresAnnotation(String label);
-	
-	/**
-	 * Get the value of an annotation
-	 * 
-	 * @param label identifies the annotation
-	 * @return a value if the annotation has a value on this node or null otherwise
-	 * @throws FactTypeError when no annotation with this label is defined for this type of node.
-	 */
-	public IValue  getAnnotation(String label) throws FactTypeError;
-	
-	/**
-	 * Set the value of an annotation
-	 * 
-	 * @param label identifies the annotation
-	 * @param newValue the new value for the annotation
-	 * @return a value if the annotation has a value on this node or null otherwise
-	 * @throws FactTypeError when no annotation with this label is defined for this type of node
-	 * or when the type of the newValue is not a sub-type of the type of annotation that this label
-	 * identifies. 
-	 */
-	public INode   setAnnotation(String label, IValue newValue) throws FactTypeError;
+	public Iterator<IValue> iterator();
 }

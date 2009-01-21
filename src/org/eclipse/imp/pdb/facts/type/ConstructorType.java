@@ -24,7 +24,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * Address ::= dutchAddress(Street, City, Postcode)
  * Address ::= usAddress(Street, City, State, PostalCode)
  * 
- * Here Address is the NamedTreeType, the type a tree produces. dutchAddress
+ * Here Address is the AbstractDataType, the type a tree produces. dutchAddress
  * and usAddress are the names of the node types and the other capitalized names
  * are the types of the children.
  * 
@@ -33,31 +33,31 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * Boolean ::= or(Boolean lhs, Boolean rhs)
  * 
  */
-/*package*/ final class TreeNodeType extends Type {
+/*package*/ final class ConstructorType extends Type {
 	protected final TupleType fChildrenTypes;
-	protected final NamedTreeType fTreeType;
+	protected final AbstractDataType fADT;
 	protected final String fName;
 	
-	/* package */ TreeNodeType(String name, TupleType childrenTypes, NamedTreeType treeType) {
+	/* package */ ConstructorType(String name, TupleType childrenTypes, AbstractDataType adt) {
 		fName = name;
 		fChildrenTypes = childrenTypes;
-		fTreeType = treeType;
+		fADT = adt;
 	}
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == this || other == fTreeType) {
+		if (other == this || other == fADT) {
 			return true;
 		}
 		else {
-			return fTreeType.isSubtypeOf(other);
+			return fADT.isSubtypeOf(other);
 		}
 	}
 	
 	@Override
 	public Type lub(Type other) {
-		if (other.isTreeNodeType()) {
-			return fTreeType.lub(other.getSuperType());
+		if (other.isConstructorType()) {
+			return fADT.lub(other.getAbstractDataType());
 		}
 		else {
 			return super.lub(other);
@@ -68,27 +68,27 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public int hashCode() {
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
-		354767453 * fTreeType.hashCode();
+		354767453 * fADT.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof TreeNodeType) {
-			return ((fName == null) ? ((TreeNodeType) o).fName == null : fName
-					.equals(((TreeNodeType) o).fName))
-					&& fChildrenTypes == ((TreeNodeType) o).fChildrenTypes
-					&& fTreeType == fTreeType;
+		if (o instanceof ConstructorType) {
+			return ((fName == null) ? ((ConstructorType) o).fName == null : fName
+					.equals(((ConstructorType) o).fName))
+					&& fChildrenTypes == ((ConstructorType) o).fChildrenTypes
+					&& fADT == fADT;
 		}
 		return false;
 	}
 	
 	@Override
-	public boolean isTreeNodeType() {
+	public boolean isConstructorType() {
 		return true;
 	}
 	
 	@Override
-	public boolean isTreeType() {
+	public boolean isNodeType() {
 		return true;
 	}
 	
@@ -100,7 +100,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(fTreeType);
+		builder.append(fADT);
 		builder.append("::=");
 		builder.append(fName);
 		builder.append("(");
@@ -139,8 +139,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
-	public Type getSuperType() {
-		return fTreeType;
+	public Type getAbstractDataType() {
+		return fADT;
 	}
 	
 	@Override
@@ -150,12 +150,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitTreeNode(this);
+		return visitor.visitConstructor(this);
 	}
 
 	@Override
 	public IValue make(IValueFactory f) {
-		return f.tree(this);
+		return f.constructor(this);
 	}
 	
 	@Override
@@ -193,7 +193,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			throw new FactTypeError("This anonymous tree type expects a " + getFieldType(0) + " not a " + type);
 		}
 		else {
-			return vf.tree(this, args);
+			return vf.constructor(this, args);
 		}
 	}
 	
@@ -205,7 +205,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 		
 		Type childrenTypes = TypeFactory.getInstance().tupleType(children);
 		if (!childrenTypes.isSubtypeOf(fChildrenTypes)) {
-			throw new FactTypeError("These children don't fit this tree node: " + fChildrenTypes);
+			throw new FactTypeError("These children don't fit this constructor: " + fChildrenTypes);
 		}
 		
 		return make(f, children);
@@ -215,13 +215,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeError {
 		super.match(matched, bindings);
-		getSuperType().match(matched.getSuperType(), bindings);
+		fADT.match(matched.getAbstractDataType(), bindings);
 		getFieldTypes().match(matched.getFieldTypes(), bindings);
 	}
 	
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return TypeFactory.getInstance().treeNodeTypeFromTupleType(getSuperType().instantiate(bindings), getName(), getFieldTypes().instantiate(bindings));
+		return TypeFactory.getInstance().constructorFromTuple(fADT.instantiate(bindings), getName(), getFieldTypes().instantiate(bindings));
 	}
 	
 	@Override

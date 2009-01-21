@@ -110,7 +110,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
     @Override
     public IValue make(IValueFactory f, String name, IValue... children) {
-    	return f.tree(name, children);
+    	return f.node(name, children);
     }
     
     @Override

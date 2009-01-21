@@ -70,8 +70,8 @@ import java.util.Map;
 	}
 	
 	@Override
-	public boolean isNamedTreeType() {
-		return fBound.isNamedTreeType();
+	public boolean isAbstractDataType() {
+		return fBound.isAbstractDataType();
 	}
 	
 	@Override
@@ -105,13 +105,13 @@ import java.util.Map;
 	}
 	
 	@Override
-	public boolean isTreeNodeType() {
-		return fBound.isTreeNodeType();
+	public boolean isConstructorType() {
+		return fBound.isConstructorType();
 	}
 	
 	@Override
-	public boolean isTreeType() {
-		return fBound.isTreeType();
+	public boolean isNodeType() {
+		return fBound.isNodeType();
 	}
 	
 	@Override

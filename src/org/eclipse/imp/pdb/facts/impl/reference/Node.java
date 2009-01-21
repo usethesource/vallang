@@ -1,127 +1,168 @@
+/*******************************************************************************
+* Copyright (c) 2007 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*   jurgen@vinju.org
+*******************************************************************************/
+
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.HashMap;
+import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
- * Implementation of a typed tree node with access to children via labels
+ * Naive implementation of an untyped tree node, using array of children.
  */
-public class Node extends Tree implements INode {
-	protected final static HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<String,IValue>();
-    protected final HashMap<String, IValue> fAnnotations;
-    
-	/*package*/ Node(Type type, IValue[] children) {
-		super(type.getName(), type, children);
-		fAnnotations = EMPTY_ANNOTATIONS;
+public class Node extends Value implements INode {
+    protected final IValue[] fChildren;
+    protected final String fName;
+	
+	/*package*/ Node(String name, IValue[] children) {
+		super(TypeFactory.getInstance().treeType());
+		fName = name;
+		fChildren = new IValue[children.length];
+		System.arraycopy(children, 0, fChildren, 0, children.length);
 	}
 	
-	/*package*/ Node(Type type) {
-		this(type, new IValue[0]);
+	protected Node(String name, Type type, IValue[] children) {
+		super(type);
+		fName = name;
+		fChildren = new IValue[children.length];
+		System.arraycopy(children, 0, fChildren, 0, children.length);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private Node(Node node, String label, IValue anno) {
-		super(node.getType().getName(), node.getType(), node.fChildren);
-		fAnnotations = (HashMap<String, IValue>) node.fAnnotations.clone();
-		fAnnotations.put(label, anno);
+	/*package*/ Node(String name) {
+		this(name, new IValue[0]);
 	}
 
-	private Node(Node other, int childIndex, IValue newChild) {
-		super(other, childIndex, newChild);
-		fAnnotations = other.fAnnotations;
+	protected Node(Node other, int index, IValue newChild) {
+		super(other);
+		fName = other.fName;
+		fChildren = other.fChildren.clone();
+		fChildren[index] = newChild;
 	}
 	
-	@Override
-	public Type getType() {
-		// TODO Auto-generated method stub
-		return super.getType();
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		return v.visitNode(this);
 	}
 
-	public IValue get(String label) {
-		return super.get(fType.getFieldIndex(label));
+	public int arity() {
+		return fChildren.length;
 	}
 
-	public Type getChildrenTypes() {
-		return fType.getFieldTypes();
-	}
-
-	@Override
-	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
-		checkChildType(i, newChild);
-		return new Node(this, i, newChild);
-	}
-
-	
-	public INode set(String label, IValue newChild) throws FactTypeError {
-		int childIndex = fType.getFieldIndex(label);
-		checkChildType(childIndex, newChild);
-		return new Node(this, childIndex, newChild);
-	}
-	
-	private void checkChildType(int i, IValue newChild) {
-		Type type = newChild.getType();
-		Type expectedType = getType().getFieldType(i);
-		if (!type.isSubtypeOf(expectedType)) {
-			throw new FactTypeError("New child type " + type + " is not a subtype of " + expectedType);
+	public IValue get(int i) throws IndexOutOfBoundsException {
+		try {
+		 return fChildren[i];
 		}
+		catch (ArrayIndexOutOfBoundsException e) {
+			throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
+		}
+	}
+
+	public Iterable<IValue> getChildren() {
+		return this;
+	}
+
+	public String getName() {
+		return fName;
+	}
+
+	public  INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
+		try {
+			return new Node(this, i, newChild);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
+		}
+	}
+
+	public Iterator<IValue> iterator() {
+		return new Iterator<IValue>() {
+			private int i = 0;
+
+			public boolean hasNext() {
+				return i < fChildren.length;
+			}
+
+			public IValue next() {
+				return fChildren[i++];
+			}
+
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		if (fName == null) {
+			// if no name there is always exactly one child
+			builder.append(fChildren[0].toString());
+		}
+		else {
+			builder.append(fName);
+			builder.append("(");
+
+			Iterator<IValue> it = iterator();
+			while (it.hasNext()) {
+				builder.append(it.next().toString());
+				if (it.hasNext()) {
+					builder.append(",");
+				}
+			}
+			builder.append(")");
+		}
+		
+		return builder.toString();
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
-		  Node other = (Node) obj;
-		  return fType.comparable(other.fType) && super.equals(obj) && fAnnotations.equals(other.fAnnotations);
+			Node other = (Node) obj;
+			
+			if (!fType.comparable(other.fType)) {
+				return false;
+			}
+			
+			if (fChildren.length != other.fChildren.length) {
+				return false;		
+			}
+			
+			if (fName == other.fName || (fName != null && fName.equals(other.fName))) {
+				for (int i = 0; i < fChildren.length; i++) {
+					if (!fChildren[i].equals(other.fChildren[i])) {
+						return false;
+					}
+				}
+			
+				return true;
+			}
 		}
+		
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		 return 17 + ~super.hashCode();
-	}
-	
-	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-		return v.visitNode(this);
-	}
-	
-	public boolean hasAnnotation(String label) {
-		boolean result = fAnnotations.containsKey(label);
-		if (!result && !declaresAnnotation(label)) {
-			throw new FactTypeError("This type " + getType() + " has no annotation named " + label + " declared for it.");
-		}
-		return result;
-	}
-
-	public boolean declaresAnnotation(String label) {
-		return TypeFactory.getInstance().getAnnotationType(getType(), label) != null;
-	}
-	
-	public INode setAnnotation(String label, IValue value) {
-		Type expected = TypeFactory.getInstance().getAnnotationType(getType(), label);
-
-		if (expected == null) {
-			throw new FactTypeError("This annotation was not declared for this type: " + label + " for " + getType());
-		}
-
-		if (!value.getType().isSubtypeOf(expected)) {
-			throw new FactTypeError("The type of this annotation should be a subtype of " + expected + " and not " + value.getType());
-		}
-
-		return new Node(this, label, value);
-	}
-
-	public IValue getAnnotation(String label) throws FactTypeError {
-		if (!declaresAnnotation(label)) {
-			throw new FactTypeError("This type " + getType() + " has no annotation named " + label + " declared for it.");
-		}
-		return fAnnotations.get(label);
+       int hash = fName != null ? fName.hashCode() : 0;
+       
+	   for (int i = 0; i < fChildren.length; i++) {
+	     hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
+	   }
+	   return hash;
 	}
 }

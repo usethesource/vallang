@@ -164,7 +164,7 @@ import java.util.Map;
 	}
 	
 	@Override
-	public boolean isNamedTreeType() {
+	public boolean isAbstractDataType() {
 		return true;
 	}
 	
@@ -204,12 +204,12 @@ import java.util.Map;
 	}
 	
 	@Override
-	public boolean isTreeNodeType() {
+	public boolean isConstructorType() {
 		return true;
 	}
 	
 	@Override
-	public boolean isTreeType() {
+	public boolean isNodeType() {
 		return true;
 	}
 	

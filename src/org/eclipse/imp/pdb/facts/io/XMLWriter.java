@@ -28,11 +28,11 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -71,25 +71,25 @@ public class XMLWriter implements IValueWriter {
 	private Node yield(IValue value, Document doc) {
 		Type type = value.getType();
 		
-		if (type.isTreeNodeType()) {
+		if (type.isConstructorType()) {
 			Type sort = type;
-			Type node = ((INode) value).getType();
+			Type node = ((IConstructor) value).getType();
 			String name = node.getName();
 			
 			if (XMLReader.isListWrapper(name,  sort)) {
-				return yieldList((ITree) value,  doc);
+				return yieldList((INode) value,  doc);
 			}
 			else if (XMLReader.isSetWrapper(name, sort)) {
-				return yieldSet((ITree) value, doc);
+				return yieldSet((INode) value, doc);
 			}
 			else if (XMLReader.isRelationWrapper(name, sort)) {
-				return yieldRelation((ITree) value, doc);
+				return yieldRelation((INode) value, doc);
 			}
 			else if (XMLReader.isMapWrapper(name, sort)) {
-				return yieldMap((ITree) value, doc);
+				return yieldMap((INode) value, doc);
 			}
 			else {
-			  return yieldTree((ITree) value, doc);
+			  return yieldTree((INode) value, doc);
 			}
 		}
 		else if (type.isStringType()) {
@@ -118,9 +118,9 @@ public class XMLWriter implements IValueWriter {
 		return doc.createTextNode(value.getValue());
 	}
 
-	private Node yieldMap(ITree tree, Document doc) {
-		Element treeNode = doc.createElement(tree.getName());
-		IMap map = (IMap) tree.get(0);
+	private Node yieldMap(INode node, Document doc) {
+		Element treeNode = doc.createElement(node.getName());
+		IMap map = (IMap) node.get(0);
 		
 		for (IValue key : map) {
 			IValue value = map.get(key);
@@ -151,9 +151,9 @@ public class XMLWriter implements IValueWriter {
 		}
 	}
 
-	private Node yieldRelation(ITree tree, Document doc) {
-		Element treeNode = doc.createElement(tree.getName());
-		IRelation relation = (IRelation) tree.get(0);
+	private Node yieldRelation(INode node, Document doc) {
+		Element treeNode = doc.createElement(node.getName());
+		IRelation relation = (IRelation) node.get(0);
 		 
 		for (IValue tuple : relation) {
 			appendTupleElements(doc, treeNode, tuple);
@@ -162,9 +162,9 @@ public class XMLWriter implements IValueWriter {
 		return treeNode;
 	}
 	
-	private Node yieldSet(ITree tree, Document doc) {
-		Element treeNode = doc.createElement(tree.getName());
-		ISet set = (ISet) tree.get(0);
+	private Node yieldSet(INode node, Document doc) {
+		Element treeNode = doc.createElement(node.getName());
+		ISet set = (ISet) node.get(0);
 		
 		for (IValue elem : set) {
 			if (elem.getType().isTupleType()) {
@@ -178,9 +178,9 @@ public class XMLWriter implements IValueWriter {
 		return treeNode;
 	}
 
-	private Node yieldList(ITree tree, Document doc) {
-		Element treeNode = doc.createElement(tree.getName());
-		IList list = (IList) tree.get(0);
+	private Node yieldList(INode node, Document doc) {
+		Element treeNode = doc.createElement(node.getName());
+		IList list = (IList) node.get(0);
 		
 		for (IValue elem : list) {
 			if (elem.getType().isTupleType()) {
@@ -194,7 +194,7 @@ public class XMLWriter implements IValueWriter {
 		return treeNode;
 	}
 
-	private Node yieldTree(ITree value,  Document doc) {
+	private Node yieldTree(INode value,  Document doc) {
 		Element treeNode = doc.createElement(value.getName());
 		
 		for (IValue child : value) {

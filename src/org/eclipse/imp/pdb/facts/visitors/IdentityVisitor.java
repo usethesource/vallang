@@ -14,13 +14,13 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IBool;
@@ -67,11 +67,11 @@ public abstract class IdentityVisitor implements IValueVisitor<IValue> {
 		return o;
 	}
 
-	public IValue visitTree(ITree o)  throws VisitorException{
+	public IValue visitNode(INode o)  throws VisitorException{
 		return o;
 	}
 	
-	public IValue visitNode(INode o) throws VisitorException {
+	public IValue visitConstructor(IConstructor o) throws VisitorException {
 		return o;
 	}
 
