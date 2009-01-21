@@ -29,7 +29,7 @@ public class Node extends Value implements INode {
     protected final String fName;
 	
 	/*package*/ Node(String name, IValue[] children) {
-		super(TypeFactory.getInstance().treeType());
+		super(TypeFactory.getInstance().nodeType());
 		fName = name;
 		fChildren = new IValue[children.length];
 		System.arraycopy(children, 0, fChildren, 0, children.length);
