@@ -44,7 +44,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
     @Override
     public String toString() {
-        return "string";
+        return "str";
     }
     
     @Override
