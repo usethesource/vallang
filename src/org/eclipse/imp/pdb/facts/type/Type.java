@@ -274,7 +274,7 @@ public abstract class Type implements Iterable<Type> {
 			return true;
 		}
 		if (other.isAliasType()) {
-			return other.isSubtypeOf(this);
+			return isSubtypeOf(other.getAliased());
 		}
 		if (other.isAbstractDataType() && other.isDefinedBy(this)) {
 			return true;
