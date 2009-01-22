@@ -36,13 +36,6 @@ class Relation extends Set implements IRelation {
 		return getType().getArity();
 	}
 	
-	@Override
-	public IRelation insert(IValue element) throws FactTypeError {
-		// class cast exception can not occur because superclass
-		// will construct a relation.
-		return (IRelation) super.insert(element);
-	}
-
 	public IRelation closure() throws FactTypeError {
 		checkReflexivity();
 		IRelation tmp = (IRelation) this;
