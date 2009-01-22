@@ -46,7 +46,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == this || other == fADT || other.isNodeType()) {
+		if (other == this || other == fADT) {
 			return true;
 		}
 		else {
@@ -90,6 +90,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public boolean isConstructorType() {
+		return true;
+	}
+	
+	@Override
+	public boolean isNodeType() {
 		return true;
 	}
 	
@@ -151,6 +156,17 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
 	@Override
 	public IValue make(IValueFactory f) {
+		return f.constructor(this);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, String arg) {
+		if (!arg.equals(fName)) {
+			throw new FactTypeError("This constructor has a different name from: " + arg);
+		}
+		if (fChildrenTypes.getArity() != 0) {
+			throw new FactTypeError("This is not a nullary constructor");
+		}
 		return f.constructor(this);
 	}
 	
