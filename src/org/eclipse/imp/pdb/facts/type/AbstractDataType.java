@@ -35,6 +35,22 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public Type lub(Type other) {
+		if (other == this) {
+			return this;
+		}
+		else if (other.isConstructorType() && other.getAbstractDataType() == this) {
+			return this;
+		}
+		else if (this.isDefinedBy(other)) {
+			return this;
+		}
+		else {
+			return super.lub(other);
+		}
+	}
+	
+	@Override
 	public boolean isDefinedBy(Type type) {
 		return TypeFactory.getInstance().isDefinedBy(this, type);
 	}
