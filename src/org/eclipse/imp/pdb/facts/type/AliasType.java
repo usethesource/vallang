@@ -242,7 +242,15 @@ import org.eclipse.imp.pdb.facts.IWriter;
 
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return new AliasType(fName, fAliased.instantiate(bindings), fParameters.instantiate(bindings));
+		Type[] params = new Type[0];
+		if (isParameterized()) {
+			params = new Type[fParameters.getArity()];
+			int i = 0;
+			for (Type p : fParameters) {
+				params[i] = p.instantiate(bindings);
+			}
+		}
+		return TypeFactory.getInstance().aliasType(fName, fAliased.instantiate(bindings), params);
 	}
 	
 	@Override

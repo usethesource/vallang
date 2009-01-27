@@ -270,12 +270,12 @@ public class TypeFactory {
 
     		Type old = fNamedTypes.get(name);
     		if (old != null && !old.equals(result)) {
-    			if (result.isSubtypeOf(old)) { // we may instantiate a named type, but not redeclare it.
+    			if (!result.isSubtypeOf(old)) { // we may instantiate a named type, but not redeclare it.
     				throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + aliased);
     			}
     		}
 
-    		Type tmp2 = new AbstractDataType(name);
+    		Type tmp2 = new AbstractDataType(name, paramType);
     		synchronized (fCache) {
     			Type adt= fCache.get(tmp2);
 
@@ -298,10 +298,11 @@ public class TypeFactory {
      * may have different alternatives, which are TreeNodeTypes. A ConstructorType is always a
      * sub type of a AbstractDataType. A AbstractDataType is always a sub type of value.
      * @param name the name of the abstract data-type
+     * @param parameters array of type parameters
      * @return a AbstractDataType
      * @throws TypeDeclarationException when a AliasType with the same name was already declared. Redeclaration of a AbstractDataType is ignored.
      */
-    public Type abstractDataType(String name) throws TypeDeclarationException {
+    public Type abstractDataType(String name, Type... parameters) throws TypeDeclarationException {
     	synchronized (fConstructors) {
     		if (!isIdentifier(name)) {
     			throw new TypeDeclarationException("This is not a valid identifier: " + name);
@@ -311,8 +312,13 @@ public class TypeFactory {
     		if (old != null) {
     			throw new TypeDeclarationException("Can not redeclare a named type " + old + " with an abstract data-type.");
     		}
+    		
+    		Type paramType = voidType();
+    		if (parameters.length != 0) {
+    			paramType = tupleType(parameters);
+    		}
 
-    		Type tmp = (AbstractDataType) getFromCache(new AbstractDataType(name));
+    		Type tmp = (AbstractDataType) getFromCache(new AbstractDataType(name, paramType));
     		
     		if (fConstructors.get(tmp) == null) {
     		  fConstructors.put(tmp, new LinkedList<Type>());

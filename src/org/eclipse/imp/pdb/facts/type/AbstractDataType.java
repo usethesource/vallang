@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -24,14 +25,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  */
 /*package*/ final class AbstractDataType extends Type {
 	/* package */ final String fName;
+	/* package */ final Type fParameters;
 	
-	/* package */ AbstractDataType(String name) {
+	/* package */ AbstractDataType(String name, Type parameters) {
 		fName = name;
+		fParameters = parameters;
 	}
 	
 	@Override
 	public boolean isAbstractDataType() {
 		return true;
+	}
+	
+	@Override
+	public boolean isParameterized() {
+		return !fParameters.isVoidType();
 	}
 	
 	@Override
@@ -57,21 +65,48 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public String toString() {
-		return fName;
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(fName);
+		if (!fParameters.isVoidType()) {
+			sb.append("[");
+			int idx= 0;
+			for(Type elemType: fParameters) {
+				if (idx++ > 0) {
+					sb.append(",");
+				}
+				sb.append(elemType.toString());
+			}
+			sb.append("]");
+		}
+		return sb.toString();
 	}
 	
 	@Override
 	public int hashCode() {
-		return 49991 + 49831 * fName.hashCode();
+		return 49991 + 49831 * fName.hashCode() + 49991 + fParameters.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof AbstractDataType) {
 			AbstractDataType other = (AbstractDataType) o;
-			return fName.equals(other.fName);
+			return fName.equals(other.fName) && fParameters == other.fParameters;
 		}
 		return false;
+	}
+	
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		Type[] params = new Type[0];
+		if (isParameterized()) {
+			params = new Type[fParameters.getArity()];
+			int i = 0;
+			for (Type p : fParameters) {
+				params[i] = p.instantiate(bindings);
+			}
+		}
+		return TypeFactory.getInstance().abstractDataType(fName, params);
 	}
 	
 	@Override
