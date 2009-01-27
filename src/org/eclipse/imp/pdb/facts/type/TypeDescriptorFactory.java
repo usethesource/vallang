@@ -36,17 +36,17 @@ public class TypeDescriptorFactory {
 	private Type boolType = tf.constructor(typeSort, "bool");
 	private Type doubleType = tf.constructor(typeSort, "double");
 	private Type integerType = tf.constructor(typeSort, "int");
-	private Type treeType = tf.constructor(typeSort, "tree");
+	private Type nodeType = tf.constructor(typeSort, "node");
 	private Type listType = tf.constructor(typeSort, "list", typeSort, "element");
 	private Type mapType = tf.constructor(typeSort, "map", typeSort, "key", typeSort, "value");
-	private Type namedType = tf.constructor(typeSort, "named", typeSort, "super");
+	private Type aliasType = tf.constructor(typeSort, "alias", typeSort, "aliased");
 	private Type relationType = tf.constructor(typeSort, "relation", tf.listType(typeSort), "fields");
 	private Type setType = tf.constructor(typeSort, "set", typeSort, "element");
 	private Type sourceLocationType = tf.constructor(typeSort, "sourceLocation");
 	private Type sourceRangeType = tf.constructor(typeSort, "sourceRange");
 	private Type stringType = tf.constructor(typeSort, "string");
-	private Type treeNodeType = tf.constructor(typeSort, "tree", typeSort, "sort", tf.stringType(), "name", tf.listType(typeSort), "children");
-	private Type namedTreeType = tf.constructor(typeSort, "sort", tf.stringType(), "name");
+	private Type constructorType = tf.constructor(typeSort, "constructor", typeSort, "abstract-data-type", tf.stringType(), "name", tf.listType(typeSort), "children");
+	private Type abstractDataType = tf.constructor(typeSort, "abstract-data-type", tf.stringType(), "name");
 	private Type parameterType = tf.constructor(typeSort, "parameter", tf.stringType(), "name", typeSort, "bound");
 	private Type tupleType = tf.constructor(typeSort, "tuple", tf.listType(typeSort), "fields");
 	private Type valueType = tf.constructor(typeSort, "value");
@@ -106,7 +106,7 @@ public class TypeDescriptorFactory {
 			else if (node == integerType) {
 				return tf.integerType();
 			}
-			else if (node == treeType) {
+			else if (node == nodeType) {
 				return tf.nodeType();
 			}
 			else if (node == listType) {
@@ -115,8 +115,8 @@ public class TypeDescriptorFactory {
 			else if (node == mapType) {
 				return tf.mapType(o.get("key").accept(this), o.get("value").accept(this));
 			}
-			else if (node == namedType) {
-				return tf.aliasType(((IString) o.get("name")).getValue(), o.get("super").accept(this));
+			else if (node == aliasType) {
+				return tf.aliasType(((IString) o.get("name")).getValue(), o.get("aliased").accept(this));
 			}
 			else if (node == relationType) {
 				IList fieldValues = (IList) o.get("fields");
@@ -140,8 +140,8 @@ public class TypeDescriptorFactory {
 			else if (node == stringType) {
 				return tf.stringType();
 			}
-			else if (node == treeNodeType) {
-				AbstractDataType sort = (AbstractDataType) o.get("sort").accept(this);
+			else if (node == constructorType) {
+				AbstractDataType sort = (AbstractDataType) o.get("abstract-data-type").accept(this);
 				String name = ((IString) o.get("name")).getValue();
 				
 				IList childrenValues = (IList) o.get("children");
@@ -153,7 +153,7 @@ public class TypeDescriptorFactory {
 				
 				return tf.constructor(sort, name, tf.tupleType(childrenTypes));
 			}
-			else if (node == namedTreeType) {
+			else if (node == abstractDataType) {
 				return tf.abstractDataType(((IString) o.get("name")).getValue());
 			}
 			else if (node == parameterType) {
@@ -202,7 +202,7 @@ public class TypeDescriptorFactory {
 		}
 
 		public INode visitAlias(Type type) {
-			return vf.constructor(namedType, type.getAliased().accept(this));
+			return vf.constructor(aliasType, type.getAliased().accept(this));
 		}
 
 		public INode visitRelationType(Type type) {
@@ -238,11 +238,11 @@ public class TypeDescriptorFactory {
 				w.append(field.accept(this));
 			}
 			
-			return vf.constructor(treeNodeType, type.getAbstractDataType().accept(this), vf.string(type.getName()), w.done());
+			return vf.constructor(constructorType, type.getAbstractDataType().accept(this), vf.string(type.getName()), w.done());
 		}
 
 		public INode visitAbstractData(Type type) {
-			return vf.constructor(namedTreeType, vf.string(type.getName()));
+			return vf.constructor(abstractDataType, vf.string(type.getName()));
 		}
 
 		public INode visitTuple(Type type) {
@@ -265,7 +265,7 @@ public class TypeDescriptorFactory {
 		}
 
 		public INode visitNode(Type type) {
-			return vf.constructor(treeType);
+			return vf.constructor(nodeType);
 		}
 
 		public INode visitBool(Type type) {
