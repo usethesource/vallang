@@ -35,15 +35,28 @@ import org.eclipse.imp.pdb.facts.IWriter;
 /*package*/ final class AliasType extends Type {
 	/* package */ final String fName;
 	/* package */ final Type fAliased;
+	/* package */ final Type fParameters;
 	
 	/* package */ AliasType(String name, Type aliased) {
 		fName = name;
 		fAliased = aliased;
+		fParameters = TypeFactory.getInstance().voidType();
+	}
+	
+	/* package */ AliasType(String name, Type aliased, Type parameters) {
+		fName = name;
+		fAliased = aliased;
+		fParameters = parameters;
 	}
 	
 	@Override
 	public boolean isAliasType() {
 		return true;
+	}
+	
+	@Override
+	public boolean isParameterized() {
+		return !fParameters.isVoidType();
 	}
 	
 	@Override
@@ -86,19 +99,33 @@ import org.eclipse.imp.pdb.facts.IWriter;
 	
 	@Override
 	public String toString() {
-		return fName;
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(fName);
+		if (!fParameters.isVoidType()) {
+			sb.append("[");
+			int idx= 0;
+			for(Type elemType: fParameters) {
+				if (idx++ > 0) {
+					sb.append(",");
+				}
+				sb.append(elemType.toString());
+			}
+			sb.append("]");
+		}
+		return sb.toString();
 	}
 	
 	@Override
 	public int hashCode() {
-		return 49991 + 49831 * fName.hashCode() + 67349 * fAliased.hashCode();
+		return 49991 + 49831 * fName.hashCode() + 67349 * fAliased.hashCode() + 1433 * fParameters.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof AliasType) {
 			AliasType other = (AliasType) o;
-			return fName.equals(other.fName) && fAliased == other.fAliased;
+			return fName.equals(other.fName) && fAliased == other.fAliased && fParameters == other.fParameters;
 		}
 		return false;
 	}
@@ -215,7 +242,14 @@ import org.eclipse.imp.pdb.facts.IWriter;
 
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return this;
+		return new AliasType(fName, fAliased.instantiate(bindings), fParameters.instantiate(bindings));
+	}
+	
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeError {
+		super.match(matched, bindings);
+		fAliased.match(matched, bindings);
 	}
 
 	@Override

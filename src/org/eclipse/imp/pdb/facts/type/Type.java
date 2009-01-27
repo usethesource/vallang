@@ -290,6 +290,14 @@ public abstract class Type implements Iterable<Type> {
 	public boolean isDefinedBy(Type type) {
 		return false;
 	}
+	
+	/**
+	 * Return whether an ADT or an alias Type has any type parameters
+	 * @return true iff the type is parameterized
+	 */
+	public boolean isParameterized() {
+		return false;
+	}
 
 	/**
 	 * Compute whether this type is a subtype of the other or vice versa
@@ -512,4 +520,6 @@ public abstract class Type implements Iterable<Type> {
 	public <T extends IWriter> T writer(IValueFactory f) {
 		throw new FactTypeError("This type does not provide a writer interface: " + this);
 	}
+
+	
 }

@@ -243,24 +243,36 @@ public class TypeFactory {
     }
 
     /** 
-     * Construct an alias type. 
+     * Construct an alias type. The alias may be parameterized to make an abstract alias. 
+     * Each ParameterType embedded in the aliased type should occur in the list of parameters.
      * 
      * @param name      the name of the type
      * @param aliased the type it should be an alias for
+     * @param parameters a list of type parameters for this alias
      * @return a named type
      * @throws TypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
      */
-    public Type aliasType(String name, Type aliased) throws TypeDeclarationException {
+    public Type aliasType(String name, Type aliased, Type...parameters) throws TypeDeclarationException {
     	synchronized (fNamedTypes) {
     		if (!isIdentifier(name)) {
     			throw new TypeDeclarationException("This is not a valid identifier: " + name);
     		}
+    		
+    		Type paramType;
+    		if (parameters.length == 0) {
+    			paramType = voidType();
+    		}
+    		else {
+    			paramType = tupleType(parameters);
+    		}
 
-    		Type result = getFromCache(new AliasType(name, aliased));
+    		Type result = getFromCache(new AliasType(name, aliased, paramType));
 
     		Type old = fNamedTypes.get(name);
     		if (old != null && !old.equals(result)) {
-    			throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + aliased);
+    			if (result.isSubtypeOf(old)) { // we may instantiate a named type, but not redeclare it.
+    				throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + aliased);
+    			}
     		}
 
     		Type tmp2 = new AbstractDataType(name);
@@ -276,7 +288,7 @@ public class TypeFactory {
     		return (AliasType) result;
     	}
     }
-
+    
     public Type nodeType() {
     	return NodeType.getInstance();
     }
