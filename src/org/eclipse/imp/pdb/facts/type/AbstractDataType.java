@@ -50,7 +50,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 		else if (other.isConstructorType() && other.getAbstractDataType() == this) {
 			return this;
 		}
-		else if (this.isDefinedBy(other)) {
+		else if (this.isExtendedBy(other)) {
 			return this;
 		}
 		else {
@@ -59,8 +59,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
-	public boolean isDefinedBy(Type type) {
-		return TypeFactory.getInstance().isDefinedBy(this, type);
+	public boolean isExtendedBy(Type type) {
+		return TypeFactory.getInstance().isExtendedBy(this, type);
+	}
+	
+	@Override
+	public boolean hasField(String fieldName) {
+		for (Type alt : TypeFactory.getInstance().lookupAlternatives(this)) {
+			if (alt.isConstructorType()) {
+				if (alt.hasField(fieldName)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	@Override
@@ -123,7 +136,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public IValue make(IValueFactory vf, int arg) {
 		TypeFactory tf = TypeFactory.getInstance();
 		
-		if (tf.isDefinedBy(this, tf.integerType())) {
+		if (tf.isExtendedBy(this, tf.integerType())) {
 			return vf.integer(arg);
 		}
 		else {
@@ -135,7 +148,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public IValue make(IValueFactory vf, double arg) {
 		TypeFactory tf = TypeFactory.getInstance();
 		
-		if (tf.isDefinedBy(this, tf.doubleType())) {
+		if (tf.isExtendedBy(this, tf.doubleType())) {
 			return vf.dubble(arg);
 		}
 		else {
@@ -147,7 +160,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public IValue make(IValueFactory vf, String arg) {
 		TypeFactory tf = TypeFactory.getInstance();
 		
-		if (tf.isDefinedBy(this, tf.stringType())) {
+		if (tf.isExtendedBy(this, tf.stringType())) {
 			return vf.string(arg);
 		}
 		else {

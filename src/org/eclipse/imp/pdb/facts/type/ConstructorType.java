@@ -130,9 +130,15 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public boolean hasField(String fieldName) {
+		return fChildrenTypes.hasField(fieldName);
+	}
+	
+	@Override
 	public TupleType getFieldTypes() {
 		return fChildrenTypes;
 	}
+	
 
 	@Override
 	public String getName() {

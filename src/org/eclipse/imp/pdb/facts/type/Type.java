@@ -132,6 +132,14 @@ public abstract class Type implements Iterable<Type> {
 	public int getFieldIndex(String fieldName)  {
 		throw new FactTypeError("This type does not have fields");
 	}
+	
+	/**
+	 * @param fieldName name of the field to check for
+	 * @return true iff this type has a field named fieldName
+	 */
+	public boolean hasField(String fieldName) {
+		throw new FactTypeError("This type does not have fields");
+	}
 
 	/**
 	 * Return the type that a named type is an alias for.
@@ -247,7 +255,7 @@ public abstract class Type implements Iterable<Type> {
 		else if (other.isAliasType()) {
 			return lub(other.getAliased());
 		}
-		else if (other.isAbstractDataType() && other.isDefinedBy(this)) {
+		else if (other.isAbstractDataType() && other.isExtendedBy(this)) {
 			return other;
 		}
 		else {
@@ -276,7 +284,7 @@ public abstract class Type implements Iterable<Type> {
 		if (other.isAliasType()) {
 			return isSubtypeOf(other.getAliased());
 		}
-		if (other.isAbstractDataType() && other.isDefinedBy(this)) {
+		if (other.isAbstractDataType() && other.isExtendedBy(this)) {
 			return true;
 		}
 		return false;
@@ -287,7 +295,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @param type 
 	 * @return true iff this ADT can be constructed using values of the given type.
 	 */
-	public boolean isDefinedBy(Type type) {
+	public boolean isExtendedBy(Type type) {
 		return false;
 	}
 	

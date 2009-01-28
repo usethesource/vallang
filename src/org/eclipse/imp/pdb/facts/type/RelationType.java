@@ -45,6 +45,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
+    public int getFieldIndex(String fieldName) {
+    	return fTupleType.getFieldIndex(fieldName);
+    }
+    
+    @Override
+    public boolean hasField(String fieldName) {
+    	return fTupleType.hasField(fieldName);
+    }
+    
+    @Override
     public Type getFieldTypes() {
     	return fTupleType;
     }

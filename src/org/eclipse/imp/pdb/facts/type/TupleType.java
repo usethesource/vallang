@@ -87,7 +87,17 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     		throw new FactTypeError("no field exists with this name: " + fieldName);
     	}
     	
-    	throw new FactTypeError("tuple type has no labels");
+    	throw new FactTypeError("type has no labels");
+    }
+    
+    @Override
+    public boolean hasField(String fieldName) {
+    	try {
+    		return getFieldIndex(fieldName) != -1;
+    	}
+    	catch (FactTypeError e) {
+    		return false;
+    	}
     }
     
     @Override
