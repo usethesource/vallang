@@ -380,18 +380,17 @@ public class TypeFactory {
 			}
 			for (int i = 0; i < tupleType.getArity(); i++) {
 				Type type = tupleType.getFieldType(i);
-
 				String label = tupleType.getFieldName(i);
 
 				for (int j = 0; j < altArgs.getArity(); j++) {
-					if (altArgs.getFieldName(i).equals(label)) {
-						if (!altArgs.getFieldType(i).equivalent(type)) {
+					if (altArgs.getFieldName(j).equals(label)) {
+						if (!altArgs.getFieldType(j).equivalent(type)) {
 							throw new TypeDeclarationException(
 									"Field name "
-											+ label
-											+ " is illegaly used for different types. Once for a "
-											+ type + " and once for a "
-											+ altArgs.getFieldType(i));
+									+ label
+									+ " is illegaly used for different types. Once for a "
+									+ type + " and once for a "
+									+ altArgs.getFieldType(i));
 						}
 					}
 				}
