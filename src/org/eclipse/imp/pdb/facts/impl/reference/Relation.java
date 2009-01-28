@@ -76,7 +76,7 @@ class Relation extends Set implements IRelation {
 			for (IValue t2 : other) {
 				IValue[] values = new IValue[width];
 				ITuple tuple2 = (ITuple) t2;
-				if (t1.get(max1).equals(tuple2.get(0))) {
+				if (t1.get(max1).isEqual(tuple2.get(0))) {
 					for (int i = 0; i < max1; i++) {
 						values[i] = t1.get(i);
 					}

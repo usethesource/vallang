@@ -93,7 +93,7 @@ class Map extends Value implements IMap{
 		for (IValue key : this) {
 			IValue thisValue = get(key);
 			IValue otherValue = other.get(key);
-			if (otherValue != null && thisValue.equals(otherValue)) {
+			if (otherValue != null && thisValue.isEqual(otherValue)) {
 				sw.put(key, thisValue);
 			}
 		}
@@ -118,7 +118,7 @@ class Map extends Value implements IMap{
 			if (otherValue == null) {
 				return false;
 			}
-			else if (!thisValue.equals(otherValue)) {
+			else if (!thisValue.isEqual(otherValue)) {
 				return false;
 			}
 		}
