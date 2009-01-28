@@ -28,7 +28,7 @@ public class Constructor extends Node implements IConstructor {
 	
 	@SuppressWarnings("unchecked")
 	private Constructor(Constructor constructor, String label, IValue anno) {
-		super(constructor.getType().getName(), constructor.getType(), constructor.fChildren);
+		super(constructor.fType.getName(), constructor.fType, constructor.fChildren);
 		fAnnotations = (HashMap<String, IValue>) constructor.fAnnotations.clone();
 		fAnnotations.put(label, anno);
 	}
@@ -40,8 +40,11 @@ public class Constructor extends Node implements IConstructor {
 	
 	@Override
 	public Type getType() {
-		// TODO Auto-generated method stub
-		return super.getType();
+		return fType.getAbstractDataType();
+	}
+	
+	public Type getConstructorType() {
+		return fType;
 	}
 
 	public IValue get(String label) {

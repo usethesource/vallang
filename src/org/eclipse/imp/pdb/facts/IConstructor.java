@@ -9,6 +9,17 @@ import org.eclipse.imp.pdb.facts.type.Type;
  *
  */
 public interface IConstructor extends INode {
+
+	/**
+	 * @return the AbstractDataType of a constructor.
+	 */
+	public Type getType();
+	
+	/**
+	 * @return the specific ConstructorType of this constructor
+	 */
+	public Type getConstructorType();
+	
 	/**
 	 * Get a child from a labeled position in the tree.
 	 * @param label the name of the child
@@ -85,4 +96,5 @@ public interface IConstructor extends INode {
 	 * identifies. 
 	 */
 	public IConstructor   setAnnotation(String label, IValue newValue) throws FactTypeError;
+
 }

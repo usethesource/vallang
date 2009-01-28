@@ -71,9 +71,9 @@ public class XMLWriter implements IValueWriter {
 	private Node yield(IValue value, Document doc) {
 		Type type = value.getType();
 		
-		if (type.isConstructorType()) {
-			Type sort = type;
-			Type node = ((IConstructor) value).getType();
+		if (type.isAbstractDataType()) {
+			Type sort = type; 
+			Type node = ((IConstructor) value).getConstructorType();
 			String name = node.getName();
 			
 			if (XMLReader.isListWrapper(name,  sort)) {

@@ -258,59 +258,47 @@ public class XMLReader implements IValueReader {
 	}
 
     /*package*/ static boolean isListWrapper(String name, Type expected) {
-    	Type nodeType;
+    	List<Type> nodeTypes = tf.lookupConstructor(expected, name);
     	
-    	if (expected.isAbstractDataType()) {
-    		nodeType = tf.lookupConstructor(expected, name).get(0);
+    	if (nodeTypes.size() > 0) {
+    		Type nodeType = nodeTypes.get(0);
+    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isListType();
     	}
-    	else {
-    		nodeType = expected;
-    	}
-		
-		return nodeType.getArity() == 1 && 
-		nodeType.getFieldTypes().getFieldType(0).isListType();
+    	
+    	return false;
 	}
 	
 	/*package*/ static boolean isSetWrapper(String name, Type expected) {
-		Type nodeType;
+		List<Type> nodeTypes = tf.lookupConstructor(expected, name);
     	
-    	if (expected.isAbstractDataType()) {
-    		nodeType = tf.lookupConstructor(expected, name).get(0);
+    	if (nodeTypes.size() > 0) {
+    		Type nodeType = nodeTypes.get(0);
+    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isSetType();
     	}
-    	else {
-    		nodeType = expected;
-    	}
-		
-		return nodeType.getArity() == 1 && 
-		nodeType.getFieldTypes().getFieldType(0).isSetType();
+    	
+    	return false;
 	}
 	
 	/*package*/ static boolean isRelationWrapper(String name, Type expected) {
-		Type nodeType;
+		List<Type> nodeTypes = tf.lookupConstructor(expected, name);
     	
-    	if (expected.isAbstractDataType()) {
-    		nodeType = tf.lookupConstructor(expected, name).get(0);
+    	if (nodeTypes.size() > 0) {
+    		Type nodeType = nodeTypes.get(0);
+    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isRelationType();
     	}
-    	else {
-    		nodeType = expected;
-    	}
-		
-		return nodeType.getArity() == 1 && 
-		nodeType.getFieldTypes().getFieldType(0).isRelationType();
+    	
+    	return false;
 	}
 	
 	/*package*/ static boolean isMapWrapper(String name, Type expected) {
-		Type nodeType;
+	List<Type> nodeTypes = tf.lookupConstructor(expected, name);
     	
-    	if (expected.isAbstractDataType()) {
-    		nodeType = tf.lookupConstructor(expected, name).get(0);
+    	if (nodeTypes.size() > 0) {
+    		Type nodeType = nodeTypes.get(0);
+    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isMapType();
     	}
-    	else {
-    		nodeType = expected;
-    	}
-		
-		return nodeType.getArity() == 1 && 
-		nodeType.getFieldTypes().getFieldType(0).isMapType();
+    	
+    	return false;
 	}
 
 	private IValue parseTreeSort(Node node, Type expected) {
