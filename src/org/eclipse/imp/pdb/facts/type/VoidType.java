@@ -79,6 +79,11 @@ import java.util.Map;
 	}
 	
 	@Override
+	public Type getAliased() {
+		return this;
+	}
+	
+	@Override
 	public Type getElementType() {
 		return this;
 	}
@@ -105,6 +110,11 @@ import java.util.Map;
 	
 	@Override
 	public Type select(String... names) {
+		return this;
+	}
+	
+	@Override
+	public Type getAbstractDataType() {
 		return this;
 	}
 	
