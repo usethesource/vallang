@@ -35,4 +35,8 @@ public abstract class Value implements IValue {
     public Type getType() {
     	return fType;
     }
+    
+    public boolean isEqual(IValue other) {
+    	return equals(other);
+    }
 }
