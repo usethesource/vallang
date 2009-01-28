@@ -45,7 +45,6 @@ public interface IValue  {
      * @param other object to compare to
      * @return true iff the other object is equal to the receiver object
      */
-    @Override
     public boolean equals(Object other);
     
     /**
