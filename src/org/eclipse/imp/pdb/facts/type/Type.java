@@ -255,9 +255,6 @@ public abstract class Type implements Iterable<Type> {
 		else if (other.isAliasType()) {
 			return lub(other.getAliased());
 		}
-		else if (other.isAbstractDataType() && other.isExtendedBy(this)) {
-			return other;
-		}
 		else {
 			return TypeFactory.getInstance().valueType();
 		}
@@ -284,18 +281,6 @@ public abstract class Type implements Iterable<Type> {
 		if (other.isAliasType()) {
 			return isSubtypeOf(other.getAliased());
 		}
-		if (other.isAbstractDataType() && other.isExtendedBy(this)) {
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Return whether an ADT is defined by a certain type (is extended by a certain by).
-	 * @param type 
-	 * @return true iff this ADT can be constructed using values of the given type.
-	 */
-	public boolean isExtendedBy(Type type) {
 		return false;
 	}
 	

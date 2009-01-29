@@ -50,11 +50,6 @@ public class TypeFactory {
     private final Map<Type, List<Type>> fConstructors = new HashMap<Type, List<Type>>();
     
     /**
-     * Keeps administration of declared extensions for abstract data types
-     */
-    private final Map<Type,Type> fExtensions = new HashMap<Type, Type>();
-
-    /**
      * Keeps administration of declared annotations 
      */
     private final Map<Type, Map<String, Type>> fAnnotations = new HashMap<Type, Map<String, Type>>();
@@ -293,13 +288,14 @@ public class TypeFactory {
     }
     
     /**
-     * Construct a AbstractDataType, which is a kind of tree node. Each kind of tree node
-     * may have different alternatives, which are TreeNodeTypes. A ConstructorType is always a
-     * sub type of a AbstractDataType. A AbstractDataType is always a sub type of value.
+     * Construct a @{link AbstractDataType}, which is a kind of tree node. Each kind of tree node
+     * may have different alternatives, which are ConstructorTypes. A @{link ConstructorType} is always a
+     * sub-type of a AbstractDataType. A AbstractDataType is always a sub type of value.
      * @param name the name of the abstract data-type
      * @param parameters array of type parameters
      * @return a AbstractDataType
-     * @throws TypeDeclarationException when a AliasType with the same name was already declared. Redeclaration of a AbstractDataType is ignored.
+     * @throws TypeDeclarationException when a AliasType with the same name was already declared. 
+     *                                  Re-declaration of an AbstractDataType is ignored.
      */
     public Type abstractDataType(String name, Type... parameters) throws TypeDeclarationException {
     	synchronized (fConstructors) {
@@ -339,7 +335,6 @@ public class TypeFactory {
      */
     public Type constructorFromTuple(Type adt, String name, Type tupleType) throws TypeDeclarationException {
     	synchronized(fConstructors) {
-    		synchronized(fExtensions) {
     		List<Type> signature = fConstructors.get(adt);
     		if (signature == null) {
     			throw new TypeDeclarationException("Unknown named tree type: " + adt);
@@ -348,23 +343,15 @@ public class TypeFactory {
     		if (name == null || name.length() == 0) {
     			throw new TypeDeclarationException("Constructor name can not be empty or null.");
     		}
-    		
+
     		checkOverloading(signature, name, tupleType);
     		checkFieldNames(signature, tupleType);
-    		
-    		Type extension = fExtensions.get(adt);
-    		while (extension != null && extension.isAbstractDataType()) {
-    			List<Type> signature2 = fConstructors.get(extension);
-				checkOverloading(signature2, name, tupleType);
-    			checkFieldNames(signature2, tupleType);
-    			extension = fExtensions.get(extension);
-    		}
-    		
+
+
     		Type result = getFromCache(new ConstructorType(name, (TupleType) tupleType, (AbstractDataType) adt));
     		signature.add(result);
 
     		return result;
-    	}
     	}
     }
 
@@ -434,50 +421,6 @@ public class TypeFactory {
     public Type constructor(Type nodeType, String name, Object... childrenAndLabels ) throws TypeDeclarationException { 
     	return constructorFromTuple(nodeType, name, tupleType(childrenAndLabels));
     }
-    
-   
-    /**
-     * Define an abstract data-type by extending it with another type. An ADT can
-     * only be extended once, and the type that extends it must not contain constructors
-     * that overlap with any of the other constructors for the given ADT. 
-     * <br>
-     * For a better way to define an AbstractDataType use {@link #constructor(Type, String, Type...)}
-     * or {@link #constructor(Type, String, Object...)} or {@link #constructorFromTuple(Type, String, Type)}.
-     * <br>
-     * This feature is mainly present for compatibility with other abstract data type formalisms.
-     * <br>
-     * @param adt
-     * @param extension
-     * @param label
-     * @return the adt parameter, for convenience
-     * @throws TypeDeclarationException
-     */
-    public Type extendAbstractDataType(Type adt, Type extension,
-			String label) throws TypeDeclarationException {
-    	synchronized(fExtensions) {
-    		Type prev = fExtensions.get(adt);
-    		
-    		if (prev != null) {
-    			throw new TypeDeclarationException(adt + " is already extended by " + prev + ", can not extend again with " + extension);
-    		}
-    		
-    		if (extension.isAbstractDataType()) {
-    		   for (Type extAlt : lookupAlternatives(extension)) {
-    			   for (Type alt : lookupAlternatives(adt)) {
-    				   if (alt.getName().equals(extAlt.getName())) {
-    					   if (alt.getFieldTypes().comparable(extAlt.getFieldTypes())) {
-    						   throw new TypeDeclarationException("Can not extend " + adt + " with " + extension + " because " + extAlt.getName() + " constructor is ambiguously present in both types");
-    					   }
-    				   }
-    			   }
-    		   }
-    		}
-    		
-    		fExtensions.put(adt, extension);
-    		
-    		return adt;
-    	}
-	}
 
     /**
      * Lookup a AliasType that was declared before by name
@@ -495,39 +438,7 @@ public class TypeFactory {
      * @return all types that construct the given type
      */
     public List<Type> lookupAlternatives(Type adt) {
-    	List<Type> signature = fConstructors.get(adt);
-    	Type extension = fExtensions.get(adt);
-    	if (extension != null) {
-    		signature.add(extension);
-    	}
-    	return signature;
-    }
-    
-    /**
-     * Retrieve the extension of a certain abstract data-type. This is aways
-     * of constructing an ADT without using an explicit constructor.
-     *  
-     * See @link {@link TypeFactory#extendAbstractDataType(AbstractDataType, Type, String)})
-     * for more information.
-     * 
-     * @param adt AbstractDataType to lookup the constructor for
-     * @return the type of the extension, or null if none
-     */
-	public Type lookupExtension(Type adt) {
-    	return fExtensions.get(adt);
-    }
-    
-    /**
-     * Compute whether a certain type extends an algebraic data-type, i.e. whether
-     * it should be allowed wherever the algebraic type is allowed (is a sub-type of the
-     * algebraic data-type).
-     * 
-     * @param adt
-     * @param subType
-     * @return
-     */
-    public boolean isExtendedBy(Type adt, Type subType) {
-    	return lookupExtension(adt) != null;
+    	return fConstructors.get(adt);
     }
     
     /**
@@ -557,21 +468,16 @@ public class TypeFactory {
      * 
      * @param constructName the name of the tree node
      */
-    public List<Type> lookupTreeNodeType(String constructorName) {
+    public List<Type> lookupConstructors(String constructorName) {
     	List<Type> result = new LinkedList<Type>();
     	
-    	if (constructorName != null) {
-    		for (Type adt : fConstructors.keySet()) {
-    			for (Type node : fConstructors.get(adt)) {
-    				String name = node.getName();
-    				if (name.equals(constructorName)) {
-    					result.add(node);
-    				}
-    			}	
-    		}
-    	}
-    	else {
-    		result.addAll(fExtensions.keySet());
+    	for (Type adt : fConstructors.keySet()) {
+    		for (Type node : fConstructors.get(adt)) {
+    			String name = node.getName();
+    			if (name.equals(constructorName)) {
+    				result.add(node);
+    			}
+    		}	
     	}
     	
     	return result;
@@ -584,12 +490,6 @@ public class TypeFactory {
      */
     public Type lookupAbstractDataType(String name) {
     	for (Type adt : fConstructors.keySet()) {
-    		if (adt.getName().equals(name)) {
-    			return adt;
-    		}
-    	}
-    	
-    	for (Type adt : fExtensions.keySet()) {
     		if (adt.getName().equals(name)) {
     			return adt;
     		}

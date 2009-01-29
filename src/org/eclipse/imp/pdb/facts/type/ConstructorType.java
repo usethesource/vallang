@@ -50,7 +50,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			return true;
 		}
 		else {
-			return fADT.isSubtypeOf(other) || TypeFactory.getInstance().nodeType().isSubtypeOf(other);
+			return fADT.isSubtypeOf(other);
 		}
 	}
 	
@@ -166,14 +166,27 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public IValue make(IValueFactory f, int arg) {
+		if (getArity() == 1 && getFieldType(0).isSubtypeOf(TypeFactory.getInstance().integerType())) {
+			return make(f, f.integer(arg));
+		}
+		throw new FactTypeError("This constructor does not wrap a single integer");
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, double arg) {
+		if (getArity() == 1 && getFieldType(0).isSubtypeOf(TypeFactory.getInstance().doubleType())) {
+			return make(f, f.dubble(arg));
+		}
+		throw new FactTypeError("This constructor does not wrap a single double");
+	}
+	
+	@Override
 	public IValue make(IValueFactory f, String arg) {
-		if (!arg.equals(fName)) {
-			throw new FactTypeError("This constructor has a different name from: " + arg);
+		if (getArity() == 1 && getFieldType(0).isSubtypeOf(TypeFactory.getInstance().stringType())) {
+			return make(f, f.string(arg));
 		}
-		if (fChildrenTypes.getArity() != 0) {
-			throw new FactTypeError("This is not a nullary constructor");
-		}
-		return f.constructor(this);
+		throw new FactTypeError("This constructor does not wrap a single string");
 	}
 	
 	@Override

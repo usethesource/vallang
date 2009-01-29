@@ -43,6 +43,18 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public boolean isSubtypeOf(Type other) {
+		if (other == this || other.isValueType()) {
+			return true;
+		}
+		else if (other.isAliasType()) {
+			return isSubtypeOf(other.getAliased());
+		}
+		
+		return TypeFactory.getInstance().nodeType().isSubtypeOf(other);
+	}
+	
+	@Override
 	public Type lub(Type other) {
 		if (other == this) {
 			return this;
@@ -50,17 +62,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 		else if (other.isConstructorType() && other.getAbstractDataType() == this) {
 			return this;
 		}
-		else if (this.isExtendedBy(other)) {
-			return this;
-		}
 		else {
-			return super.lub(other);
+			return TypeFactory.getInstance().nodeType().lub(other);
 		}
-	}
-	
-	@Override
-	public boolean isExtendedBy(Type type) {
-		return TypeFactory.getInstance().isExtendedBy(this, type);
 	}
 	
 	@Override
@@ -132,40 +136,39 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 		return visitor.visitAbstractData(this);
 	}
 	
+	private IValue wrap(IValueFactory vf, Type wrapped, IValue value) {
+		for (Type alt : TypeFactory.getInstance().lookupAlternatives(this)) {
+			if (alt.getArity() == 1 && alt.getFieldType(0).isSubtypeOf(wrapped)) {
+				return alt.make(vf, value);
+			}
+		}
+		
+		throw new FactTypeError("This adt, " + this + ", does not have any constructor to wrap a " + wrapped);
+	}
+	
 	@Override
 	public IValue make(IValueFactory vf, int arg) {
-		TypeFactory tf = TypeFactory.getInstance();
+		Type wrapped = TypeFactory.getInstance().integerType();
+		IValue value = wrapped.make(vf, arg);
 		
-		if (tf.isExtendedBy(this, tf.integerType())) {
-			return vf.integer(arg);
-		}
-		else {
-			throw new FactTypeError("This adt is not extended by integer." + this);
-		}
+		return wrap(vf, wrapped, value);
 	}
 	
 	@Override
 	public IValue make(IValueFactory vf, double arg) {
-		TypeFactory tf = TypeFactory.getInstance();
+		Type wrapped = TypeFactory.getInstance().doubleType();
+		IValue value = wrapped.make(vf, arg);
 		
-		if (tf.isExtendedBy(this, tf.doubleType())) {
-			return vf.dubble(arg);
-		}
-		else {
-			throw new FactTypeError("This adt is not extended by double: " + this);
-		}
+		return wrap(vf, wrapped, value);
 	}
+
 	
 	@Override
 	public IValue make(IValueFactory vf, String arg) {
-		TypeFactory tf = TypeFactory.getInstance();
+		Type wrapped = TypeFactory.getInstance().stringType();
+		IValue value = wrapped.make(vf, arg);
 		
-		if (tf.isExtendedBy(this, tf.stringType())) {
-			return vf.string(arg);
-		}
-		else {
-			throw new FactTypeError("This adt is not extended by string" + this);
-		}
+		return wrap(vf, wrapped, value);
 	}
 	
 	@Override
