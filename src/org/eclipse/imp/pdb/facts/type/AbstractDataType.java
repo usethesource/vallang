@@ -38,6 +38,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	public boolean isNodeType() {
+		return true; // All ADT's are built from nodes.
+	}
+	
+	@Override
 	public boolean isParameterized() {
 		return !fParameters.isVoidType();
 	}

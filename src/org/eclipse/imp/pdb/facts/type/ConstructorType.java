@@ -95,7 +95,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public boolean isNodeType() {
-		return true;
+		return true; // an ADT constructor is a node
 	}
 	
 	@Override
