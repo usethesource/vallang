@@ -70,7 +70,7 @@ public class Constructor extends Node implements IConstructor {
 	
 	private void checkChildType(int i, IValue newChild) {
 		Type type = newChild.getType();
-		Type expectedType = getType().getFieldType(i);
+		Type expectedType = getConstructorType().getFieldType(i);
 		if (!type.isSubtypeOf(expectedType)) {
 			throw new FactTypeError("New child type " + type + " is not a subtype of " + expectedType);
 		}
