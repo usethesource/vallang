@@ -161,16 +161,35 @@ public class TypeFactory {
     public Type tupleType(Type... fieldTypes) {
     	return (TupleType) getFromCache(new TupleType(fieldTypes.length, 0, fieldTypes));
     }
-    
-    public Type tupleType(Object... fieldTypesAndLabels) {
+
+    /**
+     * Construct a labeled tuple type
+     * 
+     * @param fieldTypesAndLabel an array of field types, where each field type of type @{link Type}
+     *        is immediately followed by a field label of type @{link String}.
+     * @return a tuple type
+     * @throws TypeDeclarationException when one of the labels is not a proper identifier or when
+     *         the argument array does not contain alternating types and labels.
+     */
+    public Type tupleType(Object... fieldTypesAndLabels) throws TypeDeclarationException {
     	int N= fieldTypesAndLabels.length;
         int arity = N / 2;
 		Type[] protoFieldTypes= new Type[arity];
         String[] protoFieldNames = new String[arity];
         for(int i=0; i < N; i+=2) {
             int pos = i / 2;
-			protoFieldTypes[pos]= (Type) fieldTypesAndLabels[i];
-            protoFieldNames[pos] = (String) fieldTypesAndLabels[i+1];
+            try {
+            	protoFieldTypes[pos]= (Type) fieldTypesAndLabels[i];
+            	protoFieldNames[pos] = (String) fieldTypesAndLabels[i+1];
+            } 
+            catch (ClassCastException e) {
+            	throw new TypeDeclarationException("Expected alternating arguments of types and labels. Argument " + pos + " violates that assumption.");
+            }
+        }
+        for (String name : protoFieldNames) {
+        	if (!isIdentifier(name)) {
+        		throw new TypeDeclarationException("Label " + name + " is not a proper identifier.");
+        	}
         }
         return (TupleType) getFromCache(new TupleType(arity, 0, protoFieldTypes, protoFieldNames));
     }
@@ -391,7 +410,7 @@ public class TypeFactory {
 			if (alt.isConstructorType() && alt.getName().equals(name)) {
 				Type fieldTypes = alt.getFieldTypes();
 				if (fieldTypes != tupleType && fieldTypes.comparable(tupleType)) {
-					throw new TypeDeclarationException("Constructor name " + name + " may overload, but only if the argument types are incomparable");
+					throw new TypeDeclarationException("Constructor name " + name + " may overload, but only if the argument types are incomparable: " + fieldTypes + " is comparable to " + tupleType);
 				}
 			}
 		}
@@ -450,11 +469,14 @@ public class TypeFactory {
      */
     public List<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeError {
     	List<Type> result = new LinkedList<Type>();
-    	
-    	for (Type node : fConstructors.get(adt)) {
-    		String name = node.getName();
-    		if (name.equals(constructorName)) {
-    			result.add(node);
+
+    	List<Type> alternatives = fConstructors.get(adt);
+    	if (alternatives != null) {
+    		for (Type node : alternatives) {
+    			String name = node.getName();
+    			if (name.equals(constructorName)) {
+    				result.add(node);
+    			}
     		}
     	}
 
@@ -555,7 +577,7 @@ public class TypeFactory {
     		Map<String, Type> annotationsForType = fAnnotations.get(onType);
 
     		if (!isIdentifier(key)) {
-    			throw new FactTypeError("Key " + key + " is not an identifier.");
+    			throw new TypeDeclarationException("Key " + key + " is not an identifier.");
     		}
 
     		if (annotationsForType == null) {

@@ -139,12 +139,14 @@ public class ATermReader implements IValueReader {
 
 			String funname = parseId(reader);
 			
-			if (!expected.isAbstractDataType()) {
-				throw new FactTypeError("Expected a " + expected + " but got a tree node");
+			Type node;
+			if (expected.isAbstractDataType()) {
+				List<Type> nodes = tf.lookupConstructor(expected, funname);
+				node = nodes.get(0); // TODO deal with overloading
 			}
-			
-			List<Type> nodes = tf.lookupConstructor(expected, funname);
-			Type node = nodes.get(0); // TODO deal with overloading
+			else {
+				node = expected;
+			}
 			
 			c = reader.skipWS();
 			if (reader.getLastChar() == '(') {
@@ -155,14 +157,25 @@ public class ATermReader implements IValueReader {
 				if (reader.getLastChar() == ')') {
 					result = vf.constructor(node, new IValue[0]);
 				} else {
-					IValue[] list = parseFixedSizeATermsArray(reader, node.getFieldTypes());
+					IValue[] list;
+					if (expected.isAbstractDataType()) {
+					   list = parseFixedSizeATermsArray(reader, node.getFieldTypes());
+					}
+					else {
+						list = parseATermsArray(reader, TypeFactory.getInstance().valueType());
+					}
 
 					if (reader.getLastChar() != ')') {
 						throw new FactTypeError("expected ')' but got '"
 								+ (char) reader.getLastChar() + "'");
 					}
 					
-					result = node.make(vf, list);
+					if (expected.isAbstractDataType()) {
+						result = node.make(vf, list);
+					}
+					else {
+						result = node.make(vf, funname, list);
+					}
 				}
 				c = reader.readSkippingWS();
 			} else {

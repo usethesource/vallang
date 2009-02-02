@@ -47,11 +47,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     		throw new IllegalArgumentException("Null array of field types or non-positive length passed to TupleType ctor!");
     	}
     	if (fieldNames != null && len >= 0 && fieldTypes.length == fieldNames.length) {
-    		fFieldNames = new String[len];
-    		System.arraycopy(fieldNames, start, fFieldNames, 0, len);
+    		if (len == 0) {
+    			fFieldNames = null;
+    		}
+    		else {
+    			fFieldNames = new String[len];
+    			System.arraycopy(fieldNames, start, fFieldNames, 0, len);
+    		}
     	}
     	else {
-    		throw new IllegalArgumentException("Unequal amounts of field names and field types");
+    		throw new TypeDeclarationException("Unequal amounts of field names and field types");
     	}
     }
     
@@ -275,6 +280,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
             if (idx++ > 0)
                 sb.append(",");
             sb.append(elemType.toString());
+            if (hasFieldNames()) {
+            	sb.append(" " + fFieldNames[idx-1]);
+            }
         }
         sb.append("]");
         return sb.toString();
