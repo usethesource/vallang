@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Program Database Values
+Bundle-Name: Program Database Values (Incubation)
 Bundle-SymbolicName: org.eclipse.imp.pdb.values;singleton:=true
-Bundle-Version: 0.1.14
+Bundle-Version: 0.1.15
 Bundle-Vendor: jurgen@vinju.org
 Eclipse-LazyStart: true
 Export-Package: 
@@ -13,3 +13,4 @@ Export-Package:
  org.eclipse.imp.pdb.facts.type,
  org.eclipse.imp.pdb.facts.visitors
 Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
