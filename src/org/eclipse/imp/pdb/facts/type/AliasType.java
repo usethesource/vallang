@@ -172,7 +172,12 @@ import org.eclipse.imp.pdb.facts.IWriter;
 	
 	@Override
 	public <T extends IWriter> T writer(IValueFactory f) {
-		return fAliased.writer(f);
+	    // RMF Feb 9, 2009: Work around a javac bug (see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954)
+	    // that causes an erroneous compile error.
+	    // Use this method's type parameter as an explicit qualifier on the method call type parameter.
+	    // N.B.: The JDT doesn't exhibit this bug (at least not as of 3.3.2), so this fix is only
+	    // relevant to the release build scripts.
+		return fAliased.<T>writer(f);
 	}
 
 	@Override
