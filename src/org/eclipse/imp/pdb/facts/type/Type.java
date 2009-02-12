@@ -272,13 +272,13 @@ public abstract class Type implements Iterable<Type> {
 	public boolean isSubtypeOf(Type other) {
 		// this is the default implementation. Subclasses should override
 		// to take their immediate super types into account.
-		if (other.isValueType()) {
+		if (other.isValueType() && !other.isVoidType()) {
 			return true;
 		}
 		if (other == this) {
 			return true;
 		}
-		if (other.isAliasType()) {
+		if (other.isAliasType() && !other.isVoidType()) {
 			return isSubtypeOf(other.getAliased());
 		}
 		return false;
