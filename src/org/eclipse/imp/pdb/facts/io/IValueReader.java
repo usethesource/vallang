@@ -17,7 +17,7 @@ import java.io.InputStream;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
@@ -38,5 +38,5 @@ public interface IValueReader {
 	 * @param stream  source of bytes to parse
 	 * @return an IValue that represents the string input
 	 */
-  IValue read(IValueFactory factory, Type type, InputStream stream) throws FactTypeError, IOException;
+  IValue read(IValueFactory factory, Type type, InputStream stream) throws FactTypeUseException, IOException;
 }

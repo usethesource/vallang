@@ -12,20 +12,21 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -53,7 +54,8 @@ public class ValueFactory extends BaseValueFactory {
 		Type elementType = lub(tuples);
 	
 		if (!elementType.isTupleType()) {
-			throw new FactTypeError("elements are not tuples");
+			TypeFactory tf = TypeFactory.getInstance();
+			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}
 		
 		ISetWriter rw = setWriter(elementType);
@@ -78,7 +80,7 @@ public class ValueFactory extends BaseValueFactory {
 		}
 	}
 
-	public ISet set(IValue... elems) throws FactTypeError {
+	public ISet set(IValue... elems) throws FactTypeUseException {
 		Type elementType = lub(elems);
 		
 		ISetWriter sw = setWriter(elementType);

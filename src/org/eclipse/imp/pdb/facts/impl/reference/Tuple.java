@@ -16,8 +16,8 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.Value;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -55,7 +55,7 @@ class Tuple extends Value implements ITuple {
     	}
     }
     
-    public IValue get(String label) throws FactTypeError {
+    public IValue get(String label) throws FactTypeUseException {
 		return fElements[fType.getFieldIndex(label)];
 	}
 
@@ -130,7 +130,7 @@ class Tuple extends Value implements ITuple {
 		return new Tuple(this, i, arg);
 	}
 
-	public ITuple set(String label, IValue arg) throws FactTypeError {
+	public ITuple set(String label, IValue arg) throws FactTypeUseException {
 		int i = fType.getFieldIndex(label);
 		return new Tuple(this, i, arg);
 	}
@@ -156,7 +156,7 @@ class Tuple extends Value implements ITuple {
 		return new Tuple(type, elems);
 	}
 
-	public IValue select(String... fields) throws FactTypeError {
+	public IValue select(String... fields) throws FactTypeUseException {
 		Type type = fType.select(fields);
 		
 		if (type.isTupleType()) {

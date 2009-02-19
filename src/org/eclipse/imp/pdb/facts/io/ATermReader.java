@@ -17,14 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -34,7 +35,7 @@ public class ATermReader implements IValueReader {
 	private TypeFactory tf = TypeFactory.getInstance();
 
 	public IValue read(IValueFactory factory, Type type, InputStream stream)
-			throws FactTypeError, IOException {
+			throws FactParseError, IOException {
 		this.vf = factory;
 
 		int firstToken;
@@ -74,14 +75,14 @@ public class ATermReader implements IValueReader {
 		start = reader.getPosition();
 		switch (reader.getLastChar()) {
 		case -1:
-			throw new FactTypeError("premature EOF encountered.");
+			throw new FactParseError("premature EOF encountered.", start);
 		case '#':
 			return parseAbbrev(reader);
 		case '[':
 			result = parseList(reader, expected);
 			break;
 		case '<':
-			throw new FactTypeError("Placeholders are not supported");
+			throw new FactParseError("Placeholders are not supported", start);
 		case '"':
 			result = parseString(reader, expected);
 			break;
@@ -123,7 +124,7 @@ public class ATermReader implements IValueReader {
 		} else {
 			result = parseAnnos(reader, result);
 			if (reader.getLastChar() != '}') {
-				throw new FactTypeError("'}' expected");
+				throw new FactParseError("'}' expected", reader.getPosition());
 			}
 		}
 		return result;
@@ -152,7 +153,7 @@ public class ATermReader implements IValueReader {
 			if (reader.getLastChar() == '(') {
 				c = reader.readSkippingWS();
 				if (c == -1) {
-					throw new FactTypeError("premature EOF encountered.");
+					throw new FactParseError("premature EOF encountered.", reader.getPosition());
 				}
 				if (reader.getLastChar() == ')') {
 					result = vf.constructor(node, new IValue[0]);
@@ -166,8 +167,8 @@ public class ATermReader implements IValueReader {
 					}
 
 					if (reader.getLastChar() != ')') {
-						throw new FactTypeError("expected ')' but got '"
-								+ (char) reader.getLastChar() + "'");
+						throw new FactParseError("expected ')' but got '"
+								+ (char) reader.getLastChar() + "'", reader.getPosition());
 					}
 					
 					if (expected.isAbstractDataType()) {
@@ -182,8 +183,8 @@ public class ATermReader implements IValueReader {
 			    result = node.make(vf);
 			}
 		} else {
-			throw new FactTypeError("illegal character: "
-					+ (char) reader.getLastChar());
+			throw new FactParseError("illegal character: "
+					+ (char) reader.getLastChar(), reader.getPosition());
 		}
 		return result;
 	}
@@ -195,7 +196,7 @@ public class ATermReader implements IValueReader {
 		IValue result;
 		c = reader.readSkippingWS();
 		if (c == -1) {
-			throw new FactTypeError("premature EOF encountered.");
+			throw new FactParseError("premature EOF encountered.", reader.getPosition());
 		}
 		if (reader.getLastChar() == ')') {
 			result = expected.make(vf);
@@ -203,8 +204,8 @@ public class ATermReader implements IValueReader {
 			IValue[] list = parseFixedSizeATermsArray(reader, expected);
 
 			if (reader.getLastChar() != ')') {
-				throw new FactTypeError("expected ')' but got '"
-						+ (char) reader.getLastChar() + "'");
+				throw new FactParseError("expected ')' but got '"
+						+ (char) reader.getLastChar() + "'", reader.getPosition());
 			}
 
 			result = expected.make(vf, list);
@@ -227,7 +228,7 @@ public class ATermReader implements IValueReader {
 		
 		c = reader.readSkippingWS();
 		if (c == -1) {
-			throw new FactTypeError("premature EOF encountered.");
+			throw new FactParseError("premature EOF encountered.", reader.getPosition());
 		}
 		return result;
 	}
@@ -239,7 +240,7 @@ public class ATermReader implements IValueReader {
 		int c;
 		c = reader.readSkippingWS();
 		if (c == -1) {
-			throw new FactTypeError("premature EOF encountered.");
+			throw new FactParseError("premature EOF encountered.", reader.getPosition());
 		}
 
 		if (c == ']') {
@@ -248,14 +249,14 @@ public class ATermReader implements IValueReader {
 			if (expected.isListType()) {
 				result = expected.make(vf);
 			} else {
-				throw new FactTypeError("Did not expect a list, rather a "
-						+ expected);
+				throw new FactParseError("Did not expect a list, rather a "
+						+ expected, reader.getPosition());
 			}
 		} else {
 			result = parseATerms(reader, expected);
 			if (reader.getLastChar() != ']') {
-				throw new FactTypeError("expected ']' but got '"
-						+ (char) reader.getLastChar() + "'");
+				throw new FactParseError("expected ']' but got '"
+						+ (char) reader.getLastChar() + "'", reader.getPosition());
 			}
 			c = reader.readSkippingWS();
 		}
@@ -289,18 +290,18 @@ public class ATermReader implements IValueReader {
 					}
 					
 					if (reader.getLastChar() != ']') {
-						throw new FactTypeError("expected a ] but got a " + reader.getLastChar());
+						throw new FactParseError("expected a ] but got a " + reader.getLastChar(), reader.getPosition());
 					}
 					
 					reader.readSkippingWS();
 					return result;
 				}
 				else {
-					throw new FactTypeError("expected a comma before the value of the annotation");
+					throw new FactParseError("expected a comma before the value of the annotation", reader.getPosition());
 				}
 			}
 			else {
-				throw new FactTypeError("expected a label for an annotation");
+				throw new FactParseError("expected a label for an annotation", reader.getPosition());
 			}
 		}
 		
@@ -358,19 +359,19 @@ public class ATermReader implements IValueReader {
 			try {
 				val = Integer.parseInt(str.toString());
 			} catch (NumberFormatException e) {
-				throw new FactTypeError("malformed int:" + str);
+				throw new FactParseError("malformed int:" + str, reader.getPosition());
 			}
 			
 			result = expected.make(vf, val);
 		} else if (reader.getLastChar() == 'l' || reader.getLastChar() == 'L') {
 			reader.read();
-			throw new FactTypeError("No support for longs");
+			throw new FactParseError("No support for longs", reader.getPosition());
 		} else {
 			if (reader.getLastChar() == '.') {
 				str.append('.');
 				reader.read();
 				if (!Character.isDigit(reader.getLastChar()))
-					throw new FactTypeError("digit expected");
+					throw new FactParseError("digit expected", reader.getPosition());
 				do {
 					str.append((char) reader.getLastChar());
 				} while (Character.isDigit(reader.read()));
@@ -383,7 +384,7 @@ public class ATermReader implements IValueReader {
 					reader.read();
 				}
 				if (!Character.isDigit(reader.getLastChar()))
-					throw new FactTypeError("digit expected!");
+					throw new FactParseError("digit expected!", reader.getPosition());
 				do {
 					str.append((char) reader.getLastChar());
 				} while (Character.isDigit(reader.read()));
@@ -393,7 +394,7 @@ public class ATermReader implements IValueReader {
 				val = Double.valueOf(str.toString()).doubleValue();
 				result = expected.make(vf, val);
 			} catch (NumberFormatException e) {
-				throw new FactTypeError("malformed real");
+				throw new FactParseError("malformed real", reader.getPosition(), e);
 			}
 		}
 		
@@ -509,7 +510,7 @@ public class ATermReader implements IValueReader {
 			return w.done();
 		}
 
-		throw new FactTypeError("Unexpected type " + expected);
+		throw new FactParseError("Unexpected type " + expected, reader.getPosition());
 	}
 
 	private Type getElementType(Type expected) {
@@ -524,8 +525,7 @@ public class ATermReader implements IValueReader {
 		} else if (base.isRelationType()) {
 			return base.getFieldTypes();
 		} else {
-			throw new FactTypeError("Found a list, set, relation or map instead of the expected "
-					+ expected);
+			throw new IllegalOperationException("getElementType", expected);
 		}
 	}
 
@@ -674,13 +674,13 @@ public class ATermReader implements IValueReader {
 			val += Character.digit(read(), 8);
 
 			if (val < 0) {
-				throw new FactTypeError("octal must have 3 octdigits.");
+				throw new FactParseError("octal must have 3 octdigits.", getPosition());
 			}
 
 			val += Character.digit(read(), 8);
 
 			if (val < 0) {
-				throw new FactTypeError("octal must have 3 octdigits");
+				throw new FactParseError("octal must have 3 octdigits", getPosition());
 			}
 
 			return val;

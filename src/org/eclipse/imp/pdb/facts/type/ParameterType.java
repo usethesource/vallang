@@ -13,6 +13,9 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.exceptions.FactMatchException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+
 
 
 /**
@@ -180,14 +183,14 @@ import java.util.Map;
 
 	@Override
 	public void match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeError {
+			throws FactTypeUseException {
 		super.match(matched, bindings);
 		
 		Type earlier = bindings.get(this);
 		if (earlier != null) {
 			Type lub = earlier.lub(matched);
 			if (!lub.isSubtypeOf(getBound())) {
-				throw new FactTypeError(matched + " can not be matched with " + earlier);
+				throw new FactMatchException(this, matched);
 			}
 			else {
 				bindings.put(this, lub);

@@ -10,20 +10,16 @@
 
 *******************************************************************************/
 
-package org.eclipse.imp.pdb.facts.type;
+package org.eclipse.imp.pdb.facts.exceptions;
 
-public class FactTypeError extends RuntimeException {
-    private static final long serialVersionUID= 2135696551442574010L;
+public abstract class FactTypeDeclarationException extends RuntimeException {
+	private static final long serialVersionUID = -2991169068626385361L;
 
-    public FactTypeError() {
-        super("Fact type error");
-    }
-    
-    public FactTypeError(String reason) {
-    	super(reason);
-    }
-    
-    public FactTypeError(String reason, Throwable cause) {
-    	super(reason, cause);
-    }
+	public FactTypeDeclarationException(String message) {
+		super(message);
+	}
+	
+	public FactTypeDeclarationException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

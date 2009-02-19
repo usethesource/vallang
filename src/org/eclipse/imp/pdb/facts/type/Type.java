@@ -19,6 +19,9 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
+import org.eclipse.imp.pdb.facts.exceptions.FactMatchException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
 /**
  * This class is the abstract implementation for all types. Types
@@ -46,7 +49,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return type of elements
 	 */
 	public Type getElementType() {
-		throw new FactTypeError("This type does not have elements");
+		throw new IllegalOperationException("getElementType", this);
 	}
 	
 	/**
@@ -54,7 +57,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return key type
 	 */
 	public Type getKeyType() {
-		throw new FactTypeError("This type does not have a key");
+		throw new IllegalOperationException("getKeyType", this);
 	}
 
 	/**
@@ -62,7 +65,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return value type
 	 */
 	public Type getValueType() {
-		throw new FactTypeError("This type does not have a value");
+		throw new IllegalOperationException("getValueType", this);
 	}
 	
 	/**
@@ -72,7 +75,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return name of the type
 	 */
 	public String getName() {
-		throw new FactTypeError("This type does not have a name");
+		throw new IllegalOperationException("getName", this);
 	}
 	
 	/**
@@ -83,7 +86,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return type of the field at index i
 	 */
 	public Type getFieldType(int i) {
-		throw new FactTypeError("This type does not have fields");
+		throw new IllegalOperationException("getFieldType", this);
 	}
 
 	/**
@@ -92,11 +95,11 @@ public abstract class Type implements Iterable<Type> {
 	 * <p>
 	 * @param fieldName label of the field to retrieve
 	 * @return type of the field at index i
-	 * @throws FactTypeError when the type has no field labels (tuples
+	 * @throws FactTypeUseException when the type has no field labels (tuples
 	 *         and relations optionally have field labels).
 	 */
-	public Type getFieldType(String fieldName) throws FactTypeError {
-		throw new FactTypeError("This type does not have fields");
+	public Type getFieldType(String fieldName) throws FactTypeUseException {
+		throw new IllegalOperationException("getFieldType", this);
 	}
 
 	/**
@@ -106,7 +109,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a tuple type representing the field types
 	 */
 	public Type getFieldTypes() {
-		throw new FactTypeError("This type does not have fields");
+		throw new IllegalOperationException("getFieldTypes", this);
 	}
 	
 	/**
@@ -115,11 +118,11 @@ public abstract class Type implements Iterable<Type> {
 	 * 
 	 * @param i index of the field name to retrieve
 	 * @return the field name at index i
-	 * @throws FactTypeError when this type does not have field labels.
+	 * @throws FactTypeUseException when this type does not have field labels.
 	 *         Tuples and relations optionally have field labels.
 	 */
 	public String getFieldName(int i) {
-		throw new FactTypeError("This type does not have fields");
+		throw new IllegalOperationException("getFieldName", this);
 	}
 	
 	/**
@@ -130,7 +133,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return the index of fieldName
 	 */
 	public int getFieldIndex(String fieldName)  {
-		throw new FactTypeError("This type does not have fields");
+		throw new IllegalOperationException("getFieldIndex", this);
 	}
 	
 	/**
@@ -138,15 +141,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return true iff this type has a field named fieldName
 	 */
 	public boolean hasField(String fieldName) {
-		throw new FactTypeError("This type does not have fields");
-	}
-
-	/**
-	 * Return the type that a named type is an alias for.
-	 * @return type
-	 */
-	public Type getHiddenType() {
-		throw new FactTypeError("This type is not a named type");
+		throw new IllegalOperationException("hasField", this);
 	}
 
 	/**
@@ -155,7 +150,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return the arity
 	 */
 	public int getArity() {
-		throw new FactTypeError("This type does not have an arity");
+		throw new IllegalOperationException("getArity", this);
 	}
 	
 	/**
@@ -164,14 +159,14 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a new type that represent the composition
 	 */
 	public Type compose(Type other) {
-		throw new FactTypeError("This type does not a compose operation");
+		throw new IllegalOperationException("compose", this, other);
 	}
 	
 	/**
 	 * Iterate over fields of the type 
 	 */
 	public Iterator<Type> iterator() {
-		throw new FactTypeError("This type does not have an iterator");
+		throw new IllegalOperationException("iterator", this);
 	}
 	 
 	/**
@@ -180,7 +175,8 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a new tuple or relation type with the selected fields
 	 */
 	public Type select(int... fields) {
-		throw new FactTypeError("This type does not have a select");
+		throw new IllegalOperationException("select", this);
+		
 	}
 	
 	/**
@@ -189,7 +185,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a new tuple or relation type with the selected fields
 	 */
 	public Type select(String... names) {
-		throw new FactTypeError("This type does not have a select");
+		throw new IllegalOperationException("select", this);
 	}
 	
 	/**
@@ -197,7 +193,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a type
 	 */
 	public Type getAbstractDataType() {
-		throw new FactTypeError("This type does not have an abstract data-type.");
+		throw new IllegalOperationException("getAbstractDataType", this);
 	}
 	
 	/**
@@ -205,7 +201,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a type
 	 */ 
 	public Type getAliased() {
-		throw new FactTypeError("This type is not an alias for anything");
+		throw new IllegalOperationException("getAliased", this);
 	}
 	
 	/**
@@ -213,7 +209,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a type
 	 */
 	public Type getBound() {
-		throw new FactTypeError("This type does not have a bound");
+		throw new IllegalOperationException("getBound", this);
 	}
 	
 	/**
@@ -222,7 +218,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return iff the fields of a type or relation have been labelled
 	 */
 	public boolean hasFieldNames() {
-		throw new FactTypeError("This type never has field names");
+		throw new IllegalOperationException("getFieldNames", this);
 	}
 	
 	/**
@@ -236,8 +232,8 @@ public abstract class Type implements Iterable<Type> {
 		return false;
 	}
 	
-	public Type getAnnotationType(String label) throws FactTypeError {
-		throw new FactTypeError("This type does not have support for annotations");
+	public Type getAnnotationType(String label) throws FactTypeUseException {
+		throw new IllegalOperationException("getAnnotationType", this);
 	}
 	
 	/**
@@ -326,14 +322,14 @@ public abstract class Type implements Iterable<Type> {
 	 * The receiver is a pattern that may contain parameter types.
 	 * 
 	 * @param matched a type to matched to the receiver.
-	 * @throws FactTypeError when a pattern can not be matches because the
+	 * @throws FactTypeUseException when a pattern can not be matches because the
 	 *         matched types do not fit the bounds of the parameter types,
 	 *         or when a pattern simply can not be matched because of 
 	 *         incompatibility.         
 	 */
-	public void match(Type matched, Map<Type, Type> bindings) throws FactTypeError {
+	public void match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
 		if (!matched.isSubtypeOf(this)) {
-			throw new FactTypeError(this + " does not match " + matched);
+			throw new FactMatchException(this, matched);
 		}
 	}
 	
@@ -429,7 +425,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a double value
 	 */
 	public IValue make(IValueFactory f, double arg) {
-		throw new FactTypeError("This is not a double: " + this);
+		throw new IllegalOperationException("make double", this);
 	}
 
 	/**
@@ -442,7 +438,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a integer value
 	 */
 	public IValue make(IValueFactory f, int arg) {
-		throw new FactTypeError("This is not an int: " + this);
+		throw new IllegalOperationException("make int", this);
 	}
 
 	/**
@@ -455,7 +451,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a integer value
 	 */
 	public IValue make(IValueFactory f, String arg) {
-		throw new FactTypeError("This is not a string: " + this);
+		throw new IllegalOperationException("make string", this);
 	}
 
 	/** 
@@ -467,8 +463,7 @@ public abstract class Type implements Iterable<Type> {
 	 * @return
 	 */
 	public IValue make(IValueFactory f) {
-		throw new FactTypeError(
-				"This type does not have a zero argument constructor: " + this);
+		throw new IllegalOperationException("make zero constructor", this);
 	}
 
 	/**
@@ -481,26 +476,24 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a value of the apropriate type
 	 */
 	public IValue make(IValueFactory f, IValue...args) {
-		throw new FactTypeError(
-				"This type does not have an array or variable argument list constructor: " + this);
+		throw new IllegalOperationException("apply to children", this);
 	}
 	
 	public IValue make(IValueFactory f, String path, ISourceRange range) {
-		throw new FactTypeError("This type is not a SourceLocationType: "
-				+ this);
+		throw new IllegalOperationException("make source location", this);
 	}
 
 	public IValue make(IValueFactory f, int startOffset, int length,
 			int startLine, int endLine, int startCol, int endCol) {
-		throw new FactTypeError("This type is not a SourceRangeType: " + this);
+		throw new IllegalOperationException("make source range", this);
 	}
 
 	public IValue make(IValueFactory f, String name, IValue... children) {
-		throw new FactTypeError("This type is not a TreeSortType: " + this);
+		throw new IllegalOperationException("make tree constructor", this);
 	}
 	
 	public IValue make(IValueFactory f, boolean arg) {
-		throw new FactTypeError("This type is not a BoolType: " + this);
+		throw new IllegalOperationException("make boolean", this);
 	}
 	
 	/**
@@ -511,8 +504,14 @@ public abstract class Type implements Iterable<Type> {
 	 * @return a writer
 	 */
 	public <T extends IWriter> T writer(IValueFactory f) {
-		throw new FactTypeError("This type does not provide a writer interface: " + this);
+		throw new IllegalOperationException("writer", this);
 	}
 
-	
+	/**
+	 * For AliasTypes, return which basic type it hides.
+	 * @return the first super type of this type that is not a AliasType.
+	 */
+	public Type getHiddenType() {
+		throw new IllegalOperationException("getHiddenType", this);
+	}
 }

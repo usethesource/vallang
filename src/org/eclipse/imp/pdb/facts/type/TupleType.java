@@ -17,6 +17,9 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.FieldLabelMismatchException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 /*package*/ final class TupleType extends Type implements Iterable<Type> {
     protected final Type[] fFieldTypes;
@@ -56,7 +59,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     		}
     	}
     	else {
-    		throw new TypeDeclarationException("Unequal amounts of field names and field types");
+    		throw new FieldLabelMismatchException(fieldTypes.length, fieldNames.length);
     	}
     }
     
@@ -81,18 +84,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    public int getFieldIndex(String fieldName) throws FactTypeError {
+    public int getFieldIndex(String fieldName) throws FactTypeUseException {
     	if (fFieldNames != null) {
     		for (int i = 0; i < fFieldNames.length; i++) {
     			if (fFieldNames[i].equals(fieldName)) {
     				return i;
     			}
     		}
-    		
-    		throw new FactTypeError("no field exists with this name: " + fieldName);
     	}
-    	
-    	throw new FactTypeError("type has no labels");
+
+		throw new UndeclaredFieldException(this, fieldName);
     }
     
     @Override
@@ -100,7 +101,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	try {
     		return getFieldIndex(fieldName) != -1;
     	}
-    	catch (FactTypeError e) {
+    	catch (FactTypeUseException e) {
     		return false;
     	}
     }
@@ -329,7 +330,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public void match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeError {
+			throws FactTypeUseException {
 		super.match(matched, bindings);
 		
 		for (int i = 0; i < getArity(); i++) {
@@ -395,10 +396,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	 @Override
 	public Type select(String... names) {
-		if (!hasFieldNames()) {
-			throw new FactTypeError("Tuple has no field names");
-		}
-		
 		int[] indexes = new int[names.length];
 		int i = 0;
 		for (String name : names) {

@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be
@@ -260,7 +261,7 @@ import org.eclipse.imp.pdb.facts.IWriter;
 	
 	@Override
 	public void match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeError {
+			throws FactTypeUseException {
 		super.match(matched, bindings);
 		fAliased.match(matched, bindings);
 	}

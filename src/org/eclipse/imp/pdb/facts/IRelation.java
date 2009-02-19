@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public interface IRelation extends ISet, IValue {
@@ -24,9 +24,9 @@ public interface IRelation extends ISet, IValue {
      * 
      * @param rel another relation 
      * @return a relation with type rel[t_1,...,t_n-1,u_2...u_m]
-     * @throws FactTypeError when t_n is not a sub-type of u_1
+     * @throws FactTypeUseException when t_n is not a sub-type of u_1
      */
-    public IRelation compose(IRelation rel) throws FactTypeError;
+    public IRelation compose(IRelation rel) throws FactTypeUseException;
 
     /**
      * Computes transitive non-reflexive closure of a relation, but only
@@ -34,9 +34,9 @@ public interface IRelation extends ISet, IValue {
      * equivalent)
      * 
      * @return a relation with the same type as the receiver
-     * @throws FactTypeError if this relation is not a binary or symmetric.
+     * @throws FactTypeUseException if this relation is not a binary or symmetric.
      */
-    public IRelation closure() throws FactTypeError;
+    public IRelation closure() throws FactTypeUseException;
 
     /**
      * Computes transitive and reflexive closure of a relation, but only
@@ -44,9 +44,9 @@ public interface IRelation extends ISet, IValue {
      * equivalent)
      * 
      * @return a relation with the same type as the receiver
-     * @throws FactTypeError if this relation is not a binary or symmetric.
+     * @throws FactTypeUseException if this relation is not a binary or symmetric.
      */
-    public IRelation closureStar() throws FactTypeError;
+    public IRelation closureStar() throws FactTypeUseException;
     
     /**
      * Computes the carrier of the relation, which is the set
@@ -82,5 +82,5 @@ public interface IRelation extends ISet, IValue {
      * Select from the relation only the following fields. In case a single
      * field is selected, the result is a set, otherwise the result is a relation.
      */
-    public ISet select(String ... fields) throws FactTypeError;
+    public ISet select(String ... fields) throws FactTypeUseException;
 }

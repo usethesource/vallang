@@ -20,9 +20,11 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedResultTypeException;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -37,7 +39,7 @@ class Set extends Value implements ISet{
 		this.content = content;
 	}
 	
-	public boolean contains(IValue element) throws FactTypeError{
+	public boolean contains(IValue element) throws FactTypeUseException{
 		return content.contains(element);
 	}
 
@@ -105,7 +107,7 @@ class Set extends Value implements ISet{
 			return (SetOrRel) result;
 		}
 		catch (ClassCastException e) {
-			throw new FactTypeError("Union did not result in a relation.", e);
+			throw new UnexpectedResultTypeException(result.getType(), e);
 		}
 	}
 
@@ -169,10 +171,10 @@ class Set extends Value implements ISet{
 		return v.visitSet(this);
 	}
 	
-	private static void checkInsert(IValue elem, Type eltType) throws FactTypeError{
+	private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException{
 		Type type = elem.getType();
 		if(!type.isSubtypeOf(eltType)){
-			throw new FactTypeError("Element type " + type + " is not compatible with " + eltType);
+			throw new UnexpectedElementTypeException(eltType, type);
 		}
 	}
 	
@@ -198,7 +200,7 @@ class Set extends Value implements ISet{
 			setContent.add(elem);
 		}
 
-		public void insert(IValue... elems) throws FactTypeError{
+		public void insert(IValue... elems) throws FactTypeUseException{
 			checkMutation();
 			
 			for(IValue elem : elems){
@@ -206,7 +208,7 @@ class Set extends Value implements ISet{
 			}
 		}
 
-		public void insertAll(Iterable<IValue> collection) throws FactTypeError{
+		public void insertAll(Iterable<IValue> collection) throws FactTypeUseException{
 			checkMutation();
 			
 			for(IValue v : collection){

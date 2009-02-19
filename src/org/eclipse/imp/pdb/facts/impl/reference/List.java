@@ -18,9 +18,10 @@ import java.util.LinkedList;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -136,10 +137,10 @@ public class List extends Value implements IList {
 		return new ListWriter(eltType);
 	}
 	
-	private static void checkInsert(IValue elem, Type eltType) throws FactTypeError{
+	private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException{
 		Type type = elem.getType();
 		if(!type.isSubtypeOf(eltType)){
-			throw new FactTypeError("Element type " + type + " is not compatible with " + eltType);
+			throw new UnexpectedElementTypeException(eltType, type);
 		}
 	}
 	
@@ -171,13 +172,13 @@ public class List extends Value implements IList {
 			listContent.add(index, elem);
 		}
 		
-		public void insert(IValue elem) throws FactTypeError{
+		public void insert(IValue elem) throws FactTypeUseException{
 			checkMutation();
 			
 			put(0, elem);
 		}
 		
-		public void insert(IValue[] elems, int start, int length) throws FactTypeError{
+		public void insert(IValue[] elems, int start, int length) throws FactTypeUseException{
 			checkMutation();
 			checkBounds(elems, start, length);
 			
@@ -186,23 +187,23 @@ public class List extends Value implements IList {
 			}
 		}
 
-		public void replaceAt(int index, IValue elem) throws FactTypeError, IndexOutOfBoundsException {
+		public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
 			checkMutation();
 			checkInsert(elem, eltType);
 			listContent.set(index, elem);
 		}
 		
-		public void insert(IValue... elems) throws FactTypeError{
+		public void insert(IValue... elems) throws FactTypeUseException{
 			insert(elems, 0, elems.length);
 		}
 		
-		public void insert(int index, IValue elem) throws FactTypeError{
+		public void insert(int index, IValue elem) throws FactTypeUseException{
 			checkMutation();
 			
 			put(index, elem);
 		}
 		
-		public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeError{
+		public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException{
 			checkMutation();
 			checkBounds(elems, start, length);
 			
@@ -211,17 +212,17 @@ public class List extends Value implements IList {
 			}
 		}
 
-		public void insertAt(int index, IValue... elems) throws FactTypeError{
+		public void insertAt(int index, IValue... elems) throws FactTypeUseException{
 			insertAt(index,  elems, 0, 0);
 		}
 		
-		public void append(IValue elem) throws FactTypeError{
+		public void append(IValue elem) throws FactTypeUseException{
 			checkMutation();
 			
 			put(listContent.size(), elem);
 		}
 
-		public void append(IValue... elems) throws FactTypeError{
+		public void append(IValue... elems) throws FactTypeUseException{
 			checkMutation();
 			
 			for(IValue elem : elems){
@@ -229,7 +230,7 @@ public class List extends Value implements IList {
 			}
 		}
 		
-		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeError{
+		public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			checkMutation();
 			
 			for(IValue v : collection){

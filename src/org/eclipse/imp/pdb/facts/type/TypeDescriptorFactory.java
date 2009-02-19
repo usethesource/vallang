@@ -13,13 +13,14 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.io.IValueReader;
 import org.eclipse.imp.pdb.facts.io.IValueWriter;
 import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
@@ -82,13 +83,14 @@ public class TypeDescriptorFactory {
 	 * 
 	 * @param descriptor a value that represents a type
 	 * @return a type that was represented by the descriptor
-	 * @throws TypeDeclarationException if the descriptor is not a valid type descriptor
+	 * @throws FactTypeDeclarationException if the descriptor is not a valid type descriptor
 	 */
-	public Type fromTypeDescriptor(IValue descriptor) throws TypeDeclarationException {
+	public Type fromTypeDescriptor(IValue descriptor) throws FactTypeDeclarationException {
 		try {
 			return descriptor.accept(new FromTypeVisitor());
 		} catch (VisitorException e) {
-			throw new TypeDeclarationException(e.getMessage());
+			// this does not happen since nobody throws a VisitorException
+			return null;
 		}
 	}
 	
@@ -169,12 +171,9 @@ public class TypeDescriptorFactory {
 				
 				return tf.tupleType(fieldTypes);	
 			}
-			else if (node == valueType) {
+			else {
 				return tf.valueType();
 			}
-			
-			
-			throw new FactTypeError("Unexpected type representation encountered: " + o);
 		}
 	}
 	

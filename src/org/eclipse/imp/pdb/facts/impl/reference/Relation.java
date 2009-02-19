@@ -20,7 +20,8 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -36,8 +37,10 @@ class Relation extends Set implements IRelation {
 		return getType().getArity();
 	}
 	
-	public IRelation closure() throws FactTypeError {
-		checkReflexivity();
+	public IRelation closure() throws FactTypeUseException {
+		if (!checkReflexivity()) {
+			throw new IllegalOperationException("closure", getType());
+		}
 		IRelation tmp = (IRelation) this;
 
 		int prevCount = 0;
@@ -50,8 +53,10 @@ class Relation extends Set implements IRelation {
 		return tmp;
 	}
 	
-	public IRelation closureStar() throws FactTypeError {
-		checkReflexivity();
+	public IRelation closureStar() throws FactTypeUseException {
+		if (!checkReflexivity()) {
+			throw new IllegalOperationException("closureStar", getType());
+		}
 		IRelation closure = closure();
 		ISet carrier = carrier();
 		Type elementType = carrier.getElementType();
@@ -64,7 +69,7 @@ class Relation extends Set implements IRelation {
 		return closure.union(reflex.done());
 	}
 
-	public IRelation compose(IRelation other) throws FactTypeError {
+	public IRelation compose(IRelation other) throws FactTypeUseException {
 		Type resultType = getType().compose(other.getType());
 		IRelationWriter w = ValueFactory.getInstance().relationWriter(resultType.getFieldTypes());
 		int max1 = arity() - 1;
@@ -126,7 +131,7 @@ class Relation extends Set implements IRelation {
 		return w.done();
 	}
 	
-	private boolean checkReflexivity() throws FactTypeError {
+	private boolean checkReflexivity() throws FactTypeUseException {
 		Type type = getType();
 		int arity = type.getArity();
 		
@@ -134,22 +139,12 @@ class Relation extends Set implements IRelation {
 			Type t1 = type.getFieldType(0);
 			Type t2 = type.getFieldType(1);
 
-			checkSubtypesOfEachother(t1, t2);
-		} else {
-			throw new FactTypeError("Relation is not binary");
+			return t1.comparable(t2);
 		}
 		
-		return true;
+		return false;
 	}
 
-	private void checkSubtypesOfEachother(Type t1, Type t2)
-			throws FactTypeError {
-		if (!t1.comparable(t2)) {
-			throw new FactTypeError(
-					"Elements of binary relations are not subtypes of eachother:"
-							+ t1 + " and " + t2);
-		}
-	}
 
 	private Type checkCarrier() {
 		Type result = fType.getFieldType(0);
@@ -210,7 +205,7 @@ class Relation extends Set implements IRelation {
 			return select(indexes);
 		}
 		else {
-			throw new FactTypeError("Relation does not have field names");
+			throw new IllegalOperationException("select with field names", getType());
 		}
 	}
 }

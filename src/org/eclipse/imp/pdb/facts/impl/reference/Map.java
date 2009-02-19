@@ -20,9 +20,11 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapKeyTypeException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapValueTypeException;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -169,9 +171,13 @@ class Map extends Value implements IMap{
 		return fType.getValueType();
 	}
 
-	private static void check(Type key, Type value, Type keyType, Type valueType) throws FactTypeError{
-		if(!key.isSubtypeOf(keyType)) throw new FactTypeError("Key type " + key + " is not a subtype of " + keyType);
-		if(!value.isSubtypeOf(valueType)) throw new FactTypeError("Value type " + value + " is not a subtype of " + valueType);
+	private static void check(Type key, Type value, Type keyType, Type valueType) throws FactTypeUseException{
+		if(!key.isSubtypeOf(keyType)) {
+			throw new UnexpectedMapKeyTypeException(keyType, key);
+		}
+		if(!value.isSubtypeOf(valueType)) {
+			throw new UnexpectedMapValueTypeException(valueType, value);
+		}
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
@@ -202,7 +208,7 @@ class Map extends Value implements IMap{
 			if(constructedMap != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
 		}
 		
-		public void putAll(IMap map) throws FactTypeError{
+		public void putAll(IMap map) throws FactTypeUseException{
 			checkMutation();
 			Type mapType = map.getType();
 			check(mapType.getKeyType(), mapType.getValueType(), keyType, valueType);
@@ -212,7 +218,7 @@ class Map extends Value implements IMap{
 			}
 		}
 		
-		public void putAll(java.util.Map<IValue, IValue> map) throws FactTypeError{
+		public void putAll(java.util.Map<IValue, IValue> map) throws FactTypeUseException{
 			checkMutation();
 			for(IValue key : map.keySet()){
 				IValue value = map.get(key);
@@ -221,12 +227,12 @@ class Map extends Value implements IMap{
 			}
 		}
 
-		public void put(IValue key, IValue value) throws FactTypeError{
+		public void put(IValue key, IValue value) throws FactTypeUseException{
 			checkMutation();
 			mapContent.put(key, value);
 		}
 		
-		public void insert(IValue... value) throws FactTypeError {
+		public void insert(IValue... value) throws FactTypeUseException {
 			for(IValue key : value){
 				ITuple t = (ITuple) key;
 				put(t.get(0), t.get(1));

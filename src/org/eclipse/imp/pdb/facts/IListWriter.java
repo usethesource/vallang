@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 
 /**
@@ -28,19 +28,19 @@ public interface IListWriter extends IWriter {
 	 * Inserts elements in front, keeping the argument in order of appearance.
 	 * 
 	 * @param value an array of elements to insert in front.
-	 * @throws FactTypeError when done() was called before or when the elements have an incompatible type.
+	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 */
-    void insert(IValue... value) throws FactTypeError;
+    void insert(IValue... value) throws FactTypeUseException;
     
     /**
 	 * Inserts elements at a specific position, keeping the argument in order of appearance.
 	 * 
 	 * @param index 
 	 * @param value an array of elements to insert .
-	 * @throws FactTypeError when done() was called before or when the elements have an incompatible type.
+	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException 
 	 */
-    void insertAt(int index, IValue... value) throws FactTypeError, IndexOutOfBoundsException;
+    void insertAt(int index, IValue... value) throws FactTypeUseException, IndexOutOfBoundsException;
     
     /**
 	 * Inserts elements in front, keeping the argument in order of appearance.
@@ -49,10 +49,10 @@ public interface IListWriter extends IWriter {
 	 * @param start index to start copying elements from
 	 * @param length amount of elements to copy from the array
 	 * 
-	 * @throws FactTypeError when done() was called before or when the elements have an incompatible type.
+	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException
 	 */
-    void insert(IValue[] elems, int start, int length) throws FactTypeError, IndexOutOfBoundsException;
+    void insert(IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException;
     
     /**
 	 * Inserts elements at a specific position, keeping the argument in order of appearance.
@@ -62,34 +62,34 @@ public interface IListWriter extends IWriter {
 	 * @param start index to start copying elements from
 	 * @param length amount of elements to copy from the array
 	 * 
-	 * @throws FactTypeError when done() was called before or when the elements have an incompatible type.
+	 * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
 	 * @throws IndexOutOfBoundsException
 	 */
-    void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeError, IndexOutOfBoundsException;
+    void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException, IndexOutOfBoundsException;
     
     /**
      * Replaces an existing element at index in the list.
      * @param index the location where to replace the element
      * @param elem the new element
-     * @throws FactTypeError when the type of the new element is not a subtype of the element type
+     * @throws FactTypeUseException when the type of the new element is not a subtype of the element type
      * @throws IndexOutOfBoundsException
      */
-    void replaceAt(int index, IValue elem) throws FactTypeError, IndexOutOfBoundsException;
+    void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException;
     /**
      * Append elements at the end.
      * 
      * @param value array of elements to append
-     * @throws FactTypeError when done() was called before or when the elements have an incompatible type.
+     * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
      */
-    void append(IValue... value) throws FactTypeError;
+    void append(IValue... value) throws FactTypeUseException;
     
     /**
      * Append elements at the end.
      * 
      * @param value array of elements to append
-     * @throws FactTypeError when done() was called before or when the elements have an incompatible type.
+     * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
      */
-    void appendAll(Iterable<? extends IValue> collection) throws FactTypeError;
+    void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
     
     /**
      * Finalize an immutable list. After this method none of the others may be called anymore.

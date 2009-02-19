@@ -20,6 +20,18 @@ import java.util.WeakHashMap;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.RedeclaredAnnotationException;
+import org.eclipse.imp.pdb.facts.exceptions.EmptyIdentifierException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalAnnotationDeclaration;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldNameException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldTypeException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalIdentifierException;
+import org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException;
+import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 
 /**
  * Use this class to produce any kind of {@link Type}, after which
@@ -168,10 +180,10 @@ public class TypeFactory {
      * @param fieldTypesAndLabel an array of field types, where each field type of type @{link Type}
      *        is immediately followed by a field label of type @{link String}.
      * @return a tuple type
-     * @throws TypeDeclarationException when one of the labels is not a proper identifier or when
+     * @throws FactTypeDeclarationException when one of the labels is not a proper identifier or when
      *         the argument array does not contain alternating types and labels.
      */
-    public Type tupleType(Object... fieldTypesAndLabels) throws TypeDeclarationException {
+    public Type tupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
     	int N= fieldTypesAndLabels.length;
         int arity = N / 2;
 		Type[] protoFieldTypes= new Type[arity];
@@ -180,15 +192,21 @@ public class TypeFactory {
             int pos = i / 2;
             try {
             	protoFieldTypes[pos]= (Type) fieldTypesAndLabels[i];
-            	protoFieldNames[pos] = (String) fieldTypesAndLabels[i+1];
             } 
             catch (ClassCastException e) {
-            	throw new TypeDeclarationException("Expected alternating arguments of types and labels. Argument " + pos + " violates that assumption.");
+            	throw new IllegalFieldTypeException(pos, fieldTypesAndLabels[i], e);
+            }
+            try {
+            	protoFieldNames[pos] = (String) fieldTypesAndLabels[i+1];
+            }
+            catch (ClassCastException e) {
+            	throw new IllegalFieldNameException(pos, fieldTypesAndLabels[i+1], e);
             }
         }
+        
         for (String name : protoFieldNames) {
         	if (!isIdentifier(name)) {
-        		throw new TypeDeclarationException("Label " + name + " is not a proper identifier.");
+        		throw new IllegalIdentifierException(name);
         	}
         }
         return (TupleType) getFromCache(new TupleType(arity, 0, protoFieldTypes, protoFieldNames));
@@ -263,12 +281,12 @@ public class TypeFactory {
      * @param aliased the type it should be an alias for
      * @param parameters a list of type parameters for this alias
      * @return a named type
-     * @throws TypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
+     * @throws FactTypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
      */
-    public Type aliasType(String name, Type aliased, Type...parameters) throws TypeDeclarationException {
+    public Type aliasType(String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
     	synchronized (fNamedTypes) {
     		if (!isIdentifier(name)) {
-    			throw new TypeDeclarationException("This is not a valid identifier: " + name);
+    			throw new IllegalIdentifierException(name);
     		}
     		
     		Type paramType;
@@ -284,7 +302,7 @@ public class TypeFactory {
     		Type old = fNamedTypes.get(name);
     		if (old != null && !old.equals(result)) {
     			if (!result.isSubtypeOf(old)) { // we may instantiate a named type, but not redeclare it.
-    				throw new TypeDeclarationException("Can not redeclare type " + old + " with a different type: " + aliased);
+    				throw new FactTypeRedeclaredException(name, old);
     			}
     		}
 
@@ -293,7 +311,7 @@ public class TypeFactory {
     			Type adt= fCache.get(tmp2);
 
     			if (adt != null) {
-    				throw new TypeDeclarationException("Can not redeclare abstract data-type " + adt + " with a named type");
+    				throw new FactTypeRedeclaredException(name, adt);
     			}
     		}
 
@@ -313,18 +331,18 @@ public class TypeFactory {
      * @param name the name of the abstract data-type
      * @param parameters array of type parameters
      * @return a AbstractDataType
-     * @throws TypeDeclarationException when a AliasType with the same name was already declared. 
+     * @throws FactTypeDeclarationException when a AliasType with the same name was already declared. 
      *                                  Re-declaration of an AbstractDataType is ignored.
      */
-    public Type abstractDataType(String name, Type... parameters) throws TypeDeclarationException {
+    public Type abstractDataType(String name, Type... parameters) throws FactTypeDeclarationException {
     	synchronized (fConstructors) {
     		if (!isIdentifier(name)) {
-    			throw new TypeDeclarationException("This is not a valid identifier: " + name);
+    			throw new IllegalIdentifierException(name);
     		}
 
     		Type old = fNamedTypes.get(name);
     		if (old != null) {
-    			throw new TypeDeclarationException("Can not redeclare a named type " + old + " with an abstract data-type.");
+    			throw new FactTypeRedeclaredException(name, old);
     		}
     		
     		Type paramType = voidType();
@@ -349,18 +367,18 @@ public class TypeFactory {
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
-     * @throws TypeDeclarationException when a second anonymous tree is declared for the same AbstractDataType, or when
+     * @throws FactTypeDeclarationException when a second anonymous tree is declared for the same AbstractDataType, or when
      *         name == null.
      */
-    public Type constructorFromTuple(Type adt, String name, Type tupleType) throws TypeDeclarationException {
+    public Type constructorFromTuple(Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
     	synchronized(fConstructors) {
     		List<Type> signature = fConstructors.get(adt);
     		if (signature == null) {
-    			throw new TypeDeclarationException("Unknown named tree type: " + adt);
+    			throw new UndeclaredAbstractDataTypeException(adt);
     		}
 
     		if (name == null || name.length() == 0) {
-    			throw new TypeDeclarationException("Constructor name can not be empty or null.");
+    			throw new EmptyIdentifierException();
     		}
 
     		checkOverloading(signature, name, tupleType);
@@ -391,12 +409,7 @@ public class TypeFactory {
 				for (int j = 0; j < altArgs.getArity(); j++) {
 					if (altArgs.getFieldName(j).equals(label)) {
 						if (!altArgs.getFieldType(j).equivalent(type)) {
-							throw new TypeDeclarationException(
-									"Field name "
-									+ label
-									+ " is illegaly used for different types. Once for a "
-									+ type + " and once for a "
-									+ altArgs.getFieldType(i));
+							throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(i));
 						}
 					}
 				}
@@ -405,12 +418,12 @@ public class TypeFactory {
 	}
 
 	private void checkOverloading(List<Type> signature, String name,
-			Type tupleType) throws TypeDeclarationException {
+			Type tupleType) throws FactTypeDeclarationException {
 		for (Type alt : signature) {
 			if (alt.isConstructorType() && alt.getName().equals(name)) {
 				Type fieldTypes = alt.getFieldTypes();
 				if (fieldTypes != tupleType && fieldTypes.comparable(tupleType)) {
-					throw new TypeDeclarationException("Constructor name " + name + " may overload, but only if the argument types are incomparable: " + fieldTypes + " is comparable to " + tupleType);
+					throw new RedeclaredConstructorException(name, fieldTypes, tupleType);
 				}
 			}
 		}
@@ -424,7 +437,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type constructor(Type nodeType, String name, Type... children ) throws TypeDeclarationException { 
+    public Type constructor(Type nodeType, String name, Type... children ) throws FactTypeDeclarationException { 
     	return constructorFromTuple(nodeType, name, tupleType(children));
     }
     
@@ -437,7 +450,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type constructor(Type nodeType, String name, Object... childrenAndLabels ) throws TypeDeclarationException { 
+    public Type constructor(Type nodeType, String name, Object... childrenAndLabels ) throws FactTypeDeclarationException { 
     	return constructorFromTuple(nodeType, name, tupleType(childrenAndLabels));
     }
 
@@ -467,7 +480,7 @@ public class TypeFactory {
      * @return a ConstructorType if it was declared before
      * @throws a FactTypeError if the type was not declared before
      */
-    public List<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeError {
+    public List<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
     	List<Type> result = new LinkedList<Type>();
 
     	List<Type> alternatives = fConstructors.get(adt);
@@ -565,19 +578,19 @@ public class TypeFactory {
      * @param onType the type of values that carry this annotation
      * @param key    the label of the annotation
      * @param valueType the type of values that represent the annotation
-     * @throws TypeDeclarationException when an attempt is made to define annotations for anything
+     * @throws FactTypeDeclarationException when an attempt is made to define annotations for anything
      * but NamedTreeTypes orTreeNodeTypes.
      */
     public void declareAnnotation(Type onType, String key, Type valueType) {
     	if (!onType.isConstructorType() && !onType.isAbstractDataType()) {
-    		throw new TypeDeclarationException("Can not define annotations on anything but abstract data types");
+    		throw new IllegalAnnotationDeclaration(onType);
     	}
     	
     	synchronized (fAnnotations) {
     		Map<String, Type> annotationsForType = fAnnotations.get(onType);
 
     		if (!isIdentifier(key)) {
-    			throw new TypeDeclarationException("Key " + key + " is not an identifier.");
+    			throw new IllegalIdentifierException(key);
     		}
 
     		if (annotationsForType == null) {
@@ -591,7 +604,7 @@ public class TypeFactory {
     			annotationsForType.put(key, valueType);
     		}
     		else if (!declaredEarlier.get(key).equals(valueType)) {
-    			throw new TypeDeclarationException("Annotation was declared previously with different type: " + declaredEarlier.get(key));
+    			throw new RedeclaredAnnotationException(key, declaredEarlier.get(key));
     		}
     		// otherwise its a safe re-declaration and we do nothing
     	}
@@ -676,9 +689,9 @@ public class TypeFactory {
 	 * 
 	 * @param descriptor a value that represents a type
 	 * @return a type that was represented by the descriptor
-	 * @throws TypeDeclarationException if the descriptor is not a valid type descriptor
+	 * @throws FactTypeDeclarationException if the descriptor is not a valid type descriptor
 	 */
-	Type fromDescriptor(IValue typeDescriptor) throws TypeDeclarationException {
+	Type fromDescriptor(IValue typeDescriptor) throws FactTypeDeclarationException {
 		return TypeDescriptorFactory.getInstance().fromTypeDescriptor(typeDescriptor);
 	}
 

@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ final class ListType extends Type {
 	/*package*/ final Type fEltType;
@@ -98,7 +99,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public void match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeError {
+			throws FactTypeUseException {
 		super.match(matched, bindings);
 		getElementType().match(matched.getElementType(), bindings);
 	}

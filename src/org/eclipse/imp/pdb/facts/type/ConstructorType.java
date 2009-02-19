@@ -16,6 +16,9 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalConstructorApplicationException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 
 /**
  * A tree type is a type of tree node, defined by its name, the types of
@@ -125,7 +128,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
-	public int getFieldIndex(String fieldName) throws FactTypeError {
+	public int getFieldIndex(String fieldName) throws FactTypeUseException {
 		return fChildrenTypes.getFieldIndex(fieldName);
 	}
 	
@@ -167,26 +170,33 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public IValue make(IValueFactory f, int arg) {
-		if (getArity() == 1 && getFieldType(0).isSubtypeOf(TypeFactory.getInstance().integerType())) {
+		TypeFactory tf = TypeFactory.getInstance();
+		
+		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.integerType())) {
 			return make(f, f.integer(arg));
 		}
-		throw new FactTypeError("This constructor does not wrap a single integer");
+
+		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.integerType()));
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, double arg) {
-		if (getArity() == 1 && getFieldType(0).isSubtypeOf(TypeFactory.getInstance().doubleType())) {
+		TypeFactory tf = TypeFactory.getInstance();
+		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.doubleType())) {
 			return make(f, f.dubble(arg));
 		}
-		throw new FactTypeError("This constructor does not wrap a single double");
+		
+		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.doubleType()));
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, String arg) {
-		if (getArity() == 1 && getFieldType(0).isSubtypeOf(TypeFactory.getInstance().stringType())) {
+		TypeFactory tf = TypeFactory.getInstance();
+		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.stringType())) {
 			return make(f, f.string(arg));
 		}
-		throw new FactTypeError("This constructor does not wrap a single string");
+		
+		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.stringType()));
 	}
 	
 	@Override
@@ -197,12 +207,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	@Override
 	public IValue make(IValueFactory f, String name, IValue... children) {
 		if (!name.equals(fName)) {
-			throw new FactTypeError("This constructor has a different name from: " + name);
+			throw new UnsupportedOperationException(name + " does not match constructor name " + getName());
 		}
 		
 		Type childrenTypes = TypeFactory.getInstance().tupleType(children);
 		if (!childrenTypes.isSubtypeOf(fChildrenTypes)) {
-			throw new FactTypeError("These children don't fit this constructor: " + fChildrenTypes);
+			throw new IllegalConstructorApplicationException(this, childrenTypes);
 		}
 		
 		return make(f, children);
@@ -210,7 +220,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public void match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeError {
+			throws FactTypeUseException {
 		super.match(matched, bindings);
 		fADT.match(matched.getAbstractDataType(), bindings);
 		getFieldTypes().match(matched.getFieldTypes(), bindings);
@@ -227,11 +237,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
-	public Type getAnnotationType(String label) throws FactTypeError {
+	public Type getAnnotationType(String label) throws FactTypeUseException {
 		Type type = TypeFactory.getInstance().getAnnotationType(this, label);
 		
 		if (type == null) {
-			throw new FactTypeError("This type does not have an annotation labeled " + label);
+			throw new UndeclaredAnnotationException(getAbstractDataType(), label);
 		}
 		
 		return type;

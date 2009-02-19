@@ -12,12 +12,12 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 
 public interface ISetWriter extends IWriter {
-    void insert(IValue... v) throws FactTypeError ;
-    void insertAll(Iterable<IValue> collection) throws FactTypeError;
+    void insert(IValue... v) throws FactTypeUseException ;
+    void insertAll(Iterable<IValue> collection) throws FactTypeUseException;
     ISet done();
     int size();
 }

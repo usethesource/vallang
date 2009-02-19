@@ -15,6 +15,8 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
 
 /*package*/ final class RelationType extends SetType {
@@ -121,7 +123,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return b.toString();
     }
 
-	private boolean isReflexive() throws FactTypeError {
+	private boolean isReflexive() throws FactTypeUseException {
 		if (getArity() == 2) {
 			Type t1 = getFieldType(0);
 			Type t2 = getFieldType(1);
@@ -138,13 +140,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
-	public Type compose(Type other) throws FactTypeError {
+	public Type compose(Type other) throws FactTypeUseException {
 		if (this == other && isReflexive()) {
 			return this;
 		}
 		else {
 			if (getArity() == 1 || other.getArity() == 1) {
-				throw new FactTypeError("Compose will not work on relations with arity == 1.");
+				throw new IllegalOperationException("compose", this, other);
 			}
 		}
 		Type t1 = fTupleType;
@@ -154,7 +156,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 		Type first = t2.getFieldType(0);
 		
 		if (!(last.isSubtypeOf(first) || first.isSubtypeOf(last))) {
-			throw new FactTypeError("composition works only when the last type of the first relation is compatible with the first type of the second relation");
+			throw new IllegalOperationException("compose", this, other);
 		}
 		
 		return TypeFactory.getInstance().relTypeFromTuple(t1.compose(t2));

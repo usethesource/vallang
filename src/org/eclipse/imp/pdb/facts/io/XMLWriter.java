@@ -24,18 +24,18 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -102,8 +102,8 @@ public class XMLWriter implements IValueWriter {
 			return yieldDouble((IDouble) value, doc);
 		}
 
-		throw new FactTypeError(
-				"Outermost or nested tuples, lists, sets, relations or maps are not allowed: " + type);
+		throw new UnsupportedTypeException(
+				"Outermost or nested tuples, lists, sets, relations or maps are not allowed.", type);
 	}
 	
 	private Node yieldDouble(IDouble value, Document doc) {

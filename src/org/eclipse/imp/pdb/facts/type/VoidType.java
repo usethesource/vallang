@@ -15,6 +15,8 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+
 
 /** 
  * The void type represents an empty collection of values. I.e. it 
@@ -90,7 +92,7 @@ import java.util.Map;
 	
 	@Override
 	public int getFieldIndex(String fieldName) {
-		throw new FactTypeError("void tuple has no labels");
+		throw new IllegalOperationException("getFieldIndex", this);
 	}
 	
 	@Override

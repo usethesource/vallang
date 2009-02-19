@@ -4,7 +4,10 @@ import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -62,7 +65,7 @@ public class Constructor extends Node implements IConstructor {
 	}
 
 	
-	public IConstructor set(String label, IValue newChild) throws FactTypeError {
+	public IConstructor set(String label, IValue newChild) throws FactTypeUseException {
 		int childIndex = fType.getFieldIndex(label);
 		checkChildType(childIndex, newChild);
 		return new Constructor(this, childIndex, newChild);
@@ -72,7 +75,7 @@ public class Constructor extends Node implements IConstructor {
 		Type type = newChild.getType();
 		Type expectedType = getConstructorType().getFieldType(i);
 		if (!type.isSubtypeOf(expectedType)) {
-			throw new FactTypeError("New child type " + type + " is not a subtype of " + expectedType);
+			throw new UnexpectedChildTypeException(expectedType, type);
 		}
 	}
 	
@@ -98,7 +101,7 @@ public class Constructor extends Node implements IConstructor {
 	public boolean hasAnnotation(String label) {
 		boolean result = fAnnotations.containsKey(label);
 		if (!result && !declaresAnnotation(label)) {
-			throw new FactTypeError("This type " + getType() + " has no annotation named " + label + " declared for it.");
+			throw new UndeclaredAnnotationException(getType(), label);
 		}
 		return result;
 	}
@@ -111,19 +114,19 @@ public class Constructor extends Node implements IConstructor {
 		Type expected = TypeFactory.getInstance().getAnnotationType(getType(), label);
 
 		if (expected == null) {
-			throw new FactTypeError("This annotation was not declared for this type: " + label + " for " + getType());
+			throw new UndeclaredAnnotationException(getType(), label);
 		}
 
 		if (!value.getType().isSubtypeOf(expected)) {
-			throw new FactTypeError("The type of this annotation should be a subtype of " + expected + " and not " + value.getType());
+			throw new UnexpectedAnnotationTypeException(expected, value.getType());
 		}
 
 		return new Constructor(this, label, value);
 	}
 
-	public IValue getAnnotation(String label) throws FactTypeError {
+	public IValue getAnnotation(String label) throws FactTypeUseException {
 		if (!declaresAnnotation(label)) {
-			throw new FactTypeError("This type " + getType() + " has no annotation named " + label + " declared for it.");
+			throw new UndeclaredAnnotationException(getType(), label);
 		}
 		return fAnnotations.get(label);
 	}

@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public interface IList extends Iterable<IValue>, IValue {
@@ -59,10 +59,10 @@ public interface IList extends Iterable<IValue>, IValue {
      * @param i index to replace a value at.
      * @param e the new value to replace the old one
      * @return a new list with the element replaced
-     * @throws FactTypeError when the type of the element is not a subtype of the element type
+     * @throws FactTypeUseException when the type of the element is not a subtype of the element type
      * @throws IndexOutOfBoundsException when the i < 0 or i >= IList.length()
      */
-    public IList put(int i, IValue e) throws FactTypeError, IndexOutOfBoundsException;
+    public IList put(int i, IValue e) throws FactTypeUseException, IndexOutOfBoundsException;
     
     /**
      * Return the ith element of the list.

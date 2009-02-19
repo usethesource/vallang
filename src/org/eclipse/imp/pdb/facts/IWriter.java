@@ -1,9 +1,9 @@
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 public interface IWriter {
-	 void insert(IValue... value) throws FactTypeError;
-	 void insertAll(Iterable<IValue> collection) throws FactTypeError;
+	 void insert(IValue... value) throws FactTypeUseException;
+	 void insertAll(Iterable<IValue> collection) throws FactTypeUseException;
 	 public IValue done();
 }

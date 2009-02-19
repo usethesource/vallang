@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
@@ -103,9 +103,9 @@ public interface IValueFactory {
      * @param constructor the constructor to use
      * @param children an array or variable length argument list of children
      * @return a new tree value
-     * @throws FactTypeError if the children are not of the expected types for this node type
+     * @throws FactTypeUseException if the children are not of the expected types for this node type
      */
-    public IConstructor constructor(Type constructor, IValue... children) throws FactTypeError;
+    public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException;
     
     /**
      * Construct an empty unmodifiable set. If the element type is a tuple type,

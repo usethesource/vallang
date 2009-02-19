@@ -16,6 +16,9 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by constructors, @see NodeType.
@@ -148,7 +151,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			}
 		}
 		
-		throw new FactTypeError("This adt, " + this + ", does not have any constructor to wrap a " + wrapped);
+		throw new UndeclaredConstructorException(this, TypeFactory.getInstance().tupleType(wrapped));
 	}
 	
 	@Override
@@ -187,7 +190,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 			}
 		}
 		
-		throw new FactTypeError("This adt does not have a constructor with this signature: " + name + ":" + childrenTypes);
+		throw new UndeclaredConstructorException(this, childrenTypes);
 	}
 	
 	@Override
@@ -196,11 +199,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
-	public Type getAnnotationType(String label) throws FactTypeError {
+	public Type getAnnotationType(String label) throws FactTypeUseException {
 		Type type = TypeFactory.getInstance().getAnnotationType(this, label);
 		
 		if (type == null) {
-			throw new FactTypeError("This type does not have an annotation labeled " + label);
+			throw new UndeclaredAnnotationException(this, label);
 		}
 		
 		return type;

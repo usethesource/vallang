@@ -24,7 +24,9 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.w3c.dom.DOMException;
@@ -66,7 +68,7 @@ public class XMLReader implements IValueReader {
 	
 	
 	public IValue read(IValueFactory factory, Type type, InputStream stream)
-			throws FactTypeError, IOException {
+			throws FactTypeUseException, IOException {
 		this.vf = factory;
 		
 		try {
@@ -79,7 +81,7 @@ public class XMLReader implements IValueReader {
 		} catch (DOMException de) {
 			throw new IOException("Parsing of value failed because of a XML document failure: " + de.getMessage());
 		} catch (NumberFormatException nfe) {
-			throw new FactTypeError("Expected a number, got something different: " + nfe.getMessage(), nfe);
+			throw new FactParseError("Expected a number, got something different", nfe);
 		}
 	}
 	
@@ -114,8 +116,8 @@ public class XMLReader implements IValueReader {
 			return parseDouble(node);
 		}
 
-		throw new FactTypeError(
-				"Outermost or nested tuples, lists, sets, relations or maps are not allowed: " + expected);
+		throw new UnsupportedTypeException(
+				"Outermost or nested tuples, lists, sets, relations or maps are not allowed.", expected);
 	}
 
 
