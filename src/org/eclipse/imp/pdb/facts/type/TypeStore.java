@@ -137,8 +137,8 @@ public class TypeStore {
     public Type abstractDataType(String name, Type... parameters)
 			throws FactTypeDeclarationException {
 		synchronized (fConstructors) {
-			synchronized (fADTs) {
-				synchronized (fAliases) {
+			synchronized (fAliases) {
+				synchronized (fADTs) {
 					Type oldAdt = fADTs.get(name);
 					Type adt = factory.abstractDataType(name, parameters);
 
