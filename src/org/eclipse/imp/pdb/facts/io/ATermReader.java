@@ -14,8 +14,10 @@ package org.eclipse.imp.pdb.facts.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -26,17 +28,21 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 // TODO: add support for values of type Value, for this we need overloading resolving
-public class ATermReader implements IValueReader {
+public class ATermReader extends AbstractReader {
 	private IValueFactory vf;
 	private TypeFactory tf = TypeFactory.getInstance();
+	private TypeStore ts;
 
-	public IValue read(IValueFactory factory, Type type, InputStream stream)
+	public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
 			throws FactParseError, IOException {
 		this.vf = factory;
+		this.ts = store;
 
 		int firstToken;
 		do {
@@ -142,8 +148,13 @@ public class ATermReader implements IValueReader {
 			
 			Type node;
 			if (expected.isAbstractDataType()) {
-				List<Type> nodes = tf.lookupConstructor(expected, funname);
-				node = nodes.get(0); // TODO deal with overloading
+				Set<Type> nodes = ts.lookupConstructor(expected, funname);
+				// TODO deal with overloading
+				Iterator<Type> iterator = nodes.iterator();
+				if (!iterator.hasNext()) {
+					throw new UndeclaredAbstractDataTypeException(expected);
+				}
+				node = iterator.next(); 
 			}
 			else {
 				node = expected;
@@ -279,7 +290,7 @@ public class ATermReader implements IValueReader {
 			
 			if (c == '"') {
 				String key = parseStringLiteral(reader);
-				Type annoType = tf.getAnnotationType(result.getType(), key);
+				Type annoType = ts.getAnnotationType(result.getType(), key);
 
 				if (reader.readSkippingWS() == ',') {
 					reader.readSkippingWS();
@@ -362,7 +373,7 @@ public class ATermReader implements IValueReader {
 				throw new FactParseError("malformed int:" + str, reader.getPosition());
 			}
 			
-			result = expected.make(vf, val);
+			result = expected.make(vf,ts, val);
 		} else if (reader.getLastChar() == 'l' || reader.getLastChar() == 'L') {
 			reader.read();
 			throw new FactParseError("No support for longs", reader.getPosition());
@@ -392,7 +403,7 @@ public class ATermReader implements IValueReader {
 			double val;
 			try {
 				val = Double.valueOf(str.toString()).doubleValue();
-				result = expected.make(vf, val);
+				result = expected.make(vf,ts, val);
 			} catch (NumberFormatException e) {
 				throw new FactParseError("malformed real", reader.getPosition(), e);
 			}

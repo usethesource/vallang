@@ -138,6 +138,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public boolean hasField(String fieldName, TypeStore store) {
+		return hasField(fieldName);
+	}
+	
+	@Override
 	public TupleType getFieldTypes() {
 		return fChildrenTypes;
 	}
@@ -218,6 +223,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		return make(f, children);
 	}
 	
+	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
+		return make(f, name, children);
+	}
+	
 	@Override
 	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
@@ -232,13 +241,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	public boolean declaresAnnotation(String label) {
-		return TypeFactory.getInstance().getAnnotationType(this, label) != null;
+	public boolean declaresAnnotation(TypeStore store, String label) {
+		return store.getAnnotationType(this, label) != null;
 	}
 	
 	@Override
-	public Type getAnnotationType(String label) throws FactTypeUseException {
-		Type type = TypeFactory.getInstance().getAnnotationType(this, label);
+	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
+		Type type = store.getAnnotationType(this, label);
 		
 		if (type == null) {
 			throw new UndeclaredAnnotationException(getAbstractDataType(), label);
@@ -246,4 +255,5 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		
 		return type;
 	}
+	
 }

@@ -11,14 +11,14 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by constructors, @see NodeType.
@@ -76,8 +76,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	public boolean hasField(String fieldName) {
-		for (Type alt : TypeFactory.getInstance().lookupAlternatives(this)) {
+	public boolean hasField(String fieldName, TypeStore store) {
+		for (Type alt : store.lookupAlternatives(this)) {
 			if (alt.isConstructorType()) {
 				if (alt.hasField(fieldName)) {
 					return true;
@@ -144,8 +144,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		return visitor.visitAbstractData(this);
 	}
 	
-	private IValue wrap(IValueFactory vf, Type wrapped, IValue value) {
-		for (Type alt : TypeFactory.getInstance().lookupAlternatives(this)) {
+	private IValue wrap(IValueFactory vf, TypeStore store, Type wrapped, IValue value) {
+		for (Type alt : store.lookupAlternatives(this)) {
 			if (alt.getArity() == 1 && alt.getFieldType(0).isSubtypeOf(wrapped)) {
 				return alt.make(vf, value);
 			}
@@ -153,36 +153,44 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		
 		throw new UndeclaredConstructorException(this, TypeFactory.getInstance().tupleType(wrapped));
 	}
-	
+
 	@Override
-	public IValue make(IValueFactory vf, int arg) {
-		Type wrapped = TypeFactory.getInstance().integerType();
+	public IValue make(IValueFactory vf, TypeStore store, boolean arg) {
+		Type wrapped = TypeFactory.getInstance().boolType();
 		IValue value = wrapped.make(vf, arg);
 		
-		return wrap(vf, wrapped, value);
+		return wrap(vf, store, wrapped, value);
 	}
 	
 	@Override
-	public IValue make(IValueFactory vf, double arg) {
+	public IValue make(IValueFactory vf, TypeStore store, int arg) {
+		Type wrapped = TypeFactory.getInstance().integerType();
+		IValue value = wrapped.make(vf, arg);
+		
+		return wrap(vf, store, wrapped, value);
+	}
+	
+	@Override
+	public IValue make(IValueFactory vf, TypeStore store, double arg) {
 		Type wrapped = TypeFactory.getInstance().doubleType();
 		IValue value = wrapped.make(vf, arg);
 		
-		return wrap(vf, wrapped, value);
+		return wrap(vf, store, wrapped, value);
 	}
 
 	
 	@Override
-	public IValue make(IValueFactory vf, String arg) {
+	public IValue make(IValueFactory vf, TypeStore store, String arg) {
 		Type wrapped = TypeFactory.getInstance().stringType();
 		IValue value = wrapped.make(vf, arg);
 		
-		return wrap(vf, wrapped, value);
+		return wrap(vf, store, wrapped, value);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, String name, IValue... children) {
-		List<Type> possible = TypeFactory.getInstance().lookupConstructor(this, name);
-		Type childrenTypes = TypeFactory.getInstance().tupleType(children);
+	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
+		Set<Type> possible = store.lookupConstructor(this, name);
+		Type childrenTypes = store.getFactory().tupleType(children);
 		
 		for (Type node : possible) {
 			if (childrenTypes.isSubtypeOf(node.getFieldTypes())) {
@@ -194,13 +202,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	public boolean declaresAnnotation(String label) {
-		return TypeFactory.getInstance().getAnnotationType(this, label) != null;
+	public boolean declaresAnnotation(TypeStore store, String label) {
+		return store.getAnnotationType(this, label) != null;
 	}
 	
 	@Override
-	public Type getAnnotationType(String label) throws FactTypeUseException {
-		Type type = TypeFactory.getInstance().getAnnotationType(this, label);
+	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
+		Type type = store.getAnnotationType(this, label);
 		
 		if (type == null) {
 			throw new UndeclaredAnnotationException(this, label);

@@ -58,4 +58,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public IValue make(IValueFactory f, boolean arg) {
 		return f.bool(arg);
 	}
+	
+	@Override
+	public IValue make(IValueFactory f, TypeStore store, boolean arg) {
+		return make(f, arg);
+	}
 }

@@ -143,6 +143,14 @@ public abstract class Type implements Iterable<Type> {
 	public boolean hasField(String fieldName) {
 		throw new IllegalOperationException("hasField", this);
 	}
+	
+	/**
+	 * @param fieldName name of the field to check for
+	 * @return true iff this type has a field named fieldName
+	 */
+	public boolean hasField(String fieldName, TypeStore store) {
+		throw new IllegalOperationException("hasField", this);
+	}
 
 	/**
 	 * Retrieve the width, a.k.a. arity, of a tuple, a relation or 
@@ -226,13 +234,14 @@ public abstract class Type implements Iterable<Type> {
 	 * annotation label was declared.
 	 * 
 	 * @param label
+	 * @param store to find the declaration in
 	 * @return true iff this type has an annotation named label declared for it. 
 	 */
-	public boolean declaresAnnotation(String label) {
+	public boolean declaresAnnotation(TypeStore store, String label) {
 		return false;
 	}
 	
-	public Type getAnnotationType(String label) throws FactTypeUseException {
+	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
 		throw new IllegalOperationException("getAnnotationType", this);
 	}
 	
@@ -416,10 +425,8 @@ public abstract class Type implements Iterable<Type> {
 	}
 
 	/**
-	 * Build a double value. This method is supported by the DoubleType
-	 * and TreeNodeTypes with anonymous constructor names and NamedTypes which
-	 * are subtypes of the previous two. 
-	 * 
+	 * Build a double value. This method is supported by the DoubleTypes
+	 
 	 * @param f   the factory to use
 	 * @param arg the double to wrap
 	 * @return a double value
@@ -427,11 +434,21 @@ public abstract class Type implements Iterable<Type> {
 	public IValue make(IValueFactory f, double arg) {
 		throw new IllegalOperationException("make double", this);
 	}
+	
+	/**
+	 * Build a double value. This method is supported by TreeNodeTypes that wrap
+	 * a single double argument.
+	 * 
+	 * @param f   the factory to use
+	 * @param arg the double to wrap
+	 * @return a double value
+	 */
+	public IValue make(IValueFactory f, TypeStore store, double arg) {
+		throw new IllegalOperationException("make double", this);
+	}
 
 	/**
-	 * Build a integer value. This method is supported by the DoubleType
-	 * and TreeNodeTypes with anonymous constructor names and NamedTypes which
-	 * are subtypes of the previous two.
+	 * Build a integer value. This method is supported by IntegerTypes.
 	 * 
 	 * @param f   the factory to use
 	 * @param arg the integer to wrap
@@ -440,17 +457,39 @@ public abstract class Type implements Iterable<Type> {
 	public IValue make(IValueFactory f, int arg) {
 		throw new IllegalOperationException("make int", this);
 	}
-
+	
 	/**
-	 * Build a string value. This method is supported by the DoubleType
-	 *  and TreeNodeTypes with anonymous constructor names and NamedTypes which
-	 * are subtypes of the previous two.
+	 * Build a integer value. This method is supported by TreeNodeTypes 
+	 * that wrap a single integer argument.
 	 * 
 	 * @param f   the factory to use
 	 * @param arg the integer to wrap
 	 * @return a integer value
 	 */
+	public IValue make(IValueFactory f, TypeStore store, int arg) {
+		throw new IllegalOperationException("make int", this);
+	}
+
+	/**
+	 * Build a string value. This method is supported by the StringType.
+	 * 
+	 * @param f   the factory to use
+	 * @param arg the string to wrap
+	 * @return a string value
+	 */
 	public IValue make(IValueFactory f, String arg) {
+		throw new IllegalOperationException("make string", this);
+	}
+	
+	/**
+	 * Build a string value. This method is supported by TreeNodeTypes 
+	 * that wrap a single string value
+	 * 
+	 * @param f   the factory to use
+	 * @param arg the string to wrap
+	 * @return a tree node that wraps a single string
+	 */
+	public IValue make(IValueFactory f, TypeStore store, String arg) {
 		throw new IllegalOperationException("make string", this);
 	}
 
@@ -492,7 +531,15 @@ public abstract class Type implements Iterable<Type> {
 		throw new IllegalOperationException("make tree constructor", this);
 	}
 	
+	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
+		throw new IllegalOperationException("make tree constructor", this);
+	}
+	
 	public IValue make(IValueFactory f, boolean arg) {
+		throw new IllegalOperationException("make boolean", this);
+	}
+	
+	public IValue make(IValueFactory f, TypeStore store, boolean arg) {
 		throw new IllegalOperationException("make boolean", this);
 	}
 	

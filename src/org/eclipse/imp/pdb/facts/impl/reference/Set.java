@@ -83,6 +83,17 @@ class Set extends Value implements ISet{
 		}
 		return sw.done();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public ISet delete(IValue elem) {
+		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
+		for (IValue a : content){
+			if (!a.isEqual(elem)){
+				sw.insert(a);
+			}
+		}
+		return sw.done();
+	}
 
 	public boolean isSubSet(ISet other) {
 		for (IValue elem : this) {
@@ -110,6 +121,8 @@ class Set extends Value implements ISet{
 			throw new UnexpectedResultTypeException(result.getType(), e);
 		}
 	}
+	
+	
 
 	public Iterator<IValue> iterator(){
 		return content.iterator();

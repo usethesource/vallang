@@ -48,7 +48,8 @@ import org.w3c.dom.Node;
 public class XMLWriter implements IValueWriter {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder fBuilder;
-    
+//	private XMLHelper helper;
+	
 	public void write(IValue value, OutputStream stream) throws IOException {
 		try {
 			fBuilder = dbf.newDocumentBuilder();
@@ -72,20 +73,18 @@ public class XMLWriter implements IValueWriter {
 		Type type = value.getType();
 		
 		if (type.isAbstractDataType()) {
-			Type sort = type; 
 			Type node = ((IConstructor) value).getConstructorType();
-			String name = node.getName();
 			
-			if (XMLReader.isListWrapper(name,  sort)) {
+			if (isListWrapper(node)) {
 				return yieldList((INode) value,  doc);
 			}
-			else if (XMLReader.isSetWrapper(name, sort)) {
+			else if (isSetWrapper(node)) {
 				return yieldSet((INode) value, doc);
 			}
-			else if (XMLReader.isRelationWrapper(name, sort)) {
+			else if (isRelationWrapper(node)) {
 				return yieldRelation((INode) value, doc);
 			}
-			else if (XMLReader.isMapWrapper(name, sort)) {
+			else if (isMapWrapper(node)) {
 				return yieldMap((INode) value, doc);
 			}
 			else {
@@ -105,6 +104,28 @@ public class XMLWriter implements IValueWriter {
 		throw new UnsupportedTypeException(
 				"Outermost or nested tuples, lists, sets, relations or maps are not allowed.", type);
 	}
+	
+	private boolean isListWrapper(Type nodeType) {
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0).isListType();
+	}
+
+	private boolean isSetWrapper(Type nodeType) {
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0).isSetType();
+	}
+
+	private boolean isRelationWrapper(Type nodeType) {
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0)
+							.isRelationType();
+	}
+
+	private boolean isMapWrapper(Type nodeType) {
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0).isMapType();
+	}
+
 	
 	private Node yieldDouble(IDouble value, Document doc) {
 		return doc.createTextNode("" + value.getValue());

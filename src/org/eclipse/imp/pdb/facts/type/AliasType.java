@@ -360,10 +360,30 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	public IValue make(IValueFactory f, boolean arg) {
 		return fAliased.make(f, arg);
 	}
-
+	
 	@Override
-	public IValue make(IValueFactory f, String name, IValue... children) {
-		return fAliased.make(f, name, children);
+	public IValue make(IValueFactory f, TypeStore store, boolean arg) {
+		return fAliased.make(f, store, arg);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, TypeStore store, double arg) {
+		return fAliased.make(f, store, arg);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, TypeStore store, int arg) {
+		return fAliased.make(f, store, arg);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, TypeStore store, String arg) {
+		return fAliased.make(f, store, arg);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
+		return fAliased.make(f, store, name, children);
 	}
 
 	@Override

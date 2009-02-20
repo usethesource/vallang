@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -61,15 +61,15 @@ import org.xml.sax.SAXException;
  * Use this class to import many forms of XML data into PDB.
  * 
  */
-public class XMLReader implements IValueReader {
+public class XMLReader extends AbstractReader {
 	private DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-	private static TypeFactory tf = TypeFactory.getInstance();
 	private IValueFactory vf;
-	
-	
-	public IValue read(IValueFactory factory, Type type, InputStream stream)
+	private TypeStore ts;
+
+	public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
 			throws FactTypeUseException, IOException {
 		this.vf = factory;
+		this.ts = store;
 		
 		try {
 			Document doc = domFactory.newDocumentBuilder().parse(stream);
@@ -120,6 +120,54 @@ public class XMLReader implements IValueReader {
 				"Outermost or nested tuples, lists, sets, relations or maps are not allowed.", expected);
 	}
 
+	private boolean isListWrapper(String name, Type expected) {
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, name);
+
+		if (nodeTypes.size() > 0) {
+			Type nodeType = nodeTypes.iterator().next();
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0).isListType();
+		}
+
+		return false;
+	}
+
+	private boolean isSetWrapper(String name, Type expected) {
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, name);
+
+		if (nodeTypes.size() > 0) {
+			Type nodeType = nodeTypes.iterator().next();
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0).isSetType();
+		}
+
+		return false;
+	}
+
+	private boolean isRelationWrapper(String name, Type expected) {
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, name);
+
+		if (nodeTypes.size() > 0) {
+			Type nodeType = nodeTypes.iterator().next();
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0)
+							.isRelationType();
+		}
+
+		return false;
+	}
+
+	private boolean isMapWrapper(String name, Type expected) {
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, name);
+
+		if (nodeTypes.size() > 0) {
+			Type nodeType = nodeTypes.iterator().next();
+			return nodeType.getArity() == 1
+					&& nodeType.getFieldTypes().getFieldType(0).isMapType();
+		}
+
+		return false;
+	}
 
 	private IValue parseDouble(Node node) {
 		return vf.dubble(Double.parseDouble(node.getNodeValue().trim()));
@@ -134,9 +182,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseMap(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, node.getNodeName());
 		// TODO: implement overloading
-		Type nodeType = nodeTypes.get(0);
+		Type nodeType = nodeTypes.iterator().next();
 		Type mapType = nodeType.getFieldType(0);
 		Type keyType = mapType.getKeyType();
 		Type valueType = mapType.getValueType();
@@ -180,9 +228,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseRelation(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, node.getNodeName());
 		// TODO implement overloading
-		Type nodeType = nodeTypes.get(0);
+		Type nodeType = nodeTypes.iterator().next();
 		Type relType = nodeType.getFieldType(0);
 		Type fields = relType.getFieldTypes();
 		NodeList children = node.getChildNodes();
@@ -202,9 +250,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseSet(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, node.getNodeName());
 		// TODO implement overloading
-		Type nodeType = nodeTypes.get(0);
+		Type nodeType = nodeTypes.iterator().next();
 		Type setType = (Type) nodeType.getFieldType(0);
 		Type elementType = setType.getElementType();
 		NodeList children = node.getChildNodes();
@@ -231,9 +279,9 @@ public class XMLReader implements IValueReader {
 	}
 
 	private IValue parseList(Node node, Type expected) {
-		List<Type> nodeTypes = tf.lookupConstructor(expected, node.getNodeName());
+		Set<Type> nodeTypes = ts.lookupConstructor(expected, node.getNodeName());
 		// TODO implement overloading
-		Type nodeType = nodeTypes.get(0);
+		Type nodeType = nodeTypes.iterator().next();
 		Type listType = nodeType.getFieldType(0);
 		Type elementType = listType.getElementType();
 		NodeList children = node.getChildNodes();
@@ -259,52 +307,10 @@ public class XMLReader implements IValueReader {
 		return vf.constructor(nodeType, writer.done());
 	}
 
-    /*package*/ static boolean isListWrapper(String name, Type expected) {
-    	List<Type> nodeTypes = tf.lookupConstructor(expected, name);
-    	
-    	if (nodeTypes.size() > 0) {
-    		Type nodeType = nodeTypes.get(0);
-    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isListType();
-    	}
-    	
-    	return false;
-	}
-	
-	/*package*/ static boolean isSetWrapper(String name, Type expected) {
-		List<Type> nodeTypes = tf.lookupConstructor(expected, name);
-    	
-    	if (nodeTypes.size() > 0) {
-    		Type nodeType = nodeTypes.get(0);
-    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isSetType();
-    	}
-    	
-    	return false;
-	}
-	
-	/*package*/ static boolean isRelationWrapper(String name, Type expected) {
-		List<Type> nodeTypes = tf.lookupConstructor(expected, name);
-    	
-    	if (nodeTypes.size() > 0) {
-    		Type nodeType = nodeTypes.get(0);
-    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isRelationType();
-    	}
-    	
-    	return false;
-	}
-	
-	/*package*/ static boolean isMapWrapper(String name, Type expected) {
-	List<Type> nodeTypes = tf.lookupConstructor(expected, name);
-    	
-    	if (nodeTypes.size() > 0) {
-    		Type nodeType = nodeTypes.get(0);
-    		return nodeType.getArity() == 1 && nodeType.getFieldTypes().getFieldType(0).isMapType();
-    	}
-    	
-    	return false;
-	}
-
+   
 	private IValue parseTreeSort(Node node, Type expected) {
-		Type  nodeType = tf.lookupConstructor(expected, node.getNodeName()).get(0);
+		// TODO deal with overloading
+		Type  nodeType = ts.lookupConstructor(expected, node.getNodeName()).iterator().next();
 		Type childrenTypes = nodeType.getFieldTypes();
 		NodeList children = node.getChildNodes();
 		

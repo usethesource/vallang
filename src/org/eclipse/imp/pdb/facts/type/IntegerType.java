@@ -56,4 +56,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     public IValue make(IValueFactory f, int arg) {
     	return f.integer(arg);
     }
+    
+    @Override
+    public IValue make(IValueFactory f, TypeStore store, int arg) {
+    	return make(f, arg);
+    }
 }

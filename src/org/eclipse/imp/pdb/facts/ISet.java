@@ -69,6 +69,14 @@ public interface ISet extends Iterable<IValue>, IValue {
     public <SetOrRel extends ISet> SetOrRel subtract(ISet set);
     
     /**
+     * Delete one element from the set.
+     * @param <SetOrRel>
+     * @param set
+     * @return a relation if the element type is a tuple type, a set otherwise
+     */
+    public <SetOrRel extends ISet> SetOrRel delete(IValue elem);
+    
+    /**
      * Computes the Cartesian product of two sets
      * @param set
      * @return a relation representing the Cartesian product
