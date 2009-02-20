@@ -82,10 +82,45 @@ public class TypeStore {
     public void importStore(TypeStore... stores) {
     	synchronized(fImports) {
     		for (TypeStore s : stores) {
-    			fImports.add(s);
+    			doImport(s);
     		}
     	}
     }
+
+	private void doImport(TypeStore s) {
+		checkOverlappingAliases(s);
+		checkConstructorOverloading(s);
+		
+		fImports.add(s);
+	}
+
+	private void checkConstructorOverloading(TypeStore s) {
+		for (Type type : fADTs.values()) {
+			Type other = s.fADTs.get(type.getName());
+			if (other != null && other == type) {
+				Set<Type> signature1 = fConstructors.get(type);
+				Set<Type> signature2 = s.fConstructors.get(type);
+				
+				for (Type alt : signature2) {
+					Type children = alt.getFieldTypes();
+					checkOverloading(signature1, alt.getName(), children);
+					checkFieldNames(signature1, children);
+				}
+				
+			}
+		}
+	}
+
+	private void checkOverlappingAliases(TypeStore s) {
+		synchronized (fAliases) {
+			for (Type alias : fAliases.values()) {
+				Type other = s.fAliases.get(alias.getName());
+				if (other != null && !other.comparable(alias)) {
+					throw new FactTypeRedeclaredException(alias.getName(), other);
+				}
+			}
+		}
+	}
     
     /**
      * @return the singleton instance of the {@link TypeFactory}
