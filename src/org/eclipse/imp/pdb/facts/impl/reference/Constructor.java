@@ -102,30 +102,8 @@ public class Constructor extends Node implements IConstructor {
 		return fAnnotations.containsKey(label);
 	}
 	
-	public boolean hasAnnotation(TypeStore store, String label) {
-		if (!declaresAnnotation(store, label)) {
-			throw new UndeclaredAnnotationException(getType(), label);
-		}
-		
-		return hasAnnotation(label);
-	}
-
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return store.getAnnotationType(getType(), label) != null;
-	}
-	
-	public IConstructor setAnnotation(TypeStore store, String label, IValue value) {
-		Type expected = store.getAnnotationType(getType(), label);
-
-		if (expected == null) {
-			throw new UndeclaredAnnotationException(getType(), label);
-		}
-
-		if (!value.getType().isSubtypeOf(expected)) {
-			throw new UnexpectedAnnotationTypeException(expected, value.getType());
-		}
-
-		return setAnnotation(label, value);
 	}
 	
 	public IConstructor setAnnotation(String label, IValue value) {
@@ -143,13 +121,6 @@ public class Constructor extends Node implements IConstructor {
 	}
 
 	public IValue getAnnotation(String label) throws FactTypeUseException {
-		return fAnnotations.get(label);
-	}
-	
-	public IValue getAnnotation(TypeStore store, String label) throws FactTypeUseException {
-		if (!declaresAnnotation(store, label)) {
-			throw new UndeclaredAnnotationException(getType(), label);
-		}
 		return fAnnotations.get(label);
 	}
 }
