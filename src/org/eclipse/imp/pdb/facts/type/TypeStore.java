@@ -80,8 +80,10 @@ public class TypeStore {
      * @param stores
      */
     public void importStore(TypeStore... stores) {
-    	for (TypeStore s : stores) {
-    		fImports.add(s);
+    	synchronized(fImports) {
+    		for (TypeStore s : stores) {
+    			fImports.add(s);
+    		}
     	}
     }
     
@@ -103,8 +105,8 @@ public class TypeStore {
      * @throws FactTypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
      */
     public Type aliasType(String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
-    	synchronized (fAliases) {
-    		synchronized (fADTs) {
+    	synchronized (fADTs) {
+    		synchronized (fAliases) {
     			Type oldAdt = fADTs.get(name);
 				if (oldAdt != null) {
     				throw new FactTypeRedeclaredException(name, oldAdt);
@@ -136,9 +138,9 @@ public class TypeStore {
      */
     public Type abstractDataType(String name, Type... parameters)
 			throws FactTypeDeclarationException {
-		synchronized (fConstructors) {
-			synchronized (fAliases) {
-				synchronized (fADTs) {
+    	synchronized (fADTs) {
+    		synchronized (fAliases) {
+    			synchronized (fConstructors) {
 					Type oldAdt = fADTs.get(name);
 					Type adt = factory.abstractDataType(name, parameters);
 
@@ -265,18 +267,22 @@ public class TypeStore {
      * @return
      */
     public Type lookupAlias(final String name) {
-    	Type result = fAliases.get(name);
-    	
-    	if (result == null) {
-    		for (TypeStore i : fImports) {
-    			result = i.fAliases.get(name);
-    			if (result != null) {
-    				return result;
+    	synchronized (fAliases) {
+    		synchronized (fImports) {
+    			Type result = fAliases.get(name);
+
+    			if (result == null) {
+    				for (TypeStore i : fImports) {
+    					result = i.fAliases.get(name);
+    					if (result != null) {
+    						return result;
+    					}
+    				}
     			}
+
+    			return result;
     		}
     	}
-    	
-    	return result;
     }
     
     /**
@@ -286,22 +292,26 @@ public class TypeStore {
      * @return all types that construct the given type
      */
     public Set<Type> lookupAlternatives(final Type adt) {
-    	Set<Type> result = fConstructors.get(adt);
-    	
-    	if (result == null) {
-    		result = new HashSet<Type>();
-    	}
-    	
-    	for (TypeStore s : fImports) {
-    		if (s != this) {
-    			Set<Type> imported = s.fConstructors.get(adt);
-    			if (imported != null) {
-    				result.addAll(imported);
+    	synchronized (fConstructors) {
+    		synchronized (fImports) {
+    			Set<Type> result = fConstructors.get(adt);
+
+    			if (result == null) {
+    				result = new HashSet<Type>();
     			}
+
+    			for (TypeStore s : fImports) {
+    				if (s != this) {
+    					Set<Type> imported = s.fConstructors.get(adt);
+    					if (imported != null) {
+    						result.addAll(imported);
+    					}
+    				}
+    			}
+
+    			return result;
     		}
     	}
-    	
-    	return result;
     }
     
     /**
@@ -312,29 +322,33 @@ public class TypeStore {
      * @throws a FactTypeError if the type was not declared before
      */
     public Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
-    	Set<Type> local = fConstructors.get(adt);
-    	Set<Type> result = new HashSet<Type>();
-    	
-    	if (local != null) {
-    		for (Type cand : local) {
-    			if (cand.getName().equals(constructorName)) {
-    				result.add(cand);
+    	synchronized (fConstructors) {
+    		synchronized (fImports) {
+    			Set<Type> local = fConstructors.get(adt);
+    			Set<Type> result = new HashSet<Type>();
+
+    			if (local != null) {
+    				for (Type cand : local) {
+    					if (cand.getName().equals(constructorName)) {
+    						result.add(cand);
+    					}
+    				}
     			}
+
+    			for (TypeStore i : fImports) {
+    				local = i.fConstructors.get(adt);
+    				if (local != null) {
+    					for (Type cand : local) {
+    						if (cand.getName().equals(constructorName)) {
+    							result.add(cand);
+    						}
+    					}
+    				}
+    			}
+
+    			return result;
     		}
     	}
-    	
-    	for (TypeStore i : fImports) {
-    		local = i.fConstructors.get(adt);
-    		if (local != null) {
-    			for (Type cand : local) {
-        			if (cand.getName().equals(constructorName)) {
-        				result.add(cand);
-        			}
-        		}
-    		}
-    	}
-    	
-    	return result;
     }
     
     /**
@@ -360,14 +374,18 @@ public class TypeStore {
     }
     
     private Set<Type> allAbstractDataTypes() {
-    	Set<Type> result = new HashSet<Type>();
-    	result.addAll(fADTs.values());
-    	
-    	for (TypeStore s : fImports) {
-    		result.addAll(s.fADTs.values());
+    	synchronized (fADTs) {
+    		synchronized (fImports) {
+    			Set<Type> result = new HashSet<Type>();
+    			result.addAll(fADTs.values());
+
+    			for (TypeStore s : fImports) {
+    				result.addAll(s.fADTs.values());
+    			}
+
+    			return result;
+    		}
     	}
-    	
-    	return result;
 	}
 
     /**
@@ -400,31 +418,35 @@ public class TypeStore {
      * @param constructName the name of the tree node
      */
     public Set<Type> lookupConstructors(String constructorName) {
-    	Set<Type> result = new HashSet<Type>();
-    	
-    	for (Set<Type> adt : fConstructors.values()) {
-    		for (Type cand : adt) {
-    			String name = cand.getName();
-    			if (name.equals(constructorName)) {
-    				result.add(cand);
-    			}
-    		}
+    	synchronized (fConstructors) {
+			synchronized (fImports) {
+				Set<Type> result = new HashSet<Type>();
+
+				for (Set<Type> adt : fConstructors.values()) {
+					for (Type cand : adt) {
+						String name = cand.getName();
+						if (name.equals(constructorName)) {
+							result.add(cand);
+						}
+					}
+				}
+
+				for (TypeStore i : fImports) {
+					if (i != this) {
+						for (Set<Type> adt : i.fConstructors.values()) {
+							for (Type cand : adt) {
+								String name = cand.getName();
+								if (name.equals(constructorName)) {
+									result.add(cand);
+								}
+							}
+						}
+					}
+				}
+
+				return result;
+			}
     	}
-    	
-    	for (TypeStore i : fImports) {
-    		if (i != this) {
-    			for (Set<Type> adt : i.fConstructors.values()) {
-    				for (Type cand : adt) {
-    					String name = cand.getName();
-    					if (name.equals(constructorName)) {
-    						result.add(cand);
-    					}
-    				}
-    			}
-    		}
-    	}
-    	
-    	return result;
     }
 
     /**
@@ -434,20 +456,23 @@ public class TypeStore {
      */
     public Type lookupAbstractDataType(String name) {
     	synchronized (fADTs) {
-    		Type result = fADTs.get(name);
+    		synchronized (fImports) {
 
-    		if (result != null) {
-    			return result;
-    		}
+    			Type result = fADTs.get(name);
 
-    		for (TypeStore s : fImports) {
-    			result = s.fADTs.get(name);
     			if (result != null) {
     				return result;
     			}
-    		}
 
-    		return result;
+    			for (TypeStore s : fImports) {
+    				result = s.fADTs.get(name);
+    				if (result != null) {
+    					return result;
+    				}
+    			}
+
+    			return result;
+    		}
     	}
     }
     
@@ -498,21 +523,25 @@ public class TypeStore {
      * @return
      */
     public Map<String, Type> getAnnotations(Type onType) {
-    	Map<String, Type> result = new HashMap<String,Type>();
-    	Map<String, Type> local = fAnnotations.get(onType);
-    	
-    	if (local != null) {
-    		result.putAll(local); 
-    	}
-    	
-    	for (TypeStore s : fImports) {
-    		local = s.fAnnotations.get(onType);
-    		if (local != null) {
-    			result.putAll(local);
+    	synchronized(fAnnotations) {
+    		synchronized (fImports) {
+    			Map<String, Type> result = new HashMap<String,Type>();
+    			Map<String, Type> local = fAnnotations.get(onType);
+
+    			if (local != null) {
+    				result.putAll(local); 
+    			}
+
+    			for (TypeStore s : fImports) {
+    				local = s.fAnnotations.get(onType);
+    				if (local != null) {
+    					result.putAll(local);
+    				}
+    			}
+
+    			return result;
     		}
     	}
-    	
-    	return result;
     }
     
     /**
@@ -534,19 +563,23 @@ public class TypeStore {
     }
 
 	public Type getAlias(String name) {
-		Type result = fAliases.get(name);
-		
-		if (result != null) {
-			return result;
-		}
-		
-		for (TypeStore s : fImports) {
-			result = s.fAliases.get(name);
-			if (result != null) {
-				return result;
+		synchronized (fAliases) {
+			synchronized (fImports) {
+				Type result = fAliases.get(name);
+
+				if (result != null) {
+					return result;
+				}
+
+				for (TypeStore s : fImports) {
+					result = s.fAliases.get(name);
+					if (result != null) {
+						return result;
+					}
+				}
+
+				return null;
 			}
 		}
-		
-		return null;
 	}
 }
