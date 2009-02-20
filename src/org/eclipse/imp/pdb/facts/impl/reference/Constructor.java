@@ -5,7 +5,6 @@ import java.util.HashMap;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
