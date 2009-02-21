@@ -29,9 +29,9 @@ import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 
 /**
- * This class manages type declarations. It creates and stores declarations of annotations, 
- * type aliases and abstract data-type constructors. It uses the singleton @{link TypeFactory} 
- * to create the types if needed. TypeStores can import others, but the imports are not transitive.
+ * This class manages type declarations. It stores declarations of annotations, 
+ * type aliases and abstract data-type constructors. 
+ * TypeStores can import others, but the imports are not transitive.
  * Cyclic imports are allowed.
  * <p>
  * @see {@link TypeFactory}, {@link Type} and {@link IValueFactory} for more information.
@@ -133,30 +133,25 @@ public class TypeStore {
      * Declare an alias type. The alias may be parameterized to make an abstract alias. 
      * Each ParameterType embedded in the aliased type should occur in the list of parameters.
      * 
-     * @param name      the name of the type
-     * @param aliased the type it should be an alias for
-     * @param parameters a list of type parameters for this alias
-     * @return a named type
-     * @throws FactTypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
+     * @param alias the alias to declare in this store
+     * @throws FactTypeRedeclaredException
      */
-    public Type aliasType(String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
+    public void declareAlias(Type alias) throws FactTypeDeclarationException {
     	synchronized (fADTs) {
     		synchronized (fAliases) {
-    			Type oldAdt = fADTs.get(name);
+    			String name = alias.getName();
+				Type oldAdt = fADTs.get(name);
 				if (oldAdt != null) {
     				throw new FactTypeRedeclaredException(name, oldAdt);
     			}
     			
     			Type oldAlias = fAliases.get(name);
-    			
-    			Type result = factory.aliasType(name, aliased, parameters);
-    			
-    			if (oldAlias != null && !oldAlias.getAliased().equivalent(aliased)) {
+    			if (oldAlias != null && !alias.isSubtypeOf(oldAlias)) {
+    				// instantiation is allowed, but not redeclaration
     				throw new FactTypeRedeclaredException(name, oldAlias);
     			}
     			
-    			fAliases.put(name, (AliasType) result);
-    			return result;
+    			fAliases.put(name, alias);
     		}
     	}
     }
@@ -165,19 +160,17 @@ public class TypeStore {
      * Declare a @{link AbstractDataType}, which is a kind of tree node. Each kind of tree node
      * may have different alternatives, which are ConstructorTypes. A @{link ConstructorType} is always a
      * sub-type of a AbstractDataType. A AbstractDataType is always a sub type of value.
-     * @param name the name of the abstract data-type
-     * @param parameters array of type parameters
-     * @return a AbstractDataType
-     * @throws FactTypeDeclarationException when a AliasType with the same name was already declared. 
-     *                                  Re-declaration of an AbstractDataType is ignored.
+     * 
+     * @param adt the abstract data-type to declare in this store
+     * @throws FactTypeRedeclaredException
      */
-    public Type abstractDataType(String name, Type... parameters)
+    public void declareAbstractDataType(Type adt)
 			throws FactTypeDeclarationException {
     	synchronized (fADTs) {
     		synchronized (fAliases) {
     			synchronized (fConstructors) {
+    				String name = adt.getName();
 					Type oldAdt = fADTs.get(name);
-					Type adt = factory.abstractDataType(name, parameters);
 
 					if (oldAdt != null && !adt.equivalent(oldAdt)) {
 						throw new FactTypeRedeclaredException(name, oldAdt);
@@ -189,14 +182,12 @@ public class TypeStore {
 					}
 
 					fADTs.put(name, adt);
+					
 					if (fConstructors.get(adt) == null) {
 						fConstructors.put(adt, new HashSet<Type>());
 					}
-
-					return adt;
 				}
 			}
-
 		}
 	}
     
@@ -204,15 +195,12 @@ public class TypeStore {
      * Declare a new constructor type. A constructor type extends an abstract data type such
      * that it represents more values.
      * 
-     * @param adt the AbstractDataType this constructor builds
-     * @param name     the name of the node type
-     * @param children the types of the children of the tree node type
-     * @return a tree node type
-     * @throws FactTypeDeclarationException when a second anonymous tree is declared for the same AbstractDataType, or when
-     *         name == null.
+     * @param constructor a constructor type
+     * @throws UndeclaredAbstractDataTypeException, RedeclaredFieldNameException, RedeclaredConstructorException 
      */
-    public Type constructorFromTuple(Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
+    public void declareConstructor(Type constructor) throws FactTypeDeclarationException {
     	synchronized(fConstructors) {
+    		Type adt = constructor.getAbstractDataType();
     		Type other = lookupAbstractDataType(adt.getName());
     		if (other == null) {
     			throw new UndeclaredAbstractDataTypeException(adt);
@@ -223,14 +211,10 @@ public class TypeStore {
     			throw new UndeclaredAbstractDataTypeException(adt);
     		}
 
-    		Type constructor = factory.constructorFromTuple(adt, name, tupleType);
-    		
-    		checkOverloading(signature, name, tupleType);
-    		checkFieldNames(signature, tupleType);
+    		checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
+    		checkFieldNames(signature, constructor.getFieldTypes());
 
     		signature.add(constructor);
-
-    		return constructor;
     	}
     }
 
@@ -271,31 +255,6 @@ public class TypeStore {
 		}
 	}
     
-    /**
-     * Declare a new constructor type. A constructor type extends an abstract data type such
-     * that it represents more values.
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the node type
-     * @param children the types of the children of the tree node type
-     * @return a tree node type
-     */
-    public Type constructor(Type nodeType, String name, Type... children ) throws FactTypeDeclarationException { 
-    	return constructorFromTuple(nodeType, name, factory.tupleType(children));
-    }
-    
-    /**
-     * Declare a new constructor type. A constructor type extends an abstract data type such
-     * that it represents more values.
-     * 
-     * @param nodeType the type of node this constructor builds
-     * @param name     the name of the node type
-     * @param children the types of the children of the tree node type
-     * @return a tree node type
-     */
-    public Type constructor(Type nodeType, String name, Object... childrenAndLabels ) throws FactTypeDeclarationException { 
-    	return constructorFromTuple(nodeType, name, factory.tupleType(childrenAndLabels));
-    }
-
     /**
      * Lookup a AliasType that was declared before by name
      * @param name the name of the type to lookup

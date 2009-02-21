@@ -107,8 +107,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
-		return TypeFactory.getInstance().setType(getElementType().instantiate(bindings));
+	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
+		return TypeFactory.getInstance().setType(getElementType().instantiate(store, bindings));
 	}
 }
 

@@ -202,7 +202,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
 		Type result = bindings.get(this);
 		return result != null ? result : this;
 	}

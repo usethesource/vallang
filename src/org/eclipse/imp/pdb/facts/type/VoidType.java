@@ -246,7 +246,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
 		return this;
 	}
 	

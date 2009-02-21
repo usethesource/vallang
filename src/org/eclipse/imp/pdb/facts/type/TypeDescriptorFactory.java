@@ -33,25 +33,28 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  */
 public class TypeDescriptorFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
-	private Type typeSort = tf.abstractDataType("Type");
-	private Type boolType = tf.constructor(typeSort, "bool");
-	private Type doubleType = tf.constructor(typeSort, "double");
-	private Type integerType = tf.constructor(typeSort, "int");
-	private Type nodeType = tf.constructor(typeSort, "node");
-	private Type listType = tf.constructor(typeSort, "list", typeSort, "element");
-	private Type mapType = tf.constructor(typeSort, "map", typeSort, "key", typeSort, "value");
-	private Type aliasType = tf.constructor(typeSort, "alias", typeSort, "aliased");
-	private Type relationType = tf.constructor(typeSort, "relation", tf.listType(typeSort), "fields");
-	private Type setType = tf.constructor(typeSort, "set", typeSort, "element");
-	private Type sourceLocationType = tf.constructor(typeSort, "sourceLocation");
-	private Type sourceRangeType = tf.constructor(typeSort, "sourceRange");
-	private Type stringType = tf.constructor(typeSort, "string");
-	private Type constructorType = tf.constructor(typeSort, "constructor", typeSort, "abstract-data-type", tf.stringType(), "name", tf.listType(typeSort), "children");
-	private Type abstractDataType = tf.constructor(typeSort, "abstract-data-type", tf.stringType(), "name");
-	private Type parameterType = tf.constructor(typeSort, "parameter", tf.stringType(), "name", typeSort, "bound");
-	private Type tupleType = tf.constructor(typeSort, "tuple", tf.listType(typeSort), "fields");
-	private Type valueType = tf.constructor(typeSort, "value");
-	private Type voidType = tf.constructor(typeSort, "void");
+	private TypeStore ts = new TypeStore();
+	
+	private Type typeSort = tf.abstractDataType(ts, "Type");
+	private Type boolType = tf.constructor(ts, typeSort, "bool");
+	private Type doubleType = tf.constructor(ts, typeSort, "double");
+	private Type integerType = tf.constructor(ts, typeSort, "int");
+	private Type nodeType = tf.constructor(ts, typeSort, "node");
+	private Type listType = tf.constructor(ts, typeSort, "list", typeSort, "element");
+	private Type mapType = tf.constructor(ts, typeSort, "map", typeSort, "key", typeSort, "value");
+	private Type aliasType = tf.constructor(ts, typeSort, "alias", typeSort, "aliased");
+	private Type relationType = tf.constructor(ts, typeSort, "relation", tf.listType(typeSort), "fields");
+	private Type setType = tf.constructor(ts, typeSort, "set", typeSort, "element");
+	private Type sourceLocationType = tf.constructor(ts, typeSort, "sourceLocation");
+	private Type sourceRangeType = tf.constructor(ts, typeSort, "sourceRange");
+	private Type stringType = tf.constructor(ts, typeSort, "string");
+	private Type constructorType = tf.constructor(ts, typeSort, "constructor", typeSort, "abstract-data-type", tf.stringType(), "name", tf.listType(typeSort), "children");
+	private Type abstractDataType = tf.constructor(ts, typeSort, "abstract-data-type", tf.stringType(), "name");
+	private Type parameterType = tf.constructor(ts, typeSort, "parameter", tf.stringType(), "name", typeSort, "bound");
+	private Type tupleType = tf.constructor(ts, typeSort, "tuple", tf.listType(typeSort), "fields");
+	private Type valueType = tf.constructor(ts, typeSort, "value");
+	private Type voidType = tf.constructor(ts, typeSort, "void");
+	private TypeStore store;
 
 	private static class InstanceHolder {
 		public static TypeDescriptorFactory sInstance = new TypeDescriptorFactory();
@@ -61,6 +64,10 @@ public class TypeDescriptorFactory {
 
 	public static TypeDescriptorFactory getInstance() {
 		return InstanceHolder.sInstance;
+	}
+	
+	public TypeStore getStore() {
+		return ts;
 	}
 	
 	/**
@@ -81,12 +88,14 @@ public class TypeDescriptorFactory {
 	 * that have been constructed using {@link TypeDescriptorFactory#toTypeDescriptor(IValueFactory, Type)},
 	 * or something that exactly mimicked it.
 	 * 
+	 * @param store      to store found declarations in
 	 * @param descriptor a value that represents a type
 	 * @return a type that was represented by the descriptor
 	 * @throws FactTypeDeclarationException if the descriptor is not a valid type descriptor
 	 */
-	public Type fromTypeDescriptor(IValue descriptor) throws FactTypeDeclarationException {
+	public Type fromTypeDescriptor(TypeStore store, IValue descriptor) throws FactTypeDeclarationException {
 		try {
+			this.store = store;
 			return descriptor.accept(new FromTypeVisitor());
 		} catch (VisitorException e) {
 			// this does not happen since nobody throws a VisitorException
@@ -118,7 +127,7 @@ public class TypeDescriptorFactory {
 				return tf.mapType(o.get("key").accept(this), o.get("value").accept(this));
 			}
 			else if (node == aliasType) {
-				return tf.aliasType(((IString) o.get("name")).getValue(), o.get("aliased").accept(this));
+				return tf.aliasType(store, ((IString) o.get("name")).getValue(), o.get("aliased").accept(this));
 			}
 			else if (node == relationType) {
 				IList fieldValues = (IList) o.get("fields");
@@ -153,10 +162,10 @@ public class TypeDescriptorFactory {
 					childrenTypes.add(child.accept(this));
 				}
 				
-				return tf.constructor(sort, name, tf.tupleType(childrenTypes));
+				return tf.constructor(store, sort, name, tf.tupleType(childrenTypes));
 			}
 			else if (node == abstractDataType) {
-				return tf.abstractDataType(((IString) o.get("name")).getValue());
+				return tf.abstractDataType(store, ((IString) o.get("name")).getValue());
 			}
 			else if (node == parameterType) {
 				return tf.parameterType(((IString) o.get("name")).getValue(), o.get("bound").accept(this));

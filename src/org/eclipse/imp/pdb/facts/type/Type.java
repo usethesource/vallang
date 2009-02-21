@@ -319,10 +319,11 @@ public abstract class Type implements Iterable<Type> {
 	 * If this type has parameters and there are parameter types embedded in it,
 	 * instantiate will replace the parameter types using the given bindings.
 	 * 
+	 * @param store    newly instantiated declarations will be to stored here
 	 * @param bindings a map from parameter type names to actual types.
 	 * @return a type with all parameter types substituted.
 	 */
-	public Type instantiate(Map<Type, Type> bindings) {
+	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
     	return this;
 	}
 	

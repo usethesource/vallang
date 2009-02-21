@@ -252,13 +252,14 @@ public class TypeFactory {
      * Construct an alias type. The alias may be parameterized to make an abstract alias. 
      * Each ParameterType embedded in the aliased type should occur in the list of parameters.
      * 
-     * @param name      the name of the type
-     * @param aliased the type it should be an alias for
+     * @param store      to store the declared alias in
+     * @param name       the name of the type
+     * @param aliased    the type it should be an alias for
      * @param parameters a list of type parameters for this alias
-     * @return a named type
+     * @return an alias type
      * @throws FactTypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
      */
-    public Type aliasType(String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
+    public Type aliasType(TypeStore store, String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
     	if (!isIdentifier(name)) {
     		throw new IllegalIdentifierException(name);
     	}
@@ -271,7 +272,9 @@ public class TypeFactory {
     		paramType = tupleType(parameters);
     	}
 
-    	return getFromCache(new AliasType(name, aliased, paramType));
+    	Type result = getFromCache(new AliasType(name, aliased, paramType));
+    	store.declareAlias(result);
+    	return result;
     }
     
     public Type nodeType() {
@@ -282,12 +285,14 @@ public class TypeFactory {
      * Construct a @{link AbstractDataType}, which is a kind of tree node. Each kind of tree node
      * may have different alternatives, which are ConstructorTypes. A @{link ConstructorType} is always a
      * sub-type of a AbstractDataType. A AbstractDataType is always a sub type of value.
+     * 
+     * @param store to store the declared adt in
      * @param name the name of the abstract data-type
      * @param parameters array of type parameters
      * @return a AbstractDataType
      * @throws IllegalIdentifierException
      */
-    public Type abstractDataType(String name, Type... parameters) throws FactTypeDeclarationException {
+    public Type abstractDataType(TypeStore store, String name, Type... parameters) throws FactTypeDeclarationException {
     	if (!isIdentifier(name)) {
     		throw new IllegalIdentifierException(name);
     	}
@@ -297,51 +302,58 @@ public class TypeFactory {
     		paramType = tupleType(parameters);
     	}
 
-    	return getFromCache(new AbstractDataType(name, paramType));
+    	Type result = getFromCache(new AbstractDataType(name, paramType));
+    	store.declareAbstractDataType(result);
+    	return result;
     }
     
     /**
     * Make a new constructor type. A constructor type extends an abstract data type such
      * that it represents more values.
      * 
+     * @param store to store the declared constructor in
      * @param adt the AbstractDataType this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
-     * @throws FactTypeDeclarationException when a second anonymous tree is declared for the same AbstractDataType, or when
-     *         name == null.
+     * @throws IllegalIdentifierException, UndeclaredAbstractDataTypeException, RedeclaredFieldNameException, RedeclaredConstructorException
      */
-    public Type constructorFromTuple(Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
+    public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
     	if (!isIdentifier(name)) {
     		throw new IllegalIdentifierException(name);
     	}
      
-    	return getFromCache(new ConstructorType(name, (TupleType) tupleType, (AbstractDataType) adt));
+    	Type result = getFromCache(new ConstructorType(name, (TupleType) tupleType, (AbstractDataType) adt));
+    	store.declareConstructor(result);
+    	return result;
     }
 
     /**
      * Make a new constructor type. A constructor type extends an abstract data type such
      * that it represents more values.
-     * @param nodeType the type of node this constructor builds
+     * 
+     * @param store    to store the declared constructor in
+     * @param adt      the adt this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type constructor(Type nodeType, String name, Type... children ) throws FactTypeDeclarationException { 
-    	return constructorFromTuple(nodeType, name, tupleType(children));
+    public Type constructor(TypeStore store, Type adt, String name, Type... children ) throws FactTypeDeclarationException { 
+    	return constructorFromTuple(store, adt, name, tupleType(children));
     }
     
     /**
      * Make a new constructor type. A constructor type extends an abstract data type such
      * that it represents more values.
      * 
+     * @param store    to store the declared constructor in
      * @param nodeType the type of node this constructor builds
      * @param name     the name of the node type
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type constructor(Type nodeType, String name, Object... childrenAndLabels ) throws FactTypeDeclarationException { 
-    	return constructorFromTuple(nodeType, name, tupleType(childrenAndLabels));
+    public Type constructor(TypeStore store, Type nodeType, String name, Object... childrenAndLabels ) throws FactTypeDeclarationException { 
+    	return constructorFromTuple(store, nodeType, name, tupleType(childrenAndLabels));
     }
 
     /**
@@ -416,11 +428,12 @@ public class TypeFactory {
 	 * that have been constructed using {@link TypeDescriptorFactory#toTypeDescriptor(IValueFactory, Type)},
 	 * or something that exactly mimicked it.
 	 * 
+	 * @param store      to store the type declarations in
 	 * @param descriptor a value that represents a type
 	 * @return a type that was represented by the descriptor
 	 * @throws FactTypeDeclarationException if the descriptor is not a valid type descriptor
 	 */
-	Type fromDescriptor(IValue typeDescriptor) throws FactTypeDeclarationException {
-		return TypeDescriptorFactory.getInstance().fromTypeDescriptor(typeDescriptor);
+	Type fromDescriptor(TypeStore store, IValue typeDescriptor) throws FactTypeDeclarationException {
+		return TypeDescriptorFactory.getInstance().fromTypeDescriptor(store, typeDescriptor);
 	}
 }
