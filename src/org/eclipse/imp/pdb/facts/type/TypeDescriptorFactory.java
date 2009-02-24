@@ -42,7 +42,7 @@ public class TypeDescriptorFactory {
 	private Type nodeType = tf.constructor(ts, typeSort, "node");
 	private Type listType = tf.constructor(ts, typeSort, "list", typeSort, "element");
 	private Type mapType = tf.constructor(ts, typeSort, "map", typeSort, "key", typeSort, "value");
-	private Type aliasType = tf.constructor(ts, typeSort, "alias", typeSort, "aliased");
+	private Type aliasType = tf.constructor(ts, typeSort, "alias", tf.stringType(), "name", typeSort, "aliased");
 	private Type relationType = tf.constructor(ts, typeSort, "relation", tf.listType(typeSort), "fields");
 	private Type setType = tf.constructor(ts, typeSort, "set", typeSort, "element");
 	private Type sourceLocationType = tf.constructor(ts, typeSort, "sourceLocation");
@@ -210,7 +210,7 @@ public class TypeDescriptorFactory {
 		}
 
 		public INode visitAlias(Type type) {
-			return vf.constructor(aliasType, type.getAliased().accept(this));
+			return vf.constructor(aliasType, vf.string(type.getName()), type.getAliased().accept(this));
 		}
 
 		public INode visitRelationType(Type type) {
