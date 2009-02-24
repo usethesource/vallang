@@ -137,7 +137,7 @@ public class TypeDescriptorFactory {
 					fieldTypes.add(field.accept(this));
 				}
 				
-				return tf.relTypeFromTuple(tf.tupleType(fieldTypes));
+				return tf.relTypeFromTuple(tf.tupleType(fieldTypes.toArray()));
 			}
 			else if (node == setType) {
 				return tf.setType(o.get("element").accept(this));
@@ -162,7 +162,7 @@ public class TypeDescriptorFactory {
 					childrenTypes.add(child.accept(this));
 				}
 				
-				return tf.constructor(store, sort, name, tf.tupleType(childrenTypes));
+				return tf.constructor(store, sort, name, tf.tupleType(childrenTypes.toArray()));
 			}
 			else if (node == abstractDataType) {
 				return tf.abstractDataType(store, ((IString) o.get("name")).getValue());
