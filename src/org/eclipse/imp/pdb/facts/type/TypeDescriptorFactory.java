@@ -106,7 +106,7 @@ public class TypeDescriptorFactory {
 	private class FromTypeVisitor extends NullVisitor<Type> {
 		@Override
 		public Type visitConstructor(IConstructor o) throws VisitorException {
-			Type node = o.getType();
+			Type node = o.getConstructorType();
 		
 			if (node == boolType) {
 				return tf.boolType();
