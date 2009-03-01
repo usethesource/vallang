@@ -122,4 +122,25 @@ public class Constructor extends Node implements IConstructor {
 	public IValue getAnnotation(String label) throws FactTypeUseException {
 		return fAnnotations.get(label);
 	}
+	
+	@Override
+	public String toString() {
+		if (!fAnnotations.isEmpty()) {
+			StringBuilder builder = new StringBuilder();
+			builder.append(super.toString());
+			
+			builder.append("[");
+			int i = 0;
+			for (String key : fAnnotations.keySet()) {
+				builder.append("@" + key + "=" + fAnnotations.get(key));
+				if (++i < fAnnotations.size()) {
+					builder.append(",");
+				}
+			}
+			builder.append("]");
+			return builder.toString();
+		}
+		
+		return super.toString();
+	}
 }
