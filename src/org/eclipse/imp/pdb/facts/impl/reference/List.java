@@ -81,6 +81,17 @@ public class List extends Value implements IList {
 		return w.done();
 	}
 
+	public boolean contains(IValue e) {
+		return content.contains(e);
+	}
+
+	public IList remove(IValue e) {
+		ListWriter w = new ListWriter(getElementType());
+		w.appendAll(this);
+		w.remove(e);
+		return w.done();
+	}
+
 	public IList reverse(){
 		ListWriter w = new ListWriter(getElementType());
 		for (IValue e : this) {
@@ -247,6 +258,11 @@ public class List extends Value implements IList {
 		private void checkBounds(IValue[] elems, int start, int length){
 			if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
 			if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
+		}
+
+		public void remove(IValue elem) {
+			checkMutation();
+			listContent.remove(elem);
 		}
 	}
 }

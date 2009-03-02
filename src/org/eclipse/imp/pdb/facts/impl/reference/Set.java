@@ -87,11 +87,8 @@ class Set extends Value implements ISet{
 	@SuppressWarnings("unchecked")
 	public ISet delete(IValue elem) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
-		for (IValue a : content){
-			if (!a.isEqual(elem)){
-				sw.insert(a);
-			}
-		}
+		sw.insertAll(this);
+		sw.delete(elem);
 		return sw.done();
 	}
 
@@ -242,6 +239,11 @@ class Set extends Value implements ISet{
 		
 		public int size() {
 			return constructedSet.size();
+		}
+
+		public void delete(IValue v) {
+			checkMutation();
+			setContent.remove(v);
 		}
 	}
 }

@@ -92,6 +92,12 @@ public interface IListWriter extends IWriter {
     void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
     
     /**
+     * Removes the first occurrence of this element in the currently built list
+     * @param elem
+     */
+    void remove(IValue elem);
+    
+    /**
      * Finalize an immutable list. After this method none of the others may be called anymore.
      * @return an immutable IList
      */

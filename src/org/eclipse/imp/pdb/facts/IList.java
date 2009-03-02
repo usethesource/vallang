@@ -76,4 +76,19 @@ public interface IList extends Iterable<IValue>, IValue {
      * @return true iff the list is non-empty
      */
     public boolean isEmpty();
+    
+    /**
+     * @param e
+     * @return true iff e is an element of the list
+     */
+    public boolean contains(IValue e);
+    
+    /**
+     * Removes the first occurrence of an element, i.e. the
+     * element with the lowest index that is present in the list,
+     * if present at all.
+     * @param e
+     * @return a new list, with one element removed.
+     */
+    public IList remove(IValue e);
 }
