@@ -2,7 +2,7 @@ package org.eclipse.imp.pdb.facts.exceptions;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public abstract class UnexpectedTypeException extends FactTypeUseException {
+public class UnexpectedTypeException extends FactTypeUseException {
 	private static final long serialVersionUID = -5107803679675463540L;
 	private Type expected;
 	private Type got;

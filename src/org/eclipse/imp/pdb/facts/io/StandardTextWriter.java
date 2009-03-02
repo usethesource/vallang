@@ -116,7 +116,13 @@ public class StandardTextWriter implements IValueWriter {
 		}
 
 		public IValue visitNode(INode o) throws VisitorException {
-			append(o.getName());
+			String name = o.getName();
+			
+			if (name.indexOf('-') != -1) {
+				append('\\');
+			}
+			append(name);
+			
 			append('(');
 
 			Iterator<IValue> it = o.iterator();
@@ -169,15 +175,23 @@ public class StandardTextWriter implements IValueWriter {
 
 		public IValue visitSourceLocation(ISourceLocation o)
 				throws VisitorException {
-			append("<srcLoc: " + o.getPath() + ":");
+			append('!');
+			append("file://" + o.getPath());
 			o.getRange().accept(this);
-			append(">");
 			return o;
 		}
 
 		public IValue visitSourceRange(ISourceRange o) throws VisitorException {
-			append("<srcRange: " + o.getStartOffset() + "," + o.getLength() + ",L" + o.getStartLine()
-			+ ":" + o.getEndLine() + ",C" + o.getStartColumn() + ":" + o.getEndColumn() + ">");
+			append('?');
+			append("off=" + o.getStartOffset());
+			append('&');
+			append("len=" + o.getLength());
+			append('&');
+			append("start=" + o.getStartLine());
+			append("," + o.getStartColumn());
+			append('&');
+			append("end=" + o.getEndLine());
+			append("," + o.getEndColumn());
 			return o;
 		}
 
