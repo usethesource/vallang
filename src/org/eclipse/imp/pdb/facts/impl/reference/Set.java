@@ -143,26 +143,6 @@ class Set extends Value implements ISet{
 		return content.hashCode();
 	}
 
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("{");
-		
-		Iterator<IValue> setIterator = iterator();
-		if(setIterator.hasNext()){
-			sb.append(setIterator.next());
-			
-			while(setIterator.hasNext()){
-				sb.append(",");
-				sb.append(setIterator.next());
-			}
-		}
-		
-		sb.append("}");
-		
-		return sb.toString();
-	}
-
 	public IRelation product(ISet set){
 		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),set.getElementType());
 		IRelationWriter w = new Relation.RelationWriter(resultType);

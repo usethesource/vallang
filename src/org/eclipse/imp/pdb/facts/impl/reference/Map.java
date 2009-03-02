@@ -141,28 +141,6 @@ class Map extends Value implements IMap{
 		return content.hashCode();
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("(");
-		
-		Iterator<IValue> mapIterator = iterator();
-		if(mapIterator.hasNext()){
-			IValue key = mapIterator.next();
-			sb.append(key + ":" + get(key));
-			
-			while(mapIterator.hasNext()){
-				sb.append(",");
-				key = mapIterator.next();
-				sb.append(key + ":" + get(key));
-			}
-		}
-		
-		sb.append(")");
-		
-		return sb.toString();
-	}
-
 	public Type getKeyType(){
 		return fType.getKeyType();
 	}

@@ -67,12 +67,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 
 	@Override
-	public String toString() {
-		return "<srcRange: " + fStartOffset + "," + fLength + ",L" + fStartLine
-				+ ":" + fEndLine + ",C" + fStartCol + ":" + fEndCol + ">";
-	}
-
-	@Override
 	public boolean equals(Object o) {
 		if (getClass() == o.getClass()) {
 			SourceRangeValue other = (SourceRangeValue) o;

@@ -37,11 +37,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     }
 
     @Override
-    public String toString() {
-        return "<srcLoc: " + fPath + ":" + fRange + ">";
-    }
-    
-    @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
     		SourceLocationValue other = (SourceLocationValue) o;

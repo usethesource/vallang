@@ -111,26 +111,6 @@ public class List extends Value implements IList {
 		return v.visitList(this);
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("[");
-		
-		Iterator<IValue> listIterator = iterator();
-		if(listIterator.hasNext()){
-			sb.append(listIterator.next());
-			
-			while(listIterator.hasNext()){
-				sb.append(",");
-				sb.append(listIterator.next());
-			}
-		}
-		
-		sb.append("]");
-		
-		return sb.toString();
-	}
-	
 	public boolean equals(Object o){
 		if (getClass() == o.getClass()) {
 			List other = (List) o;

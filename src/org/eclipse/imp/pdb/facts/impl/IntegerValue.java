@@ -32,11 +32,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     }
 
     @Override
-    public String toString() {
-        return Integer.toString(fValue);
-    }
-    
-    @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
     		return ((IntegerValue) o).fValue == fValue;

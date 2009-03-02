@@ -77,18 +77,6 @@ class Tuple extends Value implements ITuple {
         };
     }
 
-    public String toString() {
-        StringBuffer b= new StringBuffer();
-        b.append('<');
-        for(Object o: this) {
-            b.append(o.toString());
-            b.append(',');
-        }
-        b.deleteCharAt(b.length() - 1);
-        b.append('>');
-        return b.toString();
-    }
-
     @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {

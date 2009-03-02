@@ -32,11 +32,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         return fValue;
     }
 
-    @Override
-    public String toString() {
-        return "\"" + fValue.replaceAll("\"", "\\\"") + "\"";
-    }
-    
     public IString concat(IString other) {
     	return new StringValue(fValue.concat(other.getValue()));
     }

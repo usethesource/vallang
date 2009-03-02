@@ -177,43 +177,6 @@ public class Node extends Value implements INode {
 	}
 	
 	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		
-		if (fName == null) {
-			// if no name there is always exactly one child
-			builder.append(fChildren[0].toString());
-		}
-		else {
-			builder.append(fName);
-			builder.append("(");
-
-			Iterator<IValue> it = iterator();
-			while (it.hasNext()) {
-				builder.append(it.next().toString());
-				if (it.hasNext()) {
-					builder.append(",");
-				}
-			}
-			builder.append(")");
-		}
-		
-		if (!fAnnotations.isEmpty()) {
-			builder.append("[");
-			int i = 0;
-			for (String key : fAnnotations.keySet()) {
-				builder.append("@" + key + "=" + fAnnotations.get(key));
-				if (++i < fAnnotations.size()) {
-					builder.append(",");
-				}
-			}
-			builder.append("]");
-		}
-		
-		return builder.toString();
-	}
-	
-	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
 			Node other = (Node) obj;

@@ -22,11 +22,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	@Override
-	public String toString() {
-		return fValue ? "true" : "false";
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
 			return fValue == ((BoolValue) obj).fValue;

@@ -31,11 +31,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         return fValue;
     }
 
-    @Override
-    public String toString() {
-        return Double.toString(fValue);
-    }
-    
     public IDouble add(IDouble other) {
     	return new DoubleValue(fValue + other.getValue());
     }

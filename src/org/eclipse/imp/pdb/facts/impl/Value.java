@@ -12,7 +12,11 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public abstract class Value implements IValue {
@@ -38,5 +42,17 @@ public abstract class Value implements IValue {
     
     public boolean isEqual(IValue other) {
     	return equals(other);
+    }
+    
+    @Override
+    public final String toString() {
+    	try {
+    		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    		new StandardTextWriter().write(this, stream);
+			return stream.toString();
+		} catch (IOException e) {
+			// this never happens
+			return null;
+		} 
     }
 }

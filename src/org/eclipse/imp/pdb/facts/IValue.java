@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -56,4 +57,11 @@ public interface IValue  {
      *         of the other, and their types are comparable (one is a sub-type of the other).
      */
     public boolean isEqual(IValue other);
+    
+    /**
+     * Prints the value to a string using the {@link StandardTextWriter}
+     * @return
+     */
+    @Override
+    public String toString();
 }
