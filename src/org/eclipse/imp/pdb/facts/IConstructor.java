@@ -1,5 +1,7 @@
 package org.eclipse.imp.pdb.facts;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -62,36 +64,20 @@ public interface IConstructor extends INode {
 	public Type    getChildrenTypes();
 	
 	/**
-	 * Check whether a certain annotation is set.
-	 * 
-	 * @param label identifies the annotation
-	 * @return true iff the annotation has a value on this node
-	 * @throws FactTypeUseException when no annotation with this label is defined for this type of node.
-	 */
-	public boolean hasAnnotation(String label) throws FactTypeUseException;
-	
-	/**
 	 * Check whether a certain annotation label is declared for this type of node.
 	 * @param label
 	 * @return true iff the given annotation label was declared for this type of node.
 	 */
 	public boolean declaresAnnotation(TypeStore store, String label);
 	
-	/**
-	 * Get the value of an annotation
-	 * 
-	 * @param label identifies the annotation
-	 * @return a value if the annotation has a value on this node or null otherwise
-	 */
-	public IValue  getAnnotation(String label) throws FactTypeUseException;
+	public IConstructor setAnnotation(String label, IValue newValue)
+			throws FactTypeUseException;
 	
-	/**
-	 * Set the value of an annotation
-	 * 
-	 * @param label identifies the annotation
-	 * @param newValue the new value for the annotation
-	 * @return a value if the annotation has a value on this node or null otherwise
-	 * @throws FactTypeUseException when the type of the new value is not comparable to the old annotation value
-	 */
-	public IConstructor   setAnnotation(String label, IValue newValue) throws FactTypeUseException;
+	public IConstructor joinAnnotations(Map<String, IValue> annotations);
+	
+	public IConstructor setAnnotations(Map<String, IValue> annotations);
+	
+	public IConstructor removeAnnotations();
+	
+	public IConstructor removeAnnotation(String key);
 }

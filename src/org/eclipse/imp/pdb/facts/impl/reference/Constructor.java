@@ -1,6 +1,6 @@
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -16,30 +16,35 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * Implementation of a typed tree node with access to children via labels
  */
 public class Constructor extends Node implements IConstructor {
-	protected final static HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<String,IValue>();
-    protected final HashMap<String, IValue> fAnnotations;
-    
 	/*package*/ Constructor(Type type, IValue[] children) {
 		super(type.getName(), type, children);
-		fAnnotations = EMPTY_ANNOTATIONS;
+		
 	}
 	
 	/*package*/ Constructor(Type type) {
 		this(type, new IValue[0]);
 	}
-	
-	@SuppressWarnings("unchecked")
-	private Constructor(Constructor constructor, String label, IValue anno) {
-		super(constructor.fType.getName(), constructor.fType, constructor.fChildren);
-		fAnnotations = (HashMap<String, IValue>) constructor.fAnnotations.clone();
-		fAnnotations.put(label, anno);
-	}
 
 	private Constructor(Constructor other, int childIndex, IValue newChild) {
 		super(other, childIndex, newChild);
-		fAnnotations = other.fAnnotations;
 	}
 	
+	private Constructor(Constructor constructor, String label, IValue value) {
+		super(constructor, label, value);
+	}
+
+	private Constructor(Constructor constructor, Map<String, IValue> annotations) {
+		super(constructor, annotations);
+	}
+
+	private Constructor(Constructor constructor) {
+		super(constructor);
+	}
+
+	private Constructor(Constructor constructor, String key) {
+		super(constructor, key);
+	}
+
 	@Override
 	public Type getType() {
 		return fType.getAbstractDataType();
@@ -82,7 +87,7 @@ public class Constructor extends Node implements IConstructor {
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
 		  Constructor other = (Constructor) obj;
-		  return fType.comparable(other.fType) && super.equals(obj) && fAnnotations.equals(other.fAnnotations);
+		  return fType.comparable(other.fType) && super.equals(obj);
 		}
 		return false;
 	}
@@ -97,50 +102,42 @@ public class Constructor extends Node implements IConstructor {
 		return v.visitConstructor(this);
 	}
 	
-	public boolean hasAnnotation(String label) {
-		return fAnnotations.containsKey(label);
-	}
-	
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return store.getAnnotationType(getType(), label) != null;
 	}
 	
+	@Override
 	public IConstructor setAnnotation(String label, IValue value) {
 		IValue previous = getAnnotation(label);
 		
 		if (previous != null) {
 			Type expected = previous.getType();
-
+	
 			if (!expected.comparable(value.getType())) {
 				throw new UnexpectedAnnotationTypeException(expected, value.getType());
 			}
 		}
-
+	
 		return new Constructor(this, label, value);
-	}
-
-	public IValue getAnnotation(String label) throws FactTypeUseException {
-		return fAnnotations.get(label);
 	}
 	
 	@Override
-	public String toString() {
-		if (!fAnnotations.isEmpty()) {
-			StringBuilder builder = new StringBuilder();
-			builder.append(super.toString());
-			
-			builder.append("[");
-			int i = 0;
-			for (String key : fAnnotations.keySet()) {
-				builder.append("@" + key + "=" + fAnnotations.get(key));
-				if (++i < fAnnotations.size()) {
-					builder.append(",");
-				}
-			}
-			builder.append("]");
-			return builder.toString();
-		}
-		
-		return super.toString();
+	public IConstructor joinAnnotations(Map<String, IValue> annotations) {
+		return new Constructor(this, annotations);
+	}
+	
+	@Override
+	public IConstructor setAnnotations(Map<String, IValue> annotations) {
+		return removeAnnotations().joinAnnotations(annotations);
+	}
+	
+	@Override
+	public IConstructor removeAnnotations() {
+		return new Constructor(this);
+	}
+	
+	@Override
+	public IConstructor removeAnnotation(String key) {
+		return new Constructor(this, key);
 	}
 }
