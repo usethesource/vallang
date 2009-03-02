@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) CWI 2008 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Jurgen Vinju (jurgenv@cwi.nl) - initial API and implementation
+
+ *******************************************************************************/
+
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
@@ -19,6 +31,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
+/**
+ * This class implements the standard readable syntax for {@link IValue}'s.
+ * See also {@link StandardTextWriter}
+ */
 public class StandardTextReader extends AbstractReader {
 
 	private static final char START_OF_RANGE = '?';
