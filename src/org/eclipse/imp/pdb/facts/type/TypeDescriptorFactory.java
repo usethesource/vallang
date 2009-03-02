@@ -36,6 +36,8 @@ public class TypeDescriptorFactory {
 	private TypeStore ts = new TypeStore();
 	
 	private Type typeSort = tf.abstractDataType(ts, "Type");
+	private Type fieldType = tf.abstractDataType(ts, "Field");
+
 	private Type boolType = tf.constructor(ts, typeSort, "bool");
 	private Type doubleType = tf.constructor(ts, typeSort, "double");
 	private Type integerType = tf.constructor(ts, typeSort, "int");
@@ -51,9 +53,10 @@ public class TypeDescriptorFactory {
 	private Type constructorType = tf.constructor(ts, typeSort, "constructor", typeSort, "abstract-data-type", tf.stringType(), "name", tf.listType(typeSort), "children");
 	private Type abstractDataType = tf.constructor(ts, typeSort, "abstract-data-type", tf.stringType(), "name");
 	private Type parameterType = tf.constructor(ts, typeSort, "parameter", tf.stringType(), "name", typeSort, "bound");
-	private Type tupleType = tf.constructor(ts, typeSort, "tuple", tf.listType(typeSort), "fields");
+	private Type tupleType = tf.constructor(ts, typeSort, "tuple", tf.listType(fieldType), "fields");
 	private Type valueType = tf.constructor(ts, typeSort, "value");
 	private Type voidType = tf.constructor(ts, typeSort, "void");
+	private Type namedFieldType = tf.constructor(ts, fieldType, "field", typeSort, "type", tf.stringType(), "label");
 	private TypeStore store;
 
 	private static class InstanceHolder {
@@ -156,13 +159,15 @@ public class TypeDescriptorFactory {
 				String name = ((IString) o.get("name")).getValue();
 				
 				IList childrenValues = (IList) o.get("children");
-				List<Type> childrenTypes = new LinkedList<Type>();
+				Object[] children = new Type[childrenValues.length() * 2];
 				
-				for (IValue child : childrenValues) {
-					childrenTypes.add(child.accept(this));
+				for (int i = 0, j = 0; i < childrenValues.length(); i++, j+=2) {
+					IConstructor child = (IConstructor) childrenValues.get(i);
+					children[j] = child.get("type").accept(this);;
+					children[j+1] = ((IString) child.get("label")).getValue();
 				}
 				
-				return tf.constructor(store, sort, name, tf.tupleType(childrenTypes.toArray()));
+				return tf.constructor(store, sort, name, children);
 			}
 			else if (node == abstractDataType) {
 				return tf.abstractDataType(store, ((IString) o.get("name")).getValue());
@@ -240,10 +245,11 @@ public class TypeDescriptorFactory {
 		}
 
 		public INode visitConstructor(Type type) {
-			IListWriter w = vf.listWriter(typeSort);
+			IListWriter w = vf.listWriter(fieldType);
 			
-			for (Type field : type.getFieldTypes()) {
-				w.append(field.accept(this));
+			for (int i = 0; i < type.getArity(); i++) {
+				IValue field = namedFieldType.make(vf, type.getFieldType(i).accept(this), vf.string(type.getFieldName(i)));
+				w.append(field);
 			}
 			
 			return vf.constructor(constructorType, type.getAbstractDataType().accept(this), vf.string(type.getName()), w.done());
