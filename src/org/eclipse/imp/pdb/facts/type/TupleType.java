@@ -114,6 +114,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     
     @Override
     public Type compose(Type other) {
+    	if (other.isVoidType()) {
+    		return other;
+    	}
+    	
     	if (this.getArity() != 2 || other.getArity() != 2) {
 			throw new IllegalOperationException("compose", this, other);
 		}
