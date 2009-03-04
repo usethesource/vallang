@@ -60,6 +60,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		return !fParameters.isVoidType();
 	}
 	
+
+	/**
+	 * @return the type parameters of the alias type, void when there are none
+	 */
+	@Override
+	public Type getTypeParameters() {
+		return fParameters;
+	}
+	
 	@Override
 	public String getName() {
 		return fName;

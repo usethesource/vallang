@@ -140,6 +140,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	}
 	
 	@Override
+	public Type getTypeParameters() {
+		return fParameters;
+	}
+	
+	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitAbstractData(this);
 	}

@@ -586,4 +586,13 @@ public abstract class Type implements Iterable<Type> {
 	public Type getHiddenType() {
 		throw new IllegalOperationException("getHiddenType", this);
 	}
+
+	/**
+	 * For alias types and adt types return which type parameters there are.
+	 * 
+	 * @return void if there are no type parameters, or a tuple of type parameters otherwise.
+	 */
+	public Type getTypeParameters() {
+		throw new IllegalOperationException("getTypeParameters", this);
+	}
 }
