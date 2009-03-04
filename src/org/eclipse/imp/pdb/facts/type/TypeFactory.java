@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalIdentifierException;
+import org.eclipse.imp.pdb.facts.exceptions.NullTypeException;
 
 /**
  * Use this class to produce any kind of {@link Type}, after which
@@ -262,6 +263,10 @@ public class TypeFactory {
     public Type aliasType(TypeStore store, String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
     	if (!isIdentifier(name)) {
     		throw new IllegalIdentifierException(name);
+    	}
+    	
+    	if (aliased == null) {
+    		throw new NullTypeException();
     	}
 
     	Type paramType;
