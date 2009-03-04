@@ -422,18 +422,4 @@ public class TypeFactory {
 
 		return true;
 	}
-
-	/**
-	 * Construct a type that is represented by this value. Will only work for values
-	 * that have been constructed using {@link TypeDescriptorFactory#toTypeDescriptor(IValueFactory, Type)},
-	 * or something that exactly mimicked it.
-	 * 
-	 * @param store      to store the type declarations in
-	 * @param descriptor a value that represents a type
-	 * @return a type that was represented by the descriptor
-	 * @throws FactTypeDeclarationException if the descriptor is not a valid type descriptor
-	 */
-	Type fromDescriptor(TypeStore store, IValue typeDescriptor) throws FactTypeDeclarationException {
-		return TypeDescriptorFactory.getInstance().fromTypeDescriptor(store, typeDescriptor);
-	}
 }

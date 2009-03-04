@@ -369,14 +369,6 @@ public abstract class Type implements Iterable<Type> {
 	
 	public abstract <T> T accept(ITypeVisitor<T> visitor);
 
-	/**
-	 * @return a type descriptor suitable for use in serialization, which can be
-	 *         passed to @{link TypeFactory#getTypeByDescriptor()}
-	 */
-	public IValue getTypeDescriptor(IValueFactory factory) {
-		return TypeDescriptorFactory.getInstance().toTypeDescriptor(factory, this);
-	}
-	
 	public boolean isRelationType() {
 		return false;
 	}
