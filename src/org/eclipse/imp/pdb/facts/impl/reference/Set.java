@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedResultTypeException;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -52,15 +51,15 @@ class Set extends Value implements ISet{
 	}
 
 	@SuppressWarnings("unchecked")
-	public ISet insert(IValue element) {
+	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType().lub(element.getType()));
 		sw.insertAll(this);
 		sw.insert(element);
-		return sw.done();
+		return (SetOrRel) sw.done();
 	}
 
 	@SuppressWarnings("unchecked")
-	public ISet intersect(ISet other) {
+	public <SetOrRel extends ISet> SetOrRel intersect(ISet other) {
 		ISetWriter w = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
 		Set o = (Set) other;
 		
@@ -70,26 +69,26 @@ class Set extends Value implements ISet{
 			}
 		}
 		
-		return w.done();
+		return (SetOrRel) w.done();
 	}
 
 	@SuppressWarnings("unchecked")
-	public ISet subtract(ISet other) {
+	public <SetOrRel extends ISet> SetOrRel subtract(ISet other) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
 		for (IValue a : content){
 			if (!other.contains(a)){
 				sw.insert(a);
 			}
 		}
-		return sw.done();
+		return (SetOrRel) sw.done();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ISet delete(IValue elem) {
+	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
 		sw.insertAll(this);
 		sw.delete(elem);
-		return sw.done();
+		return (SetOrRel) sw.done();
 	}
 
 	public boolean isSubsetOf(ISet other) {
@@ -107,20 +106,9 @@ class Set extends Value implements ISet{
 		w.insertAll(this);
 		w.insertAll(other);
 		ISet result = w.done();
-		
-		try{
-			// either a set or a relation is returned. If the caller
-			// expected a relation, but the union constructed a set
-			// this will throw a ClassCastException
-			return (SetOrRel) result;
-		}
-		catch (ClassCastException e) {
-			throw new UnexpectedResultTypeException(result.getType(), e);
-		}
+		return (SetOrRel) result;
 	}
 	
-	
-
 	public Iterator<IValue> iterator(){
 		return content.iterator();
 	}

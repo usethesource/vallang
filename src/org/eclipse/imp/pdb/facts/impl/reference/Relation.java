@@ -38,9 +38,7 @@ class Relation extends Set implements IRelation {
 	}
 	
 	public IRelation closure() throws FactTypeUseException {
-		if (!checkReflexivity()) {
-			throw new IllegalOperationException("closure", getType());
-		}
+		getType().closure(); // will throw exception if not binary and reflexive
 		IRelation tmp = (IRelation) this;
 
 		int prevCount = 0;
@@ -54,43 +52,31 @@ class Relation extends Set implements IRelation {
 	}
 	
 	public IRelation closureStar() throws FactTypeUseException {
-		if (!checkReflexivity()) {
-			throw new IllegalOperationException("closureStar", getType());
-		}
-		IRelation closure = closure();
-		ISet carrier = carrier();
-		Type elementType = carrier.getElementType();
-		ISetWriter reflex = Set.createSetWriter(TypeFactory.getInstance().tupleType(elementType, elementType));
-		
-		for (IValue e: carrier) {
+		Type resultType = getType().closure();
+		// an exception will have been thrown if the type is not acceptable
+
+		ISetWriter reflex = Relation.createRelationWriter(resultType.getElementType());
+
+		for (IValue e: carrier()) {
 			reflex.insert(new Tuple(new IValue[] {e, e}));
 		}
 		
-		return closure.union(reflex.done());
+		return closure().union(reflex.done());
 	}
 
 	public IRelation compose(IRelation other) throws FactTypeUseException {
 		Type resultType = getType().compose(other.getType());
+		// an exception will have been thrown if the relations are not both binary and
+		// have a comparable field to compose.
 		IRelationWriter w = ValueFactory.getInstance().relationWriter(resultType.getFieldTypes());
-		int max1 = arity() - 1;
-		int max2 = other.arity() - 1;
-		int width = max1 + max2;
 
 		for (IValue v1 : content) {
-			ITuple t1 = (ITuple) v1;
+			ITuple tuple1 = (ITuple) v1;
 			for (IValue t2 : other) {
-				IValue[] values = new IValue[width];
 				ITuple tuple2 = (ITuple) t2;
-				if (t1.get(max1).isEqual(tuple2.get(0))) {
-					for (int i = 0; i < max1; i++) {
-						values[i] = t1.get(i);
-					}
-
-					for (int i = max1, j = 1; i < width; i++, j++) {
-						values[i] = tuple2.get(j);
-					}
-
-					w.insert(new Tuple(values));
+				
+				if (tuple1.get(1).isEqual(tuple2.get(0))) {
+					w.insert(new Tuple(tuple1.get(0), tuple2.get(1)));
 				}
 			}
 		}
@@ -98,12 +84,13 @@ class Relation extends Set implements IRelation {
 	}
 
 	public ISet carrier() {
-		Type newType = checkCarrier();
+		Type newType = getType().carrier();
 		ISetWriter w = Set.createSetWriter(newType.getElementType());
 		
 		for (IValue t : this) {
 			w.insertAll((ITuple) t);
 		}
+		
 		return w.done();
 	}
 
@@ -129,32 +116,6 @@ class Relation extends Set implements IRelation {
 		}
 		
 		return w.done();
-	}
-	
-	private boolean checkReflexivity() throws FactTypeUseException {
-		Type type = getType();
-		int arity = type.getArity();
-		
-		if (arity == 2 || arity == 0) {
-			Type t1 = type.getFieldType(0);
-			Type t2 = type.getFieldType(1);
-
-			return t1.comparable(t2);
-		}
-		
-		return false;
-	}
-
-
-	private Type checkCarrier() {
-		Type result = fType.getFieldType(0);
-		int width = fType.getArity();
-		
-		for (int i = 1; i < width; i++) {
-			result = result.lub(fType.getFieldType(i));
-		}
-		
-		return TypeFactory.getInstance().setType(result);
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {

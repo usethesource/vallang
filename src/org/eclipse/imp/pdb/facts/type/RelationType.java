@@ -123,17 +123,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     	return b.toString();
     }
 
-	private boolean isReflexive() throws FactTypeUseException {
-		if (getArity() == 2) {
-			Type t1 = getFieldType(0);
-			Type t2 = getFieldType(1);
-
-			return t1.isSubtypeOf(t2) || t1.isSubtypeOf(t2);
-		}
-		
-		return false;
-	}
-	
 	@Override
 	public boolean hasFieldNames() {
 		return fTupleType.hasFieldNames();
@@ -141,25 +130,28 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	
 	@Override
 	public Type compose(Type other) throws FactTypeUseException {
-		if (this == other && isReflexive()) {
-			return this;
+		return TypeFactory.getInstance().relTypeFromTuple(getFieldTypes().compose(other.getFieldTypes()));
+	}
+	
+	@Override
+	public Type carrier() {
+		return getFieldTypes().carrier();
+	}
+	
+	@Override
+	public Type closure() {
+		if (getArity() != 2 || !getFieldType(0).comparable(getFieldType(1))) {
+			throw new IllegalOperationException("closure", this);
+		}
+		Type lub = getFieldType(0).lub(getFieldType(1));
+		
+		TypeFactory tf = TypeFactory.getInstance();
+		if (hasFieldNames()) {
+			return tf.relType(lub, getFieldName(0), lub, getFieldName(1));
 		}
 		else {
-			if (getArity() == 1 || other.getArity() == 1) {
-				throw new IllegalOperationException("compose", this, other);
-			}
+			return tf.relType(lub, lub);
 		}
-		Type t1 = fTupleType;
-		Type t2 = other.getFieldTypes();
-
-		Type last = t1.getFieldType(t1.getArity() - 1);
-		Type first = t2.getFieldType(0);
-		
-		if (!(last.isSubtypeOf(first) || first.isSubtypeOf(last))) {
-			throw new IllegalOperationException("compose", this, other);
-		}
-		
-		return TypeFactory.getInstance().relTypeFromTuple(t1.compose(t2));
 	}
 	
 	@Override

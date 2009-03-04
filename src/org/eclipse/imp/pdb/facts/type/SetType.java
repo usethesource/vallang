@@ -47,6 +47,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     }
 
     @Override
+    public Type carrier() {
+    	return this;
+    }
+    
+    @Override
     public Type lub(Type o) {
     	if (o.isSetType()) {
     		return TypeFactory.getInstance().setType(fEltType.lub(o.getElementType()));

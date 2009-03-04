@@ -57,6 +57,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	public Type carrier() {
+		return TypeFactory.getInstance().setType(fEltType);
+	}
+	
+	@Override
 	public String toString() {
 		return "list[" + fEltType + "]";
 	}

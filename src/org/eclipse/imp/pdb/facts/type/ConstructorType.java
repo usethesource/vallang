@@ -72,6 +72,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 			return super.lub(other);
 		}
 	}
+	
+	@Override
+	public Type carrier() {
+		return fChildrenTypes.carrier();
+	}
 
 	@Override
 	public int hashCode() {

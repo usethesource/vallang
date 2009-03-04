@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.FieldLabelMismatchException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 /*package*/ final class TupleType extends Type implements Iterable<Type> {
@@ -111,28 +112,39 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
         return fFieldTypes.length;
     }
     
-    private Type tupleCompose(Type type, Type other) {
-		int N = type.getArity() + other.getArity() - 2;
-		Type[] fieldTypes = new Type[N];
-		
-		if (N == 0) {
-			return TypeFactory.getInstance().tupleEmpty();
-		}
-		
-		for (int i = 0; i < type.getArity() - 1; i++) {
-			fieldTypes[i] = type.getFieldType(i);
-		}
-		
-		for (int i = type.getArity() - 1, j = 1; i < N; i++, j++) {
-			fieldTypes[i] = other.getFieldType(j);
-		}
-		
-		return TypeFactory.getInstance().tupleType(fieldTypes);
-	}
-    
     @Override
     public Type compose(Type other) {
-    	return tupleCompose(this, other);
+    	if (this.getArity() != 2 || other.getArity() != 2) {
+			throw new IllegalOperationException("compose", this, other);
+		}
+		
+		if (!getFieldType(1).comparable(other.getFieldType(0))) {
+			throw new IllegalOperationException("compose", this, other);
+		}
+		
+		TypeFactory tf = TypeFactory.getInstance();
+		
+		if (hasFieldNames() && other.hasFieldNames()) {
+			return tf.tupleType(
+					this.getFieldType(0), 
+					this.getFieldName(0),
+					other.getFieldType(1), 
+					other.getFieldName(1)
+					);
+		} else {
+			return tf.tupleType(this.getFieldType(0), other.getFieldType(1));
+		}
+    }
+    
+    @Override
+    public Type carrier() {
+    	Type lub = TypeFactory.getInstance().voidType();
+    	
+    	for (Type field : this) {
+    		lub = lub.lub(field);
+    	}
+    	
+    	return TypeFactory.getInstance().setType(lub);
     }
 
     @Override

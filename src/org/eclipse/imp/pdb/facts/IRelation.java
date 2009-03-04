@@ -19,12 +19,13 @@ public interface IRelation extends ISet, IValue {
     public int arity();
 
     /**
-     * Computes the composition of this relation, with type rel[t_1...t_n]
-     * with another relation with type rel[u_1...u_m].
+     * Computes the composition of this relation, works only on
+     * two binary relations rel[t_1,t_2] and rel[t_3,t_4] where
+     * t_2 is comparable to t_3.
      * 
      * @param rel another relation 
-     * @return a relation with type rel[t_1,...,t_n-1,u_2...u_m]
-     * @throws FactTypeUseException when t_n is not a sub-type of u_1
+     * @return a relation with type rel[t_1,t_4]
+     * @throws FactTypeUseException when t_2 is not comparable to t_3
      */
     public IRelation compose(IRelation rel) throws FactTypeUseException;
 

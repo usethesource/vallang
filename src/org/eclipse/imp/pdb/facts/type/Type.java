@@ -162,12 +162,36 @@ public abstract class Type implements Iterable<Type> {
 	}
 	
 	/**
-	 * Compose tuples or relation types
+	 * Compose two binary tuples or binary relation types.
+	 * 
 	 * @param other
 	 * @return a new type that represent the composition
+	 * @throws IllegalOperationException if the receiver or the other is not binary
+	 * or if the last type of the receiver is not comparable to the first type of the other.
 	 */
 	public Type compose(Type other) {
 		throw new IllegalOperationException("compose", this, other);
+	}
+	
+	/**
+	 * For relation types rel[t_1,t_2] this will compute rel[t_3,t_3] where t_3 = t_1.lub(t_2).
+	 * 
+	 * @return rel[t_3,t_3]
+	 * @throws IllegalOperationException when this is not a binary relation or
+	 * t_1 is not comparable to t_2 (i.e. the relation is not reflexive)
+	 */
+	public Type closure() {
+		throw new IllegalOperationException("closure", this);
+	}
+	
+	/**
+	 * Computes the least upper bound of all elements of this type and returns
+	 * a set of this type. Works on all types that have elements/fields or children
+	 * such as tuples, relations, sets and constructors.
+	 * @return a set[lub].
+	 */
+	public Type carrier() {
+		throw new IllegalOperationException("carrier", this);
 	}
 	
 	/**

@@ -64,6 +64,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     		return super.lub(o);
     	}
     }
+    
+    @Override
+    public Type carrier() {
+    	TypeFactory tf = TypeFactory.getInstance();
+		return tf.setType(fKeyType.lub(fValueType));
+    }
 
     @Override
     public int hashCode() {
