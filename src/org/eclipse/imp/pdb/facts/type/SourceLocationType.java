@@ -12,7 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.ISourceRange;
+import java.net.URL;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -54,9 +55,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return visitor.visitSourceLocation(this);
     }
     
-    @Override
-    public IValue make(IValueFactory f, String path, ISourceRange range) {
-    	return f.sourceLocation(path, range);
+    @Override 
+    public IValue make(IValueFactory f, URL url, int startOffset, int length,
+    		int startLine, int endLine, int startCol, int endCol) {
+    	return f.sourceLocation(url, startOffset, length, startLine, endLine, startCol, endCol);
     }
     
 }

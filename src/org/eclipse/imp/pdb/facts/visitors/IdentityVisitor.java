@@ -10,20 +10,19 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.visitors;
 
+import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IBool;
 
 /**
  * This abstract class does nothing except implementing identity. Extend it
@@ -56,10 +55,6 @@ public abstract class IdentityVisitor implements IValueVisitor<IValue> {
 	}
 
 	public IValue visitSourceLocation(ISourceLocation o)  throws VisitorException{
-		return o;
-	}
-
-	public IValue visitSourceRange(ISourceRange o)  throws VisitorException{
 		return o;
 	}
 

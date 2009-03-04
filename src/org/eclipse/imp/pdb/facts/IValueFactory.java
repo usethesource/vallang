@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.net.URL;
+
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
@@ -45,22 +47,16 @@ public interface IValueFactory {
     public IString string(String s);
     
     /**
+     * @param url
      * @param startOffset
      * @param length
      * @param startLine
      * @param endLine
      * @param startCol
      * @param endCol
-     * @return a value representing a source range, with type SourceRangeType
-     */
-    public ISourceRange sourceRange(int startOffset, int length, int startLine, int endLine, int startCol, int endCol);
-
-    /**
-     * @param path
-     * @param range
      * @return a value representing a source location, with type SourceLocationType
      */
-    public ISourceLocation sourceLocation(String path, ISourceRange range);
+    public ISourceLocation sourceLocation(URL url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol);
     
     /**
      * Construct the nullary tuple

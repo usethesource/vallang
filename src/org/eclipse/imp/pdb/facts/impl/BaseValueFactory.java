@@ -12,11 +12,12 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.net.URL;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -33,12 +34,8 @@ public abstract class BaseValueFactory implements IValueFactory {
         return new StringValue(s);
     }
     
-    public ISourceLocation sourceLocation(String path, ISourceRange range) {
-        return new SourceLocationValue(path, range);
-    }
-    
-    public ISourceRange sourceRange(int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
-        return new SourceRangeValue(startOffset, length, startLine, endLine, startCol, endCol);
+    public ISourceLocation sourceLocation(URL path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+        return new SourceLocationValue(path, startOffset, length, startLine, endLine, startCol, endCol);
     }
     
     public IBool bool(boolean value) {

@@ -115,14 +115,6 @@ public class TypeFactory {
 
     /**
      * Construct a new type. 
-     * @return a reference to the unique sourceRange type of the PDB.
-     */
-    public Type sourceRangeType() {
-        return SourceRangeType.getInstance();
-    }
-
-    /**
-     * Construct a new type. 
      * @return a reference to the unique sourceLocation type of the PDB.
      */
     public Type sourceLocationType() {

@@ -12,8 +12,9 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.net.URL;
+
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -86,9 +87,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     
     
     @Override
-    public IValue make(IValueFactory f, int startOffset, int length,
+    public IValue make(IValueFactory f, URL url, int startOffset, int length,
     		int startLine, int endLine, int startCol, int endCol) {
-    	return TypeFactory.getInstance().sourceRangeType().make(f, startOffset, length, startLine, endLine, startCol, endCol);
+    	return TypeFactory.getInstance().sourceLocationType().make(f, url, startOffset, length, startLine, endLine, startCol, endCol);
     }
     
     @Override
@@ -103,11 +104,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return TypeFactory.getInstance().stringType().make(f, arg);
     }
     
-    @Override
-    public IValue make(IValueFactory f, String path, ISourceRange range) {
-    	return TypeFactory.getInstance().sourceLocationType().make(f, path, range);
-    }
-
     @Override
     public IValue make(IValueFactory f, String name, IValue... children) {
     	return f.node(name, children);

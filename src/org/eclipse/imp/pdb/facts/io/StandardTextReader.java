@@ -17,10 +17,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
@@ -37,7 +35,6 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  */
 public class StandardTextReader extends AbstractReader {
 
-	private static final char START_OF_RANGE = '?';
 	private static final char START_OF_LOC = '!';
 	private static final char START_OF_MAP = '(';
 	private static final char START_OF_TUPLE = '<';
@@ -94,9 +91,6 @@ public class StandardTextReader extends AbstractReader {
 			case START_OF_LOC:
 				result = readLocation(expected);
 				break;
-			case START_OF_RANGE:
-				result = readRange(expected);
-				break;
 			default:
 				unexpected();
 			}
@@ -118,103 +112,9 @@ public class StandardTextReader extends AbstractReader {
 		return result;
 	}
 
-	private IValue readRange(Type expected) throws IOException {
-		int off = -1, len = -1, sl = -1, el = -1, sc = -1, ec = -1;
-		
-		current = stream.read();
-		
-		do {
-			switch (current) {
-			case 'o':
-				current = stream.read();
-				checkAndRead('f');
-				checkAndRead('f');
-				checkAndRead('=');
-				off = ((IInteger) readNumber(types.integerType())).getValue();
-				break;
-			case 'l':
-				current = stream.read();
-				checkAndRead('e');
-				checkAndRead('n');
-				checkAndRead('=');
-				len = ((IInteger) readNumber(types.integerType())).getValue();
-				break;
-			case 's':
-				current = stream.read();
-				checkAndRead('t');
-				checkAndRead('a');
-				checkAndRead('r');
-				checkAndRead('t');
-				checkAndRead('=');
-				sl = ((IInteger) readNumber(types.integerType())).getValue();
-				checkAndRead(',');
-				sc = ((IInteger) readNumber(types.integerType())).getValue();
-				break;
-			case 'e':
-				current = stream.read();
-				checkAndRead('n');
-				checkAndRead('d');
-				checkAndRead('=');
-				el = ((IInteger) readNumber(types.integerType())).getValue();
-				checkAndRead(',');
-				ec = ((IInteger) readNumber(types.integerType())).getValue();
-				break;
-			default:
-				unexpected();
-			}
-			
-			if (current == '&') {
-				current = stream.read();
-				continue;
-			}
-			else {
-				break;
-			}
-		} while (true);
-		
-		if (len == -1 || off == -1 || sl == -1 || sc == -1 || el == -1 || ec == -1) {
-		  throw new FactParseError("Incomplete range", new IOException());	
-		}
-		
-		return factory.sourceRange(off, len, sl, el, sc, ec);
-	}
-
 	private IValue readLocation(Type expected) throws IOException {
-		current = stream.read();
-		String url = readIdentifier();
-		
-		if (!url.equals("file")) {
-			throw new FactParseError("No other than file locations are supported", new IOException());
-		}
-		
-		checkAndRead(':');
-		checkAndRead('/');
-		checkAndRead('/');
-		String fileName = readFileName();
-		
-		ISourceRange range;
-		if (current == '?') {
-			range = (ISourceRange) readRange(types.sourceRangeType());
-		}
-		else {
-			range = factory.sourceRange(0, 0, 1, 1, 0, 0);
-		}
-		
-		return factory.sourceLocation(fileName, range);
-	}
-
-	private String readFileName() throws IOException {
-		StringBuilder builder = new StringBuilder();
-		
-		// TODO support for URL path syntax
-		while (Character.isLetterOrDigit(current) ||
-				current == '/' || current == '_' || current == '-') {
-			builder.append((char) current);
-			current = stream.read();
-		}
-		
-		return builder.toString();
-				
+		// TODO: include URL parser
+		return null;
 	}
 
 	private IValue readMap(Type expected) throws IOException {

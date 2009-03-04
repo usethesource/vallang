@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -190,12 +189,7 @@ public class StandardTextWriter implements IValueWriter {
 		public IValue visitSourceLocation(ISourceLocation o)
 				throws VisitorException {
 			append('!');
-			append("file://" + o.getPath());
-			o.getRange().accept(this);
-			return o;
-		}
-
-		public IValue visitSourceRange(ISourceRange o) throws VisitorException {
+			append(o.getURL().toExternalForm());
 			append('?');
 			append("off=" + o.getStartOffset());
 			append('&');

@@ -12,11 +12,11 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
@@ -93,7 +93,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 			return true;
 		}
 		else if (other.isAliasType() && other.getName().equals(getName())) {
-			return fParameters.isSubtypeOf(other.getTypeParameters());
+			return fAliased.isSubtypeOf(other) && fParameters.isSubtypeOf(other.getTypeParameters());
 		}
 		else {
 			return fAliased.isSubtypeOf(other);
@@ -169,13 +169,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, String path, ISourceRange range) {
-	    return fAliased.make(f, path, range);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f,int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
-		return fAliased.make(f, startOffset, length, startLine, endLine, startCol, endCol);
+	public IValue make(IValueFactory f, URL url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+		return fAliased.make(f, url, startOffset, length, startLine, endLine, startCol, endCol);
 	}
 	
 	@Override

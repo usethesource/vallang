@@ -12,10 +12,10 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
@@ -534,14 +534,10 @@ public abstract class Type implements Iterable<Type> {
 		throw new IllegalOperationException("apply to children", this);
 	}
 	
-	public IValue make(IValueFactory f, String path, ISourceRange range) {
-		throw new IllegalOperationException("make source location", this);
-	}
-
-	public IValue make(IValueFactory f, int startOffset, int length,
+	public IValue make(IValueFactory f, URL url, int startOffset, int length,
 			int startLine, int endLine, int startCol, int endCol) {
-		throw new IllegalOperationException("make source range", this);
-	}
+		throw new IllegalOperationException("make source location", this);
+	} 
 
 	public IValue make(IValueFactory f, String name, IValue... children) {
 		throw new IllegalOperationException("make tree constructor", this);

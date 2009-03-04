@@ -12,7 +12,17 @@
 
 package org.eclipse.imp.pdb.facts;
 
+import java.net.URL;
+
 public interface ISourceLocation extends IValue {
-    String getPath();
-    ISourceRange getRange();
+    URL getURL();
+    
+    int getStartOffset();
+    int getLength();
+
+    int getStartLine();
+    int getEndLine();
+
+    int getStartColumn();
+    int getEndColumn();
 }

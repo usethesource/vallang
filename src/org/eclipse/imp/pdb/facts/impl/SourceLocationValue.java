@@ -12,44 +12,92 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.net.URL;
+
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /*package*/ class SourceLocationValue extends Value implements ISourceLocation {
-    private final String fPath;
-    private final ISourceRange fRange;
+    private final URL fPath;
+    private final int fStartOffset;
 
-    /*package*/ SourceLocationValue(String path, ISourceRange range) {
+	private final int fLength;
+
+	private final int fStartLine;
+
+	private final int fEndLine;
+
+	private final int fStartCol;
+
+	private final int fEndCol;
+
+    /*package*/ SourceLocationValue(URL path, int startOffset, int length, int startLine,
+			int endLine, int startCol, int endCol) {
         super(TypeFactory.getInstance().sourceLocationType());
         fPath= path;
-        fRange= range;
+        fStartOffset = startOffset;
+		fLength = length;
+		fStartLine = startLine;
+		fEndLine = endLine;
+		fStartCol = startCol;
+		fEndCol = endCol;
     }
     
-	public String getPath() {
+	public URL getURL() {
         return fPath;
     }
 
-    public ISourceRange getRange() {
-        return fRange;
-    }
+	public int getEndColumn() {
+		return fEndCol;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-    	if (getClass() == o.getClass()) {
-    		SourceLocationValue other = (SourceLocationValue) o;
-    		return other.fPath.equals(fPath) && other.fRange.equals(fRange);
-    	}
-    	return false;
-    }
-    
-    @Override
-    public int hashCode() {
-    	return 10987 + 11923 * fPath.hashCode() + 9619 * fRange.hashCode();
-    }
-    
+	public int getEndLine() {
+		return fEndLine;
+	}
+
+	public int getLength() {
+		return fLength;
+	}
+
+	public int getStartColumn() {
+		return fStartCol;
+	}
+
+	public int getStartLine() {
+		return fStartLine;
+	}
+
+	public int getStartOffset() {
+		return fStartOffset;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (getClass() == o.getClass()) {
+			SourceLocationValue other = (SourceLocationValue) o;
+			return fPath.equals(other.fPath) 
+			        && other.fStartOffset == fStartOffset
+					&& other.fLength == fLength
+					&& other.fStartLine == fStartLine
+					&& other.fEndLine == fEndLine
+					&& other.fStartCol == fStartCol && other.fEndCol == fEndCol;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return 1923 * fPath.hashCode() + 24551 + 
+		(fStartOffset << 5)+ 
+		(fLength << 10) + 
+		(fStartLine << 15) + 
+		(fEndLine << 20) + 
+		(fStartCol << 25) + 
+		(fEndCol << 30);
+	}
+	
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitSourceLocation(this);
     }

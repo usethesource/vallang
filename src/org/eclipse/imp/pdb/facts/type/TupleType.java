@@ -225,7 +225,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     public Type lub(Type o) {
     	if (o.isTupleType()) {
     		if (getArity() == o.getArity()) {
-    			if (hasFieldNames() || ((TupleType) o).hasFieldNames()) {
+    			if (hasFieldNames() || o.hasFieldNames()) {
     				return lubNamedTupleTypes(this, o);
     			}
     			else {
