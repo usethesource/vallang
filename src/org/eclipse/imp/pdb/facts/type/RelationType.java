@@ -140,6 +140,10 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	
 	@Override
 	public Type closure() {
+		if (getElementType().isVoidType()) {
+			return this;
+		}
+		
 		if (getArity() != 2 || !getFieldType(0).comparable(getFieldType(1))) {
 			throw new IllegalOperationException("closure", this);
 		}
