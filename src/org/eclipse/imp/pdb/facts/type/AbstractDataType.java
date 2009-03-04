@@ -83,7 +83,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	
 	@Override
 	public boolean hasField(String fieldName, TypeStore store) {
-		for (Type alt : store.lookupAlternatives(this)) {
+		// we look up by name because this might be an instantiated parameterized data-type
+		// which will not be present in the store.
+		
+		Type parameterizedADT = store.lookupAbstractDataType(getName());
+		for (Type alt : store.lookupAlternatives(parameterizedADT)) {
 			if (alt.isConstructorType()) {
 				if (alt.hasField(fieldName)) {
 					return true;
