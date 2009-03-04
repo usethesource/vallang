@@ -92,7 +92,7 @@ class Set extends Value implements ISet{
 		return sw.done();
 	}
 
-	public boolean isSubSet(ISet other) {
+	public boolean isSubsetOf(ISet other) {
 		for (IValue elem : this) {
 			if (!other.contains(elem)) {
 				return false;

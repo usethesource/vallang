@@ -87,5 +87,5 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param other
      * @return true iff all elements of this set are elements of the other.
      */
-    public boolean isSubSet(ISet other);
+    public boolean isSubsetOf(ISet other);
 }
