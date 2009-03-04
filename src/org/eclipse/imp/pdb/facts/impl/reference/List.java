@@ -85,10 +85,10 @@ public class List extends Value implements IList {
 		return content.contains(e);
 	}
 
-	public IList remove(IValue e) {
+	public IList delete(IValue e) {
 		ListWriter w = new ListWriter(getElementType());
 		w.appendAll(this);
-		w.remove(e);
+		w.delete(e);
 		return w.done();
 	}
 
@@ -240,7 +240,7 @@ public class List extends Value implements IList {
 			if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
 		}
 
-		public void remove(IValue elem) {
+		public void delete(IValue elem) {
 			checkMutation();
 			listContent.remove(elem);
 		}

@@ -90,5 +90,5 @@ public interface IList extends Iterable<IValue>, IValue {
      * @param e
      * @return a new list, with one element removed.
      */
-    public IList remove(IValue e);
+    public IList delete(IValue e);
 }

@@ -95,7 +95,7 @@ public interface IListWriter extends IWriter {
      * Removes the first occurrence of this element in the currently built list
      * @param elem
      */
-    void remove(IValue elem);
+    void delete(IValue elem);
     
     /**
      * Finalize an immutable list. After this method none of the others may be called anymore.
