@@ -242,7 +242,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
-		return TypeFactory.getInstance().constructorFromTuple(store, fADT.instantiate(store, bindings), getName(), getFieldTypes().instantiate(store, bindings));
+		Type adt = fADT.instantiate(store, bindings);
+		Type fields = getFieldTypes().instantiate(store, bindings);
+		return TypeFactory.getInstance().constructorFromTuple(store, adt, getName(), fields);
 	}
 	
 	@Override

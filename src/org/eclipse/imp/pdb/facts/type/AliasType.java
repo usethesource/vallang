@@ -92,6 +92,9 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		if (other == this) {
 			return true;
 		}
+		else if (other.isAliasType() && other.getName().equals(getName())) {
+			return fParameters.isSubtypeOf(other.getTypeParameters());
+		}
 		else {
 			return fAliased.isSubtypeOf(other);
 		}
@@ -101,6 +104,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	public Type lub(Type other) {
 		if (other == this) {
 			return this;
+		}
+		else if (other.isAliasType() && other.getName().equals(getName())) {
+			Type aliased = fAliased.lub(other.getAliased());
+			Type params = fParameters.lub(other.getTypeParameters());
+			return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), getName(), aliased, params);
 		}
 		else {
 			return fAliased.lub(other);

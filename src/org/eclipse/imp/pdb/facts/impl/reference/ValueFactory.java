@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -29,6 +31,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * This is a reference implementation for an @{link IValueFactory}. It uses
@@ -130,7 +133,12 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public IConstructor constructor(Type constructorType, IValue... children) {
-		return new Constructor(constructorType, children);
+		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
+		TypeFactory tf = TypeFactory.getInstance();
+		
+		constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
+		
+		return new Constructor(constructorType.instantiate(new TypeStore(), bindings), children);
 	}
 	
 	public IConstructor constructor(Type constructorType) {

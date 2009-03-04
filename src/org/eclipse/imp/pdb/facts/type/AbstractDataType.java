@@ -55,6 +55,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 		if (other == this || other.isValueType()) {
 			return true;
 		}
+		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
+			return fParameters.isSubtypeOf(other.getTypeParameters());
+		}
 		else if (other.isAliasType()) {
 			return isSubtypeOf(other.getAliased());
 		}
@@ -66,6 +69,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	public Type lub(Type other) {
 		if (other == this) {
 			return this;
+		}
+		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
+			return TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), getName(), fParameters.lub(other.getTypeParameters()));
 		}
 		else if (other.isConstructorType() && other.getAbstractDataType() == this) {
 			return this;

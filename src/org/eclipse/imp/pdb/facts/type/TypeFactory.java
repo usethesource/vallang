@@ -261,14 +261,6 @@ public class TypeFactory {
      * @throws FactTypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
      */
     public Type aliasType(TypeStore store, String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
-    	if (!isIdentifier(name)) {
-    		throw new IllegalIdentifierException(name);
-    	}
-    	
-    	if (aliased == null) {
-    		throw new NullTypeException();
-    	}
-
     	Type paramType;
     	if (parameters.length == 0) {
     		paramType = voidType();
@@ -277,7 +269,19 @@ public class TypeFactory {
     		paramType = tupleType(parameters);
     	}
 
-    	Type result = getFromCache(new AliasType(name, aliased, paramType));
+    	return aliasTypeFromTuple(store, name, aliased, paramType);
+    }
+    
+    public Type aliasTypeFromTuple(TypeStore store, String name, Type aliased, Type params) throws FactTypeDeclarationException {
+    	if (!isIdentifier(name)) {
+    		throw new IllegalIdentifierException(name);
+    	}
+    	
+    	if (aliased == null) {
+    		throw new NullTypeException();
+    	}
+
+    	Type result = getFromCache(new AliasType(name, aliased, params));
     	store.declareAlias(result);
     	return result;
     }
@@ -298,16 +302,19 @@ public class TypeFactory {
      * @throws IllegalIdentifierException
      */
     public Type abstractDataType(TypeStore store, String name, Type... parameters) throws FactTypeDeclarationException {
-    	if (!isIdentifier(name)) {
-    		throw new IllegalIdentifierException(name);
-    	}
-
     	Type paramType = voidType();
     	if (parameters.length != 0) {
     		paramType = tupleType(parameters);
     	}
-
-    	Type result = getFromCache(new AbstractDataType(name, paramType));
+    	
+    	return abstractDataTypeFromTuple(store, name, paramType);
+    }
+    
+    public Type abstractDataTypeFromTuple(TypeStore store, String name, Type params) throws FactTypeDeclarationException {
+    	if (!isIdentifier(name)) {
+    		throw new IllegalIdentifierException(name);
+    	}
+    	Type result = getFromCache(new AbstractDataType(name, params));
     	store.declareAbstractDataType(result);
     	return result;
     }
