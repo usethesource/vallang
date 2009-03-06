@@ -191,12 +191,12 @@ public class StandardTextWriter implements IValueWriter {
 			append('!');
 			append(o.getURL().toExternalForm());
 			append('?');
-			append("off=" + o.getStartOffset());
+			append("off=" + o.getOffset());
 			append('&');
 			append("len=" + o.getLength());
 			append('&');
-			append("start=" + o.getStartLine());
-			append("," + o.getStartColumn());
+			append("start=" + o.getBeginLine());
+			append("," + o.getBeginColumn());
 			append('&');
 			append("end=" + o.getEndLine());
 			append("," + o.getEndColumn());

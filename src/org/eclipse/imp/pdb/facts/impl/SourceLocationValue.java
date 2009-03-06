@@ -61,15 +61,15 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return fLength;
 	}
 
-	public int getStartColumn() {
+	public int getBeginColumn() {
 		return fStartCol;
 	}
 
-	public int getStartLine() {
+	public int getBeginLine() {
 		return fStartLine;
 	}
 
-	public int getStartOffset() {
+	public int getOffset() {
 		return fStartOffset;
 	}
 

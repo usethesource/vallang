@@ -47,16 +47,22 @@ public interface IValueFactory {
     public IString string(String s);
     
     /**
-     * @param url
-     * @param startOffset
-     * @param length
-     * @param startLine
-     * @param endLine
-     * @param startCol
-     * @param endCol
+     * Create an exact reference to a source location.
+     * 
+     * @param url         exact url where the source is located. The particular encoding of
+	 *                    the URL is not specified.
+     * @param offset      the character offset starting from the beginning of the file located 
+     *                    at the given url. Offsets start at 0 (zero).
+     * @param length      the character length of the location (the amount characters).
+     * @param beginLine   the (inclusive) line number where the location begins. The first
+     *                    line is always line number 1.
+     * @param endLine     the (exclusive) line where the location ends
+     * @param beginCol    the (inclusive) column number where the location begins. The
+     *                    first column is always column number 0 (zero).
+     * @param endCol      the (exclusive) column number where the location ends.
      * @return a value representing a source location, with type SourceLocationType
      */
-    public ISourceLocation sourceLocation(URL url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol);
+    public ISourceLocation sourceLocation(URL url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol);
     
     /**
      * Construct the nullary tuple
