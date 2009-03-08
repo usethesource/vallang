@@ -334,8 +334,6 @@ public class TypeStore {
     				}
     			}
     			
-    			System.err.println("set: " + result);
-
     			for (TypeStore i : fImports) {
     				local = i.fConstructors.get(adt);
     				if (local != null) {
