@@ -172,7 +172,11 @@ public class TypeStore {
     				String name = adt.getName();
 					Type oldAdt = fADTs.get(name);
 
-					if (oldAdt != null && !adt.equivalent(oldAdt)) {
+					if (oldAdt != null) {
+						if (adt.isSubtypeOf(oldAdt)) {
+							return; // spurious re-declaration
+						}
+						
 						throw new FactTypeRedeclaredException(name, oldAdt);
 					}
 
@@ -318,7 +322,8 @@ public class TypeStore {
     public Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
     	synchronized (fConstructors) {
     		synchronized (fImports) {
-    			Set<Type> local = fConstructors.get(adt);
+    			Type parameterizedADT = fADTs.get(adt.getName());
+    			Set<Type> local = fConstructors.get(parameterizedADT);
     			Set<Type> result = new HashSet<Type>();
 
     			if (local != null) {
@@ -328,6 +333,8 @@ public class TypeStore {
     					}
     				}
     			}
+    			
+    			System.err.println("set: " + result);
 
     			for (TypeStore i : fImports) {
     				local = i.fConstructors.get(adt);
