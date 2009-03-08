@@ -36,7 +36,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     
     @Override
     public boolean isSubtypeOf(Type other) {
-        return other == this;
+        return other == this || (other.isParameterType() && this == other.getBound());
     }
 
     @Override

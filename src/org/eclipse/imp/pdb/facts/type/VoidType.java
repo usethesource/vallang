@@ -121,6 +121,16 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
+	public Type getBound() {
+		return this;
+	}
+	
+	@Override
+	public Type getTypeParameters() {
+		return this;
+	}
+	
+	@Override
 	public Type getFieldType(int i) {
 		return this;
 	}
