@@ -36,7 +36,20 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     
     @Override
     public boolean isSubtypeOf(Type other) {
-        return other == this || (other.isParameterType() && this == other.getBound());
+    	if (other == this) {
+    		return true;
+    	}
+    	if (other == TypeFactory.getInstance().voidType()) {
+    		return false;
+    	}
+    	if (other.isAliasType()) {
+    		return isSubtypeOf(other.getAliased());
+    	}
+    	if (other.isParameterType()) {
+    		return isSubtypeOf(other.getBound());
+    	}
+    	
+    	return false;
     }
 
     @Override
