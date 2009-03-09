@@ -15,18 +15,18 @@ package org.eclipse.imp.pdb.facts.type;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-/*package*/ final class DoubleType extends Type {
-	private final static DoubleType sInstance = new DoubleType();
+/*package*/ final class RealType extends Type {
+	private final static RealType sInstance = new RealType();
 
-	/* package */static DoubleType getInstance() {
+	/* package */static RealType getInstance() {
 		return sInstance;
 	}
 
-	private DoubleType() {
+	private RealType() {
 	}
 
 	@Override
-	public boolean isDoubleType() {
+	public boolean isRealType() {
 		return true;
 	}
 	
@@ -36,7 +36,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof DoubleType);
+		return (obj instanceof RealType);
 	}
 
 	@Override
@@ -56,11 +56,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public IValue make(IValueFactory f, double arg) {
-		return f.dubble(arg);
+		return f.real(arg);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, TypeStore store, double arg) {
+		return make(f, arg);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, float arg) {
+		return f.real(arg);
+	}
+	
+	@Override
+	public IValue make(IValueFactory f, TypeStore store, float arg) {
 		return make(f, arg);
 	}
 }

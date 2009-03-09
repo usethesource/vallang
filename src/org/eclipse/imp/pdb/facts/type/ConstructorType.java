@@ -192,11 +192,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	@Override
 	public IValue make(IValueFactory f, double arg) {
 		TypeFactory tf = TypeFactory.getInstance();
-		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.doubleType())) {
-			return make(f, f.dubble(arg));
+		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.realType())) {
+			return make(f, f.real(arg));
 		}
 		
-		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.doubleType()));
+		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.realType()));
 	}
 	
 	@Override

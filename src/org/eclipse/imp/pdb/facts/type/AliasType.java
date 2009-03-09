@@ -284,8 +284,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	public boolean isDoubleType() {
-		return fAliased.isDoubleType();
+	public boolean isRealType() {
+		return fAliased.isRealType();
 	}
 
 	@Override

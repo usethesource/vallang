@@ -57,4 +57,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public int hashCode() {
 		return fValue ? 1231 : 1237;
 	}
+	
+	public String getStringRepresentation() {
+		return fValue ? "true" : "false";
+	}
 }

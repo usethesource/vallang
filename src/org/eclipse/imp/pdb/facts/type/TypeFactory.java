@@ -101,8 +101,8 @@ public class TypeFactory {
      * Construct a new type. 
      * @return a reference to the unique double type of the PDB.
      */
-    public Type doubleType() {
-        return DoubleType.getInstance();
+    public Type realType() {
+        return RealType.getInstance();
     }
 
     /**

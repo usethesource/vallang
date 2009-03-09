@@ -388,7 +388,7 @@ public abstract class Type implements Iterable<Type> {
 		return false;
 	}
 
-	public boolean isDoubleType() {
+	public boolean isRealType() {
 		return false;
 	}
 
@@ -441,26 +441,49 @@ public abstract class Type implements Iterable<Type> {
 	}
 
 	/**
-	 * Build a double value. This method is supported by the DoubleTypes
+	 * Build a real value. This method is supported by the DoubleTypes
 	 
 	 * @param f   the factory to use
 	 * @param arg the double to wrap
-	 * @return a double value
+	 * @return a real value
 	 */
 	public IValue make(IValueFactory f, double arg) {
 		throw new IllegalOperationException("make double", this);
 	}
 	
 	/**
-	 * Build a double value. This method is supported by TreeNodeTypes that wrap
+	 * Build a real value. This method is supported by the DoubleTypes
+	 
+	 * @param f   the factory to use
+	 * @param arg the float to wrap
+	 * @return a real value
+	 */
+	public IValue make(IValueFactory f, float arg) {
+		throw new IllegalOperationException("make double", this);
+	}
+	
+	/**
+	 * Build a real value. This method is supported by TreeNodeTypes that wrap
+	 * a single double argument.
+	 * 
+	 * @param f   the factory to use
+	 * @param arg the float to wrap
+	 * @return a real value
+	 */
+	public IValue make(IValueFactory f, TypeStore store, float arg) {
+		throw new IllegalOperationException("make real", this);
+	}
+
+	/**
+	 * Build a real value. This method is supported by TreeNodeTypes that wrap
 	 * a single double argument.
 	 * 
 	 * @param f   the factory to use
 	 * @param arg the double to wrap
-	 * @return a double value
+	 * @return a real value
 	 */
 	public IValue make(IValueFactory f, TypeStore store, double arg) {
-		throw new IllegalOperationException("make double", this);
+		throw new IllegalOperationException("make real", this);
 	}
 
 	/**

@@ -25,7 +25,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDouble;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -97,8 +97,8 @@ public class XMLWriter implements IValueWriter {
 		else if (type.isIntegerType()) {
 			return yieldInt((IInteger) value, doc);
 		}
-		else if (type.isDoubleType()) {
-			return yieldDouble((IDouble) value, doc);
+		else if (type.isRealType()) {
+			return yieldDouble((IReal) value, doc);
 		}
 
 		throw new UnsupportedTypeException(
@@ -127,12 +127,12 @@ public class XMLWriter implements IValueWriter {
 	}
 
 	
-	private Node yieldDouble(IDouble value, Document doc) {
-		return doc.createTextNode("" + value.getValue());
+	private Node yieldDouble(IReal value, Document doc) {
+		return doc.createTextNode(value.toString());
 	}
 
 	private Node yieldInt(IInteger value, Document doc) {
-		return doc.createTextNode("" + value.getValue());
+		return doc.createTextNode(value.toString());
 	}
 
 	private Node yieldString(IString value, Document doc) {

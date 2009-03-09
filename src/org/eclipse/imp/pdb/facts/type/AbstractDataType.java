@@ -187,7 +187,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	
 	@Override
 	public IValue make(IValueFactory vf, TypeStore store, double arg) {
-		Type wrapped = TypeFactory.getInstance().doubleType();
+		Type wrapped = TypeFactory.getInstance().realType();
 		IValue value = wrapped.make(vf, arg);
 		
 		return wrap(vf, store, wrapped, value);

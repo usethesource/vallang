@@ -12,10 +12,12 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IDouble;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -26,8 +28,24 @@ public abstract class BaseValueFactory implements IValueFactory {
         return new IntegerValue(i);
     }
     
-    public IDouble dubble(double d) {
-        return new DoubleValue(d);
+    public IInteger integer(long l) {
+    	return new IntegerValue(l);
+    }
+    
+    public IInteger integer(String s) {
+    	return new IntegerValue(new BigInteger(s));
+    }
+    
+    public IReal real(double d) {
+        return new RealValue(d);
+    }
+    
+    public IReal real(float f) {
+    	return new RealValue(f);
+    }
+    
+    public IReal real(String s) {
+    	return new RealValue(new BigDecimal(s));
     }
     
     public IString string(String s) {

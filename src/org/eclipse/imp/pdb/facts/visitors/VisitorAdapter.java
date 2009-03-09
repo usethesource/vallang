@@ -12,7 +12,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDouble;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -34,8 +34,8 @@ public abstract class VisitorAdapter<T> implements IValueVisitor<T> {
 		this.fVisitor = visitor;
 	}
 
-	public T visitDouble(IDouble o) throws VisitorException {
-		return fVisitor.visitDouble(o);
+	public T visitReal(IReal o) throws VisitorException {
+		return fVisitor.visitReal(o);
 	}
 
 	public T visitInteger(IInteger o) throws VisitorException {

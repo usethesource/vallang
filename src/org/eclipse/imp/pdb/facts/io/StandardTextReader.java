@@ -172,14 +172,14 @@ public class StandardTextReader extends AbstractReader {
 		String val = builder.toString();
 		
 		try {
-			return factory.integer(Integer.parseInt(val));
+			return factory.integer(val);
 		}
 		catch (NumberFormatException e) {
 			// could happen
 		}
 		
 		try {
-			return factory.dubble(Double.parseDouble(val));
+			return factory.real(val);
 		}
 		catch (NumberFormatException e) {
 			// could happen

@@ -90,7 +90,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     
     @Override
     public IValue make(IValueFactory f, double arg) {
-    	return TypeFactory.getInstance().doubleType().make(f, arg);
+    	return TypeFactory.getInstance().realType().make(f, arg);
     }
     
     @Override

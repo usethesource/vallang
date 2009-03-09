@@ -166,7 +166,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
-	public boolean isDoubleType() {
+	public boolean isRealType() {
 		return true;
 	}
 	

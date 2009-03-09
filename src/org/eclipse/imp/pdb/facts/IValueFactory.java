@@ -29,16 +29,32 @@ import org.eclipse.imp.pdb.facts.type.Type;
  */
 public interface IValueFactory {
 	/**
+	 * Constructs an integer from the decimal representation.
+	 *  
+	 * @param i
+	 * @return
+	 */
+	public IInteger integer(String i);
+	
+	/**
 	 * @param i
 	 * @return a value representing the integer i, with type IntegerType
 	 */
     public IInteger integer(int i);
     
     /**
-     * @param d
-     * @return a value representing the double d, with type DoubleType
+     * Construct a real from the mathematical notation
+     * 
+     * @param s
+     * @return
      */
-    public IDouble dubble(double d);
+    public IReal real(String s);
+    
+    /**
+     * @param d
+     * @return a value representing the double d, with type RealType
+     */
+    public IReal real(double d);
     
     /**
      * @param s

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) CWI 2008 
+ * Copyright (c) CWI 2009
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDouble;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -33,7 +33,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * This class implements the standard readable syntax for {@link IValue}'s.
- * See also {@link StandardTextWriter}
+ * See also {@link StandardTextReader}
  */
 public class StandardTextWriter implements IValueWriter {
 	public void write(IValue value, OutputStream stream) throws IOException {
@@ -69,7 +69,7 @@ public class StandardTextWriter implements IValueWriter {
 		
 		public IValue visitBoolean(IBool boolValue)
 				throws VisitorException {
-			append(boolValue.getValue() ? "true" : "false");
+			append(boolValue.getStringRepresentation());
 			return boolValue;
 		}
 
@@ -77,13 +77,13 @@ public class StandardTextWriter implements IValueWriter {
 			return visitNode(o);
 		}
 
-		public IValue visitDouble(IDouble o) throws VisitorException {
-			append(Double.toString(o.getValue()));
+		public IValue visitReal(IReal o) throws VisitorException {
+			append(o.getStringRepresentation());
 			return o;
 		}
 
 		public IValue visitInteger(IInteger o) throws VisitorException {
-			append(Integer.toString(o.getValue()));
+			append(o.getStringRepresentation());
 			return o;
 		}
 

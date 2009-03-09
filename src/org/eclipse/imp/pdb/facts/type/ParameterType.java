@@ -53,8 +53,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public boolean isDoubleType() {
-		return fBound.isDoubleType();
+	public boolean isRealType() {
+		return fBound.isRealType();
 	}
 	
 	@Override

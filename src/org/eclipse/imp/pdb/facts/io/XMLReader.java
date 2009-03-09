@@ -112,7 +112,7 @@ public class XMLReader extends AbstractReader {
 		else if (expected.isIntegerType()) {
 			return parseInt(node);
 		}
-		else if (expected.isDoubleType()) {
+		else if (expected.isRealType()) {
 			return parseDouble(node);
 		}
 
@@ -170,7 +170,7 @@ public class XMLReader extends AbstractReader {
 	}
 
 	private IValue parseDouble(Node node) {
-		return vf.dubble(Double.parseDouble(node.getNodeValue().trim()));
+		return vf.real(Double.parseDouble(node.getNodeValue().trim()));
 	}
 
 	private IValue parseInt(Node node) {
