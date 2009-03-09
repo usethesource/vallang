@@ -51,7 +51,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitDouble(this);
+		return visitor.visitReal(this);
 	}
 	
 	@Override

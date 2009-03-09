@@ -17,7 +17,7 @@ package org.eclipse.imp.pdb.facts.type;
  * @param <T> the result type of the visit methods
  */
 public interface ITypeVisitor<T> {
-	T visitDouble(Type type);
+	T visitReal(Type type);
 	T visitInteger(Type type);
 	T visitList(Type type);
 	T visitMap(Type type);
