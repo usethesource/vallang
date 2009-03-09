@@ -47,6 +47,14 @@ public class TypeFactory {
     }
 
     private TypeFactory() { }
+    
+    private void checkNull(Object ... os) {
+    	for (Object o : os) {
+    		if (o == null) {
+    			throw new NullTypeException();
+    		}
+    	}
+    }
 
     /**
      * construct the value type, which is the top type of the type hierarchy
@@ -139,6 +147,7 @@ public class TypeFactory {
      * @return a tuple type
      */
     public Type tupleType(Type... fieldTypes) {
+    	checkNull((Object[]) fieldTypes);
     	return (TupleType) getFromCache(new TupleType(fieldTypes.length, 0, fieldTypes));
     }
 
@@ -158,6 +167,9 @@ public class TypeFactory {
         String[] protoFieldNames = new String[arity];
         for(int i=0; i < N; i+=2) {
             int pos = i / 2;
+            if (fieldTypesAndLabels[i] == null || fieldTypesAndLabels[i+1] == null) {
+            	throw new NullPointerException();
+            }
             try {
             	protoFieldTypes[pos]= (Type) fieldTypesAndLabels[i];
             } 
@@ -180,7 +192,7 @@ public class TypeFactory {
         return (TupleType) getFromCache(new TupleType(arity, 0, protoFieldTypes, protoFieldNames));
     }
     
-    /**
+	/**
      * Construct a tuple type. The length of the types and labels arrays should be equal.
      * 
      * @param types  the types of the fields
@@ -188,6 +200,8 @@ public class TypeFactory {
      * @return
      */
     public Type tupleType(Type[] types, String[] labels) {
+    	checkNull((Object[]) types);
+    	checkNull((Object[]) labels);
     	return (TupleType) getFromCache(new TupleType(types.length, 0, types, labels));
     }
     
@@ -197,6 +211,7 @@ public class TypeFactory {
      * @return a tuple type
      */
     public Type tupleType(IValue... elements) {
+    	checkNull((Object[]) elements);
         int N= elements.length;
         Type[] fieldTypes= new Type[N];
         for(int i=0; i < N; i++) {
@@ -211,6 +226,7 @@ public class TypeFactory {
      * @return a set type
      */
     public Type setType(Type eltType) {
+    	checkNull(eltType);
     	if (eltType.isTupleType()) {
     		return relTypeFromTuple(eltType);
     	}
@@ -220,6 +236,7 @@ public class TypeFactory {
     }
 
     public Type relTypeFromTuple(Type tupleType) {
+    	checkNull(tupleType);
     	return getFromCache(new RelationType(tupleType));
     }
     
@@ -229,6 +246,7 @@ public class TypeFactory {
      * @return a relation type
      */
     public Type relType(Type... fieldTypes) {
+    	checkNull((Object[]) fieldTypes);
         return getFromCache(new RelationType(tupleType(fieldTypes)));
     }
     
@@ -253,6 +271,9 @@ public class TypeFactory {
      * @throws FactTypeDeclarationException if a type with the same name but a different supertype was defined earlier as a named type of a AbstractDataType.
      */
     public Type aliasType(TypeStore store, String name, Type aliased, Type...parameters) throws FactTypeDeclarationException {
+    	checkNull(store, name, aliased);
+    	checkNull((Object[]) parameters);
+    	
     	Type paramType;
     	if (parameters.length == 0) {
     		paramType = voidType();
@@ -265,6 +286,11 @@ public class TypeFactory {
     }
     
     public Type aliasTypeFromTuple(TypeStore store, String name, Type aliased, Type params) throws FactTypeDeclarationException {
+    	checkNull(store);
+    	checkNull(name);
+    	checkNull(aliased);
+    	checkNull(params);
+    	
     	if (!isIdentifier(name)) {
     		throw new IllegalIdentifierException(name);
     	}
@@ -294,6 +320,9 @@ public class TypeFactory {
      * @throws IllegalIdentifierException
      */
     public Type abstractDataType(TypeStore store, String name, Type... parameters) throws FactTypeDeclarationException {
+    	checkNull(store, name);
+    	checkNull((Object[]) parameters);
+    	
     	Type paramType = voidType();
     	if (parameters.length != 0) {
     		paramType = tupleType(parameters);
@@ -303,6 +332,8 @@ public class TypeFactory {
     }
     
     public Type abstractDataTypeFromTuple(TypeStore store, String name, Type params) throws FactTypeDeclarationException {
+    	checkNull(store, name, params);
+    	
     	if (!isIdentifier(name)) {
     		throw new IllegalIdentifierException(name);
     	}
@@ -323,6 +354,8 @@ public class TypeFactory {
      * @throws IllegalIdentifierException, UndeclaredAbstractDataTypeException, RedeclaredFieldNameException, RedeclaredConstructorException
      */
     public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType) throws FactTypeDeclarationException {
+    	checkNull(store, adt, name, tupleType);
+
     	if (!isIdentifier(name)) {
     		throw new IllegalIdentifierException(name);
     	}
@@ -342,7 +375,7 @@ public class TypeFactory {
      * @param children the types of the children of the tree node type
      * @return a tree node type
      */
-    public Type constructor(TypeStore store, Type adt, String name, Type... children ) throws FactTypeDeclarationException { 
+    public Type constructor(TypeStore store, Type adt, String name, Type... children ) throws FactTypeDeclarationException {
     	return constructorFromTuple(store, adt, name, tupleType(children));
     }
     
@@ -366,6 +399,7 @@ public class TypeFactory {
      * @return a list type
      */
     public Type listType(Type elementType) {
+    	checkNull(elementType);
 		return (ListType) getFromCache(new ListType(elementType));
 	}
     
@@ -376,6 +410,7 @@ public class TypeFactory {
      * @return a map type
      */
     public Type mapType(Type key, Type value) {
+    	checkNull(key, value);
     	return (MapType) getFromCache(new MapType(key, value));
 	}
 
@@ -386,6 +421,7 @@ public class TypeFactory {
      * @return a parameter type
      */
 	public Type parameterType(String name, Type bound) {
+		checkNull(name, bound);
 		return (ParameterType) getFromCache(new ParameterType(name, bound));
 	}
 
@@ -395,6 +431,7 @@ public class TypeFactory {
      * @return a parameter type
      */
 	public Type parameterType(String name) {
+		checkNull(name);
 		return (ParameterType) getFromCache(new ParameterType(name));
 	}
 
@@ -405,6 +442,7 @@ public class TypeFactory {
 	 * @return
 	 */
 	public boolean isIdentifier(String str) {
+		checkNull(str);
 		byte[] contents = str.getBytes();
 
 		if (str.length() == 0) {

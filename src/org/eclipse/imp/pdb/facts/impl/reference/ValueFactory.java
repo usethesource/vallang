@@ -49,11 +49,21 @@ public class ValueFactory extends BaseValueFactory {
 		super();
 	}
 
+	private void checkNull(Object ...args ) {
+		for (Object a : args) {
+			if (a == null) {
+				throw new NullPointerException();
+			}
+		}
+	}
+	
 	public IRelation relation(Type tupleType) {
+		checkNull(tupleType);
 		return relationWriter(tupleType).done();
 	}
 	
 	public IRelation relation(IValue... tuples) {
+		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
 		if (!elementType.isTupleType()) {
@@ -67,14 +77,17 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public IRelationWriter relationWriter(Type tupleType) {
+		checkNull(tupleType);
 		return Relation.createRelationWriter(tupleType);
 	}
 
 	public ISet set(Type eltType){
+		checkNull(eltType);
 		return setWriter(eltType).done();
 	}
 	
 	public ISetWriter setWriter(Type eltType) {
+		checkNull(eltType);
 		if (eltType.isTupleType()) {
 			return relationWriter(eltType);
 		}
@@ -84,6 +97,7 @@ public class ValueFactory extends BaseValueFactory {
 	}
 
 	public ISet set(IValue... elems) throws FactTypeUseException {
+		checkNull((Object[]) elems);
 		Type elementType = lub(elems);
 		
 		ISetWriter sw = setWriter(elementType);
@@ -92,21 +106,25 @@ public class ValueFactory extends BaseValueFactory {
 	}
 
 	public IList list(Type eltType) {
+		checkNull(eltType);
 		return listWriter(eltType).done();
 	}
 	
 	public IListWriter listWriter(Type eltType) {
+		checkNull(eltType);
 		return List.createListWriter(eltType);
 	}
 
 	public IList list(IValue... rest) {
+		checkNull((Object[]) rest);
 		Type eltType = lub(rest);
 		IListWriter lw =  listWriter(eltType);
 		lw.append(rest);
 		return lw.done();
 	}
 
-	private static Type lub(IValue... elems) {
+	private Type lub(IValue... elems) {
+		checkNull((Object[]) elems);
 		Type elementType = TypeFactory.getInstance().voidType();
 		for (IValue elem : elems) {
 			elementType = elementType.lub(elem.getType());
@@ -119,20 +137,27 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public ITuple tuple(IValue... args) {
+		checkNull((Object[]) args);
+		
 		IValue[] tmp = new IValue[args.length];
 		System.arraycopy(args, 0, tmp, 0, args.length);
 		return new Tuple(tmp);
 	}
 	
 	public INode node(String name) {
+		checkNull(name);
 		return new Node(name);
 	}
 	
 	public INode node(String name, IValue... children) {
+		checkNull(name);
+		checkNull((Object[]) children);
 		return new Node(name, children);
 	}
 	
 	public IConstructor constructor(Type constructorType, IValue... children) {
+		checkNull(constructorType);
+		checkNull((Object[]) children);
 		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
 		TypeFactory tf = TypeFactory.getInstance();
 		
@@ -142,14 +167,19 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public IConstructor constructor(Type constructorType) {
+		checkNull(constructorType);
 		return new Constructor(constructorType);
 	}
 
 	public IMap map(Type keyType, Type valueType) {
+		checkNull(keyType);
+		checkNull(valueType);
 		return mapWriter(keyType, valueType).done();
 	}
 	
 	public IMapWriter mapWriter(Type keyType, Type valueType) {
+		checkNull(keyType);
+		checkNull(valueType);
 		return Map.createMapWriter(keyType, valueType);
 	}
 }
