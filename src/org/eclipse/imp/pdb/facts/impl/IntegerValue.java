@@ -40,7 +40,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fValue= i;
     }
     
-    @Override
+    /*package*/ IntegerValue(byte[] a) {
+		this(new BigInteger(a));
+	}
+
+	@Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
     		return fValue.equals(((IntegerValue) o).fValue);

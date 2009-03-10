@@ -43,6 +43,13 @@ public interface IValueFactory {
     public IInteger integer(int i);
     
     /**
+     * Construct an integer from the two's complement big-endian representation
+     * @param a
+     * @return a value representing the two's complement notation in a
+     */
+    public IInteger integer(byte[] a);
+    
+    /**
      * Construct a real from the mathematical notation
      * 
      * @param s

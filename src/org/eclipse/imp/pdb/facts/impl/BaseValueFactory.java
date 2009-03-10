@@ -32,6 +32,10 @@ public abstract class BaseValueFactory implements IValueFactory {
     	return new IntegerValue(l);
     }
     
+    public IInteger integer(byte[] a) {
+    	return new IntegerValue(a);
+    }
+    
     public IInteger integer(String s) {
     	return new IntegerValue(new BigInteger(s));
     }
