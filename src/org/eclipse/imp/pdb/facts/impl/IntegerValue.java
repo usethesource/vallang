@@ -113,6 +113,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return fValue.toString();
     }
     
+    public byte[] getTwosComplementRepresentation() {
+    	return fValue.toByteArray();
+    }
     
     public int intValue() {
     	return fValue.intValue();

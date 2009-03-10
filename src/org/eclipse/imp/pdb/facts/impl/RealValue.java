@@ -114,11 +114,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return fValue.toString();
     }
     
-   
     public double doubleValue() {
     	return fValue.doubleValue();
     }
-    
     
     public float floatValue() {
     	return fValue.floatValue();

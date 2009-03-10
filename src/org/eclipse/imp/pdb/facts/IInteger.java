@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007,2009 IBM Corporation and CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Jurgen Vinju (jurgen@vinju.org) - initial API and implementation
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts;
@@ -79,6 +79,12 @@ public interface IInteger extends IValue {
      * @return the value of the IInteger represent as a string of decimal numbers in ASCII encoding.
      */
     String getStringRepresentation();
+    
+    /**
+     * @return the two's complement representation of this integer in the minimum
+     * amount of required bytes and in big-endian order. 
+     */
+    public byte[] getTwosComplementRepresentation();
     
     /**
      * Converts this IInteger to an in. Only the lower
