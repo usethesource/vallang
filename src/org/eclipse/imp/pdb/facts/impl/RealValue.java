@@ -121,4 +121,16 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public float floatValue() {
     	return fValue.floatValue();
     }
+    
+    public int precision() {
+    	return fValue.precision();
+    }
+    
+    public int scale() {
+    	return fValue.scale();
+    }
+    
+    public IInteger unscaled() {
+    	return new IntegerValue(fValue.unscaledValue());
+    }
 }

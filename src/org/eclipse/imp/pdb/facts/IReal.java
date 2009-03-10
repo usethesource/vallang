@@ -102,4 +102,25 @@ public interface IReal extends IValue {
      * when the number is smaller or larger, respectively.
      */
     float floatValue();
+    
+    /**
+     * @return the number of digits in this.{@link #unscaled()}
+     */
+    int precision();
+    
+    /**
+     * The scale is the exponent of 10 with which the base is multiplied
+     * as in scientific notation. I.e. in 1 * 10<sup>3</sup>, the scale is 3.
+     * 
+     * @return the scale of the real
+     */
+    int scale();
+    
+    /**
+     * Returns the unscaled value of this real as an integer. This is useful
+     * for serialization purposes among other things.
+     * 
+     * @return this * 10<sup>this.scale()</sup>
+     */
+    IInteger unscaled();
 }
