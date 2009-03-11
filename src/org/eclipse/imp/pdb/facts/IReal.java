@@ -30,6 +30,11 @@ public interface IReal extends IValue {
     IReal multiply(IReal other);
     
     /**
+     * Divides a real. When the resulting number infinitely progresses, the
+     * precision is rounded to 80*80 digits (approximately one page of digits).
+     * The rounding method used is "half up", which means to the nearest number
+     * and when at equal distance to the nearest number upward.
+     * 
      * @return this / other;
      */
     IReal divide(IReal other);
