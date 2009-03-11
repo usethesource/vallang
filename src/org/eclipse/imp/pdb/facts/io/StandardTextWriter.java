@@ -118,6 +118,7 @@ public class StandardTextWriter implements IValueWriter {
 				while(mapIterator.hasNext()){
 					append(',');
 					key = mapIterator.next();
+					key.accept(this);
 					append(':');
 					o.get(key).accept(this);
 				}
