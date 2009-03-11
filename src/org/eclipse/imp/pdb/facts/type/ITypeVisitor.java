@@ -12,7 +12,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 /**
- * Visitor interface for all kinds of IValues 
+ * Visitor interface for all kinds of Types 
  *
  * @param <T> the result type of the visit methods
  */
