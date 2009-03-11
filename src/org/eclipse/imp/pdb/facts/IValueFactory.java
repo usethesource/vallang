@@ -31,10 +31,11 @@ public interface IValueFactory {
 	/**
 	 * Constructs an integer from the decimal representation.
 	 *  
-	 * @param i
+	 * @param i integer as a string of decimal digits
 	 * @return
+	 * @throws NumberFormatException
 	 */
-	public IInteger integer(String i);
+	public IInteger integer(String i) throws NumberFormatException ;
 	
 	/**
 	 * @param i
@@ -50,12 +51,13 @@ public interface IValueFactory {
     public IInteger integer(byte[] a);
     
     /**
-     * Construct a real from the mathematical notation
+     * Construct a real from the mathematical notation.
      * 
-     * @param s
-     * @return
+     * @param s real as a string in decimal mathematical notation.
+     * @return 
+     * @throws NumberFormatException
      */
-    public IReal real(String s);
+    public IReal real(String s) throws NumberFormatException;
     
     /**
      * @param d
