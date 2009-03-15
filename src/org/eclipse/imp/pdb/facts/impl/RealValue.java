@@ -24,9 +24,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /*package*/ class RealValue extends Value implements IReal {
-	private static final int ONE_PAGE_OF_DIGITS = 80*80;
-	private static final MathContext MATHCONTEXT_FOR_DIVISION = new MathContext(ONE_PAGE_OF_DIGITS, RoundingMode.HALF_UP);
-	
 	private final BigDecimal fValue;
 
     /*package*/ RealValue(double value) {
@@ -60,8 +57,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new RealValue(fValue.multiply(((RealValue) other).fValue));
     }
     
-    public IReal divide(IReal other) {
-    	return new RealValue(fValue.divide(((RealValue) other).fValue, MATHCONTEXT_FOR_DIVISION));
+    public IReal divide(IReal other, int precision) {
+    	MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+		return new RealValue(fValue.divide(((RealValue) other).fValue, mc));
     }
     
     public IReal round() {
