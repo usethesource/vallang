@@ -32,11 +32,13 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Map extends Value implements IMap{
 	private final HashMap<IValue,IValue> content;
+	private final int hash;
 	
 	/* package */Map(Type keyType, Type valueType, HashMap<IValue, IValue> content){
 		super(TypeFactory.getInstance().mapType(keyType, valueType));
 		
 		this.content = content;
+		this.hash = content.hashCode();
 	}
 	
 	public int size(){
@@ -138,7 +140,7 @@ class Map extends Value implements IMap{
 
 	@Override
 	public int hashCode() {
-		return content.hashCode();
+		return hash;
 	}
 	
 	public Type getKeyType(){
