@@ -30,12 +30,14 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class List extends Value implements IList {
 	private final Type eltType;
 	private final LinkedList<IValue> content;
+	private final int fHash;
 
 	public List(Type eltType, LinkedList<IValue> listContent) {
 		super(TypeFactory.getInstance().listType(eltType));
 		
 		this.eltType = eltType;
 		this.content = listContent;
+		this.fHash = content.hashCode();
 	}
 
 	public Type getElementType(){
@@ -121,7 +123,7 @@ public class List extends Value implements IList {
 	
 	@Override
 	public int hashCode() {
-		return content.hashCode();
+		return fHash;
 	}
 	
     /*package*/ static ListWriter createListWriter(Type eltType){

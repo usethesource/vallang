@@ -34,6 +34,7 @@ public class Node extends Value implements INode {
 	protected final IValue[] fChildren;
     protected final String fName;
 	protected final HashMap<String, IValue> fAnnotations;
+	protected final int fHash;
 	
 	/*package*/ Node(String name, IValue[] children) {
 		super(TypeFactory.getInstance().nodeType());
@@ -41,6 +42,7 @@ public class Node extends Value implements INode {
 		fChildren = new IValue[children.length];
 		System.arraycopy(children, 0, fChildren, 0, children.length);
 		fAnnotations = EMPTY_ANNOTATIONS;
+		fHash = computeHashCode();
 	}
 	
 	protected Node(String name, Type type, IValue[] children) {
@@ -49,6 +51,7 @@ public class Node extends Value implements INode {
 		fChildren = new IValue[children.length];
 		System.arraycopy(children, 0, fChildren, 0, children.length);
 		fAnnotations = EMPTY_ANNOTATIONS;
+		fHash = computeHashCode();
 	}
 	
 	/**
@@ -65,6 +68,7 @@ public class Node extends Value implements INode {
 		System.arraycopy(other.fChildren, 0, fChildren, 0, other.fChildren.length);
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.put(label, anno);
+		fHash = computeHashCode();
 	}
 	
 	/**
@@ -78,6 +82,7 @@ public class Node extends Value implements INode {
 		System.arraycopy(other.fChildren, 0, fChildren, 0, other.fChildren.length);
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.remove(label);
+		fHash = computeHashCode();
 	}
 	
 	/**
@@ -90,6 +95,7 @@ public class Node extends Value implements INode {
 		fChildren = new IValue[other.fChildren.length];
 		System.arraycopy(other.fChildren, 0, fChildren, 0, other.fChildren.length);
 		fAnnotations = EMPTY_ANNOTATIONS;
+		fHash = computeHashCode();
 	}
 	
 	/*package*/ Node(String name) {
@@ -109,6 +115,7 @@ public class Node extends Value implements INode {
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
+		fHash = computeHashCode();
 	}
 	
 	/**
@@ -123,6 +130,7 @@ public class Node extends Value implements INode {
 		fChildren = other.fChildren.clone();
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.putAll(annotations);
+		fHash = computeHashCode();
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
@@ -203,14 +211,18 @@ public class Node extends Value implements INode {
 		return false;
 	}
 	
-	@Override
-	public int hashCode() {
+	public int computeHashCode() {
        int hash = fName != null ? fName.hashCode() : 0;
        
 	   for (int i = 0; i < fChildren.length; i++) {
 	     hash = (hash << 1) ^ (hash >> 1) ^ fChildren[i].hashCode();
 	   }
 	   return hash;
+	}
+
+	@Override
+	public int hashCode() {
+		return fHash;
 	}
 
 	public boolean hasAnnotation(String label) {
