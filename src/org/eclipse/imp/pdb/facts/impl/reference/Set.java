@@ -31,13 +31,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Set extends Value implements ISet{
 	final HashSet<IValue> content;
-	private final int fHash;
+	private int fHash;
 
 	/*package*/ Set(Type setType, HashSet<IValue> content){
 		super(setType);
 		
 		this.content = content;
-		this.fHash = content.hashCode();
 	}
 	
 	public boolean contains(IValue element) throws FactTypeUseException{
@@ -130,6 +129,9 @@ class Set extends Value implements ISet{
 	
 	@Override
 	public int hashCode() { 
+		if (fHash == 0) {
+			fHash = content.hashCode();
+		}
 		return fHash;
 	}
 
