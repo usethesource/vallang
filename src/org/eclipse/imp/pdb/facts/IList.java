@@ -75,11 +75,11 @@ public interface IList extends Iterable<IValue>, IValue {
     /**
      * Compute a sublist.
      * 
-     * @param start inclusive start index of the sublist
-     * @param end   exclusive end index of the sublist
-     * @return a new list that contains this[start] until this[end-1].
+     * @param offset inclusive start index of the sublist
+     * @param length number of elements in the resulting list
+     * @return a new list that contains this[offset] until this[offset+length-1].
      */
-    public IList sublist(int start, int end);
+    public IList sublist(int offset, int length);
     
     /**
      * @return true iff the list is non-empty

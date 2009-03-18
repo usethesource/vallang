@@ -59,12 +59,12 @@ public class List extends Value implements IList {
 		return content.get(i);
 	}
 	
-	public IList sublist(int start, int end) {
-		if (start < 0 || start >= content.size() || end < start || end >= content.size()) {
+	public IList sublist(int offset, int length) {
+		if (offset < 0 || length < 0 || offset + length >= content.size()) {
 			throw new IndexOutOfBoundsException();
 		}
 		ListWriter w = new ListWriter(getElementType());
-		for (int i = start; i < end; i++) {
+		for (int i = offset; i < offset + length; i++) {
 			w.insert(content.get(i));
 		}
 		return w.done();
