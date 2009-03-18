@@ -60,7 +60,7 @@ public class List extends Value implements IList {
 	}
 	
 	public IList sublist(int offset, int length) {
-		if (offset < 0 || length < 0 || offset + length >= content.size()) {
+		if (offset < 0 || length < 0 || offset + length > content.size()) {
 			throw new IndexOutOfBoundsException();
 		}
 		ListWriter w = new ListWriter(getElementType());
