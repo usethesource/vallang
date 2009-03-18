@@ -91,4 +91,12 @@ public interface IList extends Iterable<IValue>, IValue {
      * @return a new list, with one element removed.
      */
     public IList delete(IValue e);
+    
+    /**
+     * Removes the element at index <code>i</code>.
+     * 
+     * @param i
+     * @return a new list with one element removed.
+     */
+    public IList delete(int i);
 }

@@ -98,6 +98,13 @@ public interface IListWriter extends IWriter {
     void delete(IValue elem);
     
     /**
+     * Removed the element at index <code>i</code>.
+     * 
+     * @param i index
+     */
+    void delete(int i);
+    
+    /**
      * Finalize an immutable list. After this method none of the others may be called anymore.
      * @return an immutable IList
      */

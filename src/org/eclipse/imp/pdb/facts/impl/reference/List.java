@@ -92,6 +92,13 @@ public class List extends Value implements IList {
 		w.delete(e);
 		return w.done();
 	}
+	
+	public IList delete(int i) {
+		ListWriter w = new ListWriter(getElementType());
+		w.appendAll(this);
+		w.delete(i);
+		return w.done();
+	}
 
 	public IList reverse(){
 		ListWriter w = new ListWriter(getElementType());
@@ -247,6 +254,11 @@ public class List extends Value implements IList {
 		public void delete(IValue elem) {
 			checkMutation();
 			listContent.remove(elem);
+		}
+		
+		public void delete(int i) {
+			checkMutation();
+			listContent.remove(i);
 		}
 	}
 }
