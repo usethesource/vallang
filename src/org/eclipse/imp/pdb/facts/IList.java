@@ -73,6 +73,15 @@ public interface IList extends Iterable<IValue>, IValue {
     public IValue get(int i) throws IndexOutOfBoundsException;
     
     /**
+     * Compute a sublist.
+     * 
+     * @param start inclusive start index of the sublist
+     * @param end   exclusive end index of the sublist
+     * @return a new list that contains this[start] until this[end-1].
+     */
+    public IList sublist(int start, int end);
+    
+    /**
      * @return true iff the list is non-empty
      */
     public boolean isEmpty();

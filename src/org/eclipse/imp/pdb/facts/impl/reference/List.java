@@ -59,6 +59,14 @@ public class List extends Value implements IList {
 		return content.get(i);
 	}
 	
+	public IList sublist(int start, int end) {
+		ListWriter w = new ListWriter(getElementType());
+		for (int i = start; i < end; i++) {
+			w.insert(content.get(i));
+		}
+		return w.done();
+	}
+	
 	public IList put(int i, IValue elem) throws IndexOutOfBoundsException {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
@@ -260,5 +268,6 @@ public class List extends Value implements IList {
 			checkMutation();
 			listContent.remove(i);
 		}
+		
 	}
 }
