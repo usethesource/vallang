@@ -146,8 +146,12 @@ public class TypeStore {
     			}
     			
     			Type oldAlias = fAliases.get(name);
-    			if (oldAlias != null && !alias.isSubtypeOf(oldAlias)) {
-    				// instantiation is allowed, but not redeclaration
+    			
+    			if (oldAlias != null) {
+    				if (alias.isSubtypeOf(oldAlias)) {
+    					// instantiating can be ignored.
+    					return;
+    				}
     				throw new FactTypeRedeclaredException(name, oldAlias);
     			}
     			
