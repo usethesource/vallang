@@ -65,7 +65,7 @@ public class List extends Value implements IList {
 		}
 		ListWriter w = new ListWriter(getElementType());
 		for (int i = offset; i < offset + length; i++) {
-			w.insert(content.get(i));
+			w.append(content.get(i));
 		}
 		return w.done();
 	}
