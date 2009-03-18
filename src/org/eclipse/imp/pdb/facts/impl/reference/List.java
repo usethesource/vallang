@@ -60,6 +60,9 @@ public class List extends Value implements IList {
 	}
 	
 	public IList sublist(int start, int end) {
+		if (start < 0 || start >= content.size() || end < start || end >= content.size()) {
+			throw new IndexOutOfBoundsException();
+		}
 		ListWriter w = new ListWriter(getElementType());
 		for (int i = start; i < end; i++) {
 			w.insert(content.get(i));
