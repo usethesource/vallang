@@ -265,7 +265,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 			params = new Type[fParameters.getArity()];
 			int i = 0;
 			for (Type p : fParameters) {
-				params[i] = p.instantiate(store, bindings);
+				params[i++] = p.instantiate(store, bindings);
 			}
 		}
 		return TypeFactory.getInstance().aliasType(store, fName, fAliased.instantiate(store, bindings), params);
