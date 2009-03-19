@@ -251,6 +251,11 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
+	public Type carrier() {
+		return TypeFactory.getInstance().setType(this);
+	}
+	
+	@Override
 	public String getName() {
 		return "";
 	}
