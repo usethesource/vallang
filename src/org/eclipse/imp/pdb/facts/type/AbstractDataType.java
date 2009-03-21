@@ -67,14 +67,14 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	
 	@Override
 	public Type lub(Type other) {
-		if (other == this) {
+		if (other == this || other.isVoidType()) {
 			return this;
 		}
 		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
 			return TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), getName(), fParameters.lub(other.getTypeParameters()));
 		}
-		else if (other.isConstructorType() && other.getAbstractDataType() == this) {
-			return this;
+		else if (other.isConstructorType() && other.getAbstractDataType().getName().equals(getName())) {
+			return TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), getName(), fParameters.lub(other.getAbstractDataType().getTypeParameters()));
 		}
 		else {
 			return TypeFactory.getInstance().nodeType().lub(other);
