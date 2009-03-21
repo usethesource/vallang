@@ -62,8 +62,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		if (other.isConstructorType()) {
 			return fADT.lub(other.getAbstractDataType());
 		}
-		else if (other == fADT) {
-			return fADT;
+		else if (other.isAbstractDataType()) {
+			return getAbstractDataType().lub(other);
 		}
 		else if (other.isNodeType()) {
 			return other;
