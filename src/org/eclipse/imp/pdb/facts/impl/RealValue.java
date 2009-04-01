@@ -97,7 +97,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     @Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
-    		return fValue.equals(((RealValue) o).fValue);
+    		return fValue.compareTo(((RealValue) o).fValue) == 0;
     	}
     	return false;
     }
