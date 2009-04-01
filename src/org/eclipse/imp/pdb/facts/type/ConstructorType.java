@@ -215,6 +215,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public IValue make(IValueFactory vf, TypeStore ts, IValue... args) {
+		return make(vf, args);
+	}
+	
+	@Override
 	public IValue make(IValueFactory f, String name, IValue... children) {
 		if (!name.equals(fName)) {
 			throw new UnsupportedOperationException(name + " does not match constructor name " + getName());

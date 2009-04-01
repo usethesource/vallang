@@ -203,6 +203,20 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	}
 	
 	@Override
+	public IValue make(IValueFactory f, TypeStore store, IValue... children) {
+		Set<Type> possible = store.lookupAlternatives(this);
+		Type childrenTypes = store.getFactory().tupleType(children);
+		
+		for (Type node : possible) {
+			if (childrenTypes.isSubtypeOf(node.getFieldTypes())) {
+				return node.make(f, children);
+			}
+		}
+		
+		throw new UndeclaredConstructorException(this, childrenTypes);
+	}
+	
+	@Override
 	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
 		Set<Type> possible = store.lookupConstructor(this, name);
 		Type childrenTypes = store.getFactory().tupleType(children);

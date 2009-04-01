@@ -98,6 +98,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return TypeFactory.getInstance().integerType().make(f, arg);
     }
     
+    @Override
+    public IValue make(IValueFactory f, TypeStore s, int arg) {
+    	return TypeFactory.getInstance().integerType().make(f, arg);
+    }
+    
     
     @Override
     public IValue make(IValueFactory f, URL url, int startOffset, int length,

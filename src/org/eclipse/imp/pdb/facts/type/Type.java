@@ -557,6 +557,10 @@ public abstract class Type implements Iterable<Type> {
 		throw new IllegalOperationException("apply to children", this);
 	}
 	
+	public IValue make(IValueFactory f, TypeStore ts, IValue...args) {
+		throw new IllegalOperationException("apply to children", this);
+	}
+	
 	public IValue make(IValueFactory f, URL url, int startOffset, int length,
 			int startLine, int endLine, int startCol, int endCol) {
 		throw new IllegalOperationException("make source location", this);
