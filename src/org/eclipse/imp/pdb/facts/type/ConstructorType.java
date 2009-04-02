@@ -268,4 +268,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		return type;
 	}
 	
+	@Override
+	public boolean isParameterized() {
+		return fADT.isParameterized();
+	}
+	
 }
