@@ -140,12 +140,12 @@ public class TypeStore {
     	synchronized (fADTs) {
     		synchronized (fAliases) {
     			String name = alias.getName();
-				Type oldAdt = fADTs.get(name);
+				Type oldAdt = lookupAbstractDataType(name);
 				if (oldAdt != null) {
     				throw new FactTypeRedeclaredException(name, oldAdt);
     			}
     			
-    			Type oldAlias = fAliases.get(name);
+    			Type oldAlias = lookupAlias(name);
     			
     			if (oldAlias != null) {
     				if (alias.isSubtypeOf(oldAlias)) {
@@ -174,7 +174,7 @@ public class TypeStore {
     		synchronized (fAliases) {
     			synchronized (fConstructors) {
     				String name = adt.getName();
-					Type oldAdt = fADTs.get(name);
+					Type oldAdt = lookupAbstractDataType(name);
 
 					if (oldAdt != null) {
 						if (adt.isSubtypeOf(oldAdt)) {
@@ -184,7 +184,7 @@ public class TypeStore {
 						throw new FactTypeRedeclaredException(name, oldAdt);
 					}
 
-					Type oldAlias = fAliases.get(name);
+					Type oldAlias = lookupAlias(name);
 					if (oldAlias != null) {
 						throw new FactTypeRedeclaredException(name, oldAlias);
 					}
