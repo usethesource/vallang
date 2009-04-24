@@ -77,7 +77,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public boolean equals(Object o) {
 		if (getClass() == o.getClass()) {
 			SourceLocationValue other = (SourceLocationValue) o;
-			return fPath.equals(other.fPath) 
+			return fPath.toString().equals(other.fPath.toString()) 
 			        && other.fStartOffset == fStartOffset
 					&& other.fLength == fLength
 					&& other.fStartLine == fStartLine
