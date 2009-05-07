@@ -109,6 +109,10 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
     @Override
     public String toString() {
+    	if (fTupleType.isVoidType() || (fTupleType.getArity() == 1 && fTupleType.getFieldType(0).isVoidType())) { 
+    		return "set[void]";
+    	}
+    	
     	StringBuffer b = new StringBuffer();
 
     	b.append("rel[");
