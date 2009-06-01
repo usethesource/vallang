@@ -11,6 +11,10 @@ DESIGN PRINCIPLES:
 
 * Values are immutable. This is to prevent aliasing and related issues, to allow reuse between different
   parts of an analysis without interference and to allow certain optimization such as maximal sub-term sharing.
+* Those values which are collections (list, set, ...) can be constructed using "writer" interfaces. A writer
+  provides a mutable interface that usually allows insertion and deletion of elements. Writer objects should
+  not be passed on easily. Writer objects can not be embedded into other values. A real value can be
+  obtained by calling the 'done()' method which returns an immutable full fledged value. 
 * Values are typed. I.e. all values carry a type which documents WHAT fact it represents and HOW it
   can be manipulated.
 * The kinds of values are: unlimited size ints and reals, booleans, n-ary relations, sets, maps, tuples,
@@ -41,7 +45,8 @@ for all kinds of values that can be constructed. Values can thus also be constru
 directly.
 
 Each value implements the IValue interface. Then, for each kind of value there is an interface, like
-ISet, IRelation, ITuple, IList, etc.
+ISet, IRelation, ITuple, IList, etc. Collection values each have an associated
+writer interface, i.e. IListWriter, ISetWriter, IRelationWriter and IMapWriter.
 
 There are 3 different implementations of IValueFactory currently present in pdb.values, with their respective
 implementations of the IValue interfaces.
