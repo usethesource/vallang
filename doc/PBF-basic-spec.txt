@@ -1,0 +1,134 @@
+Format: top-down & left-to-right.
+Example: term1|term1.1|term1.1.1|term1.2|term1.3|term2|term3
+
+Term header:
+1|IsShared?
+1|IsTypeShared? (for top-level type of values only)
+1|<type-specific-flag> (IsNameShared?, IsURLShared? and HasFieldNames?).
+5|Type
+
+Bool:
+Header|<Data>
+Data=0 or 1
+
+Int:
+Header|<Data>
+Data=integer
+Data=big_integer
+
+Double:
+Header|<UnscaledValue>|<Scale>
+UnscaledValue=big_integer
+Scale=integer
+
+String:
+Header|<Data>
+Data=UFT8 encoded byte array
+
+SourceLocationValue:
+Header|urlStringLength|urlAsString|startOffset|length|startLine|endLine|startCol|endCol
+Header|url_id|startOffset|length|startLine|endLine|startCol|endCol
+URLAsString=UFT8 encoded byte array
+
+Tuple:
+Header|Size|<Content>
+Content=<value>*
+
+Node:
+Header|NameLength|NameData|Size|<Content>
+Header|Name_id|Size|<Content>
+NameData=UFT8 encoded byte array
+Content=<value>*
+
+Constructor:
+Header|Constructor_Type|Size|<Content>
+Content=<Value>*
+
+AnnotatedConstructor:
+Header|Constructor_Type|Size|<Content>|<Annotations>
+Content=<Value>*
+Annotations=<LabelStringLength|LabelString|Value>*
+Label=UFT8 encoded byte array
+
+List:
+Header|Element_Type|Size|<Content>
+Content=<Value>*
+
+Set:
+Header|Element_Type|Size|<Content>
+Content=<Value>*
+
+Relation
+Header|Element_Type|Size|<Content>
+Content=<Value>*
+
+Map:
+Header|Map_Type|Size|<Content>
+Content=<Key|Value>*
+Key=Value
+
+-----------
+Type stuff:
+-----------
+
+Value:
+Header
+
+Void:
+Header
+
+Bool:
+Header
+
+Integer:
+Header
+
+Double:
+Header
+
+String:
+Header
+
+SourceLocation:
+Header
+
+Node:
+Header
+
+Tuple:
+Header|Size|<Content>
+Content=<FieldType|FieldName>* or <FieldType>*
+
+List:
+Header|ElementType
+
+Set:
+Header|ElementType
+
+Relations:
+Header|ElementType
+
+Map:
+Header|KeyType|ValueType
+
+Parameter:
+Header|NameLength|NameData|BoundsType
+
+ADT:
+Header|NameLength|NameData|ParametersTupleType
+NameData=UFT8 encoded byte array
+
+Constructor:
+Header|NameLength|NameString|ChildrenTupleType|ADTType
+NameString=UFT8 encoded byte array
+
+Alias:
+Header|NameLength|NameString|AliasedType|ParametersTupleType
+
+-----------
+Sharing is LZW like (for values, types, names and urls); id's are independently generated for each 'type' of shared things.
+The id's will be assigned to a term immediately after they have been completely written to the stream.
+In other words; the term on the 'bottom-left' side of the tree has id 0 and the root node will have the highest id.
+
+Integers are 1 to 5 bytes long (compressed; sign bit is 'more-bytes-coming' flag; the first byte is the least significant).
+Big integers are encoded as length + n-bytes.
