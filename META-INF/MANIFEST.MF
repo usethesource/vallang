@@ -4,6 +4,7 @@ Bundle-Name: Program Database Values (Incubation)
 Bundle-SymbolicName: org.eclipse.imp.pdb.values;singleton:=true
 Bundle-Version: 0.1.20
 Bundle-Vendor: jurgen@vinju.org
+Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Export-Package: 
  org.eclipse.imp.pdb.facts,
@@ -13,5 +14,4 @@ Export-Package:
  org.eclipse.imp.pdb.facts.io,
  org.eclipse.imp.pdb.facts.type,
  org.eclipse.imp.pdb.facts.visitors
-Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
