@@ -53,7 +53,7 @@ public class Relation extends Set implements IRelation{
 		newData.add(value);
 		
 		Type type = getElementType().lub(value.getType());
-		return ValueFactory.getInstance().createRelationWriter(type, newData).done();
+		return ValueFactory.getInstance().createSetWriter(type, newData).done();
 	}
 
 	public IRelation delete(IValue value){
