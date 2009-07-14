@@ -54,7 +54,8 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 public final class SharedValueFactory implements IValueFactory{
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	
-	private final static String INTEGER_MAX_STRING = "2147483648";
+	private final static String INTEGER_MAX_STRING = "2147483647";
+	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
 	
 	private final static int CACHED_POSITIVE_INTEGERS_RANGE = 256;
 	private final static int CACHED_NEGATIVE_INTEGERS_RANGE = -256;
@@ -164,10 +165,21 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IInteger integer(String integerValue){
-		if(integerValue.length() < 10 || integerValue.compareTo(INTEGER_MAX_STRING) < 0){
-			return integer(Integer.parseInt(integerValue));
+		if (integerValue.startsWith("-")) {
+			if (integerValue.length() < 11
+					|| (integerValue.length() == 11 && integerValue
+							.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)) {
+				return integer(Integer.parseInt(integerValue));
+			}
+			return integer(new BigInteger(integerValue));
+		} else {
+			if (integerValue.length() < 10
+					|| (integerValue.length() == 10 && integerValue
+							.compareTo(INTEGER_MAX_STRING) <= 0)) {
+				return integer(Integer.parseInt(integerValue));
+			}
+			return integer(new BigInteger(integerValue));
 		}
-		return integer(new BigInteger(integerValue));
 	}
 	
 	public IInteger integer(byte[] integerData){
