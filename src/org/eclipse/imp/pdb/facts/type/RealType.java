@@ -46,7 +46,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
 	@Override
 	public String toString() {
-		return "double";
+		return "real";
 	}
 	
 	@Override

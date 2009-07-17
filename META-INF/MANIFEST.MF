@@ -10,6 +10,8 @@ Export-Package:
  org.eclipse.imp.pdb.facts,
  org.eclipse.imp.pdb.facts.exceptions,
  org.eclipse.imp.pdb.facts.impl,
+ org.eclipse.imp.pdb.facts.impl.fast,
+ org.eclipse.imp.pdb.facts.impl.shared,
  org.eclipse.imp.pdb.facts.impl.reference,
  org.eclipse.imp.pdb.facts.io,
  org.eclipse.imp.pdb.facts.type,
