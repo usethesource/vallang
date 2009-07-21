@@ -191,7 +191,12 @@ public class ATermReader extends AbstractReader {
 				}
 				c = reader.readSkippingWS();
 			} else {
-			    result = node.make(vf);
+				if (node.isAbstractDataType() || node.isConstructorType()) {
+					result = node.make(vf);
+				}
+				else {
+					result = tf.nodeType().make(vf, funname);
+				}
 			}
 		} else {
 			throw new FactParseError("illegal character: "
