@@ -264,7 +264,10 @@ public class ATermReader extends AbstractReader {
 
 			if (expected.isListType()) {
 				result = expected.make(vf);
-			} else {
+			} else if (expected.isValueType()) {
+				result = tf.listType(tf.valueType()).make(vf);
+			}
+			else {
 				throw new FactParseError("Did not expect a list, rather a "
 						+ expected, reader.getPosition());
 			}
@@ -499,7 +502,7 @@ public class ATermReader extends AbstractReader {
 		Type elementType = getElementType(expected);
 		IValue[] terms = parseATermsArray(reader, elementType);
 
-		if (base.isListType()) {
+		if (base.isListType() || base.isValueType()) {
 			IListWriter w = expected.writer(vf);
 
 			for (int i = terms.length - 1; i >= 0; i--) {
@@ -540,7 +543,10 @@ public class ATermReader extends AbstractReader {
 			return tf.tupleType(base.getKeyType(), base.getValueType());
 		} else if (base.isRelationType()) {
 			return base.getFieldTypes();
-		} else {
+		} else if (base.isValueType()) {
+			return base;
+		} 
+		else {
 			throw new IllegalOperationException("getElementType", expected);
 		}
 	}
