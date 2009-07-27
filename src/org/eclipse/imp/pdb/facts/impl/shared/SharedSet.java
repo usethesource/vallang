@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.Set;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
@@ -40,14 +41,14 @@ public class SharedSet extends Set implements IShareable{
 		newData.add(value);
 
 		Type newElementType = elementType.lub(value.getType());
-		return SharedValueFactory.getInstance().createSetWriter(newElementType, newData).done();
+		return createSetWriter(newElementType, newData).done();
 	}
 	
 	public ISet delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		newData.remove(value);
 		
-		return SharedValueFactory.getInstance().createSetWriter(elementType, newData).done();
+		return createSetWriter(elementType, newData).done();
 	}
 	
 	public ISet intersect(ISet other){
@@ -72,7 +73,7 @@ public class SharedSet extends Set implements IShareable{
 		}
 
 		Type newElementType = elementType.lub(other.getElementType());
-		return SharedValueFactory.getInstance().createSetWriter(newElementType, commonData).done();
+		return createSetWriter(newElementType, commonData).done();
 	}
 	
 	public ISet subtract(ISet other){
@@ -83,7 +84,7 @@ public class SharedSet extends Set implements IShareable{
 			newData.remove(setIterator.next());
 		}
 		
-		return SharedValueFactory.getInstance().createSetWriter(elementType, newData).done();
+		return createSetWriter(elementType, newData).done();
 	}
 	
 	public ISet union(ISet other){
@@ -105,7 +106,7 @@ public class SharedSet extends Set implements IShareable{
 		}
 		
 		Type newElementType = elementType.lub(otherSet.elementType);
-		return SharedValueFactory.getInstance().createSetWriter(newElementType, newData).done();
+		return createSetWriter(newElementType, newData).done();
 	}
 	
 	public IRelation product(ISet other){
@@ -124,11 +125,11 @@ public class SharedSet extends Set implements IShareable{
 				IValue right = setIterator.next();
 				
 				IValue[] tuple = new IValue[]{left, right};
-				newData.add(sharedValueFactory.createTupleUnsafe(tuple));
+				newData.add(sharedValueFactory.createTupleUnsafe(tupleType, tuple));
 			}
 		}
 		
-		return sharedValueFactory.createRelationWriter(tupleType, newData).done();
+		return new SharedRelationWriter(tupleType, newData).done();
 	}
 	
 	public boolean equivalent(IShareable shareable){
@@ -137,5 +138,11 @@ public class SharedSet extends Set implements IShareable{
 	
 	public boolean equals(Object o){
 		return (this == o);
+	}
+	
+	protected static ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
+		if(elementType.isTupleType()) return new SharedRelationWriter(elementType, data);
+		
+		return new SharedSetWriter(elementType, data);
 	}
 }

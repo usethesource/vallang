@@ -46,13 +46,13 @@ public class TypeFactory {
         return InstanceHolder.sInstance;
     }
 
-    private TypeFactory() { }
+    private TypeFactory() {
+    	super();
+    }
     
     private void checkNull(Object ... os) {
-    	for (Object o : os) {
-    		if (o == null) {
-    			throw new NullTypeException();
-    		}
+    	for(int i = os.length - 1; i >= 0; i--){
+    		if (os[i] == null) throw new NullTypeException();
     	}
     }
 
@@ -61,7 +61,7 @@ public class TypeFactory {
      * representing all possible values.
      * @return a unique reference to the value type
      */
-    public Type valueType() {
+    public Type valueType(){
         return ValueType.getInstance();
     }
     
@@ -75,17 +75,16 @@ public class TypeFactory {
     	return VoidType.getInstance();
     }
 
-    private Type getFromCache(final Type t) {
+    private Type getFromCache(Type t) {
     	synchronized(fCache){
-			final Type result = fCache.get(t);
+			Type result = fCache.get(t);
 	
 			if (result == null) {
 				fCache.put(t, t);
 				return t;
 			}
-			else {
-			  return result;
-			}
+			
+			return result;
     	}
     }
     
@@ -129,8 +128,8 @@ public class TypeFactory {
         return SourceLocationType.getInstance();
     }
 
-    private TupleType getOrCreateTuple(int size, Type[] fieldTypes) {
-    	return (TupleType) getFromCache(new TupleType(size, 0, fieldTypes));
+    private TupleType getOrCreateTuple(Type[] fieldTypes) {
+    	return (TupleType) getFromCache(new TupleType(fieldTypes));
     }
     
     /**
@@ -138,7 +137,7 @@ public class TypeFactory {
      * @return a reference to the unique empty tuple type.
      */
     public Type tupleEmpty() {
-    	return (TupleType) getFromCache(new TupleType(0, 0, new Type[0]));
+    	return getFromCache(new TupleType(new Type[0]));
     }
     
     /**
@@ -148,7 +147,7 @@ public class TypeFactory {
      */
     public Type tupleType(Type... fieldTypes) {
     	checkNull((Object[]) fieldTypes);
-    	return (TupleType) getFromCache(new TupleType(fieldTypes.length, 0, fieldTypes));
+    	return getFromCache(new TupleType(fieldTypes));
     }
 
     /**
@@ -177,19 +176,16 @@ public class TypeFactory {
             	throw new IllegalFieldTypeException(pos, fieldTypesAndLabels[i], e);
             }
             try {
-            	protoFieldNames[pos] = (String) fieldTypesAndLabels[i+1];
+            	String name = (String) fieldTypesAndLabels[i+1];
+            	if (!isIdentifier(name)) throw new IllegalIdentifierException(name);
+            	protoFieldNames[pos] = name;
             }
             catch (ClassCastException e) {
             	throw new IllegalFieldNameException(pos, fieldTypesAndLabels[i+1], e);
             }
         }
         
-        for (String name : protoFieldNames) {
-        	if (!isIdentifier(name)) {
-        		throw new IllegalIdentifierException(name);
-        	}
-        }
-        return (TupleType) getFromCache(new TupleType(arity, 0, protoFieldTypes, protoFieldNames));
+        return getFromCache(new TupleType(protoFieldTypes, protoFieldNames));
     }
     
 	/**
@@ -202,7 +198,7 @@ public class TypeFactory {
     public Type tupleType(Type[] types, String[] labels) {
     	checkNull((Object[]) types);
     	checkNull((Object[]) labels);
-    	return (TupleType) getFromCache(new TupleType(types.length, 0, types, labels));
+    	return getFromCache(new TupleType(types, labels));
     }
     
     /**
@@ -214,10 +210,10 @@ public class TypeFactory {
     	checkNull((Object[]) elements);
         int N= elements.length;
         Type[] fieldTypes= new Type[N];
-        for(int i=0; i < N; i++) {
+        for(int i = N - 1; i >= 0; i--) {
             fieldTypes[i]= elements[i].getType();
         }
-        return getOrCreateTuple(N, fieldTypes);
+        return getOrCreateTuple(fieldTypes);
     }
     
     /**
@@ -230,9 +226,8 @@ public class TypeFactory {
     	if (eltType.isTupleType()) {
     		return relTypeFromTuple(eltType);
     	}
-    	else {
-          return (SetType) getFromCache(new SetType(eltType));
-    	}
+    	
+        return getFromCache(new SetType(eltType));
     }
 
     public Type relTypeFromTuple(Type tupleType) {
@@ -400,7 +395,7 @@ public class TypeFactory {
      */
     public Type listType(Type elementType) {
     	checkNull(elementType);
-		return (ListType) getFromCache(new ListType(elementType));
+		return getFromCache(new ListType(elementType));
 	}
     
     /**
@@ -411,7 +406,7 @@ public class TypeFactory {
      */
     public Type mapType(Type key, Type value) {
     	checkNull(key, value);
-    	return (MapType) getFromCache(new MapType(key, value));
+    	return getFromCache(new MapType(key, value));
 	}
 
     /** 
@@ -422,7 +417,7 @@ public class TypeFactory {
      */
 	public Type parameterType(String name, Type bound) {
 		checkNull(name, bound);
-		return (ParameterType) getFromCache(new ParameterType(name, bound));
+		return getFromCache(new ParameterType(name, bound));
 	}
 
     /** 
@@ -432,7 +427,7 @@ public class TypeFactory {
      */
 	public Type parameterType(String name) {
 		checkNull(name);
-		return (ParameterType) getFromCache(new ParameterType(name));
+		return getFromCache(new ParameterType(name));
 	}
 
 	/**
@@ -443,25 +438,23 @@ public class TypeFactory {
 	 */
 	public boolean isIdentifier(String str) {
 		checkNull(str);
-		byte[] contents = str.getBytes();
-
-		if (str.length() == 0) {
+		
+		int len = str.length();
+		if (len == 0) {
 			return false;
 		}
 
-		if (!Character.isJavaIdentifierStart(contents[0])) {
+		if (!Character.isJavaIdentifierStart(str.charAt(0))) {
 			return false;
 		}
 
-		if (str.length() > 1) {
-			for (int i = 1; i < contents.length; i++) {
-				if (!Character.isJavaIdentifierPart(contents[i]) &&
-					contents[i] != '.' && contents[i] != '-') {
-					return false;
-				}
+		for (int i = len - 1; i > 0; i--) {
+			char c = str.charAt(i);
+			if (!(Character.isJavaIdentifierPart(c) || c == '.' || c == '-')) {
+				return false;
 			}
 		}
-
+		
 		return true;
 	}
 }

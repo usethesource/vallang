@@ -71,8 +71,7 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 		modSize = sharedHashMap.modSize;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		data = (Entry<K, V>[]) new Entry[tableSize];
-		System.arraycopy(sharedHashMap.data, 0, data, 0, tableSize);
+		data = sharedHashMap.data.clone();
 		
 		threshold = tableSize;
 		

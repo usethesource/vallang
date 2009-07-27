@@ -223,17 +223,15 @@ public class StandardTextReader extends AbstractReader {
 				
 				return factory.node(id, result);
 			}
-			else {
-				Type args = types.tupleType(new Type[0]);
-				Type cons = store.lookupConstructor(expected, id, args);
-				
-				if (cons != null) {
-					return cons.make(factory);
-				}
-				else {
-					return factory.node(id);
-				}
+			
+			Type args = types.tupleType(new Type[0]);
+			Type cons = store.lookupConstructor(expected, id, args);
+			
+			if (cons != null) {
+				return cons.make(factory);
 			}
+			
+			return factory.node(id);
 		}
 	}
 

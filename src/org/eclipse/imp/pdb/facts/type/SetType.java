@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ class SetType extends Type {
-    /*package*/ final Type fEltType;
+	private final Type fEltType;
 
     /*package*/ SetType(Type eltType) {
     	fEltType= eltType;
@@ -41,9 +41,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
         if (other.isSetType()) {
         	return fEltType.isSubtypeOf(other.getElementType());
         }
-        else {
-        	return super.isSubtypeOf(other);
-        }
+        
+        return super.isSubtypeOf(other);
     }
 
     @Override
@@ -56,9 +55,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     	if (o.isSetType()) {
     		return TypeFactory.getInstance().setType(fEltType.lub(o.getElementType()));
     	}
-    	else {
-    		return super.lub(o);
-    	}
+    	
+    	return super.lub(o);
     }
 
     @Override

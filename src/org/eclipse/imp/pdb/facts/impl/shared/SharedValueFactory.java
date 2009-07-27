@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 INRIA-LORIA and Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -35,9 +35,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.fast.BoolValue;
 import org.eclipse.imp.pdb.facts.impl.fast.IntegerValue;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IndexedCache;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.ShareableValuesFactory;
@@ -53,6 +50,8 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
  */
 public final class SharedValueFactory implements IValueFactory{
 	private final static TypeFactory tf = TypeFactory.getInstance();
+	
+	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();
 	
 	private final static String INTEGER_MAX_STRING = "2147483647";
 	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
@@ -165,21 +164,17 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IInteger integer(String integerValue){
-		if (integerValue.startsWith("-")) {
-			if (integerValue.length() < 11
-					|| (integerValue.length() == 11 && integerValue
-							.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)) {
-				return integer(Integer.parseInt(integerValue));
-			}
-			return integer(new BigInteger(integerValue));
-		} else {
-			if (integerValue.length() < 10
-					|| (integerValue.length() == 10 && integerValue
-							.compareTo(INTEGER_MAX_STRING) <= 0)) {
+		if(integerValue.startsWith("-")){
+			if(integerValue.length() < 11 || (integerValue.length() == 11 && integerValue.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)){
 				return integer(Integer.parseInt(integerValue));
 			}
 			return integer(new BigInteger(integerValue));
 		}
+		
+		if(integerValue.length() < 10 || (integerValue.length() == 10 && integerValue.compareTo(INTEGER_MAX_STRING) <= 0)){
+			return integer(Integer.parseInt(integerValue));
+		}
+		return integer(new BigInteger(integerValue));
 	}
 	
 	public IInteger integer(byte[] integerData){
@@ -222,16 +217,8 @@ public final class SharedValueFactory implements IValueFactory{
 		return new SharedListWriter(elementType);
 	}
 	
-	protected IListWriter createListWriter(Type elementType, ShareableValuesList data){
-		return new SharedListWriter(elementType, data);
-	}
-	
 	public IMapWriter mapWriter(Type keyType, Type valueType){
 		return new SharedMapWriter(keyType, valueType);
-	}
-	
-	protected IMapWriter createMapWriter(Type keyType, Type valueType, ShareableValuesHashMap data){
-		return new SharedMapWriter(keyType, valueType, data);
 	}
 	
 	public ISetWriter setWriter(Type elementType){
@@ -240,18 +227,8 @@ public final class SharedValueFactory implements IValueFactory{
 		return new SharedSetWriter(elementType);
 	}
 	
-	protected ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
-		if(elementType.isTupleType()) return createRelationWriter(elementType, data);
-		
-		return new SharedSetWriter(elementType, data);
-	}
-	
 	public IRelationWriter relationWriter(Type tupleType){
 		return new SharedRelationWriter(tupleType);
-	}
-	
-	protected IRelationWriter createRelationWriter(Type tupleType, ShareableValuesHashSet data){
-		return new SharedRelationWriter(tupleType, data);
 	}
 	
 	public IList list(Type elementType){
@@ -300,10 +277,7 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public INode node(String name, IValue... children){
-		IValue[] copyOfChildren = new IValue[children.length];
-		System.arraycopy(children, 0, copyOfChildren, 0, children.length);
-		
-		return buildNode(new SharedNode(name, copyOfChildren));
+		return buildNode(new SharedNode(name, children.clone()));
 	}
 	
 	protected INode createNodeUnsafe(String name, IValue[] children){
@@ -319,9 +293,6 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IConstructor constructor(Type constructorType, IValue... children){
-		IValue[] copyOfChildren = new IValue[children.length];
-		System.arraycopy(children, 0, copyOfChildren, 0, children.length);
-		
 		Type instantiatedType;
 		if(!constructorType.getAbstractDataType().isParameterized()){
 			instantiatedType = constructorType;
@@ -333,7 +304,7 @@ public final class SharedValueFactory implements IValueFactory{
 			instantiatedType = constructorType.instantiate(new TypeStore(), bindings);
 		}
 		
-		return buildConstructor(new SharedConstructor(instantiatedType, copyOfChildren));
+		return buildConstructor(new SharedConstructor(instantiatedType, children.clone()));
 	}
 	
 	protected IConstructor createConstructorUnsafe(Type constructorType, IValue[] children){
@@ -345,17 +316,21 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public ITuple tuple(){
-		return buildTuple(new SharedTuple(new IValue[0]));
+		return buildTuple(new SharedTuple(EMPTY_TUPLE_TYPE, new IValue[0]));
 	}
 	
 	public ITuple tuple(IValue... args){
-		IValue[] copyOfArgs = new IValue[args.length];
-		System.arraycopy(args, 0, copyOfArgs, 0, args.length);
-		return buildTuple(new SharedTuple(copyOfArgs));
+		int nrOfArgs = args.length;
+		Type[] elementTypes = new Type[nrOfArgs];
+		for(int i = nrOfArgs - 1; i >= 0; i--){
+			elementTypes[i] = args[i].getType();
+		}
+		
+		return buildTuple(new SharedTuple(tf.tupleType(elementTypes), args.clone()));
 	}
 	
-	protected ITuple createTupleUnsafe(IValue[] args){
-		return buildTuple(new SharedTuple(args));
+	protected ITuple createTupleUnsafe(Type tupleType, IValue[] args){
+		return buildTuple(new SharedTuple(tupleType, args));
 	}
 	
 	private static Type lub(IValue... elements){

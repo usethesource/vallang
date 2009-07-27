@@ -39,7 +39,7 @@ class Relation extends Set implements IRelation {
 	
 	public IRelation closure() throws FactTypeUseException {
 		getType().closure(); // will throw exception if not binary and reflexive
-		IRelation tmp = (IRelation) this;
+		IRelation tmp = this;
 
 		int prevCount = 0;
 
@@ -165,8 +165,7 @@ class Relation extends Set implements IRelation {
 			
 			return select(indexes);
 		}
-		else {
-			throw new IllegalOperationException("select with field names", getType());
-		}
+		
+		throw new IllegalOperationException("select with field names", getType());
 	}
 }

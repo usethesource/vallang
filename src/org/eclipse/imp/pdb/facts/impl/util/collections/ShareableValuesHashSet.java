@@ -57,8 +57,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		modSize = shareableValuesHashSet.modSize;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		data = (Entry<IValue>[]) new Entry[tableSize];
-		System.arraycopy(shareableValuesHashSet.data, 0, data, 0, tableSize);
+		data = shareableValuesHashSet.data.clone();
 		
 		threshold = tableSize;
 		

@@ -119,7 +119,7 @@ public class Map implements IMap{
 		
 		Type newKeyType = keyType.lub(key.getType());
 		Type newValueType = valueType.lub(value.getType());
-		return ValueFactory.getInstance().createMapWriter(newKeyType, newValueType, newData).done();
+		return new MapWriter(newKeyType, newValueType, newData).done();
 	}
 	
 	public IMap common(IMap other){
@@ -147,7 +147,7 @@ public class Map implements IMap{
 
 		Type newKeyType = keyType.lub(other.getKeyType());
 		Type newValueType = valueType.lub(other.getValueType());
-		return ValueFactory.getInstance().createMapWriter(newKeyType, newValueType, commonData).done();
+		return new MapWriter(newKeyType, newValueType, commonData).done();
 	}
 	
 	public IMap join(IMap other){
@@ -171,7 +171,7 @@ public class Map implements IMap{
 		
 		Type newKeyType = keyType.lub(otherMap.keyType);
 		Type newValueType = valueType.lub(otherMap.valueType);
-		return ValueFactory.getInstance().createMapWriter(newKeyType, newValueType, newData).done();
+		return new MapWriter(newKeyType, newValueType, newData).done();
 	}
 	
 	public IMap remove(IMap other){
@@ -182,7 +182,7 @@ public class Map implements IMap{
 			newData.remove(keysIterator.next());
 		}
 		
-		return ValueFactory.getInstance().createMapWriter(keyType, valueType, newData).done();
+		return new MapWriter(keyType, valueType, newData).done();
 	}
 	
 	public int hashCode(){

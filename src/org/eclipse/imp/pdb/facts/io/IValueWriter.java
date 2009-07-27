@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * An instance of IValueWriter can serialize all types of IValues.
@@ -27,4 +28,5 @@ import org.eclipse.imp.pdb.facts.IValue;
  */
 public interface IValueWriter {
 	 void write(IValue value, OutputStream stream) throws IOException;
+	 void write(IValue value, OutputStream stream, TypeStore typeStore) throws IOException;
 }

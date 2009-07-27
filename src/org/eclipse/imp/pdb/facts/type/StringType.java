@@ -18,11 +18,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 /*package*/ final class StringType extends Type {
     private final static StringType sInstance= new StringType();
 
-    /*package*/ static StringType getInstance() {
+    public static StringType getInstance() {
         return sInstance;
     }
 
-    private StringType() { }
+    private StringType() {
+    	super();
+    }
 
     @Override
     public boolean isStringType() {

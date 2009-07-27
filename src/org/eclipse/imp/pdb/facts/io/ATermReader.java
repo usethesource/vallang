@@ -315,13 +315,11 @@ public class ATermReader extends AbstractReader {
 					reader.readSkippingWS();
 					return result;
 				}
-				else {
-					throw new FactParseError("expected a comma before the value of the annotation", reader.getPosition());
-				}
+				
+				throw new FactParseError("expected a comma before the value of the annotation", reader.getPosition());
 			}
-			else {
-				throw new FactParseError("expected a label for an annotation", reader.getPosition());
-			}
+			
+			throw new FactParseError("expected a label for an annotation", reader.getPosition());
 		}
 		
 		// no annotations

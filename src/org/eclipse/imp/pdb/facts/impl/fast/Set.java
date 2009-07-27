@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -97,14 +98,14 @@ public class Set implements ISet{
 		newData.add(value);
 
 		Type type = elementType.lub(value.getType());
-		return ValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 
 	public ISet delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		newData.remove(value);
 		
-		return ValueFactory.getInstance().createSetWriter(elementType, newData).done();
+		return createSetWriter(elementType, newData).done();
 	}
 	
 	public ISet intersect(ISet other){
@@ -129,7 +130,7 @@ public class Set implements ISet{
 		}
 		
 		Type type = elementType.lub(other.getElementType());
-		return ValueFactory.getInstance().createSetWriter(type, commonData).done();
+		return createSetWriter(type, commonData).done();
 	}
 	
 	public ISet subtract(ISet other){
@@ -140,7 +141,7 @@ public class Set implements ISet{
 			newData.remove(setIterator.next());
 		}
 		
-		return ValueFactory.getInstance().createSetWriter(elementType, newData).done();
+		return createSetWriter(elementType, newData).done();
 	}
 	
 	public ISet union(ISet other){
@@ -162,12 +163,10 @@ public class Set implements ISet{
 		}
 		
 		Type newElementType = elementType.lub(otherSet.elementType);
-		return ValueFactory.getInstance().createSetWriter(newElementType, newData).done();
+		return createSetWriter(newElementType, newData).done();
 	}
 	
 	public IRelation product(ISet other){
-		ValueFactory valueFactory = ValueFactory.getInstance();
-		
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
 		
 		Type tupleType = typeFactory.tupleType(elementType, other.getElementType());
@@ -181,15 +180,11 @@ public class Set implements ISet{
 				IValue right = setIterator.next();
 				
 				IValue[] tuple = new IValue[]{left, right};
-				newData.add(valueFactory.createTupleUnsafe(tuple));
+				newData.add(new Tuple(tupleType, tuple));
 			}
 		}
 		
-		return valueFactory.createRelationWriter(tupleType, newData).done();
-	}
-	
-	public IValue setAnnotation(String label, IValue value){
-		return ValueFactory.getInstance().createSetWriter(elementType, data).done();
+		return new RelationWriter(tupleType, newData).done();
 	}
 	
 	public int hashCode(){
@@ -243,5 +238,11 @@ public class Set implements ISet{
 		sb.append("}");
 		
 		return sb.toString();
+	}
+	
+	protected static ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
+		if(elementType.isTupleType()) return new RelationWriter(elementType, data);
+		
+		return new SetWriter(elementType, data);
 	}
 }

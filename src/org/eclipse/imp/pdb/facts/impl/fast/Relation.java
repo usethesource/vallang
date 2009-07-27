@@ -53,14 +53,14 @@ public class Relation extends Set implements IRelation{
 		newData.add(value);
 		
 		Type type = getElementType().lub(value.getType());
-		return ValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 
 	public IRelation delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		newData.remove(value);
 		
-		return ValueFactory.getInstance().createRelationWriter(elementType, newData).done();
+		return new RelationWriter(elementType, newData).done();
 	}
 	
 	public IRelation subtract(ISet set){
@@ -71,7 +71,7 @@ public class Relation extends Set implements IRelation{
 			newData.remove(setIterator.next());
 		}
 		
-		return ValueFactory.getInstance().createRelationWriter(elementType, newData).done();
+		return new RelationWriter(elementType, newData).done();
 	}
 	
 	private ShareableValuesHashSet computeCarrier(){
@@ -94,7 +94,7 @@ public class Relation extends Set implements IRelation{
 		ShareableValuesHashSet newData = computeCarrier();
 		
 		Type type = determainMostGenericTypeInTuple();
-		return ValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public ISet domain(){
@@ -108,7 +108,7 @@ public class Relation extends Set implements IRelation{
 		}
 		
 		Type type = elementType.getFieldType(0);
-		return ValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public ISet range(){
@@ -124,12 +124,10 @@ public class Relation extends Set implements IRelation{
 		}
 		
 		Type type = elementType.getFieldType(last);
-		return ValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public IRelation compose(IRelation other){
-		ValueFactory valueFactory = ValueFactory.getInstance();
-		
 		Type otherTupleType = other.getFieldTypes();
 		
 		if(elementType == voidType) return this;
@@ -158,6 +156,9 @@ public class Relation extends Set implements IRelation{
 		// Compute
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
 		
+		Type[] newTupleFieldTypes = new Type[]{elementType.getFieldType(0), otherTupleType.getFieldType(1)};
+		Type tupleType = typeFactory.tupleType(newTupleFieldTypes);
+		
 		Iterator<IValue> relationIterator = data.iterator();
 		while(relationIterator.hasNext()){
 			ITuple thisTuple = (ITuple) relationIterator.next();
@@ -169,18 +170,15 @@ public class Relation extends Set implements IRelation{
 				do{
 					IValue value = valuesIterator.next();
 					IValue[] newTupleData = new IValue[]{thisTuple.get(0), value};
-					newData.add(valueFactory.createTupleUnsafe(newTupleData));
+					newData.add(new Tuple(tupleType, newTupleData));
 				}while(valuesIterator.hasNext());
 			}
 		}
 		
-		Type[] newTupleFieldTypes = new Type[]{elementType.getFieldType(0), otherTupleType.getFieldType(1)};
-
-		Type newTupleType = typeFactory.tupleType(newTupleFieldTypes);
-		return valueFactory.createRelationWriter(newTupleType, newData).done();
+		return new RelationWriter(tupleType, newData).done();
 	}
 	
-	private ShareableValuesHashSet computeClosure(ValueFactory valueFactory){
+	private ShareableValuesHashSet computeClosure(Type tupleType){
 		ShareableValuesHashSet allData = new ShareableValuesHashSet(data);
 		
 		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<IValue>();
@@ -236,7 +234,7 @@ public class Relation extends Set implements IRelation{
 						Iterator<IValue> rightValuesIterator = rightValues.iterator();
 						while(rightValuesIterator.hasNext()){
 							IValue rightValue = rightValuesIterator.next();
-							if(allData.add(valueFactory.createTupleUnsafe(new IValue[]{leftKey, rightValue}))){
+							if(allData.add(new Tuple(tupleType, new IValue[]{leftKey, rightValue}))){
 								if(interestingLeftValues == null){
 									nextSize++;
 									
@@ -265,30 +263,32 @@ public class Relation extends Set implements IRelation{
 	}
 	
 	public IRelation closure(){
-		ValueFactory valueFactory = ValueFactory.getInstance();
-		
 		if(elementType == voidType) return this;
 		if(!isReflexive()) throw new IllegalOperationException("closure", setType);
 		
-		return valueFactory.createRelationWriter(elementType, computeClosure(valueFactory)).done();
+		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
+		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);
+		
+		return new RelationWriter(elementType, computeClosure(tupleType)).done();
 	}
 	
 	public IRelation closureStar(){
-		ValueFactory valueFactory = ValueFactory.getInstance();
-		
 		if(elementType == voidType) return this;
 		if(!isReflexive()) throw new IllegalOperationException("closureStar", setType);
 		
-		ShareableValuesHashSet closure = computeClosure(valueFactory);
+		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
+		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);
+		
+		ShareableValuesHashSet closure = computeClosure(tupleType);
 		ShareableValuesHashSet carrier = computeCarrier();
 		
 		Iterator<IValue> carrierIterator = carrier.iterator();
 		while(carrierIterator.hasNext()){
 			IValue element = carrierIterator.next();
-			closure.add(valueFactory.createTupleUnsafe(new IValue[]{element, element}));
+			closure.add(new Tuple(tupleType, new IValue[]{element, element}));
 		}
 		
-		return valueFactory.createRelationWriter(elementType, closure).done();
+		return new RelationWriter(elementType, closure).done();
 	}
 	
 	public ISet select(int... indexes){
@@ -302,7 +302,7 @@ public class Relation extends Set implements IRelation{
 		}
 		
 		Type type = getFieldTypes().select(indexes);
-		return ValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public ISet select(String... fields){
@@ -318,7 +318,7 @@ public class Relation extends Set implements IRelation{
 		}
 		
 		Type type = getFieldTypes().select(fields);
-		return ValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public int hashCode(){

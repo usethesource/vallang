@@ -48,7 +48,6 @@ public class TypeStore {
      * Keeps administration of declared type aliases (NamedTypes)
      */
     private final Map<String, Type> fADTs= new HashMap<String, Type>();
-
     
     /**
      * Keeps administration of declared constructor alternatives for abstract data types
@@ -236,11 +235,11 @@ public class TypeStore {
 			if (!altArgs.hasFieldNames()) {
 				return;
 			}
-			for (int i = 0; i < tupleType.getArity(); i++) {
+			for (int i = tupleType.getArity() - 1; i >= 0; i--) {
 				Type type = tupleType.getFieldType(i);
 				String label = tupleType.getFieldName(i);
 
-				for (int j = 0; j < altArgs.getArity(); j++) {
+				for (int j = altArgs.getArity() - 1; j >= 0; j--) {
 					if (altArgs.getFieldName(j).equals(label)) {
 						if (!altArgs.getFieldType(j).equivalent(type)) {
 							throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(i));

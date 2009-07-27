@@ -18,11 +18,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 /*package*/ final class IntegerType extends Type {
     private final static IntegerType sInstance= new IntegerType();
 
-    /*package*/ static IntegerType getInstance() {
+    public static IntegerType getInstance() {
         return sInstance;
     }
 
-    private IntegerType() { }
+    private IntegerType() {
+    	super();
+    }
 
     @Override
     public boolean isIntegerType() {

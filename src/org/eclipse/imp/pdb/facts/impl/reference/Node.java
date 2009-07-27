@@ -39,16 +39,14 @@ public class Node extends Value implements INode {
 	/*package*/ Node(String name, IValue[] children) {
 		super(TypeFactory.getInstance().nodeType());
 		fName = name;
-		fChildren = new IValue[children.length];
-		System.arraycopy(children, 0, fChildren, 0, children.length);
+		fChildren = children.clone();
 		fAnnotations = EMPTY_ANNOTATIONS;
 	}
 	
 	protected Node(String name, Type type, IValue[] children) {
 		super(type);
 		fName = name;
-		fChildren = new IValue[children.length];
-		System.arraycopy(children, 0, fChildren, 0, children.length);
+		fChildren = children.clone();
 		fAnnotations = EMPTY_ANNOTATIONS;
 	}
 	
@@ -62,8 +60,7 @@ public class Node extends Value implements INode {
 	protected Node(Node other, String label, IValue anno) {
 		super(other.fType);
 		fName = other.fName;
-		fChildren = new IValue[other.fChildren.length];
-		System.arraycopy(other.fChildren, 0, fChildren, 0, other.fChildren.length);
+		fChildren = other.fChildren;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.put(label, anno);
 	}
@@ -75,8 +72,7 @@ public class Node extends Value implements INode {
 	protected Node(Node other, String label) {
 		super(other.fType);
 		fName = other.fName;
-		fChildren = new IValue[other.fChildren.length];
-		System.arraycopy(other.fChildren, 0, fChildren, 0, other.fChildren.length);
+		fChildren = other.fChildren;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.remove(label);
 	}
@@ -88,8 +84,7 @@ public class Node extends Value implements INode {
 	protected Node(Node other) {
 		super(other.fType);
 		fName = other.fName;
-		fChildren = new IValue[other.fChildren.length];
-		System.arraycopy(other.fChildren, 0, fChildren, 0, other.fChildren.length);
+		fChildren = other.fChildren;
 		fAnnotations = EMPTY_ANNOTATIONS;
 	}
 	
@@ -105,7 +100,7 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	protected Node(Node other, int index, IValue newChild) {
-		super(other);
+		super(other.getType());
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
@@ -119,7 +114,7 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	public Node(Node other, Map<String, IValue> annotations) {
-		super(other);
+		super(other.getType());
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();

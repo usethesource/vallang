@@ -10,7 +10,7 @@ public class RedeclaredConstructorException extends
 	private Type secondArgs;
 
 	public RedeclaredConstructorException(String name, Type firstArgs, Type secondArgs) {
-		super("Constructor " + name + " overloaded with comparable argument types: " + firstArgs + " and " + secondArgs);;
+		super("Constructor " + name + " overloaded with comparable argument types: " + firstArgs + " and " + secondArgs);
 		this.name = name;
 		this.firstArgs = firstArgs;
 		this.secondArgs = secondArgs;

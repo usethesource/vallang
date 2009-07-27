@@ -25,7 +25,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
         return sInstance;
     }
 
-    private SourceLocationType() { }
+    private SourceLocationType() {
+    	super();
+    }
 
     @Override
     public boolean isSourceLocationType() {

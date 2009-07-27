@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
 
 /*package*/ final class RelationType extends SetType {
-    /*package*/ final Type fTupleType;
+	private final Type fTupleType;
 
     /**
      * Create a new relation type from a tuple type.
@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
      */
     /*package*/ RelationType(Type tupleType) {
         super(tupleType);
+        
         fTupleType = tupleType;
     }
     
@@ -76,9 +77,8 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
         if (o.isRelationType()) {
         	return fTupleType.isSubtypeOf(o.getFieldTypes());
         }
-        else {
-        	return super.isSubtypeOf(o);
-        }
+        
+        return super.isSubtypeOf(o);
     }
 
     @Override
@@ -86,9 +86,8 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     	if (o.isRelationType()) {
     		return TypeFactory.getInstance().setType(fTupleType.lub(o.getFieldTypes()));
     	}
-    	else {
-    		return super.lub(o);
-    	}
+    	
+    	return super.lub(o);
     }
 
     @Override
@@ -157,9 +156,8 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 		if (hasFieldNames()) {
 			return tf.relType(lub, getFieldName(0), lub, getFieldName(1));
 		}
-		else {
-			return tf.relType(lub, lub);
-		}
+		
+		return tf.relType(lub, lub);
 	}
 	
 	@Override

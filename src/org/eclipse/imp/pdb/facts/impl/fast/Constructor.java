@@ -81,23 +81,17 @@ public class Constructor implements IConstructor{
 	}
 	
 	public IConstructor set(int i, IValue newChild){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[i] = newChild;
 		
-		return ValueFactory.getInstance().createConstructorUnsafe(constructorType, newChildren);
+		return new Constructor(constructorType, newChildren);
 	}
 	
 	public IConstructor set(String label, IValue newChild){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[constructorType.getFieldIndex(label)] = newChild;
 		
-		return ValueFactory.getInstance().createConstructorUnsafe(constructorType, newChildren);
+		return new Constructor(constructorType, newChildren);
 	}
 	
 	public boolean declaresAnnotation(TypeStore store, String label) {
@@ -121,21 +115,21 @@ public class Constructor implements IConstructor{
 	}
 	
 	public IConstructor setAnnotation(String label, IValue value){
-		return ValueFactory.getInstance().createAnnotatedConstructorUnsafe(constructorType, children, getUpdatedAnnotations(label, value));
+		return new AnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label, value));
 	}
 	
 	public IConstructor setAnnotations(Map<String, IValue> newAnnos){
 		if(newAnnos.isEmpty()) return this;
 	
-		return ValueFactory.getInstance().createAnnotatedConstructorUnsafe(constructorType, children, getSetAnnotations(newAnnos));
+		return new AnnotatedConstructor(constructorType, children, getSetAnnotations(newAnnos));
 	}
 	
 	public IConstructor joinAnnotations(Map<String, IValue> newAnnos){
-		return ValueFactory.getInstance().createAnnotatedConstructorUnsafe(constructorType, children, getUpdatedAnnotations(newAnnos));
+		return new AnnotatedConstructor(constructorType, children, getUpdatedAnnotations(newAnnos));
 	}
 	
 	public IConstructor removeAnnotation(String label){
-		return ValueFactory.getInstance().createAnnotatedConstructorUnsafe(constructorType, children, getUpdatedAnnotations(label));
+		return new AnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label));
 	}
 	
 	public IConstructor removeAnnotations(){

@@ -18,50 +18,33 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.FieldLabelMismatchException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 /*package*/ final class TupleType extends Type implements Iterable<Type> {
-    protected final Type[] fFieldTypes;
-    protected final String[] fFieldNames;
-    protected int fHashcode= -1;
+	private final Type[] fFieldTypes;
+	private final String[] fFieldNames;
+	private int fHashcode= -1;
 
     /**
      * Creates a tuple type with the given field types. Copies the array.
      */
-    /*package*/ TupleType(int len, int start, Type[] fieldTypes) {
-        if (fieldTypes != null && len >= 0) {
-            fFieldTypes= new Type[len];
-            fFieldNames= null;
-            System.arraycopy(fieldTypes, start, fFieldTypes, 0, len);
-        } else {
-            throw new IllegalArgumentException("Null array of field types or non-positive length passed to TupleType ctor!");
-        }
+    /*package*/ TupleType(Type[] fieldTypes){
+    	super();
+    	
+        fFieldTypes = fieldTypes.clone();
+        fFieldNames = null;
     }
 
     /**
      * Creates a tuple type with the given field types and names. Copies the arrays.
      */
-    /*package*/ TupleType(int len, int start, Type[] fieldTypes,String[] fieldNames) {
-    	if (fieldTypes != null && len >= 0) {
-    		fFieldTypes= new Type[len];
-    		System.arraycopy(fieldTypes, start, fFieldTypes, 0, len);
-    	} else {
-    		throw new IllegalArgumentException("Null array of field types or non-positive length passed to TupleType ctor!");
-    	}
-    	if (fieldNames != null && len >= 0 && fieldTypes.length == fieldNames.length) {
-    		if (len == 0) {
-    			fFieldNames = null;
-    		}
-    		else {
-    			fFieldNames = new String[len];
-    			System.arraycopy(fieldNames, start, fFieldNames, 0, len);
-    		}
-    	}
-    	else {
-    		throw new FieldLabelMismatchException(fieldTypes.length, fieldNames.length);
-    	}
+    /*package*/ TupleType(Type[] fieldTypes, String[] fieldNames){
+    	super();
+    	
+    	fFieldTypes = fieldTypes.clone();
+		if(fieldNames.length != 0) fFieldNames = fieldNames.clone();
+		else fFieldNames = null;
     }
     
     @Override
@@ -87,7 +70,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     @Override
     public int getFieldIndex(String fieldName) throws FactTypeUseException {
     	if (fFieldNames != null) {
-    		for (int i = 0; i < fFieldNames.length; i++) {
+    		for (int i = fFieldNames.length - 1; i >= 0; i--) {
     			if (fFieldNames[i].equals(fieldName)) {
     				return i;
     			}
@@ -135,9 +118,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 					other.getFieldType(1), 
 					other.getFieldName(1)
 					);
-		} else {
-			return tf.tupleType(this.getFieldType(0), other.getFieldType(1));
 		}
+		
+		return tf.tupleType(this.getFieldType(0), other.getFieldType(1));
     }
     
     @Override
@@ -157,7 +140,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 			return true; // optimize to prevent loop
 		} else if (o.isTupleType()) {
 			if (getArity() == o.getArity()) {
-				for (int i = 0; i < getArity(); i++) {
+				for (int i = getArity() - 1; i >= 0; i--) {
 					if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
 						return false;
 					}
@@ -228,9 +211,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     			if (hasFieldNames() || o.hasFieldNames()) {
     				return lubNamedTupleTypes(this, o);
     			}
-    			else {
-    	          return lubTupleTypes(this, o);
-    			}
+    			
+    			return lubTupleTypes(this, o);
     		}
     	}
     	return super.lub(o);
@@ -238,11 +220,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
     @Override
     public int hashCode() {
-        if (fHashcode == -1) {
-            fHashcode= 55501;
+    	int h = fHashcode;
+        if (h == -1) {
+            h = 55501;
             for(Type elemType: fFieldTypes) {
-                fHashcode= fHashcode * 44927 + elemType.hashCode();
+                h = h * 44927 + elemType.hashCode();
             }
+            fHashcode = h;
         }
         return fHashcode;
     }
@@ -262,7 +246,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
             return false;
         }
         
-        for(int i=0; i < fFieldTypes.length; i++) {
+        for(int i = fFieldTypes.length - 1; i >= 0; i--) {
             // N.B.: The field types must have been created and canonicalized before any
             // attempt to manipulate the outer type (i.e. TupleType), so we can use object
             // identity here for the fFieldTypes.
@@ -275,7 +259,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
         	if (other.fFieldNames == null) {
         		return false;
         	}
-        	for (int i = 0; i < fFieldNames.length; i++) {
+        	for (int i = fFieldNames.length - 1; i >= 0; i--) {
               if (!fFieldNames[i].equals(other.fFieldNames[i])) {
             	  return false;
               }
@@ -349,7 +333,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 			throws FactTypeUseException {
 		super.match(matched, bindings);
 		
-		for (int i = 0; i < getArity(); i++) {
+		for (int i = getArity() - 1; i >= 0; i--) {
 			getFieldType(i).match(matched.getFieldType(i), bindings);
 		}
 	}
@@ -360,21 +344,20 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 			Type[] fTypes = new Type[getArity()];
 			String[] fLabels = new String[getArity()];
 
-			for (int i = 0; i < fTypes.length; i++) {
+			for (int i = fTypes.length - 1; i >= 0; i--) {
 				fTypes[i] = getFieldType(i).instantiate(store, bindings);
 				fLabels[i] = getFieldName(i);
 			}
 
 			return TypeFactory.getInstance().tupleType(fTypes, fLabels);
 		}
-		else {
-			Type[] fChildren = new Type[getArity()];
-			for (int i = 0; i < fChildren.length; i++) {
-				fChildren[i] = getFieldType(i).instantiate(store, bindings);
-			}
-
-			return TypeFactory.getInstance().tupleType(fChildren);
+		
+		Type[] fChildren = new Type[getArity()];
+		for (int i = fChildren.length - 1; i >= 0; i--) {
+			fChildren[i] = getFieldType(i).instantiate(store, bindings);
 		}
+
+		return TypeFactory.getInstance().tupleType(fChildren);
 	}
 
 	 @Override
@@ -389,24 +372,23 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
         }
         else {
         	if (!hasFieldNames()) {
-        		Type[] fieldTypes = new Type[fields.length];
-    		    for (int i = 0; i < fields.length; i++) {
+        		Type[] fieldTypes = new Type[width];
+    		    for (int i = width - 1; i >= 0; i--) {
     		    	fieldTypes[i] = getFieldType(fields[i]);
     		    }
     		    
     		    return TypeFactory.getInstance().tupleType(fieldTypes);
         	}
-        	else {
-        		Type[] fieldTypes = new Type[fields.length];
-        		String[] fieldNames = new String[fields.length];
-        		
-    		    for (int i = 0; i < fields.length; i++) {
-    		    	fieldTypes[i] = getFieldType(fields[i]);
-    		    	fieldNames[i] = getFieldName(fields[i]);
-    		    }
-    		    
-    		    return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
-        	}
+        	
+    		Type[] fieldTypes = new Type[width];
+    		String[] fieldNames = new String[width];
+    		
+		    for (int i = width - 1; i >= 0; i--) {
+		    	fieldTypes[i] = getFieldType(fields[i]);
+		    	fieldNames[i] = getFieldName(fields[i]);
+		    }
+		    
+		    return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
         }
 	}
 	

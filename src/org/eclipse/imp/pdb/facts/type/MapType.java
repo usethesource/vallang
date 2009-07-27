@@ -20,10 +20,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ final class MapType extends Type {
-    /*package*/ final Type fKeyType;
-    /*package*/ final Type fValueType;
+    private final Type fKeyType;
+    private final Type fValueType;
     
-
     /*package*/ MapType(Type keyType, Type valueType) {
     	fKeyType= keyType;
     	fValueType = valueType;
@@ -49,9 +48,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
         if (o.isMapType()) {
         	return fKeyType.isSubtypeOf(o.getKeyType()) && fValueType.isSubtypeOf(o.getValueType());
         }
-        else {
-        	return super.isSubtypeOf(o);
-        }
+        
+        return super.isSubtypeOf(o);
     }
 
     @Override
@@ -60,9 +58,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     		return TypeFactory.getInstance().mapType(fKeyType.lub(o.getKeyType()),
     				                                 fValueType.lub(o.getValueType()));
     	}
-    	else {
-    		return super.lub(o);
-    	}
+    	
+    	return super.lub(o);
     }
     
     @Override

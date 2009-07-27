@@ -33,9 +33,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -48,6 +45,8 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
  */
 public final class ValueFactory implements IValueFactory{
 	private final static TypeFactory tf = TypeFactory.getInstance();
+	
+	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();
 	
 	private final static String INTEGER_MAX_STRING = "2147483647";
 	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
@@ -78,12 +77,12 @@ public final class ValueFactory implements IValueFactory{
 				return new IntegerValue(Integer.parseInt(integerValue));
 			}
 			return new BigIntegerValue(new BigInteger(integerValue));
-		}else{
-			if(integerValue.length() < 10 || (integerValue.length() == 10 && integerValue.compareTo(INTEGER_MAX_STRING) <= 0)){
-				return new IntegerValue(Integer.parseInt(integerValue));
-			}
-			return new BigIntegerValue(new BigInteger(integerValue));
 		}
+		
+		if(integerValue.length() < 10 || (integerValue.length() == 10 && integerValue.compareTo(INTEGER_MAX_STRING) <= 0)){
+			return new IntegerValue(Integer.parseInt(integerValue));
+		}
+		return new BigIntegerValue(new BigInteger(integerValue));
 	}
 	
 	public IInteger integer(byte[] integerData){
@@ -126,16 +125,8 @@ public final class ValueFactory implements IValueFactory{
 		return new ListWriter(elementType);
 	}
 	
-	protected IListWriter createListWriter(Type elementType, ShareableValuesList data){
-		return new ListWriter(elementType, data);
-	}
-	
 	public IMapWriter mapWriter(Type keyType, Type valueType){
 		return new MapWriter(keyType, valueType);
-	}
-	
-	protected IMapWriter createMapWriter(Type keyType, Type valueType, ShareableValuesHashMap data){
-		return new MapWriter(keyType, valueType, data);
 	}
 	
 	public ISetWriter setWriter(Type elementType){
@@ -144,18 +135,8 @@ public final class ValueFactory implements IValueFactory{
 		return new SetWriter(elementType);
 	}
 	
-	protected ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
-		if(elementType.isTupleType()) return createRelationWriter(elementType, data);
-		
-		return new SetWriter(elementType, data);
-	}
-	
 	public IRelationWriter relationWriter(Type tupleType){
 		return new RelationWriter(tupleType);
-	}
-	
-	protected IRelationWriter createRelationWriter(Type tupleType, ShareableValuesHashSet data){
-		return new RelationWriter(tupleType, data);
 	}
 	
 	public IList list(Type elementType){
@@ -204,18 +185,7 @@ public final class ValueFactory implements IValueFactory{
 	}
 	
 	public INode node(String name, IValue... children){
-		IValue[] copyOfChildren = new IValue[children.length];
-		System.arraycopy(children, 0, copyOfChildren, 0, children.length);
-		
-		return new Node(name, copyOfChildren);
-	}
-	
-	protected INode createNodeUnsafe(String name, IValue[] children){
-		return new Node(name, children);
-	}
-	
-	protected INode createAnnotatedNodeUnsafe(String name, IValue[] children, ShareableHashMap<String, IValue> annotations){
-		return new AnnotatedNode(name, children, annotations);
+		return new Node(name, children.clone());
 	}
 	
 	public IConstructor constructor(Type constructorType){
@@ -223,9 +193,6 @@ public final class ValueFactory implements IValueFactory{
 	}
 	
 	public IConstructor constructor(Type constructorType, IValue... children){
-		IValue[] copyOfChildren = new IValue[children.length];
-		System.arraycopy(children, 0, copyOfChildren, 0, children.length);
-
 		Type instantiatedType;
 		if(!constructorType.getAbstractDataType().isParameterized()){
 			instantiatedType = constructorType;
@@ -237,29 +204,21 @@ public final class ValueFactory implements IValueFactory{
 			instantiatedType = constructorType.instantiate(new TypeStore(), bindings);
 		}
 		
-		return new Constructor(instantiatedType, copyOfChildren);
-	}
-	
-	protected IConstructor createConstructorUnsafe(Type constructorType, IValue[] children){
-		return new Constructor(constructorType, children);
-	}
-	
-	protected IConstructor createAnnotatedConstructorUnsafe(Type constructorType, IValue[] children, ShareableHashMap<String, IValue> annotations){
-		return new AnnotatedConstructor(constructorType, children, annotations);
+		return new Constructor(instantiatedType, children.clone());
 	}
 	
 	public ITuple tuple(){
-		return new Tuple(new IValue[0]);
+		return new Tuple(EMPTY_TUPLE_TYPE, new IValue[0]);
 	}
 	
 	public ITuple tuple(IValue... args){
-		IValue[] copyOfArgs = new IValue[args.length];
-		System.arraycopy(args, 0, copyOfArgs, 0, args.length);
-		return new Tuple(copyOfArgs);
-	}
-	
-	protected ITuple createTupleUnsafe(IValue[] args){
-		return new Tuple(args);
+		int nrOfArgs = args.length;
+		Type[] elementTypes = new Type[nrOfArgs];
+		for(int i = nrOfArgs - 1; i >= 0; i--){
+			elementTypes[i] = args[i].getType();
+		}
+		
+		return new Tuple(tf.tupleType(elementTypes), args.clone());
 	}
 	
 	private static Type lub(IValue... elements) {

@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.Tuple;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
  * Implementation of shareable tuples.
@@ -22,50 +23,70 @@ import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
  */
 public class SharedTuple extends Tuple implements IShareable{
 	
-	protected SharedTuple(IValue[] elements){
-		super(elements);
+	protected SharedTuple(Type tupleType, IValue[] elements){
+		super(tupleType, elements);
 	}
 
-	public ITuple set(int i, IValue arg){
+	public ITuple set(int index, IValue arg){
 		int nrOfElements = elements.length;
 		IValue[] newElements = new IValue[nrOfElements];
-		System.arraycopy(elements, 0, newElements, 0, nrOfElements);
+		Type[] elementTypes = new Type[nrOfElements];
+		for(int i = nrOfElements - 1; i >= 0; i--){
+			IValue element = elements[i];
+			newElements[i] = element;
+			elementTypes[i] = element.getType();
+		}
 		
-		newElements[i] = arg;
+		newElements[index] = arg;
+		elementTypes[index] = arg.getType();
 		
-		return SharedValueFactory.getInstance().createTupleUnsafe(newElements);
+		return SharedValueFactory.getInstance().createTupleUnsafe(typeFactory.tupleType(elementTypes), newElements);
 	}
 
 	public ITuple set(String label, IValue arg){
 		int nrOfElements = elements.length;
 		IValue[] newElements = new IValue[nrOfElements];
-		System.arraycopy(elements, 0, newElements, 0, nrOfElements);
+		Type[] elementTypes = new Type[nrOfElements];
+		for(int i = nrOfElements - 1; i >= 0; i--){
+			IValue element = elements[i];
+			newElements[i] = element;
+			elementTypes[i] = element.getType();
+		}
 		
 		newElements[tupleType.getFieldIndex(label)] = arg;
+		elementTypes[tupleType.getFieldIndex(label)] = arg.getType();
 		
-		return SharedValueFactory.getInstance().createTupleUnsafe(newElements);
+		return SharedValueFactory.getInstance().createTupleUnsafe(typeFactory.tupleType(elementTypes), newElements);
 	}
 
 	public IValue select(int... indexes){
 		if(indexes.length == 1) return get(indexes[0]);
 		
-		IValue[] elements = new IValue[indexes.length];
-		for(int i = 0; i < indexes.length; i++){
-			elements[i] = get(indexes[i]);
+		int nrOfElements = indexes.length;
+		IValue[] elements = new IValue[nrOfElements];
+		Type[] elementTypes = new Type[nrOfElements];
+		for(int i = nrOfElements - 1; i >= 0 ; i--){
+			IValue element = get(indexes[i]);
+			elements[i] = element;
+			elementTypes[i] = element.getType();
 		}
 		
-		return SharedValueFactory.getInstance().createTupleUnsafe(elements);
+		return SharedValueFactory.getInstance().createTupleUnsafe(typeFactory.tupleType(elementTypes), elements);
 	}
 
 	public IValue select(String... fields){
 		if(fields.length == 1) return get(fields[0]);
-		
-		IValue[] elements = new IValue[fields.length];
-		for(int i = fields.length - 1; i >= 0; i--){
-			elements[i] = get(fields[i]);
+
+		int nrOfElements = fields.length;
+		IValue[] elements = new IValue[nrOfElements];
+		Type[] elementTypes = new Type[nrOfElements];
+		for(int i = nrOfElements - 1; i >= 0; i--){
+			IValue element = get(fields[i]);
+			elements[i] = element;
+			elementTypes[i] = element.getType();
 		}
 		
-		return SharedValueFactory.getInstance().createTupleUnsafe(elements);
+		return SharedValueFactory.getInstance().createTupleUnsafe(typeFactory.tupleType(elementTypes),elements);
 	}
 	
 	public boolean equivalent(IShareable shareable){

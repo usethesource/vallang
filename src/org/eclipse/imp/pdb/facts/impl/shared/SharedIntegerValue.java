@@ -192,6 +192,10 @@ public class SharedIntegerValue extends IntegerValue implements IShareable{
 		return 0;
 	}
 	
+	public int hashCode(){
+		return value ^ (value << 27);
+	}
+	
 	public boolean equivalent(IShareable shareable){
 		return super.equals(shareable);
 	}

@@ -34,9 +34,9 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
  * AliasType.
  */
 /*package*/ final class AliasType extends Type {
-	/* package */ final String fName;
-	/* package */ final Type fAliased;
-	/* package */ final Type fParameters;
+	private final String fName;
+	private final Type fAliased;
+	private final Type fParameters;
 	
 	/* package */ AliasType(String name, Type aliased) {
 		fName = name;

@@ -27,12 +27,15 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
  * involve least upper bounds.
  */
 /*package*/ final class VoidType extends Type {
+	private final static VoidType sInstance = new VoidType();
 
-	private static class InstanceHolder {
-		static VoidType sInstance = new VoidType(); 
+	public static VoidType getInstance() {
+		return sInstance;
 	}
 	
-	private VoidType() { }
+	private VoidType() {
+		super();
+	}
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
@@ -69,10 +72,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	@Override
 	public int hashCode() {
 		return 199; 
-	}
-
-	public static VoidType getInstance() {
-		return InstanceHolder.sInstance;
 	}
 	
 	@Override

@@ -27,7 +27,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
         return InstanceHolder.sInstance;
     }
 
-    private ValueType() { }
+    private ValueType() {
+    	super();
+    }
 
     @Override
     public boolean isValueType() {
@@ -137,6 +139,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     public IListWriter writer(IValueFactory f) {
     	// if we don't care what kind of container to make
     	// we make a list of values
-    	return (IListWriter) f.listWriter(TypeFactory.getInstance().valueType());
+    	return f.listWriter(TypeFactory.getInstance().valueType());
     }
 }

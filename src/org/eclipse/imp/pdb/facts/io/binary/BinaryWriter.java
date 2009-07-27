@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.IndexedSet;
 
 // TODO Change this thing so it doesn't use recursion.
@@ -70,6 +71,8 @@ public class BinaryWriter{
 	private final static int ADT_TYPE_HEADER = 0x0f;
 	private final static int CONSTRUCTOR_TYPE_HEADER = 0x10;
 	private final static int ALIAS_TYPE_HEADER = 0x11;
+	private final static int ANNOTATED_NODE_TYPE_HEADER = 0x12;
+	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
 	
 	private final static int SHARED_FLAG = 0x80;
 	private final static int TYPE_SHARED_FLAG = 0x40;
@@ -85,12 +88,14 @@ public class BinaryWriter{
 	
 	private final IValue value;
 	private final OutputStream out;
+	private final TypeStore typeStore;
 	
-	public BinaryWriter(IValue value, OutputStream outputStream){
+	public BinaryWriter(IValue value, OutputStream outputStream, TypeStore typeStore){
 		super();
 		
 		this.value = value;
 		this.out = outputStream;
+		this.typeStore = typeStore;
 		
 		sharedValues = new IndexedSet<IValue>();
 		sharedTypes = new IndexedSet<Type>();
@@ -177,7 +182,7 @@ public class BinaryWriter{
 		}else if(type.isConstructorType()){
 			writeConstructorType(type);
 		}else if(type.isNodeType()){
-			writeNodeType();
+			writeNodeType(type);
 		}else if(type.isTupleType()){
 			writeTupleType(type);
 		}
@@ -535,8 +540,29 @@ public class BinaryWriter{
 		out.write(SOURCE_LOCATION_TYPE_HEADER);
 	}
 	
-	private void writeNodeType() throws IOException{
-		out.write(NODE_TYPE_HEADER);
+	private void writeNodeType(Type nodeType) throws IOException{
+		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(nodeType);
+		if(declaredAnnotations.isEmpty()){
+			out.write(NODE_TYPE_HEADER);
+		}else{
+			out.write(ANNOTATED_NODE_TYPE_HEADER);
+			
+			// Annotations.
+			int nrOfAnnotations = declaredAnnotations.size();
+			printInteger(nrOfAnnotations);
+			
+			Iterator<Map.Entry<String, Type>> declaredAnnotationsIterator = declaredAnnotations.entrySet().iterator();
+			while(declaredAnnotationsIterator.hasNext()){
+				Map.Entry<String, Type> declaredAnnotation = declaredAnnotationsIterator.next();
+				
+				String label = declaredAnnotation.getKey();
+				byte[] labelBytes = label.getBytes();
+				printInteger(labelBytes.length);
+				out.write(labelBytes);
+				
+				writeType(declaredAnnotation.getValue());
+			}
+		}
 	}
 	
 	private void writeTupleType(Type tupleType) throws IOException{
@@ -614,16 +640,46 @@ public class BinaryWriter{
 	}
 	
 	private void writeConstructorType(Type constructorType) throws IOException{
-		out.write(CONSTRUCTOR_TYPE_HEADER);
-		
-		String name = constructorType.getName();
-		byte[] nameData = name.getBytes();
-		printInteger(nameData.length);
-		out.write(nameData);
-		
-		writeType(constructorType.getFieldTypes());
-		
-		writeType(constructorType.getAbstractDataType());
+		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(constructorType);
+		if(declaredAnnotations.isEmpty()){
+			out.write(CONSTRUCTOR_TYPE_HEADER);
+			
+			String name = constructorType.getName();
+			byte[] nameData = name.getBytes();
+			printInteger(nameData.length);
+			out.write(nameData);
+			
+			writeType(constructorType.getFieldTypes());
+			
+			writeType(constructorType.getAbstractDataType());
+		}else{
+			out.write(ANNOTATED_CONSTRUCTOR_TYPE_HEADER);
+			
+			String name = constructorType.getName();
+			byte[] nameData = name.getBytes();
+			printInteger(nameData.length);
+			out.write(nameData);
+			
+			writeType(constructorType.getFieldTypes());
+			
+			writeType(constructorType.getAbstractDataType());
+			
+			// Annotations.
+			int nrOfAnnotations = declaredAnnotations.size();
+			printInteger(nrOfAnnotations);
+			
+			Iterator<Map.Entry<String, Type>> declaredAnnotationsIterator = declaredAnnotations.entrySet().iterator();
+			while(declaredAnnotationsIterator.hasNext()){
+				Map.Entry<String, Type> declaredAnnotation = declaredAnnotationsIterator.next();
+				
+				String label = declaredAnnotation.getKey();
+				byte[] labelBytes = label.getBytes();
+				printInteger(labelBytes.length);
+				out.write(labelBytes);
+				
+				writeType(declaredAnnotation.getValue());
+			}
+		}
 	}
 	
 	private void writeAliasType(Type aliasType) throws IOException{

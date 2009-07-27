@@ -33,17 +33,14 @@ public class AnnotatedConstructor extends Constructor{
 	}
 	
 	public IConstructor set(int i, IValue arg){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
 		
-		return ValueFactory.getInstance().createAnnotatedConstructorUnsafe(constructorType, newChildren, annotations);
+		return new AnnotatedConstructor(constructorType, newChildren, annotations);
 	}
 	
 	public boolean hasAnnotation(String label){
-		return annotations.contains(label);
+		return annotations.containsKey(label);
 	}
 	
 	public boolean hasAnnotations(){
@@ -59,7 +56,7 @@ public class AnnotatedConstructor extends Constructor{
 	}
 	
 	public IConstructor removeAnnotations(){
-		return ValueFactory.getInstance().createConstructorUnsafe(constructorType, children);
+		return new Constructor(constructorType, children);
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){

@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.IValueWriter;
 import org.eclipse.imp.pdb.facts.io.binary.BinaryWriter;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * Writer for PDB Binary Files (PBF).
@@ -46,7 +46,25 @@ public class PBFWriter implements IValueWriter{
 	 * @see IValueWriter#write(IValue, OutputStream)
 	 */
 	public void write(IValue value, OutputStream outputStream) throws IOException{
-		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream);
+		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, new TypeStore());
+		binaryWriter.serialize();
+	}
+	
+	/**
+	 * Writes the given value to the given stream.
+	 * 
+	 * @param value
+	 *            The value to write.
+	 * @param outputStream
+	 *            The output stream to write to.
+	 * @param typeStore
+	 *            The type store to use.
+	 * @throws IOException
+	 *            Thrown when something goes wrong.
+	 * @see IValueWriter#write(IValue, OutputStream)
+	 */
+	public void write(IValue value, OutputStream outputStream, TypeStore typeStore) throws IOException{
+		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, typeStore);
 		binaryWriter.serialize();
 	}
 	
@@ -57,15 +75,17 @@ public class PBFWriter implements IValueWriter{
 	 *            The value to write.
 	 * @param file
 	 *            The file to write to.
+	 * @param typeStore
+	 *            The type store to use.
 	 * @throws IOException
 	 *            Thrown when something goes wrong.
 	 */
-	public static void writeValueToFile(IValue value, File file) throws IOException{
+	public static void writeValueToFile(IValue value, File file, TypeStore typeStore) throws IOException{
 		OutputStream fos = null;
 		try{
 			fos = new BufferedOutputStream(new FileOutputStream(file));
 			
-			BinaryWriter binaryWriter = new BinaryWriter(value, fos);
+			BinaryWriter binaryWriter = new BinaryWriter(value, fos, typeStore);
 			binaryWriter.serialize();
 		}finally{
 			if(fos != null){

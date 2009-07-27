@@ -83,6 +83,8 @@ public class BinaryReader{
 	private final static int ADT_TYPE_HEADER = 0x0f;
 	private final static int CONSTRUCTOR_TYPE_HEADER = 0x10;
 	private final static int ALIAS_TYPE_HEADER = 0x11;
+	private final static int ANNOTATED_NODE_TYPE_HEADER = 0x12;
+	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
 	
 	private final static int TYPE_MASK = 0x1f;
 	
@@ -113,7 +115,7 @@ public class BinaryReader{
 		
 		this.valueFactory = valueFactory;
 		this.typeStore = typeStore;
-		this.in = inputStream;
+		this.in = new InputStreamCheckerWrapper(inputStream);
 
 		sharedValues = new ResizingArray<IValue>(DEFAULT_SHARED_VALUES_STORE_SIZE);
 		currentSharedValueId = 0;
@@ -262,6 +264,12 @@ public class BinaryReader{
 				break;
 			case ALIAS_TYPE_HEADER:
 				type = readAliasType();
+				break;
+			case ANNOTATED_NODE_TYPE_HEADER:
+				type = readAnnotatedNodeType();
+				break;
+			case ANNOTATED_CONSTRUCTOR_TYPE_HEADER:
+				type = readAnnotatedConstructorType();
 				break;
 			default:
 				throw new RuntimeException("Unkown type type: "+typeType);
@@ -549,6 +557,24 @@ public class BinaryReader{
 		return tf.nodeType();
 	}
 	
+	private Type readAnnotatedNodeType() throws IOException{
+		Type nodeType = tf.nodeType();
+		
+		int nrOfAnnotations = parseInteger();
+		for(--nrOfAnnotations; nrOfAnnotations >= 0; nrOfAnnotations--){
+			int nrOfLabelBytes = parseInteger();
+			byte[] labelBytes = new byte[nrOfLabelBytes];
+			in.read(labelBytes);
+			String label = new String(labelBytes);
+			
+			Type valueType = doReadType();
+			
+			typeStore.declareAnnotation(nodeType, label, valueType);
+		}
+		
+		return nodeType;
+	}
+	
 	private Type readTupleType(int header) throws IOException{
 		boolean hasFieldNames = ((header & HAS_FIELD_NAMES) == HAS_FIELD_NAMES);
 		
@@ -639,6 +665,33 @@ public class BinaryReader{
 		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
 	}
 	
+	private Type readAnnotatedConstructorType() throws IOException{
+		int nameLength = parseInteger();
+		byte[] nameData = new byte[nameLength];
+		in.read(nameData);
+		String name = new String(nameData);
+		
+		Type fieldTypes = doReadType();
+		
+		Type adtType = doReadType();
+		
+		Type constructorType = tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
+		
+		int nrOfAnnotations = parseInteger();
+		for(--nrOfAnnotations; nrOfAnnotations >= 0; nrOfAnnotations--){
+			int nrOfLabelBytes = parseInteger();
+			byte[] labelBytes = new byte[nrOfLabelBytes];
+			in.read(labelBytes);
+			String label = new String(labelBytes);
+			
+			Type valueType = doReadType();
+			
+			typeStore.declareAnnotation(constructorType, label, valueType);
+		}
+		
+		return constructorType;
+	}
+	
 	private Type readAliasType() throws IOException{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
@@ -676,5 +729,22 @@ public class BinaryReader{
 		part = in.read();
 		result |= ((part & SEVENBITS) << 28);
 		return result;
+	}
+	
+	private static class InputStreamCheckerWrapper extends InputStream{
+		private final InputStream backingStream;
+		
+		public InputStreamCheckerWrapper(InputStream backingStream){
+			super();
+			
+			this.backingStream = backingStream;
+		}
+		
+		public int read() throws IOException{
+			int b = backingStream.read();
+			if(b == -1) throw new IOException("Encountered premature EOF.");
+			
+			return b;
+		}
 	}
 }

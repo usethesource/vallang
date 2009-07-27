@@ -28,10 +28,6 @@ public abstract class Value implements IValue {
     protected Value(Type type) {
     	fType= type;
     }
-    
-	public Value(Value other) {
-		fType = other.fType;
-	}
 
 	/**
      * @return the type of this value

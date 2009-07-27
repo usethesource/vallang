@@ -68,8 +68,7 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 		modSize = sharedHashSet.modSize;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		data = (Entry<V>[]) new Entry[tableSize];
-		System.arraycopy(sharedHashSet.data, 0, data, 0, tableSize);
+		data = sharedHashSet.data.clone();
 		
 		threshold = tableSize;
 		

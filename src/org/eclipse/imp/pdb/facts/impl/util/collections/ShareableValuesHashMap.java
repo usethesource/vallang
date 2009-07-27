@@ -58,8 +58,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		modSize = shareableValuesHashMap.modSize;
 		int tableSize = 1 << modSize;
 		hashMask = tableSize - 1;
-		data = (Entry<IValue, IValue>[]) new Entry[tableSize];
-		System.arraycopy(shareableValuesHashMap.data, 0, data, 0, tableSize);
+		data = shareableValuesHashMap.data.clone();
 		
 		threshold = tableSize;
 		

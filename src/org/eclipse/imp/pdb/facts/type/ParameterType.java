@@ -24,8 +24,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
  * later.
  */
 /*package*/ final class ParameterType extends Type {
-	/* package */ final String fName;
-	/* package */ final Type fBound;
+	private final String fName;
+	private final Type fBound;
 	
 	/* package */ ParameterType(String name, Type bound) {
 		fName = name;
@@ -142,9 +142,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		if (other == this) {
 			return true;
 		}
-		else {
-			return fBound.isSubtypeOf(other);
-		}
+		
+		return fBound.isSubtypeOf(other);
 	}
 
 	@Override
@@ -152,9 +151,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		if (other == this) {
 			return this;
 		}
-		else {
-			return getBound().lub(other);
-		}
+		
+		return getBound().lub(other);
 	}
 	
 	@Override
@@ -192,9 +190,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 			if (!lub.isSubtypeOf(getBound())) {
 				throw new FactMatchException(this, matched);
 			}
-			else {
-				bindings.put(this, lub);
-			}
+			
+			bindings.put(this, lub);
 		}
 		else {
 			bindings.put(this, matched);

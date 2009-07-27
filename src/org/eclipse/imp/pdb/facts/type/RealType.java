@@ -18,11 +18,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 /*package*/ final class RealType extends Type {
 	private final static RealType sInstance = new RealType();
 
-	/* package */static RealType getInstance() {
+	public static RealType getInstance() {
 		return sInstance;
 	}
 
 	private RealType() {
+		super();
 	}
 
 	@Override

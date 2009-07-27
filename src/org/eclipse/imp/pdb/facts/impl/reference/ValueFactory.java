@@ -91,9 +91,8 @@ public class ValueFactory extends BaseValueFactory {
 		if (eltType.isTupleType()) {
 			return relationWriter(eltType);
 		}
-		else {
-		  return Set.createSetWriter(eltType);
-		}
+		
+		return Set.createSetWriter(eltType);
 	}
 
 	public ISet set(IValue... elems) throws FactTypeUseException {
@@ -139,9 +138,7 @@ public class ValueFactory extends BaseValueFactory {
 	public ITuple tuple(IValue... args) {
 		checkNull((Object[]) args);
 		
-		IValue[] tmp = new IValue[args.length];
-		System.arraycopy(args, 0, tmp, 0, args.length);
-		return new Tuple(tmp);
+		return new Tuple(args.clone());
 	}
 	
 	public INode node(String name) {

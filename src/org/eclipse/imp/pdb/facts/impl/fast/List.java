@@ -81,7 +81,7 @@ public class List implements IList{
 		newData.append(element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return ValueFactory.getInstance().createListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 
 	public IList concat(IList other){
@@ -92,7 +92,7 @@ public class List implements IList{
 		}
 		
 		Type newElementType = elementType.lub(other.getElementType());
-		return ValueFactory.getInstance().createListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 
 	public IList insert(IValue element){
@@ -100,7 +100,7 @@ public class List implements IList{
 		newData.insert(element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return ValueFactory.getInstance().createListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 	
 	public IList put(int index, IValue element) throws IndexOutOfBoundsException{
@@ -108,34 +108,34 @@ public class List implements IList{
 		newData.set(index, element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return ValueFactory.getInstance().createListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 	
 	public IList delete(int index){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(index);
 		
-		return ValueFactory.getInstance().createListWriter(elementType, newData).done();
+		return new ListWriter(elementType, newData).done();
 	}
 	
 	public IList delete(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(element);
 		
-		return ValueFactory.getInstance().createListWriter(elementType, newData).done();
+		return new ListWriter(elementType, newData).done();
 	}
 
 	public IList reverse(){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.reverse();
 		
-		return ValueFactory.getInstance().createListWriter(elementType, newData).done();
+		return new ListWriter(elementType, newData).done();
 	}
 	
 	public IList sublist(int offset, int length){
 		ShareableValuesList newData = data.subList(offset, length);
 		
-		return ValueFactory.getInstance().createListWriter(elementType, newData).done();
+		return new ListWriter(elementType, newData).done();
 	}
 	
 	public int hashCode(){

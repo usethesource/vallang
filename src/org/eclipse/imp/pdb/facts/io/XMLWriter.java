@@ -37,6 +37,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -67,6 +68,10 @@ public class XMLWriter implements IValueWriter {
 		} catch (TransformerException e) {
 			throw new IOException("Exception while serializing XML: " + e.getMessage());
 		}
+	}
+	
+	public void write(IValue value, OutputStream stream, TypeStore typeStore) throws IOException {
+		write(value, stream);
 	}
 
 	private Node yield(IValue value, Document doc) {

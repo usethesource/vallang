@@ -27,12 +27,12 @@ class Tuple extends Value implements ITuple {
     protected final IValue[] fElements;
 
     /*package*/ Tuple(IValue... elements) {
-	super(TypeFactory.getInstance().tupleType(elements));
+    	super(TypeFactory.getInstance().tupleType(elements));
 		this.fElements= elements;
     }
     
     private Tuple(Tuple other, int i, IValue elem) {
-    	super(other);
+    	super(other.getType());
     	fElements = other.fElements.clone();
     	fElements[i] = elem;
     }
@@ -129,9 +129,8 @@ class Tuple extends Value implements ITuple {
 		if (type.isTupleType()) {
 			return doSelect(type, fields);
 		}
-		else {
-			return get(fields[0]);
-		}
+		
+		return get(fields[0]);
 	}
 
 	private IValue doSelect(Type type, int... fields) throws IndexOutOfBoundsException {
@@ -156,8 +155,7 @@ class Tuple extends Value implements ITuple {
 			
 			return doSelect(type, indexes);
 		}
-		else {
-			return get(fields[0]);
-		}
+		
+		return get(fields[0]);
 	}
 }

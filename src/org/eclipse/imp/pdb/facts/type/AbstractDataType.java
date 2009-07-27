@@ -27,8 +27,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
  * @see ConstructorType
  */
 /*package*/ final class AbstractDataType extends Type {
-	/* package */ final String fName;
-	/* package */ final Type fParameters;
+	private final String fName;
+	private final Type fParameters;
 	
 	/* package */ AbstractDataType(String name, Type parameters) {
 		fName = name;

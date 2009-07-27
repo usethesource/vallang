@@ -20,15 +20,15 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * and all IConstructors have NodeType as a supertype.
  */
 /*package*/ final class NodeType extends Type {
-	private static class InstanceHolder {
-		public static final NodeType sInstance= new NodeType();
-	}
+	private final static NodeType sInstance= new NodeType();
 	
     public static NodeType getInstance() {
-        return InstanceHolder.sInstance;
+        return sInstance;
     }
 
-    private NodeType() { }
+    private NodeType() {
+    	super();
+    }
 
     @Override
     public boolean isNodeType() {

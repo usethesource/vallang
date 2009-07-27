@@ -11,7 +11,6 @@
 package org.eclipse.imp.pdb.facts.impl.shared;
 
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -49,14 +48,14 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		newData.add(value);
 		
 		Type type = elementType.lub(value.getType());
-		return SharedValueFactory.getInstance().createRelationWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public IRelation delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		newData.remove(value);
 		
-		return SharedValueFactory.getInstance().createRelationWriter(elementType, newData).done();
+		return new SharedRelationWriter(elementType, newData).done();
 	}
 	
 	public IRelation subtract(ISet set){
@@ -67,7 +66,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 			newData.remove(setIterator.next());
 		}
 		
-		return SharedValueFactory.getInstance().createRelationWriter(elementType, newData).done();
+		return new SharedRelationWriter(elementType, newData).done();
 	}
 	
 	public ISet union(ISet set){
@@ -79,7 +78,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		}
 		
 		Type type = elementType.lub(set.getElementType());
-		return SharedValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	private ShareableValuesHashSet computeCarrier(){
@@ -102,7 +101,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		ShareableValuesHashSet newData = computeCarrier();
 		
 		Type type = determainMostGenericTypeInTuple();
-		return SharedValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public ISet domain(){
@@ -116,7 +115,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		}
 		
 		Type type = elementType.getFieldType(0);
-		return SharedValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public ISet range(){
@@ -132,7 +131,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		}
 		
 		Type type = elementType.getFieldType(last);
-		return SharedValueFactory.getInstance().createSetWriter(type, newData).done();
+		return createSetWriter(type, newData).done();
 	}
 	
 	public IRelation compose(IRelation other){
@@ -166,6 +165,9 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		// Compute
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
 		
+		Type[] newTupleFieldTypes = new Type[]{elementType.getFieldType(0), otherTupleType.getFieldType(1)};
+		Type tupleType = typeFactory.tupleType(newTupleFieldTypes);
+		
 		Iterator<IValue> relationIterator = data.iterator();
 		while(relationIterator.hasNext()){
 			ITuple thisTuple = (ITuple) relationIterator.next();
@@ -177,20 +179,20 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 				do{
 					IValue value = valuesIterator.next();
 					IValue[] newTupleData = new IValue[]{thisTuple.get(0), value};
-					newData.add(valueFactory.createTupleUnsafe(newTupleData));
+					newData.add(valueFactory.createTupleUnsafe(tupleType, newTupleData));
 				}while(valuesIterator.hasNext());
 			}
 		}
 		
-		Type[] newTupleFieldTypes = new Type[]{elementType.getFieldType(0), otherTupleType.getFieldType(1)};
-
-		Type newTupleType = typeFactory.tupleType(newTupleFieldTypes);
-		return valueFactory.createRelationWriter(newTupleType, newData).done();
+		return new SharedRelationWriter(tupleType, newData).done();
 	}
 	
-	private ShareableValuesHashSet computeClosure(SharedValueFactory sharedValueFactory){
+	private ShareableValuesHashSet computeClosure(Type tupleType, SharedValueFactory sharedValueFactory){
 		ShareableValuesHashSet allData = new ShareableValuesHashSet(data);
-
+		
+		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<IValue>();
+		RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<RotatingQueue<IValue>>();
+		
 		ShareableHashMap<IValue, RotatingQueue<IValue>> interestingLeftSides = new ShareableHashMap<IValue, RotatingQueue<IValue>>();
 		ShareableHashMap<IValue, ShareableValuesHashSet> potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
 		
@@ -207,6 +209,8 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 				rightValues = potentialRightSides.get(key);
 			}else{
 				leftValues = new RotatingQueue<IValue>();
+				iLeftKeys.put(key);
+				iLefts.put(leftValues);
 				interestingLeftSides.put(key, leftValues);
 				
 				rightValues = new ShareableValuesHashSet();
@@ -216,19 +220,22 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 			rightValues.add(value);
 		}
 		
+		interestingLeftSides = null;
+		
+		int size = potentialRightSides.size();
+		int nextSize = 0;
+		
 		// Compute
 		do{
-			ShareableHashMap<IValue, RotatingQueue<IValue>> leftSides = interestingLeftSides;
 			ShareableHashMap<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
-			interestingLeftSides = new ShareableHashMap<IValue, RotatingQueue<IValue>>();
 			potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
 			
-			Iterator<Entry<IValue, RotatingQueue<IValue>>> leftSidesIterator = leftSides.entryIterator();
-			while(leftSidesIterator.hasNext()){
-				Entry<IValue, RotatingQueue<IValue>> entry = leftSidesIterator.next();
+			for(int i = 0; i < size; i++){
+				IValue leftKey = iLeftKeys.get();
+				RotatingQueue<IValue> leftValues = iLefts.get();
 				
-				IValue leftKey = entry.getKey();
-				RotatingQueue<IValue> leftValues = entry.getValue();
+				RotatingQueue<IValue> interestingLeftValues = null;
+				
 				IValue rightKey;
 				while((rightKey = leftValues.get()) != null){
 					ShareableValuesHashSet rightValues = rightSides.get(rightKey);
@@ -236,11 +243,13 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 						Iterator<IValue> rightValuesIterator = rightValues.iterator();
 						while(rightValuesIterator.hasNext()){
 							IValue rightValue = rightValuesIterator.next();
-							if(allData.add(sharedValueFactory.createTupleUnsafe(new IValue[]{leftKey, rightValue}))){
-								RotatingQueue<IValue> interestingLeftValues = interestingLeftSides.get(leftKey);
+							if(allData.add(sharedValueFactory.createTupleUnsafe(tupleType, new IValue[]{leftKey, rightValue}))){
 								if(interestingLeftValues == null){
+									nextSize++;
+									
+									iLeftKeys.put(leftKey);
 									interestingLeftValues = new RotatingQueue<IValue>();
-									interestingLeftSides.put(leftKey, interestingLeftValues);
+									iLefts.put(interestingLeftValues);
 								}
 								interestingLeftValues.put(rightValue);
 								
@@ -255,7 +264,9 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 					}
 				}
 			}
-		}while(!interestingLeftSides.isEmpty());
+			size = nextSize;
+			nextSize = 0;
+		}while(size > 0);
 		
 		return allData;
 	}
@@ -266,7 +277,10 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		if(elementType == voidType) return this;
 		if(!isReflexive()) throw new IllegalOperationException("closure", setType);
 		
-		return sharedValueFactory.createRelationWriter(elementType, computeClosure(sharedValueFactory)).done();
+		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
+		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);
+		
+		return new SharedRelationWriter(elementType, computeClosure(tupleType, sharedValueFactory)).done();
 	}
 	
 	public IRelation closureStar(){
@@ -275,16 +289,19 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		if(elementType == voidType) return this;
 		if(!isReflexive()) throw new IllegalOperationException("closureStar", setType);
 		
-		ShareableValuesHashSet closure = computeClosure(sharedValueFactory);
+		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
+		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);
+		
+		ShareableValuesHashSet closure = computeClosure(tupleType, sharedValueFactory);
 		ShareableValuesHashSet carrier = computeCarrier();
 		
 		Iterator<IValue> carrierIterator = carrier.iterator();
 		while(carrierIterator.hasNext()){
 			IValue element = carrierIterator.next();
-			closure.add(sharedValueFactory.createTupleUnsafe(new IValue[]{element, element}));
+			closure.add(sharedValueFactory.createTupleUnsafe(tupleType, new IValue[]{element, element}));
 		}
 		
-		return sharedValueFactory.createRelationWriter(elementType, closure).done();
+		return new SharedRelationWriter(elementType, closure).done();
 	}
 	
 	public ISet select(int... indexes){
@@ -297,7 +314,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 			newData.add(tuple.select(indexes));
 		}
 		
-		return SharedValueFactory.getInstance().createSetWriter(getFieldTypes().select(indexes), newData).done();
+		return createSetWriter(getFieldTypes().select(indexes), newData).done();
 	}
 	
 	public ISet select(String... fields){
@@ -312,7 +329,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 			newData.add(tuple.select(fields));
 		}
 		
-		return SharedValueFactory.getInstance().createSetWriter(getFieldTypes().select(fields), newData).done();
+		return createSetWriter(getFieldTypes().select(fields), newData).done();
 	}
 	
 	private Type determainMostGenericTypeInTuple(){

@@ -109,7 +109,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitReal(this);
-    };
+    }
     
     public String getStringRepresentation() {
     	return fValue.toString();

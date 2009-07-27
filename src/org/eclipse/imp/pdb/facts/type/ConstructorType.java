@@ -37,9 +37,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
  * 
  */
 /*package*/ final class ConstructorType extends Type {
-	protected final TupleType fChildrenTypes;
-	protected final AbstractDataType fADT;
-	protected final String fName;
+	private final TupleType fChildrenTypes;
+	private final AbstractDataType fADT;
+	private final String fName;
 	
 	/* package */ ConstructorType(String name, TupleType childrenTypes, AbstractDataType adt) {
 		fName = name;
@@ -52,9 +52,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		if (other == this || other == fADT) {
 			return true;
 		}
-		else {
-			return fADT.isSubtypeOf(other);
-		}
+		
+		return fADT.isSubtypeOf(other);
 	}
 	
 	@Override

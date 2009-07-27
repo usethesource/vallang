@@ -31,20 +31,14 @@ public class SharedAnnotatedConstructor extends AnnotatedConstructor implements 
 	}
 	
 	public IConstructor set(int i, IValue arg){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
 		
 		return SharedValueFactory.getInstance().createAnnotatedConstructorUnsafe(constructorType, newChildren, annotations);
 	}
 	
 	public IConstructor set(String label, IValue newChild){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[constructorType.getFieldIndex(label)] = newChild;
 		
 		return SharedValueFactory.getInstance().createAnnotatedConstructorUnsafe(constructorType, newChildren, annotations);

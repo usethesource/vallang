@@ -253,7 +253,7 @@ public class XMLReader extends AbstractReader {
 		Set<Type> nodeTypes = ts.lookupConstructor(expected, node.getNodeName());
 		// TODO implement overloading
 		Type nodeType = nodeTypes.iterator().next();
-		Type setType = (Type) nodeType.getFieldType(0);
+		Type setType = nodeType.getFieldType(0);
 		Type elementType = setType.getElementType();
 		NodeList children = node.getChildNodes();
 		ISetWriter writer = setType.writer(vf);

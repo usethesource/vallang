@@ -30,20 +30,14 @@ public class SharedConstructor extends Constructor implements IShareable{
 	}
 	
 	public IConstructor set(int i, IValue newChild){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[i] = newChild;
 		
 		return SharedValueFactory.getInstance().createConstructorUnsafe(constructorType, newChildren);
 	}
 	
 	public IConstructor set(String label, IValue newChild){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[constructorType.getFieldIndex(label)] = newChild;
 		
 		return SharedValueFactory.getInstance().createConstructorUnsafe(constructorType, newChildren);

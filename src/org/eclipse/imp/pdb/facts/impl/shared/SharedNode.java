@@ -29,10 +29,7 @@ public class SharedNode extends Node implements IShareable{
 	}
 	
 	public INode set(int i, IValue arg){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
 		
 		return SharedValueFactory.getInstance().createNodeUnsafe(name, newChildren);

@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
@@ -42,6 +43,10 @@ public class StandardTextWriter implements IValueWriter {
 		} catch (VisitorException e) {
 			throw (IOException) e.getCause();
 		}
+	}
+	
+	public void write(IValue value, OutputStream stream, TypeStore typeStore) throws IOException {
+		write(value, stream);
 	}
 	
 	private static class Writer implements IValueVisitor<IValue> {

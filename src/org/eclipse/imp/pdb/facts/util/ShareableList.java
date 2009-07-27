@@ -33,7 +33,7 @@ import java.util.NoSuchElementException;
  *            The element type.
  */
 public class ShareableList<E> implements Iterable<E>{
-	private final static int INITIAL_LOG_SIZE = 3;
+	private final static int INITIAL_LOG_SIZE = 2;
 
 	private int frontCapacity;
 	private E[] frontData;
@@ -68,14 +68,12 @@ public class ShareableList<E> implements Iterable<E>{
 		super();
 		
 		frontCapacity = shareableList.frontCapacity;
-		frontData = (E[]) new Object[frontCapacity];
+		frontData = shareableList.frontData.clone();
 		frontIndex = shareableList.frontIndex;
-		System.arraycopy(shareableList.frontData, 0, frontData, 0, frontIndex);
 		
 		backCapacity = shareableList.backCapacity;
-		backData = (E[]) new Object[backCapacity];
+		backData = shareableList.backData.clone();
 		backIndex = shareableList.backIndex;
-		System.arraycopy(shareableList.backData, 0, backData, 0, backIndex);
 	}
 	
 	/**
@@ -93,41 +91,48 @@ public class ShareableList<E> implements Iterable<E>{
 		
 		int backStartIndex = shareableList.backIndex - offset;
 		if(backStartIndex <= 0){// Front only
-			backCapacity = 1 << INITIAL_LOG_SIZE;
-			backData = (E[]) new Object[backCapacity];
 			backIndex = 0;
+			backCapacity = 2;
+			backData = (E[]) new Object[backCapacity];
 			
 			int frontStartIndex = -backStartIndex;
-			
-			frontCapacity = shareableList.frontCapacity;
-			frontData = (E[]) new Object[frontCapacity];
+
 			frontIndex = length;
+			frontCapacity = closestPowerOfTwo(length);
+			frontData = (E[]) new Object[frontCapacity];
 			System.arraycopy(shareableList.frontData, frontStartIndex, frontData, 0, length);
 		}else{
 			int backLength = length - backStartIndex;
 			if(backLength <= 0){ // Back only
-				backCapacity = shareableList.backCapacity;
-				backData = (E[]) new Object[backCapacity];
 				backIndex = length;
-				System.arraycopy(shareableList.backData, shareableList.backIndex - length - offset, backData, 0, length);
-				
-				frontCapacity = shareableList.frontCapacity;
-				frontData = (E[]) new Object[frontCapacity];
-				frontIndex = 0;
-			}else{ // Front and Back overlap
-				backCapacity = shareableList.backCapacity;
+				backCapacity = closestPowerOfTwo(length);
 				backData = (E[]) new Object[backCapacity];
+				System.arraycopy(shareableList.backData, shareableList.backIndex - length - offset, backData, 0, length);
+
+				frontIndex = 0;
+				frontCapacity = 2;
+				frontData = (E[]) new Object[frontCapacity];
+			}else{ // Front and Back overlap
 				backIndex = backLength;
+				backCapacity = closestPowerOfTwo(backLength);
+				backData = (E[]) new Object[backCapacity];
 				System.arraycopy(shareableList.backData, 0, backData, 0, backLength);
 				
 				int frontLength = length - backLength;
-				
-				frontCapacity = shareableList.frontCapacity;
-				frontData = (E[]) new Object[frontCapacity];
+
 				frontIndex = frontLength;
+				frontCapacity = closestPowerOfTwo(frontLength);
+				frontData = (E[]) new Object[frontCapacity];
 				System.arraycopy(shareableList.frontData, 0, frontData, 0, frontLength);
 			}
 		}
+	}
+	
+	private static int closestPowerOfTwo(int number){
+		int power = 0;
+		do{/* Nothing. */}while((1 << (++power)) < number);
+		
+		return (1 << power);
 	}
 	
 	/**

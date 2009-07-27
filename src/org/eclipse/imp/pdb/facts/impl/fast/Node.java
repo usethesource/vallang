@@ -81,13 +81,10 @@ public class Node implements INode{
 	}
 
 	public INode set(int i, IValue arg){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
 		
-		return ValueFactory.getInstance().createNodeUnsafe(name, newChildren);
+		return new Node(name, newChildren);
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
@@ -111,19 +108,19 @@ public class Node implements INode{
 	}
 	
 	public INode setAnnotation(String label, IValue value){
-		return ValueFactory.getInstance().createAnnotatedNodeUnsafe(name, children, getUpdatedAnnotations(label, value));
+		return new AnnotatedNode(name, children, getUpdatedAnnotations(label, value));
 	}
 	
 	public INode setAnnotations(Map<String, IValue> newAnnos){
-		return ValueFactory.getInstance().createAnnotatedNodeUnsafe(name, children, getSetAnnotations(newAnnos));
+		return new AnnotatedNode(name, children, getSetAnnotations(newAnnos));
 	}
 	
 	public INode joinAnnotations(Map<String, IValue> newAnnos){
-		return ValueFactory.getInstance().createAnnotatedNodeUnsafe(name, children, getUpdatedAnnotations(newAnnos));
+		return new AnnotatedNode(name, children, getUpdatedAnnotations(newAnnos));
 	}
 	
 	public INode removeAnnotation(String label){
-		return ValueFactory.getInstance().createAnnotatedNodeUnsafe(name, children, getUpdatedAnnotations(label));
+		return new AnnotatedNode(name, children, getUpdatedAnnotations(label));
 	}
 	
 	public INode removeAnnotations(){

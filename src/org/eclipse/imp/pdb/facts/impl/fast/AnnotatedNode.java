@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
  * @author Arnold Lankamp
  */
 public class AnnotatedNode extends Node{
-	private final ShareableHashMap<String, IValue> annotations;
+	protected final ShareableHashMap<String, IValue> annotations;
 	
 	protected AnnotatedNode(String name, IValue[] children, ShareableHashMap<String, IValue> annotations){
 		super(name, children);
@@ -32,17 +32,14 @@ public class AnnotatedNode extends Node{
 	}
 
 	public INode set(int i, IValue arg){
-		int nrOfChildren = children.length;
-		IValue[] newChildren = new IValue[nrOfChildren];
-		System.arraycopy(children, 0, newChildren, 0, nrOfChildren);
-		
+		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
 		
-		return ValueFactory.getInstance().createAnnotatedNodeUnsafe(name, newChildren, annotations);
+		return new AnnotatedNode(name, newChildren, annotations);
 	}
 	
 	public boolean hasAnnotation(String label){
-		return annotations.contains(label);
+		return annotations.containsKey(label);
 	}
 	
 	public boolean hasAnnotations(){
@@ -58,7 +55,7 @@ public class AnnotatedNode extends Node{
 	}
 	
 	public INode removeAnnotations(){
-		return ValueFactory.getInstance().createNodeUnsafe(name, children);
+		return new Node(name, children);
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){

@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 
 	private BoolType() {
+		super();
 	}
 
 	@Override
