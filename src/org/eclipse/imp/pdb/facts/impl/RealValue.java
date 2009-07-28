@@ -104,7 +104,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public int hashCode() {
-    	return fValue.hashCode();
+    	// Java BigDecimals have a bug, their even though 3.0 and 3.00 are equal,
+    	// their hashCode() is not, which is against the equals/hashCode() contract.
+    	// To work around this, we use this simple trick here which is correct but
+    	// might lead to many collisions.
+    	return Double.valueOf(fValue.doubleValue()).hashCode();
     }
     
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
