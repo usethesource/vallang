@@ -206,22 +206,34 @@ public class TypeStore {
      * @throws UndeclaredAbstractDataTypeException, RedeclaredFieldNameException, RedeclaredConstructorException 
      */
     public void declareConstructor(Type constructor) throws FactTypeDeclarationException {
-    	synchronized(fConstructors) {
-    		Type adt = constructor.getAbstractDataType();
-    		Type other = lookupAbstractDataType(adt.getName());
-    		if (other == null) {
-    			throw new UndeclaredAbstractDataTypeException(adt);
-    		}
-    		
-    		Set<Type> signature = lookupAlternatives(adt);
-    		if (signature == null) {
-    			throw new UndeclaredAbstractDataTypeException(adt);
-    		}
+    	synchronized (fADTs) {
+    		synchronized(fConstructors) {
+    			Type adt = constructor.getAbstractDataType();
+    			Type other = lookupAbstractDataType(adt.getName());
+    			if (other == null) {
+    				throw new UndeclaredAbstractDataTypeException(adt);
+    			}
 
-    		checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
-    		checkFieldNames(signature, constructor.getFieldTypes());
+    			Set<Type> signature = lookupAlternatives(adt);
+    			if (signature == null) {
+    				throw new UndeclaredAbstractDataTypeException(adt);
+    			}
 
-    		signature.add(constructor);
+    			checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
+    			checkFieldNames(signature, constructor.getFieldTypes());
+
+    			Set<Type> localSignature = fConstructors.get(adt);
+				if (localSignature == null) {
+					localSignature = new HashSet<Type>();
+					fConstructors.put(adt, localSignature);
+					
+					if (!fADTs.containsKey(adt.getName())) {
+						fADTs.put(adt.getName(), adt);
+					}
+    			}
+				
+				localSignature.add(constructor);
+    		}
     	}
     }
 
@@ -326,7 +338,7 @@ public class TypeStore {
     	synchronized (fConstructors) {
     		synchronized (fImports) {
     			Type parameterizedADT = fADTs.get(adt.getName());
-    			Set<Type> local = fConstructors.get(parameterizedADT);
+    			Set<Type> local = parameterizedADT != null ? fConstructors.get(parameterizedADT) : null;
     			Set<Type> result = new HashSet<Type>();
 
     			if (local != null) {
