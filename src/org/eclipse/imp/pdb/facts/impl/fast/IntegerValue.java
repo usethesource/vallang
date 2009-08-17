@@ -153,11 +153,15 @@ public class IntegerValue implements IInteger, ICanBecomeABigInteger{
 	}
 	
 	public IInteger multiply(IInteger other){
+		if(value == 0) return this;
+		
 		if(other instanceof BigIntegerValue){
-			return other.add(this);
+			return other.multiply(this);
 		}
 		
 		int otherIntValue = other.intValue();
+		if(otherIntValue == 0) return other;
+		
 		boolean resultIsPositive = ((((value ^ otherIntValue) ^ 0x80000000) & 0x80000000) == 0x80000000);
 		if(resultIsPositive){
 			int div = Integer.MAX_VALUE / otherIntValue;
