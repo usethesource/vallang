@@ -228,7 +228,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
             }
             fHashcode = h;
         }
-        return fHashcode;
+        return h;
     }
 
     /**
