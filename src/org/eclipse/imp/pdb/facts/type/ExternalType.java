@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 
+
 /**
  * ExternalType facilitates a limited form of extensibility to the PDB's type system.
  * It can be used for example to add 'function types' to the PDB. Any such extension
@@ -43,5 +44,15 @@ public abstract class ExternalType extends Type {
 	@Override
 	public Type lub(Type other) {
 		throw new AbstractMethodError("subclasses of ExternalType should override lub");
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		throw new AbstractMethodError("subclasses of ExternalType should override equals");
+	}
+	
+	@Override
+	public int hashCode() {
+		throw new AbstractMethodError("subclasses of ExternalType should override hashCode");
 	}
 }
