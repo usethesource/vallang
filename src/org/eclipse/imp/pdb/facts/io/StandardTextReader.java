@@ -369,14 +369,6 @@ public class StandardTextReader extends AbstractReader {
 			return r;
 		}
 		
-		int getLine() {
-			return line;
-		}
-		
-		int getColumn() {
-			return column;
-		}
-		
 		int getOffset() {
 			return offset;
 		}

@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.visitors;
 
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -102,5 +103,9 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 		}
 		
 		return fVisitor.visitTuple(o);
+	}
+
+	public T visitExternal(IExternalValue externalValue) {
+		return fVisitor.visitExternal(externalValue);
 	}
 }

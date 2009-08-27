@@ -90,7 +90,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 			return ((fName == null) ? ((ConstructorType) o).fName == null : fName
 					.equals(((ConstructorType) o).fName))
 					&& fChildrenTypes == ((ConstructorType) o).fChildrenTypes
-					&& fADT == fADT;
+					&& fADT == ((ConstructorType) o).fADT;
 		}
 		return false;
 	}

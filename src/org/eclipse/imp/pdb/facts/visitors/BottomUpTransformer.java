@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.visitors;
 
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -101,5 +102,9 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 		}
 		
 		return fVisitor.visitTuple(o);
+	}
+
+	public IValue visitExternal(IExternalValue externalValue) {
+		return fVisitor.visitExternal(externalValue);
 	}
 }

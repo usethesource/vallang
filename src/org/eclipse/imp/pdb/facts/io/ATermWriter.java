@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -232,6 +233,11 @@ public class ATermWriter implements IValueWriter {
 			 append(')');
 			 
 			 return o;
+		}
+
+		public IValue visitExternal(IExternalValue externalValue) {
+			// ignore external values
+			return externalValue;
 		}
 	}
 

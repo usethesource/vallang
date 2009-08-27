@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -144,6 +145,8 @@ public class BinaryWriter{
 			writeSet((ISet) value);
 		}else if(value instanceof IMap){
 			writeMap((IMap) value);
+		}else if (value instanceof IExternalValue) {
+			// do nothing, ignore those
 		}
 		
 		sharedValues.store(value);

@@ -13,11 +13,12 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -37,4 +38,5 @@ public interface IValueVisitor<R> {
    public R visitInteger(IInteger o) throws VisitorException;
    public R visitMap(IMap o) throws VisitorException;
    public R visitBoolean(IBool boolValue) throws VisitorException;
+   public R visitExternal(IExternalValue externalValue);
 }

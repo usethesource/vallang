@@ -115,6 +115,10 @@ public class XMLReader extends AbstractReader {
 		else if (expected.isRealType()) {
 			return parseDouble(node);
 		}
+		else if (expected.isExternalType()) {
+			// external types default to string
+			return parseString(node);
+		}
 
 		throw new UnsupportedTypeException(
 				"Outermost or nested tuples, lists, sets, relations or maps are not allowed.", expected);

@@ -25,6 +25,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -105,11 +106,16 @@ public class XMLWriter implements IValueWriter {
 		else if (type.isRealType()) {
 			return yieldDouble((IReal) value, doc);
 		}
+		else if (type.isExternalType()) {
+			return yieldExternal((IExternalValue) value, doc);
+		}
 
 		throw new UnsupportedTypeException(
 				"Outermost or nested tuples, lists, sets, relations or maps are not allowed.", type);
 	}
 	
+	
+
 	private boolean isListWrapper(Type nodeType) {
 			return nodeType.getArity() == 1
 					&& nodeType.getFieldTypes().getFieldType(0).isListType();
@@ -142,6 +148,10 @@ public class XMLWriter implements IValueWriter {
 
 	private Node yieldString(IString value, Document doc) {
 		return doc.createTextNode(value.getValue());
+	}
+	
+	private Node yieldExternal(IExternalValue value, Document doc) {
+		return doc.createTextNode(value.toString());
 	}
 
 	private Node yieldMap(INode node, Document doc) {

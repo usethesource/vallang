@@ -111,6 +111,18 @@ public class TypeFactory {
     public Type boolType() {
 		return BoolType.getInstance();
 	}
+
+    /**
+     * Retrieves an older equal externalType from the cache,
+     * or stores a new external type if it does not exist.
+     * 
+     * @param externalType
+     * @return an object equal to externalType but possibly older
+     */
+    public Type externalType(Type externalType) {
+    	checkNull(externalType);
+    	return getFromCache(externalType);
+    }
     
     /**
      * Construct a new type. 

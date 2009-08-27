@@ -34,4 +34,5 @@ public interface ITypeVisitor<T> {
 	T visitVoid(Type type);
 	T visitBool(Type boolType);
 	T visitParameter(Type parameterType);
+	T visitExternal(Type externalType);
 }

@@ -27,23 +27,22 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
  * This class is the abstract implementation for all types. Types
  * are ordered in a partially ordered type hierarchy with 'value'
  * as the largest type and 'void' as the smallest. Each type represents
- * a set of values. Named types are aliases (i.e. they are a sub-type
- * of the type they hide and vice versa). 
+ * a set of values.  
  * <p>
  * Users of this API will generally use the interface of @{link Type} and
  * {@link TypeFactory}, the other classes in this package are not part of the
  * interface. To construct {@link IValue}'s, use the 'make' methods of 
  * @{link Type}.
  * <p>
- * Technical detail: since void is a sub-type of all types and named types 
+ * Technical detail: since void is a sub-type of all types and alias types 
  * may be sub-types of any types, a Java encoding of the hierarchy using
  * single inheritance will not work. Therefore, all methods of all types are
- * present on this abstract class Type. void and named type implement all
+ * present on this abstract class Type. void and alias type implement all
  * methods, while the other methods implement only the relevant methods.
  * Calling a method that is not present on any of the specific types will
  * lead to a @{link FactTypeError} exception. 
  */
-public abstract class Type implements Iterable<Type> {
+public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	/**
 	 * Retrieve the type of elements in a set or a relation.
 	 * @return type of elements
@@ -415,6 +414,10 @@ public abstract class Type implements Iterable<Type> {
 	public boolean isVoidType() {
 		return false;
 	}
+	
+	public boolean isExternalType() {
+		return false;
+	}
 
 	public boolean isNodeType() {
 		return false;
@@ -608,5 +611,15 @@ public abstract class Type implements Iterable<Type> {
 	 */
 	public Type getTypeParameters() {
 		throw new IllegalOperationException("getTypeParameters", this);
+	}
+	
+	public int compareTo(Type o) {
+		if (isSubtypeOf(o)) {
+			return -1;
+		}
+		else if (o.isSubtypeOf(this)) {
+			return 1;
+		}
+		return 0;
 	}
 }
