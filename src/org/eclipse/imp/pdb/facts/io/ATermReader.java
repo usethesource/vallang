@@ -551,7 +551,7 @@ public class ATermReader extends AbstractReader {
 
 	private IValue[] parseATermsArray(SharingStream reader,
 			Type elementType) throws IOException {
-		List<IValue> list = new ArrayList<IValue>();
+		List<IValue> list = new ArrayList<IValue>(2);
 
 		IValue term = parse(reader, elementType);
 		list.add(term);
@@ -572,7 +572,7 @@ public class ATermReader extends AbstractReader {
 	
 	private IValue[] parseFixedSizeATermsArray(SharingStream reader,
 			Type elementTypes) throws IOException {
-		List<IValue> list = new ArrayList<IValue>();
+		List<IValue> list = new ArrayList<IValue>(elementTypes.getArity());
 		int i = 0;
 		Type elementType = elementTypes.getFieldType(i++);
 
