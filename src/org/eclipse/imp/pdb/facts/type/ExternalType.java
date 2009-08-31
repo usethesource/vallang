@@ -35,24 +35,4 @@ public abstract class ExternalType extends Type {
 	public boolean isExternalType() {
 		return true;
 	}
-	
-	@Override
-	public boolean isSubtypeOf(Type other) {
-		throw new AbstractMethodError("subclasses of ExternalType should override isSubtypeOf");
-	}
-	
-	@Override
-	public Type lub(Type other) {
-		throw new AbstractMethodError("subclasses of ExternalType should override lub");
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		throw new AbstractMethodError("subclasses of ExternalType should override equals");
-	}
-	
-	@Override
-	public int hashCode() {
-		throw new AbstractMethodError("subclasses of ExternalType should override hashCode");
-	}
 }
