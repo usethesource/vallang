@@ -157,7 +157,10 @@ public class Map implements IMap{
 		Iterator<Entry<IValue,IValue>> iter = entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> e = iter.next();
-			w.put(e.getKey(), other.get(e.getValue()));
+			IValue value = e.getValue();
+			if (value != null) {
+				w.put(e.getKey(), other.get(value));
+			}
 		}
 		
 		return w.done();
