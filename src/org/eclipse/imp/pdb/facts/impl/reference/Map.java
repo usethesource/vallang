@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapKeyTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapValueTypeException;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
+import org.eclipse.imp.pdb.facts.impl.fast.MapWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -171,12 +172,15 @@ class Map extends Value implements IMap{
 	}
 	
 	public IMap compose(IMap other) {
-		IMapWriter w = createMapWriter(getKeyType(), other.getValueType());
+		IMapWriter w = new MapWriter(getKeyType(), other.getValueType());
 		
 		Iterator<Entry<IValue,IValue>> iter = entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> e = iter.next();
-			w.put(e.getKey(), other.get(e.getValue()));
+			IValue value = e.getValue();
+			if (value != null) {
+				w.put(e.getKey(), other.get(value));
+			}
 		}
 		
 		return w.done();
