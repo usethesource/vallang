@@ -83,6 +83,15 @@ public interface IMap extends Iterable<IValue>, IValue {
     public IMap remove(IMap other);
     
     /**
+     * If the value type of this map is a sub-type of the key type of the other, construct
+     * a new map that represents the composition which maps keys of this map to values of
+     * the other map.
+     * @param other other map to compose with
+     * @return a new map that represent the composition of this with the other map
+     */
+    public IMap compose(IMap other);
+    
+    /**
      * Compute the common map (intersection) between this map and another. Any key-value
      * pair that is not present in the other will not be present in the result. This
      * means that if a key exists in both maps, but with a different value, the key
@@ -112,4 +121,6 @@ public interface IMap extends Iterable<IValue>, IValue {
      * @return an iterator over the keys-value pairs of the map
      */
     public Iterator<Entry<IValue, IValue>> entryIterator();
+
+	
 }

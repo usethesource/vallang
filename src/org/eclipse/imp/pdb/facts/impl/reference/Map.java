@@ -170,6 +170,18 @@ class Map extends Value implements IMap{
 		return new MapWriter(keyType, valueType);
 	}
 	
+	public IMap compose(IMap other) {
+		IMapWriter w = createMapWriter(getKeyType(), other.getValueType());
+		
+		Iterator<Entry<IValue,IValue>> iter = entryIterator();
+		while (iter.hasNext()) {
+			Entry<IValue,IValue> e = iter.next();
+			w.put(e.getKey(), other.get(e.getValue()));
+		}
+		
+		return w.done();
+	}
+	
 	private static class MapWriter extends Writer implements IMapWriter{
 		private final Type keyType;
 		private final Type valueType;
@@ -229,4 +241,6 @@ class Map extends Value implements IMap{
 			return constructedMap;
 		}
 	}
+
+	
 }

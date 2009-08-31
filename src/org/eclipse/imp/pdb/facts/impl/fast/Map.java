@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -148,6 +149,18 @@ public class Map implements IMap{
 		Type newKeyType = keyType.lub(other.getKeyType());
 		Type newValueType = valueType.lub(other.getValueType());
 		return new MapWriter(newKeyType, newValueType, commonData).done();
+	}
+	
+	public IMap compose(IMap other) {
+		IMapWriter w = new MapWriter(getKeyType(), other.getValueType());
+		
+		Iterator<Entry<IValue,IValue>> iter = entryIterator();
+		while (iter.hasNext()) {
+			Entry<IValue,IValue> e = iter.next();
+			w.put(e.getKey(), other.get(e.getValue()));
+		}
+		
+		return w.done();
 	}
 	
 	public IMap join(IMap other){
