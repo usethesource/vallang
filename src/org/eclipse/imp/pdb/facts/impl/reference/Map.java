@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapKeyTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapValueTypeException;
 import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.Writer;
-import org.eclipse.imp.pdb.facts.impl.fast.MapWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
