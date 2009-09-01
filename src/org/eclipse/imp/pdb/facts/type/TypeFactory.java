@@ -367,7 +367,7 @@ public class TypeFactory {
     		throw new IllegalIdentifierException(name);
     	}
      
-    	Type result = getFromCache(new ConstructorType(name, (TupleType) tupleType, (AbstractDataType) adt));
+    	Type result = getFromCache(new ConstructorType(name, tupleType, adt));
     	store.declareConstructor(result);
     	return result;
     }

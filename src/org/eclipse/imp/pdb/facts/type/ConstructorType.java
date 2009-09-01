@@ -37,11 +37,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
  * 
  */
 /*package*/ final class ConstructorType extends Type {
-	private final TupleType fChildrenTypes;
-	private final AbstractDataType fADT;
+	private final Type fChildrenTypes;
+	private final Type fADT;
 	private final String fName;
 	
-	/* package */ ConstructorType(String name, TupleType childrenTypes, AbstractDataType adt) {
+	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 		fName = name;
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
@@ -109,7 +109,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(fADT);
-		builder.append("::=");
+		builder.append(" = ");
 		builder.append(fName);
 		builder.append("(");
 
@@ -147,7 +147,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	public TupleType getFieldTypes() {
+	public Type getFieldTypes() {
 		return fChildrenTypes;
 	}
 	
