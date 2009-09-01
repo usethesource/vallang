@@ -49,7 +49,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
     @Override
     public String toString() {
-        return "sourceLocation";
+        return "loc";
     }
     
     @Override
