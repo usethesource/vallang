@@ -12,6 +12,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -74,6 +75,10 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 	}
 	
 	public T visitBoolean(IBool boolValue) throws VisitorException {
+		return null;
+	}
+	
+	public T visitExternal(IExternalValue externalValue) {
 		return null;
 	}
 }
