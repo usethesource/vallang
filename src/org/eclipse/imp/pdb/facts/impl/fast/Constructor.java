@@ -276,4 +276,8 @@ public class Constructor implements IConstructor{
 			throw new UnsupportedOperationException("This iterator doesn't support removal.");
 		}
 	}
+
+	public boolean has(String label) {
+		return getConstructorType().hasField(label);
+	}
 }

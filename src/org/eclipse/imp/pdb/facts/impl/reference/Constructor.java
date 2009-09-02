@@ -140,4 +140,8 @@ public class Constructor extends Node implements IConstructor {
 	public IConstructor removeAnnotation(String key) {
 		return new Constructor(this, key);
 	}
+
+	public boolean has(String label) {
+		return getConstructorType().hasField(label);
+	}
 }

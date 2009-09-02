@@ -45,6 +45,14 @@ public interface IConstructor extends INode {
 	public IConstructor   set(String label, IValue newChild) throws FactTypeUseException;
 	
 	/**
+	 * Find out whether this constructor has a field a given name
+	 * @param label name of the field
+	 * 
+	 * @return true iff this constructor has this field name
+	 */
+	public boolean has(String label);
+	
+	/**
 	 * Replace a child at an indexed position in the tree. 
 	 * @param label    the label of the position
 	 * @param newChild the new value of the child
@@ -80,4 +88,6 @@ public interface IConstructor extends INode {
 	public IConstructor removeAnnotations();
 	
 	public IConstructor removeAnnotation(String key);
+
+	
 }
