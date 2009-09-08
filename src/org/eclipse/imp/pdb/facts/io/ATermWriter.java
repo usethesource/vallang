@@ -197,7 +197,7 @@ public class ATermWriter implements IValueWriter {
 				throws VisitorException {
 			append("loc(");
 			append('\"');
-			append(o.getURL().toExternalForm());
+			append(o.getURI().toString());
 			append('\"');
 			append("," + o.getOffset());
 			append("," + o.getLength());

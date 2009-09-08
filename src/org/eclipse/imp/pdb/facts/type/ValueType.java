@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.net.URL;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -107,9 +107,15 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     
     
     @Override
-    public IValue make(IValueFactory f, URL url, int startOffset, int length,
+    public IValue make(IValueFactory f, URI uri, int startOffset, int length,
     		int startLine, int endLine, int startCol, int endCol) {
-    	return TypeFactory.getInstance().sourceLocationType().make(f, url, startOffset, length, startLine, endLine, startCol, endCol);
+    	return TypeFactory.getInstance().sourceLocationType().make(f, uri, startOffset, length, startLine, endLine, startCol, endCol);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, String path, int startOffset, int length,
+    		int startLine, int endLine, int startCol, int endCol) {
+    	return TypeFactory.getInstance().sourceLocationType().make(f, path, startOffset, length, startLine, endLine, startCol, endCol);
     }
     
     @Override

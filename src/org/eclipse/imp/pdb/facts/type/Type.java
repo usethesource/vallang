@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -564,7 +564,12 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		throw new IllegalOperationException("apply to children", this);
 	}
 	
-	public IValue make(IValueFactory f, URL url, int startOffset, int length,
+	public IValue make(IValueFactory f, URI uri, int startOffset, int length,
+			int startLine, int endLine, int startCol, int endCol) {
+		throw new IllegalOperationException("make source location", this);
+	} 
+	
+	public IValue make(IValueFactory f, String path, int startOffset, int length,
 			int startLine, int endLine, int startCol, int endCol) {
 		throw new IllegalOperationException("make source location", this);
 	} 

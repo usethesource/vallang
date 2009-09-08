@@ -14,7 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -34,6 +35,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -336,16 +338,20 @@ public class BinaryReader{
 			path = new String(data);
 			sharedPaths.set(path, currentSharedPathId++);
 		}
-		URL url = new URL(path);
-		
-		int offset = parseInteger();
-		int length = parseInteger();
-		int beginLine = parseInteger();
-		int endLine = parseInteger();
-		int beginCol = parseInteger();
-		int endCol = parseInteger();
-		
-		return valueFactory.sourceLocation(url, offset, length, beginLine, endLine, beginCol, endCol);
+		try {
+			URI uri = new URI(path);
+
+			int offset = parseInteger();
+			int length = parseInteger();
+			int beginLine = parseInteger();
+			int endLine = parseInteger();
+			int beginCol = parseInteger();
+			int endCol = parseInteger();
+
+			return valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		} catch (URISyntaxException e) {
+			throw new FactParseError("illegal URI", e);
+		}
 	}
 	
 	private ITuple readTuple() throws IOException{

@@ -14,11 +14,14 @@ package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
@@ -35,7 +38,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  */
 public class StandardTextReader extends AbstractReader {
 
-	private static final char START_OF_LOC = '!';
+	private static final char START_OF_LOC = '|';
 	private static final char START_OF_MAP = '(';
 	private static final char START_OF_TUPLE = '<';
 	private static final char START_OF_SET = '{';
@@ -46,6 +49,8 @@ public class StandardTextReader extends AbstractReader {
 	private static final char DOUBLE_DOT = '.';
 	private static final char END_OF_SET = '}';
 	private static final char END_OF_LIST = ']';
+	private static final char END_OF_LOCATION = '|';
+	
 	private TypeStore store;
 	private NoWhiteSpaceInputStream stream;
 	private IValueFactory factory;
@@ -113,8 +118,53 @@ public class StandardTextReader extends AbstractReader {
 	}
 
 	private IValue readLocation(Type expected) throws IOException {
-		// TODO: include URL parser
+		String url = parseURL();
+		if (current == '(') {
+			ArrayList<IValue> args = new ArrayList<IValue>(4);
+			readFixed(types.valueType(), ')', args);
+			
+			if (!args.get(0).getType().isSubtypeOf(types.integerType())) {
+				throw new UnexpectedTypeException(types.integerType(), args.get(0).getType());
+			}
+			if (!args.get(1).getType().isSubtypeOf(types.integerType())) {
+				throw new UnexpectedTypeException(types.integerType(), args.get(1).getType());
+			}
+			Type posType = types.tupleType(types.integerType(), types.integerType());
+			
+			if (!args.get(2).getType().isSubtypeOf(posType)) {
+				throw new UnexpectedTypeException(posType, args.get(2).getType());
+			}
+			if (!args.get(3).getType().isSubtypeOf(posType)) {
+				throw new UnexpectedTypeException(posType, args.get(3).getType());
+			}
+			
+			int offset = Integer.parseInt(args.get(0).toString());
+			int length = Integer.parseInt(args.get(1).toString());
+			int beginLine = Integer.parseInt(((ITuple) args.get(2)).get(0).toString());
+			int beginColumn = Integer.parseInt(((ITuple) args.get(2)).get(1).toString());
+			int endLine = Integer.parseInt(((ITuple) args.get(3)).get(0).toString());
+			int endColumn = Integer.parseInt(((ITuple) args.get(3)).get(1).toString());
+
+			try {
+				return factory.sourceLocation(new URI(url), offset, length, beginLine, endLine, beginColumn, endColumn);
+			} catch (URISyntaxException e) {
+				throw new FactParseError(e.getMessage(), offset, e);
+			}
+		}
+		
+		unexpected();
 		return null;
+	}
+
+	private String parseURL() throws IOException {
+		current = stream.read();
+		StringBuilder result = new StringBuilder();
+		
+		while (current != END_OF_LOCATION) {
+			result.append(current);
+		}
+		
+		return result.toString();
 	}
 
 	private IValue readMap(Type expected) throws IOException {

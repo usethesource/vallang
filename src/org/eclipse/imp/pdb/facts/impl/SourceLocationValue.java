@@ -12,15 +12,16 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.net.URL;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /*package*/ class SourceLocationValue extends Value implements ISourceLocation {
-    private final URL fPath;
+    private final URI fPath;
     private final int fStartOffset;
 
 	private final int fLength;
@@ -33,7 +34,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	private final int fEndCol;
 
-    /*package*/ SourceLocationValue(URL path, int startOffset, int length, int startLine,
+    /*package*/ SourceLocationValue(URI path, int startOffset, int length, int startLine,
 			int endLine, int startCol, int endCol) {
         super(TypeFactory.getInstance().sourceLocationType());
         fPath= path;
@@ -45,7 +46,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		fEndCol = endCol;
     }
     
-	public URL getURL() {
+	public URI getURI() {
         return fPath;
     }
 
@@ -101,4 +102,14 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitSourceLocation(this);
     }
+
+	public ITuple getBegin() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ITuple getEnd() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

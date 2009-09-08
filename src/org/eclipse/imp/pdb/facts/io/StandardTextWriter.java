@@ -195,18 +195,26 @@ public class StandardTextWriter implements IValueWriter {
 
 		public IValue visitSourceLocation(ISourceLocation o)
 				throws VisitorException {
-			append('!');
-			append(o.getURL().toExternalForm());
-			append('?');
-			append("off=" + o.getOffset());
-			append('&');
-			append("len=" + o.getLength());
-			append('&');
-			append("start=" + o.getBeginLine());
-			append("," + o.getBeginColumn());
-			append('&');
-			append("end=" + o.getEndLine());
-			append("," + o.getEndColumn());
+			append('|');
+			append(o.getURI().toString());
+			append('|');
+			append('(');
+			append(Integer.toString(o.getOffset()));
+			append(',');
+			append(Integer.toString(o.getLength()));
+			append(',');
+			append('<');
+			append(Integer.toString(o.getBeginLine()));
+			append(',');
+			append(Integer.toString(o.getBeginColumn()));
+			append('>');
+			append(',');
+			append('<');
+			append(Integer.toString(o.getEndLine()));
+			append(',');
+			append(Integer.toString(o.getEndColumn()));
+			append('>');
+			append(')');
 			return o;
 		}
 

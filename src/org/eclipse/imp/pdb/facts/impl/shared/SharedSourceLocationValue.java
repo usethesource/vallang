@@ -10,7 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.shared;
 
-import java.net.URL;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.impl.fast.SourceLocationValue;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
@@ -22,7 +22,7 @@ import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
  */
 public class SharedSourceLocationValue extends SourceLocationValue implements IShareable{
 	
-	protected SharedSourceLocationValue(URL url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+	protected SharedSourceLocationValue(URI url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 		super(url, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 	

@@ -10,10 +10,13 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
-import java.net.URL;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -27,7 +30,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class SourceLocationValue implements ISourceLocation{
 	private final static Type SOURCE_LOCATION_TYPE = TypeFactory.getInstance().sourceLocationType();
 	
-	protected final URL url;
+	protected final URI url;
 	protected final int offset;
 	protected final int length;
 	protected final int beginLine;
@@ -35,7 +38,7 @@ public class SourceLocationValue implements ISourceLocation{
 	protected final int beginCol;
 	protected final int endCol;
 	
-	protected SourceLocationValue(URL url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+	protected SourceLocationValue(URI url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 		super();
 		
 		this.url = url;
@@ -51,7 +54,7 @@ public class SourceLocationValue implements ISourceLocation{
 		return SOURCE_LOCATION_TYPE;
 	}
 	
-	public URL getURL(){
+	public URI getURI(){
 		return url;
 	}
 	
@@ -100,7 +103,7 @@ public class SourceLocationValue implements ISourceLocation{
 		
 		if(o.getClass() == getClass()){
 			SourceLocationValue otherSourceLocation = (SourceLocationValue) o;
-			return (url.toExternalForm().equals(otherSourceLocation.url.toExternalForm())
+			return (url.equals(otherSourceLocation.url)
 					&& (beginLine == otherSourceLocation.beginLine)
 					&& (endLine == otherSourceLocation.endLine)
 					&& (beginCol == otherSourceLocation.beginCol)
@@ -117,25 +120,14 @@ public class SourceLocationValue implements ISourceLocation{
 	}
 	
 	public String toString(){
-		StringBuilder buffer = new StringBuilder();
-		
-		buffer.append("loc(");
-		buffer.append(url);
-		buffer.append("?off=");
-		buffer.append(offset);
-		buffer.append("&len=");
-		buffer.append(length);
-		buffer.append("&start=");
-		buffer.append(beginLine);
-		buffer.append(",");
-		buffer.append(endLine);
-		buffer.append("&end=");
-		buffer.append(beginCol);
-		buffer.append(",");
-		buffer.append(endCol);
-		buffer.append(")");
-		
-		return buffer.toString();
+	  	try {
+    		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    		new StandardTextWriter().write(this, stream);
+			return stream.toString();
+		} catch (IOException e) {
+			// this never happens
+			return null;
+		} 
     }
 }
 

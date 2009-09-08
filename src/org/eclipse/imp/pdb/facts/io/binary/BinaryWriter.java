@@ -12,7 +12,7 @@ package org.eclipse.imp.pdb.facts.io.binary;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -255,8 +255,8 @@ public class BinaryWriter{
 	}
 	
 	private void writeSourceLocation(ISourceLocation sourceLocation) throws IOException{
-		URL url = sourceLocation.getURL();
-		String path = url.toExternalForm();
+		URI url = sourceLocation.getURI();
+		String path = url.toString();
 		int id = sharedPaths.store(path);
 		if(id == -1){
 			out.write(SOURCE_LOCATION_HEADER);

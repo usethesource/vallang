@@ -12,7 +12,8 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -32,6 +33,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -117,9 +119,17 @@ public final class ValueFactory implements IValueFactory{
 		return new StringValue(value);
 	}
 	
-	public ISourceLocation sourceLocation(URL url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+	public ISourceLocation sourceLocation(URI url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 		return new SourceLocationValue(url, offset, length, beginLine, endLine, beginCol, endCol);
 	}
+	
+	public ISourceLocation sourceLocation(String path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+    	try {
+			return sourceLocation(new URI("file://" + path), startOffset, length, startLine, endLine, startCol, endCol);
+		} catch (URISyntaxException e) {
+			throw new FactParseError("illegal path syntax", e);
+		}
+    }
 	
 	public IListWriter listWriter(Type elementType){
 		return new ListWriter(elementType);

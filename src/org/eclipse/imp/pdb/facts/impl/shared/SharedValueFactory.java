@@ -12,7 +12,8 @@ package org.eclipse.imp.pdb.facts.impl.shared;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -32,6 +33,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.fast.BoolValue;
 import org.eclipse.imp.pdb.facts.impl.fast.IntegerValue;
@@ -209,9 +211,17 @@ public final class SharedValueFactory implements IValueFactory{
 		return (IString) buildValue(new SharedStringValue(value));
 	}
 	
-	public ISourceLocation sourceLocation(URL url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol){
+	public ISourceLocation sourceLocation(URI url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol){
 		return (ISourceLocation) buildValue(new SharedSourceLocationValue(url, startOffset, length, startLine, endLine, startCol, endCol));
 	}
+	
+	public ISourceLocation sourceLocation(String path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+    	try {
+			return sourceLocation(new URI("file://" + path), startOffset, length, startLine, endLine, startCol, endCol);
+		} catch (URISyntaxException e) {
+			throw new FactParseError("illegal path syntax", e);
+		}
+    }
 	
 	public IListWriter listWriter(Type elementType){
 		return new SharedListWriter(elementType);

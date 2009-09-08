@@ -10,8 +10,12 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -82,12 +86,13 @@ public class StringValue implements IString{
 	}
 	
 	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("\"");
-		sb.append(value.replaceAll("\"", "\\\""));
-		sb.append("\"");
-		
-		return sb.toString();
+	  	try {
+    		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    		new StandardTextWriter().write(this, stream);
+			return stream.toString();
+		} catch (IOException e) {
+			// this never happens
+			return null;
+		} 
 	}
 }

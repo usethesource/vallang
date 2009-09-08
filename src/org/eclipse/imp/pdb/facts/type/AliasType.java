@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -169,10 +169,16 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, URL url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+	public IValue make(IValueFactory f, URI url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
 		return fAliased.make(f, url, startOffset, length, startLine, endLine, startCol, endCol);
 	}
 	
+	@Override 
+	public IValue make(IValueFactory f, String path, int startOffset, int length,
+			int startLine, int endLine, int startCol, int endCol) {
+		return f.sourceLocation(path, startOffset, length, startLine, endLine, startCol, endCol);
+	}
+
 	@Override
 	public IValue make(IValueFactory f, double arg) {
 		return fAliased.make(f, arg);

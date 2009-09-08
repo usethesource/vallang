@@ -14,14 +14,16 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 
 public abstract class BaseValueFactory implements IValueFactory {
     public IInteger integer(int i) {
@@ -59,7 +61,7 @@ public abstract class BaseValueFactory implements IValueFactory {
         return new StringValue(s);
     }
     
-    public ISourceLocation sourceLocation(URL path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+    public ISourceLocation sourceLocation(URI path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
     	if (path == null) {
     		throw new NullPointerException();
     	}
@@ -67,6 +69,14 @@ public abstract class BaseValueFactory implements IValueFactory {
     		throw new IllegalArgumentException();
     	}
         return new SourceLocationValue(path, startOffset, length, startLine, endLine, startCol, endCol);
+    }
+    
+    public ISourceLocation sourceLocation(String path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
+    	try {
+			return sourceLocation(new URI("file://" + path), startOffset, length, startLine, endLine, startCol, endCol);
+		} catch (URISyntaxException e) {
+			throw new FactParseError("illegal path syntax", e);
+		}
     }
     
     public IBool bool(boolean value) {

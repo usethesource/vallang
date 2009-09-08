@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import java.net.URL;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -74,8 +74,7 @@ public interface IValueFactory {
     /**
      * Create an exact reference to a source location.
      * 
-     * @param url         exact url where the source is located. The particular encoding of
-	 *                    the URL is not specified.
+     * @param uri         exact uri where the source is located.
      * @param offset      the character offset starting from the beginning of the file located 
      *                    at the given url. Offsets start at 0 (zero).
      * @param length      the character length of the location (the amount characters).
@@ -87,7 +86,24 @@ public interface IValueFactory {
      * @param endCol      the (exclusive) column number where the location ends.
      * @return a value representing a source location, with type SourceLocationType
      */
-    public ISourceLocation sourceLocation(URL url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol);
+    public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol);
+   
+    /**
+     * Create an exact reference to a source location.
+     * 
+     * @param path        exact (absolute) path where the source is located.
+     * @param offset      the character offset starting from the beginning of the file located 
+     *                    at the given url. Offsets start at 0 (zero).
+     * @param length      the character length of the location (the amount characters).
+     * @param beginLine   the (inclusive) line number where the location begins. The first
+     *                    line is always line number 1.
+     * @param endLine     the (exclusive) line where the location ends
+     * @param beginCol    the (inclusive) column number where the location begins. The
+     *                    first column is always column number 0 (zero).
+     * @param endCol      the (exclusive) column number where the location ends.
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol);
     
     /**
      * Construct the nullary tuple

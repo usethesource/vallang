@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts;
 
-import java.net.URL;
+import java.net.URI;
 
 /**
  * Source locations point to (parts of) files that contain source code.
@@ -29,7 +29,7 @@ public interface ISourceLocation extends IValue {
 	 * @return exact url where the source is located. The particular encoding of
 	 * the URL is not specified.
 	 */
-    URL getURL();
+    URI getURI();
 
     /**
      * @return the character offset starting from the beginning of the file located 
