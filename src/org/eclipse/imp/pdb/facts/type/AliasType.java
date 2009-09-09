@@ -179,6 +179,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		return f.sourceLocation(path, startOffset, length, startLine, endLine, startCol, endCol);
 	}
 
+	@Override 
+    public IValue make(IValueFactory f, URI uri) {
+    	return f.sourceLocation(uri);
+    }
+	
 	@Override
 	public IValue make(IValueFactory f, double arg) {
 		return fAliased.make(f, arg);

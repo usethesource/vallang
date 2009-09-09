@@ -82,6 +82,14 @@ public abstract class BaseValueFactory implements IValueFactory {
 		}
     }
     
+    public ISourceLocation sourceLocation(URI url) {
+		return sourceLocation(url, -1, -1, -1, -1, -1, -1);
+	}
+	
+	public ISourceLocation sourceLocation(String path) {
+		return sourceLocation(path, -1, -1, -1, -1, -1, -1);
+	}
+    
     public IBool bool(boolean value) {
     	return new BoolValue(value);
     }

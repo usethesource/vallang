@@ -106,6 +106,22 @@ public interface IValueFactory {
     public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol);
     
     /**
+     * Create an exact reference to a source location.
+     * 
+     * @param uri         exact uri where the source is located.
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    public ISourceLocation sourceLocation(URI uri);
+   
+    /**
+     * Create an exact reference to a source location.
+     * 
+     * @param path        exact (absolute) path where the source is located.
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    public ISourceLocation sourceLocation(String path);
+    
+    /**
      * Construct the nullary tuple
      * @return the nullary tuple
      */

@@ -64,6 +64,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override 
+    public IValue make(IValueFactory f, URI uri) {
+    	return f.sourceLocation(uri);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, String path) {
+    	return f.sourceLocation(path);
+    }
+    
+    @Override 
     public IValue make(IValueFactory f, String path, int startOffset, int length,
     		int startLine, int endLine, int startCol, int endCol) {
     	return f.sourceLocation(path, startOffset, length, startLine, endLine, startCol, endCol);

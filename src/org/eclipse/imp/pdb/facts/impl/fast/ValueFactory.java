@@ -123,6 +123,14 @@ public final class ValueFactory implements IValueFactory{
 		return new SourceLocationValue(url, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 	
+	public ISourceLocation sourceLocation(URI url) {
+		return sourceLocation(url, -1, -1, -1, -1, -1, -1);
+	}
+	
+	public ISourceLocation sourceLocation(String path) {
+		return sourceLocation(path, -1, -1, -1, -1, -1, -1);
+	}
+	
 	public ISourceLocation sourceLocation(String path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
     	try {
     		if (!path.startsWith("/")) {

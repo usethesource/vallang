@@ -569,6 +569,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		throw new IllegalOperationException("make source location", this);
 	} 
 	
+	public IValue make(IValueFactory f, URI uri) {
+		throw new IllegalOperationException("make source location", this);
+	} 
+	
 	public IValue make(IValueFactory f, String path, int startOffset, int length,
 			int startLine, int endLine, int startCol, int endCol) {
 		throw new IllegalOperationException("make source location", this);

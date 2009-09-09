@@ -118,6 +118,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return TypeFactory.getInstance().sourceLocationType().make(f, path, startOffset, length, startLine, endLine, startCol, endCol);
     }
     
+    @Override 
+    public IValue make(IValueFactory f, URI uri) {
+    	return f.sourceLocation(uri);
+    }
+    
     @Override
     public IValue make(IValueFactory f, IValue... args) {
     	// this could be anything that takes variable sized argument lists.

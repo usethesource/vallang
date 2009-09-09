@@ -226,6 +226,14 @@ public final class SharedValueFactory implements IValueFactory{
 		}
     }
 	
+	public ISourceLocation sourceLocation(URI url) {
+		return sourceLocation(url, -1, -1, -1, -1, -1, -1);
+	}
+	
+	public ISourceLocation sourceLocation(String path) {
+		return sourceLocation(path, -1, -1, -1, -1, -1, -1);
+	}
+	
 	public IListWriter listWriter(Type elementType){
 		return new SharedListWriter(elementType);
 	}
