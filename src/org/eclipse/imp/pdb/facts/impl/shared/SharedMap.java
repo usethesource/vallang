@@ -46,7 +46,7 @@ public class SharedMap extends Map implements IShareable{
 		
 		IMap theOtherMap;
 		
-		if(other.size() < size()){
+		if(other.size() <= size()){
 			entryIterator = other.entryIterator();
 			theOtherMap = this;
 		}else{
@@ -68,13 +68,30 @@ public class SharedMap extends Map implements IShareable{
 		return new SharedMapWriter(newKeyType, newValueType, commonData).done();
 	}
 	
+	public IMap compose(IMap other){
+		ShareableValuesHashMap newData = new ShareableValuesHashMap();
+		
+		SharedMap otherMap = (SharedMap) other;
+		
+		Iterator<Entry<IValue, IValue>> entryIterator = entryIterator();
+		while(entryIterator.hasNext()){
+			Entry<IValue,IValue> entry = entryIterator.next();
+			IValue value = otherMap.get(entry.getValue());
+			if(value != null){
+				newData.put(entry.getKey(), value);
+			}
+		}
+		
+		return new SharedMapWriter(keyType, otherMap.valueType, newData).done();
+	}
+	
 	public IMap join(IMap other){
 		ShareableValuesHashMap newData;
 		Iterator<Entry<IValue, IValue>> entryIterator;
 		
 		SharedMap otherMap = (SharedMap) other;
 		
-		if(otherMap.size() < size()){
+		if(otherMap.size() <= size()){
 			newData = new ShareableValuesHashMap(data);
 			entryIterator = otherMap.entryIterator();
 		}else{

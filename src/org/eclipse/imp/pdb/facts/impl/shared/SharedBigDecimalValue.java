@@ -43,19 +43,19 @@ public class SharedBigDecimalValue extends BigDecimalValue implements IShareable
 	}
 	
 	public IReal add(IReal other){
-		return SharedValueFactory.getInstance().real(value.add(((SharedBigDecimalValue) other).value));
+		return SharedValueFactory.getInstance().real(value.add(((SharedBigDecimalValue) other).value, mc));
 	}
 	
 	public IReal subtract(IReal other){
-		return SharedValueFactory.getInstance().real(value.subtract(((SharedBigDecimalValue) other).value));
+		return SharedValueFactory.getInstance().real(value.subtract(((SharedBigDecimalValue) other).value, mc));
 	}
 	
 	public IReal multiply(IReal other){
-		return SharedValueFactory.getInstance().real(value.multiply(((SharedBigDecimalValue) other).value));
+		return SharedValueFactory.getInstance().real(value.multiply(((SharedBigDecimalValue) other).value, mc));
 	}
 	
 	public IReal divide(IReal other, int precision){
-		return SharedValueFactory.getInstance().real(value.divide(((SharedBigDecimalValue) other).value));
+		return SharedValueFactory.getInstance().real(value.divide(((SharedBigDecimalValue) other).value, mc));
 	}
 	
 	public IReal negate(){

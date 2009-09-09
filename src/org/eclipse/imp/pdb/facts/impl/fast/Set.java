@@ -114,7 +114,7 @@ public class Set implements ISet{
 		
 		ISet theOtherSet;
 		
-		if(other.size() < size()){
+		if(other.size() <= size()){
 			setIterator = other.iterator();
 			theOtherSet = this;
 		}else{
@@ -150,7 +150,7 @@ public class Set implements ISet{
 		
 		Set otherSet = (Set) other;
 		
-		if(otherSet.size() < size()){
+		if(otherSet.size() <= size()){
 			newData = new ShareableValuesHashSet(data);
 			setIterator = otherSet.iterator();
 		}else{
@@ -192,6 +192,7 @@ public class Set implements ISet{
 	}
 	
 	public boolean equals(Object o){
+		if(o == this) return true;
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){

@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -145,8 +144,6 @@ public class BinaryWriter{
 			writeSet((ISet) value);
 		}else if(value instanceof IMap){
 			writeMap((IMap) value);
-		}else if (value instanceof IExternalValue) {
-			// do nothing, ignore those
 		}
 		
 		sharedValues.store(value);
@@ -255,8 +252,8 @@ public class BinaryWriter{
 	}
 	
 	private void writeSourceLocation(ISourceLocation sourceLocation) throws IOException{
-		URI url = sourceLocation.getURI();
-		String path = url.toString();
+		URI uri = sourceLocation.getURI();
+		String path = uri.toString();
 		int id = sharedPaths.store(path);
 		if(id == -1){
 			out.write(SOURCE_LOCATION_HEADER);

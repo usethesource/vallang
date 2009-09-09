@@ -137,6 +137,7 @@ public class Tuple implements ITuple{
 	}
 
 	public boolean equals(Object o){
+		if(o == this) return true;
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){

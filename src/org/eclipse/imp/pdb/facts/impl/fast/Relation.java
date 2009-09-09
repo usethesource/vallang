@@ -221,7 +221,7 @@ public class Relation extends Set implements IRelation{
 			ShareableHashMap<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
 			potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
 			
-			for(int i = 0; i < size; i++){
+			for(; size > 0; size--){
 				IValue leftKey = iLeftKeys.get();
 				RotatingQueue<IValue> leftValues = iLefts.get();
 				
@@ -326,6 +326,7 @@ public class Relation extends Set implements IRelation{
 	}
 	
 	public boolean equals(Object o){
+		if(o == this) return true;
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){

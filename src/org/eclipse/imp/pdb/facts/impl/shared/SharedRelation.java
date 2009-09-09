@@ -230,7 +230,7 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 			ShareableHashMap<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
 			potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
 			
-			for(int i = 0; i < size; i++){
+			for(; size > 0; size--){
 				IValue leftKey = iLeftKeys.get();
 				RotatingQueue<IValue> leftValues = iLefts.get();
 				

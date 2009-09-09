@@ -143,6 +143,7 @@ public class List implements IList{
 	}
 
 	public boolean equals(Object o){
+		if(o == this) return true;
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){

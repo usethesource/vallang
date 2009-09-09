@@ -56,6 +56,7 @@ public class BinaryReader{
 	private final static int INTEGER_HEADER = 0x02;
 	private final static int BIG_INTEGER_HEADER = 0x03; // Special case of INTEGER_HEADER (flags for alternate encoding).
 	private final static int DOUBLE_HEADER = 0x04;
+	private final static int IEEE754_ENCODED_DOUBLE_HEADER = 0x14;
 	private final static int STRING_HEADER = 0x05;
 	private final static int SOURCE_LOCATION_HEADER = 0x06;
 	private final static int TUPLE_HEADER = 0x07;
@@ -150,6 +151,9 @@ public class BinaryReader{
 				break;
 			case DOUBLE_HEADER:
 				value = readDouble();
+				break;
+			case IEEE754_ENCODED_DOUBLE_HEADER:
+				value = readIEEE754EncodedDouble();
 				break;
 			case STRING_HEADER:
 				value = readString();
@@ -311,6 +315,12 @@ public class BinaryReader{
 		return valueFactory.real(new BigDecimal(new BigInteger(unscaledValueData), scale).toString()); // The toString call kind of stinks.
 	}
 	
+	private IReal readIEEE754EncodedDouble() throws IOException{
+		double theDouble = parseDouble();
+		
+		return valueFactory.real(theDouble); // The toString call kind of stinks.
+	}
+	
 	private IString readString() throws IOException{
 		int size = parseInteger();
 		
@@ -338,20 +348,22 @@ public class BinaryReader{
 			path = new String(data);
 			sharedPaths.set(path, currentSharedPathId++);
 		}
-		try {
-			URI uri = new URI(path);
-
-			int offset = parseInteger();
-			int length = parseInteger();
-			int beginLine = parseInteger();
-			int endLine = parseInteger();
-			int beginCol = parseInteger();
-			int endCol = parseInteger();
-
-			return valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
-		} catch (URISyntaxException e) {
-			throw new FactParseError("illegal URI", e);
+		
+		URI uri;
+		try{
+			uri = new URI(path);
+		}catch(URISyntaxException e){
+			throw new FactParseError("Illegal URI", e); // Can't happen.
 		}
+		
+		int offset = parseInteger();
+		int length = parseInteger();
+		int beginLine = parseInteger();
+		int endLine = parseInteger();
+		int beginCol = parseInteger();
+		int endCol = parseInteger();
+		
+		return valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 	
 	private ITuple readTuple() throws IOException{
@@ -735,6 +747,18 @@ public class BinaryReader{
 		part = in.read();
 		result |= ((part & SEVENBITS) << 28);
 		return result;
+	}
+
+	private final static int BYTEMASK = 0x000000ff;
+	private final static int BYTEBITS = 8;
+	private final static int LONGBITS = 8;
+	
+	private double parseDouble() throws IOException{
+		long result = 0;
+		for(int i = 0; i < LONGBITS; i++){
+			result |= ((((long) in.read()) & BYTEMASK) << (i * BYTEBITS));
+		}
+		return Double.longBitsToDouble(result);	
 	}
 	
 	private static class InputStreamCheckerWrapper extends InputStream{

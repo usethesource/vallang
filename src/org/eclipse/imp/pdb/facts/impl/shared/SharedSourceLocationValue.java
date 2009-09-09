@@ -22,8 +22,8 @@ import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
  */
 public class SharedSourceLocationValue extends SourceLocationValue implements IShareable{
 	
-	protected SharedSourceLocationValue(URI url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
-		super(url, offset, length, beginLine, endLine, beginCol, endCol);
+	protected SharedSourceLocationValue(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+		super(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 	
 	public boolean equivalent(IShareable shareable){

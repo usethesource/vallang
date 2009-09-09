@@ -57,7 +57,7 @@ public class SharedSet extends Set implements IShareable{
 		
 		ISet theOtherSet;
 		
-		if(other.size() < size()){
+		if(other.size() <= size()){
 			setIterator = other.iterator();
 			theOtherSet = this;
 		}else{
@@ -93,7 +93,7 @@ public class SharedSet extends Set implements IShareable{
 		
 		SharedSet otherSet = (SharedSet) other;
 		
-		if(otherSet.size() < size()){
+		if(otherSet.size() <= size()){
 			newData = new ShareableValuesHashSet(data);
 			setIterator = otherSet.iterator();
 		}else{

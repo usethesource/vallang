@@ -211,26 +211,23 @@ public final class SharedValueFactory implements IValueFactory{
 		return (IString) buildValue(new SharedStringValue(value));
 	}
 	
-	public ISourceLocation sourceLocation(URI url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol){
-		return (ISourceLocation) buildValue(new SharedSourceLocationValue(url, startOffset, length, startLine, endLine, startCol, endCol));
+	public ISourceLocation sourceLocation(URI uri, int startOffset, int length, int beginLine, int endLine, int beginCol, int endCol){
+		return (ISourceLocation) buildValue(new SharedSourceLocationValue(uri, startOffset, length, beginLine, endLine, beginCol, endCol));
 	}
 	
-	public ISourceLocation sourceLocation(String path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
-    	try {
-    		if (!path.startsWith("/")) {
-    			path = "/" + path;
-    		}
-			return sourceLocation(new URI("file://" + path), startOffset, length, startLine, endLine, startCol, endCol);
-		} catch (URISyntaxException e) {
-			throw new FactParseError("illegal path syntax", e);
+	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+    	try{
+			return sourceLocation(new URI("file://" + path), offset, length, beginLine, endLine, beginCol, endCol);
+		}catch(URISyntaxException e){
+			throw new FactParseError("Illegal path syntax.", e);
 		}
     }
 	
-	public ISourceLocation sourceLocation(URI url) {
-		return sourceLocation(url, -1, -1, -1, -1, -1, -1);
+	public ISourceLocation sourceLocation(URI uri){
+		return sourceLocation(uri, -1, -1, -1, -1, -1, -1);
 	}
 	
-	public ISourceLocation sourceLocation(String path) {
+	public ISourceLocation sourceLocation(String path){
 		return sourceLocation(path, -1, -1, -1, -1, -1, -1);
 	}
 	

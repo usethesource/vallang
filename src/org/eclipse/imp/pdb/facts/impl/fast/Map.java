@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -129,7 +128,7 @@ public class Map implements IMap{
 		
 		IMap theOtherMap;
 		
-		if(other.size() < size()){
+		if(other.size() <= size()){
 			entryIterator = other.entryIterator();
 			theOtherMap = this;
 		}else{
@@ -151,19 +150,21 @@ public class Map implements IMap{
 		return new MapWriter(newKeyType, newValueType, commonData).done();
 	}
 	
-	public IMap compose(IMap other) {
-		IMapWriter w = new MapWriter(getKeyType(), other.getValueType());
+	public IMap compose(IMap other){
+		ShareableValuesHashMap newData = new ShareableValuesHashMap();
 		
-		Iterator<Entry<IValue,IValue>> iter = entryIterator();
-		while (iter.hasNext()) {
-			Entry<IValue,IValue> e = iter.next();
-			IValue value = other.get(e.getValue());
-			if (value != null) {
-				w.put(e.getKey(), value);
+		Map otherMap = (Map) other;
+		
+		Iterator<Entry<IValue, IValue>> entryIterator = entryIterator();
+		while(entryIterator.hasNext()){
+			Entry<IValue,IValue> entry = entryIterator.next();
+			IValue value = otherMap.get(entry.getValue());
+			if(value != null){
+				newData.put(entry.getKey(), value);
 			}
 		}
 		
-		return w.done();
+		return new MapWriter(keyType, otherMap.valueType, newData).done();
 	}
 	
 	public IMap join(IMap other){
@@ -172,7 +173,7 @@ public class Map implements IMap{
 		
 		Map otherMap = (Map) other;
 		
-		if(otherMap.size() < size()){
+		if(otherMap.size() <= size()){
 			newData = new ShareableValuesHashMap(data);
 			entryIterator = otherMap.entryIterator();
 		}else{
@@ -206,6 +207,7 @@ public class Map implements IMap{
 	}
 	
 	public boolean equals(Object o){
+		if(o == this) return true;
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){

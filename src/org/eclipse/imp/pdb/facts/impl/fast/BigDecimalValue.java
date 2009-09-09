@@ -11,6 +11,7 @@
 package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -29,6 +30,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  */
 public class BigDecimalValue implements IReal{
 	private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
+	
+	protected final static MathContext mc = MathContext.DECIMAL128; // More then good enough.
 	
 	protected final BigDecimal value;
 	
@@ -63,19 +66,19 @@ public class BigDecimalValue implements IReal{
 	}
 	
 	public IReal add(IReal other){
-		return ValueFactory.getInstance().real(value.add(((BigDecimalValue) other).value));
+		return ValueFactory.getInstance().real(value.add(((BigDecimalValue) other).value, mc));
 	}
 	
 	public IReal subtract(IReal other){
-		return ValueFactory.getInstance().real(value.subtract(((BigDecimalValue) other).value));
+		return ValueFactory.getInstance().real(value.subtract(((BigDecimalValue) other).value, mc));
 	}
 	
 	public IReal multiply(IReal other){
-		return ValueFactory.getInstance().real(value.multiply(((BigDecimalValue) other).value));
+		return ValueFactory.getInstance().real(value.multiply(((BigDecimalValue) other).value, mc));
 	}
 	
 	public IReal divide(IReal other, int precision){
-		return ValueFactory.getInstance().real(value.divide(((BigDecimalValue) other).value));
+		return ValueFactory.getInstance().real(value.divide(((BigDecimalValue) other).value, mc));
 	}
 	
 	public IReal negate(){
