@@ -134,7 +134,7 @@ public final class ValueFactory implements IValueFactory{
 	public ISourceLocation sourceLocation(String path, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
     	try {
     		if (!path.startsWith("/")) {
-    			path += "/";
+    			path = "/" + path;
     		}
 			return sourceLocation(new URI("file://" + path), startOffset, length, startLine, endLine, startCol, endCol);
 		} catch (URISyntaxException e) {
