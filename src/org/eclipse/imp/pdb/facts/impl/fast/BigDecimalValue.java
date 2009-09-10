@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class BigDecimalValue implements IReal{
+public class BigDecimalValue extends Value implements IReal{
 	private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
 	
 	protected final static MathContext mc = MathContext.DECIMAL128; // More then good enough.
@@ -143,17 +143,7 @@ public class BigDecimalValue implements IReal{
 		return equals(value);
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		String stringRepresentation = value.toString();
-		
-		sb.append(stringRepresentation);
-		if(stringRepresentation.indexOf(".") == -1) sb.append(".0"); // TextWriter fix.
-		
-		return sb.toString();
-	}
-	
 	public String getStringRepresentation(){
-		return toString();
+		return value.toString();
 	}
 }

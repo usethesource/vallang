@@ -104,7 +104,7 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 		return fVisitor.visitTuple(o);
 	}
 
-	public IValue visitExternal(IExternalValue externalValue) {
+	public IValue visitExternal(IExternalValue externalValue) throws VisitorException {
 		return fVisitor.visitExternal(externalValue);
 	}
 }

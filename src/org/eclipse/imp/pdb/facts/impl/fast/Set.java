@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Set implements ISet{
+public class Set extends Value implements ISet{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	
@@ -221,25 +221,7 @@ public class Set implements ISet{
 		return false;
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("{");
-		
-		Iterator<IValue> setIterator = iterator();
-		if(setIterator.hasNext()){
-			sb.append(setIterator.next());
-			
-			while(setIterator.hasNext()){
-				sb.append(",");
-				sb.append(setIterator.next());
-			}
-		}
-		
-		sb.append("}");
-		
-		return sb.toString();
-	}
+	
 	
 	protected static ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
 		if(elementType.isTupleType()) return new RelationWriter(elementType, data);

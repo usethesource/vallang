@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class List implements IList{
+public class List extends Value implements IList{
 	protected final TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type listType;

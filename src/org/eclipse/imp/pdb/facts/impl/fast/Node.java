@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Node implements INode{
+public class Node extends Value implements INode{
 	protected final static Type NODE_TYPE = TypeFactory.getInstance().nodeType();
 	
 	protected final String name;
@@ -222,32 +222,5 @@ public class Node implements INode{
 		}
 		
 		return false;
-	}
-	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		if(name == null){ // Special case, which shouldn't be supported imo.
-			sb.append(children[0]);
-			return sb.toString();
-		}
-		
-		sb.append(name);
-		sb.append("(");
-		
-		int size = children.length;
-		if(size > 0){
-			int i = 0;
-			sb.append(children[i]);
-			
-			for(i = 1; i < size; i++){
-				sb.append(",");
-				sb.append(children[i]);
-			}
-		}
-		
-		sb.append(")");
-		
-		return sb.toString();
 	}
 }

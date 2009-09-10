@@ -80,14 +80,4 @@ public class StringValue implements IString{
 	public boolean isEqual(IValue value){
 		return equals(value);
 	}
-	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("\"");
-		sb.append(value.replaceAll("\"", "\\\""));
-		sb.append("\"");
-		
-		return sb.toString();
-	}
 }

@@ -75,7 +75,7 @@ public class StandardTextWriter implements IValueWriter {
 		
 		public IValue visitBoolean(IBool boolValue)
 				throws VisitorException {
-			append(boolValue.getStringRepresentation());
+			append(boolValue.getValue() ? "true" : "false");
 			return boolValue;
 		}
 
@@ -247,8 +247,8 @@ public class StandardTextWriter implements IValueWriter {
 			 return o;
 		}
 
-		public IValue visitExternal(IExternalValue externalValue) {
-			// ignore external values
+		public IValue visitExternal(IExternalValue externalValue) throws VisitorException {
+			append(externalValue.toString());
 			return externalValue;
 		}
 	}

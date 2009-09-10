@@ -105,7 +105,7 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 		return fVisitor.visitTuple(o);
 	}
 
-	public T visitExternal(IExternalValue externalValue) {
+	public T visitExternal(IExternalValue externalValue) throws VisitorException {
 		return fVisitor.visitExternal(externalValue);
 	}
 }

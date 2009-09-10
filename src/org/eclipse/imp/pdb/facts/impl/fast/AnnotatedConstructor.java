@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
  * 
  * @author Arnold Lankamp
  */
-public class AnnotatedConstructor extends Constructor{
+public class AnnotatedConstructor extends Constructor {
     protected final ShareableHashMap<String, IValue> annotations;
     
 	protected AnnotatedConstructor(Type constructorType, IValue[] children, ShareableHashMap<String, IValue> annotations){

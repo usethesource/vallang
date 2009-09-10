@@ -129,4 +129,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public long longValue() {
     	return fValue.longValue();
     }
+    
+    public int signum() {
+    	return fValue.signum();
+    }
+    
+    public IInteger abs() {
+    	return new IntegerValue(fValue.abs());
+    }
 }

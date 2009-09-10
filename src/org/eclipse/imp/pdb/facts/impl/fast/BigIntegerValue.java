@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class BigIntegerValue implements IInteger, ICanBecomeABigInteger{
+public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigInteger{
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 	
 	protected final BigInteger value;
@@ -177,11 +177,15 @@ public class BigIntegerValue implements IInteger, ICanBecomeABigInteger{
 		return equals(other);
 	}
 	
-	public String toString(){
+	public String getStringRepresentation(){
 		return value.toString();
 	}
+
+	public int signum() {
+		return value.signum();
+	}
 	
-	public String getStringRepresentation(){
-		return toString();
+	public IInteger abs() {
+		return new BigIntegerValue(value.abs());
 	}
 }

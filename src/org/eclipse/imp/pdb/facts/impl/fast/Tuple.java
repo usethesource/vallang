@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Tuple implements ITuple{
+public class Tuple extends Value implements ITuple{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type tupleType;
@@ -178,27 +178,6 @@ public class Tuple implements ITuple{
 		}
 		
 		return false;
-	}
-	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<");
-		
-		int size = elements.length;
-		if(size > 0){
-			int i = 0;
-			sb.append(elements[i]);
-			
-			for(i = 1; i < size; i++){
-				sb.append(",");
-				sb.append(elements[i]);
-			}
-		}
-		
-		sb.append(">");
-		
-		return sb.toString();
 	}
 	
 	private static class TupleIterator implements Iterator<IValue>{

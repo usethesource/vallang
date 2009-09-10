@@ -22,14 +22,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class BoolValue implements IBool{
+public class BoolValue extends Value implements IBool{
 	private final static Type BOOL_TYPE = TypeFactory.getInstance().boolType();
 	
 	public final static BoolValue TRUE = new BoolValue(true);
 	public final static BoolValue FALSE = new BoolValue(false);
-	
-	private final static String TRUE_STRING = "true";
-	private final static String FALSE_STRING = "false";
 	
 	protected final boolean value;
 	
@@ -89,10 +86,6 @@ public class BoolValue implements IBool{
 	
 	public boolean isEqual(IValue value){
 		return this == value;
-	}
-	
-	public String toString(){
-		return value ? TRUE_STRING : FALSE_STRING;
 	}
 	
 	public String getStringRepresentation(){

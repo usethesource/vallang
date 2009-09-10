@@ -26,7 +26,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Map implements IMap{
+public class Map extends Value implements IMap{
 	protected final TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type mapType;

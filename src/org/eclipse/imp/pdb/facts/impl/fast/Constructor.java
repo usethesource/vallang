@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Constructor implements IConstructor{
+public class Constructor extends Value implements IConstructor{
 	protected final Type constructorType;
 	protected final IValue[] children;
 

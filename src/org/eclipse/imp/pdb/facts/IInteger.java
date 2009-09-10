@@ -106,4 +106,14 @@ public interface IInteger extends IValue {
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
     int compare(IInteger other);
+    
+    /**
+     * @return return -1, 0 or 1 iff this integer is less than, equal to or greater than zero.
+     */
+    int signum();
+
+    /**
+     * @return absolute value of this integer
+     */
+	IInteger abs();
 }

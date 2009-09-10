@@ -38,5 +38,5 @@ public interface IValueVisitor<R> {
    public R visitInteger(IInteger o) throws VisitorException;
    public R visitMap(IMap o) throws VisitorException;
    public R visitBoolean(IBool boolValue) throws VisitorException;
-   public R visitExternal(IExternalValue externalValue);
+   public R visitExternal(IExternalValue externalValue) throws VisitorException;
 }

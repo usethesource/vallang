@@ -29,7 +29,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class IntegerValue implements IInteger, ICanBecomeABigInteger{
+public class IntegerValue extends Value implements IInteger, ICanBecomeABigInteger{
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 	
 	private final static int EIGTH_BITS_MASK = 0x000000ff;
@@ -274,11 +274,15 @@ public class IntegerValue implements IInteger, ICanBecomeABigInteger{
 		return equals(value);
 	}
 	
-	public String toString(){
-		return new StringBuilder().append(value).toString();
+	public String getStringRepresentation(){
+		return Integer.toString(value);
+	}
+
+	public int signum() {
+		return value < 0 ? -1 : (value == 0 ? 0 : 1);
 	}
 	
-	public String getStringRepresentation(){
-		return toString();
+	public IInteger abs() {
+		return new IntegerValue(Math.abs(value));
 	}
 }
