@@ -102,23 +102,22 @@ public class ShareableList<E> implements Iterable<E>{
 			frontData = (E[]) new Object[frontCapacity];
 			System.arraycopy(shareableList.frontData, frontStartIndex, frontData, 0, length);
 		}else{
-			int backLength = length - backStartIndex;
-			if(backLength <= 0){ // Back only
+			if((offset + length) <= shareableList.backIndex){ // Back only
 				backIndex = length;
 				backCapacity = closestPowerOfTwo(length);
 				backData = (E[]) new Object[backCapacity];
-				System.arraycopy(shareableList.backData, shareableList.backIndex - length - offset, backData, 0, length);
+				System.arraycopy(shareableList.backData, backStartIndex - length, backData, 0, length);
 
 				frontIndex = 0;
 				frontCapacity = 2;
 				frontData = (E[]) new Object[frontCapacity];
 			}else{ // Front and Back overlap
-				backIndex = backLength;
-				backCapacity = closestPowerOfTwo(backLength);
+				backIndex = backStartIndex;
+				backCapacity = closestPowerOfTwo(backStartIndex);
 				backData = (E[]) new Object[backCapacity];
-				System.arraycopy(shareableList.backData, 0, backData, 0, backLength);
+				System.arraycopy(shareableList.backData, 0, backData, 0, backStartIndex);
 				
-				int frontLength = length - backLength;
+				int frontLength = length - backStartIndex;
 
 				frontIndex = frontLength;
 				frontCapacity = closestPowerOfTwo(frontLength);
