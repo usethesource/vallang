@@ -11,6 +11,7 @@
 package org.eclipse.imp.pdb.facts.impl.shared;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -43,18 +44,19 @@ public class SharedBigDecimalValue extends BigDecimalValue implements IShareable
 	}
 	
 	public IReal add(IReal other){
-		return SharedValueFactory.getInstance().real(value.add(((SharedBigDecimalValue) other).value, mc));
+		return SharedValueFactory.getInstance().real(value.add(((SharedBigDecimalValue) other).value));
 	}
 	
 	public IReal subtract(IReal other){
-		return SharedValueFactory.getInstance().real(value.subtract(((SharedBigDecimalValue) other).value, mc));
+		return SharedValueFactory.getInstance().real(value.subtract(((SharedBigDecimalValue) other).value));
 	}
 	
 	public IReal multiply(IReal other){
-		return SharedValueFactory.getInstance().real(value.multiply(((SharedBigDecimalValue) other).value, mc));
+		return SharedValueFactory.getInstance().real(value.multiply(((SharedBigDecimalValue) other).value));
 	}
 	
 	public IReal divide(IReal other, int precision){
+		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return SharedValueFactory.getInstance().real(value.divide(((SharedBigDecimalValue) other).value, mc));
 	}
 	

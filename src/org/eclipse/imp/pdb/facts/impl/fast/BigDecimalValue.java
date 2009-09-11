@@ -31,8 +31,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class BigDecimalValue extends Value implements IReal{
 	private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
 	
-	protected final static MathContext mc = MathContext.DECIMAL128; // More then good enough.
-	
 	protected final BigDecimal value;
 	
 	protected BigDecimalValue(BigDecimal value){
@@ -66,18 +64,19 @@ public class BigDecimalValue extends Value implements IReal{
 	}
 	
 	public IReal add(IReal other){
-		return ValueFactory.getInstance().real(value.add(((BigDecimalValue) other).value, mc));
+		return ValueFactory.getInstance().real(value.add(((BigDecimalValue) other).value));
 	}
 	
 	public IReal subtract(IReal other){
-		return ValueFactory.getInstance().real(value.subtract(((BigDecimalValue) other).value, mc));
+		return ValueFactory.getInstance().real(value.subtract(((BigDecimalValue) other).value));
 	}
 	
 	public IReal multiply(IReal other){
-		return ValueFactory.getInstance().real(value.multiply(((BigDecimalValue) other).value, mc));
+		return ValueFactory.getInstance().real(value.multiply(((BigDecimalValue) other).value));
 	}
 	
 	public IReal divide(IReal other, int precision){
+		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return ValueFactory.getInstance().real(value.divide(((BigDecimalValue) other).value, mc));
 	}
 	
@@ -133,17 +132,28 @@ public class BigDecimalValue extends Value implements IReal{
 		
 		if(o.getClass() == getClass()){
 			BigDecimalValue otherDouble = (BigDecimalValue) o;
-			return (value.compareTo(otherDouble.value) == 0);
+			return (value.equals(otherDouble.value));
 		}
 		
 		return false;
 	}
 	
-	public boolean isEqual(IValue value){
-		return equals(value);
+	public boolean isEqual(IValue o){
+		if(o == null) return false;
+
+		if(o.getClass() == getClass()){
+			BigDecimalValue otherDouble = (BigDecimalValue) o;
+			return (value.compareTo(otherDouble.value) == 0);
+		}
+		
+		return false; 
 	}
 	
 	public String getStringRepresentation(){
-		return value.toString();
+		StringBuilder sb = new StringBuilder();
+		String decimalString = value.toString();
+		sb.append(decimalString);
+		if(decimalString.indexOf(".") == -1) sb.append(".");
+		return sb.toString();
 	}
 }

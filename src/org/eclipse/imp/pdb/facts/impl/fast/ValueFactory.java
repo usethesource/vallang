@@ -104,7 +104,7 @@ public final class ValueFactory implements IValueFactory{
 	}
 	
 	public IReal real(double value){
-		return new BigDecimalValue(new BigDecimal(value));
+		return new BigDecimalValue(BigDecimal.valueOf(value));
 	}
 	
 	public IReal real(String doubleValue){

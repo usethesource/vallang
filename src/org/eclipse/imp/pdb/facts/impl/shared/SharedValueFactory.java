@@ -196,7 +196,7 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IReal real(double value){
-		return (IReal) buildValue(new SharedBigDecimalValue(new BigDecimal(value)));
+		return (IReal) buildValue(new SharedBigDecimalValue(BigDecimal.valueOf(value)));
 	}
 	
 	public IReal real(String doubleValue){

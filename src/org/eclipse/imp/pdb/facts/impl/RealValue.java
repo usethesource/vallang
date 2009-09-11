@@ -116,7 +116,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     }
     
     public String getStringRepresentation() {
-    	return fValue.toString();
+    	StringBuilder sb = new StringBuilder();
+		String decimalString = fValue.toString();
+		sb.append(decimalString);
+		if(decimalString.indexOf(".") == -1) sb.append(".");
+		return sb.toString();
     }
     
     public double doubleValue() {
