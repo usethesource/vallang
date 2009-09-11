@@ -22,7 +22,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class StringValue implements IString{
+public class StringValue extends Value implements IString {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 	
 	protected final String value;
