@@ -167,7 +167,7 @@ public class ATermReader extends AbstractReader {
 					throw new FactParseError("premature EOF encountered.", reader.getPosition());
 				}
 				if (reader.getLastChar() == ')') {
-					result = vf.constructor(node, new IValue[0]);
+					result = node.make(vf, ts, funname, new IValue[0]);
 				} else {
 					IValue[] list;
 					if (expected.isAbstractDataType()) {
@@ -183,19 +183,19 @@ public class ATermReader extends AbstractReader {
 					}
 					
 					if (expected.isAbstractDataType()) {
-						result = node.make(vf, list);
+						result = node.make(vf, ts, funname, list);
 					}
 					else {
-						result = node.make(vf, funname, list);
+						result = node.make(vf, ts, funname, list);
 					}
 				}
 				c = reader.readSkippingWS();
 			} else {
 				if (node.isAbstractDataType() || node.isConstructorType()) {
-					result = node.make(vf);
+					result = node.make(vf, ts);
 				}
 				else {
-					result = tf.nodeType().make(vf, funname);
+					result = tf.nodeType().make(vf, ts, funname);
 				}
 			}
 		} else {
