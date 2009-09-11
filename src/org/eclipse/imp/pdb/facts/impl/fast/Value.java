@@ -15,17 +15,8 @@ import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /*package*/ abstract class Value implements IValue {
-
-	abstract public <T> T accept(IValueVisitor<T> v) throws VisitorException;
-
-	abstract public Type getType();
-
-	abstract public boolean isEqual(IValue other);
 
 	@Override
 	public String toString() {
