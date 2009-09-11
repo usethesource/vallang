@@ -141,6 +141,19 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
+    public IValue make(IValueFactory f, TypeStore store, String name,
+    		IValue... children) {
+    	Type[] kids = new Type[children.length];
+    	for (int i = 0; i < kids.length; i++) {
+    		kids[i] = children[i].getType();
+    	}
+    	Type cons = store.lookupFirstConstructor(name, TypeFactory.getInstance().tupleType(kids));
+    	
+    	
+    	return cons.make(f, children);
+    }
+    
+    @Override
     public IValue make(IValueFactory f, boolean arg) {
     	return TypeFactory.getInstance().boolType().make(f, arg);
     }

@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -39,6 +40,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 public class StandardTextReader extends AbstractReader {
 
 	private static final char START_OF_LOC = '|';
+	private static final char START_OF_STRING = '\"';
+	private static final char END_OF_STRING = '\"';
 	private static final char START_OF_MAP = '(';
 	private static final char START_OF_TUPLE = '<';
 	private static final char START_OF_SET = '{';
@@ -50,6 +53,7 @@ public class StandardTextReader extends AbstractReader {
 	private static final char END_OF_SET = '}';
 	private static final char END_OF_LIST = ']';
 	private static final char END_OF_LOCATION = '|';
+	
 	
 	private TypeStore store;
 	private NoWhiteSpaceInputStream stream;
@@ -81,6 +85,9 @@ public class StandardTextReader extends AbstractReader {
 		}
 		else {
 			switch (current) {
+			case START_OF_STRING:
+				result = readString(expected);
+				break;
 			case START_OF_LIST:
 				result = readList(expected);
 				break;
@@ -163,8 +170,14 @@ public class StandardTextReader extends AbstractReader {
 		StringBuilder result = new StringBuilder();
 		
 		while (current != END_OF_LOCATION) {
-			result.append(current);
+			result.append((char) current);
+			current = stream.read();
+			if (current == -1) {
+				unexpected();
+			}
 		}
+		
+		current = stream.read();
 		
 		return result.toString();
 	}
@@ -204,12 +217,12 @@ public class StandardTextReader extends AbstractReader {
 	
 	private IValue readSet(Type expected) throws FactTypeUseException, IOException {
 		Type elemType = expected.isSetType() ? expected.getElementType() : types.valueType();
-		return readContainer(expected, factory.setWriter(elemType), END_OF_SET);
+		return readContainer(elemType, factory.setWriter(elemType), END_OF_SET);
 	}
 		
 	private IValue readList(Type expected) throws FactTypeUseException, IOException {
 		Type elemType = expected.isListType() ? expected.getElementType() : types.valueType();
-		return readContainer(expected, factory.listWriter(elemType), END_OF_LIST);
+		return readList(elemType, factory.listWriter(elemType), END_OF_LIST);
 	}
 
 	private IValue readNumber(Type expected) throws IOException {
@@ -256,24 +269,7 @@ public class StandardTextReader extends AbstractReader {
 				readFixed(expected, ')', arr);
 				IValue[] result = new IValue[arr.size()];
 				result = arr.toArray(result);
-				
-				if (expected.isConstructorType()) {
-					return expected.make(factory, result);
-				}
-				else if (expected.isAbstractDataType()) {
-					Type[] children = new Type[arr.size()];
-					for (int i = 0; i < arr.size(); i++) {
-						children[i] = arr.get(i).getType();
-					}
-					Type args = types.tupleType(children);
-					Type cons = store.lookupConstructor(expected, id, args);
-					
-					if (cons != null) {
-						return cons.make(factory, result);
-					}
-				}
-				
-				return factory.node(id, result);
+				return expected.make(factory, store, id, result);
 			}
 			
 			Type args = types.tupleType(new Type[0]);
@@ -303,6 +299,49 @@ public class StandardTextReader extends AbstractReader {
 		}
 		
 		return builder.toString();
+	}
+	
+	private IValue readString(Type expected) throws IOException {
+		StringBuilder builder = new StringBuilder();
+		current = stream.read();
+		
+		while (current != END_OF_STRING) {
+			builder.append((char) current);
+			current = stream.read();
+			
+			if (current == '\\') {
+				current = stream.read();
+				switch (current) {
+				case 'n':
+					builder.append('\n');
+					break;
+				case 't':
+					builder.append('\t');
+					break;
+				case 'r':
+					builder.append('\r');
+					break;
+				case '\\':
+					builder.append('\\');
+				}
+				current = stream.read();
+			}
+		}
+		
+		String str = builder.toString();
+		current = stream.read();
+		
+		
+		if (current == '(') {
+			ArrayList<IValue> arr = new ArrayList<IValue>();
+			readFixed(expected, ')', arr);
+			IValue[] result = new IValue[arr.size()];
+			result = arr.toArray(result);
+			
+			return factory.node(str, result);
+		}
+		
+		return factory.string(str);
 	}
 
 	private IValue readAnnos(Type expected, INode result) throws IOException {
@@ -347,7 +386,7 @@ public class StandardTextReader extends AbstractReader {
 		current = stream.read();
 		
 	   for (int i = 0; current != end; i++) {
-		   Type exp = expected.isTupleType() || expected.isConstructorType() ? expected.getFieldType(i) : types.valueType();
+		   Type exp = expected.isTupleType() ? expected.getFieldType(i) : types.valueType();
 		   arr.add(readValue(exp));
 		   
 		   if (current != ',' || current == end) {
@@ -363,6 +402,22 @@ public class StandardTextReader extends AbstractReader {
 		current = stream.read();
 		for (int i = 0; current != end; i++) {
 			w.insert(readValue(elemType));
+	
+			if (current != ',' || current == end) {
+				break; // no more elements, so expecting a '}'
+			}
+			current = stream.read();
+		}
+	
+		checkAndRead(end);
+	
+		return w.done();
+	}
+	
+	private IValue readList(Type elemType, IListWriter w, char end) throws FactTypeUseException, IOException {
+		current = stream.read();
+		for (int i = 0; current != end; i++) {
+			w.append(readValue(elemType));
 	
 			if (current != ',' || current == end) {
 				break; // no more elements, so expecting a '}'
