@@ -222,10 +222,30 @@ public class StandardTextWriter implements IValueWriter {
 		}
 
 		public IValue visitString(IString o) throws VisitorException {
-			// TODO optimize this implementation and finish all escapes
 			append('\"');
-		    append(o.getValue().replaceAll("\"", "\\\"").replaceAll("\n","\\\\n"));
-		    append('\"');
+		    for (byte ch : o.getValue().getBytes()) {
+		    	switch (ch) {
+		    	case '\"':
+		    		append('\\');
+		    		append('\"');
+		    		break;
+		    	case '\\':
+		    		append('\\');
+		    		append('\\');
+		    		break;
+		    	case '\n':
+		    		append('\\');
+		    		append('n');
+		    		break;
+		    	case '\t':
+		    		append('\\');
+		    		append('t');
+		    		break;
+		    	default:
+		    		append((char) ch);
+		    	}
+		    }
+ 		    append('\"');
 		    return o;
 		}
 
