@@ -127,7 +127,7 @@ public final class ValueFactory implements IValueFactory{
     	try{
 			return sourceLocation(new URI("file://" + path), offset, length, beginLine, endLine, beginCol, endCol);
 		}catch(URISyntaxException e){
-			throw new FactParseError("Illegal path syntax.", e);
+			throw new FactParseError("Illegal path syntax: " + path, e);
 		}
     }
 	
