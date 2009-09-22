@@ -148,7 +148,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * @return true iff this type has a field named fieldName
 	 */
 	public boolean hasField(String fieldName, TypeStore store) {
-		throw new IllegalOperationException("hasField", this);
+		return hasField(fieldName);
 	}
 
 	/**
