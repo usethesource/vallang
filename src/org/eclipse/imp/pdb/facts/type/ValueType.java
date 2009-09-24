@@ -17,6 +17,7 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 
 /* package */ final class ValueType extends Type {
 	private static class InstanceHolder {
@@ -149,6 +150,9 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	}
     	Type cons = store.lookupFirstConstructor(name, TypeFactory.getInstance().tupleType(kids));
     	
+    	if (cons == null) {
+    		return TypeFactory.getInstance().nodeType().make(f, name, children);
+    	}
     	
     	return cons.make(f, children);
     }
