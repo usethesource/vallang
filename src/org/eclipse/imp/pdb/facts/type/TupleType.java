@@ -183,25 +183,47 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
      * Precondition: t1 and t2 have the same arity.
      * @param t1
      * @param t2
-     * @return a TupleType which is the lub of t1 and t2
+     * @return a TupleType which is the lub of t1 and t2, if all the names are equal at every 
+     *         position, they remain, otherwise we get an unlabeled tuple.
      */
     private Type lubNamedTupleTypes(Type t1, Type t2) {
     	int N = t1.getArity();
     	Object[] fieldTypes = new Object[N*2];
+    	Type[] types = new Type[N];
     	boolean first = t1.hasFieldNames();
+    	boolean second = t2.hasFieldNames();
+    	boolean consistent = true;
     	
     	for (int i = 0, j = 0; i < N; i++, j++) {
-    		fieldTypes[j++] = t1.getFieldType(i).lub(t2.getFieldType(i));
+    		Type lub = t1.getFieldType(i).lub(t2.getFieldType(i));
+    		types[i] = lub;
+			fieldTypes[j++] = lub;
     		
-			if (first) {
+			if (first && second) {
+				String fieldName1 = t1.getFieldName(i);
+				String fieldName2 = t2.getFieldName(i);
+				
+				if (fieldName1.equals(fieldName2)) {
+					fieldTypes[j] = fieldName1;
+				}
+				else {
+					consistent = false;
+				}
+    		}
+    		else if (first) {
     			fieldTypes[j] = t1.getFieldName(i);
     		}
-    		else {
-    			fieldTypes[j] = t2.getFieldName(i);
+    		else if (second) {
+    			fieldTypes[i] = t2.getFieldName(i);
     		}
     	}
     	
-    	return TypeFactory.getInstance().tupleType(fieldTypes);
+    	if (consistent && first && second) {
+    		return TypeFactory.getInstance().tupleType(fieldTypes);
+    	}
+    	else {
+    		return TypeFactory.getInstance().tupleType(types);
+    	}
     }
     
     @Override

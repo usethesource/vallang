@@ -121,6 +121,9 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     			b.append(", ");
     		}
     		b.append(t.toString());
+    		if (fTupleType.hasFieldNames()) {
+    		  b.append(" " + fTupleType.getFieldName(idx-1));
+    		}
     	}
     	b.append("]");
     	return b.toString();
