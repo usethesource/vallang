@@ -21,7 +21,7 @@ public interface ISet extends Iterable<IValue>, IValue {
 	public Type getElementType();
 	
 	/**
-	 * @return true iff this set has no elements
+	 * @return true if this set has no elements
 	 */
     public boolean isEmpty();
 
@@ -32,7 +32,7 @@ public interface ISet extends Iterable<IValue>, IValue {
 
     /**
      * @param element
-     * @return true iff this is an element of the set
+     * @return true if this is an element of the set
      */
     public boolean contains(IValue element);
 
@@ -85,7 +85,7 @@ public interface ISet extends Iterable<IValue>, IValue {
     
     /**
      * @param other
-     * @return true iff all elements of this set are elements of the other.
+     * @return true if all elements of this set are elements of the other.
      */
     public boolean isSubsetOf(ISet other);
 }

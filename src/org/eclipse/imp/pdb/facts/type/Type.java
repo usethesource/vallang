@@ -246,7 +246,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	/**
 	 * For a tuple type or a relation type, determine whether the
 	 * fields are labelled or not.
-	 * @return iff the fields of a type or relation have been labelled
+	 * @return if the fields of a type or relation have been labelled
 	 */
 	public boolean hasFieldNames() {
 		throw new IllegalOperationException("getFieldNames", this);
@@ -258,7 +258,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * 
 	 * @param label
 	 * @param store to find the declaration in
-	 * @return true iff this type has an annotation named label declared for it. 
+	 * @return true if this type has an annotation named label declared for it. 
 	 */
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return false;
@@ -295,7 +295,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * type hierarchy.
 	 * 
 	 * @param other
-	 * @return true iff the receiver is a subtype of the other typ
+	 * @return true if the receiver is a subtype of the other type
 	 */
 	public boolean isSubtypeOf(Type other) {
 		// this is the default implementation. Subclasses should override
@@ -314,7 +314,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	
 	/**
 	 * Return whether an ADT or an alias Type has any type parameters
-	 * @return true iff the type is parameterized
+	 * @return true if the type is parameterized
 	 */
 	public boolean isParameterized() {
 		return false;
@@ -323,7 +323,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	/**
 	 * Compute whether this type is a subtype of the other or vice versa
 	 * @param other type to compare to
-	 * @return true iff the types are comparable.
+	 * @return true if the types are comparable.
 	 */
 	public boolean comparable(Type other) {
 		return (other == this) || isSubtypeOf(other) || other.isSubtypeOf(this);
@@ -332,7 +332,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	/**
 	 * Computer whether this type is equivalent to another. 
 	 * @param other type to compare to
-	 * @return true iff the two types are sub-types of each-other;
+	 * @return true if the two types are sub-types of each-other;
 	 */
 	public boolean equivalent(Type other) {
 		return (other == this) || (isSubtypeOf(other) && other.isSubtypeOf(this));
@@ -554,7 +554,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * 
 	 * @param f    factory to use
 	 * @param args arguments to use
-	 * @return a value of the apropriate type
+	 * @return a value of the appropriate type
 	 */
 	public IValue make(IValueFactory f, IValue...args) {
 		throw new IllegalOperationException("apply to children", this);

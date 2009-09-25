@@ -375,6 +375,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
+	public boolean isExternalType(){
+		return fAliased.isExternalType();
+	}
+
+	@Override
 	public Iterator<Type> iterator() {
 		return fAliased.iterator();
 	}
@@ -417,5 +422,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	@Override
 	public Type select(String... names) {
 		return fAliased.select(names);
+	}
+
+	@Override
+	public boolean hasField(String fieldName){
+		return fAliased.hasField(fieldName);
+	}
+
+	@Override
+	public boolean hasField(String fieldName, TypeStore store){
+		return fAliased.hasField(fieldName, store);
 	}
 }

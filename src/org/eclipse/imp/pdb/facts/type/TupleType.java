@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
-/*package*/ final class TupleType extends Type implements Iterable<Type> {
+/*package*/ final class TupleType extends Type {
 	private final Type[] fFieldTypes;
 	private final String[] fFieldNames;
 	private int fHashcode= -1;

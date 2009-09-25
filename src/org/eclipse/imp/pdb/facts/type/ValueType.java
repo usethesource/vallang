@@ -17,7 +17,6 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 
 /* package */ final class ValueType extends Type {
 	private static class InstanceHolder {
