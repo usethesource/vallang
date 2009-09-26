@@ -105,6 +105,16 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
+	public String getKeyLabel() {
+		return null;
+	}
+	
+	@Override
+	public String getValueLabel() {
+		return null;
+	}
+	
+	@Override
 	public Type select(int... fields) {
 		return this;
 	}

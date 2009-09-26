@@ -268,6 +268,14 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		throw new IllegalOperationException("getAnnotationType", this);
 	}
 	
+	public String getKeyLabel() {
+		throw new IllegalOperationException("getKeyLabel", this);
+	}
+
+	public String getValueLabel() {
+		throw new IllegalOperationException("getValueLabel", this);
+	}
+	
 	/**
 	 * @return the least upper bound type of the receiver and the argument type
 	 */
@@ -631,4 +639,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		}
 		return 0;
 	}
+
+	
 }

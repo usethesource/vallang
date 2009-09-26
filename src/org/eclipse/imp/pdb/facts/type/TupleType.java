@@ -112,12 +112,17 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		TypeFactory tf = TypeFactory.getInstance();
 		
 		if (hasFieldNames() && other.hasFieldNames()) {
-			return tf.tupleType(
-					this.getFieldType(0), 
-					this.getFieldName(0),
-					other.getFieldType(1), 
-					other.getFieldName(1)
-					);
+			String fieldNameLeft = this.getFieldName(0);
+			String fieldNameRight = other.getFieldName(1);
+			
+			if (!fieldNameLeft.equals(fieldNameRight)) {
+				return tf.tupleType(
+						this.getFieldType(0), 
+						fieldNameLeft,
+						other.getFieldType(1), 
+						fieldNameRight
+				);
+			}
 		}
 		
 		return tf.tupleType(this.getFieldType(0), other.getFieldType(1));
@@ -404,13 +409,25 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
         	
     		Type[] fieldTypes = new Type[width];
     		String[] fieldNames = new String[width];
+    		boolean seenDuplicate = false;
     		
 		    for (int i = width - 1; i >= 0; i--) {
 		    	fieldTypes[i] = getFieldType(fields[i]);
 		    	fieldNames[i] = getFieldName(fields[i]);
+		    	
+		    	for (int j = width - 1; j > i; j--) {
+		    		if (fieldNames[j].equals(fieldNames[i])) {
+		    			seenDuplicate = true;
+		    		}
+		    	}
 		    }
 		    
-		    return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
+		    if (!seenDuplicate) {
+		    	return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
+		    }
+		    else {
+		    	return TypeFactory.getInstance().tupleType(fieldTypes);
+		    }
         }
 	}
 	

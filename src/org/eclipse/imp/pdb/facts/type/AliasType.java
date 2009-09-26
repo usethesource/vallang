@@ -230,6 +230,16 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	public String getKeyLabel() {
+		return fAliased.getKeyLabel();
+	}
+	
+	@Override
+	public String getValueLabel() {
+		return fAliased.getValueLabel();
+	}
+	
+	@Override
 	public Type getFieldType(int i) {
 		return fAliased.getFieldType(i);
 	}

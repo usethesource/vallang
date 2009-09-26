@@ -420,8 +420,29 @@ public class TypeFactory {
     	checkNull(key, value);
     	return getFromCache(new MapType(key, value));
 	}
+    
+	public Type mapTypeFromTuple(Type fields) {
+		checkNull(fields);
+		if (!fields.isTupleType()) {
+			throw new UnsupportedOperationException("fields argument should be a tuple. not " + fields);
+		}
+		if (fields.getArity() < 2) {
+			throw new IndexOutOfBoundsException();
+		}
+		if (fields.hasFieldNames()) {
+			return mapType(fields.getFieldType(0), fields.getFieldName(0), fields.getFieldType(1), fields.getFieldName(1));
+		}
+		else {
+			return mapType(fields.getFieldType(0), fields.getFieldType(1));
+		}
+	}
 
-    /** 
+    public Type mapType(Type key, String keyLabel, Type value, String valueLabel) {
+    	checkNull(key, keyLabel, value, valueLabel);
+    	return getFromCache(new MapType(key, keyLabel, value, valueLabel));
+	}
+
+	/** 
      * Construct a type parameter, which can later be instantiated.
      * @param name   the name of the type parameter
      * @param bound  the widest type that is acceptable when this type is instantiated
@@ -469,4 +490,6 @@ public class TypeFactory {
 		
 		return true;
 	}
+
+
 }

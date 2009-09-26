@@ -18,21 +18,48 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 /*package*/ final class MapType extends Type {
     private final Type fKeyType;
     private final Type fValueType;
+    private final String fKeyLabel;
+    private final String fValueLabel;
     
     /*package*/ MapType(Type keyType, Type valueType) {
     	fKeyType= keyType;
     	fValueType = valueType;
+    	fKeyLabel = null;
+    	fValueLabel = null;
     }
     
-    @Override
+    /*package*/ MapType(Type keyType, String keyLabel, Type valueType, String valueLabel) {
+    	fKeyType= keyType;
+    	fValueType = valueType;
+    	fKeyLabel = keyLabel;
+    	fValueLabel = valueLabel;
+    }
+    
+	@Override
     public Type getKeyType() {
     	return fKeyType;
     }
     
+	@Override
+	public String getKeyLabel() {
+		return fKeyLabel;
+	}
+	
+	@Override
+	public int getArity() {
+		return 2;
+	}
+	
+	@Override
+	public String getValueLabel() {
+		return fValueLabel;
+	}
+	
     @Override
     public Type getValueType() {
     	return fValueType;
@@ -43,6 +70,86 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     	return true;
     }
   
+    @Override
+    public boolean hasFieldNames() {
+    	return fKeyLabel != null && fValueLabel != null;
+    }
+    
+    @Override
+    public Type getFieldType(String fieldName) throws FactTypeUseException {
+    	if (fKeyLabel.equals(fieldName)) {
+    		return fKeyType;
+    	}
+    	if (fValueLabel.equals(fieldName)) {
+    		return fValueType;
+    	}
+    	throw new UndeclaredFieldException(this, fieldName);
+    }
+    
+    @Override
+    public boolean hasField(String fieldName) {
+    	if (fieldName.equals(fKeyLabel)) {
+    		return true;
+    	}
+    	else if (fieldName.equals(fValueLabel)) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    @Override
+    public Type getFieldType(int i) {
+    	switch (i) {
+    	case 0: return fKeyType;
+    	case 1: return fValueType;
+    	default:
+    		throw new IndexOutOfBoundsException();
+    	}
+    }
+    
+    @Override
+    public String getFieldName(int i) {
+    	switch (i) {
+    	case 0: return fKeyLabel;
+    	case 1: return fValueLabel;
+    	default:
+    		throw new IndexOutOfBoundsException();
+    	}
+
+    }
+    
+    @Override
+    public Type select(int... fields) {
+    	return TypeFactory.getInstance().setType(getFieldTypes().select(fields));
+    }
+    
+    @Override
+    public Type select(String... names) {
+    	return TypeFactory.getInstance().setType(getFieldTypes().select(names));
+    }
+    
+    @Override
+    public int getFieldIndex(String fieldName) {
+    	if (fKeyLabel.equals(fieldName)) {
+    		return 0;
+    	}
+    	if (fValueLabel.equals(fieldName)) {
+    		return 1;
+    	}
+    	throw new UndeclaredFieldException(this, fieldName);
+    }
+    
+    @Override
+    public Type getFieldTypes() {
+    	if (hasFieldNames()) {
+    		return TypeFactory.getInstance().tupleType(fKeyType, fKeyLabel, fValueType, fValueLabel);
+    	}
+    	else {
+    		return TypeFactory.getInstance().tupleType(fKeyType, fValueType);
+    	}
+    }
+    
     @Override
     public boolean isSubtypeOf(Type o) {
         if (o.isMapType()) {
@@ -55,8 +162,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     @Override
     public Type lub(Type o) {
     	if (o.isMapType()) {
-    		return TypeFactory.getInstance().mapType(fKeyType.lub(o.getKeyType()),
-    				                                 fValueType.lub(o.getValueType()));
+    		// reusing tuple type here because of complexity dealing with labels
+    		return TypeFactory.getInstance().mapTypeFromTuple(getFieldTypes().lub(o.getFieldTypes()));
     	}
     	
     	return super.lub(o);
@@ -79,6 +186,19 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
             return false;
         }
         MapType other= (MapType) obj;
+        
+        if (fKeyLabel != null) {
+        	if (!fKeyLabel.equals(other.fKeyLabel)) {
+        		return false;
+        	}
+        }
+        
+        if (fValueLabel != null) {
+        	if (!fValueLabel.equals(other.fValueLabel)) {
+        		return false;
+        	}
+        }
+        
         // N.B.: The element type must have been created and canonicalized before any
         // attempt to manipulate the outer type (i.e. SetType), so we can use object
         // identity here for the fEltType.
@@ -87,7 +207,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
     @Override
     public String toString() {
-        return "map[" + fKeyType + "," + fValueType + "]";
+    	return "map[" + 
+    	fKeyType + (fKeyLabel != null ? " " + fKeyLabel : "") + ", " 
+    	+ fValueType + (fValueLabel != null ? " " + fValueLabel : "")  + 
+    	"]";
     }
     
     @Override

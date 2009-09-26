@@ -72,6 +72,17 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     	return true;
     }
     
+    
+    @Override
+    public Type select(int... fields) {
+    	return TypeFactory.getInstance().setType(fTupleType.select(fields));
+    }
+    
+    @Override
+    public Type select(String... names) {
+    	return TypeFactory.getInstance().setType(fTupleType.select(names));
+    }
+    
     @Override
     public boolean isSubtypeOf(Type o) {
         if (o.isRelationType()) {
