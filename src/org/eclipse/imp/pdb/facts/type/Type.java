@@ -317,6 +317,9 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		if (other.isAliasType() && !other.isVoidType()) {
 			return isSubtypeOf(other.getAliased());
 		}
+		if (other.isParameterType() && !other.isVoidType()) {
+			return isSubtypeOf(other.getBound());
+		}
 		return false;
 	}
 	

@@ -223,6 +223,10 @@ public class Node extends Value implements INode {
 	public INode setAnnotation(String label, IValue value) {
 		IValue previous = getAnnotation(label);
 		
+		if (value == null) {
+			throw new NullPointerException();
+		}
+		
 		if (previous != null) {
 			Type expected = previous.getType();
 	
