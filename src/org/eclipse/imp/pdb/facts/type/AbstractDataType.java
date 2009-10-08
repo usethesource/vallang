@@ -52,13 +52,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other == this || other.isValueType()) {
+		if (other == this || (!other.isVoidType() && other.isValueType())) {
 			return true;
 		}
 		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
 			return fParameters.isSubtypeOf(other.getTypeParameters());
 		}
-		else if (other.isAliasType()) {
+		else if (other.isAliasType() && !other.isVoidType()) {
 			return isSubtypeOf(other.getAliased());
 		}
 		
