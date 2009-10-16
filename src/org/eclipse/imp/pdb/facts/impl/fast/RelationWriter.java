@@ -34,6 +34,10 @@ public class RelationWriter implements IRelationWriter{
 	protected RelationWriter(Type tupleType){
 		super();
 		
+		if (!tupleType.isTupleType()) {
+			throw new IllegalArgumentException("should be a tuple type");
+		}
+		
 		this.tupleType = tupleType;
 		
 		data = new ShareableValuesHashSet();
