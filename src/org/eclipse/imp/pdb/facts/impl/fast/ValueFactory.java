@@ -73,6 +73,23 @@ public final class ValueFactory implements IValueFactory{
 		return new IntegerValue(value);
 	}
 	
+	public IInteger integer(long value){
+		if(((value >>> 32) & 0xffffffff) == 0){
+			return integer((int) value);
+		}else{
+			byte[] valueData = new byte[8];
+			valueData[0] = (byte) ((value >>> 56) & 0xff);
+			valueData[1] = (byte) ((value >>> 48) & 0xff);
+			valueData[2] = (byte) ((value >>> 40) & 0xff);
+			valueData[3] = (byte) ((value >>> 32) & 0xff);
+			valueData[4] = (byte) ((value >>> 24) & 0xff);
+			valueData[5] = (byte) ((value >>> 16) & 0xff);
+			valueData[6] = (byte) ((value >>> 8) & 0xff);
+			valueData[7] = (byte) (value & 0xff);
+			return integer(valueData);
+		}
+	}
+	
 	public IInteger integer(String integerValue){
 		if(integerValue.startsWith("-")){
 			if(integerValue.length() < 11 || (integerValue.length() == 11 && integerValue.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)){

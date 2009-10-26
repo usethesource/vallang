@@ -43,6 +43,12 @@ public interface IValueFactory {
 	 */
     public IInteger integer(int i);
     
+	/**
+	 * @param i
+	 * @return a value representing the integer i, with type IntegerType
+	 */
+    public IInteger integer(long i);
+    
     /**
      * Construct an integer from the two's complement big-endian representation
      * @param a
