@@ -63,6 +63,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return f.node(name);
     }
     
+    public IValue make(IValueFactory f, TypeStore store, String name) {
+    	return f.node(name);
+	}
+    
     @Override
     public IValue make(IValueFactory f, String name, IValue... children) {
     	return f.node(name, children);
