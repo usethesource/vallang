@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.RotatingQueue;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
+import org.eclipse.imp.pdb.facts.util.ValueIndexedHashMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
@@ -184,8 +185,8 @@ public class Relation extends Set implements IRelation{
 		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<IValue>();
 		RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<RotatingQueue<IValue>>();
 		
-		ShareableHashMap<IValue, RotatingQueue<IValue>> interestingLeftSides = new ShareableHashMap<IValue, RotatingQueue<IValue>>();
-		ShareableHashMap<IValue, ShareableValuesHashSet> potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
+		ValueIndexedHashMap<RotatingQueue<IValue>> interestingLeftSides = new ValueIndexedHashMap<RotatingQueue<IValue>>();
+		ValueIndexedHashMap<ShareableValuesHashSet> potentialRightSides = new ValueIndexedHashMap<ShareableValuesHashSet>();
 		
 		// Index
 		Iterator<IValue> allDataIterator = allData.iterator();
@@ -218,8 +219,8 @@ public class Relation extends Set implements IRelation{
 		
 		// Compute
 		do{
-			ShareableHashMap<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
-			potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
+			ValueIndexedHashMap<ShareableValuesHashSet> rightSides = potentialRightSides;
+			potentialRightSides = new ValueIndexedHashMap<ShareableValuesHashSet>();
 			
 			for(; size > 0; size--){
 				IValue leftKey = iLeftKeys.get();

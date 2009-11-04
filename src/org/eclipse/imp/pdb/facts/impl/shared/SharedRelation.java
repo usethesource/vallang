@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.RotatingQueue;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
+import org.eclipse.imp.pdb.facts.util.ValueIndexedHashMap;
 
 /**
  * Implementation of shareable relations.
@@ -193,8 +194,8 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<IValue>();
 		RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<RotatingQueue<IValue>>();
 		
-		ShareableHashMap<IValue, RotatingQueue<IValue>> interestingLeftSides = new ShareableHashMap<IValue, RotatingQueue<IValue>>();
-		ShareableHashMap<IValue, ShareableValuesHashSet> potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
+		ValueIndexedHashMap<RotatingQueue<IValue>> interestingLeftSides = new ValueIndexedHashMap<RotatingQueue<IValue>>();
+		ValueIndexedHashMap<ShareableValuesHashSet> potentialRightSides = new ValueIndexedHashMap<ShareableValuesHashSet>();
 		
 		// Index
 		Iterator<IValue> allDataIterator = allData.iterator();
@@ -227,8 +228,8 @@ public class SharedRelation extends SharedSet implements IShareable, IRelation{
 		
 		// Compute
 		do{
-			ShareableHashMap<IValue, ShareableValuesHashSet> rightSides = potentialRightSides;
-			potentialRightSides = new ShareableHashMap<IValue, ShareableValuesHashSet>();
+			ValueIndexedHashMap<ShareableValuesHashSet> rightSides = potentialRightSides;
+			potentialRightSides = new ValueIndexedHashMap<ShareableValuesHashSet>();
 			
 			for(; size > 0; size--){
 				IValue leftKey = iLeftKeys.get();
