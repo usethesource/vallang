@@ -310,7 +310,6 @@ public class XMLReader extends AbstractReader {
 		
 		return vf.constructor(nodeType, writer.done());
 	}
-
    
 	private IValue parseTreeSort(Node node, Type expected) {
 		// TODO deal with overloading

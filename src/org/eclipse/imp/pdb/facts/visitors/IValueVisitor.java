@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -39,4 +40,5 @@ public interface IValueVisitor<R> {
    public R visitMap(IMap o) throws VisitorException;
    public R visitBoolean(IBool boolValue) throws VisitorException;
    public R visitExternal(IExternalValue externalValue) throws VisitorException;
+   public R visitDateTime(IDateTime o) throws VisitorException;
 }

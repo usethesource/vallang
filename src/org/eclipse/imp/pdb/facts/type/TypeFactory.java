@@ -140,6 +140,14 @@ public class TypeFactory {
         return SourceLocationType.getInstance();
     }
 
+    /**
+     * Construct a new type.
+     * @return a reference to the unique datetime type of the PDB.
+     */
+    public Type dateTimeType() {
+    	return DateTimeType.getInstance();
+    }
+    
     private TupleType getOrCreateTuple(Type[] fieldTypes) {
     	return (TupleType) getFromCache(new TupleType(fieldTypes));
     }

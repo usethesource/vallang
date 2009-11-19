@@ -12,6 +12,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -79,6 +80,10 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 	}
 	
 	public T visitExternal(IExternalValue externalValue) {
+		return null;
+	}
+	
+	public T visitDateTime(IDateTime o) {
 		return null;
 	}
 }

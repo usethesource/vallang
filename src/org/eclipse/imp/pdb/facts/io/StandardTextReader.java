@@ -16,7 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -53,6 +57,7 @@ public class StandardTextReader extends AbstractReader {
 	private static final char END_OF_SET = '}';
 	private static final char END_OF_LIST = ']';
 	private static final char END_OF_LOCATION = '|';
+	private static final char START_OF_DATETIME = '$';
 	
 	
 	private TypeStore store;
@@ -79,7 +84,7 @@ public class StandardTextReader extends AbstractReader {
 		if (Character.isDigit(current)) {
 			result = readNumber(expected);
 		} 
-		else if (Character.isJavaIdentifierStart(current)
+		else if ((Character.isJavaIdentifierStart(current) && '$' != current)
 				|| current == '\\') {
 			result = readNode(expected);
 		}
@@ -102,6 +107,9 @@ public class StandardTextReader extends AbstractReader {
 				break;
 			case START_OF_LOC:
 				result = readLocation(expected);
+				break;
+			case START_OF_DATETIME:
+				result = readDateTime(expected);
 				break;
 			default:
 				unexpected();
@@ -281,6 +289,227 @@ public class StandardTextReader extends AbstractReader {
 			
 			return factory.node(id);
 		}
+	}
+
+	/**
+	 * Read in a single character from the input stream and append it to the
+	 * given buffer only if it is numeric.
+	 *  
+	 * @param buf	The buffer to which the read character should be appended
+	 * 
+	 * @return		True if the input character was numeric [0-9] and was appended,
+	 * 				false otherwise.
+	 * 
+	 * @throws IOException	when an error is encountered reading the input stream
+	 */
+	private boolean readAndAppendIfNumeric(StringBuilder buf) throws IOException {
+		current = stream.read();
+		if (Character.isDigit(current)) {
+			buf.append((char)current);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Read in a date value, given as a string of the form NNNN-NN-NN, where each 
+	 * N is a digit [0-9]. The groups are the year, month, and day of month.
+	 * 
+	 * @return A string of the form NNNNNNNN; i.e., the read string with all the
+	 * 		   '-' characters removed
+	 * 
+	 * @throws IOException	when an error is encountered reading the input stream
+	 * @throws FactParseError	when the correct characters are not found while lexing
+	 *                          the date
+	 */
+	private String readDate(char firstChar) throws IOException, FactParseError {
+		StringBuilder buf = new StringBuilder();
+		buf.append(firstChar);
+		
+		// The first four characters should be the year
+		for (int i = 0; i < 3; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading date, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		// The next character should be a '-'
+		current = stream.read();		
+		if ('-' != current) {
+			throw new FactParseError("Error reading date, expected '-', found: " + current, stream.offset);
+		}
+		
+		// The next two characters should be the month
+		for (int i = 0; i < 2; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading date, expected digit, found: " + current, stream.offset);
+			}
+		}
+			
+		// The next character should be a '-'
+		current = stream.read();		
+		if ('-' != current) {
+			throw new FactParseError("Error reading date, expected '-', found: " + current, stream.offset);
+		}
+		
+		// The next two characters should be the day
+		for (int i = 0; i < 2; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading date, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		return buf.toString();
+	}
+	
+	/**
+	 * Read in a time value, given as a string of the form NN:NN:NN.NNN[+-]NN:NN,
+	 * where each N is a digit [0-9]. The groups are the hour, minute, second,
+	 * millisecond, timezone hour offset, and timezone minute offset.
+	 *  
+	 * @return A string of the form NNNNNNNNN[+-]NNNN, i.e., the read string
+	 *         with all the colons removed.
+	 *         
+	 * @throws IOException	when an error is encountered reading the input stream
+	 * @throws FactParseError	when the correct characters are not found while lexing
+	 *                          the time
+	 */
+	private String readTime() throws IOException, FactParseError {
+		StringBuilder buf = new StringBuilder();
+
+		// The first two characters should be the hour
+		for (int i = 0; i < 2; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading time, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		// The next character should be a ':'
+		current = stream.read();		
+		if (':' != current) {
+			throw new FactParseError("Error reading time, expected ':', found: " + current, stream.offset);
+		}
+		
+		// The next two characters should be the minute
+		for (int i = 0; i < 2; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading time, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		// The next character should be a ':'
+		current = stream.read();		
+		if (':' != current) {
+			throw new FactParseError("Error reading time, expected ':', found: " + current, stream.offset);
+		}
+		
+		// The next two characters should be the second
+		for (int i = 0; i < 2; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading time, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		// The next character should be a '.'
+		current = stream.read();		
+		if ('.' != current) {
+			throw new FactParseError("Error reading time, expected '.', found: " + current, stream.offset);
+		}
+		
+		// The next three characters should be the millisecond
+		for (int i = 0; i < 3; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading time, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		// The next character should be '+' or '-'
+		current = stream.read();		
+		if (! ('+' == current || '-' == current)) {
+			throw new FactParseError("Error reading time, expected '+' or '-', found: " + current, stream.offset);
+		}
+		buf.append((char)current);
+		
+		// The next two characters should be the hour offset
+		for (int i = 0; i < 2; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading time, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		// The next two characters should be the minute offset
+		for (int i = 0; i < 2; ++i) {
+			boolean res = readAndAppendIfNumeric(buf);
+			if (!res) {
+				throw new FactParseError("Error reading time, expected digit, found: " + current, stream.offset);
+			}
+		}
+		
+		return buf.toString();
+	}
+
+	private IValue readDateTime(Type expected) throws IOException, FactParseError {
+		String formatString = "";
+		String toParse = "";		
+		boolean isDate = false; 
+		boolean isTime = false; 
+		
+		// Retrieve the string to parse and pick the correct format string,
+		// based on whether we are reading a time, a date, or a datetime.
+		current = stream.read();
+		
+		if ('T' == current || 't' == current) {
+			toParse = readTime();
+			formatString = "HHmmssSSSZZZZZ";
+			isTime = true;
+			current = stream.read(); // advance to next character for parsing
+		} else {
+			toParse = readDate((char)current);
+			current = stream.read();
+			if ('T' == current || 't' == current) {
+				toParse = toParse + readTime();
+				formatString = "yyyyMMddHHmmssSSSZZZZZ";
+				current = stream.read(); // advance to next character for parsing
+			} else {
+				formatString = "yyyyMMdd";
+				isDate = true;
+				// no need to advance here, already did when checked for T
+			}
+		}
+			
+		SimpleDateFormat df = new SimpleDateFormat(formatString);
+		
+		try {
+			Calendar cal = Calendar.getInstance();
+			Date dt = df.parse(toParse);
+			cal.setTime(dt);
+			
+			if (isDate) {
+				return factory.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH));				
+			} else { 
+				int hourOffset = cal.get(Calendar.ZONE_OFFSET) / 3600000;
+				int minuteOffset = (cal.get(Calendar.ZONE_OFFSET) / 60000)%60;
+				if (isTime) {
+					return factory.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), 
+							cal.get(Calendar.MILLISECOND), hourOffset, minuteOffset);
+				} else {
+					return factory.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH),
+							cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), 
+							cal.get(Calendar.MILLISECOND), hourOffset, minuteOffset);
+				}
+			}
+		} catch (ParseException pe) {
+			throw new FactParseError("Unable to parse datatime string " + toParse + " using format string " + formatString, stream.offset, pe);
+		}		
 	}
 
 	private String readIdentifier() throws IOException {

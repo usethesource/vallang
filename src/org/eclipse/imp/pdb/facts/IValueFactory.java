@@ -264,4 +264,83 @@ public interface IValueFactory {
 	 * @return a boolean
 	 */
 	public IBool bool(boolean value);
+	
+	/**
+	 * Create a new DateTime representing a date with the given date fields
+	 * 
+	 * @param year		the year of the date
+	 * @param month		the month of the date
+	 * @param day		the day of the date
+	 * 
+	 * @return			a DateTime date with the provided year, month, and day
+	 */
+	public IDateTime date(int year, int month, int day);
+
+	/**
+	 * Create a new DateTime representing a time with the given time fields
+	 * 
+	 * @param hour				the hour of the time
+	 * @param minute			the minute of the time
+	 * @param second			the second of the time
+	 * @param millisecond		the millisecond of the time
+	 * 
+	 * @return					a DateTime time with the provided hour, minute, second, and milliseconds
+	 */
+	public IDateTime time(int hour, int minute, int second, int millisecond);
+	
+	/**
+	 * Create a new DateTime representing a time with the given time fields
+	 * 
+	 * @param hour				the hour of the time
+	 * @param minute			the minute of the time
+	 * @param second			the second of the time
+	 * @param millisecond		the millisecond of the time
+	 * @param hourOffset		the hour offset of the timezone for this time (can be negative)
+	 * @param minuteOffset		the minute offset of the timezone for this time (can be negative if the hourOffset is 0)
+	 * 
+	 * @return					a DateTime time with the provided hour, minute, second, milliseconds, and timezone offset
+	 */
+	public IDateTime time(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset);
+	
+	/**
+	 * Create a new DateTime with the given date and time fields
+	 * 
+	 * @param year				the year of the date
+	 * @param month				the month of the date
+	 * @param day				the day of the date
+	 * @param hour				the hour of the time
+	 * @param minute			the minute of the time
+	 * @param second			the second of the time
+	 * @param millisecond		the millisecond of the time
+	 * 
+	 * @return					a DateTime with the values for year, month, etc provided in the parameters
+	 */
+	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond);
+
+	/**
+	 * Create a new DateTime with the given date and time fields
+	 * 
+	 * @param year				the year of the date
+	 * @param month				the month of the date
+	 * @param day				the day of the date
+	 * @param hour				the hour of the time
+	 * @param minute			the minute of the time
+	 * @param second			the second of the time
+	 * @param millisecond		the millisecond of the time
+	 * @param hourOffset		the hour offset of the timezone for this time (can be negative)
+	 * @param minuteOffset		the minute offset of the timezone for this time (can be negative if the hourOffset is 0)
+	 * 
+	 * @return					a DateTime with the values for year, month, etc provided in the parameters
+	 */
+	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset);
+	
+	/**
+	 * Create a new DateTime representing the given instant.
+	 * 
+	 * @param instant			the instant in time, according to the Java epoch
+	 * 
+	 * @return					a DateTime set to the given instant in time
+	 */
+	public IDateTime datetime(long instant);
+	
 }

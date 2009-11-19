@@ -12,6 +12,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -80,5 +81,9 @@ public abstract class VisitorAdapter<T> implements IValueVisitor<T> {
 	
 	public T visitBoolean(IBool o) throws VisitorException {
 		return fVisitor.visitBoolean(o);
+	}
+	
+	public T visitDateTime(IDateTime o) throws VisitorException {
+		return fVisitor.visitDateTime(o);
 	}
 }

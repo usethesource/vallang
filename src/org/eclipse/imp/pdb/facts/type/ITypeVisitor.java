@@ -35,4 +35,5 @@ public interface ITypeVisitor<T> {
 	T visitBool(Type boolType);
 	T visitParameter(Type parameterType);
 	T visitExternal(Type externalType);
+	T visitDateTime(Type type);
 }

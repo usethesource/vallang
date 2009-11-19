@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -377,4 +378,33 @@ public final class SharedValueFactory implements IValueFactory{
 		
 		return elementType;
 	}
+
+	public IDateTime date(int year, int month, int day) {
+		return new SharedDateTimeValue(year, month, day);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond) {
+		return new SharedDateTimeValue(hour,minute,second,millisecond);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond,
+			int hourOffset, int minuteOffset) {
+		return new SharedDateTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+
+	public IDateTime datetime(int year, int month, int day, int hour,
+			int minute, int second, int millisecond) {
+		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond);
+	}
+
+	public IDateTime datetime(int year, int month, int day, int hour,
+			int minute, int second, int millisecond, int hourOffset,
+			int minuteOffset) {
+		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+
+	public IDateTime datetime(long instant) {
+		return new SharedDateTimeValue(instant);
+	}
+	
 }

@@ -12,6 +12,7 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -79,7 +80,11 @@ public abstract class IdentityVisitor implements IValueVisitor<IValue> {
 		return o;
 	}
 	
-	public IValue visitExternal(IExternalValue o) {
+	public IValue visitExternal(IExternalValue o) throws VisitorException {
+		return o;
+	}
+	
+	public IValue visitDateTime(IDateTime o) throws VisitorException {
 		return o;
 	}
 }

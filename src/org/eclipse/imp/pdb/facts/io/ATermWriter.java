@@ -12,11 +12,14 @@ package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -238,6 +241,22 @@ public class ATermWriter implements IValueWriter {
 		public IValue visitExternal(IExternalValue externalValue) {
 			// ignore external values
 			return externalValue;
+		}
+
+		public IValue visitDateTime(IDateTime o) throws VisitorException {
+			append("$");
+			if (o.isDate()) {
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+				append(df.format(new Date(o.getInstant())));
+			} else if (o.isTime()) {
+				SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSSZZZ");
+				append("T");
+				append(df.format(new Date(o.getInstant())));
+			} else {
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZ");
+				append(df.format(new Date(o.getInstant())));
+			}
+			return o;
 		}
 	}
 

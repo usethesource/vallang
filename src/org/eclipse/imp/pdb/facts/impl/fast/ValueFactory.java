@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -35,6 +36,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
+import org.eclipse.imp.pdb.facts.impl.DateTimeValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -265,4 +267,33 @@ public final class ValueFactory implements IValueFactory{
 		
 		return elementType;
 	}
+
+	public IDateTime date(int year, int month, int day) {
+		return new DateTimeValue(year, month, day);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond) {
+		return new DateTimeValue(hour,minute,second,millisecond);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond,
+			int hourOffset, int minuteOffset) {
+		return new DateTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+	
+	public IDateTime datetime(int year, int month, int day, int hour,
+			int minute, int second, int millisecond) {
+		return new DateTimeValue(year,month,day,hour,minute,second,millisecond);
+	}
+
+	public IDateTime datetime(int year, int month, int day, int hour,
+			int minute, int second, int millisecond, int hourOffset,
+			int minuteOffset) {
+		return new DateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+
+	public IDateTime datetime(long instant) {
+		return new DateTimeValue(instant);
+	}
+
 }

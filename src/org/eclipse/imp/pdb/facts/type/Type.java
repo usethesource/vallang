@@ -454,6 +454,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		return false;
 	}
 
+	public boolean isDateTimeType() {
+		return false;
+	}
+	
 	/**
 	 * Build a real value. This method is supported by the DoubleTypes
 	 
@@ -603,6 +607,106 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	
 	public IValue make(IValueFactory f, TypeStore store, boolean arg) {
 		throw new IllegalOperationException("make boolean", this);
+	}
+
+	/** 
+	 * Build a date. This method is supported by DateTimeType.
+	 * 
+	 * @param f			Factory to use
+	 * @param year		Year of the date
+	 * @param month		Month of the date
+	 * @param day		Day of the date
+	 * 
+	 * @return			The constructed date.
+	 */
+	public IValue make(IValueFactory f, int year, int month, int day) {
+		throw new IllegalOperationException("make datetime", this);
+	}
+	
+	/**
+	 * Build a time. This method is supported by DateTimeType.
+	 * 
+	 * @param f				Factory to use
+	 * @param hour			Hour of the time
+	 * @param minute		Minute of the time
+	 * @param second		Second of the time
+	 * @param millisecond	Millisecond of the time
+	 * 
+	 * @return				The constructed time.
+	 */
+	public IValue make(IValueFactory f, int hour, int minute, int second, 
+			int millisecond) {
+		throw new IllegalOperationException("make datetime", this);		
+	}
+	
+	/**
+	 * Build a time. This method is supported by DateTimeType.
+	 * 
+	 * @param f				Factory to use
+	 * @param hour			Hour of the time
+	 * @param minute		Minute of the time
+	 * @param second		Second of the time
+	 * @param millisecond	Millisecond of the time
+	 * @param hourOffset	Timezone offset in hours
+	 * @param minuteOffset	Timezone offset in minutes
+	 * 
+	 * @return				The constructed time
+	 */
+	public IValue make(IValueFactory f, int hour, int minute, int second, 
+			int millisecond, int hourOffset, int minuteOffset) {
+		throw new IllegalOperationException("make datetime", this);		
+	}
+	
+	/**
+	 * Build a datetime. This method is supported by DateTimeType.
+	 * 
+	 * @param f				Factory to use
+	 * @param year			Year of the date
+	 * @param month			Month of the date
+	 * @param day			Day of the date
+	 * @param hour			Hour of the time
+	 * @param minute		Minute of the time
+	 * @param second		Second of the time
+	 * @param millisecond	Millisecond of the time
+	 * 
+	 * @return				The constructed datetime
+	 */
+	public IValue make(IValueFactory f, int year, int month, int day, 
+			int hour, int minute, int second, int millisecond) {
+		throw new IllegalOperationException("make datetime", this);		
+	}
+	
+	/**
+	 * Build a datetime. This method is supported by DateTimeType.
+	 * 
+	 * @param f				Factory to use
+	 * @param year			Year of the date
+	 * @param month			Month of the date
+	 * @param day			Day of the date
+	 * @param hour			Hour of the time
+	 * @param minute		Minute of the time
+	 * @param second		Second of the time
+	 * @param millisecond	Millisecond of the time
+	 * @param hourOffset	Timezone offset in hours
+	 * @param minuteOffset	Timezone offset in minutes
+	 * 
+	 * @return				The constructed datetime
+	 */
+	public IValue make(IValueFactory f, int year, int month, int day, int hour, 
+			int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+		throw new IllegalOperationException("make datetime", this);		
+	}
+	
+	/**
+	 * Build a datetime. This method is supported by DateTimeType.
+	 * 
+	 * @param f		Factory to use
+	 * @param 		Datetime instant of this time
+	 * 
+	 * @return		The constructed datetime.
+	 */
+	public IValue make(IValueFactory f, long instant) {
+		throw new IllegalOperationException("make datetime", this);
 	}
 	
 	/**
