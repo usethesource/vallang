@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -44,6 +45,7 @@ public class BinaryWriter{
 	private final static int DOUBLE_HEADER = 0x04;
 	private final static int STRING_HEADER = 0x05;
 	private final static int SOURCE_LOCATION_HEADER = 0x06;
+	private final static int DATE_TIME_HEADER = 0x10;
 	private final static int TUPLE_HEADER = 0x07;
 	private final static int NODE_HEADER = 0x08;
 	private final static int ANNOTATED_NODE_HEADER = 0x09;
@@ -61,6 +63,7 @@ public class BinaryWriter{
 	private final static int DOUBLE_TYPE_HEADER = 0x05;
 	private final static int STRING_TYPE_HEADER = 0x06;
 	private final static int SOURCE_LOCATION_TYPE_HEADER = 0x07;
+	private final static int DATE_TIME_TYPE_HEADER = 0x14;
 	private final static int NODE_TYPE_HEADER = 0x08;
 	private final static int TUPLE_TYPE_HEADER = 0x09;
 	private final static int LIST_TYPE_HEADER = 0x0a;
@@ -80,6 +83,10 @@ public class BinaryWriter{
 	private final static int NAME_SHARED_FLAG = 0x20;
 	
 	private final static int HAS_FIELD_NAMES = 0x20;
+	
+	private final static int DATE_TIME_INDICATOR = 0x01;
+	private final static int DATE_INDICATOR = 0x02;
+	private final static int TIME_INDICATOR = 0x03;
 	
 	private final IndexedSet<IValue> sharedValues;
 	private final IndexedSet<Type> sharedTypes;
@@ -126,6 +133,8 @@ public class BinaryWriter{
 			writeString((IString) value);
 		}else if(value instanceof ISourceLocation){
 			writeSourceLocation((ISourceLocation) value);
+		}else if(value instanceof IDateTime){
+			writeDateTime((IDateTime) value);
 		}else if(value instanceof ITuple){
 			writeTuple((ITuple) value);
 		}else if(value instanceof IConstructor){
@@ -169,6 +178,8 @@ public class BinaryWriter{
 			writeStringType();
 		}else if(type.isSourceLocationType()){
 			writeSourceLocationType();
+		}else if(type.isDateTimeType()){
+			writeDateTimeType(type);
 		}else if(type.isListType()){
 			writeListType(type);
 		}else if(type.isSetType()){
@@ -273,6 +284,42 @@ public class BinaryWriter{
 		printInteger(sourceLocation.getEndLine());
 		printInteger(sourceLocation.getBeginColumn());
 		printInteger(sourceLocation.getEndColumn());
+	}
+	
+	private void writeDateTime(IDateTime dateTime) throws IOException{
+		out.write(DATE_TIME_HEADER);
+		
+		if(dateTime.isDateTime()){
+			out.write(DATE_TIME_INDICATOR);
+			
+			printInteger(dateTime.getYear());
+			printInteger(dateTime.getMonthOfYear());
+			printInteger(dateTime.getDayOfMonth());
+			
+			printInteger(dateTime.getHourOfDay());
+			printInteger(dateTime.getMinuteOfHour());
+			printInteger(dateTime.getSecondOfMinute());
+			printInteger(dateTime.getMillisecondsOfSecond());
+			
+			printInteger(dateTime.getTimezoneOffsetHours());
+			printInteger(dateTime.getTimezoneOffsetMinutes());
+		}else if(dateTime.isDate()){
+			out.write(DATE_INDICATOR);
+			
+			printInteger(dateTime.getYear());
+			printInteger(dateTime.getMonthOfYear());
+			printInteger(dateTime.getDayOfMonth());
+		}else{
+			out.write(TIME_INDICATOR);
+			
+			printInteger(dateTime.getHourOfDay());
+			printInteger(dateTime.getMinuteOfHour());
+			printInteger(dateTime.getSecondOfMinute());
+			printInteger(dateTime.getMillisecondsOfSecond());
+			
+			printInteger(dateTime.getTimezoneOffsetHours());
+			printInteger(dateTime.getTimezoneOffsetMinutes());
+		}
 	}
 	
 	private void writeTuple(ITuple tuple) throws IOException{
@@ -538,6 +585,10 @@ public class BinaryWriter{
 	
 	private void writeSourceLocationType() throws IOException{
 		out.write(SOURCE_LOCATION_TYPE_HEADER);
+	}
+	
+	private void writeDateTimeType(Type dateTimeType) throws IOException{
+		out.write(DATE_TIME_TYPE_HEADER);
 	}
 	
 	private void writeNodeType(Type nodeType) throws IOException{

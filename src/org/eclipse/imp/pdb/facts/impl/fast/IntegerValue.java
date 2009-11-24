@@ -35,7 +35,6 @@ public class IntegerValue extends Value implements IInteger, ICanBecomeABigInteg
 	private final static int SEVEN_BITS_MASK = 0x0000007f;
 	private final static int FIFTEEN_BITS_MASK = 0x00007fff;
 	private final static int TWENTYTHREE_BITS_MASK = 0x007fffff;
-	private final static int THIRTYONE_BITS_MASK = 0x7fffffff;
 	
 	protected final int value;
 	
@@ -64,35 +63,27 @@ public class IntegerValue extends Value implements IInteger, ICanBecomeABigInteg
 	public byte[] getTwosComplementRepresentation(){
 		if((value & SEVEN_BITS_MASK) == value){
 			byte[] data = new byte[1];
-			data[0] = (byte) (value & 0xff);
+			data[0] = (byte) (value & 0x7f);
 			return data;
 		}else if((value & FIFTEEN_BITS_MASK) == value){
 			byte[] data = new byte[2];
-			data[0] = (byte) ((value >> 8) & 0xff);
+			data[0] = (byte) ((value >> 8) & 0x7f);
 			data[1] = (byte) (value & 0xff);
 			return data;
 		}else if((value & TWENTYTHREE_BITS_MASK) == value){
 			byte[] data = new byte[3];
-			data[0] = (byte) ((value >> 16) & 0xff);
+			data[0] = (byte) ((value >> 16) & 0x7f);
 			data[1] = (byte) ((value >> 8) & 0xff);
 			data[2] = (byte) (value & 0xff);
 			return data;
-		}else if((value & THIRTYONE_BITS_MASK) == value){
-			byte[] data = new byte[4];
-			data[0] = (byte) ((value >> 24) & 0xff);
-			data[1] = (byte) ((value >> 16) & 0xff);
-			data[2] = (byte) ((value >> 8) & 0xff);
-			data[3] = (byte) (value & 0xff);
-			return data;
-		}else{
-			byte[] data = new byte[5];
-			data[0] = 0;
-			data[1] = (byte) ((value >> 24) & 0xff);
-			data[2] = (byte) ((value >> 16) & 0xff);
-			data[3] = (byte) ((value >> 8) & 0xff);
-			data[4] = (byte) (value & 0xff);
-			return data;
 		}
+		
+		byte[] data = new byte[4];
+		data[0] = (byte) ((value >> 24) & 0xff);
+		data[1] = (byte) ((value >> 16) & 0xff);
+		data[2] = (byte) ((value >> 8) & 0xff);
+		data[3] = (byte) (value & 0xff);
+		return data;
 	}
 	
 	public BigInteger toBigInteger(){

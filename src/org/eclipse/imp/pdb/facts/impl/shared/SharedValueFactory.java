@@ -181,7 +181,7 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IInteger integer(long value){
-		if(((value >>> 31) & 0x00000001ffffffffL) == 0){
+		if(((value & 0x000000007fffffffL) == value) || ((value & 0xffffffff80000000L) == 0xffffffff80000000L)){
 			return integer((int) value);
 		}else{
 			byte[] valueData = new byte[8];
@@ -210,7 +210,10 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IInteger integer(BigInteger bigInteger){
-		return (IInteger) buildValue(new SharedBigIntegerValue(bigInteger));
+		if(bigInteger.bitLength() > 31){
+			return (IInteger) buildValue(new SharedBigIntegerValue(bigInteger));
+		}
+		return (IInteger) buildValue(new SharedIntegerValue(bigInteger.intValue()));
 	}
 	
 	public IReal real(double value){
@@ -247,6 +250,34 @@ public final class SharedValueFactory implements IValueFactory{
 	
 	public ISourceLocation sourceLocation(String path){
 		return sourceLocation(path, -1, -1, -1, -1, -1, -1);
+	}
+
+	public IDateTime date(int year, int month, int day) {
+		return new SharedDateTimeValue(year, month, day);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond) {
+		return new SharedDateTimeValue(hour,minute,second,millisecond);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond,
+			int hourOffset, int minuteOffset) {
+		return new SharedDateTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+
+	public IDateTime datetime(int year, int month, int day, int hour,
+			int minute, int second, int millisecond) {
+		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond);
+	}
+
+	public IDateTime datetime(int year, int month, int day, int hour,
+			int minute, int second, int millisecond, int hourOffset,
+			int minuteOffset) {
+		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+
+	public IDateTime datetime(long instant) {
+		return new SharedDateTimeValue(instant);
 	}
 	
 	public IListWriter listWriter(Type elementType){
@@ -378,33 +409,4 @@ public final class SharedValueFactory implements IValueFactory{
 		
 		return elementType;
 	}
-
-	public IDateTime date(int year, int month, int day) {
-		return new SharedDateTimeValue(year, month, day);
-	}
-
-	public IDateTime time(int hour, int minute, int second, int millisecond) {
-		return new SharedDateTimeValue(hour,minute,second,millisecond);
-	}
-
-	public IDateTime time(int hour, int minute, int second, int millisecond,
-			int hourOffset, int minuteOffset) {
-		return new SharedDateTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
-	}
-
-	public IDateTime datetime(int year, int month, int day, int hour,
-			int minute, int second, int millisecond) {
-		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond);
-	}
-
-	public IDateTime datetime(int year, int month, int day, int hour,
-			int minute, int second, int millisecond, int hourOffset,
-			int minuteOffset) {
-		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
-	}
-
-	public IDateTime datetime(long instant) {
-		return new SharedDateTimeValue(instant);
-	}
-	
 }

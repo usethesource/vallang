@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -59,6 +60,7 @@ public class BinaryReader{
 	private final static int IEEE754_ENCODED_DOUBLE_HEADER = 0x14;
 	private final static int STRING_HEADER = 0x05;
 	private final static int SOURCE_LOCATION_HEADER = 0x06;
+	private final static int DATE_TIME_HEADER = 0x10;
 	private final static int TUPLE_HEADER = 0x07;
 	private final static int NODE_HEADER = 0x08;
 	private final static int ANNOTATED_NODE_HEADER = 0x09;
@@ -76,6 +78,7 @@ public class BinaryReader{
 	private final static int DOUBLE_TYPE_HEADER = 0x05;
 	private final static int STRING_TYPE_HEADER = 0x06;
 	private final static int SOURCE_LOCATION_TYPE_HEADER = 0x07;
+	private final static int DATE_TIME_TYPE_HEADER = 0x14;
 	private final static int NODE_TYPE_HEADER = 0x08;
 	private final static int TUPLE_TYPE_HEADER = 0x09;
 	private final static int LIST_TYPE_HEADER = 0x0a;
@@ -97,6 +100,9 @@ public class BinaryReader{
 	private final static int NAME_SHARED_FLAG = 0x20;
 	
 	private final static int HAS_FIELD_NAMES = 0x20;
+	
+	private final static int DATE_TIME_INDICATOR = 0x01;
+	private final static int DATE_INDICATOR = 0x02;
 	
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	
@@ -160,6 +166,9 @@ public class BinaryReader{
 				break;
 			case SOURCE_LOCATION_HEADER:
 				value = readSourceLocation(header);
+				break;
+			case DATE_TIME_HEADER:
+				value = readDateTime();
 				break;
 			case TUPLE_HEADER:
 				value = readTuple();
@@ -240,6 +249,9 @@ public class BinaryReader{
 				break;
 			case SOURCE_LOCATION_TYPE_HEADER:
 				type = readSourceLocationType();
+				break;
+			case DATE_TIME_TYPE_HEADER:
+				type = readDateTimeType();
 				break;
 			case NODE_TYPE_HEADER:
 				type = readNodeType();
@@ -364,6 +376,42 @@ public class BinaryReader{
 		int endCol = parseInteger();
 		
 		return valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+	}
+	
+	private IDateTime readDateTime() throws IOException{
+		int typeIndicator = in.read();
+		
+		if(typeIndicator == DATE_TIME_INDICATOR){
+			int year = parseInteger();
+			int month = parseInteger();
+			int day = parseInteger();
+			
+			int hour = parseInteger();
+			int minute = parseInteger();
+			int second = parseInteger();
+			int millisecond = parseInteger();
+			
+			int timeZoneHourOffset = parseInteger();
+			int timeZoneMinuteOffset = parseInteger();
+			
+			return valueFactory.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
+		}else if(typeIndicator == DATE_INDICATOR){
+			int year = parseInteger();
+			int month = parseInteger();
+			int day = parseInteger();
+			
+			return valueFactory.date(year, month, day);
+		}else{
+			int hour = parseInteger();
+			int minute = parseInteger();
+			int second = parseInteger();
+			int millisecond = parseInteger();
+			
+			int timeZoneHourOffset = parseInteger();
+			int timeZoneMinuteOffset = parseInteger();
+			
+			return valueFactory.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
+		}
 	}
 	
 	private ITuple readTuple() throws IOException{
@@ -569,6 +617,10 @@ public class BinaryReader{
 	
 	private Type readSourceLocationType(){
 		return tf.sourceLocationType();
+	}
+	
+	private Type readDateTimeType(){
+		return tf.dateTimeType();
 	}
 	
 	private Type readNodeType(){

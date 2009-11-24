@@ -16,17 +16,20 @@ import java.io.IOException;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 
-/*package*/ abstract class Value implements IValue {
-
-	@Override
-	public String toString() {
-		try {
+public abstract class Value implements IValue{
+	
+	protected Value(){
+		super();
+	}
+	
+	public String toString(){
+		try{
     		ByteArrayOutputStream stream = new ByteArrayOutputStream();
     		new StandardTextWriter().write(this, stream);
 			return stream.toString();
-		} catch (IOException e) {
+		}catch(IOException ioex){
 			// this never happens
-			return null;
-		} 
+		}
+		return null;
 	}
 }

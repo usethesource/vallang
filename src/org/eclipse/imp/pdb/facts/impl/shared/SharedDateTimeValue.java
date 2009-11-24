@@ -10,37 +10,32 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.shared;
 
-import org.eclipse.imp.pdb.facts.impl.DateTimeValue;
+import org.eclipse.imp.pdb.facts.impl.fast.DateTimeValue;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 
-public class SharedDateTimeValue extends DateTimeValue implements IShareable {
-
-	public SharedDateTimeValue(int year, int month, int day) {
-		super(year, month, day);
-	}
-
-	public SharedDateTimeValue(int hour, int minute, int second, int millisecond) {
-		super(hour, minute, second, millisecond);
-	}
-
-	public SharedDateTimeValue(int year, int month, int day, int hour,
-			int minute, int second, int millisecond) {
+public class SharedDateTimeValue extends DateTimeValue implements IShareable{
+	
+	protected SharedDateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond) {
 		super(year, month, day, hour, minute, second, millisecond);
 	}
 
-	public SharedDateTimeValue(int year, int month, int day, int hour,
-			int minute, int second, int millisecond, int hourOffset,
-			int minuteOffset) {
-		super(year, month, day, hour, minute, second, millisecond, hourOffset,
-				minuteOffset);
+	protected SharedDateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+		super(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
+	}
+	
+	protected SharedDateTimeValue(int year, int month, int day){
+		super(year, month, day);
 	}
 
-	public SharedDateTimeValue(int hour, int minute, int second,
-			int millisecond, int hourOffset, int minuteOffset) {
+	protected SharedDateTimeValue(int hour, int minute, int second, int millisecond){
+		super(hour, minute, second, millisecond);
+	}
+
+	protected SharedDateTimeValue(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
 		super(hour, minute, second, millisecond, hourOffset, minuteOffset);
 	}
 
-	public SharedDateTimeValue(long instant) {
+	protected SharedDateTimeValue(long instant){
 		super(instant);
 	}
 	
@@ -51,5 +46,4 @@ public class SharedDateTimeValue extends DateTimeValue implements IShareable {
 	public boolean equals(Object o){
 		return (this == o);
 	}
-	
 }

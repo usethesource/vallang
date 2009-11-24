@@ -36,7 +36,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.DateTimeValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -76,7 +75,7 @@ public final class ValueFactory implements IValueFactory{
 	}
 	
 	public IInteger integer(long value){
-		if(((value >>> 31) & 0x00000001ffffffffL) == 0){
+		if(((value & 0x000000007fffffffL) == value) || ((value & 0xffffffff80000000L) == 0xffffffff80000000L)){
 			return integer((int) value);
 		}else{
 			byte[] valueData = new byte[8];
@@ -119,7 +118,10 @@ public final class ValueFactory implements IValueFactory{
 	}
 	
 	public IInteger integer(BigInteger value){
-		return new BigIntegerValue(value);
+		if(value.bitLength() > 31){
+			return new BigIntegerValue(value);
+		}
+		return new IntegerValue(value.intValue());
 	}
 	
 	public IReal real(double value){
@@ -156,6 +158,30 @@ public final class ValueFactory implements IValueFactory{
 	
 	public ISourceLocation sourceLocation(String path){
 		return sourceLocation(path, -1, -1, -1, -1, -1, -1);
+	}
+	
+	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond){
+		return new DateTimeValue(year, month, day, hour, minute, second, millisecond);
+	}
+
+	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond, int timeZoneHourOffset, int timeZoneMinuteOffset){
+		return new DateTimeValue(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
+	}
+
+	public IDateTime date(int year, int month, int day){
+		return new DateTimeValue(year, month, day);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond){
+		return new DateTimeValue(hour, minute, second, millisecond);
+	}
+
+	public IDateTime time(int hour, int minute, int second, int millisecond, int timeZoneHourOffset, int timeZoneMinuteOffset){
+		return new DateTimeValue(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
+	}
+
+	public IDateTime datetime(long instant){
+		return new DateTimeValue(instant);
 	}
 	
 	public IListWriter listWriter(Type elementType){
@@ -267,33 +293,4 @@ public final class ValueFactory implements IValueFactory{
 		
 		return elementType;
 	}
-
-	public IDateTime date(int year, int month, int day) {
-		return new DateTimeValue(year, month, day);
-	}
-
-	public IDateTime time(int hour, int minute, int second, int millisecond) {
-		return new DateTimeValue(hour,minute,second,millisecond);
-	}
-
-	public IDateTime time(int hour, int minute, int second, int millisecond,
-			int hourOffset, int minuteOffset) {
-		return new DateTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
-	}
-	
-	public IDateTime datetime(int year, int month, int day, int hour,
-			int minute, int second, int millisecond) {
-		return new DateTimeValue(year,month,day,hour,minute,second,millisecond);
-	}
-
-	public IDateTime datetime(int year, int month, int day, int hour,
-			int minute, int second, int millisecond, int hourOffset,
-			int minuteOffset) {
-		return new DateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
-	}
-
-	public IDateTime datetime(long instant) {
-		return new DateTimeValue(instant);
-	}
-
 }
