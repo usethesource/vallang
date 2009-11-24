@@ -165,7 +165,7 @@ public class SharedIntegerValue extends IntegerValue implements IShareable{
 	}
 	
 	public IInteger negate(){
-		return SharedValueFactory.getInstance().integer((~value) + 1);
+		return SharedValueFactory.getInstance().integer((~((long) value)) + 1);
 	}
 
 

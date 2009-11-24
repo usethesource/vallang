@@ -67,10 +67,8 @@ public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigIn
 		BigInteger result = value.add(((ICanBecomeABigInteger) other).toBigInteger());
 		
 		int length = result.bitLength();
-		if(length <= 32){
-			if(length < 32 || result.compareTo(BigInteger.ZERO) != -1){
-				return ValueFactory.getInstance().integer(result.intValue());
-			}
+		if(length <= 31){
+			return ValueFactory.getInstance().integer(result.intValue());
 		}
 		
 		return ValueFactory.getInstance().integer(result);
@@ -80,10 +78,8 @@ public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigIn
 		BigInteger result = value.subtract(((ICanBecomeABigInteger) other).toBigInteger());
 		
 		int length = result.bitLength();
-		if(length <= 32){
-			if(length < 32 || result.compareTo(BigInteger.ZERO) != -1){
-				return ValueFactory.getInstance().integer(result.intValue());
-			}
+		if(length <= 31){
+			return ValueFactory.getInstance().integer(result.intValue());
 		}
 		
 		return ValueFactory.getInstance().integer(result);
@@ -99,10 +95,8 @@ public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigIn
 		BigInteger result = value.divide(((ICanBecomeABigInteger) other).toBigInteger());
 		
 		int length = result.bitLength();
-		if(length <= 32){
-			if(length < 32 || result.compareTo(BigInteger.ZERO) != -1){
-				return ValueFactory.getInstance().integer(result.intValue());
-			}
+		if(length <= 31){
+			return ValueFactory.getInstance().integer(result.intValue());
 		}
 		
 		return ValueFactory.getInstance().integer(result);

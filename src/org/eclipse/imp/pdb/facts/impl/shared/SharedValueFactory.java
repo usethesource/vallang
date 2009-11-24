@@ -181,7 +181,7 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IInteger integer(long value){
-		if(((value >>> 32) & 0xffffffff) == 0){
+		if(((value >>> 31) & 0x00000001ffffffffL) == 0){
 			return integer((int) value);
 		}else{
 			byte[] valueData = new byte[8];

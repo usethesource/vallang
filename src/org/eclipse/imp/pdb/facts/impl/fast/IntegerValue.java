@@ -32,9 +32,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 public class IntegerValue extends Value implements IInteger, ICanBecomeABigInteger{
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 	
-	private final static int EIGTH_BITS_MASK = 0x000000ff;
-	private final static int SIXTEEN_BITS_MASK = 0x0000ffff;
-	private final static int TWENTYFOUR_BITS_MASK = 0x00ffffff;
+	private final static int SEVEN_BITS_MASK = 0x0000007f;
+	private final static int FIFTEEN_BITS_MASK = 0x00007fff;
+	private final static int TWENTYTHREE_BITS_MASK = 0x007fffff;
+	private final static int THIRTYONE_BITS_MASK = 0x7fffffff;
 	
 	protected final int value;
 	
@@ -61,27 +62,35 @@ public class IntegerValue extends Value implements IInteger, ICanBecomeABigInteg
 	}
 	
 	public byte[] getTwosComplementRepresentation(){
-		if((value & EIGTH_BITS_MASK) == value){
+		if((value & SEVEN_BITS_MASK) == value){
 			byte[] data = new byte[1];
 			data[0] = (byte) (value & 0xff);
 			return data;
-		}else if((value & SIXTEEN_BITS_MASK) == value){
+		}else if((value & FIFTEEN_BITS_MASK) == value){
 			byte[] data = new byte[2];
 			data[0] = (byte) ((value >> 8) & 0xff);
 			data[1] = (byte) (value & 0xff);
 			return data;
-		}else if((value & TWENTYFOUR_BITS_MASK) == value){
+		}else if((value & TWENTYTHREE_BITS_MASK) == value){
 			byte[] data = new byte[3];
 			data[0] = (byte) ((value >> 16) & 0xff);
 			data[1] = (byte) ((value >> 8) & 0xff);
 			data[2] = (byte) (value & 0xff);
 			return data;
-		}else{
+		}else if((value & THIRTYONE_BITS_MASK) == value){
 			byte[] data = new byte[4];
 			data[0] = (byte) ((value >> 24) & 0xff);
 			data[1] = (byte) ((value >> 16) & 0xff);
 			data[2] = (byte) ((value >> 8) & 0xff);
 			data[3] = (byte) (value & 0xff);
+			return data;
+		}else{
+			byte[] data = new byte[5];
+			data[0] = 0;
+			data[1] = (byte) ((value >> 24) & 0xff);
+			data[2] = (byte) ((value >> 16) & 0xff);
+			data[3] = (byte) ((value >> 8) & 0xff);
+			data[4] = (byte) (value & 0xff);
 			return data;
 		}
 	}
@@ -123,7 +132,7 @@ public class IntegerValue extends Value implements IInteger, ICanBecomeABigInteg
 	
 	public IInteger subtract(IInteger other){
 		if(other instanceof BigIntegerValue){
-			return other.subtract(this.negate());
+			return other.negate().subtract(this.negate());
 		}
 		
 		int otherIntValue = other.intValue();
@@ -221,7 +230,7 @@ public class IntegerValue extends Value implements IInteger, ICanBecomeABigInteg
 	}
 	
 	public IInteger negate(){
-		return ValueFactory.getInstance().integer((~value) + 1);
+		return ValueFactory.getInstance().integer((~((long) value)) + 1);
 	}
 
 	public IBool greater(IInteger other){

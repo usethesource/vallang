@@ -40,10 +40,8 @@ public class SharedBigIntegerValue extends BigIntegerValue implements IShareable
 		BigInteger result = value.add(((ICanBecomeABigInteger) other).toBigInteger());
 		
 		int length = result.bitLength();
-		if(length <= 32){
-			if(length < 32 || result.compareTo(BigInteger.ZERO) != -1){
-				return SharedValueFactory.getInstance().integer(result.intValue());
-			}
+		if(length <= 31){
+			return SharedValueFactory.getInstance().integer(result.intValue());
 		}
 		
 		return SharedValueFactory.getInstance().integer(result);
@@ -53,10 +51,8 @@ public class SharedBigIntegerValue extends BigIntegerValue implements IShareable
 		BigInteger result = value.subtract(((ICanBecomeABigInteger) other).toBigInteger());
 		
 		int length = result.bitLength();
-		if(length <= 32){
-			if(length < 32 || result.compareTo(BigInteger.ZERO) != -1){
-				return SharedValueFactory.getInstance().integer(result.intValue());
-			}
+		if(length <= 31){
+			return SharedValueFactory.getInstance().integer(result.intValue());
 		}
 		
 		return SharedValueFactory.getInstance().integer(result);
@@ -72,10 +68,8 @@ public class SharedBigIntegerValue extends BigIntegerValue implements IShareable
 		BigInteger result = value.divide(((ICanBecomeABigInteger) other).toBigInteger());
 		
 		int length = result.bitLength();
-		if(length <= 32){
-			if(length < 32 || result.compareTo(BigInteger.ZERO) != -1){
-				return SharedValueFactory.getInstance().integer(result.intValue());
-			}
+		if(length <= 31){
+			return SharedValueFactory.getInstance().integer(result.intValue());
 		}
 		
 		return SharedValueFactory.getInstance().integer(result);
