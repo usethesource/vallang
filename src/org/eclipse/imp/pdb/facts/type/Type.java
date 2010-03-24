@@ -441,6 +441,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	public boolean isAbstractDataType() {
 		return false;
 	}
+	
+	public boolean isNumberType() {
+		return false;
+	}
 
 	public boolean isMapType() {
 		return false;

@@ -46,6 +46,29 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 
 	@Override
+    public boolean isSubtypeOf(Type other) {
+    	if (other == this) {
+    		return true;
+    	}
+    	if (other.isNumberType()) {
+    		return true;
+    	}
+    	
+    	return super.isSubtypeOf(other);
+    }
+    
+    @Override
+    public Type lub(Type other) {
+    	if (other == this) {
+    		return this;
+    	}
+    	if (other.isNumberType() || other.isIntegerType()) {
+    		return TypeFactory.getInstance().numberType();
+    	}
+    	return super.lub(other);
+    }
+    
+	@Override
 	public String toString() {
 		return "real";
 	}

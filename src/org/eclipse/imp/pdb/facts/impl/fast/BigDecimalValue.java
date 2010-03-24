@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Jurgen Vinju - extensions and fixes
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -16,29 +17,34 @@ import java.math.RoundingMode;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractNumberValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-/**
- * Implementation of IReal.
- * 
- * @author Arnold Lankamp
- */
-public class BigDecimalValue extends Value implements IReal{
+public class BigDecimalValue extends AbstractNumberValue implements IReal {
 	private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
 	
 	protected final BigDecimal value;
 	
 	protected BigDecimalValue(BigDecimal value){
-		super();
+		super(DOUBLE_TYPE);
 		
 		this.value = value;
 	}
 
+	public INumber abs() {
+		return new BigDecimalValue(value.abs());
+	}
+	
+	public IReal toReal() {
+		return this;
+	}
+	
 	public Type getType(){
 		return DOUBLE_TYPE;
 	}
@@ -67,17 +73,33 @@ public class BigDecimalValue extends Value implements IReal{
 		return ValueFactory.getInstance().real(value.add(((BigDecimalValue) other).value));
 	}
 	
+	public INumber add(IInteger other) {
+		return add(other.toReal());
+	}
+	
 	public IReal subtract(IReal other){
 		return ValueFactory.getInstance().real(value.subtract(((BigDecimalValue) other).value));
+	}
+	
+	public INumber subtract(IInteger other) {
+		return subtract(other.toReal());
 	}
 	
 	public IReal multiply(IReal other){
 		return ValueFactory.getInstance().real(value.multiply(((BigDecimalValue) other).value));
 	}
 	
+	public INumber multiply(IInteger other) {
+		return multiply(other.toReal());
+	}
+	
 	public IReal divide(IReal other, int precision){
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return ValueFactory.getInstance().real(value.divide(((BigDecimalValue) other).value, mc));
+	}
+	
+	public IReal divide(IInteger other, int precision) {
+		return divide(other.toReal(), precision);
 	}
 	
 	public IReal negate(){
@@ -100,20 +122,41 @@ public class BigDecimalValue extends Value implements IReal{
 		return ValueFactory.getInstance().bool(compare(other) > 0);
 	}
 	
+	public IBool greater(IInteger other) {
+		return greater(other.toReal());
+	}
+	
 	public IBool greaterEqual(IReal other){
 		return ValueFactory.getInstance().bool(compare(other) >= 0);
 	}
 	
+	public IBool greaterEqual(IInteger other) {
+		return greaterEqual(other.toReal());
+	}
+	
+	
 	public IBool less(IReal other){
 		return ValueFactory.getInstance().bool(compare(other) < 0);
+	}
+	
+	public IBool less(IInteger other) {
+		return less(other.toReal());
 	}
 	
 	public IBool lessEqual(IReal other){
 		return ValueFactory.getInstance().bool(compare(other) <= 0);
 	}
 	
+	public IBool lessEqual(IInteger other) {
+		return lessEqual(other.toReal());
+	}
+	
 	public int compare(IReal other){
 		return value.compareTo(((BigDecimalValue) other).value);
+	}
+	
+	public int compare(INumber other) {
+		return compare(other.toReal());
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{

@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
 /*package*/ final class IntegerType extends Type {
@@ -43,6 +43,30 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     public int hashCode() {
         return 74843;
     }
+    
+    @Override
+    public boolean isSubtypeOf(Type other) {
+    	if (other == this) {
+    		return true;
+    	}
+    	if (other.isNumberType()) {
+    		return true;
+    	}
+    	
+    	return super.isSubtypeOf(other);
+    }
+    
+    @Override
+    public Type lub(Type other) {
+    	if (other == this) {
+    		return this;
+    	}
+    	if (other.isNumberType() || other.isRealType()) {
+    		return TypeFactory.getInstance().numberType();
+    	}
+    	
+    	return super.lub(other);
+    }
 
     @Override
     public String toString() {
@@ -55,12 +79,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    public IValue make(IValueFactory f, int arg) {
+    public IInteger make(IValueFactory f, int arg) {
     	return f.integer(arg);
     }
     
     @Override
-    public IValue make(IValueFactory f, TypeStore store, int arg) {
+    public IInteger make(IValueFactory f, TypeStore store, int arg) {
     	return make(f, arg);
     }
 }

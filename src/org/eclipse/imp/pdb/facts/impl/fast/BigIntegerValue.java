@@ -15,8 +15,10 @@ import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractNumberValue;
 import org.eclipse.imp.pdb.facts.impl.ICanBecomeABigInteger;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -28,15 +30,19 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigInteger{
+public class BigIntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 	
 	protected final BigInteger value;
 	
 	public BigIntegerValue(BigInteger value){
-		super();
+		super(INTEGER_TYPE);
 		
 		this.value = value;
+	}
+	
+	public IInteger toInteger() {
+		return this;
 	}
 
 	public Type getType(){
@@ -74,6 +80,10 @@ public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigIn
 		return ValueFactory.getInstance().integer(result);
 	}
 	
+	public IReal add(IReal other) {
+		return (IReal) other.add(this);
+	}
+	
 	public IInteger subtract(IInteger other){
 		BigInteger result = value.subtract(((ICanBecomeABigInteger) other).toBigInteger());
 		
@@ -85,10 +95,18 @@ public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigIn
 		return ValueFactory.getInstance().integer(result);
 	}
 	
+	public INumber subtract(IReal other) {
+		return toReal().subtract(other);
+	}
+	
 	public IInteger multiply(IInteger other){
 		BigInteger result = value.multiply(((ICanBecomeABigInteger) other).toBigInteger());
 		// The result of this operation can never fit in a 32-bit integer, so no need to check.
 		return ValueFactory.getInstance().integer(result);
+	}
+	
+	public IReal multiply(IReal other) {
+		return (IReal) other.multiply(this);
 	}
 	
 	public IInteger divide(IInteger other){
@@ -100,6 +118,14 @@ public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigIn
 		}
 		
 		return ValueFactory.getInstance().integer(result);
+	}
+	
+	public INumber divide(IInteger other, int precision) {
+		return toReal().divide(other, precision);
+	}
+	
+	public IReal divide(IReal other, int precision) {
+		return toReal().divide(other, precision);
 	}
 	
 	public IInteger mod(IInteger other){
@@ -132,20 +158,43 @@ public class BigIntegerValue extends Value implements IInteger, ICanBecomeABigIn
 		return ValueFactory.getInstance().bool(compare(other) > 0);
 	}
 	
+	public IBool greater(IReal other) {
+		return other.lessEqual(this);
+	}
+	
 	public IBool greaterEqual(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) >= 0);
+	}
+
+	public IBool greaterEqual(IReal other) {
+		return other.less(this);
 	}
 	
 	public IBool less(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) < 0);
 	}
 	
+	public IBool less(IReal other) {
+		return other.greaterEqual(this);
+	}
+	
 	public IBool lessEqual(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) <= 0);
 	}
 	
+	public IBool lessEqual(IReal other) {
+		return other.greater(this);
+	}
+	
 	public int compare(IInteger other){
 		return value.compareTo(((ICanBecomeABigInteger) other).toBigInteger());
+	}
+	
+	public int compare(INumber other) {
+		if (other.getType().isIntegerType()) {
+			return compare(other.toInteger());
+		}
+		return toReal().compare(other);
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{

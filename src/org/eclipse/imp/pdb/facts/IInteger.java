@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 
-public interface IInteger extends IValue {
+public interface IInteger extends INumber {
 	/**
 	 * @return this + other;
 	 */

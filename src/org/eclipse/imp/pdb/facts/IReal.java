@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 
-public interface IReal extends IValue {
+public interface IReal extends INumber {
 	/**
 	 * @return this + other;
 	 */

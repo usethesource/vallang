@@ -210,12 +210,6 @@ public class List extends Value implements IList {
 			insert(elems, 0, elems.length);
 		}
 		
-		public void insert(int index, IValue elem) throws FactTypeUseException{
-			checkMutation();
-			
-			put(index, elem);
-		}
-		
 		public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException{
 			checkMutation();
 			checkBounds(elems, start, length);

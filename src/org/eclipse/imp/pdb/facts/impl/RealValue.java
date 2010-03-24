@@ -17,13 +17,14 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-/*package*/ class RealValue extends Value implements IReal {
+/*package*/ class RealValue extends AbstractNumberValue implements IReal {
 	private final BigDecimal fValue;
 
     /*package*/ RealValue(double value) {
@@ -41,6 +42,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
         fValue= value;
     }
     
+    public IReal toReal() {
+    	return this;
+    }
+    
     public IReal negate() {
     	return new RealValue(fValue.negate());
     }
@@ -49,17 +54,33 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new RealValue(fValue.add(((RealValue) other).fValue));
     }
     
+    public IReal add(IInteger other) {
+    	return add(other.toReal());
+    }
+    
     public IReal subtract(IReal other) {
     	return new RealValue(fValue.subtract(((RealValue) other).fValue));
+    }
+    
+    public IReal subtract(IInteger other) {
+    	return subtract(other.toReal());
     }
     
     public IReal multiply(IReal other) {
     	return new RealValue(fValue.multiply(((RealValue) other).fValue));
     }
     
+    public IReal multiply(IInteger other) {
+    	return multiply(other.toReal());
+    }
+    
     public IReal divide(IReal other, int precision) {
     	MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return new RealValue(fValue.divide(((RealValue) other).fValue, mc));
+    }
+    
+    public IReal divide(IInteger other, int precision) {
+    	return divide(other.toReal(), precision);
     }
     
     public IReal round() {
@@ -78,20 +99,40 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new BoolValue(compare(other) < 0);
     }
     
+    public IBool less(IInteger other) {
+    	return less(other.toReal());
+    }
+    
     public IBool lessEqual(IReal other) {
     	return new BoolValue(compare(other) <= 0);
+    }
+    
+    public IBool lessEqual(IInteger other) {
+    	return lessEqual(other.toReal());
     }
     
     public IBool greater(IReal other) {
     	return new BoolValue(compare(other) > 0);
     }
     
+    public IBool greater(IInteger other) {
+    	return greater(other.toReal());
+    }
+    
     public IBool greaterEqual(IReal other) {
     	return new BoolValue(compare(other) >= 0);
     }
     
+    public IBool greaterEqual(IInteger other) {
+    	return greaterEqual(other.toReal());
+    }
+    
     public int compare(IReal other) {
     	return fValue.compareTo(((RealValue) other).fValue);
+    }
+    
+    public int compare(INumber other) {
+    	return compare(other.toReal());
     }
     
     @Override
@@ -142,4 +183,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public IInteger unscaled() {
     	return new IntegerValue(fValue.unscaledValue());
     }
+
+	public INumber abs() {
+		return new RealValue(fValue.abs());
+	}
 }
