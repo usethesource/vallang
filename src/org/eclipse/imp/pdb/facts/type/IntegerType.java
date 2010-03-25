@@ -61,7 +61,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	if (other == this) {
     		return this;
     	}
-    	if (other.isNumberType() || other.isRealType()) {
+    	if (!other.isVoidType() && (other.isNumberType() || other.isRealType())) {
     		return TypeFactory.getInstance().numberType();
     	}
     	
