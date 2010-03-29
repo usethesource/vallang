@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.AbstractNumberValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -32,7 +31,7 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 	protected final BigDecimal value;
 	
 	protected BigDecimalValue(BigDecimal value){
-		super(DOUBLE_TYPE);
+		super();
 		
 		this.value = value;
 	}
