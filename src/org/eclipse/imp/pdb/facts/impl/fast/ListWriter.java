@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 // TODO Add checking.
 /**
@@ -25,7 +26,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
  * @author Arnold Lankamp
  */
 public class ListWriter implements IListWriter{
-	protected final Type elementType;
+	protected Type elementType;
+	protected final boolean inferred;
 	
 	protected final ShareableValuesList data;
 	
@@ -35,7 +37,18 @@ public class ListWriter implements IListWriter{
 		super();
 		
 		this.elementType = elementType;
+		this.inferred = false;
 		
+		data = new ShareableValuesList();
+		
+		constructedList = null;
+	}
+	
+	protected ListWriter(){
+		super();
+		
+		this.elementType = TypeFactory.getInstance().voidType();
+		this.inferred = true;
 		data = new ShareableValuesList();
 		
 		constructedList = null;
@@ -45,6 +58,7 @@ public class ListWriter implements IListWriter{
 		super();
 		
 		this.elementType = elementType;
+		this.inferred = false;
 		this.data = data;
 		
 		constructedList = null;
@@ -53,13 +67,21 @@ public class ListWriter implements IListWriter{
 	public void append(IValue element){
 		checkMutation();
 		
+		updateType(element);
 		data.append(element);
 	}
 	
+	private void updateType(IValue element) {
+		if (inferred) {
+			elementType = elementType.lub(element.getType());
+		}
+	}
+
 	public void append(IValue... elems){
 		checkMutation();
 		
 		for(IValue elem : elems){
+			updateType(elem);
 			data.append(elem);
 		}
 	}
@@ -69,13 +91,15 @@ public class ListWriter implements IListWriter{
 		
 		Iterator<? extends IValue> collectionIterator = collection.iterator();
 		while(collectionIterator.hasNext()){
-			data.append(collectionIterator.next());
+			IValue next = collectionIterator.next();
+			updateType(next);
+			data.append(next);
 		}
 	}
 	
 	public void insert(IValue elem){
 		checkMutation();
-		
+		updateType(elem);
 		data.insert(elem);
 	}
 	
@@ -88,6 +112,7 @@ public class ListWriter implements IListWriter{
 		checkBounds(elements, start, length);
 		
 		for(int i = start + length - 1; i >= start; i--){
+			updateType(elements[i]);
 			data.insert(elements[i]);
 		}
 	}
@@ -97,13 +122,16 @@ public class ListWriter implements IListWriter{
 		
 		Iterator<? extends IValue> collectionIterator = collection.iterator();
 		while(collectionIterator.hasNext()){
-			data.insert(collectionIterator.next());
+			IValue next = collectionIterator.next();
+			updateType(next);
+			data.insert(next);
 		}
 	}
 	
 	public void insertAt(int index, IValue element){
 		checkMutation();
 		
+		updateType(element);
 		data.insertAt(index, element);
 	}
 	
@@ -116,6 +144,7 @@ public class ListWriter implements IListWriter{
 		checkBounds(elements, start, length);
 		
 		for(int i = start + length - 1; i >= start; i--){
+			updateType(elements[i]);
 			data.insertAt(index, elements[i]);
 		}
 	}
@@ -123,6 +152,7 @@ public class ListWriter implements IListWriter{
 	public void replaceAt(int index, IValue element){
 		checkMutation();
 		
+		updateType(element);
 		data.set(index, element);
 	}
 	

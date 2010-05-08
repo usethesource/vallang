@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 // TODO Add checking.
 /**
@@ -25,11 +26,13 @@ import org.eclipse.imp.pdb.facts.type.Type;
  * @author Arnold Lankamp
  */
 public class RelationWriter implements IRelationWriter{
-	protected final Type tupleType;
+	protected Type tupleType;
 	
 	protected final ShareableValuesHashSet data;
 	
 	protected IRelation constructedRelation;
+
+	protected final boolean inferred;
 	
 	protected RelationWriter(Type tupleType){
 		super();
@@ -39,10 +42,22 @@ public class RelationWriter implements IRelationWriter{
 		}
 		
 		this.tupleType = tupleType;
+		this.inferred = false;
 		
 		data = new ShareableValuesHashSet();
 		
 		constructedRelation = null;
+	}
+	
+	protected RelationWriter(){
+		super();
+		
+		this.tupleType = TypeFactory.getInstance().voidType();
+		
+		data = new ShareableValuesHashSet();
+		
+		constructedRelation = null;
+		this.inferred = true;
 	}
 	
 	protected RelationWriter(Type tupleType, ShareableValuesHashSet data){
@@ -50,20 +65,31 @@ public class RelationWriter implements IRelationWriter{
 		
 		this.tupleType = tupleType;
 		this.data = new ShareableValuesHashSet(data);
+		this.inferred = false;
 		
 		constructedRelation = null;
 	}
 	
 	public void insert(IValue element){
 		checkMutation();
-		
+		updateType(element);
 		data.add(element);
 	}
 	
+	private void updateType(IValue element) {
+		if (inferred) {
+			tupleType = tupleType.lub(element.getType());
+			if (!tupleType.isTupleType()) {
+				throw new IllegalArgumentException("relations can only contain tuples of the same arity");
+			} 
+		}
+	}
+
 	public void insert(IValue... elements){
 		checkMutation();
 		
 		for(int i = elements.length - 1; i >= 0; i--){
+			updateType(elements[i]);
 			data.add(elements[i]);
 		}
 	}
@@ -73,7 +99,9 @@ public class RelationWriter implements IRelationWriter{
 		
 		Iterator<IValue> collectionIterator = collection.iterator();
 		while(collectionIterator.hasNext()){
-			data.add(collectionIterator.next());
+			IValue next = collectionIterator.next();
+			updateType(next);
+			data.add(next);
 		}
 	}
 	

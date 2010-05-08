@@ -80,6 +80,10 @@ public class ValueFactory extends BaseValueFactory {
 		checkNull(tupleType);
 		return Relation.createRelationWriter(tupleType);
 	}
+	
+	public IRelationWriter relationWriter() {
+		return Relation.createRelationWriter();
+	}
 
 	public ISet set(Type eltType){
 		checkNull(eltType);
@@ -93,6 +97,10 @@ public class ValueFactory extends BaseValueFactory {
 		}
 		
 		return Set.createSetWriter(eltType);
+	}
+	
+	public ISetWriter setWriter() {
+		return Set.createSetWriter();
 	}
 
 	public ISet set(IValue... elems) throws FactTypeUseException {
@@ -112,6 +120,10 @@ public class ValueFactory extends BaseValueFactory {
 	public IListWriter listWriter(Type eltType) {
 		checkNull(eltType);
 		return List.createListWriter(eltType);
+	}
+	
+	public IListWriter listWriter() {
+		return List.createListWriter();
 	}
 
 	public IList list(IValue... rest) {
@@ -178,5 +190,9 @@ public class ValueFactory extends BaseValueFactory {
 		checkNull(keyType);
 		checkNull(valueType);
 		return Map.createMapWriter(keyType, valueType);
+	}
+	
+	public IMapWriter mapWriter() {
+		return Map.createMapWriter();
 	}
 }

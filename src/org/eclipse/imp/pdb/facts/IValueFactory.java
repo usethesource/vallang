@@ -191,6 +191,14 @@ public interface IValueFactory {
     public ISetWriter setWriter(Type eltType);
     
     /**
+     * Get a set writer of which the element type will be the least upper bound
+     * of the element types
+     * 
+     * @return a set writer
+     */
+    public ISetWriter setWriter();
+    
+    /**
      * Construct a set with a fixed number of elements in it. If the 
      * elements are compatible tuples, this will construct a relation.
      * 
@@ -215,6 +223,14 @@ public interface IValueFactory {
     public IListWriter listWriter(Type eltType);
     
     /**
+     * Get a list writer of which the element type will be the least upper bound
+     * of the element types
+     * 
+     * @return a list writer
+     */
+    public IListWriter listWriter();
+    
+    /**
      * Construct a list with a fixed number of elements in it.
      * @param elems the elements to put in the list
      * @return a list [a] of type list[a.getType()]
@@ -234,6 +250,12 @@ public interface IValueFactory {
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
     public IRelationWriter relationWriter(Type type);
+    
+    /**
+     * Constructs a relation writer, which infers its type from the tuples given while
+     * writing to the relation.
+     */
+    public IRelationWriter relationWriter();
     
     /**
      * Construct a relation with a fixed number of tuples in it
@@ -259,6 +281,15 @@ public interface IValueFactory {
 	 */
 	public IMapWriter mapWriter(Type key, Type value);
 
+	
+	 /**
+     * Get a map writer of which the key and value types will be the least upper bound
+     * of the keys and values that are put in.
+     * 
+     * @return a list writer
+     */
+    public IMapWriter mapWriter();
+    
 	/**
 	 * Create a boolean with a certain value
 	 * @return a boolean

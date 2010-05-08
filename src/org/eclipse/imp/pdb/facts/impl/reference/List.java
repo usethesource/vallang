@@ -149,6 +149,10 @@ public class List extends Value implements IList {
     /*package*/ static ListWriter createListWriter(Type eltType){
 		return new ListWriter(eltType);
 	}
+    
+    /*package*/ static ListWriter createListWriter(){
+		return new ListWriter();
+	}
 	
 	private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException{
 		Type type = elem.getType();
@@ -162,15 +166,27 @@ public class List extends Value implements IList {
 	 * It is thread-friendly however.
 	 */
 	private static class ListWriter extends Writer implements IListWriter{
-		private final Type eltType;
+		private Type eltType;
 		private final LinkedList<IValue> listContent;
 		
 		private List constructedList;
+		private final boolean inferred;
 		
 		public ListWriter(Type eltType){
 			super();
 			
 			this.eltType = eltType;
+			this.inferred = false;
+			listContent = new LinkedList<IValue>();
+			
+			constructedList = null;
+		}
+		
+		public ListWriter(){
+			super();
+			
+			this.eltType = TypeFactory.getInstance().voidType();
+			inferred = true;
 			listContent = new LinkedList<IValue>();
 			
 			constructedList = null;
@@ -181,13 +197,17 @@ public class List extends Value implements IList {
 		}
 		
 		private void put(int index, IValue elem){
-			checkInsert(elem, eltType);
+			if (inferred) {
+				eltType = eltType.lub(elem.getType());
+			}
+			else {
+				checkInsert(elem, eltType);
+			}
 			listContent.add(index, elem);
 		}
 		
 		public void insert(IValue elem) throws FactTypeUseException{
 			checkMutation();
-			
 			put(0, elem);
 		}
 		
@@ -196,12 +216,14 @@ public class List extends Value implements IList {
 			checkBounds(elems, start, length);
 			
 			for(int i = start + length - 1; i >= start; i--){
+				updateType(elems[i]);
 				put(0, elems[i]);
 			}
 		}
 
 		public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
 			checkMutation();
+			updateType(elem);
 			checkInsert(elem, eltType);
 			listContent.set(index, elem);
 		}
@@ -214,7 +236,10 @@ public class List extends Value implements IList {
 			checkMutation();
 			checkBounds(elems, start, length);
 			
-			for(int i = start + length - 1; i >= start; i--){
+			for(int i = start + length - 1; i >= start; i--) {
+				if (inferred) {
+					eltType = eltType.lub(elems[i].getType());
+				}
 				put(index, elems[i]);
 			}
 		}
@@ -225,7 +250,7 @@ public class List extends Value implements IList {
 		
 		public void append(IValue elem) throws FactTypeUseException{
 			checkMutation();
-			
+			updateType(elem);
 			put(listContent.size(), elem);
 		}
 
@@ -233,6 +258,7 @@ public class List extends Value implements IList {
 			checkMutation();
 			
 			for(IValue elem : elems){
+				updateType(elem);
 				put(listContent.size(), elem);
 			}
 		}
@@ -241,7 +267,14 @@ public class List extends Value implements IList {
 			checkMutation();
 			
 			for(IValue v : collection){
+				updateType(v);
 				put(listContent.size(), v);
+			}
+		}
+
+		private void updateType(IValue v) {
+			if (inferred) {
+				eltType = eltType.lub(v.getType());
 			}
 		}
 

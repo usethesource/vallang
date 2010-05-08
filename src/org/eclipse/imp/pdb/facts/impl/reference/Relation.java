@@ -130,9 +130,17 @@ class Relation extends Set implements IRelation {
 		return new RelationWriter(tupleType);
 	}
 	
+	public static IRelationWriter createRelationWriter() {
+		return new RelationWriter();
+	}
+	
 	protected static class RelationWriter  extends Set.SetWriter implements IRelationWriter {
 		public RelationWriter(Type eltType) {
 			super(eltType);
+		}
+		
+		public RelationWriter() {
+			super();
 		}
 			
 		public IRelation done() {

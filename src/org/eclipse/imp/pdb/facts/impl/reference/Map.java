@@ -170,6 +170,10 @@ class Map extends Value implements IMap{
 		return new MapWriter(keyType, valueType);
 	}
 	
+	static MapWriter createMapWriter(){
+		return new MapWriter();
+	}
+	
 	public IMap compose(IMap other) {
 		IMapWriter w = new MapWriter(getKeyType(), other.getValueType());
 		
@@ -186,10 +190,10 @@ class Map extends Value implements IMap{
 	}
 	
 	private static class MapWriter extends Writer implements IMapWriter{
-		private final Type keyType;
-		private final Type valueType;
+		private Type keyType;
+		private Type valueType;
+		private final boolean inferred;
 		private final HashMap<IValue, IValue> mapContent;
-		
 		private Map constructedMap; 
 
 		public MapWriter(Type keyType, Type valueType){
@@ -197,6 +201,17 @@ class Map extends Value implements IMap{
 			
 			this.keyType = keyType;
 			this.valueType = valueType;
+			this.inferred = false;
+			
+			mapContent = new HashMap<IValue, IValue>();
+		}
+		
+		public MapWriter(){
+			super();
+			
+			this.keyType = TypeFactory.getInstance().voidType();
+			this.valueType = TypeFactory.getInstance().voidType();
+			this.inferred = true;
 			
 			mapContent = new HashMap<IValue, IValue>();
 		}
@@ -211,14 +226,25 @@ class Map extends Value implements IMap{
 			check(mapType.getKeyType(), mapType.getValueType(), keyType, valueType);
 			
 			for(IValue key : map){
-				mapContent.put(key, map.get(key));
+				IValue value = map.get(key);
+				updateTypes(key, value);
+				mapContent.put(key, value);
 			}
 		}
 		
+		private void updateTypes(IValue key, IValue value) {
+			if (inferred) {
+				keyType = keyType.lub(key.getType());
+				valueType = valueType.lub(value.getType());
+			}
+			
+		}
+
 		public void putAll(java.util.Map<IValue, IValue> map) throws FactTypeUseException{
 			checkMutation();
 			for(IValue key : map.keySet()){
 				IValue value = map.get(key);
+				updateTypes(key, value);
 				check(key.getType(), value.getType(), keyType, valueType);
 				mapContent.put(key, value);
 			}
@@ -226,13 +252,17 @@ class Map extends Value implements IMap{
 
 		public void put(IValue key, IValue value) throws FactTypeUseException{
 			checkMutation();
+			updateTypes(key,value);
 			mapContent.put(key, value);
 		}
 		
 		public void insert(IValue... value) throws FactTypeUseException {
-			for(IValue key : value){
-				ITuple t = (ITuple) key;
-				put(t.get(0), t.get(1));
+			for(IValue tuple : value){
+				ITuple t = (ITuple) tuple;
+				IValue key = t.get(0);
+				IValue value2 = t.get(1);
+				updateTypes(key,value2);
+				put(key, value2);
 			}
 		}
 		

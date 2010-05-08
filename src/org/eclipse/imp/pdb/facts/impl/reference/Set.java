@@ -164,22 +164,42 @@ class Set extends Value implements ISet{
 		return new SetWriter(eltType);
 	}
 	
+	static ISetWriter createSetWriter() {
+		return new SetWriter();
+	}
+	
 	protected static class SetWriter extends Writer implements ISetWriter{
-		protected final Type eltType;
+		protected Type eltType;
 		protected final HashSet<IValue> setContent;
 		
 		protected Set constructedSet;
+		protected final boolean inferred;
 
 		public SetWriter(Type eltType){
 			super();
 			
 			this.eltType = eltType;
+			this.inferred = false;
+			setContent = new HashSet<IValue>();
+		}
+		
+		public SetWriter() {
+			super();
+			this.eltType = TypeFactory.getInstance().voidType();
+			this.inferred = true;
 			setContent = new HashSet<IValue>();
 		}
 		
 		private void put(IValue elem){
+			updateType(elem);
 			checkInsert(elem, eltType);
 			setContent.add(elem);
+		}
+
+		private void updateType(IValue elem) {
+			if (inferred) {
+				eltType = eltType.lub(elem.getType());
+			}
 		}
 
 		public void insert(IValue... elems) throws FactTypeUseException{
@@ -200,7 +220,12 @@ class Set extends Value implements ISet{
 		
 		public ISet done(){
 			if(constructedSet == null){
-				constructedSet = new Set(TypeFactory.getInstance().setType(eltType), setContent);
+				if (inferred && eltType.isTupleType() && !eltType.isVoidType()) {
+					constructedSet = new Relation(eltType, setContent);
+				}
+				else {
+					constructedSet = new Set(TypeFactory.getInstance().setType(eltType), setContent);
+				}
 			}
 			return  constructedSet;
 		}
@@ -218,4 +243,6 @@ class Set extends Value implements ISet{
 			setContent.remove(v);
 		}
 	}
+
+
 }

@@ -284,8 +284,16 @@ public final class SharedValueFactory implements IValueFactory{
 		return new SharedListWriter(elementType);
 	}
 	
+	public IListWriter listWriter(){
+		return new SharedListWriter();
+	}
+	
 	public IMapWriter mapWriter(Type keyType, Type valueType){
 		return new SharedMapWriter(keyType, valueType);
+	}
+	
+	public IMapWriter mapWriter(){
+		return new SharedMapWriter();
 	}
 	
 	public ISetWriter setWriter(Type elementType){
@@ -294,8 +302,16 @@ public final class SharedValueFactory implements IValueFactory{
 		return new SharedSetWriter(elementType);
 	}
 	
+	public ISetWriter setWriter(){
+		return new SharedSetWriter();
+	}
+	
 	public IRelationWriter relationWriter(Type tupleType){
 		return new SharedRelationWriter(tupleType);
+	}
+	
+	public IRelationWriter relationWriter(){
+		return new SharedRelationWriter();
 	}
 	
 	public IList list(Type elementType){

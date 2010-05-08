@@ -188,8 +188,16 @@ public final class ValueFactory implements IValueFactory{
 		return new ListWriter(elementType);
 	}
 	
+	public IListWriter listWriter(){
+		return new ListWriter();
+	}
+	
 	public IMapWriter mapWriter(Type keyType, Type valueType){
 		return new MapWriter(keyType, valueType);
+	}
+	
+	public IMapWriter mapWriter(){
+		return new MapWriter();
 	}
 	
 	public ISetWriter setWriter(Type elementType){
@@ -198,8 +206,16 @@ public final class ValueFactory implements IValueFactory{
 		return new SetWriter(elementType);
 	}
 	
+	public ISetWriter setWriter(){
+		return new SetWriter();
+	}
+	
 	public IRelationWriter relationWriter(Type tupleType){
 		return new RelationWriter(tupleType);
+	}
+	
+	public IRelationWriter relationWriter(){
+		return new RelationWriter();
 	}
 	
 	public IList list(Type elementType){

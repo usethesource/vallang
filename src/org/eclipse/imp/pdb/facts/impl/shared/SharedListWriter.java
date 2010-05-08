@@ -26,6 +26,10 @@ public class SharedListWriter extends ListWriter{
 		super(elementType);
 	}
 	
+	protected SharedListWriter(){
+		super();
+	}
+	
 	protected SharedListWriter(Type elementType, ShareableValuesList data){
 		super(elementType, data);
 	}

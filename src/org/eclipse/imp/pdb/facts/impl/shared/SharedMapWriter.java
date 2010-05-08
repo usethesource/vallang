@@ -26,6 +26,10 @@ public class SharedMapWriter extends MapWriter{
 		super(keyType, valueType);
 	}
 	
+	protected SharedMapWriter(){
+		super();
+	}
+	
 	protected SharedMapWriter(Type keyType, Type valueType, ShareableValuesHashMap data){
 		super(keyType, valueType, data);
 	}

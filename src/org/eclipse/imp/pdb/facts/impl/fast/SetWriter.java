@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 // TODO Add checking.
 /**
@@ -25,7 +26,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
  * @author Arnold Lankamp
  */
 public class SetWriter implements ISetWriter{
-	protected final Type elementType;
+	protected Type elementType;
+	protected final boolean inferred;
 	
 	protected final ShareableValuesHashSet data;
 	
@@ -35,6 +37,18 @@ public class SetWriter implements ISetWriter{
 		super();
 		
 		this.elementType = elementType;
+		this.inferred = false;
+		
+		data = new ShareableValuesHashSet();
+		
+		constructedSet = null;
+	}
+	
+	protected SetWriter(){
+		super();
+		
+		this.elementType = TypeFactory.getInstance().voidType();
+		this.inferred = true;
 		
 		data = new ShareableValuesHashSet();
 		
@@ -45,6 +59,7 @@ public class SetWriter implements ISetWriter{
 		super();
 		
 		this.elementType = elementType;
+		this.inferred = false;
 		this.data = data;
 		
 		constructedSet = null;
@@ -52,14 +67,21 @@ public class SetWriter implements ISetWriter{
 	
 	public void insert(IValue value){
 		checkMutation();
-		
+		updateType(value);
 		data.add(value);
 	}
 	
+	private void updateType(IValue value) {
+		if (inferred) {
+			elementType = elementType.lub(value.getType());
+		}
+	}
+
 	public void insert(IValue... elements){
 		checkMutation();
 		
 		for(int i = elements.length - 1; i >= 0; i--){
+			updateType(elements[i]);
 			data.add(elements[i]);
 		}
 	}
@@ -69,7 +91,9 @@ public class SetWriter implements ISetWriter{
 		
 		Iterator<IValue> collectionIterator = collection.iterator();
 		while(collectionIterator.hasNext()){
-			data.add(collectionIterator.next());
+			IValue next = collectionIterator.next();
+			updateType(next);
+			data.add(next);
 		}
 	}
 	
@@ -88,7 +112,14 @@ public class SetWriter implements ISetWriter{
 	}
 	
 	public ISet done(){
-		if(constructedSet == null) constructedSet = new Set(elementType, data);
+		if (constructedSet == null) {
+			if (inferred && elementType.isTupleType()) {
+				constructedSet = new Relation(elementType, data);
+			}
+			else {
+				constructedSet = new Set(elementType, data);
+			}
+		}
 		
 		return constructedSet;
 	}

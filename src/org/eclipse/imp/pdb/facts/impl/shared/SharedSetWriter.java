@@ -25,13 +25,24 @@ public class SharedSetWriter extends SetWriter{
 	protected SharedSetWriter(Type elementType){
 		super(elementType);
 	}
+	
+	protected SharedSetWriter(){
+		super();
+	}
 
 	protected SharedSetWriter(Type elementType, ShareableValuesHashSet data){
 		super(elementType, data);
 	}
 	
 	public ISet done(){
-		if(constructedSet == null) constructedSet = SharedValueFactory.getInstance().buildSet(new SharedSet(elementType, data));
+		if(constructedSet == null) {
+			if (inferred && elementType.isTupleType()) {
+				constructedSet = SharedValueFactory.getInstance().buildRelation(new SharedRelation(elementType, data));
+			}
+			else {
+				constructedSet = SharedValueFactory.getInstance().buildSet(new SharedSet(elementType, data));
+			}
+		}
 		
 		return constructedSet;
 	}

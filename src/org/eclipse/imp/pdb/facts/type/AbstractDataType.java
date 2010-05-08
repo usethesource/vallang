@@ -227,7 +227,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 			}
 		}
 		
-		throw new UndeclaredConstructorException(this, childrenTypes);
+		throw new UndeclaredConstructorException(name, childrenTypes);
 	}
 	
 	@Override

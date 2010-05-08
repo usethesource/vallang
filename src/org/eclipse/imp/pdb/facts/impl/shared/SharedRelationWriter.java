@@ -26,6 +26,10 @@ public class SharedRelationWriter extends RelationWriter{
 		super(tupleType);
 	}
 	
+	protected SharedRelationWriter(){
+		super();
+	}
+	
 	protected SharedRelationWriter(Type tupleType, ShareableValuesHashSet data){
 		super(tupleType, data);
 	}

@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 // TODO Add checking.
 /**
@@ -27,18 +28,32 @@ import org.eclipse.imp.pdb.facts.type.Type;
  * @author Arnold Lankamp
  */
 public class MapWriter implements IMapWriter{
-	protected final Type keyType;
-	protected final Type valueType;
+	protected Type keyType;
+	protected Type valueType;
 	
 	protected final ShareableValuesHashMap data;
 	
 	protected IMap constructedMap;
+	protected final boolean inferred;
 	
 	protected MapWriter(Type keyType, Type valueType){
 		super();
 		
 		this.keyType = keyType;
 		this.valueType = valueType;
+		this.inferred = false;
+		
+		data = new ShareableValuesHashMap();
+		
+		constructedMap = null;
+	}
+	
+	protected MapWriter(){
+		super();
+		
+		this.keyType = TypeFactory.getInstance().voidType();
+		this.valueType =  TypeFactory.getInstance().voidType();
+		this.inferred = true;
 		
 		data = new ShareableValuesHashMap();
 		
@@ -51,23 +66,35 @@ public class MapWriter implements IMapWriter{
 		this.keyType = keyType;
 		this.valueType = valueType;
 		this.data = data;
+		this.inferred = false;
 		
 		constructedMap = null;
 	}
 	
 	public void put(IValue key, IValue value){
 		checkMutation();
+		updateTypes(key,value);
 		
 		data.put(key, value);
 	}
 	
+	private void updateTypes(IValue key, IValue value) {
+		if (inferred) {
+			keyType = keyType.lub(key.getType());
+			valueType = valueType.lub(value.getType());
+		}
+	}
+
 	public void putAll(IMap map){
 		checkMutation();
 		
 		Iterator<Entry<IValue, IValue>> entryIterator = map.entryIterator();
 		while(entryIterator.hasNext()){
 			Entry<IValue, IValue> entry = entryIterator.next();
-			data.put(entry.getKey(), entry.getValue());
+			IValue key = entry.getKey();
+			IValue value = entry.getValue();
+			updateTypes(key,value);
+			data.put(key, value);
 		}
 	}
 	
@@ -77,7 +104,10 @@ public class MapWriter implements IMapWriter{
 		Iterator<Entry<IValue, IValue>> entryIterator = map.entrySet().iterator();
 		while(entryIterator.hasNext()){
 			Entry<IValue, IValue> entry = entryIterator.next();
-			data.put(entry.getKey(), entry.getValue());
+			IValue key = entry.getKey();
+			IValue value = entry.getValue();
+			updateTypes(key,value);
+			data.put(key,value);
 		}
 	}
 	
@@ -93,7 +123,10 @@ public class MapWriter implements IMapWriter{
 			
 			if(tuple.arity() != 2) throw new IllegalArgumentException("Tuple must have an arity of 2.");
 			
-			put(tuple.get(0), tuple.get(1));
+			IValue key = tuple.get(0);
+			IValue value2 = tuple.get(1);
+			updateTypes(key,value2);
+			put(key, value2);
 		}
 	}
 	
@@ -110,7 +143,10 @@ public class MapWriter implements IMapWriter{
 			
 			if(tuple.arity() != 2) throw new IllegalArgumentException("Tuple must have an arity of 2.");
 			
-			put(tuple.get(0), tuple.get(1));
+			IValue key = tuple.get(0);
+			IValue value2 = tuple.get(1);
+			updateTypes(key,value2);
+			put(key, value2);
 		}
 	}
 	

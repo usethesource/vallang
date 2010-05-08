@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -32,6 +33,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.OverloadingNotSupportedException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -39,6 +41,10 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * This class implements the standard readable syntax for {@link IValue}'s.
+ * Note that the parser also validates the input according to a given {@link Type}.
+ * 
+ * Note however that overloaded constructors for abstract data-types are <b>not</b> supported.
+ * 
  * See also {@link StandardTextWriter}
  */
 public class StandardTextReader extends AbstractReader {
@@ -47,6 +53,8 @@ public class StandardTextReader extends AbstractReader {
 	private static final char START_OF_STRING = '\"';
 	private static final char END_OF_STRING = '\"';
 	private static final char START_OF_MAP = '(';
+	private static final char START_OF_ARGUMENTS = '(';
+	private static final char END_OF_ARGUMENTS = ')';
 	private static final char START_OF_TUPLE = '<';
 	private static final char START_OF_SET = '{';
 	private static final char START_OF_LIST = '[';
@@ -136,7 +144,7 @@ public class StandardTextReader extends AbstractReader {
 		try {
 
 			String url = parseURL();
-			if (current == '(') {
+			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> args = new ArrayList<IValue>(4);
 				readFixed(types.valueType(), ')', args);
 
@@ -193,7 +201,7 @@ public class StandardTextReader extends AbstractReader {
 	private IValue readMap(Type expected) throws IOException {
 		Type keyType = expected.isMapType() ? expected.getKeyType() : types.valueType();
 		Type valueType = expected.isMapType() ? expected.getValueType() : types.valueType();
-		IMapWriter w = factory.mapWriter(keyType, valueType);
+		IMapWriter w = expected.isMapType() ? factory.mapWriter(keyType, valueType) : factory.mapWriter();
 
 		current = stream.read();
 		
@@ -225,12 +233,12 @@ public class StandardTextReader extends AbstractReader {
 	
 	private IValue readSet(Type expected) throws FactTypeUseException, IOException {
 		Type elemType = expected.isSetType() ? expected.getElementType() : types.valueType();
-		return readContainer(elemType, factory.setWriter(elemType), END_OF_SET);
+		return readContainer(elemType, expected.isSetType() ? factory.setWriter(elemType) : factory.setWriter(), END_OF_SET);
 	}
 		
 	private IValue readList(Type expected) throws FactTypeUseException, IOException {
 		Type elemType = expected.isListType() ? expected.getElementType() : types.valueType();
-		return readList(elemType, factory.listWriter(elemType), END_OF_LIST);
+		return readList(elemType, expected.isListType() ? factory.listWriter(expected.getElementType()) : factory.listWriter(), END_OF_LIST);
 	}
 
 	private IValue readNumber(Type expected) throws IOException {
@@ -272,16 +280,37 @@ public class StandardTextReader extends AbstractReader {
 			return factory.bool(false);
 		}
 		else {
-			if (current == '(') {
+			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> arr = new ArrayList<IValue>();
-				readFixed(expected, ')', arr);
+				Type args = expected;
+				
+				if (expected.isAbstractDataType()) {
+					Set<Type> alternatives = store.lookupConstructor(expected, id);
+					if (alternatives.size() > 1) {
+						throw new OverloadingNotSupportedException(expected, id);
+					}
+					else if (alternatives.size() == 0) {
+						args = types.valueType(); 
+					}
+					else {
+						args = alternatives.iterator().next().getFieldTypes();
+					}
+				}
+				readFixed(args, END_OF_ARGUMENTS, arr);
 				IValue[] result = new IValue[arr.size()];
 				result = arr.toArray(result);
 				return expected.make(factory, store, id, result);
 			}
 			
 			Type args = types.tupleType(new Type[0]);
-			Type cons = store.lookupConstructor(expected, id, args);
+			
+			Type cons;
+			if (expected.isAbstractDataType()) {
+				cons = store.lookupConstructor(expected, id, args);
+			}
+			else {
+				cons = store.lookupFirstConstructor(id, args);
+			}
 			
 			if (cons != null) {
 				return cons.make(factory);
