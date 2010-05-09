@@ -564,8 +564,6 @@ public class StandardTextReader extends AbstractReader {
 		current = stream.read();
 		
 		while (current != END_OF_STRING) {
-			builder.append((char) current);
-			current = stream.read();
 			
 			if (current == '\\') {
 				current = stream.read();
@@ -579,9 +577,17 @@ public class StandardTextReader extends AbstractReader {
 				case 'r':
 					builder.append('\r');
 					break;
+				case '\"':
+					builder.append('\"');
+					break;
 				case '\\':
 					builder.append('\\');
+					break;
 				}
+				current = stream.read();
+			}
+			else {
+				builder.append((char) current);
 				current = stream.read();
 			}
 		}
