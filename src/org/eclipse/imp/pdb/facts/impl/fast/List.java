@@ -175,24 +175,4 @@ public class List extends Value implements IList{
 		
 		return false;
 	}
-	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("[");
-		
-		Iterator<IValue> listIterator = data.iterator();
-		if(listIterator.hasNext()){
-			sb.append(listIterator.next());
-			
-			while(listIterator.hasNext()){
-				sb.append(",");
-				sb.append(listIterator.next());
-			}
-		}
-		
-		sb.append("]");
-		
-		return sb.toString();
-	}
 }

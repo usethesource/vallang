@@ -118,17 +118,6 @@ public class SourceLocationValue implements ISourceLocation{
 	public boolean isEqual(IValue value){
 		return equals(value);
 	}
-	
-	public String toString(){
-		try {
-    		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    		new StandardTextWriter().write(this, stream);
-			return stream.toString();
-		} catch (IOException e) {
-			// this never happens
-			return null;
-		} 
-    }
 }
 
 

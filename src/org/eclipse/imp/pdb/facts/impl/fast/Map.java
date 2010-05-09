@@ -235,30 +235,4 @@ public class Map extends Value implements IMap{
 		
 		return false;
 	}
-	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("(");
-		
-		Iterator<Entry<IValue, IValue>> mapIterator = data.entryIterator();
-		if(mapIterator.hasNext()){
-			Entry<IValue, IValue> entry = mapIterator.next();
-			sb.append(entry.getKey());
-			sb.append(":");
-			sb.append(entry.getValue());
-			
-			while(mapIterator.hasNext()){
-				sb.append(",");
-				entry = mapIterator.next();
-				sb.append(entry.getKey());
-				sb.append(":");
-				sb.append(entry.getValue());
-			}
-		}
-		
-		sb.append(")");
-		
-		return sb.toString();
-	}
 }

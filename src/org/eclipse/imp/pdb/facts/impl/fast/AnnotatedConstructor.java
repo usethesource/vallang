@@ -107,44 +107,4 @@ public class AnnotatedConstructor extends Constructor {
 		
 		return false;
 	}
-	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append(getName());
-		sb.append("(");
-		
-		int size = children.length;
-		if(size > 0){
-			int i = 0;
-			sb.append(children[i]);
-			
-			for(i = 1; i < size; i++){
-				sb.append(",");
-				sb.append(children[i]);
-			}
-		}
-		
-		sb.append(")");
-		
-		// Annos
-		sb.append('[');
-		Map<String, IValue> annotations = getAnnotations();
-		Iterator<Map.Entry<String, IValue>> annotationsIterator = annotations.entrySet().iterator();
-		
-		Map.Entry<String, IValue> entry = annotationsIterator.next();
-		sb.append("@" + entry.getKey() + "=");
-		sb.append(entry.getValue().toString());
-		
-		while(annotationsIterator.hasNext()){
-			sb.append(",");
-			
-			entry = annotationsIterator.next();
-			sb.append("@" + entry.getKey() + "=");
-			sb.append(entry.getValue().toString());
-		}
-		sb.append(']');
-		
-		return sb.toString();
-	}
 }
