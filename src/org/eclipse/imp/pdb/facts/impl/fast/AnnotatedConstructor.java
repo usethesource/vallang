@@ -101,32 +101,8 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 		return false;
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append(super.toString());
-
-		// Annos
-		sb.append('[');
-		Map<String, IValue> annotations = getAnnotations();
-		Iterator<Map.Entry<String, IValue>> annotationsIterator = annotations.entrySet().iterator();
-		
-		Map.Entry<String, IValue> entry = annotationsIterator.next();
-		sb.append("@" + entry.getKey() + "=");
-		sb.append(entry.getValue().toString());
-		
-		while(annotationsIterator.hasNext()){
-			sb.append(",");
-			
-			entry = annotationsIterator.next();
-			sb.append("@" + entry.getKey() + "=");
-			sb.append(entry.getValue().toString());
-		}
-		sb.append(']');
-		
-		return sb.toString();
-	}
-
+	// we specialize once more, for cases of 1, 2 and 3 constructors we have specialized sub-classes.
+	// this saves quite a bit of memory
 	private static class AnnotatedConstructorOne extends AnnotatedConstructorBase {
 		
 	    private String annotationLabelOne;
@@ -198,20 +174,6 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 				return annotationLabelOne.equals(other.annotationLabelOne) && annotationValueOne.equals(other.annotationValueOne); 
 			}
 			return false;
-		}
-		
-		public String toString(){
-			StringBuilder sb = new StringBuilder();
-			
-			sb.append(super.toString());
-
-			// Annos
-			sb.append('[');
-			sb.append("@" + annotationLabelOne + "=");
-			sb.append(annotationValueOne.toString());
-			sb.append(']');
-			
-			return sb.toString();
 		}
 	}
 
@@ -300,22 +262,6 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 						&& annotationLabelTwo.equals(other.annotationLabelTwo) && annotationValueTwo.equals(other.annotationValueTwo);
 			}
 			return false;
-		}
-		
-		public String toString(){
-			StringBuilder sb = new StringBuilder();
-			
-			sb.append(super.toString());
-
-			// Annos
-			sb.append('[');
-			sb.append("@" + annotationLabelOne + "=");
-			sb.append(annotationValueOne.toString());
-			sb.append(",@" + annotationLabelTwo + "=");
-			sb.append(annotationValueTwo.toString());
-			sb.append(']');
-			
-			return sb.toString();
 		}
 	}
 
@@ -418,24 +364,6 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 						&& annotationLabelThree.equals(other.annotationLabelThree) && annotationValueThree.equals(other.annotationValueThree);
 			}
 			return false;
-		}
-		
-		public String toString(){
-			StringBuilder sb = new StringBuilder();
-			
-			sb.append(super.toString());
-
-			// Annos
-			sb.append('[');
-			sb.append("@" + annotationLabelOne + "=");
-			sb.append(annotationValueOne.toString());
-			sb.append(",@" + annotationLabelTwo + "=");
-			sb.append(annotationValueTwo.toString());
-			sb.append(",@" + annotationLabelThree + "=");
-			sb.append(annotationValueThree.toString());
-			sb.append(']');
-			
-			return sb.toString();
 		}
 	}
 }

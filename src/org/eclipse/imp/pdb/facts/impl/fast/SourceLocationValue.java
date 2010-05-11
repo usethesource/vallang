@@ -10,13 +10,10 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -27,7 +24,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class SourceLocationValue implements ISourceLocation{
+public class SourceLocationValue extends Value implements ISourceLocation{
 	private final static Type SOURCE_LOCATION_TYPE = TypeFactory.getInstance().sourceLocationType();
 	
 	protected final URI uri;
