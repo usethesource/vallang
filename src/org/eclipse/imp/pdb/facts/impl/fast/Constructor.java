@@ -115,21 +115,21 @@ public class Constructor extends Value implements IConstructor{
 	}
 	
 	public IConstructor setAnnotation(String label, IValue value){
-		return new AnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label, value));
+		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label, value));
 	}
 	
 	public IConstructor setAnnotations(Map<String, IValue> newAnnos){
 		if(newAnnos.isEmpty()) return this;
 	
-		return new AnnotatedConstructor(constructorType, children, getSetAnnotations(newAnnos));
+		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getSetAnnotations(newAnnos));
 	}
 	
 	public IConstructor joinAnnotations(Map<String, IValue> newAnnos){
-		return new AnnotatedConstructor(constructorType, children, getUpdatedAnnotations(newAnnos));
+		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getUpdatedAnnotations(newAnnos));
 	}
 	
 	public IConstructor removeAnnotation(String label){
-		return new AnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label));
+		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label));
 	}
 	
 	public IConstructor removeAnnotations(){
