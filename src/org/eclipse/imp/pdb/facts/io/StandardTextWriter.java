@@ -101,7 +101,7 @@ public class StandardTextWriter implements IValueWriter {
 			
 			Iterator<IValue> listIterator = o.iterator();
 			if(listIterator.hasNext()){
-				append(listIterator.next().toString());
+				listIterator.next().accept(this);
 				
 				while(listIterator.hasNext()){
 					append(',');
