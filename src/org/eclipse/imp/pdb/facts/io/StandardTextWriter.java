@@ -232,6 +232,9 @@ public class StandardTextWriter implements IValueWriter {
 		    		append('\\');
 		    		append('\"');
 		    		break;
+		    	case '\'':
+		    		append('\\');
+		    		append('\'');
 		    	case '\\':
 		    		append('\\');
 		    		append('\\');
@@ -243,6 +246,7 @@ public class StandardTextWriter implements IValueWriter {
 		    	case '\r':
 		    		append('\\');
 		    		append('r');
+		    		break;
 		    	case '\t':
 		    		append('\\');
 		    		append('t');
