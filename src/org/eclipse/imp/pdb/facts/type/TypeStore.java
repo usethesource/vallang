@@ -176,8 +176,8 @@ public class TypeStore {
 					Type oldAdt = lookupAbstractDataType(name);
 
 					if (oldAdt != null) {
-						if (adt.isSubtypeOf(oldAdt)) {
-							return; // spurious re-declaration
+						if (adt.comparable(oldAdt)) {
+							return; // paramaterized ADT got instantiated, don't store.
 						}
 						
 						throw new FactTypeRedeclaredException(name, oldAdt);
