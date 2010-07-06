@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactMatchException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
@@ -138,7 +139,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 			params = new Type[fParameters.getArity()];
 			int i = 0;
 			for (Type p : fParameters) {
-				params[i] = p.instantiate(store, bindings);
+				params[i++] = p.instantiate(store, bindings);
 			}
 		}
 		return TypeFactory.getInstance().abstractDataType(store, fName, params);
@@ -228,6 +229,19 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 		}
 		
 		throw new UndeclaredConstructorException(name, childrenTypes);
+	}
+	
+	@Override
+	public void match(Type matched, Map<Type, Type> bindings)
+			throws FactTypeUseException {
+		if (!matched.isAbstractDataType()) {
+			throw new FactMatchException(this, matched);
+		}
+		if (!fName.equals(matched.getName())) {
+			throw new FactMatchException(this, matched);
+		}
+		
+		fParameters.match(matched.getTypeParameters(), bindings);
 	}
 	
 	@Override
