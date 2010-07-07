@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalAnnotationDeclaration;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalIdentifierException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalInstantiatedAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
@@ -186,6 +187,16 @@ public class TypeStore {
 					Type oldAlias = lookupAlias(name);
 					if (oldAlias != null) {
 						throw new FactTypeRedeclaredException(name, oldAlias);
+					}
+					
+					Type params = adt.getTypeParameters();
+				
+					if (!params.isVoidType()) {
+						for (Type p : params) {
+							if (!p.isParameterType()) {
+								throw new IllegalInstantiatedAbstractDataTypeException(adt);
+							}
+						}
 					}
 
 					fADTs.put(name, adt);

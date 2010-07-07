@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalIdentifierException;
 import org.eclipse.imp.pdb.facts.exceptions.NullTypeException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 
 /**
  * Use this class to produce any kind of {@link Type}, after which
@@ -361,7 +362,20 @@ public class TypeFactory {
     		throw new IllegalIdentifierException(name);
     	}
     	Type result = getFromCache(new AbstractDataType(name, params));
-    	store.declareAbstractDataType(result);
+    	
+    	if (!params.isVoidType()) {
+    		if (params.getFieldType(0).isParameterType()) { // parametrized and uninstantiated adts should be stored
+    			store.declareAbstractDataType(result);
+    		}
+    		else {
+    			// parametrized but instantiated types will not be stored and kept
+    			return result;
+    		}
+    	}
+    	else { // not parametrized
+    		store.declareAbstractDataType(result);
+    	}
+    	
     	return result;
     }
     
