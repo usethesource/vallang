@@ -367,10 +367,6 @@ public class TypeFactory {
     		if (params.getFieldType(0).isParameterType()) { // parametrized and uninstantiated adts should be stored
     			store.declareAbstractDataType(result);
     		}
-    		else {
-    			// parametrized but instantiated types will not be stored and kept
-    			return result;
-    		}
     	}
     	else { // not parametrized
     		store.declareAbstractDataType(result);
@@ -398,7 +394,18 @@ public class TypeFactory {
     	}
      
     	Type result = getFromCache(new ConstructorType(name, tupleType, adt));
-    	store.declareConstructor(result);
+    	
+    	Type params = adt.getTypeParameters();
+    	
+    	if (!params.isVoidType()) {
+    		if (params.getFieldType(0).isParameterType()) { // only parametrized and not instantiated types should be stored
+    			store.declareConstructor(result);
+    		}
+    	}
+    	else {
+    		store.declareConstructor(result);
+    	}
+    	
     	return result;
     }
 

@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 /**
  * This is a reference implementation for an @{link IValueFactory}. It uses
@@ -172,7 +171,7 @@ public class ValueFactory extends BaseValueFactory {
 		
 		constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
 		
-		return new Constructor(constructorType.instantiate(new TypeStore(), bindings), children);
+		return new Constructor(constructorType.instantiate(bindings), children);
 	}
 	
 	public IConstructor constructor(Type constructorType) {

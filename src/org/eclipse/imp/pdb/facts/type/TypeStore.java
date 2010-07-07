@@ -189,21 +189,25 @@ public class TypeStore {
 						throw new FactTypeRedeclaredException(name, oldAlias);
 					}
 					
-					Type params = adt.getTypeParameters();
-				
-					if (!params.isVoidType()) {
-						for (Type p : params) {
-							if (!p.isParameterType()) {
-								throw new IllegalInstantiatedAbstractDataTypeException(adt);
-							}
-						}
-					}
+					checkUninstanstiatedADT(adt);
 
 					fADTs.put(name, adt);
 					
 					if (fConstructors.get(adt) == null) {
 						fConstructors.put(adt, new HashSet<Type>());
 					}
+				}
+			}
+		}
+	}
+
+	private void checkUninstanstiatedADT(Type adt) {
+		Type params = adt.getTypeParameters();
+
+		if (!params.isVoidType()) {
+			for (Type p : params) {
+				if (!p.isParameterType()) {
+					throw new IllegalInstantiatedAbstractDataTypeException(adt);
 				}
 			}
 		}
@@ -220,6 +224,9 @@ public class TypeStore {
     	synchronized (fADTs) {
     		synchronized(fConstructors) {
     			Type adt = constructor.getAbstractDataType();
+    			
+    			checkUninstanstiatedADT(adt);
+
     			Type other = lookupAbstractDataType(adt.getName());
     			if (other == null) {
     				throw new UndeclaredAbstractDataTypeException(adt);

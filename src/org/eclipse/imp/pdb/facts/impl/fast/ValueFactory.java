@@ -280,7 +280,7 @@ public final class ValueFactory implements IValueFactory{
 			TypeFactory tf = TypeFactory.getInstance();
 	
 			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-			instantiatedType = constructorType.instantiate(new TypeStore(), bindings);
+			instantiatedType = constructorType.instantiate(bindings);
 		}
 		
 		return new Constructor(instantiatedType, children.clone());

@@ -133,15 +133,23 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	}
 	
 	@Override
-	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
+	public Type instantiate(Map<Type, Type> bindings) {
+		if (bindings.isEmpty()) {
+			return this;
+		}
+		
 		Type[] params = new Type[0];
 		if (isParameterized()) {
 			params = new Type[fParameters.getArity()];
 			int i = 0;
 			for (Type p : fParameters) {
-				params[i++] = p.instantiate(store, bindings);
+				params[i++] = p.instantiate(bindings);
 			}
 		}
+		
+		TypeStore store = new TypeStore();
+		store.declareAbstractDataType(this);
+		
 		return TypeFactory.getInstance().abstractDataType(store, fName, params);
 	}
 	

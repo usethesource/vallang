@@ -623,11 +623,18 @@ public class StandardTextReader extends AbstractReader {
 			IValue value = readValue(annoType);
 	
 			result = result.setAnnotation(key, value);
-			current = stream.read();
-			if (current != ',') {
-				break; // no more elements, so expecting a ']'
+			if (current == ']') {
+				current = stream.read();
+				break;
 			}
-			current = stream.read();
+			checkAndRead(',');
+			if (current == ',') {
+				current = stream.read();
+			}
+			else {
+				unexpected(',');
+			}
+			
 		}
 		
 		return result;

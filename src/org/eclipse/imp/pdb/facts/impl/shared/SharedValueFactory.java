@@ -43,7 +43,6 @@ import org.eclipse.imp.pdb.facts.impl.util.sharing.IndexedCache;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.ShareableValuesFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 
 /**
@@ -384,7 +383,7 @@ public final class SharedValueFactory implements IValueFactory{
 			TypeFactory tf = TypeFactory.getInstance();
 	
 			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-			instantiatedType = constructorType.instantiate(new TypeStore(), bindings);
+			instantiatedType = constructorType.instantiate(bindings);
 		}
 		
 		return buildConstructor(new SharedConstructor(instantiatedType, children.clone()));

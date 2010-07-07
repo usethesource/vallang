@@ -366,13 +366,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	}
 	
 	@Override
-	public Type instantiate(TypeStore store, Map<Type, Type> bindings) {
+	public Type instantiate(Map<Type, Type> bindings) {
 		if (hasFieldNames()) {
 			Type[] fTypes = new Type[getArity()];
 			String[] fLabels = new String[getArity()];
 
 			for (int i = fTypes.length - 1; i >= 0; i--) {
-				fTypes[i] = getFieldType(i).instantiate(store, bindings);
+				fTypes[i] = getFieldType(i).instantiate(bindings);
 				fLabels[i] = getFieldName(i);
 			}
 
@@ -381,7 +381,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		
 		Type[] fChildren = new Type[getArity()];
 		for (int i = fChildren.length - 1; i >= 0; i--) {
-			fChildren[i] = getFieldType(i).instantiate(store, bindings);
+			fChildren[i] = getFieldType(i).instantiate(bindings);
 		}
 
 		return TypeFactory.getInstance().tupleType(fChildren);
