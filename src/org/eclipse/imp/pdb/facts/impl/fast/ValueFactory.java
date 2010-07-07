@@ -267,7 +267,17 @@ public final class ValueFactory implements IValueFactory{
 		return new Node(name, children.clone());
 	}
 	
-	public IConstructor constructor(Type constructorType){
+	public IConstructor constructor(Type constructorType) {
+		Type params = constructorType.getAbstractDataType().getTypeParameters();
+		if (!params.isVoidType()) {
+			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
+			for (Type p : params) {
+				if (p.isParameterType()) {
+					bindings.put(p, TypeFactory.getInstance().voidType());
+				}
+			}
+			constructorType = constructorType.instantiate(bindings);
+		}
 		return new Constructor(constructorType, new IValue[0]);
 	}
 	
@@ -278,7 +288,12 @@ public final class ValueFactory implements IValueFactory{
 		}else{
 			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
 			TypeFactory tf = TypeFactory.getInstance();
-	
+			Type params = constructorType.getAbstractDataType().getTypeParameters();
+			for (Type p : params) {
+				if (p.isParameterType()) {
+					bindings.put(p, tf.voidType());
+				}
+			}
 			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
 			instantiatedType = constructorType.instantiate(bindings);
 		}

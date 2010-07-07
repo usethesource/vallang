@@ -168,7 +168,12 @@ public class ValueFactory extends BaseValueFactory {
 		checkNull((Object[]) children);
 		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
 		TypeFactory tf = TypeFactory.getInstance();
-		
+		Type params = constructorType.getAbstractDataType().getTypeParameters();
+		for (Type p : params) {
+			if (p.isParameterType()) {
+				bindings.put(p, tf.voidType());
+			}
+		}
 		constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
 		
 		return new Constructor(constructorType.instantiate(bindings), children);
@@ -176,7 +181,15 @@ public class ValueFactory extends BaseValueFactory {
 	
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
-		return new Constructor(constructorType);
+		TypeFactory tf = TypeFactory.getInstance();
+		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
+		Type params = constructorType.getAbstractDataType().getTypeParameters();
+		for (Type p : params) {
+			if (p.isParameterType()) {
+				bindings.put(p, tf.voidType());
+			}
+		}
+		return new Constructor(constructorType.instantiate(bindings));
 	}
 
 	public IMap map(Type keyType, Type valueType) {

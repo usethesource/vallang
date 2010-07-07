@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -371,7 +372,14 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IConstructor constructor(Type constructorType){
-		return buildConstructor(new SharedConstructor(constructorType, new IValue[0]));
+		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
+		Type params = constructorType.getAbstractDataType().getTypeParameters();
+		for (Type p : params) {
+			if (p.isParameterType()) {
+				bindings.put(p, tf.voidType());
+			}
+		}
+		return buildConstructor(new SharedConstructor(constructorType.instantiate(bindings), new IValue[0]));
 	}
 	
 	public IConstructor constructor(Type constructorType, IValue... children){
@@ -381,7 +389,12 @@ public final class SharedValueFactory implements IValueFactory{
 		}else{
 			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
 			TypeFactory tf = TypeFactory.getInstance();
-	
+			Type params = constructorType.getAbstractDataType().getTypeParameters();
+			for (Type p : params) {
+				if (p.isParameterType()) {
+					bindings.put(p, tf.voidType());
+				}
+			}
 			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
 			instantiatedType = constructorType.instantiate(bindings);
 		}
