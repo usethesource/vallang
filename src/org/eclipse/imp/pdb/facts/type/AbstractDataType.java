@@ -242,13 +242,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	@Override
 	public void match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
-		if (!matched.isAbstractDataType()) {
-			throw new FactMatchException(this, matched);
-		}
-		if (!fName.equals(matched.getName())) {
-			throw new FactMatchException(this, matched);
-		}
-		
+		super.match(matched, bindings);
 		fParameters.match(matched.getTypeParameters(), bindings);
 	}
 	
