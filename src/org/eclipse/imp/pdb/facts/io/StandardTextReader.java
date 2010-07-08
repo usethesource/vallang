@@ -628,13 +628,6 @@ public class StandardTextReader extends AbstractReader {
 				break;
 			}
 			checkAndRead(',');
-			if (current == ',') {
-				current = stream.read();
-			}
-			else {
-				unexpected(',');
-			}
-			
 		}
 		
 		return result;
