@@ -67,6 +67,8 @@ public class StandardTextReader extends AbstractReader {
 	private static final char END_OF_LOCATION = '|';
 	private static final char START_OF_DATETIME = '$';
 	
+	private static final char NEGATIVE_SIGN = '-';
+	
 	
 	private TypeStore store;
 	private NoWhiteSpaceInputStream stream;
@@ -89,7 +91,7 @@ public class StandardTextReader extends AbstractReader {
 	private IValue readValue(Type expected) throws IOException {
 		IValue result = null;
 		
-		if (Character.isDigit(current)) {
+		if (Character.isDigit(current) || current == DOUBLE_DOT || current == NEGATIVE_SIGN) {
 			result = readNumber(expected);
 		} 
 		else if ((Character.isJavaIdentifierStart(current) && '$' != current)
@@ -244,11 +246,10 @@ public class StandardTextReader extends AbstractReader {
 	private IValue readNumber(Type expected) throws IOException {
 		StringBuilder builder = new StringBuilder();
 	
-		while (Character.isDigit(current) 
-				|| current == DOUBLE_DOT) {
+		do{
 			builder.append((char) current);
 			current = stream.read();
-		}
+		}while(Character.isDigit(current) || current == DOUBLE_DOT);
 		
 		String val = builder.toString();
 		
