@@ -581,6 +581,12 @@ public class StandardTextReader extends AbstractReader {
 				case '\"':
 					builder.append('\"');
 					break;
+				case '>':
+					builder.append('>');
+					break;
+				case '<':
+					builder.append('<');
+					break;
 				case '\'':
 					builder.append('\'');
 					break;
