@@ -170,7 +170,8 @@ public class TypeFactory {
     }
     
     /**
-     * Construct a tuple type.
+     * Construct a tuple type. Note that if you pass an array, this array should NEVER
+     * be modified after or serious breakage will occur.
      * @param fieldTypes a list of field types in order of appearance.
      * @return a tuple type
      */
@@ -180,7 +181,8 @@ public class TypeFactory {
     }
 
     /**
-     * Construct a labeled tuple type
+     * Construct a labeled tuple type. Note that if you pass an array, this array should NEVER
+     * be modified after or serious breakage will occur.
      * 
      * @param fieldTypesAndLabel an array of field types, where each field type of type @{link Type}
      *        is immediately followed by a field label of type @{link String}.
@@ -411,7 +413,8 @@ public class TypeFactory {
 
     /**
      * Make a new constructor type. A constructor type extends an abstract data type such
-     * that it represents more values.
+     * that it represents more values. Note that if you pass an array for the children parameter, 
+     * this array should NEVER be modified after or serious breakage will occur.
      * 
      * @param store    to store the declared constructor in
      * @param adt      the adt this constructor builds
