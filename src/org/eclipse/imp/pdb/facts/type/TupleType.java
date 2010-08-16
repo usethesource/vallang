@@ -32,7 +32,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     /*package*/ TupleType(Type[] fieldTypes){
     	super();
     	
-        fFieldTypes = fieldTypes.clone();
+        fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended up being a bottleneck
         fFieldNames = null;
     }
 
@@ -42,8 +42,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     /*package*/ TupleType(Type[] fieldTypes, String[] fieldNames){
     	super();
     	
-    	fFieldTypes = fieldTypes.clone();
-		if(fieldNames.length != 0) fFieldNames = fieldNames.clone();
+    	fFieldTypes = fieldTypes; // fieldTypes.clone(); was safer, but it ended up being a bottleneck
+		if(fieldNames.length != 0) {
+			fFieldNames = fieldNames; // fieldNames.clone(); same here
+		}
 		else fFieldNames = null;
     }
     
