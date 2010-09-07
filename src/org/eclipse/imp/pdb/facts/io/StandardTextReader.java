@@ -724,6 +724,8 @@ public class StandardTextReader extends AbstractReader {
 		int offset;
 		int line;
 		int column;
+		boolean inString = false;
+		int prev = -1;
 	
 		public NoWhiteSpaceInputStream(InputStream wrapped) {
 			this.wrapped = wrapped;
@@ -734,19 +736,31 @@ public class StandardTextReader extends AbstractReader {
 			int r = wrapped.read();
 			offset++;
 			column++;
-			
-			while (Character.isWhitespace(r)) {
-				offset++;
-				if (r == '\n') {
-					line++;
-					column = 0;
-				}
-				else {
-					column++;
-				}
-				r = wrapped.read();
+
+			if (!inString && r == '\"') {
+				inString = true;
 			}
-	
+			else if (inString) {
+				if (prev != '\\' && r == '\"') {
+					inString = false;
+				}
+			}
+			
+			if (!inString) {
+				while (Character.isWhitespace(r)) {
+					offset++;
+					if (r == '\n') {
+						line++;
+						column = 0;
+					}
+					else {
+						column++;
+					}
+					r = wrapped.read();
+				}
+			}
+
+			prev = r;
 			return r;
 		}
 		
