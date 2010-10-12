@@ -66,6 +66,13 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 		return new ShareableHashMap<String, IValue>(annotations);
 	}
 	
+	@Override
+	public IConstructor set(String label, IValue newChild) {
+		IValue[] newChildren = children.clone();
+		newChildren[constructorType.getFieldIndex(label)] = newChild;
+		return new AnnotatedConstructor(constructorType, newChildren, annotations);
+	}
+	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
 		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
 		newAnnotations.put(label, value);
@@ -118,6 +125,14 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 			IValue[] newChildren = children.clone();
 			newChildren[i] = arg;
 			return new AnnotatedConstructorOne(constructorType, newChildren, annotationLabelOne, annotationValueOne);
+		}
+		
+		@Override
+		public IConstructor set(String label, IValue newChild) {
+			IValue[] newChildren = children.clone();
+			newChildren[constructorType.getFieldIndex(label)] = newChild;
+			return new AnnotatedConstructorOne(constructorType, newChildren, annotationLabelOne, annotationValueOne);
+	
 		}
 		
 		public boolean hasAnnotation(String label){
@@ -196,6 +211,14 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 			IValue[] newChildren = children.clone();
 			newChildren[i] = arg;
 			return new AnnotatedConstructorTwo(constructorType, newChildren, annotationLabelOne, annotationValueOne, annotationLabelTwo, annotationValueTwo);
+		}
+		
+		@Override
+		public IConstructor set(String label, IValue newChild) {
+			IValue[] newChildren = children.clone();
+			newChildren[constructorType.getFieldIndex(label)] = newChild;
+			return new AnnotatedConstructorTwo(constructorType, newChildren, annotationLabelOne, annotationValueOne, annotationLabelTwo, annotationValueTwo);
+	
 		}
 		
 		public boolean hasAnnotation(String label){
@@ -287,6 +310,13 @@ public class AnnotatedConstructor extends AnnotatedConstructorBase {
 		public IConstructor set(int i, IValue arg){
 			IValue[] newChildren = children.clone();
 			newChildren[i] = arg;
+			return new AnnotatedConstructorThree(constructorType, newChildren, annotationLabelOne, annotationValueOne, annotationLabelTwo, annotationValueTwo, annotationLabelThree, annotationValueThree);
+		}
+		
+		@Override
+		public IConstructor set(String label, IValue newChild) {
+			IValue[] newChildren = children.clone();
+			newChildren[constructorType.getFieldIndex(label)] = newChild;
 			return new AnnotatedConstructorThree(constructorType, newChildren, annotationLabelOne, annotationValueOne, annotationLabelTwo, annotationValueTwo, annotationLabelThree, annotationValueThree);
 		}
 		
