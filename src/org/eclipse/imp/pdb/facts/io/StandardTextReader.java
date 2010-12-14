@@ -216,6 +216,9 @@ public class StandardTextReader extends AbstractReader {
 			if (current != COMMA_SEPARATOR || current == END_OF_MAP) {
 				break; // no more elements, so expecting a ')'
 			}
+			else {
+				checkAndRead(COMMA_SEPARATOR);
+			}
 		}
 		
 		checkAndRead(END_OF_MAP);
