@@ -205,8 +205,8 @@ public class StandardTextReader extends AbstractReader {
 		Type valueType = expected.isMapType() ? expected.getValueType() : types.valueType();
 		IMapWriter w = expected.isMapType() ? factory.mapWriter(keyType, valueType) : factory.mapWriter();
 
-		current = stream.read();
-		
+		checkAndRead(START_OF_MAP);
+
 		while (current != END_OF_MAP) {
 			IValue key = readValue(keyType);
 			checkAndRead(':');
@@ -216,12 +216,9 @@ public class StandardTextReader extends AbstractReader {
 			if (current != COMMA_SEPARATOR || current == END_OF_MAP) {
 				break; // no more elements, so expecting a ')'
 			}
-			current = stream.read();
 		}
 		
-		if (current != END_OF_MAP) {
-			unexpected(END_OF_MAP);
-		}
+		checkAndRead(END_OF_MAP);
 		
 		return w.done();
 	}
