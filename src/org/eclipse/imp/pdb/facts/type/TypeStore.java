@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,6 +73,57 @@ public class TypeStore {
     public TypeStore(TypeStore... imports) {
     	importStore(imports);
 	}
+    
+    /**
+     * Retrieves all ADT's declared in this TypeStore. Note that it does
+     * not return the ADT's of imported TypeStores.
+     */
+    public Collection<Type> getAbstractDataTypes() {
+    	return Collections.unmodifiableCollection(fADTs.values());
+    }
+    
+    /**
+     * Retrieves all aliases declared in this TypeStore. Note that it does
+     * not return the aliases of imported TypeStores.
+     */
+    public Collection<Type> getAliases() {
+    	return Collections.unmodifiableCollection(fAliases.values());
+    }
+    
+    /**
+     * Retrieves all annotations declared in this TypeStore. Note that it does
+     * not return the annotations of imported TypeStores.
+     * 
+     * @return a map of types for which annotations are declared to a map of names of these
+     * annotations to the types of the values that give access to these annotations.
+     */
+    public Map<Type, Map<String, Type>> getAnnotations() {
+    	Map<Type, Map<String,Type>> unmodifiableMap = new HashMap<Type,Map<String,Type>>();
+    	for (Type key : fAnnotations.keySet()) {
+    		unmodifiableMap.put(key, Collections.unmodifiableMap(fAnnotations.get(key)));
+    	}
+    	return unmodifiableMap;
+    }
+    
+    /**
+     * Retrieves all constructors declared in this TypeStore. Note that it does
+     * not return the constructors of imported TypeStores.
+     */
+    public Collection<Type> getConstructors() {
+    	Set<Type> result = new HashSet<Type>();
+    	for (Set<Type> adt : fConstructors.values()) {
+    		result.addAll(adt);
+    	}
+    	return Collections.unmodifiableCollection(result);
+    }
+    
+    /**
+     * Retrieves all imports declared in this TypeStore. Note that it does
+     * not return the imports of imported TypeStores.
+     */
+    public Collection<TypeStore> getImports() {
+    	return Collections.unmodifiableCollection(fImports);
+    }
     
     /**
      * Add other stores to the set of imported stores.
