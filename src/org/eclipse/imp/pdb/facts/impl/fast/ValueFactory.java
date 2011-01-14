@@ -46,7 +46,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
  * 
  * @author Arnold Lankamp
  */
-public final class ValueFactory implements IValueFactory{
+public class ValueFactory implements IValueFactory{
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	
 	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();
@@ -54,7 +54,7 @@ public final class ValueFactory implements IValueFactory{
 	private final static String INTEGER_MAX_STRING = "2147483647";
 	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
 	
-	private ValueFactory(){
+	protected ValueFactory(){
 		super();
 	}
 
