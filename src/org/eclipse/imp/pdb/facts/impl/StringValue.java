@@ -43,6 +43,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     
     @Override
     public boolean equals(Object o) {
+    	if (o == null) {
+    		return false;
+    	}
+    	if (this == o) {
+    		return true;
+    	}
     	if (getClass() == o.getClass()) {
     		return ((StringValue) o).fValue.equals(fValue);
     	}

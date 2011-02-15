@@ -68,10 +68,10 @@ public class StringValue extends Value implements IString {
 	
 	public boolean equals(Object o){
 		if(o == null) return false;
-		
+		if(this == o) return true;
 		if(o.getClass() == getClass()){
 			StringValue otherString = (StringValue) o;
-			return value == otherString.value; // Yes ==  works here since it has been interned.
+			return value.equals(otherString.value);
 		}
 		
 		return false;

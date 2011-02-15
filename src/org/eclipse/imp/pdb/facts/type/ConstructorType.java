@@ -42,7 +42,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	private final String fName;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
-		fName = name;
+		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
 	}
@@ -87,8 +87,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof ConstructorType) {
-			return ((fName == null) ? ((ConstructorType) o).fName == null : fName
-					.equals(((ConstructorType) o).fName))
+			return ((fName == null) ? ((ConstructorType) o).fName == null : fName == (((ConstructorType) o).fName)) // fName is interned.
 					&& fChildrenTypes == ((ConstructorType) o).fChildrenTypes
 					&& fADT == ((ConstructorType) o).fADT;
 		}
