@@ -30,7 +30,7 @@ public class StringValue extends Value implements IString {
 	protected StringValue(String value){
 		super();
 		
-		this.value = value.intern();
+		this.value = value;
 	}
 
 	public Type getType(){
