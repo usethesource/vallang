@@ -167,6 +167,16 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public Type getFieldType(String fieldName) throws FactTypeUseException {
+		return fChildrenTypes.getFieldType(fieldName);
+	}
+	
+	@Override
+	public String getFieldName(int i) {
+		return fChildrenTypes.getFieldName(i);
+	}
+	
+	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitConstructor(this);
 	}
