@@ -266,7 +266,7 @@ public class StandardTextWriter implements IValueWriter {
 			if (indent && o.size() > 1) {
 				for (IValue x : o) {
 					Type type = x.getType();
-					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+					if (type.isNodeType() || type.isTupleType()|| type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
 						return true;
 					}
 				}
@@ -278,7 +278,7 @@ public class StandardTextWriter implements IValueWriter {
 			if (indent && o.length() > 1) {
 				for (IValue x : o) {
 					Type type = x.getType();
-					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+					if (type.isNodeType() || type.isTupleType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
 						return true;
 					}
 				}
@@ -290,7 +290,7 @@ public class StandardTextWriter implements IValueWriter {
 			if (indent && o.arity() > 1) {
 				for (IValue x : o) {
 					Type type = x.getType();
-					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+					if (type.isNodeType() || type.isTupleType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
 						return true;
 					}
 				}
@@ -303,10 +303,10 @@ public class StandardTextWriter implements IValueWriter {
 				for (IValue x : o) {
 					Type type = x.getType();
 					Type vType = o.get(x).getType();
-					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+					if (type.isNodeType() ||  type.isTupleType() ||type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
 						return true;
 					}
-					if (vType.isNodeType() || vType.isListType() || vType.isSetType() || vType.isMapType() || vType.isRelationType()) {
+					if (vType.isNodeType() || vType.isTupleType() || vType.isListType() || vType.isSetType() || vType.isMapType() || vType.isRelationType()) {
 						return true;
 					}
 				}
