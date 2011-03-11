@@ -21,17 +21,18 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -41,9 +42,25 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * See also {@link StandardTextReader}
  */
 public class StandardTextWriter implements IValueWriter {
+	private final boolean indent;
+	private final int tabSize;
+
+	public StandardTextWriter() {
+		this(false);
+	}
+	
+	public StandardTextWriter(boolean indent) {
+		this(indent, 2);
+	}
+	
+	public StandardTextWriter(boolean indent, int tabSize) {
+		this.indent = indent;
+		this.tabSize = tabSize;
+	}
+	
 	public void write(IValue value, OutputStream stream) throws IOException {
 		try {
-			value.accept(new Writer(stream));
+			value.accept(new Writer(stream, indent, tabSize));
 		} catch (VisitorException e) {
 			throw (IOException) e.getCause();
 		}
@@ -54,10 +71,15 @@ public class StandardTextWriter implements IValueWriter {
 	}
 	
 	private static class Writer implements IValueVisitor<IValue> {
-		private OutputStream stream;
+		private final OutputStream stream;
+		private final int tabSize;
+		private final boolean indent;
+		private int tab = 0;
 
-		public Writer(OutputStream stream) {
+		public Writer(OutputStream stream, boolean indent, int tabSize) {
 			this.stream = stream;
+			this.indent = indent;
+			this.tabSize = tabSize;
 		}
 		
 		private void append(String string) throws VisitorException {
@@ -74,6 +96,14 @@ public class StandardTextWriter implements IValueWriter {
 			} catch (IOException e) {
 				throw new VisitorException(e);
 			}
+		}
+		
+		private void tab() {
+			this.tab++;
+		}
+		
+		private void untab() {
+			this.tab--;
 		}
 		
 		public IValue visitBoolean(IBool boolValue)
@@ -99,16 +129,21 @@ public class StandardTextWriter implements IValueWriter {
 		public IValue visitList(IList o) throws VisitorException {
 			append('[');
 			
+			boolean indent = checkIndent(o);
 			Iterator<IValue> listIterator = o.iterator();
+			tab();
+			indent(indent);
 			if(listIterator.hasNext()){
 				listIterator.next().accept(this);
 				
 				while(listIterator.hasNext()){
 					append(',');
+					if (indent) indent();
 					listIterator.next().accept(this);
 				}
 			}
-			
+			untab();
+			indent(indent);
 			append(']');
 			
 			return o;
@@ -116,7 +151,9 @@ public class StandardTextWriter implements IValueWriter {
 
 		public IValue visitMap(IMap o) throws VisitorException {
 			append('(');
-			
+			tab();
+			boolean indent = checkIndent(o);
+			indent(indent);
 			Iterator<IValue> mapIterator = o.iterator();
 			if(mapIterator.hasNext()){
 				IValue key = mapIterator.next();
@@ -126,13 +163,15 @@ public class StandardTextWriter implements IValueWriter {
 				
 				while(mapIterator.hasNext()){
 					append(',');
+					indent(indent);
 					key = mapIterator.next();
 					key.accept(this);
 					append(':');
 					o.get(key).accept(this);
 				}
 			}
-			
+			untab();
+			indent(indent);
 			append(')');
 			
 			return o;
@@ -146,19 +185,25 @@ public class StandardTextWriter implements IValueWriter {
 			}
 			append(name);
 			
+			boolean indent = checkIndent(o);
+			
 			append('(');
-
+			tab();
+			indent(indent);
 			Iterator<IValue> it = o.iterator();
 			while (it.hasNext()) {
 				it.next().accept(this);
 				if (it.hasNext()) {
 					append(',');
+					indent(indent);
 				}
 			}
 			append(')');
-			
+			untab();
 			if (o.hasAnnotations()) {
 				append('[');
+				tab();
+				indent();
 				int i = 0;
 				Map<String, IValue> annotations = o.getAnnotations();
 				for (String key : annotations.keySet()) {
@@ -167,12 +212,28 @@ public class StandardTextWriter implements IValueWriter {
 					
 					if (++i < annotations.size()) {
 						append(",");
+						indent();
 					}
 				}
+				untab();
+				indent();
 				append(']');
 			}
 			
 			return o;
+		}
+
+		private void indent() throws VisitorException {
+			indent(indent);
+		}
+		
+		private void indent(boolean indent) throws VisitorException {
+			if (indent) {
+				append('\n');
+				for (int i = 0; i < tabSize * tab; i++) {
+					append(' ');
+				}
+			}
 		}
 
 		public IValue visitRelation(IRelation o) throws VisitorException {
@@ -182,18 +243,75 @@ public class StandardTextWriter implements IValueWriter {
 		public IValue visitSet(ISet o) throws VisitorException {
 			append('{');
 			
+			boolean indent = checkIndent(o);
+			tab();
+			indent(indent);
 			Iterator<IValue> setIterator = o.iterator();
 			if(setIterator.hasNext()){
 				setIterator.next().accept(this);
 				
 				while(setIterator.hasNext()){
 					append(",");
+					indent(indent);
 					setIterator.next().accept(this);
 				}
 			}
-			
+			untab(); 
+			indent(indent);
 			append('}');
 			return o;
+		}
+
+		private boolean checkIndent(ISet o) {
+			if (indent && o.size() > 1) {
+				for (IValue x : o) {
+					Type type = x.getType();
+					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		private boolean checkIndent(IList o) {
+			if (indent && o.length() > 1) {
+				for (IValue x : o) {
+					Type type = x.getType();
+					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		private boolean checkIndent(INode o) {
+			if (indent && o.arity() > 1) {
+				for (IValue x : o) {
+					Type type = x.getType();
+					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		private boolean checkIndent(IMap o) {
+			if (indent && o.size() > 1) {
+				for (IValue x : o) {
+					Type type = x.getType();
+					Type vType = o.get(x).getType();
+					if (type.isNodeType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+						return true;
+					}
+					if (vType.isNodeType() || vType.isListType() || vType.isSetType() || vType.isMapType() || vType.isRelationType()) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 		public IValue visitSourceLocation(ISourceLocation o)
