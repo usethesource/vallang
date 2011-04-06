@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalIdentifierException;
 import org.eclipse.imp.pdb.facts.exceptions.NullTypeException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 
 /**
  * Use this class to produce any kind of {@link Type}, after which

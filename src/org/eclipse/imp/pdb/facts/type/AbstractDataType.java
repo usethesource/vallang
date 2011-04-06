@@ -59,6 +59,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
 			return fParameters.isSubtypeOf(other.getTypeParameters());
 		}
+		else if (other.isParameterType()) {
+			return isSubtypeOf(other.getBound());
+		}
 		else if (other.isAliasType() && !other.isVoidType()) {
 			return isSubtypeOf(other.getAliased());
 		}
@@ -76,6 +79,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 		}
 		else if (other.isConstructorType() && other.getAbstractDataType().getName().equals(getName())) {
 			return TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), getName(), fParameters.lub(other.getAbstractDataType().getTypeParameters()));
+		}
+		else if (other.isParameterType()) {
+			return lub(other.getBound());
 		}
 		else {
 			return TypeFactory.getInstance().nodeType().lub(other);
