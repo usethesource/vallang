@@ -59,7 +59,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
 			return fParameters.isSubtypeOf(other.getTypeParameters());
 		}
-		else if (other.isParameterType()) {
+		else if (other.isParameterType() && !other.getBound().isVoidType()) {
 			return isSubtypeOf(other.getBound());
 		}
 		else if (other.isAliasType() && !other.isVoidType()) {
