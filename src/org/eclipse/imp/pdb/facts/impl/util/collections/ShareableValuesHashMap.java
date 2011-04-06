@@ -37,6 +37,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	
 	private int currentHashCode;
 	
+	@SuppressWarnings("unchecked")
 	public ShareableValuesHashMap(){
 		super();
 		
@@ -67,6 +68,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		currentHashCode = shareableValuesHashMap.currentHashCode;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void clear(){
 		modSize = INITIAL_LOG_SIZE;
 		int tableSize = 1 << modSize;
@@ -80,6 +82,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		currentHashCode = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void rehash(){
 		modSize++;
 		int tableSize = 1 << modSize;
@@ -249,6 +252,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		return new ValuesIterator(this);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void putAll(Map<? extends IValue, ? extends IValue> otherMap){
 		Set<Map.Entry<IValue, IValue>> entrySet = (Set<Map.Entry<IValue, IValue>>) (Set<?>) otherMap.entrySet(); // Generics stink.
 		Iterator<Map.Entry<IValue, IValue>> entrySetIterator = entrySet.iterator();

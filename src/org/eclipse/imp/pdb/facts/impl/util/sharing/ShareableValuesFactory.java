@@ -35,6 +35,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 	/**
 	 * Default constructor.
 	 */
+	@SuppressWarnings("unchecked")
 	public ShareableValuesFactory(){
 		super();
 		
@@ -54,6 +55,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 	 * @throws IllegalArgumentException
 	 *            Thrown when logNrOfSegments is to high (logNrOfSegments > 32 - 5).
 	 */
+	@SuppressWarnings("unchecked")
 	public ShareableValuesFactory(int logNrOfSegments){
 		super();
 		
@@ -150,6 +152,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 		 * @param logNrOfSegments
 		 *            Specifies the maximal size this segment can grow to.
 		 */
+		@SuppressWarnings("unchecked")
 		public Segment(int logNrOfSegments){
 			super();
 			
@@ -213,6 +216,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 		 * (you'll prevent old -> young references, contrary to the 'default' rehashing algorithm,
 		 * which makes a complete mess of it).
 		 */
+		@SuppressWarnings("unchecked")
 		private void rehash(){
 			int nrOfEntries = 1 << (++bitSize);
 			int newHashMask = nrOfEntries - 1;

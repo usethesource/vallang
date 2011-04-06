@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -171,6 +172,16 @@ public interface IValueFactory {
      * @throws FactTypeUseException if the children are not of the expected types for this node type
      */
     public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException;
+    
+    /**
+     * Make a constructor value.
+     * @param constructor the constructor to use
+     * @param annotations to immediately put on the constructor
+     * @param children an array or variable length argument list of children
+     * @return a new tree value
+     * @throws FactTypeUseException if the children are not of the expected types for this node type
+     */
+    public IConstructor constructor(Type constructor, Map<String,IValue> annotations, IValue... children) throws FactTypeUseException;
     
     /**
      * Construct an empty unmodifiable set. If the element type is a tuple type,

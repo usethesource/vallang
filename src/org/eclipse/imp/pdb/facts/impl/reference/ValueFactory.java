@@ -179,6 +179,11 @@ public class ValueFactory extends BaseValueFactory {
 		return new Constructor(constructorType.instantiate(bindings), children);
 	}
 	
+	public IConstructor constructor(Type constructorType, java.util.Map<String,IValue> annotations, IValue... children) {
+		Constructor cons = (Constructor) constructor(constructorType, children);
+		return new Constructor(cons, annotations);
+	}
+	
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
 		TypeFactory tf = TypeFactory.getInstance();

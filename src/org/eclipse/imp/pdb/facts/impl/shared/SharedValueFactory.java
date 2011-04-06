@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -36,6 +37,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.fast.BoolValue;
 import org.eclipse.imp.pdb.facts.impl.fast.IntegerValue;
@@ -400,6 +402,32 @@ public final class SharedValueFactory implements IValueFactory{
 		}
 		
 		return buildConstructor(new SharedConstructor(instantiatedType, children.clone()));
+	}
+	
+	public IConstructor constructor(Type constructorType,
+			Map<String, IValue> annotations, IValue... children)
+			throws FactTypeUseException {
+		Type instantiatedType;
+		
+		if(!constructorType.getAbstractDataType().isParameterized()){
+			instantiatedType = constructorType;
+		}else{
+			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
+			TypeFactory tf = TypeFactory.getInstance();
+			Type params = constructorType.getAbstractDataType().getTypeParameters();
+			for (Type p : params) {
+				if (p.isParameterType()) {
+					bindings.put(p, tf.voidType());
+				}
+			}
+			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
+			instantiatedType = constructorType.instantiate(bindings);
+		}
+		
+		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<String, IValue>();
+		sAnnotations.putAll(annotations);
+		
+		return createAnnotatedConstructorUnsafe(instantiatedType, children.clone(), sAnnotations);
 	}
 	
 	protected IConstructor createConstructorUnsafe(Type constructorType, IValue[] children){

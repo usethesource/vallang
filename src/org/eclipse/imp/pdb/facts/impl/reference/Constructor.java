@@ -33,7 +33,7 @@ public class Constructor extends Node implements IConstructor {
 		super(constructor, label, value);
 	}
 
-	private Constructor(Constructor constructor, Map<String, IValue> annotations) {
+	/*package*/ Constructor(Constructor constructor, Map<String, IValue> annotations) {
 		super(constructor, annotations);
 	}
 

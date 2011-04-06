@@ -36,6 +36,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	
 	private int currentHashCode;
 	
+	@SuppressWarnings("unchecked")
 	public ShareableValuesHashSet(){
 		super();
 		
@@ -66,6 +67,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		currentHashCode = shareableValuesHashSet.currentHashCode;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void clear(){
 		modSize = INITIAL_LOG_SIZE;
 		int tableSize = 1 << modSize;
@@ -79,6 +81,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		currentHashCode = 0;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void rehash(){
 		modSize++;
 		int tableSize = 1 << modSize;
@@ -280,6 +283,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		return values;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] array){
 		if(array.length < load) return (T[]) toArray();
 		
