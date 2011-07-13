@@ -772,7 +772,7 @@ public class BinaryReader{
 		
 		Type parameters = doReadType();
 		
-		return tf.aliasType(typeStore, name, aliasedType, parameters);
+		return tf.aliasTypeFromTuple(typeStore, name, aliasedType, parameters);
 	}
 	
 	private final static int SEVENBITS = 0x0000007f;
