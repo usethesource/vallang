@@ -180,6 +180,10 @@ public class StandardTextWriter implements IValueWriter {
 		public IValue visitNode(INode o) throws VisitorException {
 			String name = o.getName();
 			
+			if (name.equals("loc")) {
+				append('\\');
+			}
+			
 			if (name.indexOf('-') != -1) {
 				append('\\');
 			}

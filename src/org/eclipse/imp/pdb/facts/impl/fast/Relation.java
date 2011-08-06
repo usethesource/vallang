@@ -265,7 +265,9 @@ public class Relation extends Set implements IRelation{
 	
 	public IRelation closure(){
 		if(elementType == voidType) return this;
-		if(!isReflexive()) throw new IllegalOperationException("closure", setType);
+		if(!isReflexive()) {
+			throw new IllegalOperationException("closure", setType);
+		}
 		
 		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
 		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);

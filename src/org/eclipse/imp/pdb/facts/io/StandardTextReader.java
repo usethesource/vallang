@@ -249,11 +249,15 @@ public class StandardTextReader extends AbstractReader {
 		do{
 			builder.append((char) current);
 			current = stream.read();
-		}while(Character.isDigit(current) || current == DOUBLE_DOT);
+		} while(Character.isDigit(current) || current == DOUBLE_DOT || current == 'E' || current == 'e' || current == '+' || current == '-');
 		
 		String val = builder.toString();
 		
 		try {
+			if (val.contains(".") || val.contains("E") || val.contains("e")) {
+				return factory.real(val);
+			}
+			
 			return factory.integer(val);
 		}
 		catch (NumberFormatException e) {
