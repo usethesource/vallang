@@ -114,9 +114,14 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IRational divide(IInteger other, int precision) {
+		return divide(other); // forget precision
+	}
+
+	public IRational divide(IInteger other) {
 		return toRational(num, denom.multiply(other));
 	}
 
+	
 	public INumber divide(IRational other, int precision) {
 		return toRational(num.multiply(other.denominator()),
 				denom.multiply(other.numerator()));
@@ -227,10 +232,10 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 		return num.divide(denom);
 	}
 
-
 	public String getStringRepresentation() {
-		return num.getStringRepresentation() + "r" + denom.getStringRepresentation();
+		return num.getStringRepresentation() + "r" + (denom.equals(intOne()) ? "" : denom.getStringRepresentation());
 	}
+	
 	public int compare(IRational other) {
 		IRational diff = subtract(other);
 		return diff.signum();
@@ -261,8 +266,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IRational remainder(IRational other) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

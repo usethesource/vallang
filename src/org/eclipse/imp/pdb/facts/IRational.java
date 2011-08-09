@@ -34,6 +34,11 @@ public interface IRational extends INumber {
     IRational divide(IRational other);
     
     /**
+     * @return this / other;
+     */
+    IRational divide(IInteger other);
+    
+    /**
      * @return this rem other, which is the remainder after dividing this by other.
      * This may be a negative number.
      */

@@ -142,9 +142,13 @@ public class ValueFactory implements IValueFactory{
 	public IRational rational(String rat) throws NumberFormatException {
 		if(rat.contains("r")) {
 			String[] parts = rat.split("r");
-			if(parts.length != 2)
-				throw new NumberFormatException("Not a rational (ArB): " + rat);
-			return rational(integer(parts[0]), integer(parts[1]));
+			if (parts.length == 2) {
+				return rational(integer(parts[0]), integer(parts[1]));
+			}
+			if (parts.length == 1) {
+				return rational(integer(parts[0]), integer(1));
+			}
+			throw new NumberFormatException(rat);
 		}
 		else {
 			return rational(integer(rat), integer(1));
