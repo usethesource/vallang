@@ -314,9 +314,46 @@ public class BinaryReader{
 	}
 	
 	private IInteger readInteger() throws IOException{
-		int integerValue = parseInteger();
+		byte[] integer;
 		
-		return valueFactory.integer(integerValue);
+		int one = in.read();
+		if((one & 0x80) == 0){
+			byte first = (byte) (one & 0x7f);
+			integer = new byte[]{first};
+		}else{
+			int two = in.read();
+			if((two & 0x80) == 0){
+				byte first = (byte) ((one & 0x7f) + ((two & 0x01) << 7));
+				byte second = (byte) ((two & 0x7e) >> 1);
+				integer = new byte[]{second, first};
+			}else{
+				int three = in.read();
+				if((three & 0x80) == 0){
+					byte first = (byte) ((one & 0x7f) + ((two & 0x01) << 7));
+					byte second = (byte) (((two & 0x7e) >> 1) + ((three & 0x03) << 6));
+					byte third = (byte) ((three & 0x7c) >> 2);
+					integer = new byte[]{third, second, first};
+				}else{
+					int four = in.read();
+					if((four & 0x80) == 0){
+						byte first = (byte) ((one & 0x7f) + ((two & 0x01) << 7));
+						byte second = (byte) (((two & 0x7e) >> 1) + ((three & 0x03) << 6));
+						byte third = (byte) (((three & 0x7c) >> 2) + ((four & 0x07) << 5));
+						byte fourth = (byte) ((four & 0x78) >> 3);
+						integer = new byte[]{fourth, third, second, first};
+					}else{
+						int five = in.read();
+						byte first = (byte) ((one & 0x7f) + ((two & 0x01) << 7));
+						byte second = (byte) (((two & 0x7e) >> 1) + ((three & 0x03) << 6));
+						byte third = (byte) (((three & 0x7c) >> 2) + ((four & 0x07) << 5));
+						byte fourth = (byte) (((four & 0x78) >> 3) + ((five & 0x0f) << 4));
+						integer = new byte[]{fourth, third, second, first};
+					}
+				}
+			}
+		}
+		
+		return valueFactory.integer(integer);
 	}
 	
 	private IInteger readBigInteger() throws IOException{
