@@ -33,7 +33,12 @@ public interface IInteger extends INumber {
      * @return this / other;
      */
     IInteger divide(IInteger other);
-    
+
+    /**
+     * @return this / other (exact divison);
+     */
+    IRational divide(IRational other);
+
     /**
      * @return this rem other, which is the remainder after dividing this by other.
      * This may be a negative number.

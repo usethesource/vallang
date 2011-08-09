@@ -16,6 +16,7 @@ import java.math.BigInteger;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.ICanBecomeABigInteger;
@@ -36,7 +37,11 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	
 	public BigIntegerValue(BigInteger value){
 		super();
-		
+		if(value.equals(BigInteger.ZERO))
+			value = BigInteger.ZERO;
+		if(value.equals(BigInteger.ONE))
+			value = BigInteger.ONE;
+
 		this.value = value;
 	}
 	
@@ -60,6 +65,9 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return ValueFactory.getInstance().real(new BigDecimal(value));
 	}
 
+	public IRational toRational(){
+		return new RationalValue(this, IntegerValue.INTEGER_ONE);
+	}
 	public byte[] getTwosComplementRepresentation(){
 		return value.toByteArray();
 	}
@@ -69,8 +77,12 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	}
 	
 	public IInteger add(IInteger other){
-		BigInteger result = value.add(((ICanBecomeABigInteger) other).toBigInteger());
-		
+		BigInteger o = ((ICanBecomeABigInteger) other).toBigInteger();
+		BigInteger result = value.add(o);
+		if(result == value)
+			return this;
+		else if(result == o)
+			return other;
 		int length = result.bitLength();
 		if(length <= 31){
 			return ValueFactory.getInstance().integer(result.intValue());
@@ -83,8 +95,14 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return (IReal) other.add(this);
 	}
 	
+	public IRational add(IRational other) {
+		return (IRational) other.add(this);
+	}
+	
 	public IInteger subtract(IInteger other){
 		BigInteger result = value.subtract(((ICanBecomeABigInteger) other).toBigInteger());
+		if(result == value)
+			return this;
 		
 		int length = result.bitLength();
 		if(length <= 31){
@@ -97,9 +115,18 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	public INumber subtract(IReal other) {
 		return toReal().subtract(other);
 	}
+
+	public INumber subtract(IRational other) {
+		return toRational().subtract(other);
+	}
 	
 	public IInteger multiply(IInteger other){
-		BigInteger result = value.multiply(((ICanBecomeABigInteger) other).toBigInteger());
+		BigInteger o = ((ICanBecomeABigInteger) other).toBigInteger();
+		BigInteger result = value.multiply(o);
+		if(result == value)
+			return this;
+		else if(result == o)
+			return other;
 		// The result of this operation can never fit in a 32-bit integer, so no need to check.
 		return ValueFactory.getInstance().integer(result);
 	}
@@ -108,8 +135,13 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return (IReal) other.multiply(this);
 	}
 	
+	public IRational multiply(IRational other) {
+		return (IRational) other.multiply(this);
+	}
 	public IInteger divide(IInteger other){
 		BigInteger result = value.divide(((ICanBecomeABigInteger) other).toBigInteger());
+		if(result == value)
+			return this;
 		
 		int length = result.bitLength();
 		if(length <= 31){
@@ -119,10 +151,18 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return ValueFactory.getInstance().integer(result);
 	}
 	
+	public IRational divide(IRational other) {
+		return toRational().divide(other);
+	}
+
 	public INumber divide(IInteger other, int precision) {
 		return toReal().divide(other, precision);
 	}
 	
+	public INumber divide(IRational other, int precision) {
+		return toReal().divide(other, precision);
+	}
+
 	public IReal divide(IReal other, int precision) {
 		return toReal().divide(other, precision);
 	}
@@ -161,11 +201,19 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return other.lessEqual(this);
 	}
 	
+	public IBool greater(IRational other) {
+		return other.lessEqual(this);
+	}
+	
 	public IBool greaterEqual(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) >= 0);
 	}
 
 	public IBool greaterEqual(IReal other) {
+		return other.less(this);
+	}
+	
+	public IBool greaterEqual(IRational other) {
 		return other.less(this);
 	}
 	
@@ -177,11 +225,19 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return other.greaterEqual(this);
 	}
 	
+	public IBool less(IRational other) {
+		return other.greaterEqual(this);
+	}
+	
 	public IBool lessEqual(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) <= 0);
 	}
 	
 	public IBool lessEqual(IReal other) {
+		return other.greater(this);
+	}
+	
+	public IBool lessEqual(IRational other) {
 		return other.greater(this);
 	}
 	
@@ -193,6 +249,8 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		if (other.getType().isIntegerType()) {
 			return compare(other.toInteger());
 		}
+		else if (other.getType().isRationalType())
+			return toRational().compare(other);
 		return toReal().compare(other);
 	}
 	
@@ -230,4 +288,5 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	public IInteger abs() {
 		return new BigIntegerValue(value.abs());
 	}
+
 }

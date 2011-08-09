@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -29,6 +30,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 public interface IValueVisitor<R> {
    public R visitString(IString o) throws VisitorException;
    public R visitReal(IReal o) throws VisitorException;
+   public R visitRational(IRational o) throws VisitorException;
    public R visitList(IList o) throws VisitorException;
    public R visitRelation(IRelation o) throws VisitorException;
    public R visitSet(ISet o) throws VisitorException;

@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -37,6 +38,10 @@ public abstract class IdentityVisitor implements IValueVisitor<IValue> {
 	}
 
 	public IValue visitInteger(IInteger o)  throws VisitorException{
+		return o;
+	}
+
+	public IValue visitRational(IRational o)  throws VisitorException{
 		return o;
 	}
 

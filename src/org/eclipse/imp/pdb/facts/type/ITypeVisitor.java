@@ -19,6 +19,7 @@ package org.eclipse.imp.pdb.facts.type;
 public interface ITypeVisitor<T> {
 	T visitReal(Type type);
 	T visitInteger(Type type);
+	T visitRational(Type type);
 	T visitList(Type type);
 	T visitMap(Type type);
 	T visitNumber(Type type);

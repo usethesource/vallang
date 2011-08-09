@@ -26,6 +26,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -39,6 +40,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
+import org.eclipse.imp.pdb.facts.impl.RationalValue;
 import org.eclipse.imp.pdb.facts.impl.fast.BoolValue;
 import org.eclipse.imp.pdb.facts.impl.fast.IntegerValue;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
@@ -218,6 +220,30 @@ public final class SharedValueFactory implements IValueFactory{
 		return (IInteger) buildValue(new SharedIntegerValue(bigInteger.intValue()));
 	}
 	
+	public IRational rational(int a, int b) {
+		return rational(integer(a), integer(b));
+	}
+
+	public IRational rational(long a, long b) {
+		return rational(integer(a), integer(b));
+	}
+
+	public IRational rational(IInteger a, IInteger b) {
+		return (IRational) buildValue(new SharedRationalValue(a, b));
+	}
+
+	public IRational rational(String rat) throws NumberFormatException {
+		if(rat.contains("r")) {
+			String[] parts = rat.split("r");
+			if(parts.length != 2)
+				throw new NumberFormatException("Not a rational (ArB: " + rat);
+			return rational(integer(parts[0]), integer(parts[1]));
+		}
+		else {
+			return rational(integer(rat), integer(1));
+		}
+	}
+
 	public IReal real(double value){
 		return (IReal) buildValue(new SharedBigDecimalValue(BigDecimal.valueOf(value)));
 	}

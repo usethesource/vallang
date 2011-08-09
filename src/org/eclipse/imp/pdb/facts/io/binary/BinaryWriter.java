@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -55,7 +56,8 @@ public class BinaryWriter{
 	private final static int SET_HEADER = 0x0d;
 	private final static int RELATION_HEADER = 0x0e;
 	private final static int MAP_HEADER = 0x0f;
-	
+	private final static int RATIONAL_HEADER = 0x11;
+
 	private final static int VALUE_TYPE_HEADER = 0x01;
 	private final static int VOID_TYPE_HEADER = 0x02;
 	private final static int BOOL_TYPE_HEADER = 0x03;
@@ -76,6 +78,7 @@ public class BinaryWriter{
 	private final static int ALIAS_TYPE_HEADER = 0x11;
 	private final static int ANNOTATED_NODE_TYPE_HEADER = 0x12;
 	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
+	private final static int RATIONAL_TYPE_HEADER = 0x15;
 	
 	private final static int SHARED_FLAG = 0x80;
 	private final static int TYPE_SHARED_FLAG = 0x40;
@@ -127,6 +130,8 @@ public class BinaryWriter{
 			writeBool((IBool) value);
 		}else if(value instanceof IInteger){
 			writeInteger((IInteger) value);
+		}else if(value instanceof IRational){
+			writeRational((IRational) value);
 		}else if(value instanceof IReal){
 			writeDouble((IReal) value);
 		}else if(value instanceof IString){
@@ -174,6 +179,8 @@ public class BinaryWriter{
 			writeIntegerType();
 		}else if(type.isRealType()){
 			writeDoubleType();
+		}else if(type.isRationalType()){
+			writeRationalType();
 		}else if(type.isStringType()){
 			writeStringType();
 		}else if(type.isSourceLocationType()){
@@ -240,7 +247,29 @@ public class BinaryWriter{
 			out.write(valueData, 0, length);
 		}
 	}
-	
+
+	/**
+	 *  Format:
+	 *    header
+	 *    length of numerator
+	 *    numerator byte[]
+	 *    length of denominator
+	 *    denominator byte[]
+	 */
+	private void writeRational(IRational rational) throws IOException{
+		out.write(RATIONAL_HEADER);
+		
+		byte[] valueData = rational.numerator().getTwosComplementRepresentation();
+		int length = valueData.length;
+		printInteger(length);
+		out.write(valueData, 0, length);
+
+		valueData = rational.denominator().getTwosComplementRepresentation();
+		length = valueData.length;
+		printInteger(length);
+		out.write(valueData, 0, length);
+		
+	}
 	private void writeDouble(IReal real) throws IOException{
 		out.write(DOUBLE_HEADER);
 		
@@ -573,6 +602,10 @@ public class BinaryWriter{
 	
 	private void writeIntegerType() throws IOException{
 		out.write(INTEGER_TYPE_HEADER);
+	}
+	
+	private void writeRationalType() throws IOException{
+		out.write(RATIONAL_TYPE_HEADER);
 	}
 	
 	private void writeDoubleType() throws IOException{

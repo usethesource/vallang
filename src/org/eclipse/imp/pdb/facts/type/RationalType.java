@@ -12,22 +12,22 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
-/*package*/ final class IntegerType extends Type {
-    private final static IntegerType sInstance= new IntegerType();
+/*package*/ final class RationalType extends Type {
+    private final static RationalType sInstance= new RationalType();
 
-    public static IntegerType getInstance() {
+    public static RationalType getInstance() {
         return sInstance;
     }
 
-    private IntegerType() {
+    private RationalType() {
     	super();
     }
 
     @Override
-    public boolean isIntegerType() {
+    public boolean isRationalType() {
     	return true;
     }
     
@@ -36,12 +36,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
      */
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof IntegerType);
+        return (obj instanceof RationalType);
     }
 
     @Override
     public int hashCode() {
-        return 74843;
+        return 212873;
     }
     
     @Override
@@ -61,7 +61,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	if (other == this) {
     		return this;
     	}
-    	if (!other.isVoidType() && (other.isNumberType() || other.isRealType() || other.isRationalType())) {
+    	if (!other.isVoidType() && (other.isNumberType() || other.isIntegerType() || other.isRealType())) {
     		return TypeFactory.getInstance().numberType();
     	}
     	
@@ -70,21 +70,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
     @Override
     public String toString() {
-        return "int";
+        return "rational";
     }
     
     @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitInteger(this);
+    	return visitor.visitRational(this);
     }
     
     @Override
-    public IInteger make(IValueFactory f, int arg) {
-    	return f.integer(arg);
+    public IRational make(IValueFactory f, int num, int denom) {
+    	return f.rational(num, denom);
     }
     
     @Override
-    public IInteger make(IValueFactory f, TypeStore store, int arg) {
-    	return make(f, arg);
+    public IRational make(IValueFactory f, TypeStore store, int num, int denom) {
+    	return make(f, num, denom);
     }
 }

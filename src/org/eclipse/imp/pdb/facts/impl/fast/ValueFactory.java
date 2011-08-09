@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Anya Helene Bagge - rational support
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -25,6 +26,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -125,6 +127,30 @@ public class ValueFactory implements IValueFactory{
 		return new IntegerValue(value.intValue());
 	}
 	
+	public IRational rational(int a, int b) {
+		return rational(integer(a), integer(b));
+	}
+
+	public IRational rational(long a, long b) {
+		return rational(integer(a), integer(b));
+	}
+
+	public IRational rational(IInteger a, IInteger b) {
+		return new RationalValue(a, b);
+	}
+
+	public IRational rational(String rat) throws NumberFormatException {
+		if(rat.contains("r")) {
+			String[] parts = rat.split("r");
+			if(parts.length != 2)
+				throw new NumberFormatException("Not a rational (ArB): " + rat);
+			return rational(integer(parts[0]), integer(parts[1]));
+		}
+		else {
+			return rational(integer(rat), integer(1));
+		}
+	}
+
 	public IReal real(double value){
 		return new BigDecimalValue(BigDecimal.valueOf(value));
 	}
@@ -350,4 +376,5 @@ public class ValueFactory implements IValueFactory{
 		
 		return elementType;
 	}
+
 }

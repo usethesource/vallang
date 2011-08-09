@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -36,7 +37,7 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		this.value = value;
 	}
 
-	public INumber abs() {
+	public IReal abs() {
 		return new BigDecimalValue(value.abs());
 	}
 	
@@ -60,6 +61,10 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		return ValueFactory.getInstance().integer(value.toBigInteger());
 	}
 	
+	public IRational toRational(){
+    	throw new UnsupportedOperationException();
+	}
+	
 	public IReal floor(){
 		return ValueFactory.getInstance().real(value.setScale(0, RoundingMode.FLOOR));
 	}
@@ -76,11 +81,19 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		return add(other.toReal());
 	}
 	
+	public INumber add(IRational other) {
+		return add(other.toReal());
+	}
+	
 	public IReal subtract(IReal other){
 		return ValueFactory.getInstance().real(value.subtract(((BigDecimalValue) other).value));
 	}
 	
 	public INumber subtract(IInteger other) {
+		return subtract(other.toReal());
+	}
+	
+	public INumber subtract(IRational other) {
 		return subtract(other.toReal());
 	}
 	
@@ -92,12 +105,22 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		return multiply(other.toReal());
 	}
 	
+	public INumber multiply(IRational other) {
+		return multiply(other.toReal());
+	}
+	
 	public IReal divide(IReal other, int precision){
+		// make sure the precision is *at least* the same as that of the arguments
+		precision = Math.max(Math.max(value.precision(), other.precision()), precision);
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return ValueFactory.getInstance().real(value.divide(((BigDecimalValue) other).value, mc));
 	}
 	
 	public IReal divide(IInteger other, int precision) {
+		return divide(other.toReal(), precision);
+	}
+	
+	public IReal divide(IRational other, int precision) {
 		return divide(other.toReal(), precision);
 	}
 	
@@ -125,11 +148,19 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		return greater(other.toReal());
 	}
 	
+	public IBool greater(IRational other) {
+		return greater(other.toReal());
+	}
+	
 	public IBool greaterEqual(IReal other){
 		return ValueFactory.getInstance().bool(compare(other) >= 0);
 	}
 	
 	public IBool greaterEqual(IInteger other) {
+		return greaterEqual(other.toReal());
+	}
+	
+	public IBool greaterEqual(IRational other) {
 		return greaterEqual(other.toReal());
 	}
 	
@@ -142,11 +173,19 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		return less(other.toReal());
 	}
 	
+	public IBool less(IRational other) {
+		return less(other.toReal());
+	}
+	
 	public IBool lessEqual(IReal other){
 		return ValueFactory.getInstance().bool(compare(other) <= 0);
 	}
 	
 	public IBool lessEqual(IInteger other) {
+		return lessEqual(other.toReal());
+	}
+	
+	public IBool lessEqual(IRational other) {
 		return lessEqual(other.toReal());
 	}
 	
@@ -198,4 +237,9 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		if(decimalString.indexOf(".") == -1) sb.append(".");
 		return sb.toString();
 	}
+	
+	public int signum() {
+		return value.signum();
+	}
+
 }

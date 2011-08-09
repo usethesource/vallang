@@ -18,14 +18,17 @@ import java.math.BigInteger;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-/*package*/ class IntegerValue extends AbstractNumberValue implements IInteger {
+/*package*/public class IntegerValue extends AbstractNumberValue 
+	implements IInteger, ICanBecomeABigInteger {
     private final BigInteger fValue;
-
+    public static final IntegerValue INTEGER_ONE = new IntegerValue(1);
+    
     /*package*/ IntegerValue(int i) {
         super(TypeFactory.getInstance().integerType());
         fValue= BigInteger.valueOf(i);
@@ -49,6 +52,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return this;
     }
     
+    public IRational toRational() {
+    	return new RationalValue(this, INTEGER_ONE);
+    }
+    
 	@Override
     public boolean equals(Object o) {
     	if (getClass() == o.getClass()) {
@@ -65,6 +72,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return (IReal) other.add(this);
     }
     
+    public IRational add(IRational other) {
+    	return (IRational) other.add(this);
+    }
+    
     public IInteger negate() {
     	return new IntegerValue(fValue.negate());
     }
@@ -77,6 +88,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return toReal().subtract(other);
     }
     
+    public INumber subtract(IRational other) {
+    	return toRational().subtract(other);
+    }
+    
     public IInteger multiply(IInteger other) {
     	return new IntegerValue(fValue.multiply(((IntegerValue) other).fValue));
     }
@@ -85,15 +100,27 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return (IReal) other.multiply(this);
     }
     
+    public IRational multiply(IRational other) {
+    	return (IRational) other.multiply(this);
+    }
+    
     public IInteger divide(IInteger other) {
     	return new IntegerValue(fValue.divide(((IntegerValue) other).fValue));
     }
+    
+	public IRational divide(IRational other) {
+		return toRational().divide(other);
+	}
     
     public INumber divide(IInteger other, int precision) {
     	return toReal().divide(other, precision);
     }
     
     public IReal divide(IReal other, int precision) {
+    	return toReal().divide(other, precision);
+    }
+    
+    public INumber divide(IRational other, int precision) {
     	return toReal().divide(other, precision);
     }
     
@@ -113,11 +140,19 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return other.greaterEqual(this);
     }
     
+    public IBool less(IRational other) {
+    	return other.greaterEqual(this);
+    }
+    
     public IBool lessEqual(IInteger other) {
     	return new BoolValue(compare(other) <= 0);
     }
     
     public IBool lessEqual(IReal other) {
+    	return other.greater(this);
+    }
+    
+    public IBool lessEqual(IRational other) {
     	return other.greater(this);
     }
     
@@ -129,11 +164,19 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return other.lessEqual(this);
     }
     
+    public IBool greater(IRational other) {
+    	return other.lessEqual(this);
+    }
+    
     public IBool greaterEqual(IInteger other) {
     	return new BoolValue(compare(other) >= 0);
     }
     
     public IBool greaterEqual(IReal other) {
+    	return other.less(this);
+    }
+    
+    public IBool greaterEqual(IRational other) {
     	return other.less(this);
     }
     
@@ -148,6 +191,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public int compare(INumber other) {
     	if (other.getType().isIntegerType()) {
     		return compare(other.toInteger());
+    	}
+    	else if(other.getType().isRationalType()) {
+    		return -other.compare(this);
     	}
     	return toReal().compare(other);
     }
@@ -185,4 +231,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public IInteger abs() {
     	return new IntegerValue(fValue.abs());
     }
+
+	public BigInteger toBigInteger() {
+		return fValue;
+	}
 }

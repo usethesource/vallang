@@ -397,6 +397,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		return false;
 	}
 
+	public boolean isRationalType() {
+		return false;
+	}
+
 	public boolean isRealType() {
 		return false;
 	}
@@ -528,6 +532,32 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 */
 	public IValue make(IValueFactory f, TypeStore store, int arg) {
 		throw new IllegalOperationException("make int", this);
+	}
+
+	/**
+	 * Build a integer value. This method is supported by TreeNodeTypes 
+	 * that wrap a single integer argument.
+	 * 
+	 * @param f   the factory to use
+	 * @param num the numerator
+	 * @param denom the denominator
+	 * @return a rational value
+	 */
+	public IValue make(IValueFactory f, int num, int denom) {
+		throw new IllegalOperationException("make rational", this);
+	}
+
+	/**
+	 * Build a integer value. This method is supported by TreeNodeTypes 
+	 * that wrap a single integer argument.
+	 * 
+	 * @param f   the factory to use
+	 * @param num the numerator
+	 * @param denom the denominator
+	 * @return a rational value
+	 */
+	public IValue make(IValueFactory f, TypeStore store, int num, int denom) {
+		throw new IllegalOperationException("make rational", this);
 	}
 
 	/**

@@ -57,6 +57,8 @@ public class SharedBigDecimalValue extends BigDecimalValue implements IShareable
 	
 	public IReal divide(IReal other, int precision){
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+		// make sure the precision is *at least* the same as that of the arguments
+		precision = Math.max(Math.max(value.precision(), other.precision()), precision);
 		return SharedValueFactory.getInstance().real(value.divide(((SharedBigDecimalValue) other).value, mc));
 	}
 	

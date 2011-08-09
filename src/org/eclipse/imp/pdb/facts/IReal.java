@@ -125,4 +125,10 @@ public interface IReal extends INumber {
      * @return this * 10<sup>this.scale()</sup>
      */
     IInteger unscaled();
+
+    /**
+     * @return absolute value of this real
+     */
+	IReal abs();
+
 }

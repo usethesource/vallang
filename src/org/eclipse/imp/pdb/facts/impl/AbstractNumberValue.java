@@ -28,6 +28,10 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		if (other.getType().isIntegerType()) {
 			return add(other.toInteger());
 		}
+		if (other.getType().isRationalType()) {
+			return add(other.toRational());
+		}
+		
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
 	
@@ -37,6 +41,9 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		}
 		if (other.getType().isIntegerType()) {
 			return divide(other.toInteger(), precision);
+		}
+		if (other.getType().isRationalType()) {
+			return divide(other.toRational(), precision);
 		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
@@ -48,6 +55,9 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		if (other.getType().isIntegerType()) {
 			return greater(other.toInteger());
 		}
+		if (other.getType().isRationalType()) {
+			return greater(other.toRational());
+		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
 	
@@ -57,6 +67,9 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		}
 		if (other.getType().isIntegerType()) {
 			return greaterEqual(other.toInteger());
+		}
+		if (other.getType().isRationalType()) {
+			return greaterEqual(other.toRational());
 		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
@@ -68,6 +81,9 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		if (other.getType().isIntegerType()) {
 			return less(other.toInteger());
 		}
+		if (other.getType().isRationalType()) {
+			return less(other.toRational());
+		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
 	
@@ -77,6 +93,9 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		}
 		if (other.getType().isIntegerType()) {
 			return lessEqual(other.toInteger());
+		}
+		if (other.getType().isRationalType()) {
+			return lessEqual(other.toRational());
 		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
@@ -88,6 +107,9 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		if (other.getType().isIntegerType()) {
 			return multiply(other.toInteger());
 		}
+		if (other.getType().isRationalType()) {
+			return multiply(other.toRational());
+		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
 
@@ -97,6 +119,9 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		}
 		if (other.getType().isIntegerType()) {
 			return subtract(other.toInteger());
+		}
+		if (other.getType().isRationalType()) {
+			return subtract(other.toRational());
 		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}

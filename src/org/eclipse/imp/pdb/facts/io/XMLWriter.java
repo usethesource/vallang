@@ -26,6 +26,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -103,6 +104,9 @@ public class XMLWriter implements IValueWriter {
 		else if (type.isIntegerType()) {
 			return yieldInt((IInteger) value, doc);
 		}
+		else if (type.isRationalType()) {
+			return yieldRational((IRational) value, doc);
+		}
 		else if (type.isRealType()) {
 			return yieldDouble((IReal) value, doc);
 		}
@@ -114,8 +118,6 @@ public class XMLWriter implements IValueWriter {
 				"Outermost or nested tuples, lists, sets, relations or maps are not allowed.", type);
 	}
 	
-	
-
 	private boolean isListWrapper(Type nodeType) {
 			return nodeType.getArity() == 1
 					&& nodeType.getFieldTypes().getFieldType(0).isListType();
@@ -144,6 +146,15 @@ public class XMLWriter implements IValueWriter {
 
 	private Node yieldInt(IInteger value, Document doc) {
 		return doc.createTextNode(value.toString());
+	}
+
+	private Node yieldRational(IRational value, Document doc) {
+/*		Element element = doc.createElementNS("values", "rat");
+		element.setAttribute("num", value.numerator().toString());
+		element.setAttribute("denom", value.denominator().toString());
+		return element;
+*/	
+		return null;
 	}
 
 	private Node yieldString(IString value, Document doc) {

@@ -113,6 +113,15 @@ public class TypeFactory {
     }
 
     /**
+     * Construct a new type. 
+     * @return a reference to the unique rational type of the PDB.
+     */
+    public Type rationalType() {
+		return RationalType.getInstance();
+	}
+
+
+    /**
      * Construct a new bool type
      * @return a reference to the unique boolean type of the PDB.
      */

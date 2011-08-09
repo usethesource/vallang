@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -96,6 +97,18 @@ public class ATermWriter implements IValueWriter {
 			return o;
 		}
 
+		// TODO: There probably isn't a good ATerm repr of rationals,
+		// what should we do here?
+		public IValue visitRational(IRational o) throws VisitorException {
+			append("rat");
+			append('(');
+			append(o.numerator().getStringRepresentation());
+			append(',');
+			append(o.denominator().getStringRepresentation());
+			append(')');
+			return o;
+		}
+		
 		public IValue visitList(IList o) throws VisitorException {
 			append('[');
 			

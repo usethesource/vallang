@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -122,6 +123,11 @@ public class StandardTextWriter implements IValueWriter {
 		}
 
 		public IValue visitInteger(IInteger o) throws VisitorException {
+			append(o.getStringRepresentation());
+			return o;
+		}
+
+		public IValue visitRational(IRational o) throws VisitorException {
 			append(o.getStringRepresentation());
 			return o;
 		}

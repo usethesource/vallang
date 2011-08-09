@@ -27,7 +27,13 @@ public abstract interface INumber extends IValue {
 	 * @return this + other
 	 */
     INumber add(IInteger other);
-    
+
+    /**
+	 * Returns a rational if both arguments are rationals or integers, and a real otherwise
+	 * @return this + other
+	 */
+    INumber add(IRational other);
+
     /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return this - other;
@@ -46,6 +52,11 @@ public abstract interface INumber extends IValue {
     INumber subtract(IInteger other);
     
     /**
+     * @return this - other;
+     */
+    INumber subtract(IRational other);
+
+    /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return this * other;
      */
@@ -61,7 +72,13 @@ public abstract interface INumber extends IValue {
      * @return this * other;
      */
     INumber multiply(IInteger other);
-    
+
+    /**
+     * Returns a rational if both arguments are rationals/integer, and a real otherwise
+     * @return this * other;
+     */
+    INumber multiply(IRational other);
+
     /**
      * Integer division if both the receiver and the argument are integers, and real division otherwise
      * @return this / other 
@@ -78,7 +95,14 @@ public abstract interface INumber extends IValue {
      * @return this / other 
      */
     INumber divide(IInteger other, int precision);
-    
+
+    /**
+     * Rational division if both the receiver and the argument are integers/rationals, 
+     * real division otherwise
+     * @return this / other 
+     */
+    INumber divide(IRational other, int precision);
+
     /**
      * Returns an integer if both arguments are integer, and a real otherwise
      * @return -1 * this;
@@ -94,7 +118,12 @@ public abstract interface INumber extends IValue {
      * @return an IInteger (truncated if it was a real value)
      */
     IInteger toInteger();
-    
+
+    /**
+     * @return an IRational (truncated if it was a real value)
+     */
+    IRational toRational();
+
     /**
      * @return true iff this < other
      */
@@ -109,7 +138,12 @@ public abstract interface INumber extends IValue {
      * @return true iff this < other
      */
     IBool less(IInteger other);
-    
+
+    /**
+     * @return true iff this < other
+     */
+    IBool less(IRational other);
+
     /**
      * @return true iff this > other
      */
@@ -124,7 +158,12 @@ public abstract interface INumber extends IValue {
      * @return true iff this > other
      */
     IBool greater(IInteger other);
- 
+
+    /**
+     * @return true iff this > other
+     */
+    IBool greater(IRational other);
+
     /**
      * @return true iff this <= other
      */
@@ -139,7 +178,12 @@ public abstract interface INumber extends IValue {
      * @return true iff this <= other
      */
     IBool lessEqual(IInteger other);
-    
+
+    /**
+     * @return true iff this <= other
+     */
+    IBool lessEqual(IRational other);
+
     /**
      * @return true iff this >= other
      */
@@ -154,6 +198,11 @@ public abstract interface INumber extends IValue {
      * @return true iff this >= other
      */
     IBool greaterEqual(IInteger other);
+
+    /**
+     * @return true iff this >= other
+     */
+    IBool greaterEqual(IRational other);
     
     /**
      * Returns an integer if the receiver was an integer, and a real otherwise
@@ -167,4 +216,9 @@ public abstract interface INumber extends IValue {
      * @return -1 if receiver is less than other, 0 is receiver is equal, 1 if receiver is larger
      */
     int compare(INumber other);
+    
+    /**
+     * @return return -1, 0 or 1 iff this integer is less than, equal to or greater than zero.
+     */
+    int signum();
 }

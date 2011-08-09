@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -43,6 +44,30 @@ public abstract class BaseValueFactory implements IValueFactory {
     	return new IntegerValue(new BigInteger(s));
     }
     
+	public IRational rational(int a, int b) {
+		return rational(integer(a), integer(b));
+	}
+
+	public IRational rational(long a, long b) {
+		return rational(integer(a), integer(b));
+	}
+
+	public IRational rational(IInteger a, IInteger b) {
+		return new RationalValue(a, b);
+	}
+
+	public IRational rational(String rat) throws NumberFormatException {
+		if(rat.contains("r")) {
+			String[] parts = rat.split("r");
+			if(parts.length != 2)
+				throw new NumberFormatException("Not a rational (ArB): " + rat);
+			return rational(integer(parts[0]), integer(parts[1]));
+		}
+		else {
+			return rational(integer(rat), integer(1));
+		}
+	}
+
     public IReal real(double d) {
         return new RealValue(d);
     }

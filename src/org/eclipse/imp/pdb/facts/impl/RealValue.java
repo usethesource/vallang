@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -58,6 +59,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return add(other.toReal());
     }
     
+    public IReal add(IRational other) {
+    	return add(other.toReal());
+    }
     public IReal subtract(IReal other) {
     	return new RealValue(fValue.subtract(((RealValue) other).fValue));
     }
@@ -65,7 +69,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public IReal subtract(IInteger other) {
     	return subtract(other.toReal());
     }
-    
+  
+    public IReal subtract(IRational other) {
+    	return subtract(other.toReal());
+    }
+  
     public IReal multiply(IReal other) {
     	return new RealValue(fValue.multiply(((RealValue) other).fValue));
     }
@@ -74,12 +82,22 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return multiply(other.toReal());
     }
     
+    public IReal multiply(IRational other) {
+    	return multiply(other.toReal());
+    }
+    
     public IReal divide(IReal other, int precision) {
+		// make sure the precision is *at least* the same as that of the arguments
+		precision = Math.max(fValue.precision() - other.precision(), precision);
     	MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return new RealValue(fValue.divide(((RealValue) other).fValue, mc));
     }
     
     public IReal divide(IInteger other, int precision) {
+    	return divide(other.toReal(), precision);
+    }
+
+    public IReal divide(IRational other, int precision) {
     	return divide(other.toReal(), precision);
     }
     
@@ -95,6 +113,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new IntegerValue(fValue.toBigInteger());
     }
     
+    public IRational toRational() {
+    	throw new UnsupportedOperationException();
+    }
+    
     public IBool less(IReal other) {
     	return new BoolValue(compare(other) < 0);
     }
@@ -103,11 +125,19 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return less(other.toReal());
     }
     
-    public IBool lessEqual(IReal other) {
+	public IBool less(IRational other) {
+		return less(other.toReal());
+	}
+
+	public IBool lessEqual(IReal other) {
     	return new BoolValue(compare(other) <= 0);
     }
     
     public IBool lessEqual(IInteger other) {
+    	return lessEqual(other.toReal());
+    }
+    
+    public IBool lessEqual(IRational other) {
     	return lessEqual(other.toReal());
     }
     
@@ -119,6 +149,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return greater(other.toReal());
     }
     
+    public IBool greater(IRational other) {
+    	return greater(other.toReal());
+    }
+    
     public IBool greaterEqual(IReal other) {
     	return new BoolValue(compare(other) >= 0);
     }
@@ -126,7 +160,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public IBool greaterEqual(IInteger other) {
     	return greaterEqual(other.toReal());
     }
-    
+
+    public IBool greaterEqual(IRational other) {
+    	return greaterEqual(other.toReal());
+    }
+
     public int compare(IReal other) {
     	return fValue.compareTo(((RealValue) other).fValue);
     }
@@ -184,7 +222,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     	return new IntegerValue(fValue.unscaledValue());
     }
 
-	public INumber abs() {
+	public IReal abs() {
 		return new RealValue(fValue.abs());
 	}
+
+	public int signum() {
+		return fValue.signum();
+	}
+
 }

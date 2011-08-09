@@ -62,6 +62,7 @@ public class StandardTextReader extends AbstractReader {
 	private static final char COMMA_SEPARATOR = ',';
 	private static final char END_OF_MAP = ')';
 	private static final char DOUBLE_DOT = '.';
+	private static final char RATIONAL_SEP = 'r';
 	private static final char END_OF_SET = '}';
 	private static final char END_OF_LIST = ']';
 	private static final char END_OF_LOCATION = '|';
@@ -249,7 +250,7 @@ public class StandardTextReader extends AbstractReader {
 		do{
 			builder.append((char) current);
 			current = stream.read();
-		} while(Character.isDigit(current) || current == DOUBLE_DOT || current == 'E' || current == 'e' || current == '+' || current == '-');
+		} while(Character.isDigit(current) || current == RATIONAL_SEP || current == DOUBLE_DOT || current == 'E' || current == 'e' || current == '+' || current == '-');
 		
 		String val = builder.toString();
 		
@@ -266,6 +267,13 @@ public class StandardTextReader extends AbstractReader {
 		
 		try {
 			return factory.real(val);
+		}
+		catch (NumberFormatException e) {
+			// could happen
+		}
+
+		try {
+			return factory.rational(val);
 		}
 		catch (NumberFormatException e) {
 			// could happen

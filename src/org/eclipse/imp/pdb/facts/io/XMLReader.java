@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -171,6 +172,11 @@ public class XMLReader extends AbstractReader {
 		}
 
 		return false;
+	}
+
+	// TODO: implement this
+	private IValue parseRational(Node node) {
+		return null;
 	}
 
 	private IValue parseDouble(Node node) {

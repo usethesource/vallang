@@ -56,7 +56,34 @@ public interface IValueFactory {
      * @return a value representing the two's complement notation in a
      */
     public IInteger integer(byte[] a);
-    
+
+	/**
+	 * @param a
+	 * @param b
+	 * @return a value representing the rational a/b, with type RationalType
+	 */
+    public IRational rational(int a, int b);
+
+	/**
+	 * @param a
+	 * @param b
+	 * @return a value representing the rational a/b, with type RationalType
+	 */
+    public IRational rational(long a, long b);
+
+	/**
+	 * @param a
+	 * @param b
+	 * @return a value representing the rational a/b, with type RationalType
+	 */
+    public IRational rational(IInteger a, IInteger b);
+
+	/**
+	 * @param rat
+	 * @return a value representing the rational rat, with type RationalType
+	 */
+    public IRational rational(String rat) throws NumberFormatException;
+
     /**
      * Construct a real from the mathematical notation.
      * 

@@ -21,6 +21,10 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		if(otherType.isRealType()){
 			return add(other.toReal());
 		}
+		if(otherType.isRationalType()){
+			return add(other.toRational());
+		}
+		
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}
 	
@@ -31,6 +35,9 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		}
 		if(otherType.isRealType()){
 			return divide(other.toReal(), precision);
+		}
+		if(otherType.isRationalType()){
+			return divide(other.toRational(), precision);
 		}
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}
@@ -43,6 +50,9 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		if(otherType.isRealType()){
 			return greater(other.toReal());
 		}
+		if(otherType.isRationalType()){
+			return greater(other.toRational());
+		}
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}
 	
@@ -53,6 +63,9 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		}
 		if(otherType.isRealType()){
 			return greaterEqual(other.toReal());
+		}
+		if(otherType.isRationalType()){
+			return greaterEqual(other.toRational());
 		}
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}
@@ -65,6 +78,9 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		if(otherType.isRealType()){
 			return less(other.toReal());
 		}
+		if(otherType.isRationalType()){
+			return less(other.toRational());
+		}
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}
 	
@@ -75,6 +91,9 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		}
 		if(otherType.isRealType()){
 			return lessEqual(other.toReal());
+		}
+		if(otherType.isRationalType()){
+			return lessEqual(other.toRational());
 		}
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}
@@ -87,6 +106,9 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		if(otherType.isRealType()){
 			return multiply(other.toReal());
 		}
+		if(otherType.isRationalType()){
+			return multiply(other.toRational());
+		}
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}
 
@@ -97,6 +119,9 @@ public abstract class AbstractNumberValue extends Value implements INumber{
 		}
 		if(otherType.isRealType()){
 			return subtract(other.toReal());
+		}
+		if(otherType.isRationalType()){
+			return subtract(other.toRational());
 		}
 		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
 	}

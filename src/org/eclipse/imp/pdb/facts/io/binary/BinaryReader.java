@@ -26,6 +26,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -70,6 +71,7 @@ public class BinaryReader{
 	private final static int SET_HEADER = 0x0d;
 	private final static int RELATION_HEADER = 0x0e;
 	private final static int MAP_HEADER = 0x0f;
+	private final static int RATIONAL_HEADER = 0x11;
 	
 	private final static int VALUE_TYPE_HEADER = 0x01;
 	private final static int VOID_TYPE_HEADER = 0x02;
@@ -91,6 +93,7 @@ public class BinaryReader{
 	private final static int ALIAS_TYPE_HEADER = 0x11;
 	private final static int ANNOTATED_NODE_TYPE_HEADER = 0x12;
 	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
+	private final static int RATIONAL_TYPE_HEADER = 0x15;
 	
 	private final static int TYPE_MASK = 0x1f;
 	
@@ -197,6 +200,9 @@ public class BinaryReader{
 			case MAP_HEADER:
 				value = readMap(header);
 				break;
+			case RATIONAL_HEADER:
+				value = readRational();
+				break;
 			default:
 				throw new RuntimeException("Unknow value type: "+valueType);
 		}
@@ -289,6 +295,9 @@ public class BinaryReader{
 			case ANNOTATED_CONSTRUCTOR_TYPE_HEADER:
 				type = readAnnotatedConstructorType();
 				break;
+			case RATIONAL_TYPE_HEADER:
+				type = readRationalType();
+				break;
 			default:
 				throw new RuntimeException("Unkown type type: "+typeType);
 		}
@@ -316,6 +325,20 @@ public class BinaryReader{
 		in.read(integerData, 0, length);
 		
 		return valueFactory.integer(integerData);
+	}
+	
+	private IRational readRational() throws IOException{
+		int length = parseInteger();
+		byte[] valueData = new byte[length];
+		in.read(valueData, 0, length);
+		IInteger num = valueFactory.integer(valueData);
+
+		length = parseInteger();
+		valueData = new byte[length];
+		in.read(valueData, 0, length);
+		IInteger denom = valueFactory.integer(valueData);
+
+		return valueFactory.rational(num, denom);
 	}
 	
 	private IReal readDouble() throws IOException{
@@ -605,6 +628,10 @@ public class BinaryReader{
 	
 	private Type readIntegerType(){
 		return tf.integerType();
+	}
+	
+	private Type readRationalType(){
+		return tf.rationalType();
 	}
 	
 	private Type readDoubleType(){

@@ -84,6 +84,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
+    public IValue make(IValueFactory f, int num, int denom) {
+    	return TypeFactory.getInstance().rationalType().make(f, num, denom);
+    }
+    
+    @Override
     public IValue make(IValueFactory f, TypeStore s, double arg) {
     	return TypeFactory.getInstance().realType().make(f, arg);
     }
@@ -96,5 +101,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     @Override
     public IValue make(IValueFactory f, TypeStore s, int arg) {
     	return TypeFactory.getInstance().integerType().make(f, arg);
+    }
+
+    @Override
+    public IValue make(IValueFactory f, TypeStore s, int num, int denom) {
+    	return TypeFactory.getInstance().integerType().make(f, num, denom);
     }
 }
