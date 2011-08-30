@@ -70,7 +70,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
     @Override
     public String toString() {
-        return "rational";
+        return "rat";
     }
     
     @Override
