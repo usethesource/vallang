@@ -232,20 +232,9 @@ public class BinaryWriter{
 	private void writeInteger(IInteger integer) throws IOException{
 		byte[] valueData = integer.getTwosComplementRepresentation();
 		int length = valueData.length;
-		if(length <= 4){
-			out.write(INTEGER_HEADER);
-			
-			int intValue = 0;
-			for(int i = length - 1, j = 0; i >= 0; i--, j++){
-				intValue |= ((valueData[i] & 0x0ff) << (j * 8));
-			}
-			printInteger(intValue);
-		}else{
-			out.write(BIG_INTEGER_HEADER);
-			
-			printInteger(length);
-			out.write(valueData, 0, length);
-		}
+		out.write(BIG_INTEGER_HEADER);
+		printInteger(length);
+		out.write(valueData, 0, length);
 	}
 
 	/**
