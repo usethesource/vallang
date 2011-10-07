@@ -177,7 +177,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     		if (t1.hasFieldNames()) {
     			fieldNames[i] = t1.getFieldName(i);
     		}
-    		else if (t1.hasFieldNames()) {
+    		else if (t2.hasFieldNames()) {
     			fieldNames[i] = t2.getFieldName(i);
     		}
     	}
