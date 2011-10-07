@@ -39,6 +39,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
  * @see {@link TypeFactory}, {@link Type} and {@link IValueFactory} for more information.
  */
 public class TypeStore {
+	private static final Type NODE_TYPE = TypeFactory.getInstance().nodeType();
+
 	private final TypeFactory factory = TypeFactory.getInstance();
 
     /**
@@ -571,7 +573,7 @@ public class TypeStore {
      * but NamedTreeTypes orTreeNodeTypes.
      */
     public void declareAnnotation(Type onType, String key, Type valueType) {
-    	if (!onType.isConstructorType() && !onType.isAbstractDataType()) {
+    	if (!onType.isSubtypeOf(NODE_TYPE)) {
     		throw new IllegalAnnotationDeclaration(onType);
     	}
     	
@@ -601,26 +603,43 @@ public class TypeStore {
     
     /**
      * Locates all declared annotations for a type, including the annotations declared
-     * for all of its super types.
+     * for all the node type.
      * 
      * @param onType
      * @return
      */
     public Map<String, Type> getAnnotations(Type onType) {
+    	if (!onType.isSubtypeOf(NODE_TYPE)) {
+    		return Collections.<String,Type>emptyMap();
+    	}
+    	
     	synchronized(fAnnotations) {
     		synchronized (fImports) {
     			Map<String, Type> result = new HashMap<String,Type>();
-    			Map<String, Type> local = fAnnotations.get(onType);
-
-    			if (local != null) {
-    				result.putAll(local); 
+    			
+    			if (onType != NODE_TYPE) {
+    				Map<String, Type> local = fAnnotations.get(onType);
+    				if (local != null) {
+    					result.putAll(local); 
+    				}
     			}
+    			
+    			Map<String, Type> onNode = fAnnotations.get(NODE_TYPE);
+    			if (onNode != null) {
+    				result.putAll(onNode);
+    			}
+    			
 
     			for (TypeStore s : fImports) {
-    				local = s.fAnnotations.get(onType);
+    				Map<String, Type> local = s.fAnnotations.get(onType);
     				if (local != null) {
     					result.putAll(local);
     				}
+    				
+    				onNode = s.fAnnotations.get(NODE_TYPE);
+        			if (onNode != null) {
+        				result.putAll(onNode);
+        			}
     			}
 
     			return result;
