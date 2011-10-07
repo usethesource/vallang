@@ -40,6 +40,19 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
         return "node";
     }
     
+    @Override
+    public boolean isSubtypeOf(Type other) {
+    	return super.isSubtypeOf(other);
+    }
+    
+    @Override
+    public Type lub(Type other) {
+    	if (other.isSubtypeOf(this)) {
+    		return this;
+    	}
+    	return super.lub(other);
+    }
+    
     /**
      * Should never be called, NodeType is a singleton 
      */

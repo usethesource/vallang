@@ -58,6 +58,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	public Type lub(Type other) {
+		if (other == this || other.isVoidType()) {
+			return this;
+		}
 		if (other.isConstructorType()) {
 			return fADT.lub(other.getAbstractDataType());
 		}
