@@ -158,7 +158,14 @@ public class TypeStore {
 				for (Type alt : signature2) {
 					Type children = alt.getFieldTypes();
 					checkOverloading(signature1, alt.getName(), children);
-					checkFieldNames(signature1, children);
+					try {
+						checkFieldNames(signature1, children);
+					}
+					catch (RedeclaredFieldNameException e) {
+						throw new RedeclaredFieldNameException(e.getFieldName(),
+								e.getFirstType(), e.getSecondType(),
+								type);
+					}
 				}
 				
 			}
@@ -292,7 +299,14 @@ public class TypeStore {
     			}
 
     			checkOverloading(signature, constructor.getName(), constructor.getFieldTypes());
-    			checkFieldNames(signature, constructor.getFieldTypes());
+				try {
+					checkFieldNames(signature, constructor.getFieldTypes());
+				}
+				catch (RedeclaredFieldNameException e) {
+					throw new RedeclaredFieldNameException(e.getFieldName(),
+							e.getFirstType(), e.getSecondType(),
+							adt);
+				}
 
     			Set<Type> localSignature = fConstructors.get(adt);
 				if (localSignature == null) {
@@ -326,7 +340,7 @@ public class TypeStore {
 				for (int j = altArgs.getArity() - 1; j >= 0; j--) {
 					if (altArgs.getFieldName(j).equals(label)) {
 						if (!altArgs.getFieldType(j).equivalent(type)) {
-							throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(i));
+							throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(i), tupleType);
 						}
 					}
 				}

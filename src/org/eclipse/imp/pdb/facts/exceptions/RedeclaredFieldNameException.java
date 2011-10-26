@@ -8,12 +8,14 @@ public class RedeclaredFieldNameException extends
 	private String label;
 	private Type one;
 	private Type two;
-
-	public RedeclaredFieldNameException(String label, Type one, Type two) {
-		super("The field name " + label + " is illegaly used for both " + one + " and " + two);
+	private Type tupleType;
+	
+	public RedeclaredFieldNameException(String label, Type one, Type two, Type tupleType) {
+		super("The field name " + label + " is illegally used for both " + one + " and " + two + " in type " + tupleType);
 		this.label = label;
 		this.one = one;
 		this.two = two;
+		this.tupleType = tupleType;
 	}
 	
 	public String getFieldName() {
@@ -26,6 +28,10 @@ public class RedeclaredFieldNameException extends
 	
 	public Type getSecondType() {
 		return two;
+	}
+	
+	public Type getTupleType() {
+		return tupleType;
 	}
 
 }
