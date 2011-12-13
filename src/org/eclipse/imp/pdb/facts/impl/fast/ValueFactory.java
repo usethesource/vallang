@@ -8,6 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *    Anya Helene Bagge - rational support
+*    Davy Landman - added PI & E constants
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -165,6 +166,14 @@ public class ValueFactory implements IValueFactory{
 	
 	public IReal real(BigDecimal value){
 		return new BigDecimalValue(value);
+	}
+	
+	public IReal pi(int precision) {
+		return BigDecimalValue.pi(precision);
+	}
+	
+	public IReal e(int precision) {
+		return BigDecimalValue.e(precision);
 	}
 	
 	public IString string(String value){

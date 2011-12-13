@@ -99,6 +99,19 @@ public interface IValueFactory {
      */
     public IReal real(double d);
     
+    
+	/**
+	 * @param precision max of 1000
+	 * @return PI with a higher precision than standard Math.PI
+	 */
+	public IReal pi(int precision);
+	
+	/**
+	 * @param precision max of 1000
+	 * @return E with a higher precision than standard Math.E
+	 */
+	public IReal e(int precision);
+    
     /**
      * @param s
      * @return a value representing the string s, with type StringType

@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Davy Landman - added PI & E constants
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.shared;
 
@@ -258,6 +259,14 @@ public final class SharedValueFactory implements IValueFactory{
 	public IReal real(BigDecimal value){
 		return (IReal) buildValue(new SharedBigDecimalValue(value));
 	}
+	
+	public IReal pi(int precision) {
+		return SharedBigDecimalValue.pi(precision);
+	}
+	public IReal e(int precision) {
+		return SharedBigDecimalValue.e(precision);
+	}
+	
 	
 	public IString string(String value){
 		return (IString) buildValue(new SharedStringValue(value));

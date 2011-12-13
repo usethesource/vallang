@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*    Davy Landman - added PI & E constants
 
 *******************************************************************************/
 
@@ -82,6 +83,14 @@ public abstract class BaseValueFactory implements IValueFactory {
     
     public IReal real(String s) {
     	return new RealValue(new BigDecimal(s));
+    }
+    
+    public IReal pi(int precision) {
+    	return RealValue.pi(precision);
+    }
+    
+    public IReal e(int precision) {
+    	return RealValue.e(precision);
     }
     
     public IString string(String s) {

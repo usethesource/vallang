@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*    Davy Landman - added mathematical functions
 
 *******************************************************************************/
 
@@ -21,6 +22,8 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.impl.fast.BigDecimalValue;
+import org.eclipse.imp.pdb.facts.impl.util.BigDecimalCalculations;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -229,5 +232,59 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public int signum() {
 		return fValue.signum();
 	}
+
+	public IReal log(IInteger base, int precision) {
+		return log(base.toReal(), precision);
+	}
+	
+	public IReal log(IReal base, int precision) {
+		IReal lnBase = base.ln(precision + 1);
+		IReal lnThis = this.ln(precision + 1);
+		return lnThis.divide(lnBase, precision);
+	}
+
+	public IReal ln(int precision) {
+		return new RealValue(BigDecimalCalculations.ln(fValue, precision));
+	}
+
+	public IReal sqrt(int precision) {
+		return new RealValue(BigDecimalCalculations.sqrt(fValue, precision));
+	}
+
+	public IReal nroot(IInteger n, int precision) {
+		return new RealValue(BigDecimalCalculations.intRoot(fValue, n.longValue(), precision));
+	}
+	
+	public IReal exp(int precision) {
+		return new RealValue(BigDecimalCalculations.exp(fValue, precision));
+	}
+
+	public IReal pow(IInteger power) {
+		return new RealValue(fValue.pow(power.intValue()));
+	}
+
+	public IReal tan(int precision) {
+		return new RealValue(BigDecimalCalculations.tan(fValue, precision));
+	}
+
+	public IReal sin(int precision) {
+		return new RealValue(BigDecimalCalculations.sin(fValue, precision));
+	}
+
+	public IReal cos(int precision) {
+		return new RealValue(BigDecimalCalculations.cos(fValue, precision));
+	}
+	
+	public static IReal pi(int precision) {
+		if (precision < 0 || precision > 1000)
+			throw new IllegalArgumentException("PI max precision is 1000");
+		return new RealValue(BigDecimalCalculations.PI.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
+	}
+	
+	public static IReal e(int precision) {
+		if (precision < 0 || precision > 1000)
+			throw new IllegalArgumentException("E max precision is 1000");
+		return new RealValue(BigDecimalCalculations.E.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
+	}	
 
 }

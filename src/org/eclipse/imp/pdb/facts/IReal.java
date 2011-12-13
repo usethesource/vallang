@@ -8,6 +8,7 @@
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *    Jurgen Vinju (jurgen@vinju.org) - initial API and implementation
+*    Davy Landman (davy.landamn@cwi.nl) - added log, ln, exp, pow, nroot, sqrt, sin, cos, and tan
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts;
@@ -131,4 +132,57 @@ public interface IReal extends INumber {
      */
 	IReal abs();
 
+	/**
+	 * @return log<sub>base</sub>(this)
+	 */
+	IReal log(IInteger base, int precision);
+	
+	
+	/**
+	 * @return log<sub>base</sub>(this)
+	 */
+	IReal log(IReal base, int precision);
+	
+	
+	/**
+	 * @return natural log of this
+	 */
+	IReal ln(int precision);
+	
+	/**
+	 * @return square root of this
+	 */
+	IReal sqrt(int precision);
+	
+	/**
+	 * @return n-th root of this
+	 */
+	IReal nroot(IInteger n, int precision);
+	
+	
+	/**
+	 * @return e<sup>this</sup>
+	 */
+	IReal exp(int precision);
+	
+	/**
+	 * @return this<sup>power</sup>
+	 */
+	IReal pow(IInteger power);
+	
+	
+	/**
+	 * @return tan(this)
+	 */
+	IReal tan(int precision);
+	
+	/**
+	 * @return sin(this)
+	 */
+	IReal sin(int precision);
+	
+	/**
+	 * @return cos(this)
+	 */
+	IReal cos(int precision);
 }
