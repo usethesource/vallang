@@ -126,7 +126,7 @@ public class BigDecimalCalculations {
     public static BigDecimal cos(BigDecimal x, int scale)
     {
         if (x.signum() == 0)
-        	return BigDecimal.ZERO;
+        	return BigDecimal.ONE;
         if (x.signum() == -1)
             return cosTaylor(x.negate(), scale);
         else 
