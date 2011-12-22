@@ -269,14 +269,16 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	public IInteger mod(IInteger other){
 		if(other instanceof BigIntegerValue){
 			if(value < 0){
-				return ValueFactory.getInstance().integer((~value) + 1);
+				BigInteger m = ((BigIntegerValue)other).toBigInteger();
+				// i.e. -1 % m = m + (-1)
+				BigInteger res = m.add(toBigInteger());
+				return ValueFactory.getInstance().integer(res);
 			}
 			return this;
 		}
-		
+		int otherVal = other.intValue();
 		int newValue = value % other.intValue();
-		newValue = newValue >= 0 ? newValue : ((~newValue) + 1);
-		
+		newValue = newValue >= 0 ? newValue : newValue + otherVal;
 		return ValueFactory.getInstance().integer(newValue);
 	}
 	
