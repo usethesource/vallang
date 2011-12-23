@@ -198,6 +198,16 @@ public interface IValueFactory {
     public INode node(String name, IValue... children);
     
     /**
+     * Construct a node
+     * @param name     the name of the node
+     * @param annotations to immediately put on the constructor
+     * @param children an array or variable length argument list of children
+     * @return a new tree value
+     * @throws FactTypeUseException if the children are not of the expected types for this node type
+     */
+    public INode node(String name, Map<String,IValue> annotations, IValue... children) throws FactTypeUseException;
+    
+    /**
      * Make a nullary constructor (a typed nullary node)
      * @param constructor     the constructor to use
      * @return a new constructor value

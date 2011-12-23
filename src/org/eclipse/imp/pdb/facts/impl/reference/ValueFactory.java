@@ -157,6 +157,12 @@ public class ValueFactory extends BaseValueFactory {
 		return new Node(name);
 	}
 	
+	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
+		checkNull(name);
+		checkNull((Object[]) children);
+		return new Node(name, children);
+	}
+	
 	public INode node(String name, IValue... children) {
 		checkNull(name);
 		checkNull((Object[]) children);

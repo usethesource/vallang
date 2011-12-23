@@ -43,6 +43,14 @@ public class Node extends Value implements INode {
 		fAnnotations = EMPTY_ANNOTATIONS;
 	}
 	
+	/*package*/ Node(String name, Map<String,IValue> annos, IValue[] children) {
+		super(TypeFactory.getInstance().nodeType());
+		fName = name;
+		fChildren = children.clone();
+		fAnnotations = new HashMap<String,IValue>(annos.size());
+		fAnnotations.putAll(annos);
+	}
+	
 	protected Node(String name, Type type, IValue[] children) {
 		super(type);
 		fName = name;

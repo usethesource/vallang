@@ -27,10 +27,15 @@ public class AnnotatedNode extends Node{
 	
 	protected AnnotatedNode(String name, IValue[] children, ShareableHashMap<String, IValue> annotations){
 		super(name, children);
-		
 		this.annotations = annotations;
 	}
 
+	protected AnnotatedNode(String name, IValue[] children, Map<String, IValue> annotations){
+		super(name, children);
+		this.annotations = importAnnos(annotations);
+	}
+
+	
 	public INode set(int i, IValue arg){
 		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
@@ -74,6 +79,21 @@ public class AnnotatedNode extends Node{
 		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
 		
 		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
+		while(newAnnosIterator.hasNext()){
+			Map.Entry<String, IValue> entry = newAnnosIterator.next();
+			String key = entry.getKey();
+			IValue value = entry.getValue();
+			
+			newAnnotations.put(key, value);
+		}
+		
+		return newAnnotations;
+	}
+	
+	protected static ShareableHashMap<String, IValue> importAnnos(Map<String,IValue> annos) {
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+		
+		Iterator<Map.Entry<String, IValue>> newAnnosIterator = annos.entrySet().iterator();
 		while(newAnnosIterator.hasNext()){
 			Map.Entry<String, IValue> entry = newAnnosIterator.next();
 			String key = entry.getKey();

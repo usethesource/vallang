@@ -303,6 +303,10 @@ public class ValueFactory implements IValueFactory{
 		return new Node(name, new IValue[0]);
 	}
 	
+	public INode node(String name, Map<String,IValue> annos, IValue... children){
+		return new AnnotatedNode(name, children.clone(), annos);
+	}
+	
 	public INode node(String name, IValue... children){
 		return new Node(name, children.clone());
 	}

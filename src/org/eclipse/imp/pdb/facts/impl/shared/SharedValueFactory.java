@@ -403,6 +403,10 @@ public final class SharedValueFactory implements IValueFactory{
 		return buildNode(new SharedNode(name, children.clone()));
 	}
 	
+	public INode node(String name, Map<String,IValue> annos, IValue... children){
+		return buildAnnotatedNode(new SharedAnnotatedNode(name, children.clone(), annos));
+	}
+	
 	protected INode createNodeUnsafe(String name, IValue[] children){
 		return buildNode(new SharedNode(name, children));
 	}

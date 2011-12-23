@@ -28,6 +28,10 @@ public class SharedAnnotatedNode extends AnnotatedNode implements IShareable{
 	public SharedAnnotatedNode(String name, IValue[] children, ShareableHashMap<String, IValue> annotations){
 		super(name, children, annotations);
 	}
+	
+	public SharedAnnotatedNode(String name, IValue[] children, Map<String, IValue> annotations){
+		super(name, children, importAnnos(annotations));
+	}
 
 	public INode set(int i, IValue arg){
 		IValue[] newChildren = children.clone();
