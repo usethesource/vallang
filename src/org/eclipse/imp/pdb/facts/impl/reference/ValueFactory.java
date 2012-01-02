@@ -160,7 +160,7 @@ public class ValueFactory extends BaseValueFactory {
 	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
 		checkNull(name);
 		checkNull((Object[]) children);
-		return new Node(name, children);
+		return new Node(name, annotations, children);
 	}
 	
 	public INode node(String name, IValue... children) {
