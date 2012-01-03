@@ -178,7 +178,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	public String getFieldName(int i) {
 		return fChildrenTypes.getFieldName(i);
 	}
-
+	
 	@Override
 	public boolean hasFieldNames() {
 		return fChildrenTypes.hasFieldNames();
