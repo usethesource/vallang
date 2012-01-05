@@ -354,7 +354,7 @@ public class StandardTextWriter implements IValueWriter {
 
 		public IValue visitString(IString o) throws VisitorException {
 			append('\"');
-		    for (byte ch : o.getValue().getBytes()) {
+		    for (char ch : o.getValue().toCharArray()) {
 		    	switch (ch) {
 		    	case '\"':
 		    		append('\\');
