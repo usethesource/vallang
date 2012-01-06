@@ -80,4 +80,25 @@ public class StringValue extends Value implements IString {
 	public boolean isEqual(IValue value){
 		return equals(value);
 	}
+	
+	public IString reverse() {
+		StringBuilder b = new StringBuilder(value);
+		return new StringValue(b.reverse().toString());
+	}
+
+	public int length() {
+		return value.codePointCount(0, value.length());
+	}
+
+	private int codePointAt(java.lang.String str, int i) {
+		return str.codePointAt(str.offsetByCodePoints(0,i));
+	}
+	
+	public IString substring(int start, int end) {
+		 return new StringValue(value.substring(value.offsetByCodePoints(0, start),value.offsetByCodePoints(0, end)));
+	}
+
+	public int charAt(int index) {
+		return codePointAt(value, index);
+	}
 }

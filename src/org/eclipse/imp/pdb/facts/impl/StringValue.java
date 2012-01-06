@@ -63,4 +63,25 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
     	return v.visitString(this);
     }
+
+	public IString reverse() {
+		StringBuilder b = new StringBuilder(fValue);
+		return new StringValue(b.reverse().toString());
+	}
+
+	public int length() {
+		return fValue.codePointCount(0, fValue.length());
+	}
+
+	private int codePointAt(java.lang.String str, int i) {
+		return str.codePointAt(str.offsetByCodePoints(0,i));
+	}
+	
+	public IString substring(int start, int end) {
+		 return new StringValue(fValue.substring(fValue.offsetByCodePoints(0, start),fValue.offsetByCodePoints(0, end)));
+	}
+
+	public int charAt(int index) {
+		return codePointAt(fValue, index);
+	}
 }
