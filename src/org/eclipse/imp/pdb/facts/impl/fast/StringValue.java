@@ -98,6 +98,10 @@ public class StringValue extends Value implements IString {
 		 return new StringValue(value.substring(value.offsetByCodePoints(0, start),value.offsetByCodePoints(0, end)));
 	}
 
+	public IString substring(int start) {
+		 return new StringValue(value.substring(value.offsetByCodePoints(0, start)));
+	}
+	
 	public int charAt(int index) {
 		return codePointAt(value, index);
 	}

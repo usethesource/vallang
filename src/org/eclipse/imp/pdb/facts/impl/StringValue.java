@@ -80,6 +80,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public IString substring(int start, int end) {
 		 return new StringValue(fValue.substring(fValue.offsetByCodePoints(0, start),fValue.offsetByCodePoints(0, end)));
 	}
+	
+	public IString substring(int start) {
+		 return new StringValue(fValue.substring(fValue.offsetByCodePoints(0, start)));
+	}
 
 	public int charAt(int index) {
 		return codePointAt(fValue, index);

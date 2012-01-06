@@ -41,9 +41,15 @@ public interface IString extends IValue {
      *  
      * @param start the inclusive start index
      * @param end   the exclusive end index
-     * @return
      */
     IString substring(int start, int end);
+    
+    /**
+     * Computes a substring
+     *  
+     * @param start the inclusive start index
+     */
+    IString substring(int start);
     
     /**
      * Compares two strings lexicographically
