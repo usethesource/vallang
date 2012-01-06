@@ -507,4 +507,18 @@ public final class SharedValueFactory implements IValueFactory{
 		
 		return elementType;
 	}
+	
+	public IString string(int[] chars) {
+		StringBuilder b = new StringBuilder(chars.length);
+		for (int ch : chars) {
+			b.appendCodePoint(ch);
+		}
+		return string(b.toString());
+	}
+
+	public IString string(int ch) {
+		StringBuilder b = new StringBuilder(1);
+		b.appendCodePoint(ch);
+		return string(b.toString());
+	}
 }

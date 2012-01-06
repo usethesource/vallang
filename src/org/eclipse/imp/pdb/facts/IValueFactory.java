@@ -119,6 +119,18 @@ public interface IValueFactory {
     public IString string(String s);
     
     /**
+     * Build a string from an array of unicode characters.
+     * @param chars array of unicode characters
+     */
+    public IString string(int[] chars);
+    
+    /**
+     * Build a string from a unicode character.
+     * @param ch unicode character
+     */
+    public IString string(int ch);
+    
+    /**
      * Create an exact reference to a source location.
      * 
      * @param uri         exact uri where the source is located.
