@@ -11,7 +11,6 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -41,8 +40,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * This class implements the ATerm readable syntax for {@link IValue}'s.
  * See also {@link ATermReader}
  */
-public class ATermWriter implements IValueWriter {
-	public void write(IValue value, OutputStream stream) throws IOException {
+public class ATermWriter implements IValueTextWriter {
+	public void write(IValue value, java.io.Writer stream) throws IOException {
 		try {
 			value.accept(new Writer(stream));
 		} catch (VisitorException e) {
@@ -50,20 +49,20 @@ public class ATermWriter implements IValueWriter {
 		}
 	}
 	
-	public void write(IValue value, OutputStream stream, TypeStore typeStore) throws IOException {
+	public void write(IValue value, java.io.Writer stream, TypeStore typeStore) throws IOException {
 		write(value, stream);
 	}
 	
 	private static class Writer implements IValueVisitor<IValue> {
-		private OutputStream stream;
+		private java.io.Writer stream;
 
-		public Writer(OutputStream stream) {
+		public Writer(java.io.Writer stream) {
 			this.stream = stream;
 		}
 		
 		private void append(String string) throws VisitorException {
 			try {
-				stream.write(string.getBytes());
+				stream.write(string);
 			} catch (IOException e) {
 				throw new VisitorException(e);
 			}

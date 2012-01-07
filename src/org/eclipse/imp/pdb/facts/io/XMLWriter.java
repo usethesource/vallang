@@ -12,7 +12,6 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,12 +25,12 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
@@ -48,12 +47,12 @@ import org.w3c.dom.Node;
  * This IValueWriter serializes values to XML documents.  
  * It will not serialize all IValues, see <code>XMLReader</code> for limitations. 
  */
-public class XMLWriter implements IValueWriter {
+public class XMLWriter implements IValueTextWriter {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder fBuilder;
 //	private XMLHelper helper;
 	
-	public void write(IValue value, OutputStream stream) throws IOException {
+	public void write(IValue value, java.io.Writer stream) throws IOException {
 		try {
 			fBuilder = dbf.newDocumentBuilder();
 			Document doc = fBuilder.newDocument();
@@ -72,7 +71,7 @@ public class XMLWriter implements IValueWriter {
 		}
 	}
 	
-	public void write(IValue value, OutputStream stream, TypeStore typeStore) throws IOException {
+	public void write(IValue value, java.io.Writer stream, TypeStore typeStore) throws IOException {
 		write(value, stream);
 	}
 

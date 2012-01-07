@@ -11,7 +11,6 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -42,7 +41,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * This class implements the standard readable syntax for {@link IValue}'s.
  * See also {@link StandardTextReader}
  */
-public class StandardTextWriter implements IValueWriter {
+public class StandardTextWriter implements IValueTextWriter {
 	private final boolean indent;
 	private final int tabSize;
 
@@ -59,7 +58,7 @@ public class StandardTextWriter implements IValueWriter {
 		this.tabSize = tabSize;
 	}
 	
-	public void write(IValue value, OutputStream stream) throws IOException {
+	public void write(IValue value, java.io.Writer stream) throws IOException {
 		try {
 			value.accept(new Writer(stream, indent, tabSize));
 		} catch (VisitorException e) {
@@ -67,17 +66,17 @@ public class StandardTextWriter implements IValueWriter {
 		}
 	}
 	
-	public void write(IValue value, OutputStream stream, TypeStore typeStore) throws IOException {
+	public void write(IValue value, java.io.Writer stream, TypeStore typeStore) throws IOException {
 		write(value, stream);
 	}
 	
 	private static class Writer implements IValueVisitor<IValue> {
-		private final OutputStream stream;
+		private final java.io.Writer stream;
 		private final int tabSize;
 		private final boolean indent;
 		private int tab = 0;
 
-		public Writer(OutputStream stream, boolean indent, int tabSize) {
+		public Writer(java.io.Writer stream, boolean indent, int tabSize) {
 			this.stream = stream;
 			this.indent = indent;
 			this.tabSize = tabSize;
@@ -85,7 +84,7 @@ public class StandardTextWriter implements IValueWriter {
 		
 		private void append(String string) throws VisitorException {
 			try {
-				stream.write(string.getBytes());
+				stream.write(string);
 			} catch (IOException e) {
 				throw new VisitorException(e);
 			}

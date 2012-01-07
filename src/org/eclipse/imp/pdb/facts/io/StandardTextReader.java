@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -47,7 +47,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  * 
  * See also {@link StandardTextWriter}
  */
-public class StandardTextReader extends AbstractReader {
+public class StandardTextReader extends AbstractTextReader {
 
 	private static final char START_OF_LOC = '|';
 	private static final char START_OF_STRING = '\"';
@@ -72,16 +72,15 @@ public class StandardTextReader extends AbstractReader {
 	
 	
 	private TypeStore store;
-	private NoWhiteSpaceInputStream stream;
+	private NoWhiteSpaceReader stream;
 	private IValueFactory factory;
 	private TypeFactory types;
 	private int current;
 
 	@Override
-	public IValue read(IValueFactory factory, TypeStore store, Type type,
-			InputStream stream) throws FactTypeUseException, IOException {
+	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
 		this.store = store;
-		this.stream = new NoWhiteSpaceInputStream(stream);
+		this.stream = new NoWhiteSpaceReader(stream);
 		this.factory = factory;
 		this.types = TypeFactory.getInstance();
 
@@ -609,7 +608,7 @@ public class StandardTextReader extends AbstractReader {
 				current = stream.read();
 			}
 			else {
-				builder.append((char) current);
+				builder.appendCodePoint(current);
 				current = stream.read();
 			}
 		}
@@ -686,7 +685,7 @@ public class StandardTextReader extends AbstractReader {
 
 	private IValue readContainer(Type elemType, IWriter w, char end) throws FactTypeUseException, IOException {
 		current = stream.read();
-		for (int i = 0; current != end; i++) {
+		while(current != end) {
 			w.insert(readValue(elemType));
 	
 			if (current != ',' || current == end) {
@@ -702,7 +701,7 @@ public class StandardTextReader extends AbstractReader {
 	
 	private IValue readList(Type elemType, IListWriter w, char end) throws FactTypeUseException, IOException {
 		current = stream.read();
-		for (int i = 0; current != end; i++) {
+		while (current != end) {
 			w.append(readValue(elemType));
 	
 			if (current != ',' || current == end) {
@@ -731,23 +730,25 @@ public class StandardTextReader extends AbstractReader {
 		throw new FactParseError("Unexpected " + ((char) current), stream.getOffset());
 	}
 
-	private class NoWhiteSpaceInputStream extends InputStream {
-		private InputStream wrapped;
+	private class NoWhiteSpaceReader extends Reader {
+		private Reader wrapped;
 		int offset;
-		int line;
-		int column;
 		boolean inString = false;
 		int prev = -1;
 	
-		public NoWhiteSpaceInputStream(InputStream wrapped) {
+		public NoWhiteSpaceReader(Reader wrapped) {
 			this.wrapped = wrapped;
+		}
+		
+		@Override
+		public int read(char[] cbuf, int off, int len) throws IOException {
+			throw new UnsupportedOperationException();
 		}
 		
 		@Override
 		public int read() throws IOException {
 			int r = wrapped.read();
 			offset++;
-			column++;
 
 			if (!inString && r == '\"') {
 				inString = true;
@@ -761,13 +762,6 @@ public class StandardTextReader extends AbstractReader {
 			if (!inString) {
 				while (Character.isWhitespace(r)) {
 					offset++;
-					if (r == '\n') {
-						line++;
-						column = 0;
-					}
-					else {
-						column++;
-					}
 					r = wrapped.read();
 				}
 			}
@@ -778,6 +772,11 @@ public class StandardTextReader extends AbstractReader {
 		
 		int getOffset() {
 			return offset;
+		}
+		
+		@Override
+		public void close() throws IOException {
+			wrapped.close();
 		}
 	}
 }

@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,9 +31,9 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -62,18 +62,18 @@ import org.xml.sax.SAXException;
  * Use this class to import many forms of XML data into PDB.
  * 
  */
-public class XMLReader extends AbstractReader {
+public class XMLReader extends AbstractTextReader {
 	private DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 	private IValueFactory vf;
 	private TypeStore ts;
 
-	public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
+	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream)
 			throws FactTypeUseException, IOException {
 		this.vf = factory;
 		this.ts = store;
 		
 		try {
-			Document doc = domFactory.newDocumentBuilder().parse(stream);
+			Document doc = domFactory.newDocumentBuilder().parse(new InputSource(stream));
 			return parse(doc.getDocumentElement(), type);
 		} catch (SAXException se) {
 			throw new IOException("Parsing of value failed because XML was invalid: " + se.getMessage());
@@ -115,6 +115,9 @@ public class XMLReader extends AbstractReader {
 		}
 		else if (expected.isRealType()) {
 			return parseDouble(node);
+		}
+		else if (expected.isRationalType()) {
+			return parseRational(node);
 		}
 		else if (expected.isExternalType()) {
 			// external types default to string
@@ -176,7 +179,12 @@ public class XMLReader extends AbstractReader {
 
 	// TODO: implement this
 	private IValue parseRational(Node node) {
-		return null;
+		String contents = node.getNodeValue().trim();
+		String[] parts = contents.split("r");
+		if (parts.length == 2) {
+			return vf.rational(vf.integer(Integer.parseInt(parts[0])), vf.integer(Integer.parseInt(parts[0])));
+		}
+		throw new FactParseError(contents, 0);
 	}
 
 	private IValue parseDouble(Node node) {

@@ -10,8 +10,8 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
@@ -24,10 +24,11 @@ public abstract class Value implements IValue{
 	
 	public String toString(){
 		try{
-    		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    		StringWriter stream = new StringWriter();
     		new StandardTextWriter().write(this, stream);
 			return stream.toString();
-		}catch(IOException ioex){
+		}
+		catch(IOException ioex){
 			// this never happens
 		}
 		return null;

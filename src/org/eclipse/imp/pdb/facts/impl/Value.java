@@ -12,8 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
@@ -43,7 +43,7 @@ public abstract class Value implements IValue {
     @Override
     public final String toString() {
     	try {
-    		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    		StringWriter stream = new StringWriter();
     		new StandardTextWriter().write(this, stream);
 			return stream.toString();
 		} catch (IOException e) {

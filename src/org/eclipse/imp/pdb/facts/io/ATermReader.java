@@ -34,7 +34,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 // TODO: add support for values of type Value, for this we need overloading resolving
-public class ATermReader extends AbstractReader {
+public class ATermReader extends AbstractBinaryReader {
 	private IValueFactory vf;
 	private TypeFactory tf = TypeFactory.getInstance();
 	private TypeStore ts;
