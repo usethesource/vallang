@@ -40,8 +40,9 @@ import org.eclipse.imp.pdb.facts.util.IndexedSet;
  * @author Arnold Lankamp
  */
 public class BinaryWriter{
+	/*package*/ static final String CharEncoding = "UTF8";
 	private final static int BOOL_HEADER = 0x01;
-	private final static int INTEGER_HEADER = 0x02;
+//	private final static int INTEGER_HEADER = 0x02;
 	private final static int BIG_INTEGER_HEADER = 0x03; // Special case of INTEGER_HEADER (flags for alternate encoding).
 	private final static int DOUBLE_HEADER = 0x04;
 	private final static int STRING_HEADER = 0x05;
@@ -275,7 +276,7 @@ public class BinaryWriter{
 		
 		String theString = string.getValue();
 		
-		byte[] stringData = theString.getBytes();
+		byte[] stringData = theString.getBytes(CharEncoding);
 		printInteger(stringData.length);
 		out.write(stringData);
 	}
@@ -287,7 +288,7 @@ public class BinaryWriter{
 		if(id == -1){
 			out.write(SOURCE_LOCATION_HEADER);
 			
-			byte[] pathData = path.getBytes();
+			byte[] pathData = path.getBytes(CharEncoding);
 			printInteger(pathData.length);
 			out.write(pathData);
 		}else{
@@ -358,7 +359,7 @@ public class BinaryWriter{
 		if(nodeNameId == -1){
 			out.write(NODE_HEADER);
 			
-			byte[] nodeData = nodeName.getBytes();
+			byte[] nodeData = nodeName.getBytes(CharEncoding);
 			printInteger(nodeData.length);
 			out.write(nodeData);
 		}else{
@@ -382,7 +383,7 @@ public class BinaryWriter{
 		if(nodeNameId == -1){
 			out.write(ANNOTATED_NODE_HEADER);
 			
-			byte[] nodeData = nodeName.getBytes();
+			byte[] nodeData = nodeName.getBytes(CharEncoding);
 			printInteger(nodeData.length);
 			out.write(nodeData);
 		}else{
@@ -406,7 +407,7 @@ public class BinaryWriter{
 		while(annotationsIterator.hasNext()){
 			Map.Entry<String, IValue> annotation = annotationsIterator.next();
 			String label = annotation.getKey();
-			byte[] labelData = label.getBytes();
+			byte[] labelData = label.getBytes(CharEncoding);
 			printInteger(labelData.length);
 			out.write(labelData);
 			
@@ -470,7 +471,7 @@ public class BinaryWriter{
 		while(annotationsIterator.hasNext()){
 			Map.Entry<String, IValue> annotation = annotationsIterator.next();
 			String label = annotation.getKey();
-			byte[] labelData = label.getBytes();
+			byte[] labelData = label.getBytes(CharEncoding);
 			printInteger(labelData.length);
 			out.write(labelData);
 			
@@ -629,7 +630,7 @@ public class BinaryWriter{
 				Map.Entry<String, Type> declaredAnnotation = declaredAnnotationsIterator.next();
 				
 				String label = declaredAnnotation.getKey();
-				byte[] labelBytes = label.getBytes();
+				byte[] labelBytes = label.getBytes(CharEncoding);
 				printInteger(labelBytes.length);
 				out.write(labelBytes);
 				
@@ -650,7 +651,7 @@ public class BinaryWriter{
 				writeType(tupleType.getFieldType(i));
 				
 				String name = tupleType.getFieldName(i);
-				byte[] nameData = name.getBytes();
+				byte[] nameData = name.getBytes(CharEncoding);
 				printInteger(nameData.length);
 				out.write(nameData);
 			}
@@ -694,7 +695,7 @@ public class BinaryWriter{
 		out.write(PARAMETER_TYPE_HEADER);
 		
 		String name = parameterType.getName();
-		byte[] nameData = name.getBytes();
+		byte[] nameData = name.getBytes(CharEncoding);
 		printInteger(nameData.length);
 		out.write(nameData);
 		
@@ -705,7 +706,7 @@ public class BinaryWriter{
 		out.write(ADT_TYPE_HEADER);
 		
 		String name = adtType.getName();
-		byte[] nameData = name.getBytes();
+		byte[] nameData = name.getBytes(CharEncoding);
 		printInteger(nameData.length);
 		out.write(nameData);
 		
@@ -718,7 +719,7 @@ public class BinaryWriter{
 			out.write(CONSTRUCTOR_TYPE_HEADER);
 			
 			String name = constructorType.getName();
-			byte[] nameData = name.getBytes();
+			byte[] nameData = name.getBytes(CharEncoding);
 			printInteger(nameData.length);
 			out.write(nameData);
 			
@@ -729,7 +730,7 @@ public class BinaryWriter{
 			out.write(ANNOTATED_CONSTRUCTOR_TYPE_HEADER);
 			
 			String name = constructorType.getName();
-			byte[] nameData = name.getBytes();
+			byte[] nameData = name.getBytes(CharEncoding);
 			printInteger(nameData.length);
 			out.write(nameData);
 			
@@ -746,7 +747,7 @@ public class BinaryWriter{
 				Map.Entry<String, Type> declaredAnnotation = declaredAnnotationsIterator.next();
 				
 				String label = declaredAnnotation.getKey();
-				byte[] labelBytes = label.getBytes();
+				byte[] labelBytes = label.getBytes(CharEncoding);
 				printInteger(labelBytes.length);
 				out.write(labelBytes);
 				
@@ -759,7 +760,7 @@ public class BinaryWriter{
 		out.write(ALIAS_TYPE_HEADER);
 		
 		String name = aliasType.getName();
-		byte[] nameData = name.getBytes();
+		byte[] nameData = name.getBytes(CharEncoding);
 		printInteger(nameData.length);
 		out.write(nameData);
 		

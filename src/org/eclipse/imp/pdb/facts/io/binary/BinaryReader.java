@@ -364,7 +364,7 @@ public class BinaryReader{
 			data[i] = (byte) in.read();
 		}
 		
-		return valueFactory.string(new String(data));
+		return valueFactory.string(new String(data, BinaryWriter.CharEncoding));
 	}
 	
 	private ISourceLocation readSourceLocation(int header) throws IOException{
@@ -380,7 +380,7 @@ public class BinaryReader{
 				data[i] = (byte) in.read();
 			}
 			
-			path = new String(data);
+			path = new String(data, BinaryWriter.CharEncoding);
 			sharedPaths.set(path, currentSharedPathId++);
 		}
 		
@@ -459,7 +459,7 @@ public class BinaryReader{
 			for(int i = 0; i < nodeNameLength; i++){
 				data[i] = (byte) in.read();
 			}
-			nodeName = new String(data);
+			nodeName = new String(data, BinaryWriter.CharEncoding);
 			
 			sharedNames.set(nodeName, currentSharedNamesId++);
 		}
@@ -485,7 +485,7 @@ public class BinaryReader{
 			for(int i = 0; i < nodeNameLength; i++){
 				data[i] = (byte) in.read();
 			}
-			nodeName = new String(data);
+			nodeName = new String(data, BinaryWriter.CharEncoding);
 
 			sharedNames.set(nodeName, currentSharedNamesId++);
 		}
@@ -504,7 +504,7 @@ public class BinaryReader{
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
 			in.read(labelData);
-			String label = new String(labelData);
+			String label = new String(labelData, BinaryWriter.CharEncoding);
 			
 			IValue value = deserialize();
 			
@@ -545,7 +545,7 @@ public class BinaryReader{
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
 			in.read(labelData);
-			String label = new String(labelData);
+			String label = new String(labelData, BinaryWriter.CharEncoding);
 			
 			IValue value = deserialize();
 			
@@ -662,7 +662,7 @@ public class BinaryReader{
 			int nrOfLabelBytes = parseInteger();
 			byte[] labelBytes = new byte[nrOfLabelBytes];
 			in.read(labelBytes);
-			String label = new String(labelBytes);
+			String label = new String(labelBytes, BinaryWriter.CharEncoding);
 			
 			Type valueType = doReadType();
 			
@@ -686,7 +686,7 @@ public class BinaryReader{
 				int fieldNameLength = parseInteger();
 				byte[] fieldNameData = new byte[fieldNameLength];
 				in.read(fieldNameData);
-				fieldNames[i] = new String(fieldNameData);
+				fieldNames[i] = new String(fieldNameData, BinaryWriter.CharEncoding);
 			}
 			
 			return tf.tupleType(fields, fieldNames);
@@ -731,7 +731,7 @@ public class BinaryReader{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
 		in.read(nameData);
-		String name = new String(nameData);
+		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type bound = doReadType();
 		
@@ -742,7 +742,7 @@ public class BinaryReader{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
 		in.read(nameData);
-		String name = new String(nameData);
+		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type parameters = doReadType();
 		
@@ -753,7 +753,7 @@ public class BinaryReader{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
 		in.read(nameData);
-		String name = new String(nameData);
+		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type fieldTypes = doReadType();
 		
@@ -766,7 +766,7 @@ public class BinaryReader{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
 		in.read(nameData);
-		String name = new String(nameData);
+		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type fieldTypes = doReadType();
 		
@@ -779,7 +779,7 @@ public class BinaryReader{
 			int nrOfLabelBytes = parseInteger();
 			byte[] labelBytes = new byte[nrOfLabelBytes];
 			in.read(labelBytes);
-			String label = new String(labelBytes);
+			String label = new String(labelBytes, BinaryWriter.CharEncoding);
 			
 			Type valueType = doReadType();
 			
@@ -793,7 +793,7 @@ public class BinaryReader{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
 		in.read(nameData);
-		String name = new String(nameData);
+		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type aliasedType = doReadType();
 		
