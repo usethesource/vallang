@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 import java.net.URI;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -121,14 +122,16 @@ public interface IValueFactory {
     /**
      * Build a string from an array of unicode characters.
      * @param chars array of unicode characters
+     * @throws IllegalArgumentException if one of the characters in chars is not a valid codePoint
      */
-    public IString string(int[] chars);
+    public IString string(int[] chars) throws IllegalArgumentException;
     
     /**
      * Build a string from a unicode character.
      * @param ch unicode character
+     * @throws IllegalArgumentException when ch is not a valid codePoint
      */
-    public IString string(int ch);
+    public IString string(int ch) throws IllegalArgumentException;
     
     /**
      * Create an exact reference to a source location.
