@@ -61,8 +61,12 @@ public class StandardTextWriter implements IValueTextWriter {
 	public void write(IValue value, java.io.Writer stream) throws IOException {
 		try {
 			value.accept(new Writer(stream, indent, tabSize));
-		} catch (VisitorException e) {
+		} 
+		catch (VisitorException e) {
 			throw (IOException) e.getCause();
+		} 
+		finally {
+			stream.flush();
 		}
 	}
 	

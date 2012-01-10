@@ -48,6 +48,7 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 	public void write(IValue value, OutputStream outputStream) throws IOException{
 		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, new TypeStore());
 		binaryWriter.serialize();
+		outputStream.flush();
 	}
 	
 	/**
@@ -66,6 +67,7 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 	public void write(IValue value, OutputStream outputStream, TypeStore typeStore) throws IOException{
 		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, typeStore);
 		binaryWriter.serialize();
+		outputStream.flush();
 	}
 	
 	/**
@@ -87,6 +89,7 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 			
 			BinaryWriter binaryWriter = new BinaryWriter(value, fos, typeStore);
 			binaryWriter.serialize();
+			fos.flush();
 		}finally{
 			if(fos != null){
 				fos.close();
