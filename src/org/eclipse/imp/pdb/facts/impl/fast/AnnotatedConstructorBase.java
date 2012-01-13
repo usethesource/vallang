@@ -39,26 +39,4 @@ public abstract class AnnotatedConstructorBase extends Constructor {
 		
 		return false;
 	}
-
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append(getName());
-		sb.append("(");
-		
-		int size = children.length;
-		if(size > 0){
-			int i = 0;
-			sb.append(children[i]);
-			
-			for(i = 1; i < size; i++){
-				sb.append(",");
-				sb.append(children[i]);
-			}
-		}
-		
-		sb.append(")");
-		
-		return sb.toString();
-	}
 }
