@@ -19,7 +19,6 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
-import org.eclipse.imp.pdb.facts.exceptions.FactMatchException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
@@ -369,10 +368,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 *         or when a pattern simply can not be matched because of 
 	 *         incompatibility.         
 	 */
-	public void match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
-		if (!matched.isSubtypeOf(this)) {
-			throw new FactMatchException(this, matched);
-		}
+	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+		return matched.isSubtypeOf(this);
 	}
 	
 	public abstract <T> T accept(ITypeVisitor<T> visitor);

@@ -230,11 +230,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     }
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
-		super.match(matched, bindings);
-		getKeyType().match(matched.getKeyType(), bindings);
-		getValueType().match(matched.getValueType(), bindings);
+		return super.match(matched, bindings)
+				&& getKeyType().match(matched.getKeyType(), bindings)
+				&&getValueType().match(matched.getValueType(), bindings);
 	}
 	
 	@Override

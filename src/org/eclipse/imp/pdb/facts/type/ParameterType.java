@@ -13,7 +13,6 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.exceptions.FactMatchException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 
@@ -180,15 +179,17 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
-		super.match(matched, bindings);
+		if (!super.match(matched, bindings)) {
+			return false;
+		}
 		
 		Type earlier = bindings.get(this);
 		if (earlier != null) {
 			Type lub = earlier.lub(matched);
 			if (!lub.isSubtypeOf(getBound())) {
-				throw new FactMatchException(this, matched);
+				return false;
 			}
 			
 			bindings.put(this, lub);
@@ -196,6 +197,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		else {
 			bindings.put(this, matched);
 		}
+		
+		return true;
 	}
 	
 	@Override

@@ -16,7 +16,6 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactMatchException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
@@ -246,10 +245,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	}
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
-		super.match(matched, bindings);
-		fParameters.match(matched.getTypeParameters(), bindings);
+		return super.match(matched, bindings) 
+				&& fParameters.match(matched.getTypeParameters(), bindings);
 	}
 	
 	@Override

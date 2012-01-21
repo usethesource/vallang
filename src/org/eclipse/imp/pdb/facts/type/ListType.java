@@ -101,10 +101,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public void match(Type matched, Map<Type, Type> bindings)
+	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
-		super.match(matched, bindings);
-		getElementType().match(matched.getElementType(), bindings);
+		return super.match(matched, bindings)
+				&& getElementType().match(matched.getElementType(), bindings);
 	}
 	
 	@Override
