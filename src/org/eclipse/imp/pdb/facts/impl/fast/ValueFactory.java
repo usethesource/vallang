@@ -180,8 +180,35 @@ public class ValueFactory implements IValueFactory{
 		return new StringValue(value);
 	}
 	
-	public ISourceLocation sourceLocation(URI url, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
-		return new SourceLocationValue(url, offset, length, beginLine, endLine, beginCol, endCol);
+	public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+		if (offset < Character.MAX_VALUE 
+				&& length < Character.MAX_VALUE 
+				&& beginLine < Byte.MAX_VALUE 
+				&& endLine < Byte.MAX_VALUE 
+				&& beginCol < Byte.MAX_VALUE 
+				&& endCol < Byte.MAX_VALUE) {
+			return new SourceLocationValues.Smallest(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
+		}
+		else if (offset < Character.MAX_VALUE 
+				&& length < Character.MAX_VALUE 
+				&& beginLine < Character.MAX_VALUE 
+				&& endLine < Character.MAX_VALUE 
+				&& beginCol < Character.MAX_VALUE 
+				&& endCol < Character.MAX_VALUE) {
+			return new SourceLocationValues.MediumSized(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
+		}
+		else if (beginLine < Character.MAX_VALUE 
+				&& endLine < Character.MAX_VALUE 
+				&& beginCol < Byte.MAX_VALUE 
+				&& endCol < Byte.MAX_VALUE) {
+			return new SourceLocationValues.ShortColumnsMediumLines(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
+		} 
+		else if (beginCol < Byte.MAX_VALUE 
+				&& endCol < Byte.MAX_VALUE) {
+			return new SourceLocationValues.ShortColumns(uri,  offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
+		}
+		
+		return new SourceLocationValues.Largest(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 	
 	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
@@ -193,7 +220,7 @@ public class ValueFactory implements IValueFactory{
     }
 	
 	public ISourceLocation sourceLocation(URI uri){
-		return sourceLocation(uri, -1, -1, -1, -1, -1, -1);
+		return new SourceLocationValues.NoPositions(uri); 
 	}
 	
 	public ISourceLocation sourceLocation(String path){
