@@ -224,7 +224,11 @@ public class ValueFactory implements IValueFactory{
 	}
 	
 	public ISourceLocation sourceLocation(String path){
-		return sourceLocation(path, -1, -1, -1, -1, -1, -1);
+		try {
+			return sourceLocation(new URI("file://" + path));
+		} catch (URISyntaxException e) {
+			throw new FactParseError("Illegal path syntax: " + path, e);
+		}
 	}
 	
 	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond){
