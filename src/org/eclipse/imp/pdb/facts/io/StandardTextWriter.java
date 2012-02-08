@@ -333,23 +333,26 @@ public class StandardTextWriter implements IValueTextWriter {
 			append(o.getURI().toString());
 			append('|');
 			
-			if (o.getOffset() != -1) {
+			if (o.hasOffsetLength()) {
 				append('(');
 				append(Integer.toString(o.getOffset()));
 				append(',');
 				append(Integer.toString(o.getLength()));
-				append(',');
-				append('<');
-				append(Integer.toString(o.getBeginLine()));
-				append(',');
-				append(Integer.toString(o.getBeginColumn()));
-				append('>');
-				append(',');
-				append('<');
-				append(Integer.toString(o.getEndLine()));
-				append(',');
-				append(Integer.toString(o.getEndColumn()));
-				append('>');
+				
+				if (o.hasLineColumn()) {
+					append(',');
+					append('<');
+					append(Integer.toString(o.getBeginLine()));
+					append(',');
+					append(Integer.toString(o.getBeginColumn()));
+					append('>');
+					append(',');
+					append('<');
+					append(Integer.toString(o.getEndLine()));
+					append(',');
+					append(Integer.toString(o.getEndColumn()));
+					append('>');
+				}
 				append(')');
 			}
 			return o;

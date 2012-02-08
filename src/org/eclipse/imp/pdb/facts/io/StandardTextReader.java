@@ -150,30 +150,43 @@ public class StandardTextReader extends AbstractTextReader {
 				ArrayList<IValue> args = new ArrayList<IValue>(4);
 				readFixed(types.valueType(), ')', args);
 
-				if (!args.get(0).getType().isSubtypeOf(types.integerType())) {
-					throw new UnexpectedTypeException(types.integerType(), args.get(0).getType());
-				}
-				if (!args.get(1).getType().isSubtypeOf(types.integerType())) {
-					throw new UnexpectedTypeException(types.integerType(), args.get(1).getType());
-				}
-				Type posType = types.tupleType(types.integerType(), types.integerType());
+				if (args.size() >= 2) {
+					if (!args.get(0).getType().isSubtypeOf(types.integerType())) {
+						throw new UnexpectedTypeException(types.integerType(), args.get(0).getType());
+					}
+					if (!args.get(1).getType().isSubtypeOf(types.integerType())) {
+						throw new UnexpectedTypeException(types.integerType(), args.get(1).getType());
+					}
+					
+					Type posType = types.tupleType(types.integerType(), types.integerType());
 
-				if (!args.get(2).getType().isSubtypeOf(posType)) {
-					throw new UnexpectedTypeException(posType, args.get(2).getType());
+					if (args.size() == 4) {
+						if (!args.get(2).getType().isSubtypeOf(posType)) {
+							throw new UnexpectedTypeException(posType, args.get(2).getType());
+						}
+						if (!args.get(3).getType().isSubtypeOf(posType)) {
+							throw new UnexpectedTypeException(posType, args.get(3).getType());
+						}
+					}
+
+					int offset = Integer.parseInt(args.get(0).toString());
+					int length = Integer.parseInt(args.get(1).toString());
+					
+					if (args.size() == 4) {
+						int beginLine = Integer.parseInt(((ITuple) args.get(2)).get(0).toString());
+						int beginColumn = Integer.parseInt(((ITuple) args.get(2)).get(1).toString());
+						int endLine = Integer.parseInt(((ITuple) args.get(3)).get(0).toString());
+						int endColumn = Integer.parseInt(((ITuple) args.get(3)).get(1).toString());
+						
+						return factory.sourceLocation(new URI(url), offset, length, beginLine, endLine, beginColumn, endColumn);
+					}
+					
+					if (args.size() != 2) {
+						throw new FactParseError("source locations should have either 2 or 4 arguments", offset);
+					}
+					
+					return factory.sourceLocation(new URI(url), offset, length);
 				}
-				if (!args.get(3).getType().isSubtypeOf(posType)) {
-					throw new UnexpectedTypeException(posType, args.get(3).getType());
-				}
-
-				int offset = Integer.parseInt(args.get(0).toString());
-				int length = Integer.parseInt(args.get(1).toString());
-				int beginLine = Integer.parseInt(((ITuple) args.get(2)).get(0).toString());
-				int beginColumn = Integer.parseInt(((ITuple) args.get(2)).get(1).toString());
-				int endLine = Integer.parseInt(((ITuple) args.get(3)).get(0).toString());
-				int endColumn = Integer.parseInt(((ITuple) args.get(3)).get(1).toString());
-
-
-				return factory.sourceLocation(new URI(url), offset, length, beginLine, endLine, beginColumn, endColumn);
 			}
 
 			return factory.sourceLocation(new URI(url));
