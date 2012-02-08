@@ -285,24 +285,52 @@ public class BinaryWriter{
 		URI uri = sourceLocation.getURI();
 		String path = uri.toString();
 		int id = sharedPaths.store(path);
+		
+		int header = SOURCE_LOCATION_HEADER;
+		
 		if(id == -1){
-			out.write(SOURCE_LOCATION_HEADER);
+			out.write(header);
 			
 			byte[] pathData = path.getBytes(CharEncoding);
 			printInteger(pathData.length);
 			out.write(pathData);
-		}else{
-			out.write(SOURCE_LOCATION_HEADER | URL_SHARED_FLAG);
+		} else{
+			out.write(header | URL_SHARED_FLAG);
 			
 			printInteger(id);
 		}
 		
-		printInteger(sourceLocation.getOffset());
-		printInteger(sourceLocation.getLength());
-		printInteger(sourceLocation.getBeginLine());
-		printInteger(sourceLocation.getEndLine());
-		printInteger(sourceLocation.getBeginColumn());
-		printInteger(sourceLocation.getEndColumn());
+		int beginLine, beginColumn, endLine, endColumn;
+		
+		if (!sourceLocation.hasLineColumn()) {
+			beginLine = -1;
+			endLine = -1;
+			beginColumn = -1;
+			endColumn = -1;
+		}
+		else {
+			beginLine = sourceLocation.getBeginLine();
+			endLine = sourceLocation.getEndLine();
+			beginColumn = sourceLocation.getBeginColumn();
+			endColumn = sourceLocation.getEndColumn();
+		}
+		
+		int offset, length;
+		if (!sourceLocation.hasOffsetLength()) {
+			offset = -1;
+			length = -1;
+		}
+		else {
+			offset = sourceLocation.getOffset();
+			length = sourceLocation.getLength();
+		}
+		
+		printInteger(offset);
+		printInteger(length);
+		printInteger(beginLine);
+		printInteger(endLine);
+		printInteger(beginColumn);
+		printInteger(endColumn);
 	}
 	
 	private void writeDateTime(IDateTime dateTime) throws IOException{

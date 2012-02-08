@@ -80,6 +80,7 @@ public class BinaryReader{
 	private final static int DOUBLE_TYPE_HEADER = 0x05;
 	private final static int STRING_TYPE_HEADER = 0x06;
 	private final static int SOURCE_LOCATION_TYPE_HEADER = 0x07;
+	
 	private final static int DATE_TIME_TYPE_HEADER = 0x14;
 	private final static int NODE_TYPE_HEADER = 0x08;
 	private final static int TUPLE_TYPE_HEADER = 0x09;
@@ -397,6 +398,14 @@ public class BinaryReader{
 		int endLine = parseInteger();
 		int beginCol = parseInteger();
 		int endCol = parseInteger();
+			
+		if (offset < 0) {
+			return valueFactory.sourceLocation(uri);
+		}
+		
+		if (beginLine < 0) {
+			return valueFactory.sourceLocation(uri, offset, length);
+		}
 		
 		return valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}
