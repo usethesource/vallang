@@ -93,6 +93,7 @@ public class Set extends Value implements ISet{
 		return true;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ISet insert(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		newData.add(value);
@@ -101,6 +102,7 @@ public class Set extends Value implements ISet{
 		return createSetWriter(type, newData).done();
 	}
 
+	@SuppressWarnings("unchecked")
 	public ISet delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		newData.remove(value);
@@ -108,6 +110,7 @@ public class Set extends Value implements ISet{
 		return createSetWriter(elementType, newData).done();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ISet intersect(ISet other){
 		ShareableValuesHashSet commonData = new ShareableValuesHashSet();
 		Iterator<IValue> setIterator;
@@ -133,6 +136,7 @@ public class Set extends Value implements ISet{
 		return createSetWriter(type, commonData).done();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
@@ -144,6 +148,7 @@ public class Set extends Value implements ISet{
 		return createSetWriter(elementType, newData).done();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ISet union(ISet other){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		Iterator<IValue> setIterator;

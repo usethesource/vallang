@@ -276,6 +276,10 @@ public final class SharedValueFactory implements IValueFactory{
 		return (ISourceLocation) buildValue(new SharedSourceLocationValue(uri, startOffset, length, beginLine, endLine, beginCol, endCol));
 	}
 	
+	public ISourceLocation sourceLocation(URI uri, int startOffset, int length){
+		return (ISourceLocation) buildValue(new SharedPartialSourceLocationValue(uri, startOffset, length));
+	}
+	
 	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
     	try{
 			return sourceLocation(new URI("file://" + path), offset, length, beginLine, endLine, beginCol, endCol);

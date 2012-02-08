@@ -153,6 +153,19 @@ public interface IValueFactory {
     /**
      * Create an exact reference to a source location.
      * 
+     * @param uri         exact uri where the source is located.
+     * @param offset      the character offset starting from the beginning of the file located 
+     *                    at the given url. Offsets start at 0 (zero).
+     * @param length      the character length of the location (the amount characters).
+     * 
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    public ISourceLocation sourceLocation(URI uri, int offset, int length);
+   
+    
+    /**
+     * Create an exact reference to a source location.
+     * 
      * @param path        exact (absolute) path where the source is located.
      * @param offset      the character offset starting from the beginning of the file located 
      *                    at the given url. Offsets start at 0 (zero).

@@ -9,12 +9,13 @@
 *    Arnold Lankamp - implementation
 *    Jurgen Vinju - implementation
 *******************************************************************************/
-package org.eclipse.imp.pdb.facts.impl.fast;
+package org.eclipse.imp.pdb.facts.impl;
 
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.Value;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -27,8 +28,77 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * applications and showed more than 50% improvement in memory usage.
  */
 public class SourceLocationValues {
-	public static class Largest extends Value implements ISourceLocation{
+	private abstract static class Complete extends Incomplete implements ISourceLocation {
+		public Complete(URI uri) {
+			super(uri);
+		}
+
+		public boolean hasOffsetLength() {
+			return true;
+		}
+		
+		public boolean hasLineColumn() {
+			return true;
+		}
+	}
+	
+	private abstract static class Incomplete extends Value implements ISourceLocation {
 		protected final URI uri;
+
+		public Incomplete(URI uri) {
+			this.uri = uri;
+		}
+		
+		public URI getURI() {
+			return uri;
+		}
+		
+		public Type getType(){
+			return TypeFactory.getInstance().sourceLocationType();
+		}
+		
+		public boolean hasLineColumn() {
+			return false;
+		}
+		
+		public boolean hasOffsetLength() {
+			return false;
+		}
+		
+		public int getBeginColumn() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+		
+		public int getBeginLine() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+		
+		public int getEndColumn() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+		
+		public int getEndLine() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+		
+		public int getLength() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+		
+		public int getOffset() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+		
+		public <T> T accept(IValueVisitor<T> v) throws VisitorException{
+	    	return v.visitSourceLocation(this);
+		}
+		
+		public boolean isEqual(IValue value){
+			return equals(value);
+		}
+	}
+	
+	public static class IntIntIntIntIntInt extends Complete {
 		protected final int offset;
 		protected final int length;
 		protected final int beginLine;
@@ -36,10 +106,9 @@ public class SourceLocationValues {
 		protected final int beginCol;
 		protected final int endCol;
 		
-		protected Largest(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
-			super();
+		protected IntIntIntIntIntInt(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+			super(uri);
 			
-			this.uri = uri;
 			this.offset = offset;
 			this.length = length;
 			this.beginLine = beginLine;
@@ -50,10 +119,6 @@ public class SourceLocationValues {
 
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
-		}
-		
-		public URI getURI(){
-			return uri;
 		}
 		
 		public int getBeginLine(){
@@ -80,10 +145,6 @@ public class SourceLocationValues {
 			return length;
 		}
 		
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-	    	return v.visitSourceLocation(this);
-		}
-		
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -100,7 +161,7 @@ public class SourceLocationValues {
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
-				Largest otherSourceLocation = (Largest) o;
+				IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
 				return (uri.equals(otherSourceLocation.uri)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
@@ -112,14 +173,9 @@ public class SourceLocationValues {
 			
 			return false;
 		}
-		
-		public boolean isEqual(IValue value){
-			return equals(value);
-		}
 	}
 	
-	public static class Smallest extends Value implements ISourceLocation{
-		protected final URI uri;
+	public static class CharCharByteByteByteByte extends Complete {
 		protected final char offset;
 		protected final char length;
 		protected final byte beginLine;
@@ -127,10 +183,9 @@ public class SourceLocationValues {
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		protected Smallest(URI uri, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
-			super();
+		protected CharCharByteByteByteByte(URI uri, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
+			super(uri);
 			
-			this.uri = uri;
 			this.offset = offset;
 			this.length = length;
 			this.beginLine = beginLine;
@@ -141,10 +196,6 @@ public class SourceLocationValues {
 
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
-		}
-		
-		public URI getURI(){
-			return uri;
 		}
 		
 		public int getBeginLine(){
@@ -171,10 +222,6 @@ public class SourceLocationValues {
 			return length;
 		}
 		
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-	    	return v.visitSourceLocation(this);
-		}
-		
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -191,7 +238,7 @@ public class SourceLocationValues {
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
-				Smallest otherSourceLocation = (Smallest) o;
+				CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
 				return (uri.equals(otherSourceLocation.uri)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
@@ -203,14 +250,9 @@ public class SourceLocationValues {
 			
 			return false;
 		}
-		
-		public boolean isEqual(IValue value){
-			return equals(value);
-		}
 	}
 	
-	public static class MediumSized extends Value implements ISourceLocation{
-		protected final URI uri;
+	public static class CharCharCharCharCharChar extends Complete {
 		protected final char offset;
 		protected final char length;
 		protected final char beginLine;
@@ -218,10 +260,9 @@ public class SourceLocationValues {
 		protected final char beginCol;
 		protected final char endCol;
 		
-		protected MediumSized(URI uri, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
-			super();
+		protected CharCharCharCharCharChar(URI uri, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
+			super(uri);
 			
-			this.uri = uri;
 			this.offset = offset;
 			this.length = length;
 			this.beginLine = beginLine;
@@ -232,10 +273,6 @@ public class SourceLocationValues {
 
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
-		}
-		
-		public URI getURI(){
-			return uri;
 		}
 		
 		public int getBeginLine(){
@@ -262,10 +299,6 @@ public class SourceLocationValues {
 			return length;
 		}
 		
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-	    	return v.visitSourceLocation(this);
-		}
-		
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -282,7 +315,7 @@ public class SourceLocationValues {
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
-				MediumSized otherSourceLocation = (MediumSized) o;
+				CharCharCharCharCharChar otherSourceLocation = (CharCharCharCharCharChar) o;
 				return (uri.equals(otherSourceLocation.uri)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
@@ -294,57 +327,14 @@ public class SourceLocationValues {
 			
 			return false;
 		}
-		
-		public boolean isEqual(IValue value){
-			return equals(value);
-		}
 	}
 
-	public static class NoPositions extends Value implements ISourceLocation{
-		protected final URI uri;
+	public static class OnlyURI extends Incomplete implements ISourceLocation{
 		
-		protected NoPositions(URI uri){
-			super();
-			
-			this.uri = uri;
+		protected OnlyURI(URI uri){
+			super(uri);
 		}
 
-		public Type getType(){
-			return TypeFactory.getInstance().sourceLocationType();
-		}
-		
-		public URI getURI(){
-			return uri;
-		}
-		
-		public int getBeginLine(){
-			return -1;
-		}
-		
-		public int getEndLine(){
-			return -1;
-		}
-		
-		public int getBeginColumn(){
-			return -1;
-		}
-		
-		public int getEndColumn(){
-			return -1;
-		}
-		
-		public int getOffset(){
-			return -1;
-		}
-		
-		public int getLength(){
-			return -1;
-		}
-		
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-	    	return v.visitSourceLocation(this);
-		}
-		
 		public int hashCode(){
 			return uri.hashCode();
 		}
@@ -353,20 +343,15 @@ public class SourceLocationValues {
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
-				NoPositions otherSourceLocation = (NoPositions) o;
+				OnlyURI otherSourceLocation = (OnlyURI) o;
 				return uri.equals(otherSourceLocation.uri);
 			}
 			
 			return false;
 		}
-		
-		public boolean isEqual(IValue value){
-			return equals(value);
-		}
 	}
 
-	public static class ShortColumns extends Value implements ISourceLocation{
-		protected final URI uri;
+	public static class IntIntIntIntByteByte extends Complete {
 		protected final int offset;
 		protected final int length;
 		protected final int beginLine;
@@ -374,10 +359,9 @@ public class SourceLocationValues {
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		protected ShortColumns(URI uri, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
-			super();
+		protected IntIntIntIntByteByte(URI uri, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
+			super(uri);
 			
-			this.uri = uri;
 			this.offset = offset;
 			this.length = length;
 			this.beginLine = beginLine;
@@ -386,14 +370,6 @@ public class SourceLocationValues {
 			this.endCol = endCol;
 		}
 
-		public Type getType(){
-			return TypeFactory.getInstance().sourceLocationType();
-		}
-		
-		public URI getURI(){
-			return uri;
-		}
-		
 		public int getBeginLine(){
 			return beginLine;
 		}
@@ -418,10 +394,6 @@ public class SourceLocationValues {
 			return length;
 		}
 		
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-	    	return v.visitSourceLocation(this);
-		}
-		
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -438,7 +410,7 @@ public class SourceLocationValues {
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
-				ShortColumns otherSourceLocation = (ShortColumns) o;
+				IntIntIntIntByteByte otherSourceLocation = (IntIntIntIntByteByte) o;
 				return (uri.equals(otherSourceLocation.uri)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
@@ -450,14 +422,9 @@ public class SourceLocationValues {
 			
 			return false;
 		}
-		
-		public boolean isEqual(IValue value){
-			return equals(value);
-		}
 	}
 
-	public static class ShortColumnsMediumLines extends Value implements ISourceLocation{
-		protected final URI uri;
+	public static class IntIntCharCharByteByte extends Complete {
 		protected final int offset;
 		protected final int length;
 		protected final char beginLine;
@@ -465,10 +432,9 @@ public class SourceLocationValues {
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		protected ShortColumnsMediumLines(URI uri, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
-			super();
+		protected IntIntCharCharByteByte(URI uri, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
+			super(uri);
 			
-			this.uri = uri;
 			this.offset = offset;
 			this.length = length;
 			this.beginLine = beginLine;
@@ -477,14 +443,6 @@ public class SourceLocationValues {
 			this.endCol = endCol;
 		}
 
-		public Type getType(){
-			return TypeFactory.getInstance().sourceLocationType();
-		}
-		
-		public URI getURI(){
-			return uri;
-		}
-		
 		public int getBeginLine(){
 			return beginLine;
 		}
@@ -509,10 +467,6 @@ public class SourceLocationValues {
 			return length;
 		}
 		
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-	    	return v.visitSourceLocation(this);
-		}
-		
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -529,7 +483,7 @@ public class SourceLocationValues {
 			if(o == null) return false;
 			
 			if(o.getClass() == getClass()){
-				ShortColumnsMediumLines otherSourceLocation = (ShortColumnsMediumLines) o;
+				IntIntCharCharByteByte otherSourceLocation = (IntIntCharCharByteByte) o;
 				return (uri.equals(otherSourceLocation.uri)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
@@ -541,11 +495,144 @@ public class SourceLocationValues {
 			
 			return false;
 		}
+	}
+
+	public static class ByteByte extends Incomplete {
+		protected final byte offset;
+		protected final byte length;
 		
-		public boolean isEqual(IValue value){
-			return equals(value);
+		protected ByteByte(URI uri, byte offset, byte length){
+			super(uri);
+			
+			this.offset = offset;
+			this.length = length;
+		}
+		
+		public boolean hasOffsetLength() {
+			return true;
+		}
+		
+		public int getOffset(){
+			return offset;
+		}
+		
+		public int getLength(){
+			return length;
+		}
+		
+		public int hashCode(){
+			int hash = uri.hashCode();
+			hash ^= (offset << 8);
+			hash ^= (length << 29);
+			
+			return hash;
+		}
+		
+		public boolean equals(Object o){
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				ByteByte otherSourceLocation = (ByteByte) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
 		}
 	}
 
+	public static class CharChar extends Incomplete {
+		protected final char offset;
+		protected final char length;
+		
+		protected CharChar(URI uri, char offset, char length){
+			super(uri);
+			
+			this.offset = offset;
+			this.length = length;
+		}
+		
+		public boolean hasOffsetLength() {
+			return true;
+		}
+		
+		public int getOffset(){
+			return offset;
+		}
+		
+		public int getLength(){
+			return length;
+		}
+		
+		public int hashCode(){
+			int hash = uri.hashCode();
+			hash ^= (offset << 8);
+			hash ^= (length << 29);
+			
+			return hash;
+		}
+		
+		public boolean equals(Object o){
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				CharChar otherSourceLocation = (CharChar) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}
+	}
+	
+	public static class IntInt extends Incomplete implements ISourceLocation{
+		protected final int offset;
+		protected final int length;
+		
+		protected IntInt(URI uri, int offset, int length){
+			super(uri);
+			
+			this.offset = offset;
+			this.length = length;
+		}
+		
+		public boolean hasOffsetLength() {
+			return true;
+		}
+		
+		public boolean hasLineColumn() {
+			return false;
+		}
 
+		public int getOffset(){
+			return offset;
+		}
+		
+		public int getLength(){
+			return length;
+		}
+		
+		public int hashCode(){
+			int hash = uri.hashCode();
+			hash ^= (offset << 8);
+			hash ^= (length << 29);
+			
+			return hash;
+		}
+		
+		public boolean equals(Object o){
+			if(o == null) return false;
+			
+			if(o.getClass() == getClass()){
+				IntInt otherSourceLocation = (IntInt) o;
+				return (uri.equals(otherSourceLocation.uri)
+						&& (offset == otherSourceLocation.offset)
+						&& (length == otherSourceLocation.length));
+			}
+			
+			return false;
+		}
+	}
 }

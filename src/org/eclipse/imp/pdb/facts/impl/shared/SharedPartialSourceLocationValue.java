@@ -6,7 +6,7 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Arnold Lankamp - interfaces and implementation
+*    Jurgen Vinju - implementation
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.shared;
 
@@ -17,13 +17,11 @@ import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 
 /**
  * Implementation of shareable source locations.
- * 
- * @author Arnold Lankamp
  */
-public class SharedSourceLocationValue extends SourceLocationValues.IntIntIntIntIntInt implements IShareable{
+public class SharedPartialSourceLocationValue extends SourceLocationValues.IntInt implements IShareable{
 	
-	protected SharedSourceLocationValue(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
-		super(uri, offset, length, beginLine, endLine, beginCol, endCol);
+	protected SharedPartialSourceLocationValue(URI uri, int offset, int length){
+		super(uri, offset, length);
 	}
 	
 	public boolean equivalent(IShareable shareable){

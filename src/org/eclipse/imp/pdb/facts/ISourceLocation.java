@@ -14,6 +14,8 @@ package org.eclipse.imp.pdb.facts;
 
 import java.net.URI;
 
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+
 /**
  * Source locations point to (parts of) files that contain source code.
  * Technically, the contents of the file does not have to be source code per se.
@@ -32,35 +34,46 @@ public interface ISourceLocation extends IValue {
     URI getURI();
 
     /**
+     * @return true iff the source location has offset/length information stored with it.
+     */
+    public boolean hasOffsetLength();
+    
+    /**
+     * @return true iff the source location has start/end line/column info. true implies that hasOffsetLength() will also 
+     * return true.
+     */
+    public boolean hasLineColumn();
+    
+    /**
      * @return the character offset starting from the beginning of the file located 
      * at the given url. Offsets start at 0 (zero).
      */
-    int getOffset();
+    int getOffset() throws UnsupportedOperationException;
     
     /**
      * @return the character length of the location (the amount characters).
      */
-    int getLength();
+    int getLength() throws UnsupportedOperationException;;
 
     /**
      * @return the (inclusive) line number where the location begins. The first
      * line is always line number 1.
      */
-    int getBeginLine();
+    int getBeginLine() throws UnsupportedOperationException;;
     
     /**
      * @return the (exclusive) line where the location ends
      */
-    int getEndLine();
+    int getEndLine() throws UnsupportedOperationException;;
 
     /**
      * @return the (inclusive) column number where the location begins. The
      * first column is always column number 0 (zero).
      */
-    int getBeginColumn();
+    int getBeginColumn() throws UnsupportedOperationException;;
     
     /**
      * @return the (exclusive) column number where the location ends.
      */
-    int getEndColumn();
+    int getEndColumn() throws UnsupportedOperationException;;
 }

@@ -6,7 +6,8 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Arnold Lankamp - interfaces and implementation
+*    Jurgen Vinju - interface and implementation
+*    Arnold Lankamp - implementation
 *    Anya Helene Bagge - rational support
 *    Davy Landman - added PI & E constants
 *******************************************************************************/
@@ -14,8 +15,6 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -33,24 +32,20 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
+import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 
 /**
  * Implementation of IValueFactory.
- * 
- * @author Arnold Lankamp
  */
-public class ValueFactory implements IValueFactory{
+public class ValueFactory extends BaseValueFactory {
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	
 	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();
@@ -156,10 +151,17 @@ public class ValueFactory implements IValueFactory{
 		}
 	}
 
+	@Override
 	public IReal real(double value){
 		return new BigDecimalValue(BigDecimal.valueOf(value));
 	}
 	
+	@Override
+	public IReal real(float value) {
+		return new BigDecimalValue(BigDecimal.valueOf(value));
+	}
+	
+	@Override
 	public IReal real(String doubleValue){
 		return new BigDecimalValue(new BigDecimal(doubleValue));
 	}
@@ -180,56 +182,7 @@ public class ValueFactory implements IValueFactory{
 		return new StringValue(value);
 	}
 	
-	public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
-		if (offset < Character.MAX_VALUE 
-				&& length < Character.MAX_VALUE 
-				&& beginLine < Byte.MAX_VALUE 
-				&& endLine < Byte.MAX_VALUE 
-				&& beginCol < Byte.MAX_VALUE 
-				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.Smallest(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
-		}
-		else if (offset < Character.MAX_VALUE 
-				&& length < Character.MAX_VALUE 
-				&& beginLine < Character.MAX_VALUE 
-				&& endLine < Character.MAX_VALUE 
-				&& beginCol < Character.MAX_VALUE 
-				&& endCol < Character.MAX_VALUE) {
-			return new SourceLocationValues.MediumSized(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
-		}
-		else if (beginLine < Character.MAX_VALUE 
-				&& endLine < Character.MAX_VALUE 
-				&& beginCol < Byte.MAX_VALUE 
-				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.ShortColumnsMediumLines(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
-		} 
-		else if (beginCol < Byte.MAX_VALUE 
-				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.ShortColumns(uri,  offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
-		}
-		
-		return new SourceLocationValues.Largest(uri, offset, length, beginLine, endLine, beginCol, endCol);
-	}
 	
-	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
-    	try{
-			return sourceLocation(new URI("file://" + path), offset, length, beginLine, endLine, beginCol, endCol);
-		}catch(URISyntaxException e){
-			throw new FactParseError("Illegal path syntax: " + path, e);
-		}
-    }
-	
-	public ISourceLocation sourceLocation(URI uri){
-		return new SourceLocationValues.NoPositions(uri); 
-	}
-	
-	public ISourceLocation sourceLocation(String path){
-		try {
-			return sourceLocation(new URI("file://" + path));
-		} catch (URISyntaxException e) {
-			throw new FactParseError("Illegal path syntax: " + path, e);
-		}
-	}
 	
 	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond){
 		return new DateTimeValue(year, month, day, hour, minute, second, millisecond);
