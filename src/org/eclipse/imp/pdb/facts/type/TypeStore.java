@@ -11,6 +11,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -139,6 +140,18 @@ public class TypeStore {
     			doImport(s);
     		}
     	}
+    }
+    
+    /**
+     * Removes a number of stores from the imported stores. The stores to be removed must be reference-equal to some of
+     * the stores imported by the receiver.
+     * 
+     * @param stores to be removed
+     */
+    public void unimportStores(TypeStore... stores) {
+    	synchronized (fImports) {
+    		fImports.removeAll(Arrays.asList(stores));
+		}
     }
 
 	private void doImport(TypeStore s) {
