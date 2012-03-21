@@ -444,7 +444,7 @@ public class StandardTextReader extends AbstractTextReader {
 		}
 		
 		// The next character should be a ':'
-		current = stream.read();		
+		current = stream.read();	
 		if (':' != current) {
 			throw new FactParseError("Error reading time, expected ':', found: " + current, stream.offset);
 		}
@@ -503,6 +503,11 @@ public class StandardTextReader extends AbstractTextReader {
 		// The next two characters should be the minute offset
 		for (int i = 0; i < 2; ++i) {
 			boolean res = readAndAppendIfNumeric(buf);
+			if (current == ':' && i == 0) {
+				// skip optional : separator between hour and minute offset
+				i = -1;
+				res = true;
+			}
 			if (!res) {
 				throw new FactParseError("Error reading time, expected digit, found: " + current, stream.offset);
 			}
