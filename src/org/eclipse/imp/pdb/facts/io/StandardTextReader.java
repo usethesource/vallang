@@ -555,8 +555,9 @@ public class StandardTextReader extends AbstractTextReader {
 			if (isDate) {
 				return factory.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH));				
 			} else { 
-				int hourOffset = cal.get(Calendar.ZONE_OFFSET) / 3600000;
-				int minuteOffset = (cal.get(Calendar.ZONE_OFFSET) / 60000)%60;
+				int offset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
+				int hourOffset = offset / 3600000;
+				int minuteOffset = (offset / 60000)%60;
 				if (isTime) {
 					return factory.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), 
 							cal.get(Calendar.MILLISECOND), hourOffset, minuteOffset);
