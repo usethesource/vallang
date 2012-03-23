@@ -332,6 +332,10 @@ public class Relation extends Set implements IRelation{
 		if(o == this) return true;
 		if(o == null) return false;
 		
+		if (isEmpty() && o instanceof Set && ((Set) o).isEmpty()) {
+			return true;
+		}
+		
 		if(o.getClass() == getClass()){
 			Relation otherRelation = (Relation) o;
 			
