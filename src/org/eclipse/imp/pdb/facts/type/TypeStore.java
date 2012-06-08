@@ -403,9 +403,13 @@ public class TypeStore {
      * @param adt
      * @return all types that construct the given type
      */
-    public Set<Type> lookupAlternatives(final Type adt) {
+    public Set<Type> lookupAlternatives(Type adt) {
     	synchronized (fConstructors) {
     		synchronized (fImports) {
+    			while (adt.isAliasType()) {
+    				adt = adt.getAliased();
+    			}
+    	    
     			Set<Type> result = fConstructors.get(adt);
 
     			if (result == null) {
@@ -436,6 +440,9 @@ public class TypeStore {
     public Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
     	synchronized (fConstructors) {
     		synchronized (fImports) {
+    			while (adt.isAliasType()) {
+    				adt = adt.getAliased();
+    			}
     			Type parameterizedADT = fADTs.get(adt.getName());
     			Set<Type> local = parameterizedADT != null ? fConstructors.get(parameterizedADT) : null;
     			Set<Type> result = new HashSet<Type>();
@@ -447,7 +454,7 @@ public class TypeStore {
     					}
     				}
     			}
-    			
+
     			for (TypeStore i : fImports) {
     				local = i.fConstructors.get(adt);
     				if (local != null) {
