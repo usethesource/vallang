@@ -367,7 +367,17 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 			Map.Entry<IValue, IValue> entry = otherIterator.next();
 			IValue otherValue = entry.getValue();
 			IValue thisValue = get(entry.getKey());
-			if(otherValue != thisValue && thisValue != null && !thisValue.isEqual(entry.getValue())) return false;
+			
+			if (thisValue == null) {
+				// Means the key from other is not present in this
+				return false; 
+			}
+			
+			if(otherValue != thisValue 
+					&& thisValue != null 
+					&& !thisValue.isEqual(entry.getValue())) {
+				return false;
+			}
 		}
 		return true;
 	}
