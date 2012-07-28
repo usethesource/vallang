@@ -356,14 +356,21 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	}
 	
 	public boolean isEqual(ShareableValuesHashMap other){
-		if(other == null) return false;
-		if(other.currentHashCode != currentHashCode) return false;
-		if(other.size() != size()) return false;
-		
-		if(isEmpty()) return true; // No need to check if the maps are empty.
+		if(other == null) {
+			return false;
+		}
+		if(other.currentHashCode != currentHashCode) { 
+			return false;
+		}
+		if(other.size() != size()) {
+			return false;
+		}
+		if(isEmpty()) {
+			return true; // No need to check if the maps are empty.
+		}
 		
 		Iterator<Map.Entry<IValue, IValue>> otherIterator = other.entryIterator();
-		while(otherIterator.hasNext()){
+		while (otherIterator.hasNext()) {
 			Map.Entry<IValue, IValue> entry = otherIterator.next();
 			IValue otherValue = entry.getValue();
 			IValue thisValue = get(entry.getKey());
@@ -375,10 +382,11 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 			
 			if(otherValue != thisValue 
 					&& thisValue != null 
-					&& !thisValue.isEqual(entry.getValue())) {
+					&& !thisValue.isEqual(otherValue)) {
 				return false;
 			}
 		}
+		
 		return true;
 	}
 	
