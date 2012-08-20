@@ -209,13 +209,17 @@ public class Node extends Value implements INode{
 		if(value instanceof Node){
 			Node other = (Node) value;
 			
-			if(name != other.name) return false; // Yes '==' works here, since it has been interned.
+			if(name != other.name) {
+				return false; // Yes '==' works here, since it has been interned.
+			}
 			
 			IValue[] otherChildren = other.children;
 			int nrOfChildren = children.length;
 			if(otherChildren.length == nrOfChildren){
 				for(int i = nrOfChildren - 1; i >= 0; i--){
-					if(!otherChildren[i].isEqual(children[i])) return false;
+					if(!otherChildren[i].isEqual(children[i])) {
+						return false;
+					}
 				}
 				return true;
 			}
