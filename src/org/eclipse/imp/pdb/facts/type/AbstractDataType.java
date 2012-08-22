@@ -17,6 +17,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 
@@ -93,6 +94,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 		// which will not be present in the store.
 		
 		Type parameterizedADT = store.lookupAbstractDataType(getName());
+		
+		if (parameterizedADT == null) {
+			throw new UndeclaredAbstractDataTypeException(this);
+		}
+		
 		for (Type alt : store.lookupAlternatives(parameterizedADT)) {
 			if (alt.isConstructorType()) {
 				if (alt.hasField(fieldName)) {
