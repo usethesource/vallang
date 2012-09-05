@@ -210,7 +210,7 @@ class Set extends Value implements ISet{
 			}
 		}
 
-		public void insertAll(Iterable<IValue> collection) throws FactTypeUseException{
+		public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
 			checkMutation();
 			
 			for(IValue v : collection){

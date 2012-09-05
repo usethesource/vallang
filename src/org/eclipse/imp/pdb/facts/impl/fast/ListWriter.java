@@ -117,7 +117,7 @@ public class ListWriter implements IListWriter{
 		}
 	}
 	
-	public void insertAll(Iterable<IValue> collection){
+	public void insertAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
 		Iterator<? extends IValue> collectionIterator = collection.iterator();

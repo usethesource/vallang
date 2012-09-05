@@ -13,7 +13,6 @@
 package org.eclipse.imp.pdb.facts;
 
 import java.net.URI;
-import java.nio.charset.IllegalCharsetNameException;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;

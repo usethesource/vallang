@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalAnnotationDeclaration;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalIdentifierException;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalInstantiatedAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
@@ -263,8 +262,6 @@ public class TypeStore {
 						throw new FactTypeRedeclaredException(name, oldAlias);
 					}
 					
-					checkUninstanstiatedADT(adt);
-
 					fADTs.put(name, adt);
 					
 					if (fConstructors.get(adt) == null) {
@@ -275,18 +272,6 @@ public class TypeStore {
 		}
 	}
 
-	private void checkUninstanstiatedADT(Type adt) {
-		Type params = adt.getTypeParameters();
-
-		if (!params.isVoidType()) {
-			for (Type p : params) {
-				if (!p.isParameterType()) {
-					throw new IllegalInstantiatedAbstractDataTypeException(adt);
-				}
-			}
-		}
-	}
-    
     /**
      * Declare a new constructor type. A constructor type extends an abstract data type such
      * that it represents more values.
@@ -299,8 +284,6 @@ public class TypeStore {
     		synchronized(fConstructors) {
     			Type adt = constructor.getAbstractDataType();
     			
-    			checkUninstanstiatedADT(adt);
-
     			Type other = lookupAbstractDataType(adt.getName());
     			if (other == null) {
     				throw new UndeclaredAbstractDataTypeException(adt);

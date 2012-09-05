@@ -14,8 +14,6 @@ package org.eclipse.imp.pdb.facts;
 
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-
 /**
  * Source locations point to (parts of) files that contain source code.
  * Technically, the contents of the file does not have to be source code per se.

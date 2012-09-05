@@ -94,10 +94,10 @@ public class RelationWriter implements IRelationWriter{
 		}
 	}
 	
-	public void insertAll(Iterable<IValue> collection){
+	public void insertAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
-		Iterator<IValue> collectionIterator = collection.iterator();
+		Iterator<? extends IValue> collectionIterator = collection.iterator();
 		while(collectionIterator.hasNext()){
 			IValue next = collectionIterator.next();
 			updateType(next);

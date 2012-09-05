@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 public interface ISetWriter extends IWriter {
     void insert(IValue... v) throws FactTypeUseException ;
-    void insertAll(Iterable<IValue> collection) throws FactTypeUseException;
+    void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
     void delete(IValue v);
     ISet done();
     int size();
