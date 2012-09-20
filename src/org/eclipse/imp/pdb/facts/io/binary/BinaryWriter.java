@@ -119,11 +119,31 @@ public class BinaryWriter{
 	}
 	
 	private void doSerialize(IValue value) throws IOException{
-		int valueId = sharedValues.get(value);
-		if(valueId != -1){
-			out.write(SHARED_FLAG);
-			printInteger(valueId);
-			return;
+		// This special cases the hashing logic: if we have a constructor with
+		// at least one location annotation, don't try to hash it
+		boolean tryHashing = true;
+		
+		if (value.getType().isAbstractDataType()) {
+			IConstructor consValue = (IConstructor)value;
+			if (consValue.hasAnnotations()) {
+				Map<String,IValue> amap = consValue.getAnnotations();
+				for (String akey : amap.keySet()) {
+					Type aType = amap.get(akey).getType();
+					if (!aType.isVoidType() && aType.isSourceLocationType()) {
+						tryHashing = false;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (tryHashing) {
+			int valueId = sharedValues.get(value);
+			if(valueId != -1){
+				out.write(SHARED_FLAG);
+				printInteger(valueId);
+				return;
+			}
 		}
 		
 		// This sucks and is order dependent :-/.
@@ -161,7 +181,9 @@ public class BinaryWriter{
 			writeMap((IMap) value);
 		}
 		
-		sharedValues.store(value);
+		if (tryHashing) {
+			sharedValues.store(value);
+		}
 	}
 	
 	private void doWriteType(Type type) throws IOException{
