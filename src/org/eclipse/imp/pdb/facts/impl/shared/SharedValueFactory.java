@@ -282,7 +282,10 @@ public final class SharedValueFactory implements IValueFactory{
 	
 	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
     	try{
-			return sourceLocation(new URI("file://" + path), offset, length, beginLine, endLine, beginCol, endCol);
+			if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
+			return sourceLocation(new URI("file", "", path, null), offset, length, beginLine, endLine, beginCol, endCol);
 		}catch(URISyntaxException e){
 			throw new FactParseError("Illegal path syntax.", e);
 		}
