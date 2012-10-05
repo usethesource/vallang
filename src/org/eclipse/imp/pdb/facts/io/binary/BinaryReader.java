@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -208,7 +209,25 @@ public class BinaryReader{
 				throw new RuntimeException("Unknow value type: "+valueType);
 		}
 		
-		sharedValues.set(value, currentSharedValueId++);
+		boolean hashValue = true;
+		
+		if (value.getType().isAbstractDataType()) {
+			IConstructor consValue = (IConstructor)value;
+			if (consValue.hasAnnotations()) {
+				Map<String,IValue> amap = consValue.getAnnotations();
+				for (String akey : amap.keySet()) {
+					Type aType = amap.get(akey).getType();
+					if (!aType.isVoidType() && aType.isSourceLocationType()) {
+						hashValue = false;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (hashValue) {
+			sharedValues.set(value, currentSharedValueId++);
+		}
 		
 		return value;
 	}
