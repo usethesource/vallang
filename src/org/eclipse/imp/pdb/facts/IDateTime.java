@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts;
  * (e.g., years, hours) and determining if the value represents a
  * date, time, or datetime.
  */
-public interface IDateTime extends IValue {
+public interface IDateTime extends IValue, Comparable<IDateTime> {
 	/**
 	 * Retrieve the date and time as an instant, defined as the number of 
 	 * milliseconds from 1970-01-01T00:00Z. This is compatible with the

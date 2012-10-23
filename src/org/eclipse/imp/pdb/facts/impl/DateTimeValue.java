@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.eclipse.imp.pdb.facts.IDateTime;
+import org.eclipse.imp.pdb.facts.impl.DateTimeValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -352,8 +353,7 @@ public class DateTimeValue extends Value implements IDateTime {
 		return true;
 	}
 
-
-	
-	
-
+	public int compareTo(IDateTime arg0) {
+		return fDateTimeComplete.getTime().compareTo(((DateTimeValue) arg0).fDateTimeComplete.getTime());
+	}
 }

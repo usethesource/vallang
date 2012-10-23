@@ -195,4 +195,8 @@ public class DateTimeValue extends Value implements IDateTime{
 		
 		return (dateTimeComplete.compareTo(((DateTimeValue) o).dateTimeComplete) == 0);
 	}
+
+	public int compareTo(IDateTime arg0) {
+		return dateTimeComplete.getTime().compareTo(((DateTimeValue) arg0).dateTimeComplete.getTime());
+	}
 }
