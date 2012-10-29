@@ -149,9 +149,11 @@ public class List extends Value implements IList{
 		if(o.getClass() == getClass()){
 			List otherList = (List) o;
 			
-			if(hashCode != otherList.hashCode) return false;
+			if (length() == 0&& otherList.length() == 0) return true;
 			
-			if(listType != otherList.listType) return false;
+			if (hashCode != otherList.hashCode) return false;
+			
+			if (listType != otherList.listType) return false;
 			
 			return data.equals(otherList.data);
 		}
