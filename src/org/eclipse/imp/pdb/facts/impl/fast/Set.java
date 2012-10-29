@@ -218,7 +218,10 @@ public class Set extends Value implements ISet{
 		if(value instanceof Set){
 			Set otherSet = (Set) value;
 			
-			if(!elementType.comparable(otherSet.elementType)) return false;
+			if (size() == 0 && otherSet.size() == 0) return true;
+			
+			// if there are incomparable elements in the set it can never be equal
+			if (!elementType.comparable(otherSet.elementType)) return false;
 			
 			return data.isEqual(otherSet.data);
 		}
