@@ -240,6 +240,9 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 			BigDecimalValue otherDouble = (BigDecimalValue) o;
 			return (value.compareTo(otherDouble.value) == 0);
 		}
+		else if (o instanceof INumber) {
+		  return compare((INumber) o) == 0;
+		}
 		
 		return false; 
 	}
