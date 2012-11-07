@@ -2,6 +2,7 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -69,6 +70,14 @@ public abstract class AbstractNumberValue extends Value implements INumber{
       return equal(other.toRational());
     }
     throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+  }
+  
+  public boolean isEqual(IValue other) {
+    if (other instanceof INumber) {
+      return equal((INumber) other).getValue();
+    }
+    
+    return equals(other);
   }
 	
 	public IBool greaterEqual(INumber other){
