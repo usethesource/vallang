@@ -213,7 +213,7 @@ public class Map extends Value implements IMap{
 		if(o.getClass() == getClass()){
 			Map otherMap = (Map) o;
 			
-			if(mapType != otherMap.mapType) return false;
+			if (getType() != otherMap.getType()) return false;
 			
 			return data.equals(otherMap.data);
 		}
@@ -227,10 +227,6 @@ public class Map extends Value implements IMap{
 		
 		if(value instanceof Map){
 			Map otherMap = (Map) value;
-			
-			if (size() == 0 && otherMap.size() == 0) return true;
-			
-			if(!keyType.comparable(otherMap.keyType) || !valueType.comparable(otherMap.valueType)) return false;
 			
 			return data.isEqual(otherMap.data);
 		}

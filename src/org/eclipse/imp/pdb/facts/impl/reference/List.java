@@ -134,9 +134,7 @@ public class List extends Value implements IList {
 		if (getClass() == o.getClass()) {
 			List other = (List) o;
 			
-			if (length() == 0 && other.length() == 0) return true;
-			
-			return fType.comparable(other.fType) && content.equals(other.content);
+			return content.equals(other.content);
 		}
 		return false;
 	}

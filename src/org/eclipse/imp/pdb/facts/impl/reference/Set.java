@@ -122,10 +122,7 @@ class Set extends Value implements ISet{
 		if (o.getClass() == Set.class || o.getClass() == Relation.class) {
 			Set other = (Set) o;
 			
-			if (size() == 0 && other.size() == 0) return true;
-
-			// if there are incomparable elements in both sets they can never be equal
-			return fType.comparable(other.fType) && content.equals(other.content);
+			return content.equals(other.content);
 		}
 		return false;
 	}

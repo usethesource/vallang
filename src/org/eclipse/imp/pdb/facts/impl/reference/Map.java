@@ -133,8 +133,7 @@ class Map extends Value implements IMap{
 		if(getClass() == o.getClass()) {
 			Map other = (Map) o;
 			
-			if (size() == 0 && other.size() == 0) return true;
-			return fType.comparable(other.fType) && content.equals(other.content);
+			return content.equals(other.content);
 		}
 		return false;
 	}
