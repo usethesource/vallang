@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.ICanBecomeABigInteger;
-import org.eclipse.imp.pdb.facts.impl.fast.RationalValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -296,6 +295,18 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 		else
 			return ValueFactory.getInstance().integer((~((long) value)) + 1);
 	}
+	
+	public IBool equal(IInteger other){
+	  return ValueFactory.getInstance().bool(compare(other) == 0);
+	}
+
+	public IBool equal(IRational other) {
+	  return other.equal(this);
+	}
+
+	public IBool equal(IReal other) {
+	  return other.equal(this);
+	}
 
 	public IBool greater(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) > 0);
@@ -305,9 +316,9 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
     	return other.lessEqual(this);
 	}
 	 
-    public IBool greater(IReal other) {
+	public IBool greater(IReal other) {
     	return other.lessEqual(this);
-    }
+	}
     
 	public IBool greaterEqual(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) >= 0);

@@ -193,6 +193,18 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return ValueFactory.getInstance().integer(value.negate());
 	}
 	
+	public IBool equal(IInteger other){
+    return ValueFactory.getInstance().bool(compare(other) == 0);
+  }
+  
+  public IBool equal(IReal other) {
+    return other.equal(this);
+  }
+  
+  public IBool equal(IRational other) {
+    return other.equal(this);
+  }
+  
 	public IBool greater(IInteger other){
 		return ValueFactory.getInstance().bool(compare(other) > 0);
 	}

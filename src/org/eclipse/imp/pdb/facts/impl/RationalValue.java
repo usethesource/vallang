@@ -150,6 +150,18 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	public IBool greater(IInteger other) {
 		return greater(other.toRational());
 	}
+	
+	public IBool equal(IRational other) {
+    return new BoolValue(compare(other) == 0);
+  }
+
+  public IBool equal(IReal other) {
+    return other.equal(this);
+  }
+
+  public IBool equal(IInteger other) {
+    return equal(other.toRational());
+  }
 
 	public IBool lessEqual(IRational other) {
 		return new BoolValue(compare(other) <= 0);

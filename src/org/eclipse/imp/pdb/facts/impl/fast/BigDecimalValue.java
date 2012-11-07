@@ -142,6 +142,18 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		return ValueFactory.getInstance().integer(value.unscaledValue());
 	}
 	
+	public IBool equal(IReal other){
+	  return ValueFactory.getInstance().bool(compare(other) == 0);
+	}
+
+	public IBool equal(IInteger other) {
+	  return equal(other.toReal());
+	}
+
+	public IBool equal(IRational other) {
+	  return equal(other.toReal());
+	}
+	  
 	public IBool greater(IReal other){
 		return ValueFactory.getInstance().bool(compare(other) > 0);
 	}

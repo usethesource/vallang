@@ -689,6 +689,12 @@ public class StandardTextReader extends AbstractTextReader {
 	private void readFixed(Type expected, char end, List<IValue> arr) throws IOException {
 		current = stream.read();
 		
+//		if (current == end) {
+//		  // empty tuple
+//		  current = stream.read();
+//		  return;
+//		}
+		
 	   for (int i = 0; current != end; i++) {
 		   Type exp = expected.isTupleType() ? expected.getFieldType(i) : types.valueType();
 		   arr.add(readValue(exp));

@@ -125,6 +125,26 @@ public abstract interface INumber extends IValue {
     IRational toRational();
 
     /**
+     * @return true iff the numbers are equal
+     */
+    IBool equal(INumber other);
+    
+    /**
+     * @return true iff the numbers are equal
+     */
+    IBool equal(IInteger other);
+    
+    /**
+     * @return true iff the numbers are equal
+     */
+    IBool equal(IReal other);
+    
+    /**
+     * @return true iff the numbers are equal
+     */
+    IBool equal(IRational other);
+    
+    /**
      * @return true iff this < other
      */
     IBool less(INumber other);

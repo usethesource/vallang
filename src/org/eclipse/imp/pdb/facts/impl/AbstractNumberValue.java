@@ -86,6 +86,19 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		}
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
+
+	public IBool equal(INumber other) {
+	  if (other.getType().isRealType()) {
+      return equal(other.toReal());
+    }
+    if (other.getType().isIntegerType()) {
+      return equal(other.toInteger());
+    }
+    if (other.getType().isRationalType()) {
+      return equal(other.toRational());
+    }
+    throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
+	}
 	
 	public IBool lessEqual(INumber other) {
 		if (other.getType().isRealType()) {
