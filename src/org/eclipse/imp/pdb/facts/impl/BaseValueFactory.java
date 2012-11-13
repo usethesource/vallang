@@ -183,31 +183,31 @@ public abstract class BaseValueFactory implements IValueFactory {
     }
     
 	public IDateTime date(int year, int month, int day) {
-		return new DateTimeValue(year, month, day);
+		return new DateTimeValues.DateValue(year, month, day);
 	}
 
 	public IDateTime time(int hour, int minute, int second, int millisecond) {
-		return new DateTimeValue(hour,minute,second,millisecond);
+		return new DateTimeValues.TimeValue(hour,minute,second,millisecond);
 	}
 
 	public IDateTime time(int hour, int minute, int second, int millisecond,
 			int hourOffset, int minuteOffset) {
-		return new DateTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
+		return new DateTimeValues.TimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
 	}
 	
 	public IDateTime datetime(int year, int month, int day, int hour,
 			int minute, int second, int millisecond) {
-		return new DateTimeValue(year,month,day,hour,minute,second,millisecond);
+		return new DateTimeValues.DateTimeValue(year,month,day,hour,minute,second,millisecond);
 	}
 
 	public IDateTime datetime(int year, int month, int day, int hour,
 			int minute, int second, int millisecond, int hourOffset,
 			int minuteOffset) {
-		return new DateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
+		return new DateTimeValues.DateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
 	}
 
 	public IDateTime datetime(long instant) {
-		return new DateTimeValue(instant);
+		return new DateTimeValues.DateTimeValue(instant);
 	}
 		
 }

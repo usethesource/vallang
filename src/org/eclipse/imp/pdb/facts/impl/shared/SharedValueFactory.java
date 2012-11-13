@@ -300,31 +300,31 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 
 	public IDateTime date(int year, int month, int day) {
-		return new SharedDateTimeValue(year, month, day);
+		return new SharedDateTimeValues.SharedDateValue(year, month, day);
 	}
 
 	public IDateTime time(int hour, int minute, int second, int millisecond) {
-		return new SharedDateTimeValue(hour,minute,second,millisecond);
+		return new SharedDateTimeValues.SharedTimeValue(hour,minute,second,millisecond);
 	}
 
 	public IDateTime time(int hour, int minute, int second, int millisecond,
 			int hourOffset, int minuteOffset) {
-		return new SharedDateTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
+		return new SharedDateTimeValues.SharedTimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
 	}
 
 	public IDateTime datetime(int year, int month, int day, int hour,
 			int minute, int second, int millisecond) {
-		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond);
+		return new SharedDateTimeValues.SharedDateTimeValue(year,month,day,hour,minute,second,millisecond);
 	}
 
 	public IDateTime datetime(int year, int month, int day, int hour,
 			int minute, int second, int millisecond, int hourOffset,
 			int minuteOffset) {
-		return new SharedDateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
+		return new SharedDateTimeValues.SharedDateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
 	}
 
 	public IDateTime datetime(long instant) {
-		return new SharedDateTimeValue(instant);
+		return new SharedDateTimeValues.SharedDateTimeValue(instant);
 	}
 	
 	public IListWriter listWriter(Type elementType){

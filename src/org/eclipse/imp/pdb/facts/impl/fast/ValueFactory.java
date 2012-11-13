@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -180,32 +179,6 @@ public class ValueFactory extends BaseValueFactory {
 	
 	public IString string(String value){
 		return new StringValue(value);
-	}
-	
-	
-	
-	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond){
-		return new DateTimeValue(year, month, day, hour, minute, second, millisecond);
-	}
-
-	public IDateTime datetime(int year, int month, int day, int hour, int minute, int second, int millisecond, int timeZoneHourOffset, int timeZoneMinuteOffset){
-		return new DateTimeValue(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
-	}
-
-	public IDateTime date(int year, int month, int day){
-		return new DateTimeValue(year, month, day);
-	}
-
-	public IDateTime time(int hour, int minute, int second, int millisecond){
-		return new DateTimeValue(hour, minute, second, millisecond);
-	}
-
-	public IDateTime time(int hour, int minute, int second, int millisecond, int timeZoneHourOffset, int timeZoneMinuteOffset){
-		return new DateTimeValue(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
-	}
-
-	public IDateTime datetime(long instant){
-		return new DateTimeValue(instant);
 	}
 	
 	public IListWriter listWriter(Type elementType){

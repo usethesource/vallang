@@ -11,8 +11,6 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -427,15 +425,49 @@ public class StandardTextWriter implements IValueTextWriter {
 		public IValue visitDateTime(IDateTime o) throws VisitorException {
 			append("$");
 			if (o.isDate()) {
-				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-				append(df.format(new Date(o.getInstant())));
+				append(String.format("%04d", o.getYear()));
+				append("-");
+				append(String.format("%02d", o.getMonthOfYear()));
+				append("-");
+				append(String.format("%02d", o.getDayOfMonth()));
 			} else if (o.isTime()) {
-				SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSSZZZ");
 				append("T");
-				append(df.format(new Date(o.getInstant())));
+				append(String.format("%02d", o.getHourOfDay()));
+				append(":");
+				append(String.format("%02d", o.getMinuteOfHour()));
+				append(":");
+				append(String.format("%02d", o.getSecondOfMinute()));
+				append(".");
+				append(String.format("%03d", o.getMillisecondsOfSecond()));
+				if (o.getTimezoneOffsetHours() < 0)
+					append("-");
+				else
+					append("+");
+				append(String.format("%02d", o.getTimezoneOffsetHours()));
+				append(":");
+				append(String.format("%02d", o.getTimezoneOffsetMinutes()));
 			} else {
-				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZ");
-				append(df.format(new Date(o.getInstant())));
+				append(String.format("%04d", o.getYear()));
+				append("-");
+				append(String.format("%02d", o.getMonthOfYear()));
+				append("-");
+				append(String.format("%02d", o.getDayOfMonth()));
+
+				append("T");
+				append(String.format("%02d", o.getHourOfDay()));
+				append(":");
+				append(String.format("%02d", o.getMinuteOfHour()));
+				append(":");
+				append(String.format("%02d", o.getSecondOfMinute()));
+				append(".");
+				append(String.format("%03d", o.getMillisecondsOfSecond()));
+				if (o.getTimezoneOffsetHours() < 0)
+					append("-");
+				else
+					append("+");
+				append(String.format("%02d", o.getTimezoneOffsetHours()));
+				append(":");
+				append(String.format("%02d", o.getTimezoneOffsetMinutes()));
 			}
 			return o;
 		}

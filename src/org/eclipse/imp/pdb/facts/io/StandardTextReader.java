@@ -370,14 +370,13 @@ public class StandardTextReader extends AbstractTextReader {
 	 * Read in a date value, given as a string of the form NNNN-NN-NN, where each 
 	 * N is a digit [0-9]. The groups are the year, month, and day of month.
 	 * 
-	 * @return A string of the form NNNNNNNN; i.e., the read string with all the
-	 * 		   '-' characters removed
+	 * @return A DateParts object with year, month, and day filled in.
 	 * 
 	 * @throws IOException	when an error is encountered reading the input stream
 	 * @throws FactParseError	when the correct characters are not found while lexing
 	 *                          the date
 	 */
-	private String readDate(char firstChar) throws IOException, FactParseError {
+	private DateParts readDate(char firstChar) throws IOException, FactParseError {
 		StringBuilder buf = new StringBuilder();
 		buf.append(firstChar);
 		
@@ -417,7 +416,11 @@ public class StandardTextReader extends AbstractTextReader {
 			}
 		}
 		
-		return buf.toString();
+		String dateString = buf.toString();
+		return new DateParts(
+				Integer.parseInt(dateString.substring(0, 4)), // year
+				Integer.parseInt(dateString.substring(4,6)), // month
+				Integer.parseInt(dateString.substring(6))); // day
 	}
 	
 	/**
@@ -425,14 +428,14 @@ public class StandardTextReader extends AbstractTextReader {
 	 * where each N is a digit [0-9]. The groups are the hour, minute, second,
 	 * millisecond, timezone hour offset, and timezone minute offset.
 	 *  
-	 * @return A string of the form NNNNNNNNN[+-]NNNN, i.e., the read string
-	 *         with all the colons removed.
+	 * @return A TimeParts objects with hours, minutes, seconds, milliseconds,
+	 *         and timezone information filled in.
 	 *         
 	 * @throws IOException	when an error is encountered reading the input stream
 	 * @throws FactParseError	when the correct characters are not found while lexing
 	 *                          the time
 	 */
-	private String readTime() throws IOException, FactParseError {
+	private TimeParts readTime() throws IOException, FactParseError {
 		StringBuilder buf = new StringBuilder();
 
 		// The first two characters should be the hour
@@ -513,12 +516,20 @@ public class StandardTextReader extends AbstractTextReader {
 			}
 		}
 		
-		return buf.toString();
+		String timeString = buf.toString();
+		boolean negativeTZHours = timeString.substring(9,10).equals("-");
+		return new TimeParts(
+				Integer.parseInt(timeString.substring(0,2)), // hour
+				Integer.parseInt(timeString.substring(2,4)), // minutes
+				Integer.parseInt(timeString.substring(4,6)), // seconds
+				Integer.parseInt(timeString.substring(6,9)), // milliseconds
+				Integer.parseInt(timeString.substring(10,12)) * (negativeTZHours ? -1 : 1), // timezone hours
+				Integer.parseInt(timeString.substring(12))); // timezone minutes
 	}
 
 	private IValue readDateTime(Type expected) throws IOException, FactParseError {
-		String formatString = "";
-		String toParse = "";		
+		DateParts dateParts = null;
+		TimeParts timeParts = null;
 		boolean isDate = false; 
 		boolean isTime = false; 
 		
@@ -527,49 +538,30 @@ public class StandardTextReader extends AbstractTextReader {
 		current = stream.read();
 		
 		if ('T' == current || 't' == current) {
-			toParse = readTime();
-			formatString = "HHmmssSSSZZZZZ";
+			timeParts = readTime();
 			isTime = true;
 			current = stream.read(); // advance to next character for parsing
 		} else {
-			toParse = readDate((char)current);
+			dateParts = readDate((char)current);
 			current = stream.read();
 			if ('T' == current || 't' == current) {
-				toParse = toParse + readTime();
-				formatString = "yyyyMMddHHmmssSSSZZZZZ";
+				timeParts = readTime();
 				current = stream.read(); // advance to next character for parsing
 			} else {
-				formatString = "yyyyMMdd";
 				isDate = true;
 				// no need to advance here, already did when checked for T
 			}
 		}
 			
-		SimpleDateFormat df = new SimpleDateFormat(formatString);
-		
-		try {
-			Calendar cal = Calendar.getInstance();
-			Date dt = df.parse(toParse);
-			cal.setTime(dt);
-			
-			if (isDate) {
-				return factory.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH));				
-			} else { 
-				int offset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
-				int hourOffset = offset / 3600000;
-				int minuteOffset = (offset / 60000)%60;
-				if (isTime) {
-					return factory.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), 
-							cal.get(Calendar.MILLISECOND), hourOffset, minuteOffset);
-				} else {
-					return factory.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH),
-							cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), 
-							cal.get(Calendar.MILLISECOND), hourOffset, minuteOffset);
-				}
+		if (isDate) {
+			return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());				
+		} else { 
+			if (isTime) {
+				return factory.time(timeParts.getHour(), timeParts.getMinute(), timeParts.getSecond(), timeParts.getMillisecond(), timeParts.getTimezoneHours(), timeParts.getTimezoneMinutes());
+			} else {
+				return factory.datetime(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay(), timeParts.getHour(), timeParts.getMinute(), timeParts.getSecond(), timeParts.getMillisecond(), timeParts.getTimezoneHours(), timeParts.getTimezoneMinutes());
 			}
-		} catch (ParseException pe) {
-			throw new FactParseError("Unable to parse datatime string " + toParse + " using format string " + formatString, stream.offset, pe);
-		}		
+		}
 	}
 
 	private String readIdentifier() throws IOException {
@@ -802,6 +794,87 @@ public class StandardTextReader extends AbstractTextReader {
 		@Override
 		public void close() throws IOException {
 			wrapped.close();
+		}
+	}
+	
+	private static class DateParts {
+		private final int year;
+		private final int month;
+		private final int day;
+		
+		public DateParts(int year, int month, int day) {
+			this.year = year;
+			this.month = month;
+			this.day = day;
+		}
+
+		public int getYear() {
+			return year;
+		}
+
+		public int getMonth() {
+			return month;
+		}
+
+		public int getDay() {
+			return day;
+		}
+		
+		public String toString() {
+			return String.format("%04d", year) + "-" + String.format("%02d", month) + "-" + String.format("%02d", day); 
+		}
+	}
+	
+	private static class TimeParts {
+		private final int hour;
+		private final int minute;
+		private final int second;
+		private final int millisecond;
+		private final int timezoneHours;
+		private final int timezoneMinutes;
+		
+		public TimeParts(int hour, int minute, int second, int millisecond, int timezoneHours, int timezoneMinutes) {
+			this.hour = hour;
+			this.minute = minute;
+			this.second = second;
+			this.millisecond = millisecond;
+			this.timezoneHours = timezoneHours;
+			this.timezoneMinutes = timezoneMinutes;
+		}
+		
+		public int getHour() {
+			return hour;
+		}
+
+		public int getMinute() {
+			return minute;
+		}
+
+		public int getSecond() {
+			return second;
+		}
+
+		public int getMillisecond() {
+			return millisecond;
+		}
+
+		public int getTimezoneHours() {
+			return timezoneHours;
+		}
+
+		public int getTimezoneMinutes() {
+			return timezoneMinutes;
+		}
+		
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append(String.format("%02d",hour)).append(":").append(String.format("%02d",minute)).append(":").append(String.format("%02d",second)).append(".").append(String.format("%03d",millisecond));
+			if (timezoneHours < 0)
+				sb.append("-");
+			else
+				sb.append("+");
+			sb.append(String.format("%02d",Math.abs(timezoneHours))).append(":").append(String.format("%02d",timezoneMinutes));
+			return sb.toString();
 		}
 	}
 }
