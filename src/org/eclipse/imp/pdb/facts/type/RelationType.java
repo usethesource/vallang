@@ -85,7 +85,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     
     @Override
     public boolean isSubtypeOf(Type o) {
-        if (o.isRelationType()) {
+        if (o.isRelationType() && !o.isVoidType()) {
         	return fTupleType.isSubtypeOf(o.getFieldTypes());
         }
         

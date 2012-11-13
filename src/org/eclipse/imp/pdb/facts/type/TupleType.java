@@ -148,7 +148,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	public boolean isSubtypeOf(Type o) {
 		if (o == this) {
 			return true; // optimize to prevent loop
-		} else if (o.isTupleType()) {
+		} else if (o.isTupleType() && !o.isVoidType()) {
 			if (getArity() == o.getArity()) {
 				for (int i = getArity() - 1; i >= 0; i--) {
 					if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {

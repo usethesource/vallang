@@ -38,7 +38,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
-		if (other.isListType()) {
+		if (other.isListType() && !other.isVoidType()) {
 			return fEltType.isSubtypeOf(other.getElementType());
 		}
 		

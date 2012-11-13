@@ -152,7 +152,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     
     @Override
     public boolean isSubtypeOf(Type o) {
-        if (o.isMapType()) {
+        if (o.isMapType() && !o.isVoidType()) {
         	return fKeyType.isSubtypeOf(o.getKeyType()) && fValueType.isSubtypeOf(o.getValueType());
         }
         
