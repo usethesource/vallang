@@ -308,7 +308,7 @@ public class Relation extends Set implements IRelation{
 		return createSetWriter(type, newData).done();
 	}
 	
-	public ISet select(String... fields){
+	public ISet selectByFieldNames(String... fields){
 		if(!elementType.hasFieldNames()) throw new IllegalOperationException("select with field names", setType);
 		
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
@@ -317,7 +317,7 @@ public class Relation extends Set implements IRelation{
 		while(dataIterator.hasNext()){
 			ITuple tuple = (ITuple) dataIterator.next();
 			
-			newData.add(tuple.select(fields));
+			newData.add(tuple.selectByFieldNames(fields));
 		}
 		
 		Type type = getFieldTypes().select(fields);

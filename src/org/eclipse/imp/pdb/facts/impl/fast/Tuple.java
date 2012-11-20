@@ -110,7 +110,7 @@ public class Tuple extends Value implements ITuple{
 		return new Tuple(typeFactory.tupleType(elementTypes), elements);
 	}
 
-	public IValue select(String... fields){
+	public IValue selectByFieldNames(String... fields){
 		if(fields.length == 1) return get(fields[0]);
 
 		int nrOfElements = fields.length;

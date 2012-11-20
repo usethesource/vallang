@@ -162,7 +162,7 @@ class Relation extends Set implements IRelation {
 		return w.done();
 	}
 	
-	public ISet select(String... fields) {
+	public ISet selectByFieldNames(String... fields) {
 		int[] indexes = new int[fields.length];
 		int i = 0;
 		

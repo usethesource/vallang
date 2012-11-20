@@ -74,7 +74,7 @@ public class SharedTuple extends Tuple implements IShareable{
 		return SharedValueFactory.getInstance().createTupleUnsafe(typeFactory.tupleType(elementTypes), elements);
 	}
 
-	public IValue select(String... fields){
+	public IValue selectByFieldNames(String... fields){
 		if(fields.length == 1) return get(fields[0]);
 
 		int nrOfElements = fields.length;
