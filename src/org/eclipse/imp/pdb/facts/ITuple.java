@@ -29,5 +29,5 @@ public abstract interface ITuple extends Iterable<IValue>, IValue {
     
     public IValue select(int... fields) throws IndexOutOfBoundsException;
     
-    public IValue select(String... fields) throws FactTypeUseException;
+    public IValue selectByFieldNames(String... fields) throws FactTypeUseException;
 }

@@ -83,5 +83,5 @@ public interface IRelation extends ISet, IValue {
      * Select from the relation only the following fields. In case a single
      * field is selected, the result is a set, otherwise the result is a relation.
      */
-    public ISet select(String ... fields) throws FactTypeUseException;
+    public ISet selectByFieldNames(String ... fields) throws FactTypeUseException;
 }

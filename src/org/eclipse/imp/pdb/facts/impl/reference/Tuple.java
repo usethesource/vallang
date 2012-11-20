@@ -143,7 +143,7 @@ class Tuple extends Value implements ITuple {
 		return new Tuple(type, elems);
 	}
 
-	public IValue select(String... fields) throws FactTypeUseException {
+	public IValue selectByFieldNames(String... fields) throws FactTypeUseException {
 		Type type = fType.select(fields);
 		
 		if (type.isTupleType()) {
