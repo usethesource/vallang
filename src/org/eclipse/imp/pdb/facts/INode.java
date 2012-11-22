@@ -74,7 +74,7 @@ public interface INode extends IValue, Iterable<IValue> {
 	 * 
 	 * @param label identifies the annotation
 	 * @param newValue the new value for the annotation
-	 * @return a value if the annotation has a value on this node or null otherwise
+	 * @return a new node where the value of the annotation is replaced (if previously present) or newly added
 	 * @throws FactTypeUseException when the type of the new value is not comparable to the old annotation value
 	 */
 	public INode   setAnnotation(String label, IValue newValue) throws FactTypeUseException;
