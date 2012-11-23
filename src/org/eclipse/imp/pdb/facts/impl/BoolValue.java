@@ -1,74 +1,104 @@
 /*******************************************************************************
-* Copyright (c) 2010 CWI
+* Copyright (c) 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Jurgen Vinju (Jurgen.Vinju@cwi.nl) - initial API and implementation
+*    Arnold Lankamp - interfaces and implementation
+*    Jurgen Vinju
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-/*package*/ class BoolValue extends Value implements IBool {
-	private final boolean fValue;
-
-	/*package*/ BoolValue(boolean b) {
-		super(TypeFactory.getInstance().boolType());
-		this.fValue = b;
-	}
+public abstract class BoolValue extends Value implements IBool{
+	public final static BoolValue TRUE = new BoolValue() {
+	  public boolean getValue() {
+	    return true;
+	  };
+	  
+	  public IBool not() {
+	    return FALSE;
+	  };
+	  
+	  public IBool and(IBool other) {
+	    return other;
+	  };
+	  
+	  public IBool or(IBool other) {
+	    return this;
+	  };
+	  
+	  public IBool xor(IBool other) {
+	    return other == this ? FALSE : TRUE;
+	  };
+	  
+	  public IBool implies(IBool other) {
+	    return other;
+	  };
+	  
+	  public int hashCode() {
+	    return 1;
+	  };
+	};
 	
-	public boolean getValue() {
-		return fValue;
+	public final static BoolValue FALSE = new BoolValue() {
+	  public boolean getValue() {
+	    return false;
+	  };
+	  
+	  public IBool not() {
+	    return TRUE;
+	  }
+
+    public IBool and(IBool other) {
+      return this;
+    }
+
+    public IBool or(IBool other) {
+      return other;
+    }
+
+    public IBool xor(IBool other) {
+      return other;
+    }
+
+    public IBool implies(IBool other) {
+      return TRUE;
+    }
+	};
+	
+	private BoolValue() {
+		super(TypeFactory.getInstance().boolType());
 	}
 
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
 		return v.visitBoolean(this);
 	}
 	
-	@Override
-	public boolean equals(Object obj) {
-		if (getClass() == obj.getClass()) {
-			return fValue == ((BoolValue) obj).fValue;
-		}
-		return false;
+	public static BoolValue getBoolValue(boolean bool){
+		return bool ? TRUE : FALSE;
 	}
 	
-	public IBool and(IBool other) {
-		return new BoolValue(fValue && other.getValue());
+	public boolean equals(Object o){
+		return this == o;
 	}
 	
-	public IBool or(IBool other) {
-		return new BoolValue(fValue || other.getValue());
-	}
-	
-	public IBool not() {
-		return new BoolValue(!fValue);
-	}
-	
-	public IBool implies(IBool other) {
-		return new BoolValue(fValue ? other.getValue() : true);
+	public boolean isEqual(IValue value){
+		return this == value;
 	}
 	
 	public IBool equivalent(IBool other) {
-		return new BoolValue(fValue == other.getValue());
-	}
+    return other == this ? TRUE : this;
+  };
 	
-	public IBool xor(IBool other) {
-		return new BoolValue(fValue ^ other.getValue());
-	}
-	
-	@Override
-	public int hashCode() {
-		return fValue ? 1231 : 1237;
-	}
-	
-	public String getStringRepresentation() {
-		return fValue ? "true" : "false";
+	public String getStringRepresentation(){
+		return toString();
 	}
 }

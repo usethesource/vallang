@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation.
+ * Copyright (c) 2007-2012 IBM Corporation, CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) 
+ *    Jurgen Vinju (Jurgen.Vinju@cwi.nl)
  *    Davy Landman - added mathematical functions
-
  *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl;
@@ -121,7 +121,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool less(IReal other) {
-    return new BoolValue(compare(other) < 0);
+    return BoolValue.getBoolValue(compare(other) < 0);
   }
 
   public IBool less(IInteger other) {
@@ -133,7 +133,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool lessEqual(IReal other) {
-    return new BoolValue(compare(other) <= 0);
+    return BoolValue.getBoolValue(compare(other) <= 0);
   }
 
   public IBool lessEqual(IInteger other) {
@@ -145,7 +145,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool equal(IReal other) {
-    return new BoolValue(compare(other) == 0);
+    return BoolValue.getBoolValue(compare(other) == 0);
   }
 
   public IBool equal(IInteger other) {
@@ -157,7 +157,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
   
   public IBool greater(IReal other) {
-    return new BoolValue(compare(other) > 0);
+    return BoolValue.getBoolValue(compare(other) > 0);
   }
 
   public IBool greater(IInteger other) {
@@ -169,7 +169,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool greaterEqual(IReal other) {
-    return new BoolValue(compare(other) >= 0);
+    return BoolValue.getBoolValue(compare(other) >= 0);
   }
 
   public IBool greaterEqual(IInteger other) {

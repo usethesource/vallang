@@ -128,7 +128,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool less(IRational other) {
-		return new BoolValue(compare(other) < 0);
+		return BoolValue.getBoolValue(compare(other) < 0);
 	}
 
 	public IBool less(IReal other) {
@@ -140,7 +140,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool greater(IRational other) {
-		return new BoolValue(compare(other) > 0);
+		return BoolValue.getBoolValue(compare(other) > 0);
 	}
 
 	public IBool greater(IReal other) {
@@ -152,7 +152,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 	
 	public IBool equal(IRational other) {
-    return new BoolValue(compare(other) == 0);
+    return BoolValue.getBoolValue(compare(other) == 0);
   }
 
   public IBool equal(IReal other) {
@@ -164,7 +164,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
   }
 
 	public IBool lessEqual(IRational other) {
-		return new BoolValue(compare(other) <= 0);
+		return BoolValue.getBoolValue(compare(other) <= 0);
 	}
 
 	public IBool lessEqual(IReal other) {
@@ -176,7 +176,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool greaterEqual(IRational other) {
-		return new BoolValue(compare(other) >= 0);
+		return BoolValue.getBoolValue(compare(other) >= 0);
 	}
 
 	public IBool greaterEqual(IReal other) {

@@ -132,7 +132,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool less(IInteger other) {
-    return new BoolValue(compare(other) < 0);
+    return BoolValue.getBoolValue(compare(other) < 0);
   }
 
   public IBool less(IReal other) {
@@ -144,7 +144,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool lessEqual(IInteger other) {
-    return new BoolValue(compare(other) <= 0);
+    return BoolValue.getBoolValue(compare(other) <= 0);
   }
 
   public IBool lessEqual(IReal other) {
@@ -156,7 +156,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool equal(IInteger other) {
-    return new BoolValue(compare(other) == 0);
+    return BoolValue.getBoolValue(compare(other) == 0);
   }
 
   public IBool equal(IReal other) {
@@ -168,7 +168,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool greater(IInteger other) {
-    return new BoolValue(compare(other) > 0);
+    return BoolValue.getBoolValue(compare(other) > 0);
   }
 
   public IBool greater(IReal other) {
@@ -180,7 +180,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool greaterEqual(IInteger other) {
-    return new BoolValue(compare(other) >= 0);
+    return BoolValue.getBoolValue(compare(other) >= 0);
   }
 
   public IBool greaterEqual(IReal other) {

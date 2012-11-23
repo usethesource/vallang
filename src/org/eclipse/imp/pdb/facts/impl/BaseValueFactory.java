@@ -179,7 +179,7 @@ public abstract class BaseValueFactory implements IValueFactory {
 		}
 	}
     public IBool bool(boolean value) {
-    	return new BoolValue(value);
+      return BoolValue.getBoolValue(value);
     }
     
 	public IDateTime date(int year, int month, int day) {

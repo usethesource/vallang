@@ -41,7 +41,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.fast.BoolValue;
+import org.eclipse.imp.pdb.facts.impl.BoolValue;
 import org.eclipse.imp.pdb.facts.impl.fast.IntegerValue;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IndexedCache;
@@ -143,10 +143,6 @@ public final class SharedValueFactory implements IValueFactory{
 	
 	protected SharedAnnotatedConstructor buildAnnotatedConstructor(SharedAnnotatedConstructor sharedAnnotatedConstructor){
 		return sharedAnnotatedConstrutorsFactory.build(sharedAnnotatedConstructor);
-	}
-	
-	public IBool bool(boolean value){
-		return BoolValue.getBoolValue(value); // NOTE: We don't have to share this; since the returned values are constants.
 	}
 	
 	public IInteger integer(int value){
@@ -528,4 +524,8 @@ public final class SharedValueFactory implements IValueFactory{
 		b.appendCodePoint(ch);
 		return string(b.toString());
 	}
+
+  public IBool bool(boolean value) {
+    return BoolValue.getBoolValue(value);
+  }
 }
