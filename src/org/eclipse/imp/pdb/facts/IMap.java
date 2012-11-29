@@ -1,15 +1,15 @@
 /*******************************************************************************
-* Copyright (c) 2008 CWI
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    jurgen@vinju.org
-
-*******************************************************************************/
-
+ * Copyright (c) 2008, 2012 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *******************************************************************************/
 package org.eclipse.imp.pdb.facts;
 
 import java.util.Iterator;
@@ -102,9 +102,13 @@ public interface IMap extends Iterable<IValue>, IValue {
     public IMap common(IMap other);
     
     /**
-     * @param other
-     * @return true iff all key values pairs of the receiver exist in the other map.
-     */
+	 * Checks if the <code>other</code> map is defined for every key that is
+	 * present in the receiver object.
+	 * 
+	 * @param other
+	 * @return true iff all for every key of the receiver there exists an entry
+	 *         in the other map.
+	 */
     public boolean isSubMap(IMap other);
     
     /**
@@ -121,6 +125,5 @@ public interface IMap extends Iterable<IValue>, IValue {
      * @return an iterator over the keys-value pairs of the map
      */
     public Iterator<Entry<IValue, IValue>> entryIterator();
-
 	
 }
