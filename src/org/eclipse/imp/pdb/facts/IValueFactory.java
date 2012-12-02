@@ -94,20 +94,48 @@ public interface IValueFactory {
     public IReal real(String s) throws NumberFormatException;
     
     /**
+     * Construct a real from the mathematical notation.
+     * 
+     * @param s real as a string in decimal mathematical notation.
+     * @param p precision
+     * @return 
+     * @throws NumberFormatException
+     */
+    public IReal real(String s, int p) throws NumberFormatException;
+    
+    /**
      * @param d
      * @return a value representing the double d, with type RealType
      */
     public IReal real(double d);
     
+    /**
+     * @param d
+     * @param p precision
+     * @return a value representing the double d, with type RealType
+     */
+    public IReal real(double d, int p);
+ 
+    /**
+     * @return the global precision for reals
+     */
+    public IInteger precision();
+    
+    /**
+     * Set the global precision for reals
+     * @param p
+     * @return the previous global precision
+     */
+    public IInteger setPrecision(int p);
     
 	/**
-	 * @param precision max of 1000
+	 * @param precision (max of 1000)
 	 * @return PI with a higher precision than standard Math.PI
 	 */
 	public IReal pi(int precision);
 	
 	/**
-	 * @param precision max of 1000
+	 * @param precision (max of 1000)
 	 * @return E with a higher precision than standard Math.E
 	 */
 	public IReal e(int precision);
