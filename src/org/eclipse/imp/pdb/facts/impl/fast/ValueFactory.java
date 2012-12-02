@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -156,6 +157,11 @@ public class ValueFactory extends BaseValueFactory {
 		return new BigDecimalValue(BigDecimal.valueOf(value));
 	}
 	
+	
+	public IReal real(double value, int p) {
+		return new BigDecimalValue(new BigDecimal(value, new MathContext(p)));
+	}
+	
 	@Override
 	public IReal real(float value) {
 		return new BigDecimalValue(BigDecimal.valueOf(value));
@@ -166,8 +172,22 @@ public class ValueFactory extends BaseValueFactory {
 		return new BigDecimalValue(new BigDecimal(doubleValue));
 	}
 	
+	public IReal real(String s, int p) throws NumberFormatException {
+		return new BigDecimalValue(new BigDecimal(s, new MathContext(p)));
+	}
+	
 	public IReal real(BigDecimal value){
 		return new BigDecimalValue(value);
+	}
+	
+	public IInteger precision(){
+		return integer(PRECISION);
+	}
+	
+	public IInteger setPrecision(int p){
+		int previous = PRECISION;
+		PRECISION = p;
+		return integer(previous);
 	}
 	
 	public IReal pi(int precision) {
@@ -365,4 +385,7 @@ public class ValueFactory extends BaseValueFactory {
 		b.appendCodePoint(ch);
 		return string(b.toString());
 	}
+
+	
+
 }
