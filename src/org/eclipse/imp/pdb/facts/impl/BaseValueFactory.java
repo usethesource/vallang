@@ -13,7 +13,6 @@
 
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,6 +28,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 
 public abstract class BaseValueFactory implements IValueFactory {
+	
+	public final static int DEFAULT_PRECISION = 10;
+	public static int PRECISION = DEFAULT_PRECISION;
+	
     public IInteger integer(int i) {
         return new IntegerValue(i);
     }
@@ -77,12 +80,34 @@ public abstract class BaseValueFactory implements IValueFactory {
         return new RealValue(d);
     }
     
+    public IReal real(double d, int p) {
+    	return new RealValue(d, p);
+    }
+    
     public IReal real(float f) {
     	return new RealValue(f);
     }
     
-    public IReal real(String s) {
-    	return new RealValue(new BigDecimal(s));
+    public IReal real(float f, int p) {
+    	return new RealValue(f, p);
+    }
+    
+    public IReal real(String s) throws NumberFormatException {
+    	return new RealValue(s);
+    }
+
+    public IReal real(String s, int p) throws NumberFormatException {
+    	return new RealValue(s, p);
+    }
+
+    public IInteger precision() {
+    	return integer(PRECISION);
+    }
+
+    public IInteger setPrecision(int p) {
+    	int previous = PRECISION;
+		PRECISION = p;
+		return integer(previous);
     }
     
     public IReal pi(int precision) {
