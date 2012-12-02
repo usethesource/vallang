@@ -28,21 +28,47 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /*package*/class RealValue extends AbstractNumberValue implements IReal {
+ 
   private final BigDecimal fValue;
 
   /* package */RealValue(double value) {
     super(TypeFactory.getInstance().realType());
     fValue = BigDecimal.valueOf(value);
   }
+  
+  /* package */RealValue(double value, int precision) {
+	    super(TypeFactory.getInstance().realType());
+	    fValue = new BigDecimal(value, new MathContext(precision));
+	  }
 
   /* package */RealValue(float value) {
     super(TypeFactory.getInstance().realType());
     fValue = BigDecimal.valueOf(value);
   }
+  
+  /* package */RealValue(float value, int precision) {
+	    super(TypeFactory.getInstance().realType());
+	    fValue = new BigDecimal(value, new MathContext(precision));
+	  }
 
   /* package */RealValue(BigDecimal value) {
     super(TypeFactory.getInstance().realType());
     fValue = value;
+  }
+  
+  /* package */RealValue(BigDecimal value, int precision) {
+	    super(TypeFactory.getInstance().realType());
+	    fValue = new BigDecimal(value.toEngineeringString(), new MathContext(precision));
+	  }
+  
+  /* package */ RealValue(String s){
+	  super(TypeFactory.getInstance().realType());
+	  fValue =  new BigDecimal(s);
+  }
+  
+  /* package */ RealValue(String s, int precision){
+	  super(TypeFactory.getInstance().realType());
+	  fValue =  new BigDecimal(s, new MathContext(precision));
   }
 
   public IReal toReal() {
@@ -50,11 +76,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal negate() {
-    return new RealValue(fValue.negate());
+    return new RealValue(fValue.negate(),BaseValueFactory.PRECISION);
   }
 
   public IReal add(IReal other) {
-    return new RealValue(fValue.add(((RealValue) other).fValue));
+    return new RealValue(fValue.add(((RealValue) other).fValue), BaseValueFactory.PRECISION);
   }
 
   public IReal add(IInteger other) {
@@ -66,7 +92,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal subtract(IReal other) {
-    return new RealValue(fValue.subtract(((RealValue) other).fValue));
+    return new RealValue(fValue.subtract(((RealValue) other).fValue), BaseValueFactory.PRECISION);
   }
 
   public IReal subtract(IInteger other) {
@@ -78,7 +104,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal multiply(IReal other) {
-    return new RealValue(fValue.multiply(((RealValue) other).fValue));
+    return new RealValue(fValue.multiply(((RealValue) other).fValue), BaseValueFactory.PRECISION);
   }
 
   public IReal multiply(IInteger other) {
@@ -230,6 +256,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     return fValue.precision();
   }
 
+
   public int scale() {
     return fValue.scale();
   }
@@ -239,7 +266,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal abs() {
-    return new RealValue(fValue.abs());
+    return new RealValue(fValue.abs(), BaseValueFactory.PRECISION);
   }
 
   public int signum() {
