@@ -38,6 +38,12 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 		
 		this.value = value;
 	}
+	
+	protected BigDecimalValue(BigDecimal value, int precision){
+		super();
+		
+		this.value = new BigDecimal(value.toEngineeringString(), new MathContext(precision));
+	}
 
 	public IReal abs() {
 		return new BigDecimalValue(value.abs());

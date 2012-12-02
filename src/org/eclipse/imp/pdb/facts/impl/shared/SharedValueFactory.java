@@ -256,6 +256,26 @@ public final class SharedValueFactory implements IValueFactory{
 		return (IReal) buildValue(new SharedBigDecimalValue(value));
 	}
 	
+	public IReal real(String s, int p) throws NumberFormatException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IReal real(double d, int p) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IInteger precision() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IInteger setPrecision(int p) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	public IReal pi(int precision) {
 		return SharedBigDecimalValue.pi(precision);
 	}
@@ -528,4 +548,6 @@ public final class SharedValueFactory implements IValueFactory{
   public IBool bool(boolean value) {
     return BoolValue.getBoolValue(value);
   }
+
+
 }
