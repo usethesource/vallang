@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.impl.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 
 
@@ -39,6 +40,7 @@ public class BigDecimalCalculations {
 			"18577805321712268066130019278766111959092164201988") ;
 	
     public static final BigDecimal halfPI = PI.divide(new BigDecimal(2));
+    public static final BigDecimal twoPI = PI.multiply(new BigDecimal(2));
 
     /**
 	 *  e in 1000 decimals places 
@@ -60,6 +62,12 @@ public class BigDecimalCalculations {
 			"09618369088870701676839642437814059271456354906130310720851038375051" +
 			"011574770417189861068739696552126715468895703503540");
 	
+    /**
+     * above 500 (/below -500) the approximation slows down more than the normalisation costs.
+     * So we normalize first
+     */
+    private static final BigDecimal sincosNormalizePoint = BigDecimal.valueOf(500);
+    
 	/**
      * Compute the sine of x to a given scale
      * @param x 
@@ -72,6 +80,9 @@ public class BigDecimalCalculations {
     {
         if (x.signum() == 0)
         	return BigDecimal.ZERO;
+        if (x.abs().compareTo(sincosNormalizePoint) >= 0 ) {
+	        x = x.remainder(twoPI, new MathContext(scale + 1));
+        }
         if (x.signum() == -1)
             return sinTaylor(x.negate(), scale).negate();
         else 
@@ -127,6 +138,9 @@ public class BigDecimalCalculations {
     {
         if (x.signum() == 0)
         	return BigDecimal.ONE;
+        if (x.abs().compareTo(sincosNormalizePoint) >= 0 ) {
+	        x = x.remainder(twoPI, new MathContext(scale + 1));
+        }
         if (x.signum() == -1)
             return cosTaylor(x.negate(), scale);
         else 
