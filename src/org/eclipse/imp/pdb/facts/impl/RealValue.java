@@ -104,7 +104,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal multiply(IReal other) {
-    return new RealValue(fValue.multiply(((RealValue) other).fValue), BaseValueFactory.PRECISION);
+	int precision = Math.min(Math.max(fValue.precision(), other.precision()), BaseValueFactory.PRECISION);
+	MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+    return new RealValue(fValue.multiply(((RealValue) other).fValue, mc));
   }
 
   public IReal multiply(IInteger other) {
