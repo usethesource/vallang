@@ -28,9 +28,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 
 public abstract class BaseValueFactory implements IValueFactory {
-	
-	public final static int DEFAULT_PRECISION = 10;
-	public static int PRECISION = DEFAULT_PRECISION;
+	protected final static int DEFAULT_PRECISION = 10;
+	protected static int PRECISION = DEFAULT_PRECISION;
 	
     public IInteger integer(int i) {
         return new IntegerValue(i);
@@ -100,14 +99,14 @@ public abstract class BaseValueFactory implements IValueFactory {
     	return new RealValue(s, p);
     }
 
-    public IInteger precision() {
-    	return integer(PRECISION);
+    public int getPrecision() {
+      return PRECISION;
     }
 
-    public IInteger setPrecision(int p) {
-    	int previous = PRECISION;
-		PRECISION = p;
-		return integer(previous);
+    public int setPrecision(int p) {
+      int previous = PRECISION;
+      PRECISION = p;
+      return previous;
     }
     
     public IReal pi(int precision) {

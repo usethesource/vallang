@@ -29,6 +29,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
  *
  */
 public interface IValueFactory {
+  
 	/**
 	 * Constructs an integer from the decimal representation.
 	 *  
@@ -119,14 +120,14 @@ public interface IValueFactory {
     /**
      * @return the global precision for reals
      */
-    public IInteger precision();
+    public int getPrecision();
     
     /**
      * Set the global precision for reals
      * @param p
      * @return the previous global precision
      */
-    public IInteger setPrecision(int p);
+    public int setPrecision(int p);
     
 	/**
 	 * @param precision (max of 1000)
