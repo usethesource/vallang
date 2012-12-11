@@ -50,13 +50,13 @@ public abstract class BaseTestList extends TestCase {
 	}
 
 	public void testGetElementType() {
-		if (integerList.getElementType() != tf.integerType()) {
+		if (integerList.getElementType().isSubtypeOf(tf.integerType())) {
 			fail("funny getElementType");
 		}
 		
 		try {
 			IList namedList = (IList) tf.aliasType(new TypeStore(), "myList", tf.listType(tf.integerType())).make(vf);
-			if (namedList.getElementType() != tf.integerType()) {
+			if (!namedList.getElementType().isSubtypeOf(tf.integerType())) {
 				fail("named list has wrong elementtype");
 			}
 		} catch (FactTypeUseException e) {

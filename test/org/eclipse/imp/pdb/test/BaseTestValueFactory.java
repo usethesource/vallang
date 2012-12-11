@@ -81,7 +81,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 			fail("empty set is not empty");
 		}
 
-		if (r.getType() != ft.relTypeFromTuple(ft.tupleType(ft.integerType()))) {
+		if (!r.getType().isSubtypeOf(ft.relTypeFromTuple(ft.tupleType(ft.integerType())))) {
 			fail("should be a rel of unary int tuples");
 		}
 	}
@@ -130,7 +130,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 				fail("named types should be aliases");
 			}
 
-			if (l.getElementType() != ft.integerType()) {
+			if (!l.getElementType().isSubtypeOf(ft.integerType())) {
 				fail("elements should be integers");
 			}
 
@@ -157,12 +157,12 @@ public abstract class BaseTestValueFactory extends TestCase {
 			fail("empty set is not empty");
 		}
 		
-		if (s.getType() != ft.setType(ft.realType())) {
-			fail("should be a list of doubles");
+		if (!s.getType().isSubtypeOf(ft.setType(ft.realType()))) {
+			fail("should be a list of reals");
 		}
 
-		if (s.getElementType() != ft.realType()) {
-			fail("should be a list of doubles");
+		if (!s.getElementType().isSubtypeOf(ft.realType())) {
+			fail("should be a list of reals");
 		}
 	}
 
@@ -207,7 +207,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 				fail("named types should be aliases");
 			}
 
-			if (l.getElementType() != ft.integerType()) {
+			if (!l.getElementType().isSubtypeOf(ft.integerType())) {
 				fail("elements should be integers");
 			}
 
@@ -234,7 +234,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 			fail("empty list is not empty");
 		}
 
-		if (l.getElementType() != ft.realType()) {
+		if (!l.getElementType().isSubtypeOf(ft.realType())) {
 			fail("should be a list of reals");
 		}
 	}
