@@ -44,6 +44,20 @@ public abstract class BaseTestEquality extends TestCase {
 		assertFalse(vf.string("a").isEqual(vf.string("b")));
 	}
 	
+	public void emptyCollectionsAreVoid() {
+	  assertTrue(vf.list(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
+	  assertTrue(vf.set(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
+	  assertTrue(vf.map(tf.integerType(),tf.integerType()).getKeyType().isSubtypeOf(tf.voidType()));
+	  assertTrue(vf.map(tf.integerType(),tf.integerType()).getValueType().isSubtypeOf(tf.voidType()));
+	  assertTrue(vf.relation(tf.tupleType(tf.integerType(),tf.integerType())).getElementType().isSubtypeOf(tf.voidType()));
+	  
+	  assertTrue(vf.listWriter(tf.integerType()).done().getElementType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.setWriter(tf.integerType()).done().getElementType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.mapWriter(tf.integerType(),tf.integerType()).done().getKeyType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.mapWriter(tf.integerType(),tf.integerType()).done().getValueType().isSubtypeOf(tf.voidType()));
+    assertTrue(vf.relationWriter(tf.tupleType(tf.integerType(),tf.integerType())).done().getElementType().isSubtypeOf(tf.voidType()));
+	}
+	
 	public void testList() {
 		assertTrue("element types are comparable", vf.list(tf.voidType()).isEqual(vf.list(tf.integerType()))); 
 		assertTrue("empty lists are always equal", vf.list(tf.realType()).isEqual(vf.list(tf.integerType())));
