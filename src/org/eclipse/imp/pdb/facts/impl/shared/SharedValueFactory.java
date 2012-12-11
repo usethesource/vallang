@@ -266,14 +266,14 @@ public final class SharedValueFactory implements IValueFactory{
 		return null;
 	}
 
-	public IInteger precision() {
-		// TODO Auto-generated method stub
-		return null;
+	public int getPrecision() {
+		// TODO
+	  return -1;
 	}
 
-	public IInteger setPrecision(int p) {
+	public int setPrecision(int p) {
 		// TODO Auto-generated method stub
-		return null;
+		return -1;
 	}
 	
 	public IReal pi(int precision) {
