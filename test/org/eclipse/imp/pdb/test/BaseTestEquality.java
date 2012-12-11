@@ -44,7 +44,7 @@ public abstract class BaseTestEquality extends TestCase {
 		assertFalse(vf.string("a").isEqual(vf.string("b")));
 	}
 	
-	public void emptyCollectionsAreVoid() {
+	public void testEmptyCollectionsAreVoid() {
 	  assertTrue(vf.list(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
 	  assertTrue(vf.set(tf.integerType()).getElementType().isSubtypeOf(tf.voidType()));
 	  assertTrue(vf.map(tf.integerType(),tf.integerType()).getKeyType().isSubtypeOf(tf.voidType()));

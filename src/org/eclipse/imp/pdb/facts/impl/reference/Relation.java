@@ -145,7 +145,7 @@ class Relation extends Set implements IRelation {
 			
 		public IRelation done() {
 			if(constructedSet == null){
-				constructedSet = new Relation(eltType, setContent);
+				constructedSet = new Relation(setContent.isEmpty() ? TypeFactory.getInstance().voidType() : eltType, setContent);
 			}
 			return  (IRelation) constructedSet;
 		}

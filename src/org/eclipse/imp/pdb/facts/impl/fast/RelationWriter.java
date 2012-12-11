@@ -120,7 +120,9 @@ public class RelationWriter implements IRelationWriter{
 	}
 	
 	public IRelation done(){
-		if(constructedRelation == null) constructedRelation = new Relation(tupleType, data);
+		if (constructedRelation == null) {
+		  constructedRelation = new Relation(data.isEmpty() ? TypeFactory.getInstance().voidType() : tupleType, data);
+		}
 		
 		return constructedRelation;
 	}
