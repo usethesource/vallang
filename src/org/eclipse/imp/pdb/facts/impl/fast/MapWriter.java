@@ -155,7 +155,15 @@ public class MapWriter implements IMapWriter{
 	}
 	
 	public IMap done(){
-		if(constructedMap == null) constructedMap = new Map(keyType, valueType, data);
+		if(constructedMap == null) {
+		  if (data.isEmpty()) {
+		    Type voidType = TypeFactory.getInstance().voidType();
+        return new Map(voidType, voidType, data);
+		  }
+		  else {
+		    constructedMap = new Map(keyType, valueType, data);
+		  }
+		}
 		
 		return constructedMap;
 	}

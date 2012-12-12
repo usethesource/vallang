@@ -280,7 +280,9 @@ public class List extends Value implements IList {
 		}
 
 		public IList done(){
-			if(constructedList == null) constructedList = new List(eltType, listContent);
+			if(constructedList == null) {
+			  constructedList = new List(listContent.isEmpty() ? TypeFactory.getInstance().voidType() : eltType, listContent);
+			}
 			
 			return constructedList;
 		}

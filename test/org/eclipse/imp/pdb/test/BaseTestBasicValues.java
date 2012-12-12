@@ -1,0 +1,147 @@
+package org.eclipse.imp.pdb.test;
+
+import junit.framework.TestCase;
+
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INumber;
+import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+
+abstract public class BaseTestBasicValues extends TestCase {
+	protected IValueFactory vf;
+	protected TypeFactory tf = TypeFactory.getInstance();
+
+	// TODO add more test cases
+	protected void setUp(IValueFactory factory) throws Exception {
+		super.setUp();
+		vf = factory;
+	}
+	
+	protected void assertEqual(IValue l, IValue r) {
+		assertTrue("Expected " + l + " got " + r, l.isEqual(r));
+	}
+
+	public void testStringRepresentation() {
+		assertTrue(vf.string("\uD83C\uDF5D").isEqual(vf.string("🍝")));
+		assertTrue(vf.string(new String(Character.toChars(0x1F35D))).isEqual(vf.string("🍝")));
+	}
+	
+	public void testStringLength() {
+		assertTrue(vf.string("\uD83C\uDF5D").length() == 1);
+		assertTrue(vf.string("\uD83C\uDF5D\uD83C\uDF5D").length() == 2);
+		assertTrue(vf.string("🍝").length() == 1);
+		assertTrue(vf.string("🍝🍝").length() == 2);
+		assertTrue(vf.string("é").length() == 1);
+		assertTrue(vf.string("").length() == 0);
+	}
+	
+	public void testStringReverse() {
+		assertTrue(vf.string("").reverse().isEqual(vf.string("")));
+		assertTrue(vf.string("🍝").reverse().isEqual(vf.string("🍝")));
+		assertTrue(vf.string("🍝🍝").reverse().isEqual(vf.string("🍝🍝")));
+		assertTrue(vf.string("🍝x🍝").reverse().isEqual(vf.string("🍝x🍝")));
+		assertTrue(vf.string("🍝🍞").reverse().getValue().equals("🍞🍝"));
+	}
+	
+	public void testStringSubString() {
+		assertTrue(vf.string("").substring(0,0).isEqual(vf.string("")));
+		assertTrue(vf.string("🍝").substring(0,1).isEqual(vf.string("🍝")));
+		assertTrue(vf.string("🍝🍝").substring(0,1).isEqual(vf.string("🍝")));
+		assertTrue(vf.string("🍝x🍝").substring(1,2).isEqual(vf.string("x")));
+		assertTrue(vf.string("🍝x🍝").substring(1,3).isEqual(vf.string("x🍝")));
+	}
+	
+	public void testStringCharAt() {
+		assertTrue(vf.string("🍝").charAt(0) == 0x1F35D);
+		assertTrue(vf.string("🍝🍞").charAt(1) == 0x1F35E);
+		assertTrue(vf.string("🍝x🍝").charAt(1) == 'x');
+		assertTrue(vf.string("🍝x🍞").charAt(2) == 0x1F35E);
+	}
+	
+	public void testStringConcat() {
+		assertTrue(vf.string("").concat(vf.string("")).isEqual(vf.string("")));
+		assertTrue(vf.string("x").concat(vf.string("y")).isEqual(vf.string("xy")));
+		assertTrue(vf.string("🍝").concat(vf.string("y")).isEqual(vf.string("🍝y")));
+		assertTrue(vf.string("x").concat(vf.string("🍝")).isEqual(vf.string("x🍝")));
+		assertTrue(vf.string("🍝").concat(vf.string("🍝")).isEqual(vf.string("🍝🍝")));
+	}
+	
+	public void testIntAddition() {
+		assertTrue(vf.integer(1).add(vf.integer(1)).isEqual(vf.integer(2)));
+	}
+	
+	public void testReal() {
+		assertTrue(vf.real("1.5").floor().isEqual(vf.real("1")));
+		assertTrue(vf.real("1.5").round().isEqual(vf.real("2")));
+	}
+	
+	public void testNumberMakeInt() {
+		assertTrue(tf.numberType().make(vf, 1).isEqual(vf.integer(1)));
+	}
+	
+	public void testNumberMakeReal() {
+		assertTrue(tf.numberType().make(vf, 1.0).isEqual(vf.real(1.0)));
+	}
+
+	public void testNumberMakeRational() {
+		assertTrue(tf.numberType().make(vf, 1, 2).isEqual(vf.rational(1, 2)));
+	}
+	
+	public void testNumberSubTypes() {
+		assertTrue(tf.integerType().isSubtypeOf(tf.numberType()));
+		assertFalse(tf.numberType().isSubtypeOf(tf.integerType()));
+		assertTrue(tf.realType().isSubtypeOf(tf.numberType()));
+		assertFalse(tf.numberType().isSubtypeOf(tf.realType()));
+		assertTrue(tf.rationalType().isSubtypeOf(tf.numberType()));
+		assertFalse(tf.numberType().isSubtypeOf(tf.rationalType()));
+		
+		assertTrue(tf.integerType().lub(tf.realType()).equivalent(tf.numberType()));
+		assertTrue(tf.integerType().lub(tf.rationalType()).equivalent(tf.numberType()));
+		assertTrue(tf.integerType().lub(tf.numberType()).equivalent(tf.numberType()));
+		assertTrue(tf.realType().lub(tf.numberType()).equivalent(tf.numberType()));
+		assertTrue(tf.rationalType().lub(tf.integerType()).equivalent(tf.numberType()));
+		assertTrue(tf.rationalType().lub(tf.realType()).equivalent(tf.numberType()));
+		assertTrue(tf.rationalType().lub(tf.numberType()).equivalent(tf.numberType()));
+	}
+	
+	public void testNumberArithmatic() {
+		INumber i1 = (INumber) tf.numberType().make(vf, 1);
+		INumber i2 = (INumber) tf.numberType().make(vf, 2);
+		INumber r1 = (INumber) tf.numberType().make(vf, 1.0);
+		INumber r2 = (INumber) tf.numberType().make(vf, 2.0);
+		INumber q1 = (INumber) tf.numberType().make(vf, 1, 1);
+		INumber q2 = (INumber) tf.numberType().make(vf, 2, 1);
+		
+		assertEqual(i1.add(i2),vf.integer(3));
+		assertEqual(i1.add(r2),vf.real(3));
+		assertEqual(i1.add(q2),vf.rational(3, 1));
+		assertEqual(q1.add(i2),vf.rational(3, 1));
+		assertEqual(q1.add(q2),vf.rational(3, 1));
+		assertEqual(r1.add(r2),vf.real(3));
+		assertEqual(r1.add(i2),vf.real(3));
+		assertEqual(r1.add(q2),vf.real(3));
+		
+		assertEqual(i1.subtract(i2),vf.integer(-1));
+		assertEqual(i1.subtract(r2),vf.real(-1));
+		assertEqual(r1.subtract(r2),vf.real(-1));
+		assertEqual(r1.subtract(i2),vf.real(-1));
+		assertEqual(q1.subtract(q2),vf.rational(-1,1));
+		assertEqual(q1.subtract(r2),vf.real(-1));
+		assertEqual(q1.subtract(i2),vf.rational(-1,1));
+		assertEqual(r1.subtract(q2),vf.real(-1));
+		
+		IInteger i5 =  (IInteger) tf.numberType().make(vf, 5);
+		assertEqual(i5.divide(i2, 80*80),vf.real(2.5));
+		assertEqual(i5.divide(i2.toRational()),vf.rational(5, 2));
+	}
+	
+	
+	public void testPreciseRealDivision() {
+		IReal e100 = vf.real("1E100");
+		IReal maxDiff = vf.real("1E-6300");
+		IReal r9 = vf.real("9");
+		assertTrue(e100.subtract(e100.divide(r9,80*80).multiply(r9)).lessEqual(maxDiff).getValue());
+	}
+}

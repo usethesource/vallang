@@ -178,7 +178,9 @@ public class ListWriter implements IListWriter{
 	}
 	
 	public IList done(){
-		if(constructedList == null) constructedList = new List(elementType, data);
+		if (constructedList == null) {
+		  constructedList = new List(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
+		}
 		
 		return constructedList;
 	}

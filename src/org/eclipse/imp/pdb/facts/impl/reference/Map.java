@@ -263,7 +263,8 @@ class Map extends Value implements IMap{
 		
 		public IMap done(){
 			if(constructedMap == null) {
-				constructedMap = new Map(keyType, valueType, mapContent);
+			  Type voidType = TypeFactory.getInstance().voidType();
+				constructedMap = new Map(mapContent.isEmpty() ? voidType : keyType, mapContent.isEmpty() ? voidType : valueType, mapContent);
 			}
 			
 			return constructedMap;
