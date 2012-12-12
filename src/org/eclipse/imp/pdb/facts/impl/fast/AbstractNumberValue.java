@@ -72,13 +72,13 @@ public abstract class AbstractNumberValue extends Value implements INumber{
     throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
   }
   
-  public boolean isEqual(IValue other) {
-    if (other instanceof INumber) {
-      return equal((INumber) other).getValue();
-    }
-    
-    return equals(other);
-  }
+//  public boolean isEqual(IValue other) {
+//    if (other instanceof INumber) {
+//      return equal((INumber) other).getValue();
+//    }
+//    
+//    return equals(other);
+//  }
 	
 	public IBool greaterEqual(INumber other){
 		Type otherType = other.getType();

@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.ICanBecomeABigInteger;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -92,6 +93,10 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	
 	public BigInteger toBigInteger(){
 		return new BigInteger(getTwosComplementRepresentation());
+	}
+	
+	public boolean isEqual(IValue other) {
+	  return equals(other);
 	}
 	
 	public IInteger add(IInteger other){
