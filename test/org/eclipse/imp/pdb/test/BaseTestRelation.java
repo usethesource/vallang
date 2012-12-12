@@ -164,7 +164,7 @@ public abstract class BaseTestRelation extends TestCase {
 		
 		try {
 			IRelation rel = vf.relation(tf.tupleType(tf.integerType(), tf.realType()));
-			rel.insert(vf.tuple(vf.integer(1), vf.real(1.0)));
+			rel = rel.insert(vf.tuple(vf.integer(1), vf.real(1.0)));
 			rel.closure();
 			fail("relation is not reflexive but no type error thrown");
 		}

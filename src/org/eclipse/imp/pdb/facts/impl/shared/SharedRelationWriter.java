@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.impl.fast.RelationWriter;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
  * Relation writer for shareable relations.
@@ -35,7 +36,9 @@ public class SharedRelationWriter extends RelationWriter{
 	}
 	
 	public IRelation done(){
-		if(constructedRelation == null) constructedRelation = SharedValueFactory.getInstance().buildRelation(new SharedRelation(tupleType, data));
+		if(constructedRelation == null) {
+		  constructedRelation = SharedValueFactory.getInstance().buildRelation(new SharedRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : tupleType, data));
+		}
 		
 		return constructedRelation;
 	}

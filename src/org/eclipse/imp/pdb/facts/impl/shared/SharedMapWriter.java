@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.impl.fast.MapWriter;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
  * Map writer for shareable maps.
@@ -35,7 +36,15 @@ public class SharedMapWriter extends MapWriter{
 	}
 	
 	public IMap done(){
-		if(constructedMap == null) constructedMap = SharedValueFactory.getInstance().buildMap(new SharedMap(keyType, valueType, data));
+		if(constructedMap == null) {
+		  if (!data.isEmpty()) {
+		    constructedMap = SharedValueFactory.getInstance().buildMap(new SharedMap(keyType, valueType, data));
+		  }
+		  else {
+		    Type voidType = TypeFactory.getInstance().voidType();
+		    constructedMap = SharedValueFactory.getInstance().buildMap(new SharedMap(voidType, voidType, data));
+		  }
+		}
 		
 		return constructedMap;
 	}

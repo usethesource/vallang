@@ -220,11 +220,11 @@ class Set extends Value implements ISet{
 		
 		public ISet done(){
 			if(constructedSet == null){
-				if (inferred && eltType.isTupleType() && !eltType.isVoidType()) {
+				if (inferred && eltType.isTupleType() || setContent.isEmpty()) {
 					constructedSet = new Relation(setContent.isEmpty() ? TypeFactory.getInstance().voidType() : eltType, setContent);
 				}
 				else {
-					constructedSet = new Set(TypeFactory.getInstance().setType(setContent.isEmpty() ? TypeFactory.getInstance().voidType() :eltType), setContent);
+					constructedSet = new Set(TypeFactory.getInstance().setType(eltType), setContent);
 				}
 			}
 			

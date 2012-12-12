@@ -360,7 +360,9 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public ISetWriter setWriter(Type elementType){
-		if(elementType.isTupleType()) return relationWriter(elementType);
+		if(elementType.isTupleType()) {
+		  return relationWriter(elementType);
+		}
 		
 		return new SharedSetWriter(elementType);
 	}
@@ -393,7 +395,7 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public ISet set(Type elementType){
-		return setWriter(elementType).done();
+		return setWriter(TypeFactory.getInstance().voidType()).done();
 	}
 	
 	public ISet set(IValue... elements){

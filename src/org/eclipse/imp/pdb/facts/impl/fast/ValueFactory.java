@@ -252,7 +252,7 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public ISet set(Type elementType){
-		return setWriter(elementType).done();
+		return setWriter(TypeFactory.getInstance().voidType()).done();
 	}
 	
 	public ISet set(IValue... elements){

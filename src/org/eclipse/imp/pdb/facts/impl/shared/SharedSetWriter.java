@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.impl.fast.SetWriter;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
  * Set writer for shareable sets.
@@ -36,11 +37,11 @@ public class SharedSetWriter extends SetWriter{
 	
 	public ISet done(){
 		if(constructedSet == null) {
-			if (inferred && elementType.isTupleType()) {
-				constructedSet = SharedValueFactory.getInstance().buildRelation(new SharedRelation(elementType, data));
+			if (inferred && elementType.isTupleType() || data.isEmpty()) {
+				constructedSet = SharedValueFactory.getInstance().buildRelation(new SharedRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data));
 			}
 			else {
-				constructedSet = SharedValueFactory.getInstance().buildSet(new SharedSet(elementType, data));
+				constructedSet = SharedValueFactory.getInstance().buildSet(new SharedSet(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data));
 			}
 		}
 		

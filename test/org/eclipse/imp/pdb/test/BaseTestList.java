@@ -50,7 +50,7 @@ public abstract class BaseTestList extends TestCase {
 	}
 
 	public void testGetElementType() {
-		if (integerList.getElementType().isSubtypeOf(tf.integerType())) {
+		if (!integerList.getElementType().isSubtypeOf(tf.integerType())) {
 			fail("funny getElementType");
 		}
 		
