@@ -281,9 +281,14 @@ abstract public class BaseTestRandomValues extends TestCase {
 			count = 0;
 		if(params.length == k) { // we have a complete argument list
 			try {
+			  
 				m.invoke(this, args);
 			}
 			catch(InvocationTargetException e) {
+			  if (noisy) {
+          System.err.println("FAIL: " + m.getName() + "(" + Arrays.toString(args) + ")");
+        }
+			  
 				if(e.getCause() != null)
 					throw e.getCause();
 				else
@@ -463,6 +468,20 @@ abstract public class BaseTestRandomValues extends TestCase {
 			assertTrue("" + a + " <= " + b + " <= " + c,
 					a.lessEqual(c).getValue());
 	}
+	
+	public void axiomNoEqualInt(IInteger i) {
+	  assertFalse(i.toReal().equals(i));
+	  assertFalse(i.toRational().equals(i));
+	}
+	
+	public void axiomNoEqualRat(IRational i) {
+    assertFalse(i.toReal().equals(i));
+    assertFalse(i.toInteger().equals(i));
+  }
+	
+	public void axiomNoEqualReal(IReal i) {
+    assertFalse(i.toInteger().equals(i));
+  }
 
 	/**
 	 *	Check that behavour of add/subtract/multiply/divide of integers is
