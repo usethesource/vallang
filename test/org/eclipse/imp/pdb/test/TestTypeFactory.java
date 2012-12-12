@@ -228,6 +228,28 @@ public class TestTypeFactory extends TestCase {
 			fail("type error for correct relation");
 		}
 	}
+	
+	public void testListRelTypeType() {
+		try {
+			TypeStore store = new TypeStore();
+			Type namedType = ft.aliasType(store, "myTuple", ft.tupleType(ft.integerType(), ft.integerType()));
+			// note that the declared type of namedType needs to be Type
+			Type type = ft.lrelTypeFromTuple(namedType);
+		
+			Type namedType2 = ft.aliasType(store, "myTuple", ft.tupleType(ft.integerType(), ft.integerType()));
+			
+			if (type != ft.lrelTypeFromTuple(namedType2)) {
+				fail("list relation types should be canonical");
+			}
+			
+			if (type.getFieldType(0) != ft.integerType() &&
+					type.getFieldType(1) != ft.integerType()) {
+				fail("list relation should mimick tuple field types");
+			}
+		} catch (FactTypeUseException e) {
+			fail("type error for correct list relation");
+		}
+	}
 
 	public void testRelTypeNamedType() {
 		try {
@@ -245,6 +267,23 @@ public class TestTypeFactory extends TestCase {
 			fail("type error for correct relation");
 		}
 	}
+	
+	public void testListRelTypeNamedType() {
+		try {
+			TypeStore store = new TypeStore();
+			Type namedType = ft.aliasType(store, "myTuple", ft.tupleType(ft.integerType(), ft.integerType()));
+			// note that the declared type of namedType needs to be AliasType
+			Type type = ft.lrelTypeFromTuple(namedType);
+		
+			Type namedType2 = ft.aliasType(store, "myTuple", ft.tupleType(ft.integerType(), ft.integerType()));
+			
+			if (type != ft.lrelTypeFromTuple(namedType2)) {
+				fail("list relation types should be canonical");
+			}
+		} catch (FactTypeUseException e) {
+			fail("type error for correct list relation");
+		}
+	}
 
 	public void testRelTypeTupleType() {
 			Type tupleType = ft
@@ -259,6 +298,20 @@ public class TestTypeFactory extends TestCase {
 			fail("relation types should be canonical");
 		}
 	}
+	
+	public void testListRelTypeTupleType() {
+		Type tupleType = ft
+			.tupleType(ft.integerType(), ft.integerType());
+	// note that the declared type of tupleType needs to be TupleType
+	Type type = ft.lrelTypeFromTuple(tupleType);
+
+	Type tupleType2 = ft.tupleType(ft.integerType(), ft
+			.integerType());
+
+	if (type != ft.lrelTypeFromTuple(tupleType2)) {
+		fail("list relation types should be canonical");
+	}
+}
 
 	public void testRelTypeOfType() {
 		Type type = ft.relType(types[0]);

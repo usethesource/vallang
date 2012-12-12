@@ -274,6 +274,11 @@ public class TypeFactory {
     	return getFromCache(new RelationType(tupleType));
     }
     
+    public Type lrelTypeFromTuple(Type tupleType) {
+    	checkNull(tupleType);
+    	return getFromCache(new ListRelationType(tupleType));
+    }
+    
     /**
      * Construct a relation type.
      * @param fieldTypes the types of the fields of the relation
@@ -291,6 +296,25 @@ public class TypeFactory {
      */
     public Type relType(Object... fieldTypesAndLabels) {
         return relTypeFromTuple(tupleType(fieldTypesAndLabels));
+    }
+    
+    /**
+     * Construct a list relation type.
+     * @param fieldTypes the types of the fields of the relation
+     * @return a list relation type
+     */
+    public Type lrelType(Type... fieldTypes) {
+    	checkNull((Object[]) fieldTypes);
+        return getFromCache(new ListRelationType(tupleType(fieldTypes)));
+    }
+    
+    /**
+     * Construct a list relation type.
+     * @param fieldTypes the types of the fields of the relation
+     * @return a list relation type
+     */
+    public Type lrelType(Object... fieldTypesAndLabels) {
+        return lrelTypeFromTuple(tupleType(fieldTypesAndLabels));
     }
 
     /** 
