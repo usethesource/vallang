@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.impl.util.BigDecimalCalculations;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -106,6 +107,8 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 	}
 	
 	public IReal multiply(IReal other){
+		int precision = Math.min(Math.max(value.precision(), other.precision()), BaseValueFactory.PRECISION);
+		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return ValueFactory.getInstance().real(value.multiply(((BigDecimalValue) other).value));
 	}
 	
@@ -118,7 +121,6 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 	}
 	
 	public IReal divide(IReal other, int precision){
-		// make sure the precision is *at least* the same as that of the arguments
 		precision = Math.max(Math.max(value.precision(), other.precision()), precision);
 		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return ValueFactory.getInstance().real(value.divide(((BigDecimalValue) other).value, mc));

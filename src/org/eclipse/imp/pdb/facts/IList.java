@@ -40,7 +40,7 @@ public interface IList extends Iterable<IValue>, IValue {
     public IList append(IValue e);
     
     /**
-     * Insers an element in front of the list
+     * Inserts an element in front of the list
      * @param e the new element
      * @return a new list with the element in front
      */
