@@ -29,7 +29,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 
 public abstract class BaseValueFactory implements IValueFactory {
 	protected final static int DEFAULT_PRECISION = 10;
-	protected static int PRECISION = DEFAULT_PRECISION;
+	public static int PRECISION = DEFAULT_PRECISION;
 	
     public IInteger integer(int i) {
         return new IntegerValue(i);
