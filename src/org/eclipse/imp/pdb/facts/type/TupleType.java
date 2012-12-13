@@ -143,7 +143,40 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 		return TypeFactory.getInstance().setType(lub);
 	}
+	
+/*
+ *  Experimental version that does not depend on the order of fields:
+ *  
+	@Override
+	public boolean isSubtypeOf(Type o) {
+		if (o == this) {
+			return true; // optimize to prevent loop
+		} else if (o.isTupleType() && !o.isVoidType()) {
+			if (!hasFieldNames() || !o.hasFieldNames() || sameFieldNamePrefix(o.getFieldNames())) {
+				if (getArity() <= o.getArity()) {
+					for (int i = getArity() - 1; i >= 0; i--) {
+						if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
+							return false;
+						}
+					}
+					return true;
+				}
+			} else {
+				if (getArity() <= o.getArity()) {
+					for (int i = getArity() - 1; i >= 0; i--) {
+						if (!getFieldType(i).isSubtypeOf(
+								o.getFieldType(getFieldName(i)))) {
+							return false;
+						}
+					}
+					return true;
+				}
+			}
+		}
 
+		return super.isSubtypeOf(o);
+	}
+*/		
 	@Override
 	public boolean isSubtypeOf(Type o) {
 		if (o == this) {
@@ -160,6 +193,15 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		}
 
 		return super.isSubtypeOf(o);
+	}
+	
+	/*
+	 * TypeStore.checkoverloading now calls equivalent instead of comparable to ensure that only tuples of the same length are compared.
+	 */
+	
+	@Override
+	public boolean equivalent(Type other) {
+		return (other == this) || (other.isTupleType() && getArity() == other.getArity() && (isSubtypeOf(other) || other.isSubtypeOf(this)));
 	}
 
 	/**
@@ -357,6 +399,20 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	@Override
 	public String getFieldName(int i) {
 		return fFieldNames != null ? fFieldNames[i] : null;
+	}
+	
+	@Override
+	public String[] getFieldNames(){
+		return fFieldNames;
+	}
+	
+	protected boolean sameFieldNamePrefix (String[] o){
+		if(getArity() > o.length)
+			return false;
+		for(int i = getArity() - 1; i >= 0; i--)
+			if(!fFieldNames[i].equals(o[i]))
+				return false;
+		return true;
 	}
 
 	@Override
