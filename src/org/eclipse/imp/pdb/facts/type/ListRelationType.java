@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -19,7 +20,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
 
-/*package*/ final class ListRelationType extends SetType {
+/*package*/ final class ListRelationType extends ListType {
 	private final Type fTupleType;
 
     /**
@@ -192,7 +193,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
-	public IRelationWriter writer(IValueFactory f) {
-		return f.relationWriter(fTupleType);
+	public IListWriter writer(IValueFactory f) {
+		return (IListWriter) f.relationWriter(fTupleType);
 	}
 }

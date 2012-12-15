@@ -16,6 +16,8 @@ import java.util.HashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -232,5 +234,33 @@ public class ValueFactory extends BaseValueFactory {
 		StringBuilder b = new StringBuilder(1);
 		b.appendCodePoint(ch);
 		return string(b.toString());
+	}
+
+	public IListRelationWriter listRelationWriter(Type tupleType) {
+		checkNull(tupleType);
+		return ListRelation.createRelationWriter(tupleType);
+	}
+
+	public IListRelationWriter listRelationWriter() {
+		return ListRelation.createRelationWriter();
+	}
+
+	public IListRelation listRelation(Type tupleType) {
+		checkNull(tupleType);
+		return listRelationWriter(tupleType).done();
+	}
+
+	public IListRelation listRelation(IValue... tuples) {
+		checkNull((Object[]) tuples);
+		Type elementType = lub(tuples);
+	
+		if (!elementType.isTupleType()) {
+			TypeFactory tf = TypeFactory.getInstance();
+			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
+		}
+		
+		IListWriter rw = listWriter(elementType);
+		rw.insert(tuples);
+		return (IListRelation) rw.done();
 	}
 }

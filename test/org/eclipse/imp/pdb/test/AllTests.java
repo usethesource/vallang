@@ -46,6 +46,7 @@ public class AllTests {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestList.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestListRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestValueFactory.class);
 	}

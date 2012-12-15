@@ -29,7 +29,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class List extends Value implements IList {
 	private final Type eltType;
-	private final LinkedList<IValue> content;
+	protected final LinkedList<IValue> content;
 	private int fHash = 0;
 
 	public List(Type eltType, LinkedList<IValue> listContent) {
@@ -166,11 +166,11 @@ public class List extends Value implements IList {
 	 * This class does not guarantee thread-safety. Users must lock the writer object for thread safety.
 	 * It is thread-friendly however.
 	 */
-	private static class ListWriter extends Writer implements IListWriter{
-		private Type eltType;
-		private final LinkedList<IValue> listContent;
+	protected static class ListWriter extends Writer implements IListWriter{
+		protected Type eltType;
+		protected final LinkedList<IValue> listContent;
 		
-		private List constructedList;
+		protected List constructedList;
 		private final boolean inferred;
 		
 		public ListWriter(Type eltType){

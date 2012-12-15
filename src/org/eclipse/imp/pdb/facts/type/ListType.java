@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
-/*package*/ final class ListType extends Type {
+/*package*/ class ListType extends Type {
 	private final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
