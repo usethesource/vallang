@@ -2,7 +2,6 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
