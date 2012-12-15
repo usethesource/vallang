@@ -195,5 +195,20 @@ class ListRelation extends List implements IListRelation {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public IListRelation product(IList l) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IList intersect(IList l) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }

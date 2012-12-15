@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -302,5 +303,15 @@ public class List extends Value implements IList {
 			listContent.remove(i);
 		}
 		
+	}
+
+	public IListRelation product(IList l) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IList intersect(IList l) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
