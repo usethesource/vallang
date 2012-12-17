@@ -8,6 +8,7 @@
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
  *    Jurgen Vinju (jurgen@vinju.org)
+ *    Paul Klint (Paul.Klint@cwi.nl)
  ********************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl.reference;
@@ -17,7 +18,9 @@ import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
@@ -304,14 +307,41 @@ public class List extends Value implements IList {
 		}
 		
 	}
+	
+	public IListRelation product(IList lst){
+		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),lst.getElementType());
+		IListRelationWriter w = new ListRelation.ListRelationWriter(resultType);
 
-	public IListRelation product(IList l) {
-		// TODO Auto-generated method stub
-		return null;
+		for(IValue t1 : this){
+			for(IValue t2 : lst){
+				ITuple t3 = new Tuple(t1,t2);
+				w.insert(t3);
+			}
+		}
+
+		return w.done();
 	}
 
-	public IList intersect(IList l) {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel union(IList other){
+		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
+		w.appendAll(this);
+		w.appendAll(other);
+		IList result = w.done();
+		return (ListOrRel) result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel intersect(IList other) {
+		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
+		List o = (List) other;
+		
+		for(IValue v : content){
+			if(o.content.contains(v)){
+				w.insert(v);
+			}
+		}
+		
+		return (ListOrRel) w.done();
 	}
 }

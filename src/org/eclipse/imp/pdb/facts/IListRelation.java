@@ -94,8 +94,4 @@ public interface IListRelation extends IList, IValue {
      */
     public IList selectByFieldNames(String ... fields) throws FactTypeUseException;
 
-	public int size();
-
-	
-
 }

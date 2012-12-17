@@ -109,7 +109,18 @@ public interface IList extends Iterable<IValue>, IValue {
      */
     public IList delete(int i);
     
+    /**
+     * Carthesian product of two lists.
+     * 
+     * @param l
+     * @return a new list relation containing the product
+     */
     public IListRelation product(IList l);
     
-    public IList intersect(IList l);
+    /**
+     * Intersection of two lists
+     * @param l
+     * @return a new list that is the intersection
+     */
+    public <ListOrRel extends IList> ListOrRel intersect(IList l);
 }

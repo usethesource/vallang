@@ -185,30 +185,23 @@ class ListRelation extends List implements IListRelation {
 		
 		throw new IllegalOperationException("select with field names", getType());
 	}
-
-	public IListRelation compose(IListRelation rel) throws FactTypeUseException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
-	public <ListOrRel extends IList> ListOrRel union(IList list) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public IListRelation compose(IListRelation other) throws FactTypeUseException {
+		Type resultType = getType().compose(other.getType());
+		// an exception will have been thrown if the relations are not both binary and
+		// have a comparable field to compose.
+		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getFieldTypes());
 
-	public IListRelation product(IList l) {
-		// TODO Auto-generated method stub
-		return null;
+		for (IValue v1 : content) {
+			ITuple tuple1 = (ITuple) v1;
+			for (IValue t2 : other) {
+				ITuple tuple2 = (ITuple) t2;
+				
+				if (tuple1.get(1).isEqual(tuple2.get(0))) {
+					w.append(new Tuple(tuple1.get(0), tuple2.get(1)));
+				}
+			}
+		}
+		return w.done();
 	}
-
-	public IList intersect(IList l) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
 }

@@ -111,7 +111,7 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testSize() {
-		if (integerListRelation.size() != integerTuples.length) {
+		if (integerListRelation.length() != integerTuples.length) {
 			fail("relation size is not correct");
 		}
 	}
@@ -129,7 +129,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			fail("arity of product should be 2");
 		}
 		
-		if (prod.size() != integerListRelation.size() * integerListRelation.size()) {
+		if (prod.length() != integerListRelation.length() * integerListRelation.length()) {
 			fail("size of product should be square of size of integerRelation");
 		}
 	}
@@ -141,7 +141,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			fail("arity of product should be 2");
 		}
 		
-		if (prod.size() != integerListRelation.size() * listOfIntegers.length()) {
+		if (prod.length() != integerListRelation.length() * listOfIntegers.length()) {
 			fail("size of product should be square of size of integerRelation");
 		}
 	}
@@ -214,7 +214,7 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("composition is a product with the last column of the first relation and the first column of the last relation removed");
 			}
 			
-			if (comp.size() != integerListRelation.size()) {
+			if (comp.length() != integerListRelation.length()) {
 				fail("numner of expected tuples is off");
 			}
 		} catch (FactTypeUseException e) {
@@ -282,7 +282,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			final ITuple tuple = vf.tuple(vf.integer(100), vf.integer(100));
 			IList rel4 = rel3.insert(tuple);
 			
-			if (rel4.length() != integerListRelation.size() + 1) {
+			if (rel4.length() != integerListRelation.length() + 1) {
 				fail("insert failed");
 			}
 			
@@ -479,7 +479,7 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 		
 		try {
-			if (integerListRelation.union(doubleListRelation).length() != integerListRelation.size() + doubleListRelation.size())  {
+			if (integerListRelation.union(doubleListRelation).length() != integerListRelation.length() + doubleListRelation.length())  {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
@@ -525,7 +525,7 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 		
 		try {
-			if (integerListRelation.union(doubleListRelation).length() != integerListRelation.size() + doubleListRelation.size())  {
+			if (integerListRelation.union(doubleListRelation).length() != integerListRelation.length() + doubleListRelation.length())  {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
@@ -565,7 +565,7 @@ public abstract class BaseTestListRelation extends TestCase {
 				}
 			}
 			
-			if (i != integerListRelation.size()) {
+			if (i != integerListRelation.length()) {
 				fail("iterator skipped elements");
 			}
 		} catch (FactTypeUseException e) {
