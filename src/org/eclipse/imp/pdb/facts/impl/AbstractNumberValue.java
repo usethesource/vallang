@@ -36,7 +36,6 @@ public abstract class AbstractNumberValue extends Value implements INumber {
 		throw new UnexpectedTypeException(TypeFactory.getInstance().numberType(), other.getType());
 	}
 	
-	@Override
 	public boolean isEqual(IValue other) {
 	  if (other instanceof INumber) {
 	    return equal((INumber) other).getValue();

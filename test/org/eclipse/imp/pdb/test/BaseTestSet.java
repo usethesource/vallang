@@ -152,16 +152,6 @@ public abstract class BaseTestSet extends TestCase {
 		} catch (FactTypeUseException et) {
 			fail("this shouls all be typesafe");
 		}
-		
-		ISet dSet = vf.set(tf.realType());
-		
-		try {
-			if (dSet.intersect(set1).getElementType() != tf.numberType()) {
-				fail("intersect should produce lub types");
-			}
-		} catch (FactTypeUseException e) {
-			// this should not happen
-		}
 	}
 
 	public void testIsEmpty() {
@@ -233,15 +223,6 @@ public abstract class BaseTestSet extends TestCase {
 			fail("this shouls all be typesafe");
 		}
 		
-		ISet dSet = vf.set(tf.realType());
-		
-		try {
-			if (dSet.subtract(set1).getElementType() != tf.realType()) {
-				fail("subtract should produce type of left side");
-			}
-		} catch (FactTypeUseException e) {
-			// this should not happen
-		}
 	}
 
 	public void testUnion() {
@@ -289,15 +270,7 @@ public abstract class BaseTestSet extends TestCase {
 			fail("this shouls all be typesafe");
 		}
 		
-		ISet dSet = vf.set(tf.realType());
 		
-		try {
-			if (dSet.union(set1).getElementType() != tf.numberType()) {
-				fail("union should produce lub types");
-			}
-		} catch (FactTypeUseException e) {
-			// this should not happen
-		}
 	}
 
 	public void testIterator() {

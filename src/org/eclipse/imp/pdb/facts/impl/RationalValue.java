@@ -198,8 +198,6 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 			RationalValue other = (RationalValue) o;
 			return num.equals(other.num) && denom.equals(other.denom); 
 		}
-		else if(o instanceof IInteger)
-			return num.equals((IInteger)o) && denom.equals(intOne());
 		
 		return false;
 	}

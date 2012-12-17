@@ -113,7 +113,7 @@ public class SetWriter implements ISetWriter{
 	
 	public ISet done(){
 		if (constructedSet == null) {
-			if (inferred && elementType.isTupleType()) {
+			if (inferred && elementType.isTupleType() || data.isEmpty()) {
 				constructedSet = new Relation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
 			}
 			else {

@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
  * List writer for shareable lists.
@@ -35,7 +36,9 @@ public class SharedListWriter extends ListWriter{
 	}
 	
 	public IList done(){
-		if(constructedList == null) constructedList = SharedValueFactory.getInstance().buildList(new SharedList(elementType, data));
+		if(constructedList == null) {
+		  constructedList = SharedValueFactory.getInstance().buildList(new SharedList(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data));
+		}
 		
 		return constructedList;
 	}

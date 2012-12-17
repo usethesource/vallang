@@ -137,6 +137,21 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	public int getArity(){
+		return fBound.getArity();
+	}
+	
+	@Override
+	public Type getFieldType(int i){
+		return fBound.getFieldType(i);
+	}
+	
+	@Override
+	public String[] getFieldNames(){
+		return fBound.getFieldNames();
+	}
+	
+	@Override
 	public boolean isSubtypeOf(Type other) {
 		if (other == this) {
 			return true;

@@ -164,6 +164,7 @@ public abstract class BaseTestRelation extends TestCase {
 		
 		try {
 			IRelation rel = vf.relation(tf.tupleType(tf.integerType(), tf.realType()));
+			rel = rel.insert(vf.tuple(vf.integer(1), vf.real(1.0)));
 			rel.closure();
 			fail("relation is not reflexive but no type error thrown");
 		}
@@ -295,22 +296,6 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testIntersectIRelation() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		IRelation empty2 = vf.relation(tf.tupleType(tf.realType()));
-		
-		try {
-			final IRelation intersection = empty1.intersect(empty2);
-			if (!intersection.isEmpty()) {
-				fail("empty intersection failed");
-			}
-			
-			Type type = intersection.getType();
-			if (!type.getFieldType(0).isNumberType()) {
-				fail("intersection should produce lub types");
-			}
-		} catch (FactTypeUseException e) {
-		    fail("intersecting types which have a lub should be possible");
-		}
 		
 		try {
 			if (!integerRelation.intersect(doubleRelation).isEmpty()) {
@@ -350,7 +335,7 @@ public abstract class BaseTestRelation extends TestCase {
 			}
 			
 			Type type = intersection.getType();
-			if (!type.getFieldType(0).isNumberType()) {
+			if (!type.getFieldType(0).isSubtypeOf(tf.numberType())) {
 				fail("intersection should produce lub types");
 			}
 		} catch (FactTypeUseException e) {
@@ -460,23 +445,6 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testUnionIRelation() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		IRelation empty2 = vf.relation(tf.tupleType(tf.realType()));
-		
-		try {
-			final IRelation union = empty1.union(empty2);
-			if (!union.isEmpty()) {
-				fail("empty union failed");
-			}
-			
-			Type type = union.getType();
-			if (!type.getFieldType(0).isNumberType()) {
-				fail("union should produce lub types");
-			}
-		} catch (FactTypeUseException e) {
-		    fail("union types which have a lub should be possible");
-		}
-		
 		try {
 			if (integerRelation.union(doubleRelation).size() != integerRelation.size() + doubleRelation.size())  {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
@@ -504,25 +472,21 @@ public abstract class BaseTestRelation extends TestCase {
 			fail("the above should all be type safe");
 		} 
 	}
+	
+	public void testEmptySetIsARelation() {
+	  assertTrue(vf.set() instanceof IRelation);
+	  assertTrue(vf.set(tf.integerType()) instanceof IRelation);
+	  
+	  IRelation r = vf.relation().insert(vf.tuple(vf.integer(1), vf.integer(2)));
+	  r = r.subtract(r);
+	  assertTrue(r instanceof IRelation);
+	  
+	  ISet s = vf.set().insert(vf.integer(1));
+	  s = s.subtract(s);
+	  assertTrue(s instanceof IRelation); // yes really!
+	}
 
 	public void testUnionISet() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
-		
-		try {
-			final IRelation union = empty1.union(empty2);
-			if (!union.isEmpty()) {
-				fail("empty union failed");
-			}
-			
-			Type type = union.getType();
-			if (!type.getFieldType(0).isNumberType()) {
-				fail("union should produce lub types");
-			}
-		} catch (FactTypeUseException e) {
-		    fail("union types which have a lub should be possible");
-		}
-		
 		try {
 			if (integerRelation.union(doubleRelation).size() != integerRelation.size() + doubleRelation.size())  {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
