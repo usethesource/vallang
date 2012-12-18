@@ -13,6 +13,9 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -172,5 +175,34 @@ public class List extends Value implements IList{
 		}
 		
 		return false;
+	}
+	
+	public IListRelation product(IList lst){
+		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),lst.getElementType());
+		ListRelationWriter w = new ListRelationWriter(resultType);
+
+		for(IValue t1 : this){
+			for(IValue t2 : lst){
+				IValue vals[] = {t1, t2};
+				ITuple t3 = new Tuple(resultType, vals);
+				w.insert(t3);
+			}
+		}
+
+		return (IListRelation) w.done();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel intersect(IList other) {
+		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
+		List o = (List) other;
+		
+		for(IValue v : data){
+			if(o.data.contains(v)){
+				w.insert(v);
+			}
+		}
+		
+		return (ListOrRel) w.done();
 	}
 }

@@ -323,15 +323,6 @@ public class List extends Value implements IList {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel union(IList other){
-		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
-		w.appendAll(this);
-		w.appendAll(other);
-		IList result = w.done();
-		return (ListOrRel) result;
-	}
-
-	@SuppressWarnings("unchecked")
 	public <ListOrRel extends IList> ListOrRel intersect(IList other) {
 		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
 		List o = (List) other;

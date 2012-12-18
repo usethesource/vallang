@@ -25,7 +25,7 @@ public interface IListRelation extends IList, IValue {
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <ListOrRel extends IList> ListOrRel union(IList list);
+//    public <ListOrRel extends IList> ListOrRel union(IList list);
 
     /**
      * Computes the composition of this relation, works only on

@@ -460,45 +460,45 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 	}
 
-	public void testUnionIRelation() {
+	public void testConcatIListRelation() {
 		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
 		IListRelation empty2 = vf.listRelation(tf.tupleType(tf.realType()));
 		
 		try {
-			final IRelation union = empty1.union(empty2);
-			if (!union.isEmpty()) {
-				fail("empty union failed");
+			final IListRelation concat = (IListRelation) empty1.concat(empty2);
+			if (!concat.isEmpty()) {
+				fail("empty concat failed");
 			}
 			
-			Type type = union.getType();
+			Type type = concat.getType();
 			if (!type.getFieldType(0).isNumberType()) {
-				fail("union should produce lub types");
+				fail("concat should produce lub types");
 			}
 		} catch (FactTypeUseException e) {
-		    fail("union types which have a lub should be possible");
+		    fail("concat types which have a lub should be possible");
 		}
 		
 		try {
-			if (integerListRelation.union(doubleListRelation).length() != integerListRelation.length() + doubleListRelation.length())  {
+			if (integerListRelation.concat(doubleListRelation).length() != integerListRelation.length() + doubleListRelation.length())  {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IRelation threeFourFive = vf.relation(integerTuples[2],
+			IListRelation threeFourFive = vf.listRelation(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[0],
+			IListRelation result = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
 
-			if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
-				fail("union failed");
+			if (!oneTwoThree.concat(threeFourFive).isEqual(result)) {
+				fail("concat failed");
 			}
-			if (!threeFourFive.union(oneTwoThree).isEqual(result)) {
-				fail("union should be commutative");
+			if (!threeFourFive.concat(oneTwoThree).isEqual(result)) {
+				fail("concat should be commutative");
 			}
 			
-			if (!oneTwoThree.union(vf.relation(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
-				fail("union with empty set should produce same set");
+			if (!oneTwoThree.concat(vf.listRelation(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
+				fail("concat with empty set should produce same set");
 			}
 
 		} catch (FactTypeUseException e) {
@@ -507,44 +507,44 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testUnionISet() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
+		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
+		IList empty2 = vf.list(tf.tupleType(tf.realType()));
 		
 		try {
-			final IRelation union = empty1.union(empty2);
-			if (!union.isEmpty()) {
-				fail("empty union failed");
+			final IListRelation concat = (IListRelation) empty1.concat(empty2);
+			if (!concat.isEmpty()) {
+				fail("empty concat failed");
 			}
 			
-			Type type = union.getType();
+			Type type = concat.getType();
 			if (!type.getFieldType(0).isNumberType()) {
-				fail("union should produce lub types");
+				fail("concat should produce lub types");
 			}
 		} catch (FactTypeUseException e) {
-		    fail("union types which have a lub should be possible");
+		    fail("concat types which have a lub should be possible");
 		}
 		
 		try {
-			if (integerListRelation.union(doubleListRelation).length() != integerListRelation.length() + doubleListRelation.length())  {
+			if (integerListRelation.concat(doubleListRelation).length() != integerListRelation.length() + doubleListRelation.length())  {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			ISet threeFourFive = vf.set(integerTuples[2],
+			IList threeFourFive = vf.list(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[0],
+			IListRelation result = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
 
-			if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
-				fail("union failed");
+			if (!oneTwoThree.concat(threeFourFive).isEqual(result)) {
+				fail("concat failed");
 			}
-			if (!threeFourFive.union(oneTwoThree).isEqual(result)) {
-				fail("union should be commutative");
+			if (!threeFourFive.concat(oneTwoThree).isEqual(result)) {
+				fail("concat should be commutative");
 			}
 			
-			if (!oneTwoThree.union(vf.set(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
-				fail("union with empty set should produce same set");
+			if (!oneTwoThree.concat(vf.list(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
+				fail("concat with empty set should produce same set");
 			}
 
 		} catch (FactTypeUseException e) {

@@ -12,15 +12,14 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListRelationWriter;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -30,7 +29,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-class ListRelation extends List implements IListRelation {
+public class ListRelation extends List implements IListRelation {
 
 	/* package */ListRelation(Type type, LinkedList<IValue> content) {
 		super(TypeFactory.getInstance().lrelTypeFromTuple(type), content);
@@ -48,8 +47,7 @@ class ListRelation extends List implements IListRelation {
 
 		while (prevCount != tmp.length()) {
 			prevCount = tmp.length();
-			IListRelation add = tmp.compose(tmp);
-			tmp = (IListRelation) tmp.union(tmp.compose(tmp));
+			tmp = (IListRelation) tmp.concat(tmp.compose(tmp));
 		}
 
 		return tmp;
@@ -65,7 +63,7 @@ class ListRelation extends List implements IListRelation {
 			reflex.insert(new Tuple(new IValue[] {e, e}));
 		}
 		
-		return closure().union(reflex.done());
+		return (IListRelation) closure().concat(reflex.done());
 	}
 
 	public IRelation compose(IRelation other) throws FactTypeUseException {
