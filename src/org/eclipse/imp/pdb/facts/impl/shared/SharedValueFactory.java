@@ -23,6 +23,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -550,6 +552,26 @@ public final class SharedValueFactory implements IValueFactory{
   public IBool bool(boolean value) {
     return BoolValue.getBoolValue(value);
   }
+
+public IListRelation listRelation(Type tupleType) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public IListRelation listRelation(IValue... elems) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public IListRelationWriter listRelationWriter(Type type) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public IListRelationWriter listRelationWriter() {
+	// TODO Auto-generated method stub
+	return null;
+}
 
 
 }
