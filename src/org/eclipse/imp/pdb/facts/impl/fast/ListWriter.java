@@ -177,9 +177,14 @@ public class ListWriter implements IListWriter{
 		if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
 	}
 	
-	public IList done(){
+	public IList  done(){
 		if (constructedList == null) {
-		  constructedList = new List(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
+			if (/*inferred && */elementType.isTupleType() || data.isEmpty()) {
+				constructedList = new ListRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
+			}
+			else {
+				constructedList = new List(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
+			}
 		}
 		
 		return constructedList;

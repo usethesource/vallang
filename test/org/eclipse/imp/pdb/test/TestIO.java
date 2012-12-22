@@ -45,7 +45,7 @@ public class TestIO extends TestCase {
 	private static Type TwoTups = tf.constructor(ts,Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
 	private static Type NameNode  = tf.constructor(ts,Name, "name", tf.stringType());
 	private static Type Friends = tf.constructor(ts,Boolean, "friends", tf.listType(Name));
-	private static Type Couples = tf.constructor(ts,Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
+	private static Type Couples = tf.constructor(ts,Boolean, "couples", tf.lrelType(Name, Name));
 	
 	private IValue[] testValues = {
 			vf.constructor(True),
@@ -55,7 +55,7 @@ public class TestIO extends TestCase {
 			vf.constructor(Or, vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
 			vf.constructor(Friends, vf.list(name("Hans"), name("Bob"))),
 			vf.constructor(Or, vf.list(Boolean)),
-			vf.constructor(Couples, vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
+			vf.constructor(Couples, vf.listRelation(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
 	};
 	
 	private String[] testXML = {

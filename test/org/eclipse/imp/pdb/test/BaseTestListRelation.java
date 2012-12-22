@@ -95,11 +95,11 @@ public abstract class BaseTestListRelation extends TestCase {
 			fail("integerRelation is not empty");
 		}
 		
-		if (!vf.relation(tf.tupleType(tf.integerType())).isEmpty()) {
+		if (!vf.listRelation(tf.tupleType(tf.integerType())).isEmpty()) {
 			fail("this relation should be empty");
 		}
 		
-		IRelation emptyRel = vf.relation();
+		IListRelation emptyRel = vf.listRelation();
 		if (!emptyRel.isEmpty()) {
 			fail("empty relation is not empty?");
 		}
@@ -134,7 +134,7 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 	}
 
-	public void testProductISet() {
+	public void testProductIList() {
 		IListRelation prod = integerListRelation.product(listOfIntegers);
 		
 		if (prod.arity() != 2) {
@@ -156,7 +156,9 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 		
 		try {
-			IRelation rel = vf.relation(tf.tupleType(tf.integerType(), tf.integerType()));
+			ITuple t1 = vf.tuple(integers[0], integers[1]);
+			IListRelation rel = vf.listRelation(t1);
+			
 			rel.closure();
 		}
 		catch (FactTypeUseException e) {
@@ -164,7 +166,8 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 		
 		try {
-			IRelation rel = vf.relation(tf.tupleType(tf.integerType(), tf.realType()));
+			ITuple t1 = vf.tuple(integers[0], doubles[1]);
+			IListRelation rel = vf.listRelation(t1);
 			rel.closure();
 			fail("relation is not reflexive but no type error thrown");
 		}
@@ -182,14 +185,14 @@ public abstract class BaseTestListRelation extends TestCase {
 			ITuple t5 = vf.tuple(integers[1], integers[3]);
 			ITuple t6 = vf.tuple(integers[0], integers[3]);
 			
-			IRelation test = vf.relation(t1, t2, t3);
-			IRelation closed = test.closure();
+			IListRelation test = vf.listRelation(t1, t2, t3);
+			IListRelation closed = test.closure();
 			
 			if (closed.arity() != test.arity()) {
 				fail("closure should produce relations of same arity");
 			}
 			
-			if (closed.size() != 6) {
+			if (closed.length() != 6) {
 				fail("closure contains too few elements");
 			}
 			
@@ -214,8 +217,8 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("composition is a product with the last column of the first relation and the first column of the last relation removed");
 			}
 			
-			if (comp.length() != integerListRelation.length()) {
-				fail("numner of expected tuples is off");
+			if (comp.length() != integerListRelation.length() * integers.length) {
+				fail("number of expected tuples is off");
 			}
 		} catch (FactTypeUseException e) {
 			fail("the above should be type correct");
@@ -225,27 +228,27 @@ public abstract class BaseTestListRelation extends TestCase {
 			ITuple t1 = vf.tuple(integers[0], doubles[0]);
 			ITuple t2 = vf.tuple(integers[1], doubles[1]);
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
-			IRelation rel1 = vf.relation(t1, t2, t3);
+			IListRelation rel1 = vf.listRelation(t1, t2, t3);
 
 			ITuple t4 = vf.tuple(doubles[0], integers[0]);
 			ITuple t5 = vf.tuple(doubles[1], integers[1]);
 			ITuple t6 = vf.tuple(doubles[2], integers[2]);
-			IRelation rel2 = vf.relation(t4, t5, t6);
+			IListRelation rel2 = vf.listRelation(t4, t5, t6);
 			
 			ITuple t7 = vf.tuple(integers[0], integers[0]);
 			ITuple t8 = vf.tuple(integers[1], integers[1]);
 			ITuple t9 = vf.tuple(integers[2], integers[2]);
-			IRelation rel3 = vf.relation(t7, t8, t9);
+			IListRelation rel3 = vf.listRelation(t7, t8, t9);
 			
 			try {
-			  vf.relation(vf.tuple(doubles[0],doubles[0])).compose(rel1);
+			  vf.listRelation(vf.tuple(doubles[0],doubles[0])).compose(rel1);
 			  fail("relations should not be composable");
 			}
 			catch (FactTypeUseException e) {
 				// this should happen
 			}
 			
-			IRelation comp = rel1.compose(rel2);
+			IListRelation comp = rel1.compose(rel2);
 			
 			if (!comp.isEqual(rel3)) {
 				fail("composition does not produce expected result");
@@ -269,11 +272,11 @@ public abstract class BaseTestListRelation extends TestCase {
 
 	public void testInsert() {
 		try {
-			IList rel = integerListRelation.insert(vf.tuple(vf.integer(0),vf.integer(0)));
-			
-			if (!rel.isEqual(integerListRelation)) {
-				fail("insert into a relation of an existing tuple should not change the relation");
-			}
+//			IList rel = integerListRelation.insert(vf.tuple(vf.integer(0),vf.integer(0)));
+//			
+//			if (!rel.isEqual(integerListRelation)) {
+//				fail("insert into a relation of an existing tuple should not change the relation");
+//			}
 			
 			IListRelationWriter relw3 = vf.listRelationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
 			relw3.insertAll(integerListRelation);
@@ -296,17 +299,17 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testIntersectIRelation() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		IRelation empty2 = vf.relation(tf.tupleType(tf.realType()));
+		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
+		IListRelation empty2 = vf.listRelation(tf.tupleType(tf.realType()));
 		
 		try {
-			final IRelation intersection = empty1.intersect(empty2);
+			final IListRelation intersection = empty1.intersect(empty2);
 			if (!intersection.isEmpty()) {
 				fail("empty intersection failed");
 			}
 			
 			Type type = intersection.getType();
-			if (!type.getFieldType(0).isNumberType()) {
+			if (!type.getFieldType(0).isVoidType()) {
 				fail("intersection should produce lub types");
 			}
 		} catch (FactTypeUseException e) {
@@ -318,11 +321,11 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IRelation threeFourFive = vf.relation(integerTuples[2],
+			IListRelation threeFourFive = vf.listRelation(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[2]);
+			IListRelation result = vf.listRelation(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -331,7 +334,7 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("intersection should be commutative");
 			}
 			
-			if (!oneTwoThree.intersect(vf.relation(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
+			if (!oneTwoThree.intersect(vf.listRelation(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
 				fail("intersection with empty set should produce empty");
 			}
 
@@ -340,19 +343,19 @@ public abstract class BaseTestListRelation extends TestCase {
 		} 
 	}
 
-	public void testIntersectISet() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
+	public void testIntersectIList() {
+		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
+		IList empty2 = vf.list(tf.tupleType(tf.realType()));
 		
 		try {
-			final IRelation intersection = empty1.intersect(empty2);
+			final IListRelation intersection = empty1.intersect(empty2);
 			if (!intersection.isEmpty()) {
 				fail("empty intersection failed");
 			}
 			
 			Type type = intersection.getType();
-			if (!type.getFieldType(0).isNumberType()) {
-				fail("intersection should produce lub types");
+			if (!type.getFieldType(0).isVoidType()) {
+				fail("empty intersection should produce void type");
 			}
 		} catch (FactTypeUseException e) {
 		    fail("intersecting types which have a lub should be possible");
@@ -363,11 +366,11 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			ISet threeFourFive = vf.set(integerTuples[2],
+			IList threeFourFive = vf.list(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[2]);
+			IListRelation result = vf.listRelation(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -376,88 +379,13 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("intersection should be commutative");
 			}
 			
-			if (!oneTwoThree.intersect(vf.relation(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
-				fail("intersection with empty set should produce empty");
+			if (!oneTwoThree.intersect(vf.listRelation(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
+				fail("intersection with empty list should produce empty");
 			}
 
 		} catch (FactTypeUseException e) {
 			fail("the above should all be type safe");
 		} 
-	}
-
-
-	public void testSubtractIRelation() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		IRelation empty2 = vf.relation(tf.tupleType(tf.realType()));
-		
-		try {
-			final IRelation diff = empty1.subtract(empty2);
-			if (!diff.isEmpty()) {
-				fail("empty diff failed");
-			}
-			
-		} catch (FactTypeUseException e) {
-		    fail("subtracting types which have a lub should be possible");
-		}
-		
-		try {
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
-					integerTuples[1], integerTuples[2]);
-			IRelation threeFourFive = vf.relation(integerTuples[2],
-					integerTuples[3], integerTuples[4]);
-			IRelation result1 = vf.relation(integerTuples[0],integerTuples[1]);
-			IRelation result2 = vf.relation(integerTuples[3],integerTuples[4]);
-
-			if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
-				fail("subtraction failed");
-			}
-			if (!threeFourFive.subtract(oneTwoThree).isEqual(result2)) {
-				fail("subtraction failed");
-			}
-			
-			IRelation empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
-			if (!empty3.subtract(threeFourFive).isEmpty()) {
-				fail("subtracting from empty set should produce empty");
-			}
-
-		} catch (FactTypeUseException e) {
-			fail("the above should all be type safe");
-		} 
-	}
-
-	public void testSubtractISet() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
-		
-		try {
-			final IRelation diff = empty1.subtract(empty2);
-			if (!diff.isEmpty()) {
-				fail("empty diff failed");
-			}
-			
-		} catch (FactTypeUseException e) {
-		    fail("subtracting types which have a lub should be possible");
-		}
-		
-		try {
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
-					integerTuples[1], integerTuples[2]);
-			ISet threeFourFive = vf.set(integerTuples[2],
-					integerTuples[3], integerTuples[4]);
-			IRelation result1 = vf.relation(integerTuples[0],integerTuples[1]);
-
-			if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
-				fail("subtraction failed");
-			}
-			
-			IRelation empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
-			if (!empty3.subtract(threeFourFive).isEmpty()) {
-				fail("subtracting from empty set should produce empty");
-			}
-
-		} catch (FactTypeUseException e) {
-			fail("the above should all be type safe");
-		}
 	}
 
 	public void testConcatIListRelation() {
@@ -471,8 +399,8 @@ public abstract class BaseTestListRelation extends TestCase {
 			}
 			
 			Type type = concat.getType();
-			if (!type.getFieldType(0).isNumberType()) {
-				fail("concat should produce lub types");
+			if (!type.getFieldType(0).isVoidType()) {
+				fail("concat should produce void type");
 			}
 		} catch (FactTypeUseException e) {
 		    fail("concat types which have a lub should be possible");
@@ -485,65 +413,20 @@ public abstract class BaseTestListRelation extends TestCase {
 
 			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IListRelation threeFourFive = vf.listRelation(integerTuples[2],
-					integerTuples[3], integerTuples[4]);
-			IListRelation result = vf.listRelation(integerTuples[0],
+			IListRelation threeFourFive = vf.listRelation(integerTuples[3], integerTuples[4]);
+			IListRelation result1 = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
+			IListRelation result2 = vf.listRelation(integerTuples[3],
+					integerTuples[4], integerTuples[0], integerTuples[1], integerTuples[2]);
 
-			if (!oneTwoThree.concat(threeFourFive).isEqual(result)) {
-				fail("concat failed");
+			if (!oneTwoThree.concat(threeFourFive).isEqual(result1)) {
+				fail("concat 1 failed");
 			}
-			if (!threeFourFive.concat(oneTwoThree).isEqual(result)) {
-				fail("concat should be commutative");
+			if (!threeFourFive.concat(oneTwoThree).isEqual(result2)) {
+				fail("concat 2 failed");
 			}
 			
 			if (!oneTwoThree.concat(vf.listRelation(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
-				fail("concat with empty set should produce same set");
-			}
-
-		} catch (FactTypeUseException e) {
-			fail("the above should all be type safe");
-		} 
-	}
-
-	public void testUnionISet() {
-		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
-		IList empty2 = vf.list(tf.tupleType(tf.realType()));
-		
-		try {
-			final IListRelation concat = (IListRelation) empty1.concat(empty2);
-			if (!concat.isEmpty()) {
-				fail("empty concat failed");
-			}
-			
-			Type type = concat.getType();
-			if (!type.getFieldType(0).isNumberType()) {
-				fail("concat should produce lub types");
-			}
-		} catch (FactTypeUseException e) {
-		    fail("concat types which have a lub should be possible");
-		}
-		
-		try {
-			if (integerListRelation.concat(doubleListRelation).length() != integerListRelation.length() + doubleListRelation.length())  {
-				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
-			}
-
-			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
-					integerTuples[1], integerTuples[2]);
-			IList threeFourFive = vf.list(integerTuples[2],
-					integerTuples[3], integerTuples[4]);
-			IListRelation result = vf.listRelation(integerTuples[0],
-					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
-
-			if (!oneTwoThree.concat(threeFourFive).isEqual(result)) {
-				fail("concat failed");
-			}
-			if (!threeFourFive.concat(oneTwoThree).isEqual(result)) {
-				fail("concat should be commutative");
-			}
-			
-			if (!oneTwoThree.concat(vf.list(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
 				fail("concat with empty set should produce same set");
 			}
 

@@ -479,6 +479,9 @@ public class TypeFactory {
      */
     public Type listType(Type elementType) {
     	checkNull(elementType);
+    	if (elementType.isTupleType()) {
+    		return lrelTypeFromTuple(elementType);
+    	}
 		return getFromCache(new ListType(elementType));
 	}
     
@@ -563,5 +566,6 @@ public class TypeFactory {
 		return true;
 	}
 
+	
 
 }

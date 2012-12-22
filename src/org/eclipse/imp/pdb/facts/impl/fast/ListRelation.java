@@ -10,36 +10,39 @@
 
 *******************************************************************************/
 
-package org.eclipse.imp.pdb.facts.impl.reference;
+package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.HashSet;
-import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.impl.fast.Tuple;
+import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class ListRelation extends List implements IListRelation {
+	
 	protected final Type listRelationType;
-
-	/* package */ ListRelation(Type type, LinkedList<IValue> content) {
+	
+	/* package */ListRelation(Type type, ShareableValuesList content) {
 		super(type, content);
-		this.listRelationType =TypeFactory.getInstance().lrelTypeFromTuple(type);
+		this.listRelationType = typeFactory.lrelTypeFromTuple(type);
 	}
 	
 	public int arity() {
-		return getType().getArity();
+		return this.elementType.getArity();
+	}
+	
+	public Type getType(){
+		return this.listRelationType;
 	}
 	
 	public IListRelation closure() throws FactTypeUseException {
@@ -50,15 +53,14 @@ public class ListRelation extends List implements IListRelation {
 
 		while (prevCount != tmp.length()) {
 			prevCount = tmp.length();
-			IListRelation tcomp = tmp.compose(tmp);
-			IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getElementType());
+			IListRelation tcomp = this.compose(tmp);
+			IListRelationWriter w = ListRelation.createListRelationWriter(resultType.getElementType());
 			for(IValue t1 : tcomp){
 				if(!tmp.contains(t1))
 					w.append(t1);
 			}
-			tmp = tmp.concat(w.done());
+			tmp = (IListRelation) tmp.concat(w.done());
 		}
-
 		return tmp;
 	}
 	
@@ -66,7 +68,7 @@ public class ListRelation extends List implements IListRelation {
 		Type resultType = getType().closure();
 		// an exception will have been thrown if the type is not acceptable
 
-		IListRelationWriter reflex = ListRelation.createRelationWriter(resultType.getElementType());
+		IListRelationWriter reflex = ListRelation.createListRelationWriter(resultType.getElementType());
 
 		for (IValue e: carrier()) {
 			reflex.insert(new Tuple(new IValue[] {e, e}));
@@ -75,21 +77,19 @@ public class ListRelation extends List implements IListRelation {
 		return (IListRelation) closure().concat(reflex.done());
 	}
 
-	public IListRelation compose(IRelation other) throws FactTypeUseException {
+	public IListRelation compose(IListRelation other) throws FactTypeUseException {
 		Type resultType = getType().compose(other.getType());
 		// an exception will have been thrown if the relations are not both binary and
 		// have a comparable field to compose.
 		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getFieldTypes());
 
-		for (IValue v1 : content) {
+		for (IValue v1 : data) {
 			ITuple tuple1 = (ITuple) v1;
 			for (IValue t2 : other) {
 				ITuple tuple2 = (ITuple) t2;
 				
 				if (tuple1.get(1).isEqual(tuple2.get(0))) {
-					ITuple tup = new Tuple(tuple1.get(0), tuple2.get(1));
-					if(!content.contains(tup))
-						w.append(tup);
+						w.append(new Tuple(tuple1.get(0), tuple2.get(1)));
 				}
 			}
 		}
@@ -153,18 +153,18 @@ public class ListRelation extends List implements IListRelation {
 	}
 	
 	public Type getFieldTypes() {
-		return fType.getFieldTypes();
+		return elementType.getFieldTypes();
 	}
 	
-	public static IListRelationWriter createRelationWriter(Type tupleType) {
+	public static IListRelationWriter createListRelationWriter(Type tupleType) {
 		return new ListRelationWriter(tupleType);
 	}
 	
-	public static IListRelationWriter createRelationWriter() {
+	public static IListRelationWriter createListRelationWriter() {
 		return new ListRelationWriter();
 	}
 	
-	protected static class ListRelationWriter  extends List.ListWriter implements IListRelationWriter {
+	protected static class ListRelationWriter  extends ListWriter implements IListRelationWriter {
 		public ListRelationWriter(Type eltType) {
 			super(eltType);
 		}
@@ -175,7 +175,7 @@ public class ListRelation extends List implements IListRelation {
 			
 		public IListRelation done() {
 			if(constructedList == null){
-				constructedList = new ListRelation(listContent.isEmpty() ? TypeFactory.getInstance().voidType() : eltType, listContent);
+				constructedList = new ListRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
 			}
 			return  (IListRelation) constructedList;
 		}
@@ -212,30 +212,22 @@ public class ListRelation extends List implements IListRelation {
 		throw new IllegalOperationException("select with field names", getType());
 	}
 	
-	public IListRelation compose(IListRelation other) throws FactTypeUseException {
-		Type resultType = getType().compose(other.getType());
-		// an exception will have been thrown if the relations are not both binary and
-		// have a comparable field to compose.
-		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getFieldTypes());
-
-		for (IValue v1 : content) {
-			ITuple tuple1 = (ITuple) v1;
-			for (IValue t2 : other) {
-				ITuple tuple2 = (ITuple) t2;
-				
-				if (tuple1.get(1).isEqual(tuple2.get(0))) {
-					w.append(new Tuple(tuple1.get(0), tuple2.get(1)));
-				}
-			}
-		}
-		return w.done();
-	}
-
-	public static IListRelationWriter createListRelationWriter() {
-		return  new ListRelationWriter();
-	}
-	
-	public static IListRelationWriter createListRelationWriter(Type tupleType) {
-		return new ListRelationWriter(tupleType);
-	}
+//	public IListRelation compose(IListRelation other) throws FactTypeUseException {
+//		Type resultType = getType().compose(other.getType());
+//		// an exception will have been thrown if the relations are not both binary and
+//		// have a comparable field to compose.
+//		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getFieldTypes());
+//
+//		for (IValue v1 : data) {
+//			ITuple tuple1 = (ITuple) v1;
+//			for (IValue t2 : other) {
+//				ITuple tuple2 = (ITuple) t2;
+//				
+//				if (tuple1.get(1).isEqual(tuple2.get(0))) {
+//					w.append(new Tuple(tuple1.get(0), tuple2.get(1)));
+//				}
+//			}
+//		}
+//		return w.done();
+//	}
 }

@@ -238,11 +238,11 @@ public class ValueFactory extends BaseValueFactory {
 
 	public IListRelationWriter listRelationWriter(Type tupleType) {
 		checkNull(tupleType);
-		return ListRelation.createRelationWriter(tupleType);
+		return ListRelation.createListRelationWriter(tupleType);
 	}
 
 	public IListRelationWriter listRelationWriter() {
-		return ListRelation.createRelationWriter();
+		return ListRelation.createListRelationWriter();
 	}
 
 	public IListRelation listRelation(Type tupleType) {
@@ -259,8 +259,8 @@ public class ValueFactory extends BaseValueFactory {
 			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}
 		
-		IListWriter rw = listWriter(elementType);
-		rw.insert(tuples);
-		return (IListRelation) rw.done();
+		IListRelationWriter rw = listRelationWriter(elementType);
+		rw.append(tuples);
+		return rw.done();
 	}
 }

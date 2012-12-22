@@ -105,7 +105,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
     @Override
     public int hashCode() {
-        return 58453 + 14323 * fTupleType.hashCode();
+        return 290253 + 269479 * fTupleType.hashCode();
     }
 
     @Override
@@ -193,6 +193,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	
 	@Override
 	public IListWriter writer(IValueFactory f) {
-		return (IListWriter) f.relationWriter(fTupleType);
+		return (IListWriter) f.listRelationWriter(fTupleType);
 	}
 }

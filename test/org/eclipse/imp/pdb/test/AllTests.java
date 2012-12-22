@@ -57,6 +57,7 @@ public class AllTests {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestAnnotations.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestListRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestList.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestValueFactory.class);
 	}
