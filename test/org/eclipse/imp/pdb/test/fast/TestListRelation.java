@@ -12,7 +12,6 @@ package org.eclipse.imp.pdb.test.fast;
 
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.test.BaseTestListRelation;
-import org.eclipse.imp.pdb.test.BaseTestRelation;
 
 /**
  * @author Arnold Lankamp
