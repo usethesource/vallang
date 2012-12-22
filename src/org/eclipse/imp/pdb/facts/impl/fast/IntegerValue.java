@@ -61,6 +61,10 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 		return value;
 	}
 	
+	public double doubleValue(){
+		return value;
+	}
+	
 	public IReal toReal(){
 		return ValueFactory.getInstance().real(value);
 	}

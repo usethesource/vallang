@@ -313,4 +313,8 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	protected IInteger intOne() {
 		return IntegerValue.INTEGER_ONE;
 	}
+
+	public double doubleValue() {
+		return num.doubleValue() / denom.doubleValue();
+	}
 }
