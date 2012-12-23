@@ -389,6 +389,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	public boolean isRelationType() {
 		return false;
 	}
+	
+	public boolean isListRelationType() {
+		return false;
+	}
 
 	public boolean isSetType() {
 		return false;

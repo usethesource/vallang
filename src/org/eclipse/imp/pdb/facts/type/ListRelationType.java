@@ -68,7 +68,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     }
     
     @Override
-    public boolean isRelationType() {
+    public boolean isListRelationType() {
     	return true;
     }
     
@@ -85,7 +85,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     
     @Override
     public boolean isSubtypeOf(Type o) {
-        if (o.isRelationType() && !o.isVoidType()) {
+        if (o.isListRelationType() && !o.isVoidType()) {
         	return fTupleType.isSubtypeOf(o.getFieldTypes());
         }
         
@@ -96,8 +96,8 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     public Type lub(Type o) {
     	if(o == this)
     		return TypeFactory.getInstance().listType(fTupleType.lub(o.getFieldTypes()));
-    	if (o.isRelationType()) {
-    		return TypeFactory.getInstance().setType(fTupleType.lub(o.getFieldTypes()));
+    	if (o.isListRelationType()) {
+    		return TypeFactory.getInstance().listType(fTupleType.lub(o.getFieldTypes()));
     	}
     	
     	return super.lub(o);
@@ -178,7 +178,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
-		return visitor.visitRelationType(this);
+		return visitor.visitListRelationType(this);
 	}
 
 	@Override

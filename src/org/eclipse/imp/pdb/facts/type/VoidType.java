@@ -215,6 +215,11 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
+	public boolean isListRelationType() {
+		return true;
+	}
+	
+	@Override
 	public boolean isSetType() {
 		return true;
 	}

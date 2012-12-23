@@ -25,6 +25,7 @@ public interface ITypeVisitor<T> {
 	T visitNumber(Type type);
 	T visitAlias(Type type);
 	T visitRelationType(Type type);
+	T visitListRelationType(Type type);
 	T visitSet(Type type);
 	T visitSourceLocation(Type type);
 	T visitString(Type type);

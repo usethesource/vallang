@@ -101,7 +101,7 @@ public abstract class BaseTestListRelation extends TestCase {
 		if (!emptyRel.isEmpty()) {
 			fail("empty relation is not empty?");
 		}
-		if (!emptyRel.getType().isRelationType()) {
+		if (!emptyRel.getType().isListRelationType()) {
 			fail("empty relation should have relation type");
 		}
 		

@@ -123,4 +123,16 @@ public interface IList extends Iterable<IValue>, IValue {
      * @return a new list that is the intersection
      */
     public <ListOrRel extends IList> ListOrRel intersect(IList l);
+    
+    /**
+     * Difference of two lists
+     * @param l
+     * @return a new list that is the intersection
+     */
+    public <ListOrRel extends IList> ListOrRel subtract(IList l);
+    
+    /**
+     * @return true if this list is a sublist of list l
+     */
+    public boolean isSubListOf(IList l);
 }

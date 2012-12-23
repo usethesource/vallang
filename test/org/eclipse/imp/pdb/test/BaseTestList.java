@@ -230,4 +230,63 @@ public abstract class BaseTestList extends TestCase {
 	private static void checkSubListEquality(IList fList, IList bList, IList oList){
 		if(!fList.isEqual(bList) || !bList.isEqual(oList)) fail("IList#subList is broken: "+fList+" "+bList+" "+oList);
 	}
+	
+	public void testIsSubListOf(){
+		IListWriter w = vf.listWriter(tf.integerType());
+		
+		for (int i = integers.length - 1; i >= 0; i -= 2) {
+			w.insert(vf.integer(i));
+		}
+		
+		IList even = w.done();
+		
+		w = vf.listWriter(tf.integerType());
+		
+		for (int i = integers.length - 2; i >= 0; i -= 2) {
+			w.insert(vf.integer(i));
+		}
+		
+		IList odd = w.done();
+		if(!integerList.isSubListOf(integerList))
+			fail("integerList should be sublist of integerList");
+		if(!even.isSubListOf(integerList))
+			fail("even should be sublist of integerList");
+		if(!odd.isSubListOf(integerList))
+			fail("odd should be sublist of integerList");
+		
+		if(integerList.isSubListOf(even))
+			fail("integerList cannot be sublist of even");
+		if(integerList.isSubListOf(odd))
+			fail("integerList cannot be sublist of odd");
+		if(even.isSubListOf(odd))
+			fail("even cannot be sublist of odd");
+		if(odd.isSubListOf(even))
+			fail("odd cannot be sublist of even");
+		
+		IList L123 = vf.list(integers[1], integers[2], integers[3]);
+		IList L918273 = vf.list(integers[9], integers[1], integers[8],integers[2], integers[7], integers[3]);
+		IList L918372 = vf.list(integers[9], integers[1], integers[8],integers[3], integers[7], integers[2]);
+		
+		if(!L123.isSubListOf(L918273))
+			fail("123 is sublist of 918273");
+		if(L123.isSubListOf(L918372))
+			fail("123 is not a sublist of 918372");
+	}
+	
+	public void testSubtract(){
+		IList L12312 = vf.list(integers[1], integers[2], integers[3],  integers[1], integers[2]);
+		IList L123 = vf.list(integers[1], integers[2], integers[3]);
+		IList L12 = vf.list(integers[1], integers[2]);
+		IList L321321 = vf.list(integers[3], integers[2], integers[1],integers[3], integers[2], integers[1]);
+		
+		if(!checkListEquality(L12312.subtract(L123), L12))
+			fail("12312 subtract 123 should be 12");
+		if(!L12312.subtract(L321321).isEmpty())
+			fail("12312 subtract 123213213 should be empty");
+	}
+	
+	private boolean checkListEquality(IList lst1, IList lst2){
+		return lst1.isSubListOf(lst2) && lst2.isSubListOf(lst2);
+		
+	}
 }

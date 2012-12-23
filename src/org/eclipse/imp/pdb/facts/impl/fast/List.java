@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Paul Klint - added new methods
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -221,5 +222,33 @@ public class List extends Value implements IList{
 		}
 		
 		return (ListOrRel) w.done();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel subtract(IList lst) {
+		IListWriter w = ValueFactory.getInstance().listWriter(lst.getElementType().lub(getElementType()));
+		for (IValue v: this.data) {
+			if (lst.contains(v)) {
+				lst = lst.delete(v);
+			} else
+				w.append(v);
+		}
+		return (ListOrRel) w.done();
+	}
+
+	public boolean isSubListOf(IList lst) {
+		int j = 0;
+		nextchar:
+			for(IValue elm : this.data){
+				while(j < lst.length()){
+					if(elm.isEqual(lst.get(j))){
+						j++;
+						continue nextchar;
+					} else
+						j++;
+				}
+				return false;
+			}
+		return true;
 	}
 }
