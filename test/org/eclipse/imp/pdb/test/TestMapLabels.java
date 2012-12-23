@@ -34,17 +34,13 @@ public class TestMapLabels extends TestCase {
 	private TypeStore ts = new TypeStore();
 	private TypeFactory tf = TypeFactory.getInstance();
 	private IValueFactory vf = ValueFactory.getInstance();
-	private Type routeType = tf.mapType(tf.stringType(), "from", tf.stringType(), "to");
-	private Type dictType = tf.mapType(tf.stringType(), "key", tf.stringType(), "value");
-
 	private Type a = tf.abstractDataType(ts, "A");
 	private Type b = tf.abstractDataType(ts, "B");
 	
-	private IValue[] testValues = {
-			vf.tuple(vf.string("foo"), vf.string("bar")),
-			((IMap)routeType.make(vf)).put(vf.string("Bergen"), vf.string("Amsterdam")),
-			vf.map(tf.stringType(), tf.stringType()).put(vf.string("New York"), vf.string("London")),
-			((IMap)dictType.make(vf)).put(vf.string("Banana"), vf.string("Fruit")),
+	private TestValue[] testValues = {
+			new TestValue("Bergen", "Amsterdam", "from", "to"),
+			new TestValue("New York", "London", null, null),
+			new TestValue("Banana", "Fruit", "key", "value"),
 	};
 
 	public void testNoLabels() {
@@ -101,12 +97,12 @@ public class TestMapLabels extends TestCase {
 	public void testLabelsIO(){
 		try{
 			for(int i = 0; i < testValues.length; i++){
-				IValue value = testValues[i];
+				TestValue testValue = testValues[i];
 				
-				System.out.println(value + " : " + value.getType()); // Temp
+				System.out.println(testValue + " : " + testValue.value.getType()); // Temp
 
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				BinaryWriter binaryWriter = new BinaryWriter(value, baos, ts);
+				BinaryWriter binaryWriter = new BinaryWriter(testValue.value, baos, ts);
 				binaryWriter.serialize();
 				
 				//PBFWriter.writeValueToFile(value, new File("/tmp/testIO"+i+".pbf")); // Temp
@@ -120,11 +116,15 @@ public class TestMapLabels extends TestCase {
 				System.out.println(result + " : " + result.getType()); // Temp
 				System.out.println(); // Temp
 				
-				if(!value.isEqual(result)){
-					String message = "Not equal: \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
+				if(!testValue.value.isEqual(result)){
+					String message = "Not equal: \n\t"+testValue+" : "+testValue.value.getType()+"\n\t"+result+" : "+result.getType();
 					System.err.println(message);
 					fail(message);
 				}
+				
+				Type resultType = result.getType();
+				assertEquals("Labels should be preserved by IO: ", testValue.keyLabel, resultType.getKeyLabel());
+				assertEquals("Labels should be preserved by IO: ", testValue.valueLabel, resultType.getValueLabel());
 			}
 		}catch(IOException ioex){
 			ioex.printStackTrace();
@@ -146,5 +146,22 @@ public class TestMapLabels extends TestCase {
 			System.out.print(" ");
 		}
 		System.out.println();
+	}
+	
+	class TestValue {
+		Type type;
+		IValue value;
+		String keyLabel;
+		String valueLabel;
+		
+		TestValue(String key, String value, String keyLabel, String valueLabel) {
+			this.keyLabel = keyLabel;
+			this.valueLabel = valueLabel;
+			if(keyLabel != null && valueLabel != null)
+				type = tf.mapType(tf.stringType(), keyLabel, tf.stringType(), valueLabel);
+			else
+				type = tf.mapType(tf.stringType(), tf.stringType());
+			this.value = ((IMap)type.make(vf)).put(vf.string(key), vf.string(value));
+		}
 	}
 }
