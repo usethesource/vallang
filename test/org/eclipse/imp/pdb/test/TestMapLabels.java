@@ -48,6 +48,7 @@ public class TestMapLabels extends TestCase {
 	};
 
 	public void testNoLabels() {
+		// make a non-labeled map type, and the labels should be null
 		Type type = tf.mapType(a, b);
 		
 		assertNull(type.getKeyLabel());
@@ -55,13 +56,16 @@ public class TestMapLabels extends TestCase {
 	}
 	
 	public void testLabels() {
+		// make a labeled map type, and the labels should match
 		Type type = tf.mapType(a, "apple", b, "banana");
 		
 		assertEquals("apple", type.getKeyLabel());
 		assertEquals("banana", type.getValueLabel());
 	}
 
-	public void testTwoLabels() {
+	public void testTwoLabels1() {
+		// make two map types with same key/value types but different labels,
+		// and the labels should be kept distinct
 		Type type1 = tf.mapType(a, "apple", b, "banana");
 		Type type2 = tf.mapType(a, "orange", b, "mango");
 		
@@ -69,6 +73,16 @@ public class TestMapLabels extends TestCase {
 		assertEquals("banana", type1.getValueLabel());
 		assertEquals("orange", type2.getKeyLabel());
 		assertEquals("banana", type2.getValueLabel());
+	}
+
+	public void testTwoLabels2() {
+		Type type1 = tf.mapType(a, "apple", b, "banana");
+		Type type2 = tf.mapType(a, "orange", b, "mango");
+		
+		assertFalse("Two map types with different labels should not be equivalent", type1.equivalent(type2));
+		assertFalse("Two map types with different labels should not be equivalent", type2.equivalent(type1));
+		assertFalse("Two map types with different labels should not be equals", type1.equals(type2));
+		assertFalse("Two map types with different labels should not be equals", type2.equals(type1));
 	}
 	
 	public void testLabelsIO(){
