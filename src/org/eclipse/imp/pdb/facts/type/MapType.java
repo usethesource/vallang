@@ -192,12 +192,16 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
         		return false;
         	}
         }
+        else if(other.fKeyLabel != null)
+        	return false;
         
         if (fValueLabel != null) {
         	if (!fValueLabel.equals(other.fValueLabel)) {
         		return false;
         	}
         }
+        else if(other.fValueLabel != null)
+        	return false;
         
         // N.B.: The element type must have been created and canonicalized before any
         // attempt to manipulate the outer type (i.e. SetType), so we can use object
