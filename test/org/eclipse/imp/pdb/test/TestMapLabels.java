@@ -31,11 +31,11 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  * @author Anya Helene Bagge
  */
 public class TestMapLabels extends TestCase {
-	private static TypeStore ts = new TypeStore();
-	private static TypeFactory tf = TypeFactory.getInstance();
-	private static IValueFactory vf = ValueFactory.getInstance();
-	private static Type routeType = tf.mapType(tf.stringType(), "from", tf.stringType(), "to");
-	private static Type dictType = tf.mapType(tf.stringType(), "key", tf.stringType(), "value");
+	private TypeStore ts = new TypeStore();
+	private TypeFactory tf = TypeFactory.getInstance();
+	private IValueFactory vf = ValueFactory.getInstance();
+	private Type routeType = tf.mapType(tf.stringType(), "from", tf.stringType(), "to");
+	private Type dictType = tf.mapType(tf.stringType(), "key", tf.stringType(), "value");
 
 	private Type a = tf.abstractDataType(ts, "A");
 	private Type b = tf.abstractDataType(ts, "B");
@@ -68,21 +68,34 @@ public class TestMapLabels extends TestCase {
 		// and the labels should be kept distinct
 		Type type1 = tf.mapType(a, "apple", b, "banana");
 		Type type2 = tf.mapType(a, "orange", b, "mango");
+		Type type3 = tf.mapType(a, b);
 		
 		assertEquals("apple", type1.getKeyLabel());
 		assertEquals("banana", type1.getValueLabel());
 		assertEquals("orange", type2.getKeyLabel());
-		assertEquals("banana", type2.getValueLabel());
+		assertEquals("mango", type2.getValueLabel());
+		assertNull(type3.getKeyLabel());
+		assertNull(type3.getValueLabel());
 	}
 
 	public void testTwoLabels2() {
 		Type type1 = tf.mapType(a, "apple", b, "banana");
 		Type type2 = tf.mapType(a, "orange", b, "mango");
 		
-		assertFalse("Two map types with different labels should not be equivalent", type1.equivalent(type2));
-		assertFalse("Two map types with different labels should not be equivalent", type2.equivalent(type1));
+		assertTrue("Two map types with different labels should be equivalent", type1.equivalent(type2));
+		assertTrue("Two map types with different labels should be equivalent", type2.equivalent(type1));
 		assertFalse("Two map types with different labels should not be equals", type1.equals(type2));
 		assertFalse("Two map types with different labels should not be equals", type2.equals(type1));
+
+		Type type3 = tf.mapType(a, b);
+		assertTrue("Labeled and unlabeled maps should be equivalent", type1.equivalent(type3));
+		assertTrue("Labeled and unlabeled maps should be equivalent", type3.equivalent(type1));
+		assertTrue("Labeled and unlabeled maps should be equivalent", type2.equivalent(type3));
+		assertTrue("Labeled and unlabeled maps should be equivalent", type3.equivalent(type2));
+		assertFalse("Labeled and unlabeled maps should not be equals", type1.equals(type3));
+		assertFalse("Labeled and unlabeled maps should not be equals", type3.equals(type1));
+		assertFalse("Labeled and unlabeled maps should not be equals", type2.equals(type3));
+		assertFalse("Labeled and unlabeled maps should not be equals", type3.equals(type2));
 	}
 	
 	public void testLabelsIO(){
