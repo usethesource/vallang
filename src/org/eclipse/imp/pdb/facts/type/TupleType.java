@@ -201,7 +201,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	
 	@Override
 	public boolean equivalent(Type other) {
-		return (other == this) || (other.isTupleType() && getArity() == other.getArity() && (isSubtypeOf(other) || other.isSubtypeOf(this)));
+		return (other == this) || (other.isTupleType() && getArity() == other.getArity() && (isSubtypeOf(other) && other.isSubtypeOf(this)));
 	}
 
 	/**
