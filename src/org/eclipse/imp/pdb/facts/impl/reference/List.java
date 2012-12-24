@@ -290,6 +290,10 @@ public class List extends Value implements IList {
 				eltType = eltType.lub(v.getType());
 			}
 		}
+		
+		public int size(){
+			return listContent.size();
+		}
 
 		public IList done(){
 			if(constructedList == null) {

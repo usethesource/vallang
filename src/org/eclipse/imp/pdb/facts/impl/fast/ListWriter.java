@@ -177,6 +177,10 @@ public class ListWriter implements IListWriter{
 		if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
 	}
 	
+	public int size(){
+		return data.size();
+	}
+	
 	public IList  done(){
 		if (constructedList == null) {
 			if (/*inferred && */elementType.isTupleType() || data.isEmpty()) {

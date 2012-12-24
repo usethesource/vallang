@@ -75,12 +75,12 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     
     @Override
     public Type select(int... fields) {
-    	return TypeFactory.getInstance().setType(fTupleType.select(fields));
+    	return TypeFactory.getInstance().listType(fTupleType.select(fields));
     }
     
     @Override
     public Type select(String... names) {
-    	return TypeFactory.getInstance().setType(fTupleType.select(names));
+    	return TypeFactory.getInstance().listType(fTupleType.select(names));
     }
     
     @Override

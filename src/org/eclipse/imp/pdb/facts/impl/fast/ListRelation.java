@@ -153,7 +153,7 @@ public class ListRelation extends List implements IListRelation {
 	}
 	
 	public Type getFieldTypes() {
-		return elementType.getFieldTypes();
+		return listRelationType.getFieldTypes();
 	}
 	
 	public static IListRelationWriter createListRelationWriter(Type tupleType) {
