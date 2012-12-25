@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	private final Type fTupleType;
 
     /**
-     * Create a new relation type from a tuple type.
+     * Create a new list relation type from a tuple type.
      * @param tupleType
      */
     /*package*/ ListRelationType(Type tupleType) {
@@ -114,7 +114,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
             return false;
         ListRelationType other= (ListRelationType) obj;
         // N.B.: The element type must have been created and canonicalized before any
-        // attempt to manipulate the outer type (i.e. SetType), so we can use object
+        // attempt to manipulate the outer type (i.e. ListType), so we can use object
         // identity here for the fEltType.
         return fTupleType == other.fTupleType;
     }
@@ -122,7 +122,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     @Override
     public String toString() {
     	if (fTupleType.isVoidType() || (fTupleType.getArity() == 1 && fTupleType.getFieldType(0).isVoidType())) { 
-    		return "set[void]";
+    		return "list[void]";
     	}
     	
     	StringBuffer b = new StringBuffer();
@@ -149,7 +149,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	
 	@Override
 	public Type compose(Type other) throws FactTypeUseException {
-		return TypeFactory.getInstance().relTypeFromTuple(getFieldTypes().compose(other.getFieldTypes()));
+		return TypeFactory.getInstance().lrelTypeFromTuple(getFieldTypes().compose(other.getFieldTypes()));
 	}
 	
 	@Override
@@ -170,10 +170,10 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 		
 		TypeFactory tf = TypeFactory.getInstance();
 		if (hasFieldNames()) {
-			return tf.relType(lub, getFieldName(0), lub, getFieldName(1));
+			return tf.lrelType(lub, getFieldName(0), lub, getFieldName(1));
 		}
 		
-		return tf.relType(lub, lub);
+		return tf.lrelType(lub, lub);
 	}
 	
 	@Override

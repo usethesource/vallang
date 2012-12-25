@@ -191,7 +191,7 @@ public class ListRelation extends List implements IListRelation {
 		IListWriter w = ValueFactory.getInstance().listWriter(eltType);
 		
 		for (IValue v : this) {
-			w.insert(((ITuple) v).select(fields));
+			w.append(((ITuple) v).select(fields));
 		}
 		
 		return w.done();
