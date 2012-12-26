@@ -1,11 +1,13 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2012 Centrum Wiskunde & Informatica
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
+* 	 Paul Klint (Paul.Klint@cwi.nl)         - Added ListRelation datatype
+* Based on code by   
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
 *******************************************************************************/
@@ -44,6 +46,7 @@ public class ListRelation extends List implements IListRelation {
 	public Type getType(){
 		return this.listRelationType;
 	}
+	
 	
 	public IListRelation closure() throws FactTypeUseException {
 		Type resultType = getType().closure(); // will throw exception if not binary and reflexive
@@ -153,7 +156,7 @@ public class ListRelation extends List implements IListRelation {
 	}
 	
 	public Type getFieldTypes() {
-		return listRelationType.getFieldTypes();
+		return elementType; //listRelationType.getFieldTypes();
 	}
 	
 	public static IListRelationWriter createListRelationWriter(Type tupleType) {
@@ -211,23 +214,4 @@ public class ListRelation extends List implements IListRelation {
 		
 		throw new IllegalOperationException("select with field names", getType());
 	}
-	
-//	public IListRelation compose(IListRelation other) throws FactTypeUseException {
-//		Type resultType = getType().compose(other.getType());
-//		// an exception will have been thrown if the relations are not both binary and
-//		// have a comparable field to compose.
-//		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getFieldTypes());
-//
-//		for (IValue v1 : data) {
-//			ITuple tuple1 = (ITuple) v1;
-//			for (IValue t2 : other) {
-//				ITuple tuple2 = (ITuple) t2;
-//				
-//				if (tuple1.get(1).isEqual(tuple2.get(0))) {
-//					w.append(new Tuple(tuple1.get(0), tuple2.get(1)));
-//				}
-//			}
-//		}
-//		return w.done();
-//	}
 }

@@ -183,12 +183,12 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
 	@Override
 	public IValue make(IValueFactory f) {
-		return f.relation(fTupleType);
+		return f.listRelation(fTupleType);
 	}
 	
 	@Override
 	public IValue make(IValueFactory f, IValue...elems) {
-		return f.relation(elems);
+		return f.listRelation(elems);
 	}
 	
 	@Override

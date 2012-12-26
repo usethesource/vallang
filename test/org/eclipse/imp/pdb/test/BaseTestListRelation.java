@@ -481,7 +481,7 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("integers should be in there still");
 			}
 			
-			if (carrier1.intersect(listOfDoubles).length() != 3) {
+			if (carrier1.intersect(listOfDoubles).length() != 6) {
 				fail("doubles should be in there still");
 			}
 		} catch (FactTypeUseException e) {
