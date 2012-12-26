@@ -55,6 +55,12 @@ public interface IRational extends INumber {
     IReal  toReal();
 
     /**
+     * @return a double that approximates this IRational
+     */
+    double doubleValue();
+
+
+    /**
      * @return the integer value nearest to this number
      * (equal to numerator()/denominator())
      */
@@ -132,5 +138,4 @@ public interface IRational extends INumber {
      */
     IInteger round();
     
-
 }

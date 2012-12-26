@@ -233,6 +233,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     return fValue.longValue();
   }
 
+  public double doubleValue() {
+	    return fValue.doubleValue();
+  }
+
   public int signum() {
     return fValue.signum();
   }

@@ -6,7 +6,7 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Anya Helene Bagge (a.h.s.bagge@cwi.nl) - initial API and implementation
+*    Anya Helene Bagge (anya@ii.uib.no) - initial API and implementation
 *******************************************************************************/
 package org.eclipse.imp.pdb.test;
 
@@ -52,6 +52,7 @@ import org.eclipse.imp.pdb.test.random.*;
  *
  */
 abstract public class BaseTestRandomValues extends TestCase {
+	static final boolean DISABLE_REALS = true;
 	protected IValueFactory vf;
 	protected TypeFactory tf = TypeFactory.getInstance();
 	protected IInteger INT_ONE;
@@ -61,10 +62,12 @@ abstract public class BaseTestRandomValues extends TestCase {
 	protected IReal REAL_ONE;
 	protected IReal REAL_ZERO;
 	protected IReal MAX_ERROR_RATIO;
+	protected double DOUBLE_MAX_ERROR_RATIO;
 	protected IReal EPSILON;
+	protected double DOUBLE_EPSILON;
 	protected final int PRECISION = 100;
 	// number of iterations per axiom
-	protected int N = 1000;
+	protected int N = 500;
 	// TODO add more test cases
 	protected List<IInteger> intTestSet;
 	protected List<IRational> ratTestSet;
@@ -82,9 +85,11 @@ abstract public class BaseTestRandomValues extends TestCase {
 		REAL_ZERO = vf.real(0.0);
 		// For approximate equality of reals  a ~= b:
 		//   this is the max allowable ratio of (a-b) to max(a,b)
-		MAX_ERROR_RATIO = vf.real(1e-70);
+		MAX_ERROR_RATIO = vf.real(1e-20);
+		DOUBLE_MAX_ERROR_RATIO = 1e-10;
 		//   this is the max allowed difference between a and b
-		EPSILON = vf.real(1e-70);
+		EPSILON = vf.real(1e-20);
+		DOUBLE_EPSILON = 1e-10;
 		intTestSet = Arrays.asList(vf.integer(0), vf.integer(1), vf.integer(-1),
 				vf.integer(2), vf.integer(-2), vf.integer(Long.MAX_VALUE),
 				vf.integer(Long.MIN_VALUE), 
@@ -118,6 +123,9 @@ abstract public class BaseTestRandomValues extends TestCase {
 		assertTrue("Expected ~" + l + " got " + r + " (diff magnitude " + ((IReal)l.subtract(r).abs()).scale() + ")", approxEqual(l, r));
 	}
 
+	protected void assertApprox(double l, double r) {
+		assertTrue("Expected ~" + l + " got " + r, approxEqual(l, r));
+	}
 	/**
 	 * @return true if the two arguments are approximately equal
 	 */
@@ -139,6 +147,26 @@ abstract public class BaseTestRandomValues extends TestCase {
 
 		// otherwise test relative difference
 		return relativeDiff.less(MAX_ERROR_RATIO).getValue();
+	}
+
+	/**
+	 * @return true if the two arguments are approximately equal
+	 */
+	protected boolean approxEqual(double l, double r) {
+		if(l == r)
+			return true;  // really equal
+		double max = Math.abs(l);
+		if(Math.abs(r) > max)
+			max = Math.abs(r);
+		
+		double diff = Math.abs(l - r);
+		if(diff < DOUBLE_EPSILON)
+			return true; // absolute difference is very small
+		
+		double relativeDiff = diff / max;
+
+		// otherwise test relative difference
+		return relativeDiff < DOUBLE_MAX_ERROR_RATIO;
 	}
 
 	protected void assertEqual(Type l, Type r) {
@@ -220,6 +248,8 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 * @throws Throwable
 	 */
 	public void testAxioms() throws Throwable {
+		if(noisy)
+			System.out.println("Test Axioms: " + "(" + getClass().getPackage().getName() + ")");
 		Method[] methods = getClass().getMethods();
 		long millis = System.currentTimeMillis();
 		for(Method m : methods) {
@@ -238,8 +268,9 @@ abstract public class BaseTestRandomValues extends TestCase {
 							new DataGenerator(generator, INumber.class, ratTestSet, new RandomRationalGenerator(vf)));
 					if(noisy)
 						System.out.print(" " + count + " calls\n" + m.getName() + "\n  Reals:     ");
-					callAxiom(m, params, new Object[params.length], 0,
-							new DataGenerator(generator, INumber.class, realTestSet, new RandomRealGenerator(vf)));
+					if(!DISABLE_REALS)
+						callAxiom(m, params, new Object[params.length], 0,
+								new DataGenerator(generator, INumber.class, realTestSet, new RandomRealGenerator(vf)));
 				}
 				else {
 					if(noisy) System.out.print(m.getName() + "\n          :  ");
@@ -498,11 +529,11 @@ abstract public class BaseTestRandomValues extends TestCase {
 		assertEqual(a, a.abs().multiply(vf.integer(a.signum())));
 		assertEqual(a, a.numerator().toRational().divide(a.denominator().toRational()));
 		
-		assertApprox(a.toReal().add(b.toReal()), a.add(b).toReal());
-		assertApprox(a.toReal().subtract(b.toReal()), a.subtract(b).toReal());
-		assertApprox(a.toReal().multiply(b.toReal()), a.multiply(b).toReal());
+		assertApprox(a.doubleValue() + b.doubleValue(), a.add(b).doubleValue());
+		assertApprox(a.doubleValue() - b.doubleValue(), a.subtract(b).doubleValue());
+		assertApprox(a.doubleValue() * b.doubleValue(), a.multiply(b).doubleValue());
 		try {
-			assertApprox(a.toReal().divide(b.toReal(), PRECISION), a.divide(b).toReal());
+			assertApprox(a.doubleValue() / b.doubleValue(), a.divide(b).doubleValue());
 		}
 		catch(ArithmeticException e) {
 		}
@@ -525,16 +556,15 @@ abstract public class BaseTestRandomValues extends TestCase {
 		if(b.signum() != 0)
 			assertTrue(a.mod(b.abs()).less(b.abs()).getValue());
 		
-		// check vs. real
-		assertEqual(a.toReal().add(b.toReal()).toInteger(), a.add(b));
+		// check vs. rational
 		assertEqual(a.toRational().add(b.toRational()).toInteger(), a.add(b));
-		assertEqual(a.toReal().subtract(b.toReal()).toInteger(), a.subtract(b));
 		assertEqual(a.toRational().subtract(b.toRational()).toInteger(), a.subtract(b));
-		assertEqual(a.toReal().multiply(b.toReal()).toInteger(), a.multiply(b));
 		assertEqual(a.toRational().multiply(b.toRational()).toInteger(), a.multiply(b));
 	}
 
 	public void axiomRealBehavior(IReal a, IReal b) {
+		if(DISABLE_REALS)
+			return;
 		assertEqual(a, a.add(b).subtract(b));
 		assertEqual(a, a.subtract(b).add(b));
 		try {

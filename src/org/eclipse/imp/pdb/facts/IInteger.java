@@ -92,18 +92,33 @@ public interface IInteger extends INumber {
     public byte[] getTwosComplementRepresentation();
     
     /**
-     * Converts this IInteger to an in. Only the lower
+     * Converts this IInteger to an int. Only the lower
      * 32 bits are used so the resulting int may be
-     * less big and the sign may change too.
+     * smaller and the sign may change too.
+     * 
+     * Use doubleValue() instead, if you are not sure if the
+     * result will fit in an int.
+     * 
      */
     int intValue();
     
     /**
      * Converts this IInteger to a long.  
-     * Only the lower 64 bits are used, so the resulting long may be less
-     * big and the sign may change too.
+     * Only the lower 64 bits are used, so the resulting long may be 
+     * smaller and the sign may change too.
+     *
+     * Use doubleValue() instead, if you are not sure if the
+     * result will fit in a long.
+     * 
      */
     long longValue();
+    
+    /**
+     * Converts this IInteger to a double.  
+     * The conversion may lose precision, and will yield +/- Inf
+     * if the magnitude is too large for a double.
+     */
+    double doubleValue();
     
     /**
      * Compares two integers

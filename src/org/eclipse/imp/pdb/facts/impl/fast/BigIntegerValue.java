@@ -61,6 +61,10 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		return value.longValue();
 	}
 
+	public double doubleValue(){
+		return value.doubleValue();
+	}
+
 	public IReal toReal(){
 		return ValueFactory.getInstance().real(new BigDecimal(value));
 	}
