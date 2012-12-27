@@ -104,9 +104,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal multiply(IReal other) {
-	int precision = Math.min(Math.max(fValue.precision(), other.precision()), BaseValueFactory.PRECISION);
-	MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
-    return new RealValue(fValue.multiply(((RealValue) other).fValue, mc));
+	// int precision = Math.min(Math.max(fValue.precision(), other.precision()), BaseValueFactory.PRECISION);
+	// MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+    return new RealValue(fValue.multiply(((RealValue) other).fValue));
   }
 
   public IReal multiply(IInteger other) {
@@ -119,8 +119,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
   public IReal divide(IReal other, int precision) {
     // make sure the precision is *at least* the same as that of the arguments
-    precision = Math.max(fValue.precision() - other.precision(), precision);
-    MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+	precision = Math.max(Math.max(fValue.precision(), other.precision()), precision);
+	MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
     return new RealValue(fValue.divide(((RealValue) other).fValue, mc));
   }
 
