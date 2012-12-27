@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -66,7 +67,7 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public IReal toReal(){
-		return ValueFactory.getInstance().real(value);
+		return ValueFactory.getInstance().real(BigDecimal.valueOf(value));
 	}
 	
 	public byte[] getTwosComplementRepresentation(){
@@ -100,7 +101,10 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public boolean isEqual(IValue other) {
-	  return equals(other);
+	  if (other instanceof INumber) {
+	    return equal((INumber) other).getValue();
+	  }
+	  return false;
 	}
 	
 	public IInteger add(IInteger other){
