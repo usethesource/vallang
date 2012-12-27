@@ -260,10 +260,12 @@ public class TestType extends TestCase {
 
 		for (Type t1 : allTypes) {
 			for (Type t2 : allTypes) {
-				if (t1.equals(t2) && !t2.equals(t1))
+				if (t1.equals(t2) && !t2.equals(t1)) {
 					fail("equals() should be symmetric: " + t1 + ", " + t2);
-				if (t1.equivalent(t2) && !t2.equivalent(t1))
+				}
+				if (t1.equivalent(t2) && !t2.equivalent(t1)) {
 					fail("equivalent() should be symmetric: " + t1 + ", " + t2);
+				}
 			}
 		}
 

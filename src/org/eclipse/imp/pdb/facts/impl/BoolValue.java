@@ -72,6 +72,10 @@ public abstract class BoolValue extends Value implements IBool{
     public IBool implies(IBool other) {
       return TRUE;
     }
+    
+    public int hashCode() {
+	  return 2;
+	};
 	};
 	
 	private BoolValue() {
@@ -85,6 +89,8 @@ public abstract class BoolValue extends Value implements IBool{
 	public static BoolValue getBoolValue(boolean bool){
 		return bool ? TRUE : FALSE;
 	}
+	
+	public abstract int hashCode();
 	
 	public boolean equals(Object o){
 		return this == o;

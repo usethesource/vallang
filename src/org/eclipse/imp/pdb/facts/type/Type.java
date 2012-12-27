@@ -602,7 +602,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * NamedTypes that are sub-types of any of the previous. 
 	 * 
 	 * @param f
-	 * @return
+	 * @return a new empty value of the type
 	 */
 	public IValue make(IValueFactory f) {
 		throw new IllegalOperationException("make zero constructor", this);

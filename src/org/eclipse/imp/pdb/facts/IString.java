@@ -20,8 +20,6 @@ public interface IString extends IValue {
 
     /**
      * Concatenates two strings
-     * @param other
-     * @return
      */
     IString concat(IString other);
     
@@ -60,8 +58,8 @@ public interface IString extends IValue {
     
     /**
      * Returns the Unicode character at the given index.
-     * @param index
-     * @return
+     * @param index an index into the string
+     * @return the Unicode character (in UTF-32)
      */
     int charAt(int index);
 }

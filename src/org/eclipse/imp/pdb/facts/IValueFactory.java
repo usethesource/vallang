@@ -36,7 +36,7 @@ public interface IValueFactory {
 	 * Constructs an integer from the decimal representation.
 	 *  
 	 * @param i integer as a string of decimal digits
-	 * @return
+	 * @return a new integer
 	 * @throws NumberFormatException
 	 */
 	public IInteger integer(String i) throws NumberFormatException ;
@@ -91,7 +91,7 @@ public interface IValueFactory {
      * Construct a real from the mathematical notation.
      * 
      * @param s real as a string in decimal mathematical notation.
-     * @return 
+     * @return the corresponding real
      * @throws NumberFormatException
      */
     public IReal real(String s) throws NumberFormatException;
@@ -101,7 +101,7 @@ public interface IValueFactory {
      * 
      * @param s real as a string in decimal mathematical notation.
      * @param p precision
-     * @return 
+     * @return the corresponding real
      * @throws NumberFormatException
      */
     public IReal real(String s, int p) throws NumberFormatException;

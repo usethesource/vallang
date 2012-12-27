@@ -233,7 +233,7 @@ public class TypeFactory {
      * 
      * @param types  the types of the fields
      * @param labels the labels of the fields (in respective order)
-     * @return
+     * @return a tuple type
      */
     public Type tupleType(Type[] types, String[] labels) {
     	checkNull((Object[]) types);
@@ -546,7 +546,7 @@ public class TypeFactory {
 	 * Checks to see if a string is a valid PDB type, field or annotation identifier
 	 * 
 	 * @param str
-	 * @return
+	 * @return true if the string is a valid identifier
 	 */
 	public boolean isIdentifier(String str) {
 		checkNull(str);
