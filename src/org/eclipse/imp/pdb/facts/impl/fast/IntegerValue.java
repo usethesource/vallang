@@ -101,10 +101,7 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public boolean isEqual(IValue other) {
-	  if (other instanceof INumber) {
-	    return equal((INumber) other).getValue();
-	  }
-	  return false;
+	  return equals(other);
 	}
 	
 	public IInteger add(IInteger other){
