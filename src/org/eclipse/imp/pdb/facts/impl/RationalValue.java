@@ -144,7 +144,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool greater(IReal other) {
-		return other.lessEqual(this);
+		return other.less(this);
 	}
 
 	public IBool greater(IInteger other) {
@@ -180,7 +180,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool greaterEqual(IReal other) {
-		return other.less(this);
+		return other.lessEqual(this);
 	}
 
 	public IBool greaterEqual(IInteger other) {

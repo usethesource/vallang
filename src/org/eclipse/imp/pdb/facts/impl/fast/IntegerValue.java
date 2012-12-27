@@ -322,11 +322,11 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 
 	public IBool greater(IRational other) {
-    	return other.lessEqual(this);
+    	return other.less(this);
 	}
 	 
 	public IBool greater(IReal other) {
-    	return other.lessEqual(this);
+    	return other.less(this);
 	}
     
 	public IBool greaterEqual(IInteger other){
@@ -334,7 +334,7 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 
 	public IBool greaterEqual(IRational other) {
-		return other.less(this);
+		return other.lessEqual(this);
 	}
 
 	public IBool greaterEqual(IReal other) {
@@ -346,7 +346,7 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public IBool less(IRational other) {
-		return other.greaterEqual(this);
+		return other.greater(this);
 	}
 	
 	public IBool less(IReal other) {
@@ -358,11 +358,11 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public IBool lessEqual(IRational other) {
-		return other.greater(this);
+		return other.greaterEqual(this);
 	}
 	
 	public IBool lessEqual(IReal other) {
-		return other.greater(this);
+		return other.greaterEqual(this);
 	}
 	 
 	public int compare(IInteger other){
