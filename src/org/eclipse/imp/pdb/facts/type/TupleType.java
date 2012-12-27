@@ -227,7 +227,12 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 			}
 		}
 
-		return TypeFactory.getInstance().tupleType(fieldTypes);
+		if(t1.hasFieldNames() || t2.hasFieldNames()) {
+			return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
+		}
+		else {
+			return TypeFactory.getInstance().tupleType(fieldTypes);
+		}
 	}
 
 	/**
@@ -280,7 +285,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	public Type lub(Type o) {
 		if (o.isTupleType()) {
 			if (getArity() == o.getArity()) {
-				if (hasFieldNames() || o.hasFieldNames()) {
+				if (hasFieldNames() && o.hasFieldNames()) {
 					return lubNamedTupleTypes(this, o);
 				}
 

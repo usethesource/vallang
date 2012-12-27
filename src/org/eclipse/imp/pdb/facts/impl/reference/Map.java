@@ -180,8 +180,14 @@ class Map extends Value implements IMap{
 	}
 	
 	public IMap compose(IMap other) {
-		Type newMapType = TypeFactory.getInstance().mapType(fType.getKeyType(), fType.getKeyLabel(), 
+		Type newMapType;
+		if(fType.hasFieldNames() && other.getType().hasFieldNames()) {
+			newMapType = TypeFactory.getInstance().mapType(fType.getKeyType(), fType.getKeyLabel(), 
 				other.getType().getValueType(), other.getType().getValueLabel());
+		}
+		else {
+			newMapType = TypeFactory.getInstance().mapType(fType.getKeyType(), other.getType().getValueType());
+		}
 		IMapWriter w = new MapWriter(newMapType);
 		
 		Iterator<Entry<IValue,IValue>> iter = entryIterator();

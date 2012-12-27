@@ -14,9 +14,13 @@ package org.eclipse.imp.pdb.test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.binary.BinaryReader;
@@ -31,12 +35,18 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 public abstract class BaseTestMap extends TestCase {
 	private final TypeStore ts = new TypeStore();
 	private final TypeFactory tf = TypeFactory.getInstance();
+	private final Type fromToMapType = tf.mapType(tf.stringType(), "from", tf.stringType(), "to");
+	private final Type fromToValueMapType = tf.mapType(tf.valueType(), "from", tf.valueType(), "to");
+	private final Type keyValueMapType = tf.mapType(tf.stringType(), "key", tf.stringType(), "value");
+	private final Type unlabeledMapType = tf.mapType(tf.stringType(), tf.stringType());
 	enum Kind { BINARY };
 	private IValueFactory vf;
 	private Type a;
 	private Type b;
 	private TestValue[] testValues;
-
+	private IMap[] testMaps;
+	private StringPair[] keyValues;
+	
 	protected void setUp(IValueFactory factory) throws Exception {
 		vf = factory;
 		a = tf.abstractDataType(ts, "A");
@@ -46,6 +56,28 @@ public abstract class BaseTestMap extends TestCase {
 				new TestValue("New York", "London", null, null),
 				new TestValue("Banana", "Fruit", "key", "value"),
 		};
+		
+		testMaps = new IMap[] {
+				vf.map(fromToMapType),
+				vf.map(keyValueMapType),
+				vf.map(unlabeledMapType),
+				vf.map(fromToMapType).put(vf.string("Bergen"), vf.string("Amsterdam")),
+				vf.map(fromToValueMapType).put(vf.string("Bergen"), vf.string("Amsterdam")).put(vf.string("Mango"), vf.string("Yummy")),
+				vf.map(fromToMapType).put(vf.string("Bergen"), vf.string("Amsterdam")).put(vf.string("Amsterdam"), vf.string("Frankfurt")),
+				vf.map(fromToMapType).put(vf.string("Bergen"), vf.string("Amsterdam")).put(vf.string("Amsterdam"), vf.string("Frankfurt")).put(vf.string("Frankfurt"), vf.string("Moscow")),
+				vf.map(keyValueMapType).put(vf.string("Bergen"), vf.string("Rainy")).put(vf.string("Helsinki"), vf.string("Cold")),
+				vf.map(unlabeledMapType).put(vf.string("Mango"), vf.string("Sweet")).put(vf.string("Banana"), vf.string("Yummy")),
+		};
+		
+		String[] strings = new String[] { "Bergen", "Amsterdam", "Frankfurt", "Helsinki", "Moscow", "Rainy", "Cold", "Mango", "Banana", "Sweet", "Yummy" };
+		List<String> list1 = Arrays.asList(strings);
+		List<String> list2 = Arrays.asList(strings);
+		Collections.shuffle(list1);
+		Collections.shuffle(list2);
+		keyValues = new StringPair[strings.length];
+		for(int i = 0; i < strings.length; i++) {
+			keyValues[i] = new StringPair(list1.get(i), list2.get(i));
+		}
 	}
 
 	public void testNoLabels() {
@@ -99,6 +131,161 @@ public abstract class BaseTestMap extends TestCase {
 		assertFalse("Labeled and unlabeled maps should not be equals", type3.equals(type2));
 	}
 
+	/**
+	 * Check basic properties of put()
+	 */
+	public void testPut() {
+		for(IMap map : testMaps) {
+			for(StringPair p : keyValues) {
+				IMap newMap = map.put(p.a, p.b);
+				assertTrue(newMap.containsKey(p.a));
+				assertEquals(p.b, newMap.get(p.a));
+				assertEquals(map.getType().getKeyLabel(), newMap.getType().getKeyLabel());
+				assertEquals(map.getType().getValueLabel(), newMap.getType().getValueLabel());
+				assertTrue(map.getType().isSubtypeOf(newMap.getType()));
+			}
+		}
+	}
+	
+	/**
+	 * Check that putting doesn't modify original map, and doesn't modify other elements.
+	 */
+	public void testPutModification() {
+		for(IMap map : testMaps) {
+			for(StringPair p : keyValues) { // testing with an arbitrary element of map is sufficient
+				if(map.containsKey(p.a)) {
+					IValue val = map.get(p.a);
+					for(StringPair q : keyValues) {
+						IMap newMap = map.put(q.a, q.b);
+						assertEquals(val, map.get(p.a)); // original is never modified
+						if(!p.a.isEqual(q.a))
+							assertEquals(val, newMap.get(p.a)); // only element q.a is modified
+					}
+				}
+					
+			}
+		}
+	}
+	
+	public void testCommon() {
+		for(IMap map1 : testMaps) {
+			for(IMap map2 : testMaps) {
+				IMap map3 = map1.common(map2);
+				// all common values are present
+				for(IValue key : map1) {
+					if(map1.get(key).equals(map2.get(key))) {
+						assertEquals(map1.get(key), map3.get(key));
+					}
+				}
+				// type is lub of map1 and map2 types
+				if(!map3.isEmpty()) {
+					assertTrue(map1.getType().toString() + " <: " + map3.getType(), map1.getType().isSubtypeOf(map3.getType()));
+					assertTrue(map2.getType().toString() + " <: " + map3.getType(), map2.getType().isSubtypeOf(map3.getType()));
+				}
+				
+				// check labels
+				if(!map2.getType().hasFieldNames()) {
+					assertEquals(map1.getType().getKeyLabel(), map3.getType().getKeyLabel());
+					assertEquals(map1.getType().getValueLabel(), map3.getType().getValueLabel());
+				}
+				if(!map1.getType().hasFieldNames()) {
+					assertEquals(map2.getType().getKeyLabel(), map3.getType().getKeyLabel());
+					assertEquals(map2.getType().getValueLabel(), map3.getType().getValueLabel());
+				}
+			}
+
+		}
+	}
+
+	public void testJoin() {
+		for(IMap map1 : testMaps) {
+			for(IMap map2 : testMaps) {
+				IMap map3 = map1.join(map2);
+				// should contain all values from map2...
+				for(IValue key : map2) {
+					assertEquals(map2.get(key), map3.get(key));
+				}
+				// ...and all values from map1 unless the keys are in map2
+				for(IValue key : map1) {
+					if(!map2.containsKey(key)) {
+						assertEquals(map1.get(key), map3.get(key));
+					}
+				}
+				
+				// type is lub of map1 and map2 types
+				if(!map3.isEmpty()) {
+					assertTrue(map1.getType().toString() + " <: " + map3.getType(), map1.getType().isSubtypeOf(map3.getType()));
+					assertTrue(map2.getType().toString() + " <: " + map3.getType(), map2.getType().isSubtypeOf(map3.getType()));
+				}
+				
+				// check labels
+				if(!map2.getType().hasFieldNames()) {
+					assertEquals(map1.getType().getKeyLabel(), map3.getType().getKeyLabel());
+					assertEquals(map1.getType().getValueLabel(), map3.getType().getValueLabel());
+				}
+				if(!map1.getType().hasFieldNames()) {
+					assertEquals(map2.getType().getKeyLabel(), map3.getType().getKeyLabel());
+					assertEquals(map2.getType().getValueLabel(), map3.getType().getValueLabel());
+				}
+			}
+
+		}
+	}
+
+	public void testCompose() {
+		for(IMap map1 : testMaps) {
+			for(IMap map2 : testMaps) {
+				IMap map3 = map1.compose(map2);
+				// should map keys in map1 to values in map2
+				for(IValue key : map1) {
+					if(map2.containsKey(map1.get(key)))
+						assertEquals(map2.get(map1.get(key)), map3.get(key));
+					else
+						assertNull(map3.get(key));
+				}
+				
+				// type is key type of map1 and value type of map2
+				if(!map3.isEmpty()) {
+					assertEquals(map1.getType().getKeyType(), map3.getType().getKeyType());
+					assertEquals(map2.getType().getValueType(), map3.getType().getValueType());
+				}
+				
+				// check labels
+				if(map1.getType().hasFieldNames() && map2.getType().hasFieldNames()) {
+					assertEquals(map1.getType().getKeyLabel(), map3.getType().getKeyLabel());
+					assertEquals(map2.getType().getValueLabel(), map3.getType().getValueLabel());
+				}
+				else {
+					assertFalse(map3.getType().hasFieldNames());
+				}
+			}
+
+		}
+	}
+
+	public void testRemove() {
+		for(IMap map1 : testMaps) {
+			for(IMap map2 : testMaps) {
+				IMap map3 = map1.remove(map2);
+				for(IValue key : map2) {
+					assertFalse("Key " + key + " should not exist", map3.containsKey(key));
+				}
+				
+				// type is same as map1
+				if(!map3.isEmpty()) {
+					assertEquals(map1.getType(), map3.getType());
+				}
+				
+				// labels are same as map1
+				if(map1.getType().hasFieldNames()) {
+					assertEquals(map1.getType().getKeyLabel(), map3.getType().getKeyLabel());
+					assertEquals(map1.getType().getValueLabel(), map3.getType().getValueLabel());
+				}
+			}
+
+		}
+	}
+	
 	public void testLabelsIO(){
 		try{
 			for(int i = 0; i < testValues.length; i++){
@@ -213,6 +400,16 @@ public abstract class BaseTestMap extends TestCase {
 		
 		public String toString() {
 			return value.toString();
+		}
+	}
+	
+	class StringPair {
+		IString a;
+		IString b;
+		
+		StringPair(String a, String b) {
+			this.a = vf.string(a);
+			this.b = vf.string(b);
 		}
 	}
 }

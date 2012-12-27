@@ -166,8 +166,14 @@ public class Map extends Value implements IMap{
 			}
 		}
 		
-		Type newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), mapType.getKeyLabel(), 
+		Type newMapType;
+		if(mapType.hasFieldNames() && otherMap.mapType.hasFieldNames()) {
+			newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), mapType.getKeyLabel(), 
 				otherMap.mapType.getValueType(), otherMap.mapType.getValueLabel());
+		}
+		else {
+			newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), otherMap.mapType.getValueType());
+		}
 		return new MapWriter(newMapType, newData).done();
 	}
 	

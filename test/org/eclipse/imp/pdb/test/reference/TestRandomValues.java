@@ -6,7 +6,7 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Anya Helene Bagge (a.h.s.bagge@cwi.nl) - initial implementation
+*    Anya Helene Bagge (anya@ii.uib.no) - initial implementation
 *******************************************************************************/
 package org.eclipse.imp.pdb.test.reference;
 

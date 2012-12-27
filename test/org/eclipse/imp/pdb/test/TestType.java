@@ -8,7 +8,7 @@
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
  *    Jurgen Vinju (jurgen@vinju.org)
-
+ *    Anya Helene Bagge
  *******************************************************************************/
 
 package org.eclipse.imp.pdb.test;

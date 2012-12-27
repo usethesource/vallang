@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Anya Helene Bagge
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.shared;
 
@@ -87,8 +88,14 @@ public class SharedMap extends Map implements IShareable{
 			}
 		}
 		
-		Type newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), mapType.getKeyLabel(), 
+		Type newMapType;
+		if(mapType.hasFieldNames() && otherMap.mapType.hasFieldNames()) {
+			newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), mapType.getKeyLabel(), 
 				otherMap.mapType.getValueType(), otherMap.mapType.getValueLabel());
+		}
+		else {
+			newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), otherMap.mapType.getValueType());
+		}
 		return new SharedMapWriter(newMapType, newData).done();
 	}
 	
