@@ -380,7 +380,12 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 		if (other.getType().isIntegerType()) {
 			return compare(other.toInteger());
 		}
-		return toReal().compare(other);
+		else if (other.getType().isRationalType()) {
+			return toRational().compare(other);
+		}
+		else {
+			return toReal().compare(other);
+		}
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
@@ -400,9 +405,9 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 			return (value == otherInteger.value);
 		}
 		else if(o instanceof IRational)
-			return ((IRational)o).equals(this);
+			return ((IRational)o).equals(toRational());
 		else if(o instanceof IReal)
-			return ((IReal)o).equals(this);
+			return ((IReal)o).equals(toReal());
 		
 		return false;
 	}
