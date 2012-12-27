@@ -471,11 +471,14 @@ abstract public class BaseTestRandomValues extends TestCase {
 	
 	public void axiomNoEqualInt(IInteger i) {
 	  assertFalse(i.toReal().equals(i));
+	  assertTrue(i.toReal().equal(i).getValue());
 	  assertFalse(i.toRational().equals(i));
+	  assertTrue(i.toRational().equal(i).getValue());
 	}
 	
 	public void axiomNoEqualRat(IRational i) {
     assertFalse(i.toReal().equals(i));
+    assertTrue(i.toReal().equal(i).getValue());
     assertFalse(i.toInteger().equals(i));
   }
 	

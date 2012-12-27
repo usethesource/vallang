@@ -40,6 +40,7 @@ public class Set extends Value implements ISet{
 		super();
 		
 		this.setType = typeFactory.setType(elementType);
+		
 		this.elementType = elementType;
 		
 		this.data = data;

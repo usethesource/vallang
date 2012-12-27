@@ -126,7 +126,7 @@ public class Tuple extends Value implements ITuple{
 	}
 	
 	public int hashCode(){
-		int hash = tupleType.hashCode();
+		int hash = 1331;
 		
 		for(int i = elements.length - 1; i >= 0; i--){
 			hash -= (hash << 19) + (hash >>> 8);
@@ -142,8 +142,6 @@ public class Tuple extends Value implements ITuple{
 		
 		if(o.getClass() == getClass()){
 			Tuple otherTuple = (Tuple) o;
-			
-			if(tupleType != otherTuple.tupleType) return false;
 			
 			IValue[] otherElements = otherTuple.elements;
 			int nrOfElements = elements.length;
