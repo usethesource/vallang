@@ -243,6 +243,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	
 	@Override
 	public Type instantiate(Map<Type, Type> bindings) {
-		return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
+	  if (fKeyLabel != null) {
+	    return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), fKeyLabel, getValueType().instantiate(bindings), fValueLabel);
+	  } 
+	  else {
+	    return TypeFactory.getInstance().mapType(getKeyType().instantiate(bindings), getValueType().instantiate(bindings));
+	  }
 	}
 }
