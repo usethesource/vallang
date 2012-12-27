@@ -124,6 +124,18 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	}
 	
 	/**
+	 * Retrieve all the field names of tuple type,
+	 * a relation type or a tree node type.
+	 * 
+	 * @return the field name at index i
+	 * @throws FactTypeUseException when this type does not have field labels.
+	 *         Tuples and relations optionally have field labels.
+	 */
+	public String[] getFieldNames(){
+		throw new IllegalOperationException("getFieldNames", this);
+	}
+	
+	/**
 	 * Retrieve a field index for a certain label for a tuple type,
 	 * a relation type or a tree node type.
 	 * 
@@ -248,7 +260,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * @return if the fields of a type or relation have been labelled
 	 */
 	public boolean hasFieldNames() {
-		throw new IllegalOperationException("getFieldNames", this);
+		return false;
 	}
 	
 	/**
@@ -375,6 +387,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	public abstract <T> T accept(ITypeVisitor<T> visitor);
 
 	public boolean isRelationType() {
+		return false;
+	}
+	
+	public boolean isListRelationType() {
 		return false;
 	}
 
@@ -586,7 +602,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * NamedTypes that are sub-types of any of the previous. 
 	 * 
 	 * @param f
-	 * @return
+	 * @return a new empty value of the type
 	 */
 	public IValue make(IValueFactory f) {
 		throw new IllegalOperationException("make zero constructor", this);

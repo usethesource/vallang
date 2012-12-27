@@ -6,7 +6,7 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Anya Helene Bagge (a.h.s.bagge@cwi.nl) - initial API and implementation
+*    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
 package org.eclipse.imp.pdb.test.random;
 
@@ -65,7 +65,6 @@ public class DataGenerator {
 	 * 
 	 * @return An iterator over values of the given type.
 	 */
-	@SuppressWarnings("unchecked")
 	public <T> Iterable<T> generate(Class<T> type, int n) {
 		if(staticValues.containsKey(type)) {
 			return new DataIterable<T>((List<T>)staticValues.get(type), (RandomGenerator<T>)random.get(type), n);

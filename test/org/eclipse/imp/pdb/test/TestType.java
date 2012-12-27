@@ -8,7 +8,7 @@
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
  *    Jurgen Vinju (jurgen@vinju.org)
-
+ *    Anya Helene Bagge
  *******************************************************************************/
 
 package org.eclipse.imp.pdb.test;
@@ -77,7 +77,10 @@ public class TestType extends TestCase {
 
 			for (Type t2 : allTypes) {
 				newTypes.add(ft.tupleType(t1, t2));
+				newTypes.add(ft.tupleType(t1, "a" + newTypes.size(), t2, "b" + newTypes.size()));
 				newTypes.add(ft.relType(t1, t2));
+				newTypes.add(ft.mapType(t1, t2));
+				newTypes.add(ft.mapType(t1, "a" + newTypes.size(), t2, "b" + newTypes.size()));
 				newTypes.add(ft.constructor(ts, adt, "cons_" + newTypes.size(), t1, "a" + newTypes.size(), t2, "b" + newTypes.size()));
 				int max3 = COMBINATION_UPPERBOUND;
 
@@ -222,14 +225,7 @@ public class TestType extends TestCase {
 
 		for (Type t1 : allTypes) {
 			for (Type t2 : allTypes) {
-				if (t1 != t2 && t1.isSubtypeOf(t2) && t2.isSubtypeOf(t1)) {
-					if (!t1.isAliasType() && !t2.isAliasType()) {
-						System.err.println("Failure:");
-						System.err.println(t1 + " <= " + t2 + " && " + t2
-								+ " <= " + t1);
-						fail("subtype of should not be symmetric");
-					}
-				}
+				assertEquals(t1.equivalent(t2), t1.isSubtypeOf(t2) && t2.isSubtypeOf(t1)); 
 			}
 		}
 
@@ -243,7 +239,48 @@ public class TestType extends TestCase {
 								System.err.println("\t" + t1 + " <= " + t2
 										+ " <= " + t3);
 								System.err.println("\t" + t1 + " !<= " + t3);
-								fail("subtype should be transitive");
+								fail("subtype should be transitive: " + t1 + ", " + t2 + ", " + t3);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void testEquiv() {
+		for (Type t : allTypes) {
+			if (!t.equals(t)) {
+				fail("any type should be equal to itself: " + t);
+			}
+			if (!t.equivalent(t)) {
+				fail("any type should be equivalent to itself: " + t);
+			}
+		}
+
+		for (Type t1 : allTypes) {
+			for (Type t2 : allTypes) {
+				if (t1.equals(t2) && !t2.equals(t1)) {
+					fail("equals() should be symmetric: " + t1 + ", " + t2);
+				}
+				if (t1.equivalent(t2) && !t2.equivalent(t1)) {
+					fail("equivalent() should be symmetric: " + t1 + ", " + t2);
+				}
+			}
+		}
+
+		for (Type t1 : allTypes) {
+			for (Type t2 : allTypes) {
+				if (t1.equals(t2) || t1.equivalent(t2)) {
+					for (Type t3 : allTypes) {
+						if (t1.equals(t2) && t2.equals(t3)) {
+							if (!t1.equals(t3)) {
+								fail("equals() should be transitive: " + t1 + ", " + t2 + ", " + t3);
+							}
+						}
+						if (t1.equivalent(t2) && t2.equivalent(t3)) {
+							if (!t1.equivalent(t3)) {
+								fail("equivalent() should be transitive: " + t1 + ", " + t2 + ", " + t3);
 							}
 						}
 					}

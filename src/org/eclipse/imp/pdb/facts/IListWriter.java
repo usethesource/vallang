@@ -105,6 +105,12 @@ public interface IListWriter extends IWriter {
     void delete(int i);
     
     /**
+     * 
+     * @return the size of the list so far.
+     */
+    int size();
+    
+    /**
      * Finalize an immutable list. After this method none of the others may be called anymore.
      * @return an immutable IList
      */

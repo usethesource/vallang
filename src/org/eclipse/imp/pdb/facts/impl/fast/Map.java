@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Anya Helene Bagge - labels
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -30,17 +31,15 @@ public class Map extends Value implements IMap{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type mapType;
-	protected final Type keyType;
-	protected final Type valueType;
 	
 	protected final ShareableValuesHashMap data;
 	
-	protected Map(Type keyType, Type valueType, ShareableValuesHashMap data){
+	protected Map(Type mapType, ShareableValuesHashMap data){
 		super();
 		
-		this.mapType = typeFactory.mapType(keyType, valueType);
-		this.keyType = keyType;
-		this.valueType = valueType;
+		if(!mapType.isMapType()) throw new IllegalArgumentException("Type must be a map type: " + mapType);
+
+		this.mapType = mapType;
 		
 		this.data = data;
 	}
@@ -50,11 +49,11 @@ public class Map extends Value implements IMap{
 	}
 	
 	public Type getKeyType(){
-		return keyType;
+		return mapType.getKeyType();
 	}
 	
 	public Type getValueType(){
-		return valueType;
+		return mapType.getValueType();
 	}
 	
 	public int size(){
@@ -117,9 +116,14 @@ public class Map extends Value implements IMap{
 		ShareableValuesHashMap newData = new ShareableValuesHashMap(data);
 		newData.put(key, value);
 		
-		Type newKeyType = keyType.lub(key.getType());
-		Type newValueType = valueType.lub(value.getType());
-		return new MapWriter(newKeyType, newValueType, newData).done();
+		Type newMapType = mapType;
+		Type newKeyType = mapType.getKeyType().lub(key.getType());
+		Type newValueType = mapType.getValueType().lub(value.getType());
+		if(newKeyType != mapType.getKeyType() || newValueType != mapType.getValueType()) {
+			 newMapType = TypeFactory.getInstance().mapType(newKeyType, mapType.getKeyLabel(), newValueType, mapType.getValueLabel());
+		}
+
+		return new MapWriter(newMapType, newData).done();
 	}
 	
 	public IMap common(IMap other){
@@ -145,9 +149,7 @@ public class Map extends Value implements IMap{
 			}
 		}
 
-		Type newKeyType = keyType.lub(other.getKeyType());
-		Type newValueType = valueType.lub(other.getValueType());
-		return new MapWriter(newKeyType, newValueType, commonData).done();
+		return new MapWriter(mapType.lub(other.getType()), commonData).done();
 	}
 	
 	public IMap compose(IMap other){
@@ -164,7 +166,15 @@ public class Map extends Value implements IMap{
 			}
 		}
 		
-		return new MapWriter(keyType, otherMap.valueType, newData).done();
+		Type newMapType;
+		if(mapType.hasFieldNames() && otherMap.mapType.hasFieldNames()) {
+			newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), mapType.getKeyLabel(), 
+				otherMap.mapType.getValueType(), otherMap.mapType.getValueLabel());
+		}
+		else {
+			newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), otherMap.mapType.getValueType());
+		}
+		return new MapWriter(newMapType, newData).done();
 	}
 	
 	public IMap join(IMap other){
@@ -186,9 +196,7 @@ public class Map extends Value implements IMap{
 			newData.put(entry.getKey(), entry.getValue());
 		}
 		
-		Type newKeyType = keyType.lub(otherMap.keyType);
-		Type newValueType = valueType.lub(otherMap.valueType);
-		return new MapWriter(newKeyType, newValueType, newData).done();
+		return new MapWriter(mapType.lub(otherMap.mapType), newData).done();
 	}
 	
 	public IMap remove(IMap other){
@@ -199,7 +207,7 @@ public class Map extends Value implements IMap{
 			newData.remove(keysIterator.next());
 		}
 		
-		return new MapWriter(keyType, valueType, newData).done();
+		return new MapWriter(mapType, newData).done();
 	}
 	
 	public int hashCode(){

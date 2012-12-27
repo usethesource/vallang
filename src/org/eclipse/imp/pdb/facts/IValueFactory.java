@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright (c) 2007 IBM Corporation.
+* Copyright (C) 2007-2012 CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,6 +8,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*    Anya Helene Bagge - rationals and labeled maps
 
 *******************************************************************************/
 
@@ -34,7 +36,7 @@ public interface IValueFactory {
 	 * Constructs an integer from the decimal representation.
 	 *  
 	 * @param i integer as a string of decimal digits
-	 * @return
+	 * @return a new integer
 	 * @throws NumberFormatException
 	 */
 	public IInteger integer(String i) throws NumberFormatException ;
@@ -89,7 +91,7 @@ public interface IValueFactory {
      * Construct a real from the mathematical notation.
      * 
      * @param s real as a string in decimal mathematical notation.
-     * @return 
+     * @return the corresponding real
      * @throws NumberFormatException
      */
     public IReal real(String s) throws NumberFormatException;
@@ -99,7 +101,7 @@ public interface IValueFactory {
      * 
      * @param s real as a string in decimal mathematical notation.
      * @param p precision
-     * @return 
+     * @return the corresponding real
      * @throws NumberFormatException
      */
     public IReal real(String s, int p) throws NumberFormatException;
@@ -239,6 +241,18 @@ public interface IValueFactory {
     public ITuple tuple(IValue... args);
     
     /**
+     * Construct a tuple of the given TupleType
+     * 
+     * The length of the argument list must match the number of children
+     * in the tuple type. Use this method if you need to create tuples
+     * with labeled children.
+     * 
+     * @param args a variable length argument list or an array of IValue
+     * @return a tuple with as many children as there are args
+     */
+    // public ITuple tuple(Type type, IValue... args);
+
+    /**
      * Construct a nullary generic tree node
      * @param name the name of the tree node
      * @return a new tree value
@@ -355,6 +369,33 @@ public interface IValueFactory {
     public IList list(IValue... elems);
     
     /**
+     * Constructs an new empty unmodifiable list relation, using the provided tuple type as a schema
+     * @param tupleType of type TupleType &lt;t1,...,tn&gt;
+     * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
+     */
+    public IListRelation listRelation(Type tupleType);
+    
+    /**
+     * Construct a list relation with a fixed number of tuples in it
+     * @param elems an array or variable length argument list of tuples
+     * @return a list relation containing a number of elements
+     */
+    public IListRelation listRelation(IValue... elems);
+    
+    /**
+     * Constructs a list relation writer, using the provided tuple type as a schema
+     * @param type of type TupleType &lt;t1,...,tn&gt;
+     * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
+     */
+    public IListRelationWriter listRelationWriter(Type type);
+    
+    /**
+     * Constructs a list relation writer, which infers its type from the tuples given while
+     * writing to the list relation.
+     */
+    public IListRelationWriter listRelationWriter();
+    
+    /**
      * Constructs an new empty unmodifiable relation, using the provided tuple type as a schema
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
@@ -389,10 +430,25 @@ public interface IValueFactory {
      */
 	public IMap map(Type key, Type value);
 
+    /**
+     * Creates an empty unmodifiable map.
+     * @param mapType the type of the map
+     * @return an empty map
+     */
+	public IMap map(Type mapType);
+
 	/**
 	 * Create a map writer
 	 * 
-	 * @param key   the type of the keys in the map
+     * @param mapType the type of the map
+	 * @return a map writer
+	 */
+	public IMapWriter mapWriter(Type mapType);
+
+	/**
+	 * Create a map writer
+	 * 
+     * @param key   the type of the keys in the map
 	 * @param value the type of the values in the map
 	 * @return a map writer
 	 */

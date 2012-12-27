@@ -29,11 +29,11 @@ public interface IMap extends Iterable<IValue>, IValue {
     public int size();
 
     /**
-     * Adds a new entry to the map, mapping the key to value. If they
+     * Adds a new entry to the map, mapping the key to value. If the
      * key existed before, the old value will be lost.
      * @param key   
      * @param value
-     * @return
+     * @return a copy of the map with the new key/value mapping
      */
     public IMap put(IValue key, IValue value);
     

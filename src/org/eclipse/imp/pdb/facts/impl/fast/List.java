@@ -7,13 +7,18 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Paul Klint - added new methods
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -42,6 +47,14 @@ public class List extends Value implements IList{
 		
 		this.data = data;
 		this.hashCode = data.hashCode();
+	}
+	
+	/*package*/ static ListWriter createListWriter(Type eltType){
+		return new ListWriter(eltType);
+	}
+
+	/*package*/ static ListWriter createListWriter(){
+		return new ListWriter();
 	}
 
 	public Type getType(){
@@ -76,15 +89,17 @@ public class List extends Value implements IList{
 		return v.visitList(this);
 	}
 	
-	public IList append(IValue element){
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel  append(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.append(element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return new ListWriter(newElementType, newData).done();
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 
-	public IList concat(IList other){
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel concat(IList other){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		Iterator<IValue> otherIterator = other.iterator();
 		while(otherIterator.hasNext()){
@@ -92,50 +107,56 @@ public class List extends Value implements IList{
 		}
 		
 		Type newElementType = elementType.lub(other.getElementType());
-		return new ListWriter(newElementType, newData).done();
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 
-	public IList insert(IValue element){
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel insert(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.insert(element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return new ListWriter(newElementType, newData).done();
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 	
-	public IList put(int index, IValue element) throws IndexOutOfBoundsException{
+	@SuppressWarnings("unchecked")
+	public  <ListOrRel extends IList> ListOrRel put(int index, IValue element) throws IndexOutOfBoundsException{
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.set(index, element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return new ListWriter(newElementType, newData).done();
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 	
-	public IList delete(int index){
+	@SuppressWarnings("unchecked")
+	public  <ListOrRel extends IList> ListOrRel delete(int index){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(index);
 		
-		return new ListWriter(elementType, newData).done();
+		return (ListOrRel) new ListWriter(elementType, newData).done();
 	}
 	
-	public IList delete(IValue element){
+	@SuppressWarnings("unchecked")
+	public  <ListOrRel extends IList> ListOrRel delete(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(element);
 		
-		return new ListWriter(elementType, newData).done();
+		return (ListOrRel) new ListWriter(elementType, newData).done();
 	}
 
-	public IList reverse(){
+	@SuppressWarnings("unchecked")
+	public  <ListOrRel extends IList> ListOrRel reverse(){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.reverse();
 		
-		return new ListWriter(elementType, newData).done();
+		return (ListOrRel) new ListWriter(elementType, newData).done();
 	}
 	
-	public IList sublist(int offset, int length){
+	@SuppressWarnings("unchecked")
+	public  <ListOrRel extends IList> ListOrRel sublist(int offset, int length){
 		ShareableValuesList newData = data.subList(offset, length);
 		
-		return new ListWriter(elementType, newData).done();
+		return (ListOrRel) new ListWriter(elementType, newData).done();
 	}
 	
 	public int hashCode(){
@@ -172,5 +193,62 @@ public class List extends Value implements IList{
 		}
 		
 		return false;
+	}
+	
+	public IListRelation product(IList lst){
+		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),lst.getElementType());
+		ListRelationWriter w = new ListRelationWriter(resultType);
+
+		for(IValue t1 : this){
+			for(IValue t2 : lst){
+				IValue vals[] = {t1, t2};
+				ITuple t3 = new Tuple(resultType, vals);
+				w.insert(t3);
+			}
+		}
+
+		return (IListRelation) w.done();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel intersect(IList other) {
+		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
+		List o = (List) other;
+		
+		for(IValue v : data){
+			if(o.data.contains(v)){
+				w.append(v);
+			}
+		}
+		
+		return (ListOrRel) w.done();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel subtract(IList lst) {
+		IListWriter w = ValueFactory.getInstance().listWriter(lst.getElementType().lub(getElementType()));
+		for (IValue v: this.data) {
+			if (lst.contains(v)) {
+				lst = lst.delete(v);
+			} else
+				w.append(v);
+		}
+		return (ListOrRel) w.done();
+	}
+
+	public boolean isSubListOf(IList lst) {
+		int j = 0;
+		nextchar:
+			for(IValue elm : this.data){
+				while(j < lst.length()){
+					if(elm.isEqual(lst.get(j))){
+						j++;
+						continue nextchar;
+					} else
+						j++;
+				}
+				return false;
+			}
+		return true;
 	}
 }

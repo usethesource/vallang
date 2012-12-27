@@ -38,6 +38,12 @@ public class Tuple extends Value implements ITuple{
 		
 		this.elements = elements;
 	}
+	
+	public Tuple(IValue... elements) {
+	    super();
+	    this.tupleType = TypeFactory.getInstance().tupleType(elements);
+		this.elements= elements;
+	    }
 
 	public Type getType(){
 		return tupleType;

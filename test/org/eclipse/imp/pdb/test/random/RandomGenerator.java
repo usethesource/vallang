@@ -6,7 +6,7 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Anya Helene Bagge (a.h.s.bagge@cwi.nl) - initial API and implementation
+*    Anya Helene Bagge - initial API and implementation
 *******************************************************************************/
 package org.eclipse.imp.pdb.test.random;
 

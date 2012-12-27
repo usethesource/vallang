@@ -7,74 +7,106 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Paul Klint (Paul.Klint@cwi.nl) - adapted for ListRealtion
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 // TODO Add checking.
 /**
- * Implementation of IListWriter.
+ * Implementation of IListRelationWriter.
  * 
  * @author Arnold Lankamp
+ * @author Paul Klint
  */
-public class ListWriter implements IListWriter{
-	protected Type elementType;
-	protected final boolean inferred;
+public class ListRelationWriter implements IListRelationWriter{
+	protected Type tupleType;
 	
 	protected final ShareableValuesList data;
 	
-	protected IList constructedList;
+	protected IListRelation constructedRelation;
+
+	protected final boolean inferred;
 	
-	protected ListWriter(Type elementType){
+	protected ListRelationWriter(Type tupleType){
 		super();
 		
-		this.elementType = elementType;
+		if (!tupleType.isTupleType()) {
+			throw new IllegalArgumentException("should be a tuple type");
+		}
+		
+		this.tupleType = tupleType;
 		this.inferred = false;
 		
 		data = new ShareableValuesList();
 		
-		constructedList = null;
+		constructedRelation = null;
 	}
 	
-	protected ListWriter(){
+	protected ListRelationWriter(){
 		super();
 		
-		this.elementType = TypeFactory.getInstance().voidType();
+		this.tupleType = TypeFactory.getInstance().voidType();
+		
+		data = new ShareableValuesList();
+		
+		constructedRelation = null;
 		this.inferred = true;
-		data = new ShareableValuesList();
-		
-		constructedList = null;
 	}
 	
-	protected ListWriter(Type elementType, ShareableValuesList data){
+	protected ListRelationWriter(Type tupleType, ShareableValuesList data){
 		super();
 		
-		this.elementType = elementType;
+		this.tupleType = tupleType;
+		this.data = new ShareableValuesList(data);
 		this.inferred = false;
-		this.data = data;
 		
-		constructedList = null;
+		constructedRelation = null;
 	}
 	
-	public void append(IValue element){
-		checkMutation();
-		
-		updateType(element);
-		data.append(element);
+	private void checkBounds(IValue[] elems, int start, int length){
+		if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
+		if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
 	}
 	
 	private void updateType(IValue element) {
 		if (inferred) {
-			elementType = elementType.lub(element.getType());
+			tupleType = tupleType.lub(element.getType());
+			if (!tupleType.isTupleType()) {
+				throw new IllegalArgumentException("relations can only contain tuples of the same arity");
+			} 
 		}
+	}
+	
+	public void delete(IValue element){
+		checkMutation();
+		
+		data.remove(element);
+	}
+	
+	public int size(){
+		return data.size();
+	}
+
+	protected void checkMutation(){
+		if(constructedRelation != null) throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
+	}
+	
+	public IListRelation done(){
+		if (constructedRelation == null) {
+		  constructedRelation = new ListRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : tupleType, data);
+		}
+		
+		return constructedRelation;
 	}
 
 	public void append(IValue... elems){
@@ -97,11 +129,6 @@ public class ListWriter implements IListWriter{
 		}
 	}
 	
-	public void insert(IValue elem){
-		checkMutation();
-		updateType(elem);
-		data.insert(elem);
-	}
 	
 	public void insert(IValue... elements){
 		insert(elements, 0, elements.length);
@@ -160,37 +187,5 @@ public class ListWriter implements IListWriter{
 		checkMutation();
 		
 		data.remove(index);
-	}
-	
-	public void delete(IValue element){
-		checkMutation();
-		
-		data.remove(element);
-	}
-	
-	protected void checkMutation(){
-		if(constructedList != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
-	}
-	
-	private void checkBounds(IValue[] elems, int start, int length){
-		if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
-		if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
-	}
-	
-	public int size(){
-		return data.size();
-	}
-	
-	public IList  done(){
-		if (constructedList == null) {
-			if (/*inferred && */elementType.isTupleType() || data.isEmpty()) {
-				constructedList = new ListRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
-			}
-			else {
-				constructedList = new List(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
-			}
-		}
-		
-		return constructedList;
 	}
 }

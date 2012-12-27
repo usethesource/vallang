@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Anya Helene Bagge - labels
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.shared;
 
@@ -23,29 +24,34 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  */
 public class SharedMapWriter extends MapWriter{
 	
-	protected SharedMapWriter(Type keyType, Type valueType){
-		super(keyType, valueType);
+	protected SharedMapWriter(Type mapType){
+		super(mapType);
 	}
 	
 	protected SharedMapWriter(){
 		super();
 	}
 	
-	protected SharedMapWriter(Type keyType, Type valueType, ShareableValuesHashMap data){
-		super(keyType, valueType, data);
+	protected SharedMapWriter(Type mapType, ShareableValuesHashMap data){
+		super(mapType, data);
 	}
 	
 	public IMap done(){
 		if(constructedMap == null) {
-		  if (!data.isEmpty()) {
-		    constructedMap = SharedValueFactory.getInstance().buildMap(new SharedMap(keyType, valueType, data));
-		  }
-		  else {
-		    Type voidType = TypeFactory.getInstance().voidType();
-		    constructedMap = SharedValueFactory.getInstance().buildMap(new SharedMap(voidType, voidType, data));
-		  }
+			if (mapType == null) {
+				mapType = TypeFactory.getInstance().mapType(keyType, valueType);
+			}
+
+			if (!data.isEmpty()) {
+				constructedMap = SharedValueFactory.getInstance().buildMap(new SharedMap(mapType, data));
+			}
+			else {
+				Type voidType = TypeFactory.getInstance().voidType();
+				Type voidMapType = TypeFactory.getInstance().mapType(voidType, mapType.getKeyLabel(), voidType, mapType.getValueLabel());
+				constructedMap = SharedValueFactory.getInstance().buildMap(new SharedMap(voidMapType, data));
+			}
 		}
-		
+
 		return constructedMap;
 	}
 }

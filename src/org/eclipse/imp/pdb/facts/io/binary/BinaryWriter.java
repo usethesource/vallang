@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Anya Helene Bagge - labeled map types
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.io.binary;
 
@@ -735,10 +736,31 @@ public class BinaryWriter{
 	}
 	
 	private void writeMapType(Type mapType) throws IOException{
-		out.write(MAP_TYPE_HEADER);
+		boolean hasFieldNames = mapType.hasFieldNames();
 		
-		writeType(mapType.getKeyType());
-		writeType(mapType.getValueType());
+		if(hasFieldNames){
+			out.write(MAP_TYPE_HEADER | HAS_FIELD_NAMES);
+
+			String name;
+			byte[] nameData;
+
+			writeType(mapType.getKeyType());
+			name = mapType.getKeyLabel();
+			nameData = name.getBytes(CharEncoding);
+			printInteger(nameData.length);
+			out.write(nameData);
+			
+			writeType(mapType.getValueType());
+			name = mapType.getValueLabel();
+			nameData = name.getBytes(CharEncoding);
+			printInteger(nameData.length);
+			out.write(nameData);
+		}
+		else {
+			out.write(MAP_TYPE_HEADER);
+			writeType(mapType.getKeyType());
+			writeType(mapType.getValueType());
+		}
 	}
 	
 	private void writeParameterType(Type parameterType) throws IOException{

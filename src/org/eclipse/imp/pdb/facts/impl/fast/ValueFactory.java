@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
 * Contributors:
 *    Jurgen Vinju - interface and implementation
 *    Arnold Lankamp - implementation
-*    Anya Helene Bagge - rational support
+*    Anya Helene Bagge - rational support, labeled maps and tuples
 *    Davy Landman - added PI & E constants
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
@@ -22,6 +22,8 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -211,7 +213,11 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public IMapWriter mapWriter(Type keyType, Type valueType){
-		return new MapWriter(keyType, valueType);
+		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
+	}
+
+	public IMapWriter mapWriter(Type mapType){
+		return new MapWriter(mapType);
 	}
 	
 	public IMapWriter mapWriter(){
@@ -236,6 +242,14 @@ public class ValueFactory extends BaseValueFactory {
 		return new RelationWriter();
 	}
 	
+	public IListRelationWriter listRelationWriter(Type tupleType) {
+		return new ListRelationWriter(tupleType);
+	}
+
+	public IListRelationWriter listRelationWriter() {
+		return new ListRelationWriter();
+	}
+	
 	public IList list(Type elementType){
 		return listWriter(elementType).done();
 	}
@@ -247,6 +261,10 @@ public class ValueFactory extends BaseValueFactory {
 		return listWriter.done();
 	}
 	
+	public IMap map(Type mapType){
+		return mapWriter(mapType).done();
+	}
+
 	public IMap map(Type keyType, Type valueType){
 		return mapWriter(keyType, valueType).done();
 	}
@@ -275,6 +293,20 @@ public class ValueFactory extends BaseValueFactory {
 		IRelationWriter relationWriter = relationWriter(elementType);
 		relationWriter.insert(elements);
 		return relationWriter.done();
+	}
+	
+	public IListRelation listRelation(Type tupleType) {
+		return listRelationWriter(tupleType).done();
+	}
+
+	public IListRelation listRelation(IValue... elements) {
+		Type elementType = lub(elements);
+		
+		if (!elementType.isTupleType()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
+		
+		IListRelationWriter listRelationWriter = listRelationWriter(elementType);
+		listRelationWriter.append(elements);
+		return listRelationWriter.done();
 	}
 	
 	public INode node(String name){
@@ -385,6 +417,8 @@ public class ValueFactory extends BaseValueFactory {
 		b.appendCodePoint(ch);
 		return string(b.toString());
 	}
+
+
 
 	
 

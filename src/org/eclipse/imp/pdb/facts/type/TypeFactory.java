@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2008 IBM Corporation and CWI
+* Copyright (c) 2007, 2008, 2012 IBM Corporation and CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,7 +7,8 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) 
-*    Jurgen Vinju  (jurgen@vinju.org)       
+*    Jurgen Vinju  (jurgen@vinju.org)     
+*    Anya Helene Bagge (anya@ii.uib.no)  
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.type;
@@ -232,7 +233,7 @@ public class TypeFactory {
      * 
      * @param types  the types of the fields
      * @param labels the labels of the fields (in respective order)
-     * @return
+     * @return a tuple type
      */
     public Type tupleType(Type[] types, String[] labels) {
     	checkNull((Object[]) types);
@@ -274,6 +275,11 @@ public class TypeFactory {
     	return getFromCache(new RelationType(tupleType));
     }
     
+    public Type lrelTypeFromTuple(Type tupleType) {
+    	checkNull(tupleType);
+    	return getFromCache(new ListRelationType(tupleType));
+    }
+    
     /**
      * Construct a relation type.
      * @param fieldTypes the types of the fields of the relation
@@ -291,6 +297,25 @@ public class TypeFactory {
      */
     public Type relType(Object... fieldTypesAndLabels) {
         return relTypeFromTuple(tupleType(fieldTypesAndLabels));
+    }
+    
+    /**
+     * Construct a list relation type.
+     * @param fieldTypes the types of the fields of the relation
+     * @return a list relation type
+     */
+    public Type lrelType(Type... fieldTypes) {
+    	checkNull((Object[]) fieldTypes);
+        return getFromCache(new ListRelationType(tupleType(fieldTypes)));
+    }
+    
+    /**
+     * Construct a list relation type.
+     * @param fieldTypes the types of the fields of the relation
+     * @return a list relation type
+     */
+    public Type lrelType(Object... fieldTypesAndLabels) {
+        return lrelTypeFromTuple(tupleType(fieldTypesAndLabels));
     }
 
     /** 
@@ -455,6 +480,9 @@ public class TypeFactory {
      */
     public Type listType(Type elementType) {
     	checkNull(elementType);
+    	if (elementType.isTupleType()) {
+    		return lrelTypeFromTuple(elementType);
+    	}
 		return getFromCache(new ListType(elementType));
 	}
     
@@ -486,7 +514,10 @@ public class TypeFactory {
 	}
 
     public Type mapType(Type key, String keyLabel, Type value, String valueLabel) {
-    	checkNull(key, keyLabel, value, valueLabel);
+    	checkNull(key, value);
+    	if((keyLabel != null && valueLabel == null) || (valueLabel != null && keyLabel == null)) { 
+    		throw new IllegalArgumentException("Key and value labels must both be non-null or null: " + keyLabel + ", " + valueLabel);
+    	}
     	return getFromCache(new MapType(key, keyLabel, value, valueLabel));
 	}
 
@@ -515,7 +546,7 @@ public class TypeFactory {
 	 * Checks to see if a string is a valid PDB type, field or annotation identifier
 	 * 
 	 * @param str
-	 * @return
+	 * @return true if the string is a valid identifier
 	 */
 	public boolean isIdentifier(String str) {
 		checkNull(str);
@@ -539,5 +570,6 @@ public class TypeFactory {
 		return true;
 	}
 
+	
 
 }

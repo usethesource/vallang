@@ -46,7 +46,9 @@ public class AllTests {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestList.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestListRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestSet.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestMap.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestValueFactory.class);
 	}
 
@@ -56,7 +58,9 @@ public class AllTests {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestAnnotations.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestListRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestList.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestMap.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestValueFactory.class);
 	}
 
@@ -68,6 +72,7 @@ public class AllTests {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestList.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestMap.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestValueFactory.class);
 	}
 

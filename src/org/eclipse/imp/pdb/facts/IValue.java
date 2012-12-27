@@ -60,7 +60,6 @@ public interface IValue  {
     
     /**
      * Prints the value to a string using the {@link StandardTextWriter}
-     * @return
      */
     public String toString();
 }

@@ -349,7 +349,7 @@ public class TypeStore {
 		for (Type alt : signature) {
 			if (alt.isConstructorType() && alt.getName().equals(name)) {
 				Type fieldTypes = alt.getFieldTypes();
-				if (fieldTypes != tupleType && fieldTypes.comparable(tupleType)) {
+				if (fieldTypes != tupleType && fieldTypes.equivalent(tupleType)) {
 					throw new RedeclaredConstructorException(name, fieldTypes, tupleType);
 				}
 			}
@@ -359,7 +359,7 @@ public class TypeStore {
     /**
      * Lookup a AliasType that was declared before by name
      * @param name the name of the type to lookup
-     * @return
+     * @return the AliasType
      */
     public Type lookupAlias(final String name) {
     	synchronized (fAliases) {
@@ -622,8 +622,8 @@ public class TypeStore {
      * Locates all declared annotations for a type, including the annotations declared
      * for all the node type.
      * 
-     * @param onType
-     * @return
+     * @param onType 
+     * @return a map of all annotations declared for onType
      */
     public Map<String, Type> getAnnotations(Type onType) {
     	if (!onType.isSubtypeOf(NODE_TYPE)) {

@@ -342,6 +342,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	public boolean isRelationType() {
 		return fAliased.isRelationType();
 	}
+	
+	@Override
+	public boolean isListRelationType() {
+		return fAliased.isListRelationType();
+	}
 
 	@Override
 	public boolean isSetType() {

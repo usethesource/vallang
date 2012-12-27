@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *    Davy Landman - added PI & E constants
+*    Anya Helene Bagge - labeled maps and tuples
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.shared;
 
@@ -23,6 +24,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -352,7 +355,11 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public IMapWriter mapWriter(Type keyType, Type valueType){
-		return new SharedMapWriter(keyType, valueType);
+		return new SharedMapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
+	}
+	
+	public IMapWriter mapWriter(Type mapType){
+		return new SharedMapWriter(mapType);
 	}
 	
 	public IMapWriter mapWriter(){
@@ -394,6 +401,10 @@ public final class SharedValueFactory implements IValueFactory{
 		return mapWriter(keyType, valueType).done();
 	}
 	
+	public IMap map(Type mapType){
+		return mapWriter(mapType).done();
+	}
+
 	public ISet set(Type elementType){
 		return setWriter(TypeFactory.getInstance().voidType()).done();
 	}
@@ -550,6 +561,26 @@ public final class SharedValueFactory implements IValueFactory{
   public IBool bool(boolean value) {
     return BoolValue.getBoolValue(value);
   }
+
+public IListRelation listRelation(Type tupleType) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public IListRelation listRelation(IValue... elems) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public IListRelationWriter listRelationWriter(Type type) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+public IListRelationWriter listRelationWriter() {
+	// TODO Auto-generated method stub
+	return null;
+}
 
 
 }

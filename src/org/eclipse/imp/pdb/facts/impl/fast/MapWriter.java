@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Anya Helene Bagge - labels
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -30,27 +31,17 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 public class MapWriter implements IMapWriter{
 	protected Type keyType;
 	protected Type valueType;
+	protected Type mapType;
 	
 	protected final ShareableValuesHashMap data;
 	
 	protected IMap constructedMap;
 	protected final boolean inferred;
 	
-	protected MapWriter(Type keyType, Type valueType){
-		super();
-		
-		this.keyType = keyType;
-		this.valueType = valueType;
-		this.inferred = false;
-		
-		data = new ShareableValuesHashMap();
-		
-		constructedMap = null;
-	}
-	
 	protected MapWriter(){
 		super();
 		
+		this.mapType = null;
 		this.keyType = TypeFactory.getInstance().voidType();
 		this.valueType =  TypeFactory.getInstance().voidType();
 		this.inferred = true;
@@ -60,17 +51,38 @@ public class MapWriter implements IMapWriter{
 		constructedMap = null;
 	}
 	
-	protected MapWriter(Type keyType, Type valueType, ShareableValuesHashMap data){
+	
+	protected MapWriter(Type mapType) {
 		super();
 		
-		this.keyType = keyType;
-		this.valueType = valueType;
+		if(mapType.isTupleType() && mapType.getArity() >= 2) {
+			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
+		}
+		
+		if(!mapType.isMapType()) throw new IllegalArgumentException("Argument must be a map type or tuple type: " + mapType);
+		
+		this.mapType = mapType;
+		this.keyType = mapType.getKeyType();
+		this.valueType = mapType.getValueType();
+		this.inferred = false;
+		
+		data = new ShareableValuesHashMap();
+		
+		constructedMap = null;
+	}
+	
+	protected MapWriter(Type mapType, ShareableValuesHashMap data){
+		super();
+		
+		this.mapType = mapType;
+		this.keyType = mapType.getKeyType();
+		this.valueType = mapType.getValueType();
 		this.data = data;
 		this.inferred = false;
 		
 		constructedMap = null;
 	}
-	
+
 	public void put(IValue key, IValue value){
 		checkMutation();
 		updateTypes(key,value);
@@ -156,15 +168,20 @@ public class MapWriter implements IMapWriter{
 	
 	public IMap done(){
 		if(constructedMap == null) {
-		  if (data.isEmpty()) {
-		    Type voidType = TypeFactory.getInstance().voidType();
-        return new Map(voidType, voidType, data);
-		  }
-		  else {
-		    constructedMap = new Map(keyType, valueType, data);
-		  }
+			if (mapType == null) {
+				mapType = TypeFactory.getInstance().mapType(keyType, valueType);
+			}
+			if (data.isEmpty()) {
+				Type voidType = TypeFactory.getInstance().voidType();
+				Type voidMapType = TypeFactory.getInstance().mapType(voidType, mapType.getKeyLabel(), voidType, mapType.getValueLabel());
+
+				constructedMap = new Map(voidMapType, data);
+			}
+			else {
+				constructedMap = new Map(mapType, data);
+			}
 		}
-		
+
 		return constructedMap;
 	}
 }

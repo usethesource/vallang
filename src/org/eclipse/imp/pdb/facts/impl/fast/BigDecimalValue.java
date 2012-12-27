@@ -9,6 +9,7 @@
 *    Arnold Lankamp - interfaces and implementation
 *    Jurgen Vinju - extensions and fixes
 *    Davy Landman - added mathematical functions
+*    Paul Klint - Precision handling
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -22,7 +23,6 @@ import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.impl.util.BigDecimalCalculations;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -107,8 +107,8 @@ public class BigDecimalValue extends AbstractNumberValue implements IReal {
 	}
 	
 	public IReal multiply(IReal other){
-		int precision = Math.min(Math.max(value.precision(), other.precision()), BaseValueFactory.PRECISION);
-		MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
+		//int precision = Math.min(Math.max(value.precision(), other.precision()), BaseValueFactory.PRECISION);
+		//MathContext mc = new MathContext(precision, RoundingMode.HALF_UP);
 		return ValueFactory.getInstance().real(value.multiply(((BigDecimalValue) other).value));
 	}
 	

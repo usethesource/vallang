@@ -87,6 +87,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	public boolean isListRelationType() {
+		return fBound.isListRelationType();
+	}
+	
+	@Override
 	public boolean isSetType() {
 		return fBound.isSetType();
 	}
@@ -134,6 +139,21 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	@Override
 	public String getName() {
 		return fName;
+	}
+	
+	@Override
+	public int getArity(){
+		return fBound.getArity();
+	}
+	
+	@Override
+	public Type getFieldType(int i){
+		return fBound.getFieldType(i);
+	}
+	
+	@Override
+	public String[] getFieldNames(){
+		return fBound.getFieldNames();
 	}
 	
 	@Override
