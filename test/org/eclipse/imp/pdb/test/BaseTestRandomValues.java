@@ -474,8 +474,10 @@ abstract public class BaseTestRandomValues extends TestCase {
 		assertEquals(a.lessEqual(b).getValue(), a.less(b).getValue() || a.isEqual(b));
 		assertEquals(a.greaterEqual(b).getValue(), a.greater(b).getValue() || a.isEqual(b));
 
+		assertEquals(a.less(b).getValue() || a.greater(b).getValue(), !a.isEqual(b));
 		assertEquals(a.isEqual(b), b.isEqual(a));
 		assertTrue(a.isEqual(a));
+
 		if(a.isEqual(b)) {
 			assertEquals("" + a + ".hashCode() != " + b + ".hashCode()",
 					a.hashCode(), b.hashCode());
