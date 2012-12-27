@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009, 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
 * Contributors:
 *    Jurgen Vinju - interface and implementation
 *    Arnold Lankamp - implementation
-*    Anya Helene Bagge - rational support
+*    Anya Helene Bagge - rational support, labeled maps and tuples
 *    Davy Landman - added PI & E constants
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
@@ -213,7 +213,11 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public IMapWriter mapWriter(Type keyType, Type valueType){
-		return new MapWriter(keyType, valueType);
+		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
+	}
+
+	public IMapWriter mapWriter(Type mapType){
+		return new MapWriter(mapType);
 	}
 	
 	public IMapWriter mapWriter(){
@@ -257,6 +261,10 @@ public class ValueFactory extends BaseValueFactory {
 		return listWriter.done();
 	}
 	
+	public IMap map(Type mapType){
+		return mapWriter(mapType).done();
+	}
+
 	public IMap map(Type keyType, Type valueType){
 		return mapWriter(keyType, valueType).done();
 	}

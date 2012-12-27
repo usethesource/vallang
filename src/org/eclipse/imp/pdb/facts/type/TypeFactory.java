@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2008 IBM Corporation and CWI
+* Copyright (c) 2007, 2008, 2012 IBM Corporation and CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,7 +7,8 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) 
-*    Jurgen Vinju  (jurgen@vinju.org)       
+*    Jurgen Vinju  (jurgen@vinju.org)     
+*    Anya Helene Bagge (anya@ii.uib.no)  
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.type;
@@ -513,7 +514,10 @@ public class TypeFactory {
 	}
 
     public Type mapType(Type key, String keyLabel, Type value, String valueLabel) {
-    	checkNull(key, keyLabel, value, valueLabel);
+    	checkNull(key, value);
+    	if((keyLabel != null && valueLabel == null) || (valueLabel != null && keyLabel == null)) { 
+    		throw new IllegalArgumentException("Key and value labels must both be non-null or null: " + keyLabel + ", " + valueLabel);
+    	}
     	return getFromCache(new MapType(key, keyLabel, value, valueLabel));
 	}
 

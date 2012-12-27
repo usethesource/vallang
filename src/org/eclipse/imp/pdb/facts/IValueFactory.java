@@ -239,6 +239,18 @@ public interface IValueFactory {
     public ITuple tuple(IValue... args);
     
     /**
+     * Construct a tuple of the given TupleType
+     * 
+     * The length of the argument list must match the number of children
+     * in the tuple type. Use this method if you need to create tuples
+     * with labeled children.
+     * 
+     * @param args a variable length argument list or an array of IValue
+     * @return a tuple with as many children as there are args
+     */
+    // public ITuple tuple(Type type, IValue... args);
+
+    /**
      * Construct a nullary generic tree node
      * @param name the name of the tree node
      * @return a new tree value
@@ -416,10 +428,25 @@ public interface IValueFactory {
      */
 	public IMap map(Type key, Type value);
 
+    /**
+     * Creates an empty unmodifiable map.
+     * @param mapType the type of the map
+     * @return an empty map
+     */
+	public IMap map(Type mapType);
+
 	/**
 	 * Create a map writer
 	 * 
-	 * @param key   the type of the keys in the map
+     * @param mapType the type of the map
+	 * @return a map writer
+	 */
+	public IMapWriter mapWriter(Type mapType);
+
+	/**
+	 * Create a map writer
+	 * 
+     * @param key   the type of the keys in the map
 	 * @param value the type of the values in the map
 	 * @return a map writer
 	 */

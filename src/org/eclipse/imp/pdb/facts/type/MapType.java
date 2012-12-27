@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2008 CWI
+* Copyright (c) 2008, 2012 CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Anya Helene Bagge - labels
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.type;
@@ -224,13 +224,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     
     @Override
     public IMap make(IValueFactory f) {
-    	return f.map(fKeyType, fValueType);
+    	return f.map(this);
     }
     
 	@SuppressWarnings("unchecked")
 	@Override
     public IMapWriter writer(IValueFactory f) {
-    	return f.mapWriter(fKeyType, fValueType);
+    	return f.mapWriter(this);
     }
 	
 	@Override

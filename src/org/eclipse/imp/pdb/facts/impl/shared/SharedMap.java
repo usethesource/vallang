@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.impl.fast.Map;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /**
  * Implementation of shareable maps.
@@ -27,17 +28,23 @@ import org.eclipse.imp.pdb.facts.type.Type;
  */
 public class SharedMap extends Map implements IShareable{
 	
-	protected SharedMap(Type keyType, Type valueType, ShareableValuesHashMap data){
-		super(keyType, valueType, data);
+	protected SharedMap(Type mapType, ShareableValuesHashMap data){
+		super(mapType, data);
 	}
 	
 	public IMap put(IValue key, IValue value){
 		ShareableValuesHashMap newData = new ShareableValuesHashMap(data);
 		newData.put(key, value);
 		
-		Type newKeyType = keyType.lub(key.getType());
-		Type newValueType = valueType.lub(value.getType());
-		return new SharedMapWriter(newKeyType, newValueType, newData).done();
+		Type newMapType = mapType;
+		Type newKeyType = mapType.getKeyType().lub(key.getType());
+		Type newValueType = mapType.getValueType().lub(value.getType());
+		if(newKeyType != mapType.getKeyType() || newValueType != mapType.getValueType()) {
+			 newMapType = TypeFactory.getInstance().mapType(newKeyType, mapType.getKeyLabel(), newValueType, mapType.getValueLabel());
+		}
+
+
+		return new SharedMapWriter(newMapType, newData).done();
 	}
 	
 	public IMap common(IMap other){
@@ -63,9 +70,7 @@ public class SharedMap extends Map implements IShareable{
 			}
 		}
 
-		Type newKeyType = keyType.lub(other.getKeyType());
-		Type newValueType = valueType.lub(other.getValueType());
-		return new SharedMapWriter(newKeyType, newValueType, commonData).done();
+		return new SharedMapWriter(mapType.lub(other.getType()), commonData).done();
 	}
 	
 	public IMap compose(IMap other){
@@ -82,7 +87,9 @@ public class SharedMap extends Map implements IShareable{
 			}
 		}
 		
-		return new SharedMapWriter(keyType, otherMap.valueType, newData).done();
+		Type newMapType = TypeFactory.getInstance().mapType(mapType.getKeyType(), mapType.getKeyLabel(), 
+				otherMap.mapType.getValueType(), otherMap.mapType.getValueLabel());
+		return new SharedMapWriter(newMapType, newData).done();
 	}
 	
 	public IMap join(IMap other){
@@ -104,9 +111,7 @@ public class SharedMap extends Map implements IShareable{
 			newData.put(entry.getKey(), entry.getValue());
 		}
 		
-		Type newKeyType = keyType.lub(otherMap.keyType);
-		Type newValueType = valueType.lub(otherMap.valueType);
-		return new SharedMapWriter(newKeyType, newValueType, newData).done();
+		return new SharedMapWriter(mapType.lub(otherMap.mapType), newData).done();
 	}
 	
 	public IMap remove(IMap other){
@@ -117,7 +122,7 @@ public class SharedMap extends Map implements IShareable{
 			newData.remove(keysIterator.next());
 		}
 		
-		return new SharedMapWriter(keyType, valueType, newData).done();
+		return new SharedMapWriter(mapType, newData).done();
 	}
 	
 	public boolean equivalent(IShareable shareable){

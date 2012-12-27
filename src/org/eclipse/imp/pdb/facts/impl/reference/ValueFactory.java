@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2008 IBM Corporation & CWI
+* Copyright (c) 2007, 2008, 2012 IBM Corporation & CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,7 +7,8 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-*    Jurgen Vinju (jurgen@vinju.org)         
+*    Jurgen Vinju (jurgen@vinju.org)
+*    Anya Helene Bagge - rational support, labeled maps and tuples
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl.reference;
@@ -212,12 +213,21 @@ public class ValueFactory extends BaseValueFactory {
 		return mapWriter(keyType, valueType).done();
 	}
 	
+	public IMap map(Type mapType) {
+		checkNull(mapType);
+		return mapWriter(mapType).done();
+	}
 	public IMapWriter mapWriter(Type keyType, Type valueType) {
 		checkNull(keyType);
 		checkNull(valueType);
-		return Map.createMapWriter(keyType, valueType);
+		return Map.createMapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
 	}
 	
+	public IMapWriter mapWriter(Type mapType) {
+		checkNull(mapType);
+		return Map.createMapWriter(mapType);
+	}
+
 	public IMapWriter mapWriter() {
 		return Map.createMapWriter();
 	}

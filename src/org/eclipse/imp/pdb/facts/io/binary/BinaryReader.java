@@ -295,7 +295,7 @@ public class BinaryReader{
 				type = readRelationType();
 				break;
 			case MAP_TYPE_HEADER:
-				type = readMapType();
+				type = readMapType(typeHeader);
 				break;
 			case PARAMETER_TYPE_HEADER:
 				type = readParameterType();
@@ -626,12 +626,9 @@ public class BinaryReader{
 	private IMap readMap(int header) throws IOException{
 		Type mapType = readType(header);
 
-		Type keyType = mapType.getKeyType();
-		Type valueType = mapType.getValueType();
-		
 		int length = parseInteger();
 		
-		IMapWriter mapWriter = valueFactory.mapWriter(keyType, valueType);
+		IMapWriter mapWriter = valueFactory.mapWriter(mapType);
 		for(int i = 0; i < length; i++){
 			IValue key = deserialize();
 			IValue value = deserialize();
@@ -748,11 +745,31 @@ public class BinaryReader{
 		return tf.relTypeFromTuple(elementType);
 	}
 	
-	private Type readMapType() throws IOException{
-		Type keyType = doReadType();
-		Type valueType = doReadType();
-		
-		return tf.mapType(keyType, valueType);
+	private Type readMapType(int header) throws IOException{
+		boolean hasFieldNames = ((header & HAS_FIELD_NAMES) == HAS_FIELD_NAMES);
+
+		if(hasFieldNames){
+			Type keyType = doReadType();
+			int keyLabelLength = parseInteger();
+			byte[] keyLabelData = new byte[keyLabelLength];
+			in.read(keyLabelData);
+			String keyLabel = new String(keyLabelData, BinaryWriter.CharEncoding);
+
+			Type valueType = doReadType();
+			int valueLabelLength = parseInteger();
+			byte[] valueLabelData = new byte[valueLabelLength];
+			in.read(valueLabelData);
+			String valueLabel = new String(valueLabelData, BinaryWriter.CharEncoding);
+
+			return tf.mapType(keyType, keyLabel, valueType, valueLabel);
+		}
+		else {
+			Type keyType = doReadType();
+			Type valueType = doReadType();
+
+
+			return tf.mapType(keyType, valueType);
+		}
 	}
 	
 	private Type readParameterType() throws IOException{

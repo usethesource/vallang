@@ -735,10 +735,31 @@ public class BinaryWriter{
 	}
 	
 	private void writeMapType(Type mapType) throws IOException{
-		out.write(MAP_TYPE_HEADER);
+		boolean hasFieldNames = mapType.hasFieldNames();
 		
-		writeType(mapType.getKeyType());
-		writeType(mapType.getValueType());
+		if(hasFieldNames){
+			out.write(MAP_TYPE_HEADER | HAS_FIELD_NAMES);
+
+			String name;
+			byte[] nameData;
+
+			writeType(mapType.getKeyType());
+			name = mapType.getKeyLabel();
+			nameData = name.getBytes(CharEncoding);
+			printInteger(nameData.length);
+			out.write(nameData);
+			
+			writeType(mapType.getValueType());
+			name = mapType.getValueLabel();
+			nameData = name.getBytes(CharEncoding);
+			printInteger(nameData.length);
+			out.write(nameData);
+		}
+		else {
+			out.write(MAP_TYPE_HEADER);
+			writeType(mapType.getKeyType());
+			writeType(mapType.getValueType());
+		}
 	}
 	
 	private void writeParameterType(Type parameterType) throws IOException{

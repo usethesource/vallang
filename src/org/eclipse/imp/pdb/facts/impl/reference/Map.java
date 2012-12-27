@@ -9,6 +9,7 @@
  *
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *   * Anya Helene Bagge - anya@ii.uib.no - UiB
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
@@ -34,8 +35,10 @@ class Map extends Value implements IMap{
 	private final HashMap<IValue,IValue> content;
 	private int fHash = 0;
 	
-	/* package */Map(Type keyType, Type valueType, HashMap<IValue, IValue> content){
-		super(TypeFactory.getInstance().mapType(keyType, valueType));
+	/* package */Map(Type mapType, HashMap<IValue, IValue> content){
+		super(mapType);
+		
+		if(!mapType.isMapType()) throw new IllegalArgumentException("Type must be a map type: " + mapType);
 		
 		this.content = content;
 	}
@@ -77,21 +80,28 @@ class Map extends Value implements IMap{
 	}
 
 	public IMap put(IValue key, IValue value) {
-		IMapWriter sw = new MapWriter(getKeyType().lub(key.getType()), getValueType().lub(value.getType()));
+		Type newMapType = fType;
+		Type newKeyType = fType.getKeyType().lub(key.getType());
+		Type newValueType = fType.getValueType().lub(value.getType());
+		if(newKeyType != fType.getKeyType() || newValueType != fType.getValueType()) {
+			 newMapType = TypeFactory.getInstance().mapType(newKeyType, fType.getKeyLabel(), newValueType, fType.getValueLabel());
+		}
+
+		IMapWriter sw = new MapWriter(newMapType);
 		sw.putAll(this);
 		sw.put(key, value);
 		return sw.done();
 	}
 	
 	public IMap join(IMap other) {
-		IMapWriter sw = new MapWriter(getKeyType().lub(other.getKeyType()), getValueType().lub(other.getValueType()));
+		IMapWriter sw = new MapWriter(fType.lub(other.getType()));
 		sw.putAll(this);
 		sw.putAll(other);
 		return sw.done();
 	}
 	
 	public IMap common(IMap other) {
-		IMapWriter sw = new MapWriter(getKeyType().lub(other.getKeyType()), getValueType().lub(other.getValueType()));
+		IMapWriter sw = new MapWriter(fType.lub(other.getType()));
 		
 		for (IValue key : this) {
 			IValue thisValue = get(key);
@@ -104,7 +114,7 @@ class Map extends Value implements IMap{
 	}
 	
 	public IMap remove(IMap other) {
-		IMapWriter sw = new MapWriter(getKeyType().lub(other.getKeyType()), getValueType().lub(other.getValueType()));
+		IMapWriter sw = new MapWriter(fType);
 		for (IValue key : this) {
 			if (!other.containsKey(key)) {
 				sw.put(key, get(key));
@@ -161,16 +171,18 @@ class Map extends Value implements IMap{
 		return v.visitMap(this);
 	}
 	
-	static MapWriter createMapWriter(Type keyType, Type valueType){
-		return new MapWriter(keyType, valueType);
+	static MapWriter createMapWriter(Type mapType){
+		return new MapWriter(mapType);
 	}
-	
+
 	static MapWriter createMapWriter(){
 		return new MapWriter();
 	}
 	
 	public IMap compose(IMap other) {
-		IMapWriter w = new MapWriter(getKeyType(), other.getValueType());
+		Type newMapType = TypeFactory.getInstance().mapType(fType.getKeyType(), fType.getKeyLabel(), 
+				other.getType().getValueType(), other.getType().getValueLabel());
+		IMapWriter w = new MapWriter(newMapType);
 		
 		Iterator<Entry<IValue,IValue>> iter = entryIterator();
 		while (iter.hasNext()) {
@@ -185,31 +197,41 @@ class Map extends Value implements IMap{
 	}
 	
 	private static class MapWriter extends Writer implements IMapWriter{
+		private Type mapType; 
 		private Type keyType;
 		private Type valueType;
 		private final boolean inferred;
 		private final HashMap<IValue, IValue> mapContent;
-		private Map constructedMap; 
+		private Map constructedMap;
 
-		public MapWriter(Type keyType, Type valueType){
-			super();
-			
-			this.keyType = keyType;
-			this.valueType = valueType;
-			this.inferred = false;
-			
-			mapContent = new HashMap<IValue, IValue>();
-		}
-		
 		public MapWriter(){
 			super();
 			
+			this.mapType = null;
 			this.keyType = TypeFactory.getInstance().voidType();
 			this.valueType = TypeFactory.getInstance().voidType();
 			this.inferred = true;
 			
 			mapContent = new HashMap<IValue, IValue>();
 		}
+
+		public MapWriter(Type mapType){
+			super();
+			
+			if(mapType.isTupleType() && mapType.getArity() >= 2) {
+				mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
+			}
+			
+			if(!mapType.isMapType()) throw new IllegalArgumentException("Argument must be a map type or tuple type: " + mapType);
+
+			this.mapType = mapType;
+			this.keyType = mapType.getKeyType();
+			this.valueType = mapType.getValueType();
+			this.inferred = false;
+			
+			mapContent = new HashMap<IValue, IValue>();
+		}
+		
 
 		private void checkMutation(){
 			if(constructedMap != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
@@ -263,12 +285,23 @@ class Map extends Value implements IMap{
 		
 		public IMap done(){
 			if(constructedMap == null) {
-			  Type voidType = TypeFactory.getInstance().voidType();
-				constructedMap = new Map(mapContent.isEmpty() ? voidType : keyType, mapContent.isEmpty() ? voidType : valueType, mapContent);
+				if (mapType == null) {
+					mapType = TypeFactory.getInstance().mapType(keyType, valueType);
+				}
+
+				if(mapContent.isEmpty()) {
+					Type voidType = TypeFactory.getInstance().voidType();
+					Type voidMapType = TypeFactory.getInstance().mapType(voidType, mapType.getKeyLabel(), voidType, mapType.getValueLabel());
+
+					constructedMap = new Map(voidMapType, mapContent);
+				}
+				else {
+					constructedMap = new Map(mapType, mapContent);
+				}
 			}
-			
+
 			return constructedMap;
 		}
 	}
-	
+
 }

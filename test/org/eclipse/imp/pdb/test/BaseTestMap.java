@@ -14,16 +14,11 @@ package org.eclipse.imp.pdb.test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.io.binary.BinaryReader;
 import org.eclipse.imp.pdb.facts.io.binary.BinaryWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -33,18 +28,25 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 /**
  * @author Anya Helene Bagge
  */
-public class TestMapLabels extends TestCase {
-	private TypeStore ts = new TypeStore();
-	private TypeFactory tf = TypeFactory.getInstance();
-	private IValueFactory vf = ValueFactory.getInstance();
-	private Type a = tf.abstractDataType(ts, "A");
-	private Type b = tf.abstractDataType(ts, "B");
-	enum Kind { BINARY, TEXT};
-	private TestValue[] testValues = {
-			new TestValue("Bergen", "Amsterdam", "from", "to"),
-			new TestValue("New York", "London", null, null),
-			new TestValue("Banana", "Fruit", "key", "value"),
-	};
+public abstract class BaseTestMap extends TestCase {
+	private final TypeStore ts = new TypeStore();
+	private final TypeFactory tf = TypeFactory.getInstance();
+	enum Kind { BINARY };
+	private IValueFactory vf;
+	private Type a;
+	private Type b;
+	private TestValue[] testValues;
+
+	protected void setUp(IValueFactory factory) throws Exception {
+		vf = factory;
+		a = tf.abstractDataType(ts, "A");
+		b = tf.abstractDataType(ts, "B");
+		testValues = new TestValue[]{
+				new TestValue("Bergen", "Amsterdam", "from", "to"),
+				new TestValue("New York", "London", null, null),
+				new TestValue("Banana", "Fruit", "key", "value"),
+		};
+	}
 
 	public void testNoLabels() {
 		// make a non-labeled map type, and the labels should be null
@@ -103,6 +105,9 @@ public class TestMapLabels extends TestCase {
 				for(Kind k : Kind.values()) {
 					TestValue testValue = testValues[i];
 
+					assertEquals(testValue.keyLabel, testValue.value.getType().getKeyLabel());
+					assertEquals(testValue.valueLabel, testValue.value.getType().getValueLabel());
+					
 					System.out.println(testValue + " : " + testValue.value.getType()); // Temp
 
 					IValue result = doIO(testValue.value, k);
@@ -136,10 +141,11 @@ public class TestMapLabels extends TestCase {
 			byte[] data = baos.toByteArray();
 			ByteArrayInputStream bais = new ByteArrayInputStream(data);
 			BinaryReader binaryReader = new BinaryReader(vf, ts, bais);
+			System.out.print("data: ");
 			printBytes(data); // Temp
 			return binaryReader.deserialize();
 		}
-		/*// Doesn't work
+		/*// Doesn't work, but should, perhaps?
 		case XML: {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			XMLWriter writer = new XMLWriter();
@@ -152,18 +158,10 @@ public class TestMapLabels extends TestCase {
 			return reader.read(vf, new InputStreamReader(bais));
 		}
 		*/
-		case TEXT: {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			StandardTextWriter writer = new StandardTextWriter();
-			writer.write(val, new OutputStreamWriter(baos), ts);
+		
+		/* TEXT IO shouldn't work, since the labels aren't present in the standard text representation */
 
-			byte[] data = baos.toByteArray();
-			ByteArrayInputStream bais = new ByteArrayInputStream(data);
-			StandardTextReader reader = new StandardTextReader();
-			printBytes(data); // Temp
-			return reader.read(vf, new InputStreamReader(bais));
-		}
-		/* // Doesn't work
+		/* // Doesn't work, but should, perhaps?
 		case ATERM: {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ATermWriter writer = new ATermWriter();
