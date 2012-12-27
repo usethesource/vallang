@@ -225,14 +225,7 @@ public class TestType extends TestCase {
 
 		for (Type t1 : allTypes) {
 			for (Type t2 : allTypes) {
-				if (t1 != t2 && t1.isSubtypeOf(t2) && t2.isSubtypeOf(t1)) {
-					if (!t1.isAliasType() && !t2.isAliasType()) {
-						System.err.println("Failure:");
-						System.err.println(t1 + " <= " + t2 + " && " + t2
-								+ " <= " + t1);
-						fail("subtype of should not be symmetric: " + t1 + ", " + t2);
-					}
-				}
+				assertEquals(t1.equivalent(t2), t1.isSubtypeOf(t2) && t2.isSubtypeOf(t1)); 
 			}
 		}
 
