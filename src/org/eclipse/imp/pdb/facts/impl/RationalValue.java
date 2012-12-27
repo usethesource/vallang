@@ -132,7 +132,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool less(IReal other) {
-		return other.greaterEqual(this);
+		return other.greater(this);
 	}
 
 	public IBool less(IInteger other) {
