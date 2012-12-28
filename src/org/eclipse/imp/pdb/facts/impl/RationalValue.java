@@ -193,15 +193,11 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	public boolean equals(Object o) {
 		if(o == null) return false;
 		if(o == this) return true;
+		
 		if(o.getClass() == getClass()){
 			RationalValue other = (RationalValue) o;
 			return num.equals(other.num) && denom.equals(other.denom); 
 		}
-		else if(o instanceof IInteger)
-			return equals(((IInteger) o).toRational());
-		else if(o instanceof IReal)
-			return toReal().isEqual((IReal)o);
-
 		
 		return false;
 	}

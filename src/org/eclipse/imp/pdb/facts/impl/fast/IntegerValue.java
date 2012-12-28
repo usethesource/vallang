@@ -404,10 +404,6 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 			IntegerValue otherInteger = (IntegerValue) o;
 			return (value == otherInteger.value);
 		}
-		else if(o instanceof IRational)
-			return ((IRational)o).equals(toRational());
-		else if(o instanceof IReal)
-			return ((IReal)o).equals(toReal());
 		
 		return false;
 	}

@@ -388,27 +388,27 @@ abstract public class BaseTestRandomValues extends TestCase {
 		assertEquals(cmp, -b.compare(a));
 		assertEquals(cmp < 0, a.less(b).getValue());
 		assertEquals(cmp > 0, a.greater(b).getValue());
-		assertEquals(cmp == 0, a.isEqual(b));
-		assertEquals(cmp <= 0, a.less(b).getValue() || a.isEqual(b));
-		assertEquals(cmp >= 0, a.greater(b).getValue() || a.isEqual(b));
+		assertEquals(cmp == 0, a.equal(b).getValue());
+		assertEquals(cmp <= 0, a.less(b).getValue() || a.equal(b).getValue());
+		assertEquals(cmp >= 0, a.greater(b).getValue() || a.equal(b).getValue());
 
 		assertEquals(a.less(b), b.greater(a));
 		assertEquals(a.greaterEqual(b), b.lessEqual(a));
-		assertEquals(a.lessEqual(b).getValue(), a.less(b).getValue() || a.isEqual(b));
-		assertEquals(a.greaterEqual(b).getValue(), a.greater(b).getValue() || a.isEqual(b));
+		assertEquals(a.lessEqual(b).getValue(), a.less(b).getValue() || a.equal(b).getValue());
+		assertEquals(a.greaterEqual(b).getValue(), a.greater(b).getValue() || a.equal(b).getValue());
 
-		assertEquals(a.less(b).getValue() || a.greater(b).getValue(), !a.isEqual(b));
-		assertEquals(a.isEqual(b), b.isEqual(a));
-		assertTrue(a.isEqual(a));
+		assertEquals(a.less(b).getValue() || a.greater(b).getValue(), !a.equal(b).getValue());
+		assertEquals(a.equal(b).getValue(), b.equal(a).getValue());
+		assertTrue(a.equal(a).getValue());
 
-		if(a.isEqual(b) && a.getType().equivalent(b.getType())) {
-			assertEquals("" + a + ".hashCode() != " + b + ".hashCode()",
-					a.hashCode(), b.hashCode());
+		if(a.equals(b) && a.getType() == b.getType()) {
+			assertEquals("" + a + ".hashCode() != " + b + ".hashCode()", a.hashCode(), b.hashCode());
+			
 			if(!(a instanceof IReal || b instanceof IReal) && a.getType().equivalent(b.getType())) {
-				assertEquals("" + a + ".toString() != " + b + ".toString()",
-						a.toString(), b.toString());
+				assertEquals("" + a + ".toString() != " + b + ".toString()", a.toString(), b.toString());
 			}
 		}
+		
 		if(a.getType().equivalent(b.getType())) {
 			INumber c = b.abs();
 			// add/subtract a non-negative number gives a greater/smaller or equal result
@@ -528,8 +528,8 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 *	This may not be strictly true for reals.
 	 */
 	public void axiomTransitivity(INumber a, INumber b, INumber c) {
-		if(a.isEqual(b) && b.isEqual(c))
-			assertTrue("" + a + " == " + b + " == " + c, a.isEqual(c));
+		if(a.equal(b).getValue() && b.equal(c).getValue())
+			assertTrue("" + a + " == " + b + " == " + c, a.equal(c).getValue());
 		if(a.lessEqual(b).getValue() && b.lessEqual(c).getValue())
 			assertTrue("" + a + " <= " + b + " <= " + c,
 					a.lessEqual(c).getValue());

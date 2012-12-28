@@ -289,10 +289,6 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 			BigIntegerValue otherInteger = (BigIntegerValue) o;
 			return value.equals(otherInteger.value);
 		}
-		else if(o instanceof IRational)
-			return ((IRational)o).equals(toRational());
-		else if(o instanceof IReal)
-			return ((IReal)o).equals(toReal());
 		
 		return false;
 	}
