@@ -7,7 +7,8 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) 
-*    Jurgen Vinju  (jurgen@vinju.org)     
+*    Jurgen Vinju  (jurgen@vinju.org)   
+*    Paul Klint (Paul.Klint@cwi.nl)  
 *    Anya Helene Bagge (anya@ii.uib.no)  
 *******************************************************************************/
 

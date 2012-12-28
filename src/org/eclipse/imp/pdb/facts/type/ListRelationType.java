@@ -6,6 +6,8 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
+* 	Paul Klint (Paul.Klint@cwi.nl) - new ListRelation type
+* based on code by
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
 *******************************************************************************/
