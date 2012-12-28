@@ -332,7 +332,7 @@ public class ShareableList<E> implements Iterable<E>{
 	public E set(int index, E element){
 		int realIndex = index - backIndex;
 		if(realIndex >= 0){
-			if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the the current size of the list ("+size()+")");
+			if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
 			
 			E oldElement = frontData[realIndex];
 			frontData[realIndex] = element;
@@ -360,7 +360,7 @@ public class ShareableList<E> implements Iterable<E>{
 	public E get(int index){
 		int realIndex = index - backIndex;
 		if(realIndex >= 0){
-			if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the the current size of the list ("+size()+")");
+			if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
 			
 			return frontData[realIndex];
 		}
@@ -383,7 +383,7 @@ public class ShareableList<E> implements Iterable<E>{
 	public E remove(int index){
 		int realIndex = index - backIndex;
 		if(realIndex >= 0){
-			if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the the current size of the list ("+size()+")");
+			if(realIndex >= frontIndex) throw new ArrayIndexOutOfBoundsException(index+" >= the current size of the list ("+size()+")");
 			
 			E oldElement = frontData[realIndex];
 			

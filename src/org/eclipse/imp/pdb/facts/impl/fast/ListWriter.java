@@ -33,7 +33,7 @@ public class ListWriter implements IListWriter{
 	
 	protected IList constructedList;
 	
-	protected ListWriter(Type elementType){
+	public ListWriter(Type elementType){
 		super();
 		
 		this.elementType = elementType;
