@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class RationalValue extends AbstractNumberValue implements IRational {
 	public static final Type RATIONAL_TYPE = TypeFactory.getInstance().rationalType();
-	protected final int PRECISION = 100;
 
 	protected final IInteger num;
 	protected final IInteger denom;
@@ -95,7 +94,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IReal multiply(IReal other) {
-		return toReal().add(other);
+		return toReal().multiply(other);
 	}
 
 	public INumber multiply(IInteger other) {
@@ -132,7 +131,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool less(IReal other) {
-		return other.greaterEqual(this);
+		return other.greater(this);
 	}
 
 	public IBool less(IInteger other) {
@@ -144,7 +143,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool greater(IReal other) {
-		return other.lessEqual(this);
+		return other.less(this);
 	}
 
 	public IBool greater(IInteger other) {
@@ -180,7 +179,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public IBool greaterEqual(IReal other) {
-		return other.less(this);
+		return other.lessEqual(this);
 	}
 
 	public IBool greaterEqual(IInteger other) {
@@ -198,6 +197,11 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 			RationalValue other = (RationalValue) o;
 			return num.equals(other.num) && denom.equals(other.denom); 
 		}
+		else if(o instanceof IInteger)
+			return equals(((IInteger) o).toRational());
+		else if(o instanceof IReal)
+			return toReal().isEqual((IReal)o);
+
 		
 		return false;
 	}
@@ -234,7 +238,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	public IReal toReal() {
 		IReal r1 = num.toReal();
 		IReal r2 = denom.toReal();
-		r1 = r1.divide(r2, PRECISION);
+		r1 = r1.divide(r2, r1.precision());
 		return r1;
 	}
 
@@ -281,11 +285,15 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((denom == null) ? 0 : denom.hashCode());
-		result = prime * result + ((num == null) ? 0 : num.hashCode());
-		return result;
+		if(denom.equals(intOne()))
+			return num.hashCode();
+		else {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + num.hashCode();
+			result = prime * result + denom.hashCode();
+			return result;
+		}
 	}
 
 	public IInteger numerator() {

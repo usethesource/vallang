@@ -214,11 +214,11 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	}
 	
 	public IBool greater(IReal other) {
-		return other.lessEqual(this);
+		return other.less(this);
 	}
 	
 	public IBool greater(IRational other) {
-		return other.lessEqual(this);
+		return other.less(this);
 	}
 	
 	public IBool greaterEqual(IInteger other){
@@ -226,11 +226,11 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	}
 
 	public IBool greaterEqual(IReal other) {
-		return other.less(this);
+		return other.lessEqual(this);
 	}
 	
 	public IBool greaterEqual(IRational other) {
-		return other.less(this);
+		return other.lessEqual(this);
 	}
 	
 	public IBool less(IInteger other){
@@ -238,11 +238,11 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	}
 	
 	public IBool less(IReal other) {
-		return other.greaterEqual(this);
+		return other.greater(this);
 	}
 	
 	public IBool less(IRational other) {
-		return other.greaterEqual(this);
+		return other.greater(this);
 	}
 	
 	public IBool lessEqual(IInteger other){
@@ -250,11 +250,11 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	}
 	
 	public IBool lessEqual(IReal other) {
-		return other.greater(this);
+		return other.greaterEqual(this);
 	}
 	
 	public IBool lessEqual(IRational other) {
-		return other.greater(this);
+		return other.greaterEqual(this);
 	}
 	
 	public int compare(IInteger other){
@@ -265,9 +265,12 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 		if (other.getType().isIntegerType()) {
 			return compare(other.toInteger());
 		}
-		else if (other.getType().isRationalType())
+		else if (other.getType().isRationalType()) {
 			return toRational().compare(other);
-		return toReal().compare(other);
+		}
+		else {
+			return toReal().compare(other);
+		}
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
@@ -280,11 +283,16 @@ public class BigIntegerValue extends AbstractNumberValue implements IInteger, IC
 	
 	public boolean equals(Object o){
 		if(o == null) return false;
+		else if(o == this) return true;
 		
 		if(o.getClass() == getClass()){
 			BigIntegerValue otherInteger = (BigIntegerValue) o;
 			return value.equals(otherInteger.value);
 		}
+		else if(o instanceof IRational)
+			return ((IRational)o).equals(toRational());
+		else if(o instanceof IReal)
+			return ((IReal)o).equals(toReal());
 		
 		return false;
 	}

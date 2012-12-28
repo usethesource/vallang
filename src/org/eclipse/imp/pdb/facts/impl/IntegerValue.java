@@ -136,11 +136,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool less(IReal other) {
-    return other.greaterEqual(this);
+    return other.greater(this);
   }
 
   public IBool less(IRational other) {
-    return other.greaterEqual(this);
+    return other.greater(this);
   }
 
   public IBool lessEqual(IInteger other) {
@@ -148,11 +148,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool lessEqual(IReal other) {
-    return other.greater(this);
+    return other.greaterEqual(this);
   }
 
   public IBool lessEqual(IRational other) {
-    return other.greater(this);
+    return other.greaterEqual(this);
   }
 
   public IBool equal(IInteger other) {
@@ -172,11 +172,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool greater(IReal other) {
-    return other.lessEqual(this);
+    return other.less(this);
   }
 
   public IBool greater(IRational other) {
-    return other.lessEqual(this);
+    return other.less(this);
   }
 
   public IBool greaterEqual(IInteger other) {
@@ -184,11 +184,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IBool greaterEqual(IReal other) {
-    return other.less(this);
+    return other.lessEqual(this);
   }
 
   public IBool greaterEqual(IRational other) {
-    return other.less(this);
+    return other.lessEqual(this);
   }
 
   public IReal toReal() {

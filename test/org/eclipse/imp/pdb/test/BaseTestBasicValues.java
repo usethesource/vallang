@@ -135,6 +135,10 @@ abstract public class BaseTestBasicValues extends TestCase {
 		IInteger i5 =  (IInteger) tf.numberType().make(vf, 5);
 		assertEqual(i5.divide(i2, 80*80),vf.real(2.5));
 		assertEqual(i5.divide(i2.toRational()),vf.rational(5, 2));
+		
+		assertEqual(vf.integer(0), vf.integer(0).abs());
+		assertEqual(vf.rational(0, 1), vf.rational(0, 1).abs());
+		assertEqual(vf.real(0), vf.real(0).abs());
 	}
 	
 	

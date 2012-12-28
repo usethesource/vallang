@@ -39,7 +39,6 @@ import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.test.random.*;
 
 
@@ -52,9 +51,7 @@ import org.eclipse.imp.pdb.test.random.*;
  *
  */
 abstract public class BaseTestRandomValues extends TestCase {
-	static final boolean DISABLE_REALS = true;
 	protected IValueFactory vf;
-	protected TypeFactory tf = TypeFactory.getInstance();
 	protected IInteger INT_ONE;
 	protected IInteger INT_ZERO;
 	protected IRational RAT_ONE;
@@ -65,7 +62,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 	protected double DOUBLE_MAX_ERROR_RATIO;
 	protected IReal EPSILON;
 	protected double DOUBLE_EPSILON;
-	protected final int PRECISION = 100;
+	protected static final int PRECISION = 100;
 	// number of iterations per axiom
 	protected int N = 500;
 	// TODO add more test cases
@@ -73,10 +70,12 @@ abstract public class BaseTestRandomValues extends TestCase {
 	protected List<IRational> ratTestSet;
 	protected List<IReal> realTestSet;
 	private DataGenerator generator;
+	protected List<INumber> mixedTestSet;
 	protected static final boolean noisy = true;
 	protected void setUp(IValueFactory factory) throws Exception {
 		super.setUp();
 		vf = factory;
+		vf.setPrecision(PRECISION);
 		INT_ONE = vf.integer(1);
 		INT_ZERO = vf.integer(0);
 		RAT_ONE = vf.rational(1,1);
@@ -85,10 +84,10 @@ abstract public class BaseTestRandomValues extends TestCase {
 		REAL_ZERO = vf.real(0.0);
 		// For approximate equality of reals  a ~= b:
 		//   this is the max allowable ratio of (a-b) to max(a,b)
-		MAX_ERROR_RATIO = vf.real(1e-20);
+		MAX_ERROR_RATIO = vf.real(1e-15);
 		DOUBLE_MAX_ERROR_RATIO = 1e-10;
 		//   this is the max allowed difference between a and b
-		EPSILON = vf.real(1e-20);
+		EPSILON = vf.real(1e-10);
 		DOUBLE_EPSILON = 1e-10;
 		intTestSet = Arrays.asList(vf.integer(0), vf.integer(1), vf.integer(-1),
 				vf.integer(2), vf.integer(-2), vf.integer(Long.MAX_VALUE),
@@ -96,15 +95,23 @@ abstract public class BaseTestRandomValues extends TestCase {
 				vf.integer(Long.MAX_VALUE).multiply(vf.integer(Long.MAX_VALUE)),
 				vf.integer(Long.MIN_VALUE).multiply(vf.integer(Long.MAX_VALUE)));
 		ratTestSet = Arrays.asList(vf.rational(0,1), vf.rational(1,1), vf.rational(-1,1),
-				vf.rational(1,2), vf.rational(2,1), vf.rational(Long.MAX_VALUE,Long.MIN_VALUE));
+				vf.rational(1,2), vf.rational(2,1),
+				vf.rational(-1,2), vf.rational(-2,1),
+				vf.rational(Long.MAX_VALUE,Long.MIN_VALUE));
 		realTestSet = new ArrayList<IReal>();
+		mixedTestSet = new ArrayList<INumber>();
 		for(IInteger i : intTestSet) {
-			realTestSet.add(i.toReal());
+			if(!ratTestSet.contains(i.toRational())) {
+				realTestSet.add(i.toReal());
+			}
 		}
 		for(IRational r : ratTestSet) {
 			realTestSet.add(r.toReal());
 		}
-		realTestSet.addAll(Arrays.asList(vf.real(Double.MAX_VALUE), vf.real(Double.MIN_VALUE)));
+		realTestSet.addAll(Arrays.asList(vf.real(Float.MAX_VALUE), vf.real(Float.MIN_VALUE)));
+		mixedTestSet.addAll(intTestSet);
+		mixedTestSet.addAll(ratTestSet);
+		mixedTestSet.addAll(realTestSet);
 		generator = new DataGenerator();
 		generator.addGenerator(IInteger.class, intTestSet, new RandomIntegerGenerator(vf));
 		generator.addGenerator(IRational.class, ratTestSet, new RandomRationalGenerator(vf));
@@ -116,6 +123,9 @@ abstract public class BaseTestRandomValues extends TestCase {
 		assertTrue("Expected " + l + " got " + r, l.isEqual(r));
 	}
 
+	protected void assertEqual(String message, IValue l, IValue r) {
+		assertTrue(message + ": Expected " + l + " got " + r, l.isEqual(r));
+	}
 	/**
 	 * Test that the difference between two reals is insignificant.
 	 */
@@ -126,7 +136,15 @@ abstract public class BaseTestRandomValues extends TestCase {
 	protected void assertApprox(double l, double r) {
 		assertTrue("Expected ~" + l + " got " + r, approxEqual(l, r));
 	}
-	/**
+
+	protected void assertApprox(String message, IReal l, IReal r) {
+		assertTrue(message + ": Expected ~" + l + " got " + r + " (diff magnitude " + ((IReal)l.subtract(r).abs()).scale() + ")", approxEqual(l, r));
+	}
+
+	protected void assertApprox(String message, double l, double r) {
+		assertTrue(message + ": Expected ~" + l + " got " + r, approxEqual(l, r));
+	}
+/**
 	 * @return true if the two arguments are approximately equal
 	 */
 	protected boolean approxEqual(IReal l, IReal r) {
@@ -268,9 +286,12 @@ abstract public class BaseTestRandomValues extends TestCase {
 							new DataGenerator(generator, INumber.class, ratTestSet, new RandomRationalGenerator(vf)));
 					if(noisy)
 						System.out.print(" " + count + " calls\n" + m.getName() + "\n  Reals:     ");
-					if(!DISABLE_REALS)
-						callAxiom(m, params, new Object[params.length], 0,
-								new DataGenerator(generator, INumber.class, realTestSet, new RandomRealGenerator(vf)));
+					callAxiom(m, params, new Object[params.length], 0,
+							new DataGenerator(generator, INumber.class, realTestSet, new RandomRealGenerator(vf)));
+					if(noisy)
+						System.out.print(" " + count + " calls\n" + m.getName() + "\n  Mixed:     ");
+					callAxiom(m, params, new Object[params.length], 0, 
+							new DataGenerator(generator, INumber.class, mixedTestSet, new RandomNumberGenerator(vf)));
 				}
 				else {
 					if(noisy) System.out.print(m.getName() + "\n          :  ");
@@ -359,6 +380,44 @@ abstract public class BaseTestRandomValues extends TestCase {
 
 
 	/**
+	 * Relationship between compare() and the comparison functions,
+	 * and between the various comparisons.
+	 */
+	public void axiomCompare(INumber a, INumber b) {
+		int cmp = a.compare(b);
+		assertEquals(cmp, -b.compare(a));
+		assertEquals(cmp < 0, a.less(b).getValue());
+		assertEquals(cmp > 0, a.greater(b).getValue());
+		assertEquals(cmp == 0, a.isEqual(b));
+		assertEquals(cmp <= 0, a.less(b).getValue() || a.isEqual(b));
+		assertEquals(cmp >= 0, a.greater(b).getValue() || a.isEqual(b));
+
+		assertEquals(a.less(b), b.greater(a));
+		assertEquals(a.greaterEqual(b), b.lessEqual(a));
+		assertEquals(a.lessEqual(b).getValue(), a.less(b).getValue() || a.isEqual(b));
+		assertEquals(a.greaterEqual(b).getValue(), a.greater(b).getValue() || a.isEqual(b));
+
+		assertEquals(a.less(b).getValue() || a.greater(b).getValue(), !a.isEqual(b));
+		assertEquals(a.isEqual(b), b.isEqual(a));
+		assertTrue(a.isEqual(a));
+
+		if(a.isEqual(b) && a.getType().equivalent(b.getType())) {
+			assertEquals("" + a + ".hashCode() != " + b + ".hashCode()",
+					a.hashCode(), b.hashCode());
+			if(!(a instanceof IReal || b instanceof IReal) && a.getType().equivalent(b.getType())) {
+				assertEquals("" + a + ".toString() != " + b + ".toString()",
+						a.toString(), b.toString());
+			}
+		}
+		if(a.getType().equivalent(b.getType())) {
+			INumber c = b.abs();
+			// add/subtract a non-negative number gives a greater/smaller or equal result
+			assertTrue("" + a + " + " + c + " >= " + a, a.add(c).greaterEqual(a).getValue());
+			assertTrue("" + a + " + -" + c + " >= " + a, a.add(c.negate()).lessEqual(a).getValue());
+		}
+	}
+
+	/**
 	 *  Closure: These operations should yield a result of the same type.
 	 */
 	public void axiomClosure(INumber a, INumber b) {
@@ -379,8 +438,10 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 *  (Possibly not strictly true for reals.)
 	 */
 	public void axiomAssociativity(INumber a, INumber b, INumber c) {
-		assertEqual(a.add(b.add(c)), a.add(b).add(c));
-		assertEqual(a.multiply(b.multiply(c)), a.multiply(b).multiply(c));
+		if(!(a instanceof IReal || b instanceof IReal || c instanceof IReal)) {
+			assertEqual(a.add(b.add(c)), a.add(b).add(c));
+			assertEqual(a.multiply(b.multiply(c)), a.multiply(b).multiply(c));
+		}
 	}
 
 
@@ -388,8 +449,8 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 * Commutativity: addition and multiplication
 	 */
 	public void axiomCommutativity(INumber a, INumber b) {
-		assertEqual(a.add(b), b.add(a));
-		assertEqual(a.multiply(b), b.multiply(a));
+		assertEqual(a.toString() + " + " + b.toString(), a.add(b), b.add(a));
+		assertEqual(a.toString() + " * " + b.toString(), a.multiply(b), b.multiply(a));
 	}
 
 
@@ -452,42 +513,16 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 * (Possibly not strictly true for reals.) 
 	 */
 	public void axiomDistributivity(INumber a, INumber b, INumber c) {
-		assertEqual(a.multiply(b.add(c)),
-				a.multiply(b).add(a.multiply(c)));
-	}
-
-	/**
-	 * Relationship between compare() and the comparison functions,
-	 * and between the various comparisons.
-	 */
-	public void axiomCompare(INumber a, INumber b) {
-		int cmp = a.compare(b);
-		assertEquals(cmp, -b.compare(a));
-		assertEquals(cmp < 0, a.less(b).getValue());
-		assertEquals(cmp > 0, a.greater(b).getValue());
-		assertEquals(cmp == 0, a.isEqual(b));
-		assertEquals(cmp <= 0, a.less(b).getValue() || a.isEqual(b));
-		assertEquals(cmp >= 0, a.greater(b).getValue() || a.isEqual(b));
-
-		assertEquals(a.less(b), b.greater(a));
-		assertEquals(a.greaterEqual(b), b.lessEqual(a));
-		assertEquals(a.lessEqual(b).getValue(), a.less(b).getValue() || a.isEqual(b));
-		assertEquals(a.greaterEqual(b).getValue(), a.greater(b).getValue() || a.isEqual(b));
-
-		assertEquals(a.isEqual(b), b.isEqual(a));
-		assertTrue(a.isEqual(a));
-		if(a.isEqual(b)) {
-			assertEquals("" + a + ".hashCode() != " + b + ".hashCode()",
-					a.hashCode(), b.hashCode());
-			if(!(a instanceof IReal || b instanceof IReal))
-				assertEquals("" + a + ".toString() != " + b + ".toString()",
-						a.toString(), b.toString());
+		if(!(a instanceof IReal || b instanceof IReal || c instanceof IReal)) {
+			assertEqual(String.format("a=%s, b=%s, c=%s", a.toString(), b.toString(), c.toString()),
+					a.multiply(b.add(c)), a.multiply(b).add(a.multiply(c)));
 		}
-		INumber c = b.abs();
-		// add/subtract a non-negative number gives a greater/smaller or equal result
-		assertTrue("" + a + " + " + c + " >= " + a, a.add(c).greaterEqual(a).getValue());
-		assertTrue("" + a + " + -" + c + " >= " + a, a.add(c.negate()).lessEqual(a).getValue());
+		else {
+			//assertApprox(String.format("a=%s, b=%s, c=%s", a.toString(), b.toString(), c.toString()),
+			//		a.multiply(b.add(c)).toReal(), a.multiply(b).add(a.multiply(c)).toReal());
+		}
 	}
+
 	
 	/**
 	 *	This may not be strictly true for reals.
@@ -501,21 +536,21 @@ abstract public class BaseTestRandomValues extends TestCase {
 	}
 	
 	public void axiomNoEqualInt(IInteger i) {
-	  assertFalse(i.toReal().equals(i));
-	  assertTrue(i.toReal().equal(i).getValue());
-	  assertFalse(i.toRational().equals(i));
-	  assertTrue(i.toRational().equal(i).getValue());
+		assertFalse(i.toReal().equals(i));
+		assertTrue(i.toReal().equal(i).getValue());
+		assertFalse(i.toRational().equals(i));
+		assertTrue(i.toRational().equal(i).getValue());
 	}
-	
+
 	public void axiomNoEqualRat(IRational i) {
-    assertFalse(i.toReal().equals(i));
-    assertTrue(i.toReal().equal(i).getValue());
-    assertFalse(i.toInteger().equals(i));
-  }
-	
+		assertFalse(i.toReal().equals(i));
+		assertTrue(i.toReal().equal(i).getValue());
+		assertFalse(i.toInteger().equals(i));
+	}
+
 	public void axiomNoEqualReal(IReal i) {
-    assertFalse(i.toInteger().equals(i));
-  }
+		assertFalse(i.toInteger().equals(i));
+	}
 
 	/**
 	 *	Check that behavour of add/subtract/multiply/divide of integers is
@@ -566,10 +601,8 @@ abstract public class BaseTestRandomValues extends TestCase {
 	}
 
 	public void axiomRealBehavior(IReal a, IReal b) {
-		if(DISABLE_REALS)
-			return;
-		assertEqual(a, a.add(b).subtract(b));
-		assertEqual(a, a.subtract(b).add(b));
+		assertApprox(a, a.add(b).subtract(b));
+		assertApprox(a, a.subtract(b).add(b));
 		try {
 			assertApprox(a, a.divide(b, PRECISION).multiply(b));
 			assertApprox(a, a.multiply(b).divide(b, PRECISION));

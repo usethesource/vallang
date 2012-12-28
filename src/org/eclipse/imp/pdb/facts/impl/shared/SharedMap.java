@@ -105,13 +105,8 @@ public class SharedMap extends Map implements IShareable{
 		
 		SharedMap otherMap = (SharedMap) other;
 		
-		if(otherMap.size() <= size()){
-			newData = new ShareableValuesHashMap(data);
-			entryIterator = otherMap.entryIterator();
-		}else{
-			newData = new ShareableValuesHashMap(otherMap.data);
-			entryIterator = entryIterator();
-		}
+		newData = new ShareableValuesHashMap(data);
+		entryIterator = otherMap.entryIterator();
 		
 		while(entryIterator.hasNext()){
 			Entry<IValue, IValue> entry = entryIterator.next();

@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -91,5 +92,9 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 	
 	public T visitDateTime(IDateTime o) {
 		return null;
+	}
+	
+	public T visitListRelation(IListRelation o) throws VisitorException {
+	  return null;
 	}
 }

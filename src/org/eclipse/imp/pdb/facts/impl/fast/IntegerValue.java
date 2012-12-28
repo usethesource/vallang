@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -66,7 +67,7 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public IReal toReal(){
-		return ValueFactory.getInstance().real(value);
+		return ValueFactory.getInstance().real(BigDecimal.valueOf(value));
 	}
 	
 	public byte[] getTwosComplementRepresentation(){
@@ -321,11 +322,11 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 
 	public IBool greater(IRational other) {
-    	return other.lessEqual(this);
+    	return other.less(this);
 	}
 	 
 	public IBool greater(IReal other) {
-    	return other.lessEqual(this);
+    	return other.less(this);
 	}
     
 	public IBool greaterEqual(IInteger other){
@@ -333,7 +334,7 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 
 	public IBool greaterEqual(IRational other) {
-		return other.less(this);
+		return other.lessEqual(this);
 	}
 
 	public IBool greaterEqual(IReal other) {
@@ -345,11 +346,11 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public IBool less(IRational other) {
-		return other.greaterEqual(this);
+		return other.greater(this);
 	}
 	
 	public IBool less(IReal other) {
-		return other.greaterEqual(this);
+		return other.greater(this);
     }
 
 	public IBool lessEqual(IInteger other){
@@ -357,11 +358,11 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	}
 	
 	public IBool lessEqual(IRational other) {
-		return other.greater(this);
+		return other.greaterEqual(this);
 	}
 	
 	public IBool lessEqual(IReal other) {
-		return other.greater(this);
+		return other.greaterEqual(this);
 	}
 	 
 	public int compare(IInteger other){
@@ -379,7 +380,12 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 		if (other.getType().isIntegerType()) {
 			return compare(other.toInteger());
 		}
-		return toReal().compare(other);
+		else if (other.getType().isRationalType()) {
+			return toRational().compare(other);
+		}
+		else {
+			return toReal().compare(other);
+		}
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
@@ -399,9 +405,9 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 			return (value == otherInteger.value);
 		}
 		else if(o instanceof IRational)
-			return ((IRational)o).equals(this);
+			return ((IRational)o).equals(toRational());
 		else if(o instanceof IReal)
-			return ((IReal)o).equals(this);
+			return ((IReal)o).equals(toReal());
 		
 		return false;
 	}
