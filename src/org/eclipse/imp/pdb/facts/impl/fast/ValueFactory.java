@@ -385,14 +385,12 @@ public class ValueFactory extends BaseValueFactory {
 	}
 	
 	public ITuple tuple(IValue... args){
-		int nrOfArgs = args.length;
-		Type[] elementTypes = new Type[nrOfArgs];
-		for(int i = nrOfArgs - 1; i >= 0; i--){
-			elementTypes[i] = args[i].getType();
-		}
-		
-		return new Tuple(tf.tupleType(elementTypes), args.clone());
+		return new Tuple(args.clone());
 	}
+	
+	public ITuple tuple(Type type, IValue... args) {
+    return new Tuple(type, args.clone());
+  }
 	
 	private static Type lub(IValue... elements) {
 		Type elementType = TypeFactory.getInstance().voidType();

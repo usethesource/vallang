@@ -250,7 +250,7 @@ public interface IValueFactory {
      * @param args a variable length argument list or an array of IValue
      * @return a tuple with as many children as there are args
      */
-    // public ITuple tuple(Type type, IValue... args);
+     public ITuple tuple(Type type, IValue... args);
 
     /**
      * Construct a nullary generic tree node

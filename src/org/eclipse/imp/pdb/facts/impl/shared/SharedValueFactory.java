@@ -521,14 +521,12 @@ public final class SharedValueFactory implements IValueFactory{
 	}
 	
 	public ITuple tuple(IValue... args){
-		int nrOfArgs = args.length;
-		Type[] elementTypes = new Type[nrOfArgs];
-		for(int i = nrOfArgs - 1; i >= 0; i--){
-			elementTypes[i] = args[i].getType();
-		}
-		
-		return buildTuple(new SharedTuple(tf.tupleType(elementTypes), args.clone()));
+		return buildTuple(new SharedTuple(tf.tupleType(args), args.clone()));
 	}
+	
+	public ITuple tuple(Type type, IValue... args) {
+    return buildTuple(new SharedTuple(type, args.clone()));
+  }
 	
 	protected ITuple createTupleUnsafe(Type tupleType, IValue[] args){
 		return buildTuple(new SharedTuple(tupleType, args));
