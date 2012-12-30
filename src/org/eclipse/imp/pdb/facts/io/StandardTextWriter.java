@@ -115,10 +115,6 @@ public class StandardTextWriter implements IValueTextWriter {
 			return boolValue;
 		}
 
-		public IValue visitConstructor(IConstructor o) throws VisitorException {
-			return visitNode(o);
-		}
-
 		public IValue visitReal(IReal o) throws VisitorException {
 			append(o.getStringRepresentation());
 			return o;
@@ -185,7 +181,7 @@ public class StandardTextWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitNode(INode o) throws VisitorException {
+		public IValue visitConstructor(IConstructor o) throws VisitorException {
 			String name = o.getName();
 			
 			if (name.equals("loc")) {
@@ -358,8 +354,13 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 
 		public IValue visitString(IString o) throws VisitorException {
-			append('\"');
-		    for (char ch : o.getValue().toCharArray()) {
+			printString(o.getValue());
+			return o;
+		}
+
+    private void printString(String o) throws VisitorException {
+      append('\"');
+		    for (char ch : o.toCharArray()) {
 		    	switch (ch) {
 		    	case '\"':
 		    		append('\\');
@@ -397,8 +398,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		    	}
 		    }
  		    append('\"');
-		    return o;
-		}
+    }
 
 		public IValue visitTuple(ITuple o) throws VisitorException {
 			 append('<');
@@ -478,6 +478,47 @@ public class StandardTextWriter implements IValueTextWriter {
 			visitList(o);
 			return o;
 		}
+
+    public IValue visitNode(INode o) throws VisitorException {
+    	printString(o.getName());
+
+    	boolean indent = checkIndent(o);
+    	
+    	append('(');
+    	tab();
+    	indent(indent);
+    	Iterator<IValue> it = o.iterator();
+    	while (it.hasNext()) {
+    		it.next().accept(this);
+    		if (it.hasNext()) {
+    			append(',');
+    			indent(indent);
+    		}
+    	}
+    	append(')');
+    	untab();
+    	if (o.hasAnnotations()) {
+    		append('[');
+    		tab();
+    		indent();
+    		int i = 0;
+    		Map<String, IValue> annotations = o.getAnnotations();
+    		for (String key : annotations.keySet()) {
+    			append("@" + key + "=");
+    			annotations.get(key).accept(this);
+    			
+    			if (++i < annotations.size()) {
+    				append(",");
+    				indent();
+    			}
+    		}
+    		untab();
+    		indent();
+    		append(']');
+    	}
+    	
+    	return o;
+    }
 	}
 
 }

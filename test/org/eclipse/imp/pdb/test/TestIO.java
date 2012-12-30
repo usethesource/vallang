@@ -124,7 +124,10 @@ public class TestIO extends TestCase {
 		StandardTextReader reader = new StandardTextReader();
 		
 		try {
-			IValue v = reader.read(vf, new StringReader("f (\"a b c\")"));
+		  IValue s = reader.read(vf,  new StringReader("\"a b c\""));
+		  assertEquals(s, tf.stringType().make(vf, "a b c"));
+		  
+			IValue v = reader.read(vf, new StringReader("\"f\"(\"a b c\")"));
 			assertEquals(v, tf.nodeType().make(vf, "f", tf.stringType().make(vf, "a b c")));
 			
 			IValue r = reader.read(vf, new StringReader("[1.7976931348623157E+308]"));

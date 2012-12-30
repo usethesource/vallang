@@ -23,6 +23,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -80,7 +81,7 @@ public class StandardTextReader extends AbstractTextReader {
 		this.factory = factory;
 		this.types = TypeFactory.getInstance();
 
-		current = stream.read();
+		current = this.stream.read();
 		return readValue(type);
 	}
 
@@ -92,7 +93,7 @@ public class StandardTextReader extends AbstractTextReader {
 		} 
 		else if ((Character.isJavaIdentifierStart(current) && '$' != current)
 				|| current == '\\') {
-			result = readNode(expected);
+			result = readConstructor(expected);
 		}
 		else {
 			switch (current) {
@@ -291,7 +292,7 @@ public class StandardTextReader extends AbstractTextReader {
 		return null;
 	}
 
-	private IValue readNode(Type expected) throws IOException {
+	private IValue readConstructor(Type expected) throws IOException {
 		String id = readIdentifier();
 		
 		if (id.equals("true")) {
@@ -624,9 +625,9 @@ public class StandardTextReader extends AbstractTextReader {
 		current = stream.read();
 		
 		
-		if (current == '(') {
+		if (current == START_OF_ARGUMENTS) {
 			ArrayList<IValue> arr = new ArrayList<IValue>();
-			readFixed(expected, ')', arr);
+			readFixed(expected, END_OF_ARGUMENTS, arr);
 			IValue[] result = new IValue[arr.size()];
 			result = arr.toArray(result);
 			
@@ -743,7 +744,7 @@ public class StandardTextReader extends AbstractTextReader {
 		throw new FactParseError("Unexpected " + ((char) current), stream.getOffset());
 	}
 
-	private class NoWhiteSpaceReader extends Reader {
+  private class NoWhiteSpaceReader extends Reader {
 		private Reader wrapped;
 		int offset;
 		boolean inString = false;
