@@ -349,7 +349,7 @@ public class TypeStore {
 		for (Type alt : signature) {
 			if (alt.isConstructorType() && alt.getName().equals(name)) {
 				Type fieldTypes = alt.getFieldTypes();
-				if (fieldTypes != tupleType && fieldTypes.equivalent(tupleType)) {
+				if (fieldTypes != tupleType && fieldTypes.comparable(tupleType)) {
 					throw new RedeclaredConstructorException(name, fieldTypes, tupleType);
 				}
 			}
