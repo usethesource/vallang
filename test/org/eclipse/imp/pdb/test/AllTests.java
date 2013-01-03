@@ -42,37 +42,37 @@ public class AllTests {
 	private static void addReferenceTests(TestSuite suite) {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestAnnotations.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestBasicValues.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRandomValues.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestList.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestListRelation.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestMap.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRandomValues.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestValueFactory.class);
 	}
 
 	private static void addFastTests(TestSuite suite) {
-		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestRandomValues.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestAnnotations.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestSet.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestRelation.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestListRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestList.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestListRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestMap.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestRandomValues.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestValueFactory.class);
 	}
 
 	private static void addSharedTests(TestSuite suite) {
 		// these don't work
 		// suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestRandomValues.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestAnnotations.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestSet.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestList.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestMap.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestValueFactory.class);
 	}
 
