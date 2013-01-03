@@ -385,7 +385,9 @@ abstract public class BaseTestRandomValues extends TestCase {
 	 */
 	public void axiomCompare(INumber a, INumber b) {
 		int cmp = a.compare(b);
-		assertEquals(cmp, -b.compare(a));
+		assertEquals(cmp == 0, b.compare(a) == 0); // negating and comparing directly isn't safe
+		assertEquals(cmp < 0, b.compare(a) > 0);
+		assertEquals(cmp > 0, b.compare(a) < 0);
 		assertEquals(cmp < 0, a.less(b).getValue());
 		assertEquals(cmp > 0, a.greater(b).getValue());
 		assertEquals(cmp == 0, a.equal(b).getValue());

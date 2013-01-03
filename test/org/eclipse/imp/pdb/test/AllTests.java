@@ -54,6 +54,7 @@ public class AllTests {
 
 	private static void addFastTests(TestSuite suite) {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestAnnotations.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestBasicValues.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestList.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestListRelation.class);
@@ -65,12 +66,14 @@ public class AllTests {
 	}
 
 	private static void addSharedTests(TestSuite suite) {
-		// these don't work
-		// suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestRandomValues.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestAnnotations.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestBasicValues.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestEquality.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestList.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestListRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestMap.class);
+		// these don't work
+		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestRandomValues.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestRelation.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.shared.TestValueFactory.class);
