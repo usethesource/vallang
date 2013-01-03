@@ -128,6 +128,9 @@ class Map extends Value implements IMap{
 			if (!other.containsKey(key)) {
 				return false;
 			}
+			if (!other.get(key).isEqual(get(key))) {
+        return false;
+      }
 		}
 		
 		return true;

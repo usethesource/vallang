@@ -105,8 +105,14 @@ public class Map extends Value implements IMap{
 		Map otherMap = (Map) other;
 		
 		Iterator<IValue> keysIterator = iterator();
-		while(keysIterator.hasNext()){
-			if(!otherMap.data.contains(keysIterator.next())) return false;
+		while (keysIterator.hasNext()){
+			IValue key = keysIterator.next();
+      if (!otherMap.data.contains(key)) {
+			  return false;
+			}
+			if (!otherMap.data.get(key).isEqual(data.get(key))) {
+			  return false;
+			}
 		}
 		
 		return true;
