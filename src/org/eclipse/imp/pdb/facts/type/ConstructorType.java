@@ -40,11 +40,21 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
+	private int postionalArity;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
+		this.postionalArity = childrenTypes.getArity();
+	}
+	
+	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, int positionalArity) {
+		this(name,childrenTypes,adt);
+		if(positionalArity > childrenTypes.getArity()){
+			throw new UnsupportedOperationException("postional arity exceeds number of fields for constructor " + getName());
+		}
+		this.postionalArity = positionalArity;
 	}
 	
 	@Override
@@ -295,6 +305,16 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	@Override
 	public boolean isParameterized() {
 		return fADT.isParameterized();
+	}
+	
+	@Override
+	public boolean hasDefaults(){
+		return postionalArity < fChildrenTypes.getArity();
+	}
+	
+	@Override
+	public int getPositionalArity(){
+		return postionalArity;
 	}
 	
 }
