@@ -793,5 +793,29 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		return 0;
 	}
 
+	public boolean hasDefaults() {
+		return false;
+	}
+	
+//	public IValue[] getDefaults(){
+//		throw new IllegalOperationException("getDefaults", this);
+//	}
+
+	public int getPositionalArity() {
+		throw new IllegalOperationException("getIndexOfFirstDefault", this);
+	}
+
+//	public IValue getFieldDefault(int i) {
+//		throw new IllegalOperationException("getFieldDefault", this);
+//	}
+
+//	public IValue getFieldDefault(String fieldName) throws FactTypeUseException {
+//		throw new IllegalOperationException("getFieldDefault", this);
+//	}
+//
+//	public boolean hasFieldDefault(String fieldName) {
+//		throw new IllegalOperationException("hasFieldDefault", this);
+//	}
+
 	
 }
