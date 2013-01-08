@@ -29,18 +29,18 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class BigDecimalValue extends AbstractNumberValue implements IReal {
+/*package*/ class BigDecimalValue extends AbstractNumberValue implements IReal {
 	private final static Type DOUBLE_TYPE = TypeFactory.getInstance().realType();
 	
 	protected final BigDecimal value;
 	
-	protected BigDecimalValue(BigDecimal value){
+	/*package*/ BigDecimalValue(BigDecimal value){
 		super();
 		
 		this.value = value;
 	}
 	
-	protected BigDecimalValue(BigDecimal value, int precision){
+	/*package*/ BigDecimalValue(BigDecimal value, int precision){
 		super();
 		
 		this.value = new BigDecimal(value.toEngineeringString(), new MathContext(precision));

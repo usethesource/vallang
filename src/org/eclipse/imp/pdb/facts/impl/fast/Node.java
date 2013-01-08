@@ -27,13 +27,13 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Node extends Value implements INode{
+/*package*/ class Node extends Value implements INode{
 	protected final static Type NODE_TYPE = TypeFactory.getInstance().nodeType();
 	
 	protected final String name;
 	protected final IValue[] children;
 	
-	protected Node(String name, IValue[] children){
+	/*package*/ Node(String name, IValue[] children){
 		super();
 		
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.

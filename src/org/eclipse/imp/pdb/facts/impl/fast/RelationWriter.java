@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * 
  * @author Arnold Lankamp
  */
-public class RelationWriter implements IRelationWriter{
+/*package*/ class RelationWriter implements IRelationWriter{
 	protected Type tupleType;
 	
 	protected final ShareableValuesHashSet data;
@@ -34,7 +34,7 @@ public class RelationWriter implements IRelationWriter{
 
 	protected final boolean inferred;
 	
-	protected RelationWriter(Type tupleType){
+	/*package*/ RelationWriter(Type tupleType){
 		super();
 		
 		if (!tupleType.isTupleType()) {
@@ -49,7 +49,7 @@ public class RelationWriter implements IRelationWriter{
 		constructedRelation = null;
 	}
 	
-	protected RelationWriter(){
+	/*package*/ RelationWriter(){
 		super();
 		
 		this.tupleType = TypeFactory.getInstance().voidType();
@@ -60,7 +60,7 @@ public class RelationWriter implements IRelationWriter{
 		this.inferred = true;
 	}
 	
-	protected RelationWriter(Type tupleType, ShareableValuesHashSet data){
+	/*package*/ RelationWriter(Type tupleType, ShareableValuesHashSet data){
 		super();
 		
 		this.tupleType = tupleType;

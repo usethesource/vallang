@@ -31,9 +31,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Relation extends Set implements IRelation{
+/*package*/ class Relation extends Set implements IRelation{
 	
-	protected Relation(Type tupleType, ShareableValuesHashSet data){
+	/*package*/ Relation(Type tupleType, ShareableValuesHashSet data){
 		super(typeFactory.relTypeFromTuple(tupleType), tupleType, data);
 	}
 	

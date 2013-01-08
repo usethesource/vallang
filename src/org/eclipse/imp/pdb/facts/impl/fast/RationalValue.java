@@ -13,10 +13,10 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IRational;
 
-public class RationalValue extends org.eclipse.imp.pdb.facts.impl.RationalValue {
+/*package*/ class RationalValue extends org.eclipse.imp.pdb.facts.impl.RationalValue {
 	private static final IInteger FAST_ONE = ValueFactory.getInstance().integer(1);
 
-	public RationalValue(IInteger num, IInteger denom) {
+	/*package*/ RationalValue(IInteger num, IInteger denom) {
 		super(num, denom);
 	}
 

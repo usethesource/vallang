@@ -30,7 +30,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class List extends Value implements IList{
+/*package*/ class List extends Value implements IList{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type listType;
@@ -39,7 +39,7 @@ public class List extends Value implements IList{
 	protected final ShareableValuesList data;
 	protected int hashCode = 0;
 
-	protected List(Type elementType, ShareableValuesList data){
+	/*package*/ List(Type elementType, ShareableValuesList data){
 		super();
 
 		this.listType = typeFactory.listType(elementType);

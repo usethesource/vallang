@@ -30,11 +30,11 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public class ListRelation extends List implements IListRelation {
+/*package*/ class ListRelation extends List implements IListRelation {
 	
 	protected final Type listRelationType;
 	
-	/* package */ListRelation(Type type, ShareableValuesList content) {
+	/*package*/ ListRelation(Type type, ShareableValuesList content) {
 		super(type, content);
 		this.listRelationType = typeFactory.lrelTypeFromTuple(type);
 	}

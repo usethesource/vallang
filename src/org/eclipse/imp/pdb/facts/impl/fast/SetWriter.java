@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * 
  * @author Arnold Lankamp
  */
-public class SetWriter implements ISetWriter{
+/*package*/ class SetWriter implements ISetWriter{
 	protected Type elementType;
 	protected final boolean inferred;
 	
@@ -33,7 +33,7 @@ public class SetWriter implements ISetWriter{
 	
 	protected ISet constructedSet;
 	
-	protected SetWriter(Type elementType){
+	/*package*/ SetWriter(Type elementType){
 		super();
 		
 		this.elementType = elementType;
@@ -44,7 +44,7 @@ public class SetWriter implements ISetWriter{
 		constructedSet = null;
 	}
 	
-	protected SetWriter(){
+	/*package*/ SetWriter(){
 		super();
 		
 		this.elementType = TypeFactory.getInstance().voidType();
@@ -55,7 +55,7 @@ public class SetWriter implements ISetWriter{
 		constructedSet = null;
 	}
 
-	protected SetWriter(Type elementType, ShareableValuesHashSet data){
+	/*package*/ SetWriter(Type elementType, ShareableValuesHashSet data){
 		super();
 		
 		this.elementType = elementType;

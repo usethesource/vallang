@@ -22,15 +22,15 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
  * 
  * @author Arnold Lankamp
  */
-public class AnnotatedNode extends Node{
+/*package*/ class AnnotatedNode extends Node{
 	protected final ShareableHashMap<String, IValue> annotations;
 	
-	protected AnnotatedNode(String name, IValue[] children, ShareableHashMap<String, IValue> annotations){
+	/*package*/ AnnotatedNode(String name, IValue[] children, ShareableHashMap<String, IValue> annotations){
 		super(name, children);
 		this.annotations = annotations;
 	}
 
-	protected AnnotatedNode(String name, IValue[] children, Map<String, IValue> annotations){
+	/*package*/ AnnotatedNode(String name, IValue[] children, Map<String, IValue> annotations){
 		super(name, children);
 		this.annotations = importAnnos(annotations);
 	}

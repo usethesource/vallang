@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * @author Arnold Lankamp
  * @author Paul Klint
  */
-public class ListRelationWriter implements IListRelationWriter{
+/*package*/ class ListRelationWriter implements IListRelationWriter{
 	protected Type tupleType;
 	
 	protected final ShareableValuesList data;
@@ -36,7 +36,7 @@ public class ListRelationWriter implements IListRelationWriter{
 
 	protected final boolean inferred;
 	
-	protected ListRelationWriter(Type tupleType){
+	/*package*/ ListRelationWriter(Type tupleType){
 		super();
 		
 		if (!tupleType.isTupleType()) {
@@ -51,7 +51,7 @@ public class ListRelationWriter implements IListRelationWriter{
 		constructedRelation = null;
 	}
 	
-	protected ListRelationWriter(){
+	/*package*/ ListRelationWriter(){
 		super();
 		
 		this.tupleType = TypeFactory.getInstance().voidType();
@@ -62,7 +62,7 @@ public class ListRelationWriter implements IListRelationWriter{
 		this.inferred = true;
 	}
 	
-	protected ListRelationWriter(Type tupleType, ShareableValuesList data){
+	/*package*/ ListRelationWriter(Type tupleType, ShareableValuesList data){
 		super();
 		
 		this.tupleType = tupleType;

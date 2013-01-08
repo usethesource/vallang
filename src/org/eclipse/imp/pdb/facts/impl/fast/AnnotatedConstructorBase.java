@@ -4,9 +4,9 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public abstract class AnnotatedConstructorBase extends Constructor {
+/*package*/ abstract class AnnotatedConstructorBase extends Constructor {
 
-	protected AnnotatedConstructorBase(Type constructorType, IValue[] children){
+	/*package*/ AnnotatedConstructorBase(Type constructorType, IValue[] children){
 		super(constructorType, children);
 	}
 	

@@ -32,7 +32,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class IntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
+/*package*/ class IntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 	
 	private final static int SEVEN_BITS_MASK = 0x0000007f;
@@ -41,7 +41,7 @@ public class IntegerValue extends AbstractNumberValue implements IInteger, ICanB
 	public final static IntegerValue INTEGER_ONE = new IntegerValue(1);
 	protected final int value;
 	
-	public IntegerValue(int value){
+	/*package*/ IntegerValue(int value){
 		super();
 		this.value = value;
 	}

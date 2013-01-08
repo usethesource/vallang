@@ -30,12 +30,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class BigIntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
+/*package*/ class BigIntegerValue extends AbstractNumberValue implements IInteger, ICanBecomeABigInteger{
 	private final static Type INTEGER_TYPE = TypeFactory.getInstance().integerType();
 	
 	protected final BigInteger value;
 	
-	public BigIntegerValue(BigInteger value){
+	/*package*/ BigIntegerValue(BigInteger value){
 		super();
 		if(value.equals(BigInteger.ZERO))
 			value = BigInteger.ZERO;

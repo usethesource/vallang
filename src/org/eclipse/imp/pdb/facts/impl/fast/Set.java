@@ -27,7 +27,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Set extends Value implements ISet{
+/*package*/ class Set extends Value implements ISet{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	
@@ -36,7 +36,7 @@ public class Set extends Value implements ISet{
 	
 	protected final ShareableValuesHashSet data;
 	
-	protected Set(Type elementType, ShareableValuesHashSet data){
+	/*package*/ Set(Type elementType, ShareableValuesHashSet data){
 		super();
 		
 		this.setType = typeFactory.setType(elementType);
@@ -46,7 +46,7 @@ public class Set extends Value implements ISet{
 		this.data = data;
 	}
 	
-	protected Set(Type subTypeOfSet, Type elementType, ShareableValuesHashSet data){
+	/*package*/ Set(Type subTypeOfSet, Type elementType, ShareableValuesHashSet data){
 		super();
 		
 		this.setType = subTypeOfSet;

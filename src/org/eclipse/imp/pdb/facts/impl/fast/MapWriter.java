@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * 
  * @author Arnold Lankamp
  */
-public class MapWriter implements IMapWriter{
+/*package*/ class MapWriter implements IMapWriter{
 	protected Type keyType;
 	protected Type valueType;
 	protected Type mapType;
@@ -38,7 +38,7 @@ public class MapWriter implements IMapWriter{
 	protected IMap constructedMap;
 	protected final boolean inferred;
 	
-	protected MapWriter(){
+	/*package*/ MapWriter(){
 		super();
 		
 		this.mapType = null;
@@ -52,7 +52,7 @@ public class MapWriter implements IMapWriter{
 	}
 	
 	
-	protected MapWriter(Type mapType) {
+	/*package*/ MapWriter(Type mapType) {
 		super();
 		
 		if(mapType.isTupleType() && mapType.getArity() >= 2) {
@@ -71,7 +71,7 @@ public class MapWriter implements IMapWriter{
 		constructedMap = null;
 	}
 	
-	protected MapWriter(Type mapType, ShareableValuesHashMap data){
+	/*package*/ MapWriter(Type mapType, ShareableValuesHashMap data){
 		super();
 		
 		this.mapType = mapType;

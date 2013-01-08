@@ -27,14 +27,14 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Map extends Value implements IMap{
+/*package*/ class Map extends Value implements IMap{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type mapType;
 	
 	protected final ShareableValuesHashMap data;
 	
-	protected Map(Type mapType, ShareableValuesHashMap data){
+	/*package*/ Map(Type mapType, ShareableValuesHashMap data){
 		super();
 		
 		if(!mapType.isMapType()) throw new IllegalArgumentException("Type must be a map type: " + mapType);

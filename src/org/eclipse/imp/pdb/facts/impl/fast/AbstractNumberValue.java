@@ -6,10 +6,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-public abstract class AbstractNumberValue extends Value implements INumber{
+/*package*/ abstract class AbstractNumberValue extends Value implements INumber{
 	private final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
-	public AbstractNumberValue(){
+	/*package*/ AbstractNumberValue(){
 		super();
 	}
 

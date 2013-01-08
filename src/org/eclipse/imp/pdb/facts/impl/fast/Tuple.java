@@ -25,13 +25,13 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-public class Tuple extends Value implements ITuple{
+/*package*/ class Tuple extends Value implements ITuple{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type tupleType;
 	protected final IValue[] elements;
 	
-	protected Tuple(Type tupleType, IValue[] elements){
+	/*package*/ Tuple(Type tupleType, IValue[] elements){
 		super();
 		
 		this.tupleType = tupleType;
@@ -39,7 +39,7 @@ public class Tuple extends Value implements ITuple{
 		this.elements = elements;
 	}
 	
-	public Tuple(IValue... elements) {
+	/*package*/ Tuple(IValue... elements) {
 	    super();
 	    this.tupleType = TypeFactory.getInstance().tupleType(elements);
 		this.elements= elements;
