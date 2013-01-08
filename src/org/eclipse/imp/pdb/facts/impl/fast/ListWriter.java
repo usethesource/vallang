@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * 
  * @author Arnold Lankamp
  */
-public class ListWriter implements IListWriter{
+/*package*/ class ListWriter implements IListWriter{
 	protected Type elementType;
 	protected final boolean inferred;
 	
@@ -33,7 +33,7 @@ public class ListWriter implements IListWriter{
 	
 	protected IList constructedList;
 	
-	public ListWriter(Type elementType){
+	/*package*/ ListWriter(Type elementType){
 		super();
 		
 		this.elementType = elementType;
@@ -44,7 +44,7 @@ public class ListWriter implements IListWriter{
 		constructedList = null;
 	}
 	
-	protected ListWriter(){
+	/*package*/ ListWriter(){
 		super();
 		
 		this.elementType = TypeFactory.getInstance().voidType();
@@ -54,7 +54,7 @@ public class ListWriter implements IListWriter{
 		constructedList = null;
 	}
 	
-	protected ListWriter(Type elementType, ShareableValuesList data){
+	/*package*/ ListWriter(Type elementType, ShareableValuesList data){
 		super();
 		
 		this.elementType = elementType;
