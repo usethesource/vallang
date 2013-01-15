@@ -30,6 +30,7 @@ public abstract class BaseTestList extends TestCase {
     
     private IValue[] integers;
     private IList integerList;
+    private IList emptyIntegerList;
     
 	protected void setUp(IValueFactory factory) throws Exception {
 		super.setUp();
@@ -47,6 +48,8 @@ public abstract class BaseTestList extends TestCase {
 		}
 		
 		integerList = w.done();
+	
+		emptyIntegerList = vf.listWriter(tf.integerType()).done();
 	}
 
 	public void testGetElementType() {
@@ -152,6 +155,18 @@ public abstract class BaseTestList extends TestCase {
 			}
 		}
 	}
+	
+	public void testReverseEmpty() {
+		IList reverse = emptyIntegerList.reverse();
+		
+		if (reverse.getType() != emptyIntegerList.getType()) {
+			fail("reverse should keep type");
+		}
+		
+		if (reverse.length() != emptyIntegerList.length()) {
+			fail("length of reverse is different");
+		}
+	}	
 
 	public void testIterator() {
 		Iterator<IValue> it = integerList.iterator();
