@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 /*package*/final class TupleType extends Type {
@@ -51,8 +52,16 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		} else {
 			fFieldNames = null;
 		}
+		// Optional check for duplicate field names
+//		for(int i = 0; i < fieldNames.length - 1; i++){
+//			for(int j = i + 1; j < fieldNames.length; j++){
+//				if(fieldNames[i].equals(fieldNames[j])){
+//					throw new RedeclaredFieldNameException(fieldNames[i], fieldTypes[i], fieldTypes[j], this);
+//				}
+//			}
+//		}
 	}
-
+	
 	@Override
 	public boolean hasFieldNames() {
 		return fFieldNames != null;
