@@ -108,7 +108,7 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	protected Node(Node other, int index, IValue newChild) {
-		super(other.getType());
+		super(other.fType);
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
@@ -122,7 +122,7 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	public Node(Node other, Map<String, IValue> annotations) {
-		super(other.getType());
+		super(other.fType);
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
