@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -125,6 +126,36 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		newData.set(index, element);
 
 		Type newElementType = elementType.lub(element.getType());
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel replace(int b, int e, IList r)
+			throws FactTypeUseException, IndexOutOfBoundsException {
+		ShareableValuesList newData = new ShareableValuesList();
+		if(b <= e){
+			for(int i = 0; i < b ; i++){
+				newData.append(data.get(i));
+			}
+
+			for(IValue v : r){
+				newData.append(v);
+			}
+			for(int i = e; i < data.size() ; i++){
+				newData.append(data.get(i));
+			}
+		} else {
+			for(int i = data.size() -1; i > b; i--){
+				newData.insert(data.get(i));
+			}
+			for(IValue v : r){
+				newData.insert(v);
+			}
+			for(int i = e; i >= 0; i--){
+				newData.insert(data.get(i));
+			}
+		}
+		Type newElementType = elementType.lub(r.getElementType());
 		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 	

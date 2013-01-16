@@ -105,4 +105,20 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public int charAt(int index) {
 		return codePointAt(value, index);
 	}
+	public IString replace(int begin, int end, IString repl) {
+		StringBuilder buffer = new StringBuilder();
+		
+		if(begin <= end){
+			String before = value.substring(value.offsetByCodePoints(0, 0),value.offsetByCodePoints(0, begin));
+			String after = value.substring(value.offsetByCodePoints(0, end),value.offsetByCodePoints(0, value.length()));
+		
+			buffer.append(before).append(repl.getValue()).append(after);
+		} else {
+			String before = value.substring(value.offsetByCodePoints(0, 0),value.offsetByCodePoints(0, end+1));
+			String after = value.substring(value.offsetByCodePoints(0, begin+1),value.offsetByCodePoints(0, value.length()));
+			
+			buffer.append(before).append(repl.reverse().getValue()).append(after);
+		}
+		return ValueFactory.getInstance().string(buffer.toString());
+	}
 }

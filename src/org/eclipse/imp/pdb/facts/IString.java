@@ -62,4 +62,13 @@ public interface IString extends IValue {
      * @return the Unicode character (in UTF-32)
      */
     int charAt(int index);
+    
+    /**
+     * Replace the characters begin .. end.
+     * @param start the inclusive  start index
+     * @param end	the exclusive end index
+     * @param repl	the replacement string
+     * @return
+     */
+    IString replace(int begin, int end, IString repl);
 }

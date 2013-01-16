@@ -68,6 +68,22 @@ abstract public class BaseTestBasicValues extends TestCase {
 		assertTrue(vf.string("🍝").concat(vf.string("🍝")).isEqual(vf.string("🍝🍝")));
 	}
 	
+	public void testStringReplace() {
+		assertTrue(vf.string("").replace(0, 0, vf.string("x")).isEqual(vf.string("x")));
+		assertTrue(vf.string("x").replace(0, 0, vf.string("")).isEqual(vf.string("x")));
+		assertTrue(vf.string("xy").replace(0, 1, vf.string("p")).isEqual(vf.string("py")));
+		assertTrue(vf.string("xy").replace(1, 0, vf.string("p")).isEqual(vf.string("xp")));
+		assertTrue(vf.string("xy").replace(0, 1, vf.string("pq")).isEqual(vf.string("pqy")));
+		assertTrue(vf.string("xy").replace(1, 0, vf.string("pq")).isEqual(vf.string("xqp")));
+		assertTrue(vf.string("xy").replace(0, 0, vf.string("pq")).isEqual(vf.string("pqxy")));
+		assertTrue(vf.string("xy").replace(1, 1, vf.string("pq")).isEqual(vf.string("xpqy")));
+		
+		assertTrue(vf.string("🍝y").replace(1, 1, vf.string("pq")).isEqual(vf.string("🍝pqy")));
+		assertTrue(vf.string("🍝y🍝").replace(1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
+	}
+	
+	
+	
 	public void testIntAddition() {
 		assertTrue(vf.integer(1).add(vf.integer(1)).isEqual(vf.integer(2)));
 	}

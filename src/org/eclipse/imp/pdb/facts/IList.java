@@ -65,6 +65,17 @@ public interface IList extends Iterable<IValue>, IValue {
     public <ListOrRel extends IList> ListOrRel put(int i, IValue e) throws FactTypeUseException, IndexOutOfBoundsException;
     
     /**
+     * Replaces the value of the elements b ... e in the list with the elements in the list r
+     * @param b index to start replacement
+     * @param e index to end replacement (not inclusive)
+     * @param r the new values to replace the old one
+     * @return a new list with the elements replaced
+     * @throws FactTypeUseException when the type of the element is not a subtype of the element type
+     * @throws IndexOutOfBoundsException when the b < 0 or b >= IList.length() or e < 0 or e > IList.length()
+     */
+    public <ListOrRel extends IList> ListOrRel replace(int b, int e, IList r) throws FactTypeUseException, IndexOutOfBoundsException;
+    
+    /**
      * Return the ith element of the list.
      * @param i
      * @return the ith element of the list

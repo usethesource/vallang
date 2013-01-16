@@ -195,7 +195,7 @@ public class BigDecimalCalculations {
 		if (x.signum() == 0)
 			return BigDecimal.ZERO;
 		if (x.abs().compareTo(halfPI) > 0)
-			throw new ArithmeticException("x should be between -(pi/2) and (pi/2)");
+			new ArithmeticException("x should be between -(pi/2) and (pi/2)");
 		// easiest implementation of tan (no need for Bernoulli numbers) but this is slower than the other 2
 		return sin(x, scale + 1).divide(cos(x, scale + 1), scale, RoundingMode.HALF_UP);
 	}

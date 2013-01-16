@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -87,5 +88,23 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	public int charAt(int index) {
 		return codePointAt(fValue, index);
+	}
+
+	public IString replace(int begin, int end, IString repl) {
+		StringBuilder buffer = new StringBuilder();
+		if(begin <= end){
+			String before = fValue.substring(fValue.offsetByCodePoints(0, 0),fValue.offsetByCodePoints(0, begin));
+			String after = fValue.substring(fValue.offsetByCodePoints(0, end),fValue.offsetByCodePoints(0, fValue.length()));
+		
+			buffer.append(before).append(repl.getValue()).append(after);
+		} else {
+			end = Math.min(end + 1, fValue.length() - 1);
+			begin = Math.min(begin + 1, fValue.length());
+			String before = fValue.substring(fValue.offsetByCodePoints(0, 0),fValue.offsetByCodePoints(0, end));
+			String after = fValue.substring(fValue.offsetByCodePoints(0, begin),fValue.offsetByCodePoints(0, fValue.length()));
+			
+			buffer.append(before).append(repl.reverse().getValue()).append(after);
+		}
+		return new StringValue(buffer.toString());
 	}
 }

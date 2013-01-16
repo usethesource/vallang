@@ -82,6 +82,32 @@ public class List extends Value implements IList {
 		w.replaceAt(i, elem);
 		return (ListOrRel) w.done();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public <ListOrRel extends IList> ListOrRel replace(int b, int e, IList r)
+			throws FactTypeUseException, IndexOutOfBoundsException {
+		ListWriter w = new ListWriter(r.getElementType().lub(getElementType()));
+		if(b < e){
+			for(int i = 0; i < b ; i++){
+				w.append(content.get(i));
+			}
+			w.appendAll(r);
+			for(int i = e; i < content.size() ; i++){
+				w.append(content.get(i));
+			}
+		} else {
+			for(int i = content.size() -1; i > b; i--){
+				w.insert(content.get(i));
+			}
+			for(IValue v : r){
+				w.insert(v);
+			}
+			for(int i = e; i >= 0; i--){
+				w.insert(content.get(i));
+			}
+		}
+		return (ListOrRel) w.done();
+	}
 
 	@SuppressWarnings("unchecked")
 	public <ListOrRel extends IList> ListOrRel insert(IValue elem) {
@@ -375,4 +401,6 @@ public class List extends Value implements IList {
 			}
 		return true;
 	}
+
+	
 }
