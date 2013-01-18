@@ -78,8 +78,8 @@ abstract public class BaseTestBasicValues extends TestCase {
 		assertTrue(vf.string("xy").replace(0, 0, vf.string("pq")).isEqual(vf.string("pqxy")));
 		assertTrue(vf.string("xy").replace(1, 1, vf.string("pq")).isEqual(vf.string("xpqy")));
 		
-		assertTrue(vf.string("🍝y").replace(1, 1, vf.string("pq")).isEqual(vf.string("🍝pqy")));
-		assertTrue(vf.string("🍝y🍝").replace(1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
+//		assertTrue(vf.string("🍝y").replace(1, 1, vf.string("pq")).isEqual(vf.string("🍝pqy")));
+//		assertTrue(vf.string("🍝y🍝").replace(1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
 	}
 	
 	
