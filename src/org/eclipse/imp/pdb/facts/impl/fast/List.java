@@ -130,32 +130,72 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel replace(int b, int e, IList r)
+	public <ListOrRel extends IList> ListOrRel replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		ShareableValuesList newData = new ShareableValuesList();
-		if(b <= e){
-			for(int i = 0; i < b ; i++){
-				newData.append(data.get(i));
+		int rlen = repl.length();
+		int increment = Math.abs(second - first);
+		if(first < end){
+			int dataIndex = 0;
+			// Before begin
+			while(dataIndex < first){
+				newData.append(data.get(dataIndex++));
 			}
-
-			for(IValue v : r){
-				newData.append(v);
+			int replIndex = 0;
+			boolean wrapped = false;
+			// Between begin and end
+			while(dataIndex < end){
+				newData.append(repl.get(replIndex++));
+				if(replIndex == rlen){
+					replIndex = 0;
+					wrapped = true;
+				}
+				dataIndex++; //skip the replaced element
+				for(int j = 1; j < increment && dataIndex < end; j++){
+					newData.append(data.get(dataIndex++));
+				}
 			}
-			for(int i = e; i < data.size() ; i++){
-				newData.append(data.get(i));
+			if(!wrapped){
+				while(replIndex < rlen){
+					newData.append(repl.get(replIndex++));
+				}
+			}
+			// After end
+			int dlen = data.size();
+			while( dataIndex < dlen){
+				newData.append(data.get(dataIndex++));
 			}
 		} else {
-			for(int i = data.size() -1; i > b; i--){
-				newData.insert(data.get(i));
+			// Before begin (from right to left)
+			int dataIndex = data.size() - 1;
+			while(dataIndex > first){
+				newData.insert(data.get(dataIndex--));
 			}
-			for(IValue v : r){
-				newData.insert(v);
+			// Between begin (right) and end (left)
+			int replIndex = 0;
+			boolean wrapped = false;
+			while(dataIndex > end){
+				newData.insert(repl.get(replIndex++));
+				if(replIndex == repl.length()){
+					replIndex = 0;
+					wrapped = true;
+				}
+				dataIndex--; //skip the replaced element
+				for(int j = 1; j < increment && dataIndex > end; j++){
+					newData.insert(data.get(dataIndex--));
+				}
 			}
-			for(int i = e; i >= 0; i--){
-				newData.insert(data.get(i));
+			if(!wrapped){
+				while(replIndex < rlen){
+					newData.insert(repl.get(replIndex++));
+				}
+			}
+			// Left of end
+			while(dataIndex >= 0){
+				newData.insert(data.get(dataIndex--));
 			}
 		}
-		Type newElementType = elementType.lub(r.getElementType());
+		Type newElementType = elementType.lub(repl.getElementType());
 		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 	

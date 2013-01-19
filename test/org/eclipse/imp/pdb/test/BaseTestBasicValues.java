@@ -69,17 +69,29 @@ abstract public class BaseTestBasicValues extends TestCase {
 	}
 	
 	public void testStringReplace() {
-		assertTrue(vf.string("").replace(0, 0, vf.string("x")).isEqual(vf.string("x")));
-		assertTrue(vf.string("x").replace(0, 0, vf.string("")).isEqual(vf.string("x")));
-		assertTrue(vf.string("xy").replace(0, 1, vf.string("p")).isEqual(vf.string("py")));
-		assertTrue(vf.string("xy").replace(1, 0, vf.string("p")).isEqual(vf.string("xp")));
-		assertTrue(vf.string("xy").replace(0, 1, vf.string("pq")).isEqual(vf.string("pqy")));
-		assertTrue(vf.string("xy").replace(1, 0, vf.string("pq")).isEqual(vf.string("xqp")));
-		assertTrue(vf.string("xy").replace(0, 0, vf.string("pq")).isEqual(vf.string("pqxy")));
-		assertTrue(vf.string("xy").replace(1, 1, vf.string("pq")).isEqual(vf.string("xpqy")));
+		assertTrue(vf.string("").replace(0, 1, 0, vf.string("x")).isEqual(vf.string("x")));
+		assertTrue(vf.string("x").replace(0, 1, 0, vf.string("")).isEqual(vf.string("x")));
+		assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("py")));
+		assertTrue(vf.string("xy").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("xp")));
+		assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("pq")).isEqual(vf.string("pqy")));
+		assertTrue(vf.string("xy").replace(1, 1, 0, vf.string("pq")).isEqual(vf.string("xqp")));
+		assertTrue(vf.string("xy").replace(0, 1, 0, vf.string("pq")).isEqual(vf.string("pqxy")));
+		assertTrue(vf.string("xy").replace(1, 1, 1, vf.string("pq")).isEqual(vf.string("xpqy")));
 		
-//		assertTrue(vf.string("🍝y").replace(1, 1, vf.string("pq")).isEqual(vf.string("🍝pqy")));
-//		assertTrue(vf.string("🍝y🍝").replace(1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
+		assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("py")));
+		assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("🍝p")));	
+		assertTrue(vf.string("xy").replace(0, 1, 1, vf.string("🍝")).isEqual(vf.string("🍝y")));
+		assertTrue(vf.string("").replace(0, 1, 0, vf.string("🍝")).isEqual(vf.string("🍝")));
+		assertTrue(vf.string("🍝").replace(0, 1, 0, vf.string("")).isEqual(vf.string("🍝")));
+		assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("py")));
+		assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("🍝p")));
+		assertTrue(vf.string("x🍝").replace(0, 1, 1, vf.string("p")).isEqual(vf.string("p🍝")));
+		assertTrue(vf.string("x🍝").replace(1, 1, 0, vf.string("p")).isEqual(vf.string("xp")));
+		assertTrue(vf.string("🍝y").replace(0, 1, 1, vf.string("p🍝")).isEqual(vf.string("p🍝y")));
+		assertTrue(vf.string("🍝y").replace(1, 1, 0, vf.string("p🍝")).isEqual(vf.string("🍝🍝p")));
+		assertTrue(vf.string("🍝y").replace(0, 1, 0, vf.string("🍝q")).isEqual(vf.string("🍝q🍝y")));
+		assertTrue(vf.string("x🍝").replace(1, 1, 1, vf.string("🍝q")).isEqual(vf.string("x🍝q🍝")));
+		assertTrue(vf.string("🍝y🍝").replace(1, 1, 2, vf.string("🍝")).isEqual(vf.string("🍝🍝🍝")));
 	}
 	
 	

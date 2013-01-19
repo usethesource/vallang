@@ -64,11 +64,16 @@ public interface IString extends IValue {
     int charAt(int index);
     
     /**
-     * Replace the characters begin .. end.
-     * @param start the inclusive  start index
-     * @param end	the exclusive end index
+     * Replace the characters first, second ... end.
+     * Expected:
+     * - support for negative indices
+     * - support for the case begin > end
+     * @param first  inclusive index of first element
+     * @param second index of second element
+     * @param end	 exclusive end index
      * @param repl	the replacement string
+     * @param start the inclusive  start index
      * @return
      */
-    IString replace(int begin, int end, IString repl);
+    IString replace(int first, int second, int end, IString repl);
 }

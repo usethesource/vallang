@@ -84,25 +84,25 @@ public class List extends Value implements IList {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel replace(int b, int e, IList r)
+	public <ListOrRel extends IList> ListOrRel replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
-		ListWriter w = new ListWriter(r.getElementType().lub(getElementType()));
-		if(b < e){
-			for(int i = 0; i < b ; i++){
+		ListWriter w = new ListWriter(repl.getElementType().lub(getElementType()));
+		if(first < end){
+			for(int i = 0; i < first ; i++){
 				w.append(content.get(i));
 			}
-			w.appendAll(r);
-			for(int i = e; i < content.size() ; i++){
+			w.appendAll(repl);
+			for(int i = end; i < content.size() ; i++){
 				w.append(content.get(i));
 			}
 		} else {
-			for(int i = content.size() -1; i > b; i--){
+			for(int i = content.size() -1; i > first; i--){
 				w.insert(content.get(i));
 			}
-			for(IValue v : r){
+			for(IValue v : repl){
 				w.insert(v);
 			}
-			for(int i = e; i >= 0; i--){
+			for(int i = end; i >= 0; i--){
 				w.insert(content.get(i));
 			}
 		}
