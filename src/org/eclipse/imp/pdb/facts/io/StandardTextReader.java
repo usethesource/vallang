@@ -743,7 +743,7 @@ public class StandardTextReader extends AbstractTextReader {
 		throw new FactParseError("Unexpected " + ((char) current), stream.getOffset());
 	}
 
-  private class NoWhiteSpaceReader extends Reader {
+  private static class NoWhiteSpaceReader extends Reader {
 		private Reader wrapped;
 		int offset;
 		boolean inString = false;

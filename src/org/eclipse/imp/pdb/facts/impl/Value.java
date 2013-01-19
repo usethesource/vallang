@@ -48,7 +48,7 @@ public abstract class Value implements IValue {
 			return stream.toString();
 		} catch (IOException e) {
 			// this never happens
-			return null;
+			return "";
 		} 
     }
 }

@@ -595,7 +595,7 @@ public class ATermReader extends AbstractBinaryReader {
 	}
 
 
-	class SharingStream {
+	private static class SharingStream {
 		private static final int INITIAL_TABLE_SIZE = 2048;
 		private static final int TABLE_INCREMENT = 4096;
 

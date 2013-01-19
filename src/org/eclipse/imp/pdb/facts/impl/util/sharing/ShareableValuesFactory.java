@@ -544,7 +544,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 			 * 
 			 * @see java.lang.Object#finalize
 			 */
-			public void finalize(){
+			protected void finalize(){
 				segment.garbageCollectionDetector = null;
 				segment.flaggedForCleanup = true;
 			}

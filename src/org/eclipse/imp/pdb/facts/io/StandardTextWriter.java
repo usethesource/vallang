@@ -377,6 +377,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		    	case '\'':
 		    		append('\\');
 		    		append('\'');
+		    		break;
 		    	case '\\':
 		    		append('\\');
 		    		append('\\');

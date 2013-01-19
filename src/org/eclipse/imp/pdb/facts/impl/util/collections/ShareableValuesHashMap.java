@@ -381,7 +381,6 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 			}
 			
 			if(otherValue != thisValue 
-					&& thisValue != null 
 					&& !thisValue.isEqual(otherValue)) {
 				return false;
 			}

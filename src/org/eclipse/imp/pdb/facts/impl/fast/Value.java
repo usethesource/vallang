@@ -31,6 +31,6 @@ public abstract class Value implements IValue{
 		catch(IOException ioex){
 			// this never happens
 		}
-		return null;
+		return "";
 	}
 }
