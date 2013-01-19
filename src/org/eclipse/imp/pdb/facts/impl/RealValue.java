@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.impl.util.BigDecimalCalculations;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -76,11 +77,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal negate() {
-    return new RealValue(fValue.negate(),BaseValueFactory.PRECISION);
+    return new RealValue(fValue.negate(),ValueFactory.getInstance().getPrecision());
   }
 
   public IReal add(IReal other) {
-    return new RealValue(fValue.add(((RealValue) other).fValue), BaseValueFactory.PRECISION);
+    return new RealValue(fValue.add(((RealValue) other).fValue), ValueFactory.getInstance().getPrecision());
   }
 
   public IReal add(IInteger other) {
@@ -92,7 +93,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal subtract(IReal other) {
-    return new RealValue(fValue.subtract(((RealValue) other).fValue), BaseValueFactory.PRECISION);
+    return new RealValue(fValue.subtract(((RealValue) other).fValue), ValueFactory.getInstance().getPrecision());
   }
 
   public IReal subtract(IInteger other) {
@@ -268,7 +269,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
   }
 
   public IReal abs() {
-    return new RealValue(fValue.abs(), BaseValueFactory.PRECISION);
+    return new RealValue(fValue.abs(), ValueFactory.getInstance().getPrecision());
   }
 
   public int signum() {

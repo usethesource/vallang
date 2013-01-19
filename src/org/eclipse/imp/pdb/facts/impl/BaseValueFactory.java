@@ -16,6 +16,7 @@ package org.eclipse.imp.pdb.facts.impl;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDateTime;
@@ -29,7 +30,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 
 public abstract class BaseValueFactory implements IValueFactory {
 	protected final static int DEFAULT_PRECISION = 10;
-	public static int PRECISION = DEFAULT_PRECISION;
+	protected AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
 	
     public IInteger integer(int i) {
         return new IntegerValue(i);
@@ -100,15 +101,13 @@ public abstract class BaseValueFactory implements IValueFactory {
     }
 
     public int getPrecision() {
-      return PRECISION;
+      return currentPrecision.get();
     }
 
     public int setPrecision(int p) {
-      int previous = PRECISION;
-      PRECISION = p;
-      return previous;
+    	return currentPrecision.getAndSet(p);
     }
-    
+
     public IReal pi(int precision) {
     	return RealValue.pi(precision);
     }

@@ -181,17 +181,7 @@ public class ValueFactory extends BaseValueFactory {
 	public IReal real(BigDecimal value){
 		return new BigDecimalValue(value);
 	}
-	
-	public int getPrecision(){
-		return PRECISION;
-	}
-	
-	public int setPrecision(int p){
-		int previous = PRECISION;
-		PRECISION = p;
-		return previous;
-	}
-	
+
 	public IReal pi(int precision) {
 		return BigDecimalValue.pi(precision);
 	}
