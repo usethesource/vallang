@@ -73,7 +73,6 @@ public class StandardTextReader extends AbstractTextReader {
 	private TypeFactory types;
 	private int current;
 
-	@Override
 	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
 		this.store = store;
 		this.stream = new NoWhiteSpaceReader(stream);
