@@ -214,4 +214,13 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		
 		throw new IllegalOperationException("select with field names", getType());
 	}
+	
+	// equality is the same as for List
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+	
+	public int hashCode() {
+		return super.hashCode();
+	}
 }

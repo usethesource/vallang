@@ -238,7 +238,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		if(o == this) return true;
 		if(o == null) return false;
 		
-		if(o.getClass() == getClass()){
+		if(o instanceof List) {
 			List otherList = (List) o;
 			
 			if (getType() != otherList.getType()) return false;
