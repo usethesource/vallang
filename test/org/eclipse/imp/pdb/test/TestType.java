@@ -55,10 +55,6 @@ public class TestType extends TestCase {
 		}
 	}
 
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
 	private static void recombine() throws FactTypeUseException {
 		List<Type> newTypes = new LinkedList<Type>();
 		int max1 = COMBINATION_UPPERBOUND;

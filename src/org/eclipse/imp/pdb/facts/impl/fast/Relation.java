@@ -212,8 +212,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			rightValues.add(value);
 		}
 		
-		interestingLeftSides = null;
-		
 		int size = potentialRightSides.size();
 		int nextSize = 0;
 		

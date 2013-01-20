@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * applications and showed more than 50% improvement in memory usage.
  */
 public class SourceLocationValues {
-	private abstract static class Complete extends Incomplete implements ISourceLocation {
+	private abstract static class Complete extends Incomplete {
 		public Complete(URI uri) {
 			super(uri);
 		}
@@ -329,7 +329,7 @@ public class SourceLocationValues {
 		}
 	}
 
-	public static class OnlyURI extends Incomplete implements ISourceLocation{
+	public static class OnlyURI extends Incomplete {
 		
 		protected OnlyURI(URI uri){
 			super(uri);
@@ -587,7 +587,7 @@ public class SourceLocationValues {
 		}
 	}
 	
-	public static class IntInt extends Incomplete implements ISourceLocation{
+	public static class IntInt extends Incomplete {
 		protected final int offset;
 		protected final int length;
 		

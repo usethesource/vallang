@@ -32,21 +32,14 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /*package*/ class ListRelation extends List implements IListRelation {
 	
-	protected final Type listRelationType;
-	
 	/*package*/ ListRelation(Type type, ShareableValuesList content) {
 		super(type, content);
-		this.listRelationType = typeFactory.lrelTypeFromTuple(type);
+		assert listType == typeFactory.lrelTypeFromTuple(type);
 	}
 	
 	public int arity() {
 		return this.elementType.getArity();
 	}
-	
-	public Type getType(){
-		return this.listRelationType;
-	}
-	
 	
 	public IListRelation closure() throws FactTypeUseException {
 		Type resultType = getType().closure(); // will throw exception if not binary and reflexive
@@ -215,12 +208,4 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		throw new IllegalOperationException("select with field names", getType());
 	}
 	
-	// equality is the same as for List
-	public boolean equals(Object o) {
-		return super.equals(o);
-	}
-	
-	public int hashCode() {
-		return super.hashCode();
-	}
 }

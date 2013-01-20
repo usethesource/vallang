@@ -151,7 +151,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	@SuppressWarnings("unchecked")
 	public ISet union(ISet other){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
+		ShareableValuesHashSet newData;
 		Iterator<IValue> setIterator;
 		
 		Set otherSet = (Set) other;

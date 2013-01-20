@@ -479,7 +479,7 @@ public abstract class BaseTestRelation extends TestCase {
 	  
 	  IRelation r = vf.relation().insert(vf.tuple(vf.integer(1), vf.integer(2)));
 	  r = r.subtract(r);
-	  assertTrue(r instanceof IRelation);
+	  assertTrue(r.getType().isRelationType());
 	  
 	  ISet s = vf.set().insert(vf.integer(1));
 	  s = s.subtract(s);

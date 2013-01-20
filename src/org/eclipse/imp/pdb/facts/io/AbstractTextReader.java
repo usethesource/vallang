@@ -11,9 +11,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public abstract class AbstractTextReader implements IValueTextReader {
-	public abstract IValue read(IValueFactory factory, TypeStore store, Type type,
-			Reader stream) throws FactTypeUseException, IOException;
-
 	public IValue read(IValueFactory factory, Type type, Reader reader)
 			throws FactTypeUseException, IOException {
 		return read(factory, new TypeStore(), type, reader);

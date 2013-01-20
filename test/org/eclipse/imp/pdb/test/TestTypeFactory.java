@@ -34,10 +34,6 @@ public class TestTypeFactory extends TestCase {
 			ft.sourceLocationType(),  ft.valueType(),
 			ft.listType(ft.integerType()), ft.setType(ft.realType()) };
 
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
 	public void testGetInstance() {
 		if (TypeFactory.getInstance() != ft) {
 			fail("getInstance did not return the same reference");
