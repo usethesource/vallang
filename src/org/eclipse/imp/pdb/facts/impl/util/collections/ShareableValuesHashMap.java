@@ -29,7 +29,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	private int modSize;
 	private int hashMask;
 	
-	private Entry<IValue, IValue>[] data;
+	private Entry<IValue, IValue>[] data; // protected for easier access in inner class
 	
 	private int threshold;
 	
@@ -241,15 +241,15 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	}
 	
 	public Iterator<Map.Entry<IValue, IValue>> entryIterator(){
-		return new EntryIterator(this);
+		return new EntryIterator(data);
 	}
 	
 	public Iterator<IValue> keysIterator(){
-		return new KeysIterator(this);
+		return new KeysIterator(data);
 	}
 	
 	public Iterator<IValue> valuesIterator(){
-		return new ValuesIterator(this);
+		return new ValuesIterator(data);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -476,10 +476,10 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		private Entry<IValue, IValue> current;
 		private int index;
 		
-		public EntryIterator(ShareableValuesHashMap shareableValuesHashMap){
+		public EntryIterator(Entry<IValue, IValue>[] entries){
 			super();
 			
-			data = shareableValuesHashMap.data;
+			data = entries;
 
 			index = data.length - 1;
 			current = new Entry<IValue, IValue>(0, null, null, data[index]);
@@ -527,10 +527,10 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	private static class KeysIterator implements Iterator<IValue>{
 		private final EntryIterator entryIterator;
 		
-		public KeysIterator(ShareableValuesHashMap shareableValuesHashMap){
+		public KeysIterator(Entry<IValue, IValue>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator(shareableValuesHashMap);
+			entryIterator = new EntryIterator(entries);
 		}
 		
 		public boolean hasNext(){
@@ -549,10 +549,10 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	private static class ValuesIterator implements Iterator<IValue>{
 		private final EntryIterator entryIterator;
 		
-		public ValuesIterator(ShareableValuesHashMap shareableValuesHashMap){
+		public ValuesIterator(Entry<IValue,IValue>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator(shareableValuesHashMap);
+			entryIterator = new EntryIterator(entries);
 		}
 		
 		public boolean hasNext(){

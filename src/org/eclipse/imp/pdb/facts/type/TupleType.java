@@ -23,9 +23,9 @@ import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 /*package*/final class TupleType extends Type {
-	private final Type[] fFieldTypes;
-	private final String[] fFieldNames;
-	private int fHashcode = -1;
+	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
+	protected final String[] fFieldNames;
+	protected int fHashcode = -1;
 
 	/**
 	 * Creates a tuple type with the given field types. Copies the array.

@@ -308,7 +308,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return An iterator for the entries in this map.
 	 */
 	public Iterator<Map.Entry<IValue, V>> entryIterator(){
-		return new EntryIterator<V>(this);
+		return new EntryIterator<V>(data);
 	}
 	
 	/**
@@ -317,7 +317,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return An iterator for the keys in this map.
 	 */
 	public Iterator<IValue> keysIterator(){
-		return new KeysIterator<V>(this);
+		return new KeysIterator<V>(data);
 	}
 	
 	/**
@@ -326,7 +326,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return An iterator for the values in this map.
 	 */
 	public Iterator<V> valuesIterator(){
-		return new ValuesIterator<V>(this);
+		return new ValuesIterator<V>(data);
 	}
 	
 	/**
@@ -604,13 +604,13 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		/**
 		 * Constructor.
 		 * 
-		 * @param valueIndexedHashMap
-		 *            The map to iterator over.
+		 * @param entries
+		 *            The entries to iterator over.
 		 */
-		public EntryIterator(ValueIndexedHashMap<V> valueIndexedHashMap){
+		public EntryIterator(Entry<V>[] entries){
 			super();
 			
-			data = valueIndexedHashMap.data;
+			data = entries;
 
 			index = data.length - 1;
 			current = new Entry<V>(0, null, null, data[index]);
@@ -696,13 +696,13 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		/**
 		 * Constructor.
 		 * 
-		 * @param valueIndexedHashMap
-		 *            The map to iterate over.
+		 * @param entries
+		 *            The entries to iterate over.
 		 */
-		public KeysIterator(ValueIndexedHashMap<V> valueIndexedHashMap){
+		public KeysIterator(Entry<V>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator<V>(valueIndexedHashMap);
+			entryIterator = new EntryIterator<V>(entries);
 		}
 		
 		/**
@@ -756,13 +756,13 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		/**
 		 * Constructor.
 		 * 
-		 * @param valueIndexedHashMap
-		 *            The map to iterate over.
+		 * @param entries
+		 *            The entries to iterate over.
 		 */
-		public ValuesIterator(ValueIndexedHashMap<V> valueIndexedHashMap){
+		public ValuesIterator(Entry<V>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator<V>(valueIndexedHashMap);
+			entryIterator = new EntryIterator<V>(entries);
 		}
 		
 		/**

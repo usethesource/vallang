@@ -220,7 +220,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	}
 	
 	public Iterator<IValue> iterator(){
-		return new SetIterator(this);
+		return new SetIterator(data);
 	}
 	
 	public boolean addAll(Collection<? extends IValue> collection){
@@ -412,10 +412,10 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		private Entry<IValue> current;
 		private int index;
 		
-		public SetIterator(ShareableValuesHashSet shareableValuesHashSet){
+		public SetIterator(Entry<IValue>[] entries){
 			super();
 			
-			data = shareableValuesHashSet.data;
+			data = entries;
 
 			index = data.length - 1;
 			current = new Entry<IValue>(0, null, data[index]);

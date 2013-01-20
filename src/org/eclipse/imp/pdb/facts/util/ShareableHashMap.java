@@ -316,7 +316,7 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 	 * @return An iterator for the entries in this map.
 	 */
 	public Iterator<Map.Entry<K, V>> entryIterator(){
-		return new EntryIterator<K, V>(this);
+		return new EntryIterator<K, V>(data);
 	}
 	
 	/**
@@ -325,7 +325,7 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 	 * @return An iterator for the keys in this map.
 	 */
 	public Iterator<K> keysIterator(){
-		return new KeysIterator<K, V>(this);
+		return new KeysIterator<K, V>(data);
 	}
 	
 	/**
@@ -334,7 +334,7 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 	 * @return An iterator for the values in this map.
 	 */
 	public Iterator<V> valuesIterator(){
-		return new ValuesIterator<K, V>(this);
+		return new ValuesIterator<K, V>(data);
 	}
 	
 	/**
@@ -607,10 +607,10 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 		 * @param sharedHashMap
 		 *            The map to iterator over.
 		 */
-		public EntryIterator(ShareableHashMap<K, V> sharedHashMap){
+		public EntryIterator(Entry<K, V>[] entries){
 			super();
 			
-			data = sharedHashMap.data;
+			data = entries;
 
 			index = data.length - 1;
 			current = new Entry<K, V>(0, null, null, data[index]);
@@ -696,13 +696,13 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 		/**
 		 * Constructor.
 		 * 
-		 * @param sharedHashMap
-		 *            The map to iterate over.
+		 * @param entries
+		 *            The entries to iterate over.
 		 */
-		public KeysIterator(ShareableHashMap<K, V> sharedHashMap){
+		public KeysIterator(Entry<K, V>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator<K, V>(sharedHashMap);
+			entryIterator = new EntryIterator<K, V>(entries);
 		}
 		
 		/**
@@ -756,13 +756,13 @@ public final class ShareableHashMap<K, V> implements Map<K, V>{
 		/**
 		 * Constructor.
 		 * 
-		 * @param sharedHashMap
-		 *            The map to iterate over.
+		 * @param entries
+		 *            The entries to iterate over.
 		 */
-		public ValuesIterator(ShareableHashMap<K, V> sharedHashMap){
+		public ValuesIterator(Entry<K, V>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator<K, V>(sharedHashMap);
+			entryIterator = new EntryIterator<K, V>(entries);
 		}
 		
 		/**

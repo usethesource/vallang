@@ -272,7 +272,7 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 	 * @see java.lang.Iterable#iterator()
 	 */
 	public Iterator<V> iterator(){
-		return new SetIterator<V>(this);
+		return new SetIterator<V>(data);
 	}
 	
 	/**
@@ -529,13 +529,13 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 		/**
 		 * Constructor.
 		 * 
-		 * @param sharedHashSet
-		 *            The set to iterator over.
+		 * @param entries
+		 *            The entries to iterator over.
 		 */
-		public SetIterator(ShareableHashSet<V> sharedHashSet){
+		public SetIterator(Entry<V>[] entries){
 			super();
 			
-			data = sharedHashSet.data;
+			data = entries;
 
 			index = data.length - 1;
 			current = new Entry<V>(0, null, data[index]);

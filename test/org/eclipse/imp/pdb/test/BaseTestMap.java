@@ -33,14 +33,14 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  * @author Anya Helene Bagge
  */
 public abstract class BaseTestMap extends TestCase {
-	private final TypeStore ts = new TypeStore();
-	private final TypeFactory tf = TypeFactory.getInstance();
+	protected final TypeStore ts = new TypeStore();
+	protected final TypeFactory tf = TypeFactory.getInstance();
 	private final Type fromToMapType = tf.mapType(tf.stringType(), "from", tf.stringType(), "to");
 	private final Type fromToValueMapType = tf.mapType(tf.valueType(), "from", tf.valueType(), "to");
 	private final Type keyValueMapType = tf.mapType(tf.stringType(), "key", tf.stringType(), "value");
 	private final Type unlabeledMapType = tf.mapType(tf.stringType(), tf.stringType());
 	enum Kind { BINARY };
-	private IValueFactory vf;
+	protected IValueFactory vf;
 	private Type a;
 	private Type b;
 	private TestValue[] testValues;
@@ -52,9 +52,9 @@ public abstract class BaseTestMap extends TestCase {
 		a = tf.abstractDataType(ts, "A");
 		b = tf.abstractDataType(ts, "B");
 		testValues = new TestValue[]{
-				new TestValue("Bergen", "Amsterdam", "from", "to"),
-				new TestValue("New York", "London", null, null),
-				new TestValue("Banana", "Fruit", "key", "value"),
+				new TestValue(this, "Bergen", "Amsterdam", "from", "to"),
+				new TestValue(this, "New York", "London", null, null),
+				new TestValue(this, "Banana", "Fruit", "key", "value"),
 		};
 		
 		testMaps = new IMap[] {
@@ -76,7 +76,7 @@ public abstract class BaseTestMap extends TestCase {
 		Collections.shuffle(list2);
 		keyValues = new StringPair[strings.length];
 		for(int i = 0; i < strings.length; i++) {
-			keyValues[i] = new StringPair(list1.get(i), list2.get(i));
+			keyValues[i] = new StringPair(vf.string(list1.get(i)), vf.string(list2.get(i)));
 		}
 	}
 
@@ -382,13 +382,15 @@ public abstract class BaseTestMap extends TestCase {
 		System.out.println();
 	}
 
-	class TestValue {
+	static class TestValue {
 		Type type;
 		IValue value;
 		String keyLabel;
 		String valueLabel;
 
-		TestValue(String key, String value, String keyLabel, String valueLabel) {
+		TestValue(BaseTestMap baseTestMap, String key, String value, String keyLabel, String valueLabel) {
+			TypeFactory tf = baseTestMap.tf;
+			IValueFactory vf = baseTestMap.vf;
 			this.keyLabel = keyLabel;
 			this.valueLabel = valueLabel;
 			if(keyLabel != null && valueLabel != null)
@@ -403,13 +405,13 @@ public abstract class BaseTestMap extends TestCase {
 		}
 	}
 	
-	class StringPair {
+	static class StringPair {
 		IString a;
 		IString b;
 		
-		StringPair(String a, String b) {
-			this.a = vf.string(a);
-			this.b = vf.string(b);
+		StringPair(IString a, IString b) {
+			this.a = a;
+			this.b = b;
 		}
 	}
 }

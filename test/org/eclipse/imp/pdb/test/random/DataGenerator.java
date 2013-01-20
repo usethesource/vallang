@@ -26,8 +26,8 @@ import java.util.Map;
  */
 public class DataGenerator {
 
-	private final Map<Class<?>, List<? extends Object>> staticValues = new HashMap<Class<?>, List<? extends Object>>();
-	private final Map<Class<?>, RandomGenerator<?>> random = new HashMap<Class<?>, RandomGenerator<?>>();
+	protected final Map<Class<?>, List<? extends Object>> staticValues = new HashMap<Class<?>, List<? extends Object>>();
+	protected final Map<Class<?>, RandomGenerator<?>> random = new HashMap<Class<?>, RandomGenerator<?>>();
 
 	public DataGenerator() {
 	}
@@ -76,9 +76,9 @@ public class DataGenerator {
 }
 
 class DataIterable<T> implements Iterable<T> {
-	private final List<T> staticValues;
-	private final RandomGenerator<T> random;
-	private final int n;
+	protected final List<T> staticValues;
+	protected final RandomGenerator<T> random;
+	protected final int n;
 
 	public DataIterable(List<T> staticValues, RandomGenerator<T> random, int n) {
 		this.staticValues = staticValues;
