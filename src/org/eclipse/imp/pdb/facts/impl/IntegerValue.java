@@ -209,7 +209,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     if (other.getType().isIntegerType()) {
       return compare(other.toInteger());
     } else if (other.getType().isRationalType()) {
-      return -other.compare(this);
+      int compare = other.compare(this);
+      return compare == 0 ? 0 : (compare < 0 ? 1 : -1); // negating compare would be unsafe
     }
     return toReal().compare(other);
   }
