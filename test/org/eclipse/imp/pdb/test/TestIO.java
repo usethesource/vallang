@@ -78,20 +78,20 @@ public class TestIO extends TestCase {
 				testWriter.write(test, stream);
 				System.err.println(test + " -> " + stream.toString());
 				
-				if (strip(stream.toString()).equals(testXML[i])) {
-					fail(stream.toString() + " != " + testXML[i]);
+				if (!strip(stream.toString()).equals(testXML[i])) {
+					fail(strip(stream.toString()) + " != " + testXML[i]);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 				fail(e.getMessage());
 			}
+			i++;
 		}
-		i++;
 	}
 	
 	private String strip(String string) {
-		string = string.substring(string.lastIndexOf("?>"));
-		string = string.replaceAll(" ", "");
+		string = string.substring(string.lastIndexOf("?>")+2);
+		string = string.replaceAll("\\s", "");
 		return string;
 	}
 
