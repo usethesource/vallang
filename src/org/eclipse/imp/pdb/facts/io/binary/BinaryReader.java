@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -216,8 +217,8 @@ public class BinaryReader{
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.hasAnnotations()) {
 				Map<String,IValue> amap = consValue.getAnnotations();
-				for (String akey : amap.keySet()) {
-					Type aType = amap.get(akey).getType();
+				for (Entry<String, IValue> aEntry : amap.entrySet()) {
+					Type aType = aEntry.getValue().getType();
 					if (!aType.isVoidType() && aType.isSourceLocationType()) {
 						hashValue = false;
 						break;

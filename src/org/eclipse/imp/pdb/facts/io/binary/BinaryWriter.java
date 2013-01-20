@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -128,8 +129,8 @@ public class BinaryWriter{
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.hasAnnotations()) {
 				Map<String,IValue> amap = consValue.getAnnotations();
-				for (String akey : amap.keySet()) {
-					Type aType = amap.get(akey).getType();
+				for (Entry<String, IValue> aEntry : amap.entrySet()) {
+					Type aType = aEntry.getValue().getType();
 					if (!aType.isVoidType() && aType.isSourceLocationType()) {
 						tryHashing = false;
 						break;

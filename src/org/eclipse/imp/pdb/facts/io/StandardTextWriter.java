@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.io;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -214,9 +215,9 @@ public class StandardTextWriter implements IValueTextWriter {
 				indent();
 				int i = 0;
 				Map<String, IValue> annotations = o.getAnnotations();
-				for (String key : annotations.keySet()) {
-					append("@" + key + "=");
-					annotations.get(key).accept(this);
+				for (Entry<String, IValue> entry : annotations.entrySet()) {
+					append("@" + entry.getKey() + "=");
+					entry.getValue().accept(this);
 					
 					if (++i < annotations.size()) {
 						append(",");
@@ -504,9 +505,9 @@ public class StandardTextWriter implements IValueTextWriter {
     		indent();
     		int i = 0;
     		Map<String, IValue> annotations = o.getAnnotations();
-    		for (String key : annotations.keySet()) {
-    			append("@" + key + "=");
-    			annotations.get(key).accept(this);
+    		for (Entry<String, IValue> entry : annotations.entrySet()) {
+    			append("@" + entry.getKey() + "=");
+    			entry.getValue().accept(this);
     			
     			if (++i < annotations.size()) {
     				append(",");

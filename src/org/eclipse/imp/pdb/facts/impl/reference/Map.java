@@ -274,11 +274,11 @@ class Map extends Value implements IMap{
 
 		public void putAll(java.util.Map<IValue, IValue> map) throws FactTypeUseException{
 			checkMutation();
-			for(IValue key : map.keySet()){
-				IValue value = map.get(key);
-				updateTypes(key, value);
-				check(key.getType(), value.getType(), keyType, valueType);
-				mapContent.put(key, value);
+			for(Entry<IValue, IValue> entry : map.entrySet()){
+				IValue value = entry.getValue();
+				updateTypes(entry.getKey(), value);
+				check(entry.getKey().getType(), value.getType(), keyType, valueType);
+				mapContent.put(entry.getKey(), value);
 			}
 		}
 
