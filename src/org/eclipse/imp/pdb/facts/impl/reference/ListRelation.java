@@ -32,11 +32,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class ListRelation extends List implements IListRelation {
-	protected final Type listRelationType;
 
 	/* package */ ListRelation(Type type, LinkedList<IValue> content) {
 		super(type, content);
-		this.listRelationType =TypeFactory.getInstance().lrelTypeFromTuple(type);
 	}
 	
 	public int arity() {

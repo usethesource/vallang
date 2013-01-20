@@ -116,6 +116,6 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 			w.insert((ITuple) tuple.accept(this));
 		}
 		
-		return fVisitor.visitRelation((IRelation) w.done());
+		return fVisitor.visitListRelation((IListRelation) w.done());
 	}
 }
