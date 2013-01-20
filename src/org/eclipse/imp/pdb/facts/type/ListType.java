@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ class ListType extends Type {
-	private final Type fEltType;
+	protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
 		fEltType = eltType;
@@ -66,7 +66,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof ListType) {
+		if(o == this) {
+			return true;
+		}
+		else if (o instanceof ListType) {
 			ListType other = (ListType) o;
 			return fEltType == other.fEltType;
 		}

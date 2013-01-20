@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ class SetType extends Type {
-	private final Type fEltType;
+	protected final Type fEltType;
 
     /*package*/ SetType(Type eltType) {
     	fEltType= eltType;
