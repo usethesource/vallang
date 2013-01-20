@@ -7,7 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
-*    Anya Helene Bagge - labeled map types
+*    Anya Helene Bagge - labeled map types; safer reading
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.io.binary;
 
@@ -131,7 +131,7 @@ public class BinaryReader{
 		
 		this.valueFactory = valueFactory;
 		this.typeStore = typeStore;
-		this.in = new InputStreamCheckerWrapper(inputStream);
+		this.in = inputStream;
 
 		sharedValues = new ResizingArray<IValue>(DEFAULT_SHARED_VALUES_STORE_SIZE);
 		currentSharedValueId = 0;
@@ -144,7 +144,7 @@ public class BinaryReader{
 	}
 	
 	public IValue deserialize() throws IOException{
-		int header = in.read();
+		int header = read();
 		if((header & SHARED_FLAG) == SHARED_FLAG){
 			return sharedValues.get(parseInteger());
 		}
@@ -240,12 +240,12 @@ public class BinaryReader{
 			return sharedTypes.get(parseInteger());
 		}
 		
-		return doReadType(in.read());
+		return doReadType(read());
 	}
 	
 	// Called by type stuff.
 	private Type doReadType() throws IOException{
-		return doReadType(in.read());
+		return doReadType(read());
 	}
 	
 	private Type doReadType(int typeHeader) throws IOException{
@@ -330,7 +330,7 @@ public class BinaryReader{
 	}
 	
 	private IBool readBool() throws IOException{
-		int bool = in.read();
+		int bool = read();
 		
 		return valueFactory.bool(bool == 0 ? false : true);
 	}
@@ -344,7 +344,7 @@ public class BinaryReader{
 	private IInteger readBigInteger() throws IOException{
 		int length = parseInteger();
 		byte[] integerData = new byte[length];
-		in.read(integerData, 0, length);
+		read(integerData, 0, length);
 		
 		return valueFactory.integer(integerData);
 	}
@@ -352,12 +352,12 @@ public class BinaryReader{
 	private IRational readRational() throws IOException{
 		int length = parseInteger();
 		byte[] valueData = new byte[length];
-		in.read(valueData, 0, length);
+		read(valueData, 0, length);
 		IInteger num = valueFactory.integer(valueData);
 
 		length = parseInteger();
 		valueData = new byte[length];
-		in.read(valueData, 0, length);
+		read(valueData, 0, length);
 		IInteger denom = valueFactory.integer(valueData);
 
 		return valueFactory.rational(num, denom);
@@ -366,7 +366,7 @@ public class BinaryReader{
 	private IReal readDouble() throws IOException{
 		int length = parseInteger();
 		byte[] unscaledValueData = new byte[length];
-		in.read(unscaledValueData, 0, length);
+		read(unscaledValueData, 0, length);
 		int scale = parseInteger();
 		
 		return valueFactory.real(new BigDecimal(new BigInteger(unscaledValueData), scale).toString()); // The toString call kind of stinks.
@@ -383,7 +383,7 @@ public class BinaryReader{
 		
 		byte[] data = new byte[size];
 		for(int i = 0; i< size; i++){
-			data[i] = (byte) in.read();
+			data[i] = (byte) read();
 		}
 		
 		return valueFactory.string(new String(data, BinaryWriter.CharEncoding));
@@ -399,7 +399,7 @@ public class BinaryReader{
 			
 			byte[] data = new byte[pathSize];
 			for(int i = 0; i< pathSize; i++){
-				data[i] = (byte) in.read();
+				data[i] = (byte) read();
 			}
 			
 			path = new String(data, BinaryWriter.CharEncoding);
@@ -432,7 +432,7 @@ public class BinaryReader{
 	}
 	
 	private IDateTime readDateTime() throws IOException{
-		int typeIndicator = in.read();
+		int typeIndicator = read();
 		
 		if(typeIndicator == DATE_TIME_INDICATOR){
 			int year = parseInteger();
@@ -487,7 +487,7 @@ public class BinaryReader{
 			
 			byte[] data = new byte[nodeNameLength];
 			for(int i = 0; i < nodeNameLength; i++){
-				data[i] = (byte) in.read();
+				data[i] = (byte) read();
 			}
 			nodeName = new String(data, BinaryWriter.CharEncoding);
 			
@@ -513,7 +513,7 @@ public class BinaryReader{
 			
 			byte[] data = new byte[nodeNameLength];
 			for(int i = 0; i < nodeNameLength; i++){
-				data[i] = (byte) in.read();
+				data[i] = (byte) read();
 			}
 			nodeName = new String(data, BinaryWriter.CharEncoding);
 
@@ -533,7 +533,7 @@ public class BinaryReader{
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
-			in.read(labelData);
+			read(labelData);
 			String label = new String(labelData, BinaryWriter.CharEncoding);
 			
 			IValue value = deserialize();
@@ -574,7 +574,7 @@ public class BinaryReader{
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
-			in.read(labelData);
+			read(labelData);
 			String label = new String(labelData, BinaryWriter.CharEncoding);
 			
 			IValue value = deserialize();
@@ -688,7 +688,7 @@ public class BinaryReader{
 		for(--nrOfAnnotations; nrOfAnnotations >= 0; nrOfAnnotations--){
 			int nrOfLabelBytes = parseInteger();
 			byte[] labelBytes = new byte[nrOfLabelBytes];
-			in.read(labelBytes);
+			read(labelBytes);
 			String label = new String(labelBytes, BinaryWriter.CharEncoding);
 			
 			Type valueType = doReadType();
@@ -712,7 +712,7 @@ public class BinaryReader{
 				
 				int fieldNameLength = parseInteger();
 				byte[] fieldNameData = new byte[fieldNameLength];
-				in.read(fieldNameData);
+				read(fieldNameData);
 				fieldNames[i] = new String(fieldNameData, BinaryWriter.CharEncoding);
 			}
 			
@@ -754,13 +754,13 @@ public class BinaryReader{
 			Type keyType = doReadType();
 			int keyLabelLength = parseInteger();
 			byte[] keyLabelData = new byte[keyLabelLength];
-			in.read(keyLabelData);
+			read(keyLabelData);
 			String keyLabel = new String(keyLabelData, BinaryWriter.CharEncoding);
 
 			Type valueType = doReadType();
 			int valueLabelLength = parseInteger();
 			byte[] valueLabelData = new byte[valueLabelLength];
-			in.read(valueLabelData);
+			read(valueLabelData);
 			String valueLabel = new String(valueLabelData, BinaryWriter.CharEncoding);
 
 			return tf.mapType(keyType, keyLabel, valueType, valueLabel);
@@ -777,7 +777,7 @@ public class BinaryReader{
 	private Type readParameterType() throws IOException{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
-		in.read(nameData);
+		read(nameData);
 		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type bound = doReadType();
@@ -788,7 +788,7 @@ public class BinaryReader{
 	private Type readADTType() throws IOException{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
-		in.read(nameData);
+		read(nameData);
 		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type parameters = doReadType();
@@ -799,7 +799,7 @@ public class BinaryReader{
 	private Type readConstructorType() throws IOException{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
-		in.read(nameData);
+		read(nameData);
 		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type fieldTypes = doReadType();
@@ -812,7 +812,7 @@ public class BinaryReader{
 	private Type readAnnotatedConstructorType() throws IOException{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
-		in.read(nameData);
+		read(nameData);
 		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type fieldTypes = doReadType();
@@ -825,7 +825,7 @@ public class BinaryReader{
 		for(--nrOfAnnotations; nrOfAnnotations >= 0; nrOfAnnotations--){
 			int nrOfLabelBytes = parseInteger();
 			byte[] labelBytes = new byte[nrOfLabelBytes];
-			in.read(labelBytes);
+			read(labelBytes);
 			String label = new String(labelBytes, BinaryWriter.CharEncoding);
 			
 			Type valueType = doReadType();
@@ -839,7 +839,7 @@ public class BinaryReader{
 	private Type readAliasType() throws IOException{
 		int nameLength = parseInteger();
 		byte[] nameData = new byte[nameLength];
-		in.read(nameData);
+		read(nameData);
 		String name = new String(nameData, BinaryWriter.CharEncoding);
 		
 		Type aliasedType = doReadType();
@@ -853,24 +853,24 @@ public class BinaryReader{
 	private final static int SIGNBIT = 0x00000080;
 	
 	private int parseInteger() throws IOException{
-		int part = in.read();
+		int part = read();
 		int result = (part & SEVENBITS);
 		
 		if((part & SIGNBIT) == 0) return result;
 			
-		part = in.read();
+		part = read();
 		result |= ((part & SEVENBITS) << 7);
 		if((part & SIGNBIT) == 0) return result;
 			
-		part = in.read();
+		part = read();
 		result |= ((part & SEVENBITS) << 14);
 		if((part & SIGNBIT) == 0) return result;
 			
-		part = in.read();
+		part = read();
 		result |= ((part & SEVENBITS) << 21);
 		if((part & SIGNBIT) == 0) return result;
 			
-		part = in.read();
+		part = read();
 		result |= ((part & SEVENBITS) << 28);
 		return result;
 	}
@@ -882,25 +882,42 @@ public class BinaryReader{
 	private double parseDouble() throws IOException{
 		long result = 0;
 		for(int i = 0; i < LONGBITS; i++){
-			result |= ((((long) in.read()) & BYTEMASK) << (i * BYTEBITS));
+			result |= ((((long) read()) & BYTEMASK) << (i * BYTEBITS));
 		}
 		return Double.longBitsToDouble(result);	
 	}
 	
-	private static class InputStreamCheckerWrapper extends InputStream{
-		private final InputStream backingStream;
-		
-		public InputStreamCheckerWrapper(InputStream backingStream){
-			super();
-			
-			this.backingStream = backingStream;
+	private int read() throws IOException {
+		int b = in.read();
+
+		if(b == -1) {
+			throw new UnexpectedEOF();
 		}
 		
-		public int read() throws IOException{
-			int b = backingStream.read();
-			if(b == -1) throw new IOException("Encountered premature EOF.");
+		return b;
+	}
+
+	private void read(byte[] buffer) throws IOException {
+		read(buffer, 0, buffer.length);
+	}
+	
+	private void read(byte[] buffer, int offset, int length) throws IOException {
+		int read;
+
+		while(length > 0) {
+			read = in.read(buffer, offset, length);
+
+			if(read == -1) {
+				throw new UnexpectedEOF();
+			}
 			
-			return b;
+			length = length - read;
+			offset = offset + read;
 		}
+	}
+	
+	static class UnexpectedEOF extends IOException {
+		private static final long serialVersionUID = -907629554395808678L;
+
 	}
 }
