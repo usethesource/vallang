@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Jurgen Vinju (jurgenv@cwi.nl) - initial API and implementation
+*    Paul Klint (Paul.Klint@cwi.nl) - added replace
 
 *******************************************************************************/
 
@@ -126,4 +127,20 @@ public interface INode extends IValue, Iterable<IValue> {
 	 * @return a new node without any annotations
 	 */
 	public INode removeAnnotations();
+	
+	 /**
+     * Replaces the value of the children first, second ... end with the elements in the list r
+     * Expected:
+     * - support for negative indices
+     * - support for the case begin > end
+     * @param first index to start replacement (inclusive)
+     * @param second index of second element
+     * @param end index to end replacement (exclusive)
+     * @param repl the new values to replace the old one
+     * @return a new node with the children replaced
+     * @throws FactTypeUseException when the type of the element is not a subtype of the element type
+     * @throws IndexOutOfBoundsException when the b < 0 or b >= INode.arity() or e < 0 or e > INOde.arity()
+     */
+    public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException;
+
 }

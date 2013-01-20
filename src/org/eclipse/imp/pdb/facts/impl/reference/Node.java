@@ -11,16 +11,20 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
 import org.eclipse.imp.pdb.facts.impl.Value;
+import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -30,6 +34,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * Naive implementation of an untyped tree node, using array of children.
  */
 public class Node extends Value implements INode {
+	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
     protected static final HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<String,IValue>();
 	protected final IValue[] fChildren;
     protected final String fName;
@@ -278,5 +283,76 @@ public class Node extends Value implements INode {
 
 	public INode removeAnnotations() {
 		return new Node(this);
+	}
+	
+	public INode replace(int first, int second, int end, IList repl)
+			throws FactTypeUseException, IndexOutOfBoundsException {
+		ArrayList<IValue> newChildren = new ArrayList<IValue>();
+		int rlen = repl.length();
+		int increment = Math.abs(second - first);
+		if(first < end){
+			int childIndex = 0;
+			// Before begin
+			while(childIndex < first){
+				newChildren.add(fChildren[childIndex++]);
+			}
+			int replIndex = 0;
+			boolean wrapped = false;
+			// Between begin and end
+			while(childIndex < end){
+				newChildren.add(repl.get(replIndex++));
+				if(replIndex == rlen){
+					replIndex = 0;
+					wrapped = true;
+				}
+				childIndex++; //skip the replaced element
+				for(int j = 1; j < increment && childIndex < end; j++){
+					newChildren.add(fChildren[childIndex++]);
+				}
+			}
+			if(!wrapped){
+				while(replIndex < rlen){
+					newChildren.add(repl.get(replIndex++));
+				}
+			}
+			// After end
+			int dlen = fChildren.length;
+			while( childIndex < dlen){
+				newChildren.add(fChildren[childIndex++]);
+			}
+		} else {
+			// Before begin (from right to left)
+			int childIndex = fChildren.length - 1;
+			while(childIndex > first){
+				newChildren.add(0, fChildren[childIndex--]);
+			}
+			// Between begin (right) and end (left)
+			int replIndex = 0;
+			boolean wrapped = false;
+			while(childIndex > end){
+				newChildren.add(0, repl.get(replIndex++));
+				if(replIndex == repl.length()){
+					replIndex = 0;
+					wrapped = true;
+				}
+				childIndex--; //skip the replaced element
+				for(int j = 1; j < increment && childIndex > end; j++){
+					newChildren.add(0, fChildren[childIndex--]);
+				}
+			}
+			if(!wrapped){
+				while(replIndex < rlen){
+					newChildren.add(0, repl.get(replIndex++));
+				}
+			}
+			// Left of end
+			while(childIndex >= 0){
+				newChildren.add(0, fChildren[childIndex--]);
+			}
+		}
+
+        IValue[] childArray = new IValue[newChildren.size()];
+        newChildren.toArray(childArray);	
+		return new Node(fName, childArray);
 	}
 }

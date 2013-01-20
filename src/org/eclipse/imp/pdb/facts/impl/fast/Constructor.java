@@ -14,7 +14,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
@@ -258,5 +262,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	public boolean has(String label) {
 		return getConstructorType().hasField(label);
+	}
+
+	public IConstructor replace(int first, int second, int end, IList repl)
+			throws FactTypeUseException, IndexOutOfBoundsException {
+		
+		throw new UnsupportedOperationException("Replace not supported on constructor.");
 	}
 }
