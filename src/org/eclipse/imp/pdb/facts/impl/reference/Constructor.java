@@ -85,13 +85,19 @@ public class Constructor extends Node implements IConstructor {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (getClass() == obj.getClass()) {
-		  Constructor other = (Constructor) obj;
-		  return fType.comparable(other.fType) && super.equals(obj);
+		if(this == obj) {
+			return true;
+		}
+		else if(obj == null) {
+			return false;
+		}
+		else if (getClass() == obj.getClass()) {
+			Constructor other = (Constructor) obj;
+			return fType.comparable(other.fType) && super.equals(obj);
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		 return 17 + ~super.hashCode();

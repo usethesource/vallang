@@ -182,7 +182,13 @@ public class Node extends Value implements INode {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (getClass() == obj.getClass()) {
+		  if(this == obj) {
+			  return true;
+		  }
+		  else if(obj == null) {
+			  return false;
+		  }
+		  else if (getClass() == obj.getClass()) {
 			Node other = (Node) obj;
 			
 			if (!fType.comparable(other.fType)) {

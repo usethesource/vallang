@@ -169,7 +169,13 @@ public class List extends Value implements IList {
 	}
 	
 	public boolean equals(Object o){
-		if (getClass() == o.getClass()) {
+		if (o == this) {
+			return true;
+		}
+		else if (o == null) {
+			return false;
+		}
+		else if (o instanceof List) {
 			List other = (List) o;
 			
 			return content.equals(other.content);

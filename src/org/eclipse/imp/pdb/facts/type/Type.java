@@ -783,6 +783,17 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		throw new IllegalOperationException("getTypeParameters", this);
 	}
 	
+	/**
+	 *  Compare against another type.
+	 *  
+	 *  A type is 'less' than another if it is a subtype, 'greater' if the other is
+	 *  a subtype, or 'equal' if both are subtypes of each other.
+	 * 
+	 *  Note: this class has a natural ordering that is inconsistent with equals.
+	 *  equals() on types is exact equality, which may be different from compareTo(o) == 0
+	 *  
+	 *  @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
 	public int compareTo(Type o) {
 		if (isSubtypeOf(o)) {
 			return -1;

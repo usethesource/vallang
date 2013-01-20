@@ -119,7 +119,13 @@ class Set extends Value implements ISet{
 	}
 	
 	public boolean equals(Object o){
-		if (o.getClass() == Set.class || o.getClass() == Relation.class) {
+		  if(this == o) {
+			  return true;
+		  }
+		  else if(o == null) {
+			  return false;
+		  }
+		  else if (getClass() == o.getClass() || getClass() == o.getClass()) {
 			Set other = (Set) o;
 			
 			return content.equals(other.content);

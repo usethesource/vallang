@@ -137,9 +137,15 @@ class Map extends Value implements IMap{
 	}
 	
 	public boolean equals(Object o){
-		if(getClass() == o.getClass()) {
+		if(this == o) {
+			return true;
+		}
+		else if(o == null) {
+			return false;
+		}
+		else if(getClass() == o.getClass()) {
 			Map other = (Map) o;
-			
+
 			return content.equals(other.content);
 		}
 		return false;
