@@ -11,7 +11,6 @@
 package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.nio.CharBuffer;
-import java.nio.IntBuffer;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -124,7 +123,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 	}
 	
-	// REFERENCE
 	public IString replace(int first, int second, int end, IString repl) {
 		StringBuilder buffer = new StringBuilder();
 	
