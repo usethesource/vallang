@@ -9,6 +9,7 @@
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
  *    Jurgen Vinju (jurgen@vinju.org)
  *    Paul Klint (Paul.Klint@cwi.nl)
+ *    Michael Steindorfer (Michael.Steindorfer@cwi.nl)
  ********************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl.reference;
@@ -33,10 +34,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class List extends Value implements IList {
 	private final Type eltType;
-	protected final LinkedList<IValue> content;
+	protected final java.util.List<IValue> content;
 	private int fHash = 0;
 
-	public List(Type eltType, LinkedList<IValue> listContent) {
+	public List(Type eltType, java.util.List<IValue> listContent) {
 		super(TypeFactory.getInstance().listType(eltType));
 		
 		this.eltType = eltType;
@@ -64,7 +65,7 @@ public class List extends Value implements IList {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel sublist(int offset, int length) {
+	public <IListOrRel extends IList> IListOrRel sublist(int offset, int length) {
 		if (offset < 0 || length < 0 || offset + length > content.size()) {
 			throw new IndexOutOfBoundsException();
 		}
@@ -72,15 +73,15 @@ public class List extends Value implements IList {
 		for (int i = offset; i < offset + length; i++) {
 			w.append(content.get(i));
 		}
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel put(int i, IValue elem) throws IndexOutOfBoundsException {
+	public <IListOrRel extends IList> IListOrRel put(int i, IValue elem) throws IndexOutOfBoundsException {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.replaceAt(i, elem);
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -110,21 +111,21 @@ public class List extends Value implements IList {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel insert(IValue elem) {
+	public <IListOrRel extends IList> IListOrRel insert(IValue elem) {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.insert(elem);
 		
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel append(IValue elem) {
+	public <IListOrRel extends IList> IListOrRel append(IValue elem) {
 		ListWriter w = new ListWriter(elem.getType().lub(getElementType()));
 		w.appendAll(this);
 		w.append(elem);
 		
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 
 	public boolean contains(IValue e) {
@@ -132,36 +133,36 @@ public class List extends Value implements IList {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel delete(IValue e) {
+	public <IListOrRel extends IList> IListOrRel delete(IValue e) {
 		ListWriter w = new ListWriter(getElementType());
 		w.appendAll(this);
 		w.delete(e);
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel delete(int i) {
+	public <IListOrRel extends IList> IListOrRel delete(int i) {
 		ListWriter w = new ListWriter(getElementType());
 		w.appendAll(this);
 		w.delete(i);
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel reverse(){
+	public <IListOrRel extends IList> IListOrRel reverse(){
 		ListWriter w = new ListWriter(getElementType());
 		for (IValue e : this) {
 			w.insert(e);
 		}
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel concat(IList other) {
+	public <IListOrRel extends IList> IListOrRel concat(IList other) {
 		ListWriter w = new ListWriter(getElementType().lub(other.getElementType()));
 		w.appendAll(this);
 		w.appendAll(other);
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
@@ -212,9 +213,9 @@ public class List extends Value implements IList {
 	 */
 	protected static class ListWriter extends Writer implements IListWriter{
 		protected Type eltType;
-		protected final LinkedList<IValue> listContent;
+		protected final java.util.List<IValue> listContent;
 		
-		protected List constructedList;
+		protected IList constructedList;
 		private final boolean inferred;
 		
 		public ListWriter(Type eltType){
@@ -323,19 +324,19 @@ public class List extends Value implements IList {
 			}
 		}
 		
-		public int size(){
+		public int size() {
 			return listContent.size();
 		}
 
-		public IList done(){
-			if(constructedList == null) {
-			  constructedList = new List(listContent.isEmpty() ? TypeFactory.getInstance().voidType() : eltType, listContent);
+		public IList done() {
+			if (constructedList == null) {
+				constructedList = ListOrRel.apply(eltType, listContent);
 			}
-			
+
 			return constructedList;
 		}
 		
-		private void checkBounds(IValue[] elems, int start, int length){
+		private void checkBounds(IValue[] elems, int start, int length) {
 			if(start < 0) throw new ArrayIndexOutOfBoundsException("start < 0");
 			if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
 		}
@@ -367,7 +368,7 @@ public class List extends Value implements IList {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel intersect(IList other) {
+	public <IListOrRel extends IList> IListOrRel intersect(IList other) {
 		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
 		List o = (List) other;
 		
@@ -377,11 +378,11 @@ public class List extends Value implements IList {
 			}
 		}
 		
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel subtract(IList lst) {
+	public <IListOrRel extends IList> IListOrRel subtract(IList lst) {
 		IListWriter w = ValueFactory.getInstance().listWriter(lst.getElementType().lub(getElementType()));
 		for (IValue v: this.content) {
 			if (lst.contains(v)) {
@@ -389,7 +390,7 @@ public class List extends Value implements IList {
 			} else
 				w.append(v);
 		}
-		return (ListOrRel) w.done();
+		return (IListOrRel) w.done();
 	}
 
 	public boolean isSubListOf(IList lst) {

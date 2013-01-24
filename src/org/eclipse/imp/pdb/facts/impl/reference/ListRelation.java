@@ -7,6 +7,7 @@
 *
 * Contributors:
 * 	Paul Klint (Paul.Klint@cwi.nl) - added new ListRelation datatype
+*   Michael Steindorfer (Michael.Steindorfer@cwi.nl)
 * based on code by
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
@@ -15,7 +16,6 @@
 package org.eclipse.imp.pdb.facts.impl.reference;
 
 import java.util.HashSet;
-import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
@@ -27,13 +27,12 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class ListRelation extends List implements IListRelation {
 
-	/* package */ ListRelation(Type type, LinkedList<IValue> content) {
+	/* package */ ListRelation(Type type, java.util.List<IValue> content) {
 		super(type, content);
 	}
 	
@@ -174,8 +173,9 @@ public class ListRelation extends List implements IListRelation {
 			
 		public IListRelation done() {
 			if(constructedList == null){
-				constructedList = new ListRelation(listContent.isEmpty() ? TypeFactory.getInstance().voidType() : eltType, listContent);
+				constructedList = ListOrRel.apply(eltType, listContent);
 			}
+			
 			return  (IListRelation) constructedList;
 		}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation.
+ * Copyright (c) 2007 IBM Corporation & CWI.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *    Michael Steindorfer (Michael.Steindorfer@cwi.nl)    
  *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl.reference;
@@ -30,10 +31,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Set extends Value implements ISet{
-	final HashSet<IValue> content;
+	final java.util.Set<IValue> content;
 	private int fHash;
 
-	/*package*/ Set(Type setType, HashSet<IValue> content){
+	/*package*/ Set(Type setType, java.util.Set<IValue> content){
 		super(setType);
 		
 		this.content = content;
@@ -52,15 +53,15 @@ class Set extends Value implements ISet{
 	}
 
 	@SuppressWarnings("unchecked")
-	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
+	public <ISetOrRel extends ISet> ISetOrRel insert(IValue element) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType().lub(element.getType()));
 		sw.insertAll(this);
 		sw.insert(element);
-		return (SetOrRel) sw.done();
+		return (ISetOrRel) sw.done();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <SetOrRel extends ISet> SetOrRel intersect(ISet other) {
+	public <ISetOrRel extends ISet> ISetOrRel intersect(ISet other) {
 		ISetWriter w = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
 		Set o = (Set) other;
 		
@@ -70,26 +71,26 @@ class Set extends Value implements ISet{
 			}
 		}
 		
-		return (SetOrRel) w.done();
+		return (ISetOrRel) w.done();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <SetOrRel extends ISet> SetOrRel subtract(ISet other) {
+	public <ISetOrRel extends ISet> ISetOrRel subtract(ISet other) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
 		for (IValue a : content){
 			if (!other.contains(a)){
 				sw.insert(a);
 			}
 		}
-		return (SetOrRel) sw.done();
+		return (ISetOrRel) sw.done();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
+	public <ISetOrRel extends ISet> ISetOrRel delete(IValue elem) {
 		ISetWriter sw = ValueFactory.getInstance().setWriter(getElementType());
 		sw.insertAll(this);
 		sw.delete(elem);
-		return (SetOrRel) sw.done();
+		return (ISetOrRel) sw.done();
 	}
 
 	public boolean isSubsetOf(ISet other) {

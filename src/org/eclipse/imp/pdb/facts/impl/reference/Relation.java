@@ -7,12 +7,10 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Michael Steindorfer (Michael.Steindorfer@cwi.nl)
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl.reference;
-
-import java.util.HashSet;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -29,7 +27,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class Relation extends Set implements IRelation {
 
-	/* package */Relation(Type type, HashSet<IValue> content) {
+	/* package */Relation(Type type, java.util.Set<IValue> content) {
 		super(TypeFactory.getInstance().relTypeFromTuple(type), content);
 	}
 	
