@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
+* Copyright (c) 2007, 2013 IBM Corporation & CWI
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *    Davy Landman - added PI & E constants
-
+*    Michael Steindorfer - moved string methods from concrete value factories
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.impl;
@@ -122,6 +122,20 @@ public abstract class BaseValueFactory implements IValueFactory {
     	}
         return new StringValue(s);
     }
+    
+	public IString string(int[] chars) {
+		StringBuilder b = new StringBuilder(chars.length);
+		for (int ch : chars) {
+			b.appendCodePoint(ch);
+		}
+		return string(b.toString());
+	}
+
+	public IString string(int ch) {
+		StringBuilder b = new StringBuilder(1);
+		b.appendCodePoint(ch);
+		return string(b.toString());
+	}    
     
     public ISourceLocation sourceLocation(URI uri, int offset, int length) {
 		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
