@@ -128,7 +128,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 			return this;
 		}
 		
-		if (getArity() != 2 || !getFieldType(0).comparable(getFieldType(1))) {
+		if (getArity() != 2) {
 			throw new IllegalOperationException("closure", this);
 		}
 		Type lub = getFieldType(0).lub(getFieldType(1));
