@@ -263,7 +263,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	public IRelation closure(){
 		if(elementType == voidType) return this;
-		if(!isReflexive()) {
+		if(!isBinary()) {
 			throw new IllegalOperationException("closure", setType);
 		}
 		
@@ -274,8 +274,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public IRelation closureStar(){
-		if(elementType == voidType) return this;
-		if(!isReflexive()) throw new IllegalOperationException("closureStar", setType);
+		if (elementType == voidType) {
+		  return this;
+		}
+		if (!isBinary()) {
+		  throw new IllegalOperationException("closureStar", setType);
+		}
 		
 		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
 		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);
@@ -354,12 +358,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return result;
 	}
 	
-	private boolean isReflexive(){
-		if(elementType.getArity() != 2) throw new RuntimeException("Tuple is not binary");
-		
-		Type left = elementType.getFieldType(0);
-		Type right = elementType.getFieldType(1);
-			
-		return right.comparable(left);
+	private boolean isBinary(){
+		return elementType.getArity() == 2;
 	}
 }
