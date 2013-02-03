@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -236,20 +235,6 @@ public class ValueFactory extends BaseValueFactory {
 
 	public IMapWriter mapWriter() {
 		return Map.createMapWriter();
-	}
-
-	public IString string(int[] chars) {
-		StringBuilder b = new StringBuilder(chars.length);
-		for (int ch : chars) {
-			b.appendCodePoint(ch);
-		}
-		return string(b.toString());
-	}
-
-	public IString string(int ch) {
-		StringBuilder b = new StringBuilder(1);
-		b.appendCodePoint(ch);
-		return string(b.toString());
 	}
 
 	public IListRelationWriter listRelationWriter(Type tupleType) {

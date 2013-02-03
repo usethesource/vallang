@@ -44,7 +44,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	if (other == this) {
     		return this;
     	}
-    	if (other.isIntegerType() || other.isRealType()) {
+    	if (other.isIntegerType() || other.isRealType() || other.isRationalType()) {
     		return this;
     	}
     	return super.lub(other);
