@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>org.eclipse.imp.pdb.values</artifactId>
-	<version>0.3.2.qualifier</version>
+	<version>0.4.0.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<build>
@@ -48,8 +48,8 @@
 							<goal>testCompile</goal>
 						</goals>
 						<configuration>
-							<testSource>1.5</testSource>
-							<testTarget>1.5</testTarget>
+							<testSource>1.7</testSource>
+							<testTarget>1.7</testTarget>
 						</configuration>
 					</execution>
 				</executions>
@@ -68,11 +68,6 @@
 						</goals>
 					</execution>
 				</executions>
-<!-- 				<configuration> -->
-<!-- 					<includes> -->
-<!-- 						<include>**/*.java</include> -->
-<!-- 					</includes> -->
-<!-- 				</configuration> -->
 			</plugin>
 		</plugins>
 	</build>
