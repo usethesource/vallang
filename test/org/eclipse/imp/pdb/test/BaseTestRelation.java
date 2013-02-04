@@ -162,16 +162,6 @@ public abstract class BaseTestRelation extends TestCase {
 			fail("reflexivity with subtyping is allowed");
 		}
 		
-		try {
-			IRelation rel = vf.relation(tf.tupleType(tf.integerType(), tf.realType()));
-			rel = rel.insert(vf.tuple(vf.integer(1), vf.real(1.0)));
-			rel.closure();
-			fail("relation is not reflexive but no type error thrown");
-		}
-		catch (FactTypeUseException e) {
-			// this should happen
-		}
-		
 		
 		
 		try {
