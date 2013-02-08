@@ -10,8 +10,18 @@
 	</parent>
 
 	<artifactId>org.eclipse.imp.pdb.values</artifactId>
-	<version>0.3.2.qualifier</version>
+	<version>0.4.0.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
+
+	<scm>
+		<developerConnection>scm:git:https://github.com/impulse-org/pdb.values.git</developerConnection>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+	</properties>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -47,10 +57,6 @@
 						<goals>
 							<goal>testCompile</goal>
 						</goals>
-						<configuration>
-							<testSource>1.5</testSource>
-							<testTarget>1.5</testTarget>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -68,11 +74,6 @@
 						</goals>
 					</execution>
 				</executions>
-<!-- 				<configuration> -->
-<!-- 					<includes> -->
-<!-- 						<include>**/*.java</include> -->
-<!-- 					</includes> -->
-<!-- 				</configuration> -->
 			</plugin>
 		</plugins>
 	</build>
