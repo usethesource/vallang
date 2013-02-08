@@ -490,12 +490,19 @@ public class StandardTextWriter implements IValueTextWriter {
     	tab();
     	indent(indent);
     	Iterator<IValue> it = o.iterator();
+    	int posArity = o.positionalArity();
+    	String[] keyArgNames = o.getKeywordArgumentNames();
+    	int k = 0;
     	while (it.hasNext()) {
+    		if(k >= posArity && keyArgNames != null){
+    			append(keyArgNames[k - posArity] + "=");
+    		}
     		it.next().accept(this);
     		if (it.hasNext()) {
     			append(',');
     			indent(indent);
     		}
+    		k++;
     	}
     	append(')');
     	untab();

@@ -308,7 +308,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	public boolean hasDefaults(){
+	public boolean hasKeywordArguments(){
 		return postionalArity < fChildrenTypes.getArity();
 	}
 	

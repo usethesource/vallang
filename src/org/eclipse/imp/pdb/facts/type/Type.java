@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
+
 /**
  * This class is the abstract implementation for all types. Types
  * are ordered in a partially ordered type hierarchy with 'value'
@@ -643,6 +644,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		throw new IllegalOperationException("make tree constructor", this);
 	}
 	
+	public IValue make(IValueFactory valueFactory, String name,
+			IValue[] argValues, Map<String, IValue> keyArgValues) {
+		throw new IllegalOperationException("make tree constructor", this);
+	}
+	
 	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
 		throw new IllegalOperationException("make tree constructor", this);
 	}
@@ -804,7 +810,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		return 0;
 	}
 
-	public boolean hasDefaults() {
+	public boolean hasKeywordArguments() {
 		return false;
 	}
 	
@@ -815,6 +821,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	public int getPositionalArity() {
 		throw new IllegalOperationException("getIndexOfFirstDefault", this);
 	}
+
+
 
 //	public IValue getFieldDefault(int i) {
 //		throw new IllegalOperationException("getFieldDefault", this);

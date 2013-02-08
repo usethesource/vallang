@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 
@@ -79,6 +81,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     @Override
     public IValue make(IValueFactory f, String name, IValue... children) {
     	return f.node(name, children);
+    }
+    
+    @Override
+    public IValue make(IValueFactory f, String name, IValue[] children, Map<String,IValue> keyArgValues) {
+    	return f.node(name, children, keyArgValues);
     }
     
     @Override

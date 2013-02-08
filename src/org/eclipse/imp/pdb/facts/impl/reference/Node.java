@@ -38,12 +38,14 @@ public class Node extends Value implements INode {
     protected final String fName;
 	protected final HashMap<String, IValue> fAnnotations;
 	protected int fHash = 0;
+	protected final String[] keyArgNames;
 	
 	/*package*/ Node(String name, IValue[] children) {
 		super(TypeFactory.getInstance().nodeType());
 		fName = name;
 		fChildren = children.clone();
 		fAnnotations = EMPTY_ANNOTATIONS;
+		keyArgNames = null;
 	}
 	
 	/*package*/ Node(String name, Map<String,IValue> annos, IValue[] children) {
@@ -52,6 +54,7 @@ public class Node extends Value implements INode {
 		fChildren = children.clone();
 		fAnnotations = new HashMap<String,IValue>(annos.size());
 		fAnnotations.putAll(annos);
+		keyArgNames = null;
 	}
 	
 	protected Node(String name, Type type, IValue[] children) {
@@ -59,6 +62,35 @@ public class Node extends Value implements INode {
 		fName = name;
 		fChildren = children.clone();
 		fAnnotations = EMPTY_ANNOTATIONS;
+		keyArgNames = null;
+	}
+	
+	/*package*/ Node(String name, IValue[] children, Map<String, IValue> keyArgValues){
+		super(TypeFactory.getInstance().nodeType());
+		
+		this.fName = (name != null ? name.intern() : null); // Handle (weird) special case.
+		fAnnotations = EMPTY_ANNOTATIONS;
+		if(keyArgValues != null){
+			int nkw = keyArgValues.size();
+			IValue[] extendedChildren = new IValue[children.length + nkw];
+			for(int i = 0; i < children.length;i++){
+				extendedChildren[i] = children[i];
+			}
+
+			String keyArgNames[]= new String[nkw];
+			int k = 0;
+			for(String kw : keyArgValues.keySet()){
+				keyArgNames[k++] = kw;
+			}
+			for(int i = 0; i < nkw; i++){
+				extendedChildren[children.length + i] = keyArgValues.get(keyArgNames[i]);
+			}
+			this.fChildren = extendedChildren;
+			this.keyArgNames = keyArgNames;
+		} else {
+			this.fChildren = children;
+			this.keyArgNames = null;
+		}
 	}
 	
 	/**
@@ -74,6 +106,7 @@ public class Node extends Value implements INode {
 		fChildren = other.fChildren;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.put(label, anno);
+		keyArgNames = null;
 	}
 	
 	/**
@@ -86,6 +119,7 @@ public class Node extends Value implements INode {
 		fChildren = other.fChildren;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.remove(label);
+		keyArgNames = null;
 	}
 	
 	/**
@@ -97,6 +131,7 @@ public class Node extends Value implements INode {
 		fName = other.fName;
 		fChildren = other.fChildren;
 		fAnnotations = EMPTY_ANNOTATIONS;
+		keyArgNames = null;
 	}
 	
 	/*package*/ Node(String name) {
@@ -116,6 +151,7 @@ public class Node extends Value implements INode {
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
+		keyArgNames = null;
 	}
 	
 	/**
@@ -130,6 +166,7 @@ public class Node extends Value implements INode {
 		fChildren = other.fChildren.clone();
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		fAnnotations.putAll(annotations);
+		keyArgNames = null;
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
@@ -352,5 +389,35 @@ public class Node extends Value implements INode {
         IValue[] childArray = new IValue[newChildren.size()];
         newChildren.toArray(childArray);	
 		return new Node(fName, childArray);
+	}
+
+	@Override
+	public IValue getKeywordArgumentValue(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasKeywordArguments() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String[] getKeywordArgumentNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getKeywordIndex(String name) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int positionalArity() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

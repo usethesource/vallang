@@ -264,4 +264,11 @@ public class ValueFactory extends BaseValueFactory {
 		rw.append(tuples);
 		return rw.done();
 	}
+
+	@Override
+	public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
+			throws FactTypeUseException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

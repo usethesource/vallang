@@ -173,6 +173,12 @@ public class ValueFactory extends FastBaseValueFactory {
 		return new Node(name, children.clone());
 	}
 	
+	@Override
+	public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues)
+			throws FactTypeUseException {
+		return new Node(name, children.clone(), keyArgValues);
+	}
+	
 	public IConstructor constructor(Type constructorType) {
 		Type params = constructorType.getAbstractDataType().getTypeParameters();
 		if (!params.isVoidType()) {
@@ -253,5 +259,7 @@ public class ValueFactory extends FastBaseValueFactory {
 		
 		return elementType;
 	}
+
+	
 	
 }

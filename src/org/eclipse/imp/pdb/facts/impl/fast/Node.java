@@ -37,15 +37,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	protected final String name;
 	protected final IValue[] children;
+	protected final String[] keyArgNames;
 	
 	/*package*/ Node(String name, IValue[] children){
 		super();
 		
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
 		this.children = children;
+		this.keyArgNames = null;
 	}
 
-	public Node(String name, IList children) {
+	/*package*/ public Node(String name, IList children) {
 		super();
 		IValue[] childArray = new IValue[children.length()];
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
@@ -53,6 +55,35 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			childArray[i] = children.get(i);
 		}
 		this.children = childArray;
+		this.keyArgNames = null;
+	}
+	
+	/*package*/ Node(String name, IValue[] children, Map<String, IValue> keyArgValues){
+		super();
+		
+		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
+		
+		if(keyArgValues != null){
+			int nkw = keyArgValues.size();
+			IValue[] extendedChildren = new IValue[children.length + nkw];
+			for(int i = 0; i < children.length;i++){
+				extendedChildren[i] = children[i];
+			}
+
+			String keyArgNames[]= new String[nkw];
+			int k = 0;
+			for(String kw : keyArgValues.keySet()){
+				keyArgNames[k++] = kw;
+			}
+			for(int i = 0; i < nkw; i++){
+				extendedChildren[children.length + i] = keyArgValues.get(keyArgNames[i]);
+			}
+			this.children = extendedChildren;
+			this.keyArgNames = keyArgNames;
+		} else {
+			this.children = children;
+			this.keyArgNames = null;
+		}
 	}
 
 	public Type getType(){
@@ -63,12 +94,50 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return children.length;
 	}
 	
+	public int positionalArity(){
+		if(keyArgNames == null)
+			return children.length;
+		else
+			return children.length - keyArgNames.length;
+	}
+	
 	public IValue get(int i){
 		return children[i];
 	}
 	
 	public String getName(){
 		return name;
+	}
+	
+	@Override
+	public boolean hasKeywordArguments(){
+		return keyArgNames != null;
+	}
+	
+	@Override
+	public String[] getKeywordArgumentNames() {
+		return keyArgNames;
+	}
+	
+	@Override
+	public int getKeywordIndex(String name){
+		if(keyArgNames != null){
+			for(int i = 0; i < keyArgNames.length; i++){
+				if(name.equals(keyArgNames[i])){
+					return children.length - keyArgNames.length + i;
+				}
+			}
+		}
+		return -1;
+	}
+	
+	public IValue getKeywordArgumentValue(String name){
+		if(keyArgNames != null){
+			int k = getKeywordIndex(name);
+			if(k >= 0)
+				return children[k];
+		}
+		return null;
 	}
 	
 	public Iterator<IValue> iterator(){
@@ -191,7 +260,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			hash = (hash << 23) + (hash >> 5);
 			hash ^= children[i].hashCode();
 		}
-		
 		return hash;
 	}
 	
@@ -207,8 +275,23 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			IValue[] otherChildren = other.children;
 			int nrOfChildren = children.length;
 			if(otherChildren.length == nrOfChildren){
-				for(int i = nrOfChildren - 1; i >= 0; i--){
+				int nrOfPosChildren = positionalArity();
+				if(other.positionalArity() != nrOfPosChildren){
+					return false;
+				}
+				for(int i = nrOfPosChildren - 1; i >= 0; i--){
 					if(!otherChildren[i].equals(children[i])) return false;
+				}
+				if(nrOfPosChildren < nrOfChildren){
+					if(keyArgNames == null)
+						return false;
+					for(int i = 0; i < keyArgNames.length; i++){
+						String kw = keyArgNames[i];
+						int k = other.getKeywordIndex(kw);
+						if(k < 0 || !children[i].equals(otherChildren[k])){
+							return false;
+						}
+					}
 				}
 				return true;
 			}
@@ -230,16 +313,29 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			
 			IValue[] otherChildren = other.children;
 			int nrOfChildren = children.length;
+			
 			if(otherChildren.length == nrOfChildren){
-				for(int i = nrOfChildren - 1; i >= 0; i--){
-					if(!otherChildren[i].isEqual(children[i])) {
+				int nrOfPosChildren = positionalArity();
+				if(other.positionalArity() != nrOfPosChildren){
+					return false;
+				}
+				for(int i = nrOfPosChildren - 1; i >= 0; i--){
+					if(!otherChildren[i].isEqual(children[i])) return false;
+				}
+				if(nrOfPosChildren < nrOfChildren){
+					if(keyArgNames == null)
 						return false;
+					for(int i = 0; i < keyArgNames.length; i++){
+						String kw = keyArgNames[i];
+						int k = other.getKeywordIndex(kw);
+						if(k < 0 || !children[nrOfPosChildren + i].isEqual(otherChildren[k])){
+							return false;
+						}
 					}
 				}
 				return true;
 			}
 		}
-		
 		return false;
 	}
 	
@@ -310,4 +406,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 		return new Node(name, new ListWriter(VALUE_TYPE, newChildren).done());
 	}
+
+	
 }

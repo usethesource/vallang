@@ -267,4 +267,30 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		
 		throw new UnsupportedOperationException("Replace not supported on constructor.");
 	}
+	
+	@Override
+	public IValue getKeywordArgumentValue(String name) {
+		throw new UnsupportedOperationException("getKeyArgValue not supported on constructor.");
+	}
+
+	@Override
+	public boolean hasKeywordArguments() {
+		return false;
+	}
+
+	@Override
+	public String[] getKeywordArgumentNames() {
+		return constructorType.getFieldNames();
+	}
+
+	@Override
+	public int getKeywordIndex(String name) {
+		// TODO Auto-generated method stub
+		return constructorType.getFieldIndex(name);
+	}
+
+	@Override
+	public int positionalArity() {
+		return constructorType.getPositionalArity();
+	}
 }
