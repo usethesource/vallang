@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -41,6 +40,7 @@ public class ListRelation extends List implements IListRelation {
 	}
 	
 	public IListRelation closure() throws FactTypeUseException {
+		
 		Type resultType = getType().closure(); // will throw exception if not binary and reflexive
 		IListRelation tmp = this;
 
@@ -71,27 +71,6 @@ public class ListRelation extends List implements IListRelation {
 		}
 		
 		return (IListRelation) closure().concat(reflex.done());
-	}
-
-	public IListRelation compose(IRelation other) throws FactTypeUseException {
-		Type resultType = getType().compose(other.getType());
-		// an exception will have been thrown if the relations are not both binary and
-		// have a comparable field to compose.
-		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getFieldTypes());
-
-		for (IValue v1 : content) {
-			ITuple tuple1 = (ITuple) v1;
-			for (IValue t2 : other) {
-				ITuple tuple2 = (ITuple) t2;
-				
-				if (tuple1.get(1).isEqual(tuple2.get(0))) {
-					ITuple tup = new Tuple(tuple1.get(0), tuple2.get(1));
-					if(!content.contains(tup))
-						w.append(tup);
-				}
-			}
-		}
-		return w.done();
 	}
 
 	public IList carrier() {

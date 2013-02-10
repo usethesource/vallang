@@ -36,6 +36,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	protected final Type listType;
 	protected final Type elementType;
+	protected final static Type voidType = typeFactory.voidType();
+
 	
 	protected final ShareableValuesList data;
 	protected int hashCode = 0;
