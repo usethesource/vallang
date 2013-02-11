@@ -41,16 +41,27 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return this.elementType.getArity();
 	}
 	
+	private boolean isBinary(){
+		return elementType.getArity() == 2;
+	}
+	
 	public IListRelation closure() throws FactTypeUseException {
-		Type resultType = getType().closure(); // will throw exception if not binary and reflexive
+		if(elementType == voidType) return this;
+		if(!isBinary()) {
+			throw new IllegalOperationException("closure", listType);
+		}
+		
+		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
+		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);
+
 		IListRelation tmp = this;
 
 		int prevCount = 0;
 
 		while (prevCount != tmp.length()) {
 			prevCount = tmp.length();
-			IListRelation tcomp = this.compose(tmp);
-			IListRelationWriter w = ListRelation.createListRelationWriter(resultType.getElementType());
+			IListRelation tcomp = tmp.compose(tmp);
+			IListRelationWriter w = ListRelation.createListRelationWriter(tupleType);
 			for(IValue t1 : tcomp){
 				if(!tmp.contains(t1))
 					w.append(t1);
@@ -74,10 +85,21 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 
 	public IListRelation compose(IListRelation other) throws FactTypeUseException {
-		Type resultType = getType().compose(other.getType());
-		// an exception will have been thrown if the relations are not both binary and
-		// have a comparable field to compose.
-		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(resultType.getFieldTypes());
+		
+		Type otherTupleType = other.getFieldTypes();
+		
+		if(elementType == voidType) return this;
+		if(otherTupleType == voidType) return other;
+		
+		if(elementType.getArity() != 2 || otherTupleType.getArity() != 2) throw new IllegalOperationException("compose", elementType, otherTupleType);
+		
+		// Relexed type constraint:
+		// if(!elementType.getFieldType(1).comparable(otherTupleType.getFieldType(0))) throw new IllegalOperationException("compose", elementType, otherTupleType);
+
+		Type[] newTupleFieldTypes = new Type[]{elementType.getFieldType(0), otherTupleType.getFieldType(1)};
+		Type tupleType = typeFactory.tupleType(newTupleFieldTypes);
+
+		IListRelationWriter w = ValueFactory.getInstance().listRelationWriter(tupleType);
 
 		for (IValue v1 : data) {
 			ITuple tuple1 = (ITuple) v1;
