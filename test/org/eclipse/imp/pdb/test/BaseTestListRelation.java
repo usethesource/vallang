@@ -164,18 +164,6 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 		
 		try {
-			ITuple t1 = vf.tuple(integers[0], doubles[1]);
-			IListRelation rel = vf.listRelation(t1);
-			rel.closure();
-			fail("relation is not reflexive but no type error thrown");
-		}
-		catch (FactTypeUseException e) {
-			// this should happen
-		}
-		
-		
-		
-		try {
 			ITuple t1 = vf.tuple(integers[0], integers[1]);
 			ITuple t2 = vf.tuple(integers[1], integers[2]);
 			ITuple t3 = vf.tuple(integers[2], integers[3]);
