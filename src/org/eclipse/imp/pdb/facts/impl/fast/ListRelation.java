@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -40,33 +41,28 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public int arity() {
 		return this.elementType.getArity();
 	}
-	
-	private boolean isBinary(){
-		return elementType.getArity() == 2;
-	}
-	
-	public IListRelation closure() throws FactTypeUseException {
-		if(elementType == voidType) return this;
-		if(!isBinary()) {
-			throw new IllegalOperationException("closure", listType);
-		}
-		
-		Type tupleElementType = elementType.getFieldType(0).lub(elementType.getFieldType(1));
-		Type tupleType = typeFactory.tupleType(tupleElementType, tupleElementType);
 
+	public IListRelation closure() throws FactTypeUseException {
+		Type resultType = getType().closure(); // will throw exception if not binary and reflexive
 		IListRelation tmp = this;
 
 		int prevCount = 0;
 
+		ShareableValuesHashSet addedTuples = new ShareableValuesHashSet();
 		while (prevCount != tmp.length()) {
 			prevCount = tmp.length();
 			IListRelation tcomp = tmp.compose(tmp);
-			IListRelationWriter w = ListRelation.createListRelationWriter(tupleType);
+			IListRelationWriter w = ListRelation.createListRelationWriter(resultType.getElementType());
 			for(IValue t1 : tcomp){
-				if(!tmp.contains(t1))
-					w.append(t1);
+				if(!tmp.contains(t1)){
+					if(!addedTuples.contains(t1)){
+						addedTuples.add(t1);
+						w.append(t1);
+					}
+				}
 			}
-			tmp = (IListRelation) tmp.concat(w.done());
+			tmp = tmp.concat(w.done());
+			addedTuples.clear();
 		}
 		return tmp;
 	}
@@ -93,8 +89,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		
 		if(elementType.getArity() != 2 || otherTupleType.getArity() != 2) throw new IllegalOperationException("compose", elementType, otherTupleType);
 		
-		// Relexed type constraint:
-		// if(!elementType.getFieldType(1).comparable(otherTupleType.getFieldType(0))) throw new IllegalOperationException("compose", elementType, otherTupleType);
+		// Relaxed type constraint:
+	    if(!elementType.getFieldType(1).comparable(otherTupleType.getFieldType(0))) throw new IllegalOperationException("compose", elementType, otherTupleType);
 
 		Type[] newTupleFieldTypes = new Type[]{elementType.getFieldType(0), otherTupleType.getFieldType(1)};
 		Type tupleType = typeFactory.tupleType(newTupleFieldTypes);
