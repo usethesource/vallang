@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2012 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2012, 2013 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -8,10 +8,12 @@
 * Contributors:
 *    Arnold Lankamp - implementation
 *    Jurgen Vinju - implementation
+*    Michael Steindorfer - implementation
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -43,14 +45,23 @@ public class SourceLocationValues {
 	}
 	
 	private abstract static class Incomplete extends Value implements ISourceLocation {
-		protected final URI uri;
-
-		public Incomplete(URI uri) {
-			this.uri = uri;
+		protected final String uriString;
+		
+		public Incomplete(URI uri) {;
+			this.uriString = uri.toString().intern();
 		}
 		
 		public URI getURI() {
-			return uri;
+			try {
+				return new URI(uriString);
+			} catch (URISyntaxException e) {
+				/*
+				 * Should never happen. According to API following identity holds:
+				 * 		For any URI u, it is always the case that
+				 * 			new URI(u.toString()).equals(u) .
+				 */
+				return null;
+			}
 		}
 		
 		public Type getType(){
@@ -146,7 +157,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -162,7 +173,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -223,7 +234,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -239,7 +250,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -300,7 +311,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -316,7 +327,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				CharCharCharCharCharChar otherSourceLocation = (CharCharCharCharCharChar) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -336,7 +347,7 @@ public class SourceLocationValues {
 		}
 
 		public int hashCode(){
-			return uri.hashCode();
+			return uriString.hashCode();
 		}
 		
 		public boolean equals(Object o){
@@ -344,7 +355,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				OnlyURI otherSourceLocation = (OnlyURI) o;
-				return uri.equals(otherSourceLocation.uri);
+				return uriString.equals(otherSourceLocation.uriString);
 			}
 			
 			return false;
@@ -395,7 +406,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -411,7 +422,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				IntIntIntIntByteByte otherSourceLocation = (IntIntIntIntByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -468,7 +479,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -484,7 +495,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				IntIntCharCharByteByte otherSourceLocation = (IntIntCharCharByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -521,7 +532,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= (offset << 8);
 			hash ^= (length << 29);
 			
@@ -533,7 +544,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				ByteByte otherSourceLocation = (ByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (offset == otherSourceLocation.offset)
 						&& (length == otherSourceLocation.length));
 			}
@@ -566,7 +577,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= (offset << 8);
 			hash ^= (length << 29);
 			
@@ -578,7 +589,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				CharChar otherSourceLocation = (CharChar) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (offset == otherSourceLocation.offset)
 						&& (length == otherSourceLocation.length));
 			}
@@ -615,7 +626,7 @@ public class SourceLocationValues {
 		}
 		
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = uriString.hashCode();
 			hash ^= (offset << 8);
 			hash ^= (length << 29);
 			
@@ -627,7 +638,7 @@ public class SourceLocationValues {
 			
 			if(o.getClass() == getClass()){
 				IntInt otherSourceLocation = (IntInt) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (uriString.equals(otherSourceLocation.uriString)
 						&& (offset == otherSourceLocation.offset)
 						&& (length == otherSourceLocation.length));
 			}
