@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2009-2013 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Michael Steindorfer - performance improvements
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -97,18 +98,24 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	@SuppressWarnings("unchecked")
 	public ISet insert(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
-		newData.add(value);
-
-		Type type = elementType.lub(value.getType());
-		return createSetWriter(type, newData).done();
+		
+		if(newData.add(value)) {
+			Type type = elementType.lub(value.getType());
+			return createSetWriter(type, newData).done();
+		} else {
+			return this;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public ISet delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
-		newData.remove(value);
 		
-		return createSetWriter(elementType, newData).done();
+		if (newData.remove(value)) {
+			return createSetWriter(elementType, newData).done();
+		} else {
+			return this;
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
