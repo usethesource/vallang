@@ -1,16 +1,20 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -28,9 +32,12 @@ import org.eclipse.imp.pdb.facts.type.Type;
  * This class provides a default way of easily reusing existing implementations of IValueFactory without having
  * to extend them again and again using inheritance. Clients extend this class and override the methods that need 
  * special handling.
+ * 
+ * Note: this class is intended to be sub-classed. It should not be abstract because we want the compiler to 
+ * check that it provides a facade for the full IValueFactory interface.
  */
-public abstract class AbstractValueFactoryAdapter implements IValueFactory {
-	private final IValueFactory adapted;
+public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
+	protected final IValueFactory adapted;
 	
 	public AbstractValueFactoryAdapter(IValueFactory adapted) {
 		this.adapted = adapted;
@@ -199,4 +206,120 @@ public abstract class AbstractValueFactoryAdapter implements IValueFactory {
 	public ITuple tuple(IValue... args) {
 		return adapted.tuple(args);
 	}
+	
+	@Override
+	public IRational rational(int a, int b) {
+	 return adapted.rational(a,b);
+	}
+
+	@Override
+	public IRational rational(long a, long b) {
+	 return adapted.rational(a, b);
+	}
+
+	@Override
+	public IRational rational(IInteger a, IInteger b) {
+	 return adapted.rational(a, b);
+	}
+
+	@Override
+	public IRational rational(String rat) throws NumberFormatException {
+	  return adapted.rational(rat);
+	}
+
+	@Override
+	public IReal real(String s, int p) throws NumberFormatException {
+	  return adapted.real(s, p);
+	}
+
+	@Override
+	public IReal real(double d, int p) {
+	  return adapted.real(d, p);
+	}
+
+	@Override
+	public int getPrecision() {
+	  return adapted.getPrecision();
+	}
+
+	@Override
+	public int setPrecision(int p) {
+	  return adapted.setPrecision(p);
+	}
+
+	@Override
+	public IReal pi(int precision) {
+	  return adapted.pi(precision);
+	}
+
+	@Override
+	public IReal e(int precision) {
+	  return adapted.e(precision);
+	}
+
+	@Override
+	public IString string(int[] chars) throws IllegalArgumentException {
+	  return adapted.string(chars);
+	}
+
+	@Override
+	public IString string(int ch) throws IllegalArgumentException {
+	  return adapted.string(ch);
+	}
+
+	@Override
+	public ISourceLocation sourceLocation(URI uri, int offset, int length) {
+	  return adapted.sourceLocation(uri, offset, length);
+	}
+
+	@Override
+	public ITuple tuple(Type type, IValue... args) {
+	  return adapted.tuple(type, args);
+	}
+
+	@Override
+	public INode node(String name, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
+	  return adapted.node(name, annotations, children);
+	}
+
+	@Override
+	public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues) throws FactTypeUseException {
+	  return adapted.node(name, children, keyArgValues);
+	}
+
+	@Override
+	public IListRelation listRelation(Type tupleType) {
+	  return adapted.listRelation(tupleType);
+	}
+
+	@Override
+	public IListRelation listRelation(IValue... elems) {
+	  return adapted.listRelation(elems);
+	}
+
+	@Override
+	public IListRelationWriter listRelationWriter(Type type) {
+	  return adapted.listRelationWriter(type);
+	}
+
+	@Override
+	public IListRelationWriter listRelationWriter() {
+	  return adapted.listRelationWriter();
+	}
+
+	@Override
+	public IMap map(Type mapType) {
+	  return adapted.map(mapType);
+	}
+
+	@Override
+	public IMapWriter mapWriter(Type mapType) {
+	 return adapted.mapWriter(mapType);
+	}
+
+  @Override
+  public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children)
+      throws FactTypeUseException {
+   return adapted.constructor(constructor, annotations, children);
+  }
 }
