@@ -146,16 +146,20 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			theOtherMap = other;
 		}
 		
+		Type newKeyType = TypeFactory.getInstance().voidType();
+		Type newValueType = TypeFactory.getInstance().voidType();
 		while(entryIterator.hasNext()){
 			Entry<IValue, IValue> entry = entryIterator.next();
 			IValue key = entry.getKey();
 			IValue value = entry.getValue();
 			if(value.isEqual(theOtherMap.get(key))){
+				newKeyType = newKeyType.lub(key.getType());
+				newValueType = newValueType.lub(value.getType());
 				commonData.put(key, value);
 			}
 		}
-
-		return new MapWriter(mapType.lub(other.getType()), commonData).done();
+		Type lub = mapType.lub(other.getType());
+		return new MapWriter(TypeFactory.getInstance().mapType(newKeyType, lub.getKeyLabel(), newValueType, lub.getValueLabel()), commonData).done();
 	}
 	
 	public IMap compose(IMap other){
@@ -207,7 +211,16 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			newData.remove(keysIterator.next());
 		}
 		
-		return new MapWriter(mapType, newData).done();
+		Type newKeyType = TypeFactory.getInstance().voidType();
+		Type newValueType = TypeFactory.getInstance().voidType();
+		Iterator<Entry<IValue, IValue>> entryIterator = newData.entryIterator();
+		while(entryIterator.hasNext()) {
+			Entry<IValue, IValue> el = entryIterator.next();
+			newKeyType = newKeyType.lub(el.getKey().getType());
+			newValueType = newValueType.lub(el.getValue().getType());
+		}
+			
+		return new MapWriter(TypeFactory.getInstance().mapType(newKeyType, mapType.getKeyLabel(), newValueType, mapType.getValueLabel()), newData).done();
 	}
 	
 	public int hashCode(){

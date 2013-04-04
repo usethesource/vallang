@@ -206,7 +206,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(index);
 		
-		return (ListOrRel) new ListWriter(elementType, newData).done();
+		Type newElementType = TypeFactory.getInstance().voidType();
+		for(IValue el : newData)
+			newElementType = newElementType.lub(el.getType());
+		
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -214,7 +218,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(element);
 		
-		return (ListOrRel) new ListWriter(elementType, newData).done();
+		Type newElementType = TypeFactory.getInstance().voidType();
+		for(IValue el : newData)
+				newElementType = newElementType.lub(el.getType());
+		
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -229,7 +237,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	public  <ListOrRel extends IList> ListOrRel sublist(int offset, int length){
 		ShareableValuesList newData = data.subList(offset, length);
 		
-		return (ListOrRel) new ListWriter(elementType, newData).done();
+		Type newElementType = TypeFactory.getInstance().voidType();
+		for(IValue el : newData)
+			newElementType = newElementType.lub(el.getType());
+		
+		return (ListOrRel) new ListWriter(newElementType, newData).done();
 	}
 	
 	public int hashCode(){
@@ -285,7 +297,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	@SuppressWarnings("unchecked")
 	public <ListOrRel extends IList> ListOrRel intersect(IList other) {
-		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
+		IListWriter w = ValueFactory.getInstance().listWriter();
 		List o = (List) other;
 		
 		for(IValue v : data){
@@ -299,7 +311,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	@SuppressWarnings("unchecked")
 	public <ListOrRel extends IList> ListOrRel subtract(IList lst) {
-		IListWriter w = ValueFactory.getInstance().listWriter(lst.getElementType().lub(getElementType()));
+		IListWriter w = ValueFactory.getInstance().listWriter();
 		for (IValue v: this.data) {
 			if (lst.contains(v)) {
 				lst = lst.delete(v);

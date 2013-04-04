@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.RotatingQueue;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 import org.eclipse.imp.pdb.facts.util.ValueIndexedHashMap;
@@ -59,9 +60,16 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	public IRelation delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
-		newData.remove(value);
 		
-		return new RelationWriter(elementType, newData).done();
+		if(newData.remove(value)) {
+			Type newElementType = TypeFactory.getInstance().voidType();
+			for(IValue el : newData)
+				newElementType = newElementType.lub(el.getType());
+			return new RelationWriter(newElementType, newData).done();
+		}
+		else {
+			return this;
+		}
 	}
 	
 	public IRelation subtract(ISet set){
@@ -72,7 +80,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			newData.remove(setIterator.next());
 		}
 		
-		return new RelationWriter(elementType, newData).done();
+		Type newElementType = TypeFactory.getInstance().voidType();
+		for(IValue el : newData)
+			newElementType = newElementType.lub(el.getType());
+		
+		return new RelationWriter(newElementType, newData).done();
 	}
 	
 	private ShareableValuesHashSet computeCarrier(){

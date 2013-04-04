@@ -112,7 +112,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
 		if (newData.remove(value)) {
-			return createSetWriter(elementType, newData).done();
+			Type newElementType = TypeFactory.getInstance().voidType();
+			for(IValue el : newData)
+				newElementType = newElementType.lub(el.getType());
+			return createSetWriter(newElementType, newData).done();
 		} else {
 			return this;
 		}
@@ -133,15 +136,16 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			theOtherSet = other;
 		}
 		
+		Type newElementType = TypeFactory.getInstance().voidType();
 		while(setIterator.hasNext()){
 			IValue value = setIterator.next();
 			if(theOtherSet.contains(value)){
+				newElementType = newElementType.lub(value.getType());
 				commonData.add(value);
 			}
 		}
 		
-		Type type = elementType.lub(other.getElementType());
-		return createSetWriter(type, commonData).done();
+		return createSetWriter(newElementType, commonData).done();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -152,8 +156,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		while(setIterator.hasNext()){
 			newData.remove(setIterator.next());
 		}
-		
-		return createSetWriter(elementType, newData).done();
+		Type newElementType = TypeFactory.getInstance().voidType();
+		for(IValue el : newData)
+			newElementType = newElementType.lub(el.getType());
+		return createSetWriter(newElementType, newData).done();
 	}
 	
 	@SuppressWarnings("unchecked")
