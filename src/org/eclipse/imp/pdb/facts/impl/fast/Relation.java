@@ -7,6 +7,7 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
+*    Michael Steindorfer - performance improvements
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
@@ -52,10 +53,13 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	public ISet insert(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
-		newData.add(value);
 		
-		Type type = getElementType().lub(value.getType());
-		return createSetWriter(type, newData).done();
+		if(newData.add(value)) {
+			Type type = elementType.lub(value.getType());
+			return createSetWriter(type, newData).done();
+		} else {
+			return this;
+		}
 	}
 
 	public IRelation delete(IValue value){
