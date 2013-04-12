@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.impl;
 import java.nio.CharBuffer;
 
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;

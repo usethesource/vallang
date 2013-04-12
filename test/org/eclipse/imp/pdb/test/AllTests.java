@@ -32,24 +32,24 @@ public class AllTests {
 		suite.addTestSuite(TestIO.class);
 		suite.addTestSuite(TestBinaryIO.class);
 
-		addReferenceTests(suite);
+//		addReferenceTests(suite);
 		addFastTests(suite);
 		
 		return suite;
 	}
 
-	private static void addReferenceTests(TestSuite suite) {
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestAnnotations.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestBasicValues.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestEquality.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestList.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestListRelation.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestMap.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRandomValues.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRelation.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestSet.class);
-		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestValueFactory.class);
-	}
+//	private static void addReferenceTests(TestSuite suite) {
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestAnnotations.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestBasicValues.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestEquality.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestList.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestListRelation.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestMap.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRandomValues.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestRelation.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestSet.class);
+//		suite.addTestSuite(org.eclipse.imp.pdb.test.reference.TestValueFactory.class);
+//	}
 
 	private static void addFastTests(TestSuite suite) {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestAnnotations.class);

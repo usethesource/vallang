@@ -16,8 +16,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -136,19 +134,19 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 		return adapted.real(d);
 	}
 
-	public IRelation relation(Type tupleType) {
+	public ISet relation(Type tupleType) {
 		return adapted.relation(tupleType);
 	}
 
-	public IRelation relation(IValue... elems) {
+	public ISet relation(IValue... elems) {
 		return adapted.relation(elems);
 	}
 
-	public IRelationWriter relationWriter(Type type) {
+	public ISetWriter relationWriter(Type type) {
 		return adapted.relationWriter(type);
 	}
 
-	public IRelationWriter relationWriter() {
+	public ISetWriter relationWriter() {
 		return adapted.relationWriter();
 	}
 

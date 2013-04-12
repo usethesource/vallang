@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.INode;
@@ -86,14 +85,14 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 	}
 
 	@Override
-	public IValue visitRelation(IRelation o) throws VisitorException {
-		ISetWriter w = fFactory.relationWriter(o.getFieldTypes());
+	public IValue visitRelation(ISet o) throws VisitorException {
+		ISetWriter w = fFactory.relationWriter(o.getType().getFieldTypes());
 		
 		for (IValue tuple : o) {
 			w.insert((ITuple) tuple.accept(this));
 		}
 		
-		return fVisitor.visitRelation((IRelation) w.done());
+		return fVisitor.visitRelation(w.done());
 	}
 	
 	@Override

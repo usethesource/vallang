@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -54,7 +53,7 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 		return null;
 	}
 
-	public T visitRelation(IRelation o)  throws VisitorException{
+	public T visitRelation(ISet o)  throws VisitorException{
 		return null;
 	}
 

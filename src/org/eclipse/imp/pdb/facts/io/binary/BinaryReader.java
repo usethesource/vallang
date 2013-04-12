@@ -31,8 +31,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -612,12 +610,12 @@ public class BinaryReader{
 		return setWriter.done();
 	}
 	
-	private IRelation readRelation(int header) throws IOException{
+	private ISet readRelation(int header) throws IOException{
 		Type elementType = readType(header);
 		
 		int length = parseInteger();
 		
-		IRelationWriter relationWriter = valueFactory.relationWriter(elementType);
+		ISetWriter relationWriter = valueFactory.relationWriter(elementType);
 		for(int i = 0; i < length; i++){
 			relationWriter.insert(deserialize());
 		}

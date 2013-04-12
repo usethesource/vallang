@@ -412,27 +412,27 @@ public interface IValueFactory {
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
-    public IRelation relation(Type tupleType);
+    public ISet relation(Type tupleType);
     
     /**
      * Constructs a relation writer, using the provided tuple type as a schema
      * @param type of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
-    public IRelationWriter relationWriter(Type type);
+    public ISetWriter relationWriter(Type type);
     
     /**
      * Constructs a relation writer, which infers its type from the tuples given while
      * writing to the relation.
      */
-    public IRelationWriter relationWriter();
+    public ISetWriter relationWriter();
     
     /**
      * Construct a relation with a fixed number of tuples in it
      * @param elems an array or variable length argument list of tuples
      * @return a relation containing a number of elements
      */
-    public IRelation relation(IValue... elems);
+    public ISet relation(IValue... elems);
     
     /**
      * Creates an empty unmodifiable map.

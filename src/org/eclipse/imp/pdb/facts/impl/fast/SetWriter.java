@@ -113,12 +113,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	
 	public ISet done(){
 		if (constructedSet == null) {
-			if (inferred && elementType.isTupleType() || data.isEmpty()) {
-				constructedSet = new Relation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
-			}
-			else {
-				constructedSet = new Set(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
-			}
+			constructedSet = new Set(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
 		}
 		
 		return constructedSet;
