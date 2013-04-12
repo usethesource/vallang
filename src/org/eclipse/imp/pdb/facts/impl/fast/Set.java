@@ -13,8 +13,10 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -26,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Set extends Value implements ISet{
+/*package*/ class Set extends Value implements ISet {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	
@@ -91,7 +93,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet insert(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
@@ -103,7 +104,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public ISet delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
@@ -117,7 +117,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet intersect(ISet other){
 		ShareableValuesHashSet commonData = new ShareableValuesHashSet();
 		Iterator<IValue> setIterator;
@@ -144,7 +143,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return new SetWriter(newElementType, commonData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
@@ -158,7 +156,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return new SetWriter(newElementType, newData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet union(ISet other){
 		ShareableValuesHashSet newData;
 		Iterator<IValue> setIterator;
@@ -233,6 +230,20 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 		
 		return false;
+	}
+
+	@Override
+	public boolean isRelation() {
+		return getType().isRelationType();
+	}
+
+	@Override
+	public IRelationalAlgebra<ISet> asRelation() {
+		if (!isRelation())
+			throw new IllegalOperationException(
+					"Cannot be viewed as a relation.", getType());
+
+		return new RelationViewOnSet(this);
 	}
 	
 }

@@ -331,7 +331,7 @@ public class RelationalOperations {
 	}
 	
 	// TODO: Currently untested in PDB.
-	public static ISet select(ISet rel1, int... indexes){
+	public static ISet project(ISet rel1, int... indexes){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
 		
 		Iterator<IValue> dataIterator = ((Set)rel1).data.iterator();
@@ -346,7 +346,7 @@ public class RelationalOperations {
 	}
 	
 	// TODO: Currently untested in PDB.
-	public static ISet selectByFieldNames(ISet rel1, String... fields){
+	public static ISet projectByFieldNames(ISet rel1, String... fields){
 		if(!rel1.getElementType().hasFieldNames()) throw new IllegalOperationException("select with field names", rel1.getType());
 		
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
