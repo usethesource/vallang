@@ -27,6 +27,11 @@ public class RelationViewOnSet implements IRelationalAlgebra<ISet> {
 	}
 	
 	@Override
+	public int arity() {
+		return rel1.getElementType().getArity();
+	}	
+	
+	@Override
 	public ISet project(int... fieldIndexes) {
 		return RelationalOperations.project(rel1, fieldIndexes);
 	}
