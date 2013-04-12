@@ -1,6 +1,6 @@
 package org.eclipse.imp.pdb.facts;
 
-public interface ISetAlgebra<T> {
+public interface ISetAlgebra<T extends ISetAlgebra<T>> {
     
     T union     (T collection);
     T intersect (T collection);

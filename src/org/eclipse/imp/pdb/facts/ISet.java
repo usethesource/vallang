@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public interface ISet extends Iterable<IValue>, IValue {
+public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
 	/**
 	 * @return the type of the elements in this set
 	 */
@@ -44,29 +44,29 @@ public interface ISet extends Iterable<IValue>, IValue {
      */
     public ISet insert(IValue element);
 
-    /**
-     * Computes the union of two sets
-     * @param <SetOrRel> ISet when the result will be a set, IRelation when it will be a relation.
-     * @param element
-     * @return a relation if the element type is a tuple type, a set otherwise
-     */
-    public ISet union(ISet set);
-    
-    /**
-     * Computes the intersection of two sets
-     * @param <SetOrRel> ISet when the result will be a set, IRelation when it will be a relation.
-     * @param element
-     * @return a relation if the element type is a tuple type, a set otherwise
-     */
-    public ISet intersect(ISet set);
-    
-    /**
-     * Subtracts one set from the other
-     * @param <SetOrRel>
-     * @param set
-     * @return a relation if the element type is a tuple type, a set otherwise
-     */
-    public ISet subtract(ISet set);
+//    /**
+//     * Computes the union of two sets
+//     * @param <SetOrRel> ISet when the result will be a set, IRelation when it will be a relation.
+//     * @param element
+//     * @return a relation if the element type is a tuple type, a set otherwise
+//     */
+//    public ISet union(ISet set);
+//    
+//    /**
+//     * Computes the intersection of two sets
+//     * @param <SetOrRel> ISet when the result will be a set, IRelation when it will be a relation.
+//     * @param element
+//     * @return a relation if the element type is a tuple type, a set otherwise
+//     */
+//    public ISet intersect(ISet set);
+//    
+//    /**
+//     * Subtracts one set from the other
+//     * @param <SetOrRel>
+//     * @param set
+//     * @return a relation if the element type is a tuple type, a set otherwise
+//     */
+//    public ISet subtract(ISet set);
     
     /**
      * Delete one element from the set.
@@ -88,4 +88,9 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @return true if all elements of this set are elements of the other.
      */
     public boolean isSubsetOf(ISet other);
+        
+    public boolean isRelation();
+    
+    public IRelationalAlgebra<ISet> asRelation();
+    
 }

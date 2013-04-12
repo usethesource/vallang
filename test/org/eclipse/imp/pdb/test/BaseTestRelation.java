@@ -527,8 +527,8 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testCarrier() {
-		ISet carrier = carrier(integerRelation);
-		
+		ISet carrier = integerRelation.asRelation().carrier();
+
 		if (!carrier.isEqual(setOfIntegers)) {
 			fail("carrier should be equal to this set");
 		}
