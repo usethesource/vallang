@@ -128,9 +128,9 @@ public final class SetFunctions {
         return false;
     }
 
-    public static IRelation product(IValueFactory vf, ISet set1, ISet set2) {
+    public static ISet product(IValueFactory vf, ISet set1, ISet set2) {
         Type resultType = TypeFactory.getInstance().tupleType(set1.getElementType(), set2.getElementType());
-        IRelationWriter w = vf.relationWriter(resultType);
+        ISetWriter w = vf.relationWriter(resultType);
 
         for (IValue t1 : set1) {
             for (IValue t2 : set2) {
@@ -156,7 +156,7 @@ public final class SetFunctions {
         return tmp;
     }
 
-    public static IRelation closureStar(IValueFactory vf, ISet set1) throws FactTypeUseException {
+    public static ISet closureStar(IValueFactory vf, ISet set1) throws FactTypeUseException {
         Type resultType = set1.getType().closure();
         // an exception will have been thrown if the type is not acceptable
 

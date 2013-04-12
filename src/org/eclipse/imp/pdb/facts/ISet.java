@@ -42,7 +42,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel insert(IValue element);
+    public ISet insert(IValue element);
 
     /**
      * Computes the union of two sets
@@ -50,7 +50,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel union(ISet set);
+    public ISet union(ISet set);
     
     /**
      * Computes the intersection of two sets
@@ -58,7 +58,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param element
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel intersect(ISet set);
+    public ISet intersect(ISet set);
     
     /**
      * Subtracts one set from the other
@@ -66,7 +66,7 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param set
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel subtract(ISet set);
+    public ISet subtract(ISet set);
     
     /**
      * Delete one element from the set.
@@ -74,14 +74,14 @@ public interface ISet extends Iterable<IValue>, IValue {
      * @param set
      * @return a relation if the element type is a tuple type, a set otherwise
      */
-    public <SetOrRel extends ISet> SetOrRel delete(IValue elem);
+    public ISet delete(IValue elem);
     
     /**
      * Computes the Cartesian product of two sets
      * @param set
      * @return a relation representing the Cartesian product
      */
-    public IRelation product(ISet set);
+    public ISet product(ISet set);
     
     /**
      * @param other

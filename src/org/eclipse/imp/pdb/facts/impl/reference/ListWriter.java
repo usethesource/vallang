@@ -172,7 +172,7 @@ import java.util.LinkedList;
     		eltType = eltType.lub(el.getType());
     	// ---
         if (constructedList == null) {
-            constructedList = ListOrRel.apply(eltType, listContent);
+            constructedList = new List(eltType, listContent);
         }
 
         return constructedList;

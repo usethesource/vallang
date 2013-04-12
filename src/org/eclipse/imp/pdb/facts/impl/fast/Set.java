@@ -13,9 +13,7 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -40,22 +38,16 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	/*package*/ Set(Type elementType, ShareableValuesHashSet data){
 		super();
 		
-		this.setType = typeFactory.setType(elementType);
+		if (elementType.isTupleType())
+			this.setType = typeFactory.relTypeFromTuple(elementType);
+		else
+			this.setType = typeFactory.setType(elementType);
 		
 		this.elementType = elementType;
 		
 		this.data = data;
 	}
 	
-	/*package*/ Set(Type subTypeOfSet, Type elementType, ShareableValuesHashSet data){
-		super();
-		
-		this.setType = subTypeOfSet;
-		this.elementType = elementType;
-		
-		this.data = data;
-	}
-
 	public Type getType(){
 		return setType;
 	}
@@ -77,7 +69,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-		return v.visitSet(this);
+		if (getElementType().isTupleType()) {
+			return v.visitRelation(this);
+		} else {
+			return v.visitSet(this);
+		}
 	}
 	
 	public boolean contains(IValue element){
@@ -101,7 +97,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		
 		if(newData.add(value)) {
 			Type type = elementType.lub(value.getType());
-			return createSetWriter(type, newData).done();
+			return new SetWriter(type, newData).done();
 		} else {
 			return this;
 		}
@@ -115,7 +111,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			Type newElementType = TypeFactory.getInstance().voidType();
 			for(IValue el : newData)
 				newElementType = newElementType.lub(el.getType());
-			return createSetWriter(newElementType, newData).done();
+			return new SetWriter(newElementType, newData).done();
 		} else {
 			return this;
 		}
@@ -145,7 +141,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			}
 		}
 		
-		return createSetWriter(newElementType, commonData).done();
+		return new SetWriter(newElementType, commonData).done();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -159,7 +155,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		Type newElementType = TypeFactory.getInstance().voidType();
 		for(IValue el : newData)
 			newElementType = newElementType.lub(el.getType());
-		return createSetWriter(newElementType, newData).done();
+		return new SetWriter(newElementType, newData).done();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -182,10 +178,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 		
 		Type newElementType = elementType.lub(otherSet.elementType);
-		return createSetWriter(newElementType, newData).done();
+		return new SetWriter(newElementType, newData).done();
 	}
 	
-	public IRelation product(ISet other){
+	public ISet product(ISet other){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
 		
 		Type tupleType = typeFactory.tupleType(elementType, other.getElementType());
@@ -203,7 +199,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			}
 		}
 		
-		return new RelationWriter(tupleType, newData).done();
+		return new SetWriter(tupleType, newData).done();
 	}
 	
 	public int hashCode(){
@@ -239,11 +235,4 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return false;
 	}
 	
-	
-	
-	protected static ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
-		if(elementType.isTupleType()) return new RelationWriter(elementType, data);
-		
-		return new SetWriter(elementType, data);
-	}
 }

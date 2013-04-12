@@ -145,12 +145,11 @@ public abstract class AbstractList extends Value implements IList {
 
     @Override
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-//        if (getElementType().isTupleType()) {
-//            return v.visitListRelation(this);
-//        } else {
-//            return v.visitList(this);
-//        }
-        return v.visitList(this);
+        if (getElementType().isTupleType()) {
+            return v.visitListRelation(this);
+        } else {
+            return v.visitList(this);
+        }
     }
 
 }

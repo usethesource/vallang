@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -175,10 +174,11 @@ public class BinaryWriter{
 			else writeAnnotatedNode(node);
 		}else if(value instanceof IList){
 			writeList((IList) value);
-		}else if(value instanceof IRelation){
-			writeRelation((IRelation) value);
 		}else if(value instanceof ISet){
-			writeSet((ISet) value);
+			if (((ISet)value).getType().isRelationType())
+				writeRelation((ISet) value);
+			else
+				writeSet((ISet) value);
 		}else if(value instanceof IMap){
 			writeMap((IMap) value);
 		}
@@ -579,7 +579,7 @@ public class BinaryWriter{
 		}
 	}
 	
-	private void writeRelation(IRelation relation) throws IOException{
+	private void writeRelation(ISet relation) throws IOException{
 		Type elementType = relation.getElementType();
 		int elementTypeId = sharedTypes.get(elementType);
 		

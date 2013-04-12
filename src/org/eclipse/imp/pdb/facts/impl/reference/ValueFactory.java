@@ -21,8 +21,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -47,12 +45,12 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		super();
 	}
 	
-	public IRelation relation(Type tupleType) {
+	public ISet relation(Type tupleType) {
 		checkNull(tupleType);
 		return relationWriter(tupleType).done();
 	}
 	
-	public IRelation relation(IValue... tuples) {
+	public ISet relation(IValue... tuples) {
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
@@ -63,16 +61,16 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		
 		ISetWriter rw = setWriter(elementType);
 		rw.insert(tuples);
-		return (IRelation) rw.done();
+		return rw.done();
 	}
 	
-	public IRelationWriter relationWriter(Type tupleType) {
+	public ISetWriter relationWriter(Type tupleType) {
 		checkNull(tupleType);
-		return new RelationWriter(tupleType);
+		return new SetWriter(tupleType);
 	}
 	
-	public IRelationWriter relationWriter() {
-		return new RelationWriter();
+	public ISetWriter relationWriter() {
+		return new SetWriter();
 	}
 
 	public ISet set(Type eltType){
@@ -82,10 +80,6 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 	
 	public ISetWriter setWriter(Type eltType) {
 		checkNull(eltType);
-		if (eltType.isTupleType()) {
-			return relationWriter(eltType);
-		}
-		
 		return new SetWriter(eltType);
 	}
 	

@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -88,7 +87,7 @@ public abstract class AbstractSet extends Value implements ISet {
     }
 
     @Override
-    public IRelation product(ISet that) {
+    public ISet product(ISet that) {
         return SetFunctions.product(getValueFactory(), this, that);
     }
 
@@ -109,12 +108,11 @@ public abstract class AbstractSet extends Value implements ISet {
 
     @Override
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-//        if (getElementType().isTupleType()) {
-//            return v.visitRelation(this);
-//        } else {
-//            return v.visitSet(this);
-//        }
-        return v.visitSet(this);
+        if (getElementType().isTupleType()) {
+            return v.visitRelation(this);
+        } else {
+            return v.visitSet(this);
+        }
     }
 
 }

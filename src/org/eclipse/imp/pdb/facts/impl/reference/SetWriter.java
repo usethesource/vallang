@@ -94,7 +94,7 @@ import java.util.HashSet;
     		eltType = eltType.lub(el.getType());
     	// ---
         if (constructedSet == null) {
-            constructedSet = SetOrRel.apply(eltType, setContent);
+            constructedSet = new Set(eltType, setContent);
         }
 
         return constructedSet;

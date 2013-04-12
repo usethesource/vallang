@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IRelationWriter;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -157,7 +157,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
-	public IRelationWriter writer(IValueFactory f) {
+	public ISetWriter writer(IValueFactory f) {
 		return f.relationWriter(fEltType);
 	}
 }

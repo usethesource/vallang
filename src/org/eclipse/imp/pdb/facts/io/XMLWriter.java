@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -199,7 +198,8 @@ public class XMLWriter implements IValueTextWriter {
 
 	private Node yieldRelation(INode node, Document doc) {
 		Element treeNode = doc.createElement(node.getName());
-		IRelation relation = (IRelation) node.get(0);
+		ISet relation = (ISet) node.get(0);
+		assert (relation.getType().isRelationType());
 		 
 		for (IValue tuple : relation) {
 			appendTupleElements(doc, treeNode, tuple);
