@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
@@ -272,7 +271,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitListRelation(IListRelation o)
+		public IValue visitListRelation(IList o)
 				throws VisitorException {
 			visitList(o);
 			return o;

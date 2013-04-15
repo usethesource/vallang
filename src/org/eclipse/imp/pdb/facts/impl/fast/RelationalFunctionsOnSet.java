@@ -25,12 +25,7 @@ import org.eclipse.imp.pdb.facts.util.RotatingQueue;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 import org.eclipse.imp.pdb.facts.util.ValueIndexedHashMap;
 
-/**
- * Implementation of ISet.
- * 
- * @author Arnold Lankamp
- */
-public class RelationalOperations {
+public class RelationalFunctionsOnSet {
 		
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();	

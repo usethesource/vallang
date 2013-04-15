@@ -1,6 +1,10 @@
 package org.eclipse.imp.pdb.facts;
 
-public interface IRelationalAlgebra<T extends ISetAlgebra<T>> {	
+/*
+ * Desired: 
+ * public interface IRelationalAlgebra<T extends ISetAlgebra<T>>
+ */
+public interface IRelationalAlgebra<T> {	
 	
 	T compose(T other);
 	T closure();

@@ -385,27 +385,27 @@ public interface IValueFactory {
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
      */
-    public IListRelation listRelation(Type tupleType);
+    public IList listRelation(Type tupleType);
     
     /**
      * Construct a list relation with a fixed number of tuples in it
      * @param elems an array or variable length argument list of tuples
      * @return a list relation containing a number of elements
      */
-    public IListRelation listRelation(IValue... elems);
+    public IList listRelation(IValue... elems);
     
     /**
      * Constructs a list relation writer, using the provided tuple type as a schema
      * @param type of type TupleType &lt;t1,...,tn&gt;
      * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
      */
-    public IListRelationWriter listRelationWriter(Type type);
+    public IListWriter listRelationWriter(Type type);
     
     /**
      * Constructs a list relation writer, which infers its type from the tuples given while
      * writing to the list relation.
      */
-    public IListRelationWriter listRelationWriter();
+    public IListWriter listRelationWriter();
     
     /**
      * Constructs an new empty unmodifiable relation, using the provided tuple type as a schema
