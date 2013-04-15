@@ -91,6 +91,6 @@ public interface ISet extends ISetAlgebra<ISet>, Iterable<IValue>, IValue {
         
     public boolean isRelation();
     
-    public IRelationalAlgebra<ISet> asRelation();
+    public ISetRelation<ISet> asRelation();
     
 }

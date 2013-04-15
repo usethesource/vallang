@@ -4,18 +4,18 @@ package org.eclipse.imp.pdb.facts;
  * Desired: 
  * public interface IRelationalAlgebra<T extends ISetAlgebra<T>>
  */
-public interface IRelationalAlgebra<T> {	
+public interface IRelationalAlgebra<R, A1 extends IRelationalAlgebra<R, A1>> {	
 	
-	T compose(T other);
-	T closure();
-	T closureStar();
+	R compose(A1 other);
+	R closure();
+	R closureStar();
 
 	int arity();
-	T project(int... fields);
-	T projectByFieldNames(String... fields);
+	R project(int... fields);
+	R projectByFieldNames(String... fields);
 
-	T carrier();
-	T domain();
-	T range();
+	R carrier();
+	R domain();
+	R range();
 
 }

@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public interface IList extends Iterable<IValue>, IValue {
+public interface IList extends IListAlgebra<IList>, Iterable<IValue>, IValue {
 	/**
 	 * @return the type of the elements in the list
 	 */
@@ -154,6 +154,6 @@ public interface IList extends Iterable<IValue>, IValue {
 
     public boolean isRelation();
     
-    public IRelationalAlgebra<IList> asRelation();
+    public IListRelation<IList> asRelation();
 
 }

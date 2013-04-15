@@ -1,9 +1,9 @@
 package org.eclipse.imp.pdb.facts.impl.fast;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
+import org.eclipse.imp.pdb.facts.IListRelation;
 
-public class RelationViewOnList implements IRelationalAlgebra<IList> {
+public class RelationViewOnList implements IListRelation<IList> {
 
 	protected final IList rel1;
 	
@@ -12,8 +12,8 @@ public class RelationViewOnList implements IRelationalAlgebra<IList> {
 	}
 
 	@Override
-	public IList compose(IList rel2) {
-		return RelationalFunctionsOnList.compose(rel1, rel2);
+	public IList compose(IListRelation<IList> rel2) {
+		return RelationalFunctionsOnList.compose(rel1, rel2.asList());
 	}
 
 	@Override
@@ -54,6 +54,11 @@ public class RelationViewOnList implements IRelationalAlgebra<IList> {
 	@Override
 	public IList range() {
 		return RelationalFunctionsOnList.range(rel1);
+	}
+
+	@Override
+	public IList asList() {
+		return rel1;
 	}
 
 }

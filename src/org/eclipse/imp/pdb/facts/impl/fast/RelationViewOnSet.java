@@ -1,9 +1,9 @@
 package org.eclipse.imp.pdb.facts.impl.fast;
 
-import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetRelation;
 
-public class RelationViewOnSet implements IRelationalAlgebra<ISet> {
+public class RelationViewOnSet implements ISetRelation<ISet> {
 
 	protected final ISet rel1;
 	
@@ -12,8 +12,8 @@ public class RelationViewOnSet implements IRelationalAlgebra<ISet> {
 	}
 	
 	@Override
-	public ISet compose(ISet rel2) {
-		return RelationalFunctionsOnSet.compose(rel1, rel2);
+	public ISet compose(ISetRelation<ISet> rel2) {
+		return RelationalFunctionsOnSet.compose(rel1, rel2.asSet());
 	}
 
 	@Override
@@ -54,6 +54,11 @@ public class RelationViewOnSet implements IRelationalAlgebra<ISet> {
 	@Override
 	public ISet range() {
 		return RelationalFunctionsOnSet.range(rel1);
+	}
+
+	@Override
+	public ISet asSet() {
+		return rel1;
 	}
 
 }

@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
@@ -238,7 +239,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 
 	@Override
-	public IRelationalAlgebra<ISet> asRelation() {
+	public ISetRelation<ISet> asRelation() {
 		if (!isRelation())
 			throw new IllegalOperationException(
 					"Cannot be viewed as a relation.", getType());
