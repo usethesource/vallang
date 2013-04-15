@@ -195,7 +195,7 @@ public abstract class BaseTestListRelation extends TestCase {
 
 	public void testCompose() {
 		try {
-			IList comp = integerListRelation.asRelation().compose(integerListRelation);
+			IList comp = integerListRelation.asRelation().compose(integerListRelation.asRelation());
 			
 			if (comp.asRelation().arity() != integerListRelation.asRelation().arity() * 2 - 2) {
 				fail("composition is a product with the last column of the first relation and the first column of the last relation removed");
@@ -225,14 +225,14 @@ public abstract class BaseTestListRelation extends TestCase {
 			IList rel3 = vf.listRelation(t7, t8, t9);
 			
 			try {
-			  vf.listRelation(vf.tuple(doubles[0],doubles[0])).asRelation().compose(rel1);
+			  vf.listRelation(vf.tuple(doubles[0],doubles[0])).asRelation().compose(rel1.asRelation());
 			  fail("relations should not be composable");
 			}
 			catch (FactTypeUseException e) {
 				// this should happen
 			}
 			
-			IList comp = rel1.asRelation().compose(rel2);
+			IList comp = rel1.asRelation().compose(rel2.asRelation());
 			
 			if (!comp.isEqual(rel3)) {
 				fail("composition does not produce expected result");

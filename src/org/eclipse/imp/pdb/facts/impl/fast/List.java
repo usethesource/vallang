@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -342,7 +343,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 
 	@Override
-	public IRelationalAlgebra<IList> asRelation() {
+	public IListRelation<IList> asRelation() {
 		if (!isRelation())
 			throw new IllegalOperationException(
 					"Cannot be viewed as a relation.", getType());
