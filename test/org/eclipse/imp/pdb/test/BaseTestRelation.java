@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-import static org.eclipse.imp.pdb.facts.impl.fast.RelationalOperations.*;
+import static org.eclipse.imp.pdb.facts.impl.fast.RelationalFunctionsOnSet.*;
 
 public abstract class BaseTestRelation extends TestCase {
     private IValueFactory vf;

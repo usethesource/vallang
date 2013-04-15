@@ -13,7 +13,6 @@ package org.eclipse.imp.pdb.facts.visitors;
 
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -108,13 +107,13 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 		return fVisitor.visitExternal(externalValue);
 	}
 
-	public IValue visitListRelation(IListRelation o) throws VisitorException {
-		IListWriter w = fFactory.listWriter(o.getFieldTypes());
+	public IValue visitListRelation(IList o) throws VisitorException {
+		IListWriter w = fFactory.listWriter(o.getType().getFieldTypes());
 		
 		for (IValue tuple : o) {
 			w.insert((ITuple) tuple.accept(this));
 		}
 		
-		return fVisitor.visitListRelation((IListRelation) w.done());
+		return fVisitor.visitListRelation(w.done());
 	}
 }

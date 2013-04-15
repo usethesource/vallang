@@ -18,8 +18,6 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -90,12 +88,12 @@ public class ValueFactory extends FastBaseValueFactory {
 		return new SetWriter();
 	}
 	
-	public IListRelationWriter listRelationWriter(Type tupleType) {
-		return ListRelation.createListRelationWriter(tupleType);
+	public IListWriter listRelationWriter(Type tupleType) {
+		return new ListWriter(tupleType);
 	}
 
-	public IListRelationWriter listRelationWriter() {
-		return ListRelation.createListRelationWriter();
+	public IListWriter listRelationWriter() {
+		return new ListWriter();
 	}
 	
 	public IList list(Type elementType){
@@ -143,16 +141,16 @@ public class ValueFactory extends FastBaseValueFactory {
 		return relationWriter.done();
 	}
 	
-	public IListRelation listRelation(Type tupleType) {
+	public IList listRelation(Type tupleType) {
 		return listRelationWriter(tupleType).done();
 	}
 
-	public IListRelation listRelation(IValue... elements) {
+	public IList listRelation(IValue... elements) {
 		Type elementType = lub(elements);
 		
 		if (!elementType.isTupleType()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		
-		IListRelationWriter listRelationWriter = listRelationWriter(elementType);
+		IListWriter listRelationWriter = listRelationWriter(elementType);
 		listRelationWriter.append(elements);
 		return listRelationWriter.done();
 	}
@@ -220,5 +218,5 @@ public class ValueFactory extends FastBaseValueFactory {
 
 		return elementType;
 	}
-
+	
 }

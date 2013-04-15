@@ -8,8 +8,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -286,22 +284,22 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	}
 
 	@Override
-	public IListRelation listRelation(Type tupleType) {
+	public IList listRelation(Type tupleType) {
 	  return adapted.listRelation(tupleType);
 	}
 
 	@Override
-	public IListRelation listRelation(IValue... elems) {
+	public IList listRelation(IValue... elems) {
 	  return adapted.listRelation(elems);
 	}
 
 	@Override
-	public IListRelationWriter listRelationWriter(Type type) {
+	public IListWriter listRelationWriter(Type type) {
 	  return adapted.listRelationWriter(type);
 	}
 
 	@Override
-	public IListRelationWriter listRelationWriter() {
+	public IListWriter listRelationWriter() {
 	  return adapted.listRelationWriter();
 	}
 

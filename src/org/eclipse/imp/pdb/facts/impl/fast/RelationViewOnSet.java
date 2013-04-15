@@ -13,17 +13,17 @@ public class RelationViewOnSet implements IRelationalAlgebra<ISet> {
 	
 	@Override
 	public ISet compose(ISet rel2) {
-		return RelationalOperations.compose(rel1, rel2);
+		return RelationalFunctionsOnSet.compose(rel1, rel2);
 	}
 
 	@Override
 	public ISet closure() {
-		return RelationalOperations.closure(rel1);
+		return RelationalFunctionsOnSet.closure(rel1);
 	}
 
 	@Override
 	public ISet closureStar() {
-		return RelationalOperations.closureStar(rel1);
+		return RelationalFunctionsOnSet.closureStar(rel1);
 	}
 	
 	@Override
@@ -33,27 +33,27 @@ public class RelationViewOnSet implements IRelationalAlgebra<ISet> {
 	
 	@Override
 	public ISet project(int... fieldIndexes) {
-		return RelationalOperations.project(rel1, fieldIndexes);
+		return RelationalFunctionsOnSet.project(rel1, fieldIndexes);
 	}
 
 	@Override
 	public ISet projectByFieldNames(String... fieldsNames) {
-		return RelationalOperations.projectByFieldNames(rel1, fieldsNames);
+		return RelationalFunctionsOnSet.projectByFieldNames(rel1, fieldsNames);
 	}
 
 	@Override
 	public ISet carrier() {
-		return RelationalOperations.carrier(rel1);
+		return RelationalFunctionsOnSet.carrier(rel1);
 	}
 
 	@Override
 	public ISet domain() {
-		return RelationalOperations.domain(rel1);
+		return RelationalFunctionsOnSet.domain(rel1);
 	}
 
 	@Override
 	public ISet range() {
-		return RelationalOperations.range(rel1);
+		return RelationalFunctionsOnSet.range(rel1);
 	}
 
 }

@@ -17,8 +17,6 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,10 +31,10 @@ public abstract class BaseTestListRelation extends TestCase {
 	private IValue[] integers;
 	private ITuple[] integerTuples;
 	private IList listOfIntegers;
-	private IListRelation integerListRelation;
+	private IList integerListRelation;
 	private IValue[] doubles;
 	private IList listOfDoubles;
-	private IListRelation doubleListRelation;
+	private IList doubleListRelation;
 	private ITuple[] doubleTuples;
     
 	protected void setUp(IValueFactory factory) throws Exception {
@@ -63,7 +61,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			lw2.insert(iv);
 		}
 		listOfDoubles = lw2.done();
-		IListRelationWriter rw = vf.listRelationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+		IListWriter rw = vf.listRelationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
 		integerTuples = new ITuple[integers.length * integers.length];
 		
 		for (int i = 0; i < integers.length; i++) {
@@ -75,7 +73,7 @@ public abstract class BaseTestListRelation extends TestCase {
 		}
 		integerListRelation = rw.done();
 		
-		IListRelationWriter rw2 = vf.listRelationWriter(tf.tupleType(tf.realType(), tf.realType()));
+		IListWriter rw2 = vf.listRelationWriter(tf.tupleType(tf.realType(), tf.realType()));
 		doubleTuples = new ITuple[doubles.length * doubles.length];
 		
 		for (int i = 0; i < doubles.length; i++) {
@@ -97,7 +95,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			fail("this relation should be empty");
 		}
 		
-		IListRelation emptyRel = vf.listRelation();
+		IList emptyRel = vf.listRelation();
 		if (!emptyRel.isEmpty()) {
 			fail("empty relation is not empty?");
 		}
@@ -115,15 +113,15 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testArity() {
-		if (integerListRelation.arity() != 2) {
+		if (integerListRelation.asRelation().arity() != 2) {
 			fail("arity should be 2");
 		}
 	}
 
 	public void testProductIRelation() {
-		IListRelation prod = integerListRelation.product(integerListRelation);
+		IList prod = integerListRelation.product(integerListRelation);
 		
-		if (prod.arity() != 2 ) {
+		if (prod.asRelation().arity() != 2 ) {
 			fail("arity of product should be 2");
 		}
 		
@@ -133,9 +131,9 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testProductIList() {
-		IListRelation prod = integerListRelation.product(listOfIntegers);
+		IList prod = integerListRelation.product(listOfIntegers);
 		
-		if (prod.arity() != 2) {
+		if (prod.asRelation().arity() != 2) {
 			fail("arity of product should be 2");
 		}
 		
@@ -146,7 +144,7 @@ public abstract class BaseTestListRelation extends TestCase {
 
 	public void testClosure() {
 		try {
-			if (!integerListRelation.closure().isEqual(integerListRelation)) {
+			if (!integerListRelation.asRelation().closure().isEqual(integerListRelation)) {
 				fail("closure adds extra tuples?");
 			}
 		} catch (FactTypeUseException e) {
@@ -155,9 +153,9 @@ public abstract class BaseTestListRelation extends TestCase {
 		
 		try {
 			ITuple t1 = vf.tuple(integers[0], integers[1]);
-			IListRelation rel = vf.listRelation(t1);
+			IList rel = vf.listRelation(t1);
 			
-			rel.closure();
+			rel.asRelation().closure();
 		}
 		catch (FactTypeUseException e) {
 			fail("reflexivity with subtyping is allowed");
@@ -171,10 +169,10 @@ public abstract class BaseTestListRelation extends TestCase {
 			ITuple t5 = vf.tuple(integers[1], integers[3]);
 			ITuple t6 = vf.tuple(integers[0], integers[3]);
 			
-			IListRelation test = vf.listRelation(t1, t2, t3);
-			IListRelation closed = test.closure();
+			IList test = vf.listRelation(t1, t2, t3);
+			IList closed = test.asRelation().closure();
 			
-			if (closed.arity() != test.arity()) {
+			if (closed.asRelation().arity() != test.asRelation().arity()) {
 				fail("closure should produce relations of same arity");
 			}
 			
@@ -197,9 +195,9 @@ public abstract class BaseTestListRelation extends TestCase {
 
 	public void testCompose() {
 		try {
-			IListRelation comp = integerListRelation.compose(integerListRelation);
+			IList comp = integerListRelation.asRelation().compose(integerListRelation);
 			
-			if (comp.arity() != integerListRelation.arity() * 2 - 2) {
+			if (comp.asRelation().arity() != integerListRelation.asRelation().arity() * 2 - 2) {
 				fail("composition is a product with the last column of the first relation and the first column of the last relation removed");
 			}
 			
@@ -214,27 +212,27 @@ public abstract class BaseTestListRelation extends TestCase {
 			ITuple t1 = vf.tuple(integers[0], doubles[0]);
 			ITuple t2 = vf.tuple(integers[1], doubles[1]);
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
-			IListRelation rel1 = vf.listRelation(t1, t2, t3);
+			IList rel1 = vf.listRelation(t1, t2, t3);
 
 			ITuple t4 = vf.tuple(doubles[0], integers[0]);
 			ITuple t5 = vf.tuple(doubles[1], integers[1]);
 			ITuple t6 = vf.tuple(doubles[2], integers[2]);
-			IListRelation rel2 = vf.listRelation(t4, t5, t6);
+			IList rel2 = vf.listRelation(t4, t5, t6);
 			
 			ITuple t7 = vf.tuple(integers[0], integers[0]);
 			ITuple t8 = vf.tuple(integers[1], integers[1]);
 			ITuple t9 = vf.tuple(integers[2], integers[2]);
-			IListRelation rel3 = vf.listRelation(t7, t8, t9);
+			IList rel3 = vf.listRelation(t7, t8, t9);
 			
 			try {
-			  vf.listRelation(vf.tuple(doubles[0],doubles[0])).compose(rel1);
+			  vf.listRelation(vf.tuple(doubles[0],doubles[0])).asRelation().compose(rel1);
 			  fail("relations should not be composable");
 			}
 			catch (FactTypeUseException e) {
 				// this should happen
 			}
 			
-			IListRelation comp = rel1.compose(rel2);
+			IList comp = rel1.asRelation().compose(rel2);
 			
 			if (!comp.isEqual(rel3)) {
 				fail("composition does not produce expected result");
@@ -264,9 +262,9 @@ public abstract class BaseTestListRelation extends TestCase {
 //				fail("insert into a relation of an existing tuple should not change the relation");
 //			}
 			
-			IListRelationWriter relw3 = vf.listRelationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+			IListWriter relw3 = vf.listRelationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
 			relw3.insertAll(integerListRelation);
-			IListRelation rel3 = relw3.done();
+			IList rel3 = relw3.done();
 			 
 			final ITuple tuple = vf.tuple(vf.integer(100), vf.integer(100));
 			IList rel4 = rel3.insert(tuple);
@@ -285,11 +283,11 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testIntersectIRelation() {
-		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
-		IListRelation empty2 = vf.listRelation(tf.tupleType(tf.realType()));
+		IList empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
+		IList empty2 = vf.listRelation(tf.tupleType(tf.realType()));
 		
 		try {
-			final IListRelation intersection = empty1.intersect(empty2);
+			final IList intersection = empty1.intersect(empty2);
 			if (!intersection.isEmpty()) {
 				fail("empty intersection failed");
 			}
@@ -307,11 +305,11 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
+			IList oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IListRelation threeFourFive = vf.listRelation(integerTuples[2],
+			IList threeFourFive = vf.listRelation(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IListRelation result = vf.listRelation(integerTuples[2]);
+			IList result = vf.listRelation(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -330,11 +328,11 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testIntersectIList() {
-		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
+		IList empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
 		IList empty2 = vf.list(tf.tupleType(tf.realType()));
 		
 		try {
-			final IListRelation intersection = empty1.intersect(empty2);
+			final IList intersection = empty1.intersect(empty2);
 			if (!intersection.isEmpty()) {
 				fail("empty intersection failed");
 			}
@@ -352,11 +350,11 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
+			IList oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
 			IList threeFourFive = vf.list(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IListRelation result = vf.listRelation(integerTuples[2]);
+			IList result = vf.listRelation(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -375,11 +373,11 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testConcatIListRelation() {
-		IListRelation empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
-		IListRelation empty2 = vf.listRelation(tf.tupleType(tf.realType()));
+		IList empty1 = vf.listRelation(tf.tupleType(tf.integerType()));
+		IList empty2 = vf.listRelation(tf.tupleType(tf.realType()));
 		
 		try {
-			final IListRelation concat = (IListRelation) empty1.concat(empty2);
+			final IList concat = (IList) empty1.concat(empty2);
 			if (!concat.isEmpty()) {
 				fail("empty concat failed");
 			}
@@ -397,12 +395,12 @@ public abstract class BaseTestListRelation extends TestCase {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
-			IListRelation oneTwoThree = vf.listRelation(integerTuples[0],
+			IList oneTwoThree = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IListRelation threeFourFive = vf.listRelation(integerTuples[3], integerTuples[4]);
-			IListRelation result1 = vf.listRelation(integerTuples[0],
+			IList threeFourFive = vf.listRelation(integerTuples[3], integerTuples[4]);
+			IList result1 = vf.listRelation(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
-			IListRelation result2 = vf.listRelation(integerTuples[3],
+			IList result2 = vf.listRelation(integerTuples[3],
 					integerTuples[4], integerTuples[0], integerTuples[1], integerTuples[2]);
 
 			if (!oneTwoThree.concat(threeFourFive).isEqual(result1)) {
@@ -443,7 +441,7 @@ public abstract class BaseTestListRelation extends TestCase {
 	}
 
 	public void testCarrier() {
-		IList carrier = integerListRelation.carrier();
+		IList carrier = integerListRelation.asRelation().carrier();
 		
 		if (!carrier.isEqual(listOfIntegers)) {
 			fail("carrier should be equal to this set");
@@ -453,9 +451,9 @@ public abstract class BaseTestListRelation extends TestCase {
 			ITuple t1 = vf.tuple(integers[0], doubles[0]);
 			ITuple t2 = vf.tuple(integers[1], doubles[1]);
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
-			IListRelation rel1 = vf.listRelation(t1, t2, t3);
+			IList rel1 = vf.listRelation(t1, t2, t3);
 			
-			IList carrier1 = rel1.carrier();
+			IList carrier1 = rel1.asRelation().carrier();
 			
 			if (carrier1.getElementType() != tf.numberType()) {
 				fail("expected number type on carrier");
