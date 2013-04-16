@@ -16,7 +16,6 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -47,13 +46,16 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	/*package*/ List(Type elementType, ShareableValuesList data){
 		super();
 		
-		if (elementType.isTupleType())
-			this.listType = typeFactory.lrelTypeFromTuple(elementType);
+		if (data.isEmpty())
+			this.elementType = voidType;
 		else
-			this.listType = typeFactory.listType(elementType);
+			this.elementType = elementType;		
 		
-		this.elementType = elementType;
-		
+		if (elementType.isTupleType())
+			this.listType = typeFactory.lrelTypeFromTuple(this.elementType);
+		else
+			this.listType = typeFactory.listType(this.elementType);
+				
 		this.data = data;
 		
 		this.hashCode = data.hashCode();
