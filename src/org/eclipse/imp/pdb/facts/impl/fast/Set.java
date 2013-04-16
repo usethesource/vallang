@@ -13,7 +13,6 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelationalAlgebra;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -40,14 +39,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	/*package*/ Set(Type elementType, ShareableValuesHashSet data){
 		super();
+
+		if (data.isEmpty())
+			this.elementType = voidType;
+		else
+			this.elementType = elementType;
 		
 		if (elementType.isTupleType())
-			this.setType = typeFactory.relTypeFromTuple(elementType);
+			this.setType = typeFactory.relTypeFromTuple(this.elementType);
 		else
-			this.setType = typeFactory.setType(elementType);
-		
-		this.elementType = elementType;
-		
+			this.setType = typeFactory.setType(this.elementType);
+				
 		this.data = data;
 	}
 	
