@@ -25,8 +25,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-import static org.eclipse.imp.pdb.facts.impl.fast.RelationalFunctionsOnSet.*;
-
 public abstract class BaseTestRelation extends TestCase {
     private IValueFactory vf;
 	private TypeFactory tf;
@@ -116,7 +114,7 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testArity() {
-		if (arity(integerRelation) != 2) {
+		if (integerRelation.asRelation().arity() != 2) {
 			fail("arity should be 2");
 		}
 	}
@@ -124,7 +122,7 @@ public abstract class BaseTestRelation extends TestCase {
 	public void testProductIRelation() {
 		ISet prod = integerRelation.product(integerRelation);
 		
-		if (arity(prod) != 2 ) {
+		if (prod.asRelation().arity() != 2 ) {
 			fail("arity of product should be 2");
 		}
 		
@@ -136,7 +134,7 @@ public abstract class BaseTestRelation extends TestCase {
 	public void testProductISet() {
 		ISet prod = integerRelation.product(setOfIntegers);
 		
-		if (arity(prod) != 2) {
+		if (prod.asRelation().arity() != 2) {
 			fail("arity of product should be 2");
 		}
 		
@@ -147,7 +145,7 @@ public abstract class BaseTestRelation extends TestCase {
 
 	public void testClosure() {
 		try {
-			if (!closure(integerRelation).isEqual(integerRelation)) {
+			if (!integerRelation.asRelation().closure().isEqual(integerRelation)) {
 				fail("closure adds extra tuples?");
 			}
 		} catch (FactTypeUseException e) {
@@ -156,7 +154,7 @@ public abstract class BaseTestRelation extends TestCase {
 		
 		try {
 			ISet rel = vf.relation(tf.tupleType(tf.integerType(), tf.integerType()));
-			closure(rel);
+			rel.asRelation().closure();
 		}
 		catch (FactTypeUseException e) {
 			fail("reflexivity with subtyping is allowed");
@@ -173,9 +171,9 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t6 = vf.tuple(integers[0], integers[3]);
 			
 			ISet test = vf.relation(t1, t2, t3);
-			ISet closed = closure(test);
+			ISet closed = test.asRelation().closure();
 			
-			if (arity(closed) != arity(test)) {
+			if (closed.asRelation().arity() != test.asRelation().arity()) {
 				fail("closure should produce relations of same arity");
 			}
 			
@@ -198,9 +196,9 @@ public abstract class BaseTestRelation extends TestCase {
 
 	public void testCompose() {
 		try {
-			ISet comp = compose(integerRelation, integerRelation);
+			ISet comp = integerRelation.asRelation().compose(integerRelation.asRelation());
 			
-			if (arity(comp) != arity(integerRelation) * 2 - 2) {
+			if (comp.asRelation().arity() != integerRelation.asRelation().arity() * 2 - 2) {
 				fail("composition is a product with the last column of the first relation and the first column of the last relation removed");
 			}
 			
@@ -228,14 +226,14 @@ public abstract class BaseTestRelation extends TestCase {
 			ISet rel3 = vf.relation(t7, t8, t9);
 			
 			try {
-			  compose(vf.relation(vf.tuple(doubles[0],doubles[0])), rel1);
+			  vf.relation(vf.tuple(doubles[0],doubles[0])).asRelation().compose(rel1.asRelation());
 			  fail("relations should not be composable");
 			}
 			catch (FactTypeUseException e) {
 				// this should happen
 			}
 			
-			ISet comp = compose(rel1, rel2);
+			ISet comp = rel1.asRelation().compose(rel2.asRelation());
 			
 			if (!comp.isEqual(rel3)) {
 				fail("composition does not produce expected result");
@@ -539,7 +537,7 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
 			ISet rel1 = vf.relation(t1, t2, t3);
 			
-			ISet carrier1 = carrier(rel1);
+			ISet carrier1 = rel1.asRelation().carrier();
 			
 			if (carrier1.getElementType() != tf.numberType()) {
 				fail("expected number type on carrier");
