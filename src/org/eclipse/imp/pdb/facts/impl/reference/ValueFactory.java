@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
+import org.eclipse.imp.pdb.facts.impl.fast.FastBaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -39,9 +39,8 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * This is a reference implementation for an @{link IValueFactory}. It uses
  * the Java standard library to implement it in a most straightforward but
  * not necessarily very efficient manner.
- *
  */
-public class ValueFactory extends BaseValueFactory {
+public class ValueFactory extends FastBaseValueFactory {
 	private static final ValueFactory sInstance = new ValueFactory();
 	public static ValueFactory getInstance() {
 		return sInstance;
@@ -121,11 +120,11 @@ public class ValueFactory extends BaseValueFactory {
 	
 	public IListWriter listWriter(Type eltType) {
 		checkNull(eltType);
-		return List.createListWriter(eltType);
+		return new ListWriter(eltType);
 	}
 	
 	public IListWriter listWriter() {
-		return List.createListWriter();
+		return new ListWriter();
 	}
 
 	public IList list(IValue... rest) {
@@ -239,11 +238,11 @@ public class ValueFactory extends BaseValueFactory {
 
 	public IListRelationWriter listRelationWriter(Type tupleType) {
 		checkNull(tupleType);
-		return ListRelation.createListRelationWriter(tupleType);
+		return new ListRelationWriter(tupleType);
 	}
 
 	public IListRelationWriter listRelationWriter() {
-		return ListRelation.createListRelationWriter();
+		return new ListRelationWriter();
 	}
 
 	public IListRelation listRelation(Type tupleType) {

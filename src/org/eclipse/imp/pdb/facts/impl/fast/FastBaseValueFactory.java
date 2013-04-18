@@ -32,10 +32,12 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 	private final static String INTEGER_MAX_STRING = "2147483647";
 	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
 		
+	@Override
 	public IInteger integer(int value){
 		return new IntegerValue(value);
 	}
-	
+
+	@Override
 	public IInteger integer(long value){
 		if(((value & 0x000000007fffffffL) == value) || ((value & 0xffffffff80000000L) == 0xffffffff80000000L)){
 			return integer((int) value);
@@ -53,6 +55,7 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 		}
 	}
 	
+	@Override
 	public IInteger integer(String integerValue){
 		if(integerValue.startsWith("-")){
 			if(integerValue.length() < 11 || (integerValue.length() == 11 && integerValue.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)){
@@ -67,6 +70,7 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 		return new BigIntegerValue(new BigInteger(integerValue));
 	}
 	
+	@Override
 	public IInteger integer(byte[] integerData){
 		if(integerData.length <= 4){
 			int value = 0;
@@ -86,6 +90,7 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 		return new IntegerValue(value.intValue());
 	}
 	
+	@Override
 	public IRational rational(IInteger a, IInteger b) {
 		return new RationalValue(a, b);
 	}
@@ -95,6 +100,7 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 		return new BigDecimalValue(BigDecimal.valueOf(value));
 	}
 	
+	@Override
 	public IReal real(double value, int p) {
 		return new BigDecimalValue(new BigDecimal(value, new MathContext(p)));
 	}
@@ -109,22 +115,26 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 		return new BigDecimalValue(new BigDecimal(doubleValue));
 	}
 	
+	@Override
 	public IReal real(String s, int p) throws NumberFormatException {
 		return new BigDecimalValue(new BigDecimal(s, new MathContext(p)));
 	}
-	
+
 	public IReal real(BigDecimal value){
 		return new BigDecimalValue(value);
 	}
-
+	
+	@Override
 	public IReal pi(int precision) {
 		return BigDecimalValue.pi(precision);
 	}
 	
+	@Override
 	public IReal e(int precision) {
 		return BigDecimalValue.e(precision);
 	}
 	
+	@Override
 	public IString string(String value){
 		return new StringValue(value);
 	}

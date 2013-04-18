@@ -103,12 +103,12 @@ class Set extends Value implements ISet{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <SetOrRel extends ISet> SetOrRel union(ISet other){
+	public <ISetOrRel extends ISet> ISetOrRel union(ISet other){
 		ISetWriter w = ValueFactory.getInstance().setWriter(other.getElementType().lub(getElementType()));
 		w.insertAll(this);
 		w.insertAll(other);
 		ISet result = w.done();
-		return (SetOrRel) result;
+		return (ISetOrRel) result;
 	}
 	
 	public Iterator<IValue> iterator(){
