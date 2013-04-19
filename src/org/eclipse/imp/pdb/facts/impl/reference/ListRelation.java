@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * 	Paul Klint (Paul.Klint@cwi.nl) - added new ListRelation datatype
+ * 	 Paul Klint (Paul.Klint@cwi.nl) - added new ListRelation datatype
  *   Michael Steindorfer (Michael.Steindorfer@cwi.nl)
  * based on code by
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
@@ -25,8 +25,8 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class ListRelation extends List implements IListRelation {
 
-    /* package */ ListRelation(Type type, java.util.List<IValue> content) {
-        super(type, content);
+    /*package*/ ListRelation(Type elementType, java.util.List<IValue> content) {
+        super(elementType, content);
     }
 
     public int arity() {
@@ -58,7 +58,7 @@ public class ListRelation extends List implements IListRelation {
     }
 
     public Type getFieldTypes() {
-        return fType.getFieldTypes();
+        return getType().getFieldTypes();
     }
 
     public IList select(int... fields) {

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies list1 distribution, and is available at
+ * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
@@ -22,11 +22,12 @@ import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 /*package*/ class ListRelationWriter extends ListWriter implements IListRelationWriter {
-    public ListRelationWriter(Type eltType) {
+
+    /*package*/ ListRelationWriter(Type eltType) {
         super(eltType);
     }
 
-    public ListRelationWriter() {
+    /*package*/ ListRelationWriter() {
         super();
     }
 
@@ -34,7 +35,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
         if (constructedList == null) {
             constructedList = ListOrRel.apply(eltType, listContent);
         }
-
         return (IListRelation) constructedList;
     }
 

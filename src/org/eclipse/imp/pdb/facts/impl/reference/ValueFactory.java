@@ -79,11 +79,11 @@ public class ValueFactory extends FastBaseValueFactory {
 	
 	public IRelationWriter relationWriter(Type tupleType) {
 		checkNull(tupleType);
-		return Relation.createRelationWriter(tupleType);
+		return new RelationWriter(tupleType);
 	}
 	
 	public IRelationWriter relationWriter() {
-		return Relation.createRelationWriter();
+		return new RelationWriter();
 	}
 
 	public ISet set(Type eltType){
@@ -97,11 +97,11 @@ public class ValueFactory extends FastBaseValueFactory {
 			return relationWriter(eltType);
 		}
 		
-		return Set.createSetWriter(eltType);
+		return new SetWriter(eltType);
 	}
 	
 	public ISetWriter setWriter() {
-		return Set.createSetWriter();
+		return new SetWriter();
 	}
 
 	public ISet set(IValue... elems) throws FactTypeUseException {

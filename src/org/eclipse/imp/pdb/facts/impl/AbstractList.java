@@ -2,7 +2,7 @@
  * Copyright (c) 2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies list1 distribution, and is available at
+ * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
@@ -23,23 +23,43 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public abstract class AbstractList extends Value implements IList {
 
-    private final Type elementType;
-
-    public AbstractList(Type elementType) {
-        super(getTypeFactory().listType(elementType));
-
-        this.elementType = elementType;
+    public AbstractList(Type collectionType) {
+        super(collectionType);
     }
 
     protected static TypeFactory getTypeFactory() {
         return TypeFactory.getInstance();
     }
 
+    /*
+     * TODO: get rid of code duplication (@see AbstractSet.inferSetOrRelType)
+     */
+    protected static Type inferListOrRelType(final Type elementType, final Iterable<IValue> content) {
+        final Type inferredElementType;
+        final Type inferredCollectionType;
+
+        // is collection empty?
+        if (content.iterator().hasNext() == false) {
+            inferredElementType = getTypeFactory().voidType();
+        } else {
+            inferredElementType = elementType;
+        }
+
+        // consists collection out of tuples?
+        if (inferredElementType.isTupleType()) {
+            inferredCollectionType = getTypeFactory().lrelTypeFromTuple(inferredElementType);
+        } else {
+            inferredCollectionType = getTypeFactory().listType(inferredElementType);
+        }
+
+        return inferredCollectionType;
+    }
+
     protected abstract IValueFactory getValueFactory();
 
     @Override
     public Type getElementType() {
-        return elementType;
+        return getType().getElementType();
     }
 
     @Override
@@ -114,11 +134,6 @@ public abstract class AbstractList extends Value implements IList {
     }
 
     @Override
-    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-        return v.visitList(this);
-    }
-
-    @Override
     public boolean isEqual(IValue that) {
         return ListFunctions.isEqual(getValueFactory(), this, that);
     }
@@ -127,4 +142,15 @@ public abstract class AbstractList extends Value implements IList {
     public boolean equals(Object that) {
         return ListFunctions.equals(getValueFactory(), this, that);
     }
+
+    @Override
+    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+//        if (getElementType().isTupleType()) {
+//            return v.visitListRelation(this);
+//        } else {
+//            return v.visitList(this);
+//        }
+        return v.visitList(this);
+    }
+
 }

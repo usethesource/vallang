@@ -22,8 +22,8 @@ import java.util.Iterator;
 
     private final java.util.List<IValue> content;
 
-    public List(Type elementType, java.util.List<IValue> content) {
-        super(elementType);
+    /*package*/ List(Type elementType, java.util.List<IValue> content) {
+        super(inferListOrRelType(elementType, content));
 
         this.content = content;
     }
