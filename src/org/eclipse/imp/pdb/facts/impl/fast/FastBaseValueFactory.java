@@ -22,7 +22,11 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 
 /**
  * Extension of base value factory with optimized numeric representations.
@@ -137,6 +141,42 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 	@Override
 	public IString string(String value){
 		return new StringValue(value);
+	}
+	
+	protected Type inferInstantiatedTypeOfConstructor(final Type constructorType, final IValue... children) {
+		Type instantiatedType;
+		if (!constructorType.getAbstractDataType().isParameterized()) {
+			instantiatedType = constructorType;
+		} else {
+			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type, Type>();
+			TypeFactory tf = TypeFactory.getInstance();
+			Type params = constructorType.getAbstractDataType().getTypeParameters();
+			for (Type p : params) {
+				if (p.isParameterType()) {
+					bindings.put(p, tf.voidType());
+				}
+			}
+			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
+			instantiatedType = constructorType.instantiate(bindings);
+		}
+
+		return instantiatedType;
+	}	
+
+	protected static void checkNull(Object... args) {
+		for (Object a : args) {
+			if (a == null) {
+				throw new NullPointerException();
+			}
+		}
+	}
+	
+	protected static void checkNull(java.util.Map<Object, Object> args) {
+		for (java.util.Map.Entry<Object, Object> entry : args.entrySet()) {
+			if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+				throw new NullPointerException();
+			}
+		}
 	}
 	
 }

@@ -44,7 +44,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	
 	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();
 	
-	protected ValueFactory(){
+	protected ValueFactory() {
 		super();
 	}
 
@@ -161,15 +161,15 @@ public class ValueFactory extends FastBaseValueFactory {
 		return listRelationWriter.done();
 	}
 	
-	public INode node(String name){
+	public INode node(String name) {
 		return new Node(name, new IValue[0]);
 	}
-	
-	public INode node(String name, Map<String,IValue> annos, IValue... children){
+
+	public INode node(String name, Map<String, IValue> annos, IValue... children) {
 		return new AnnotatedNode(name, children.clone(), annos);
 	}
-	
-	public INode node(String name, IValue... children){
+
+	public INode node(String name, IValue... children) {
 		return new Node(name, children.clone());
 	}
 	
@@ -179,58 +179,23 @@ public class ValueFactory extends FastBaseValueFactory {
 		return new Node(name, children.clone(), keyArgValues);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType) {
-		Type params = constructorType.getAbstractDataType().getTypeParameters();
-		if (!params.isVoidType()) {
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
-			for (Type p : params) {
-				if (p.isParameterType()) {
-					bindings.put(p, TypeFactory.getInstance().voidType());
-				}
-			}
-			constructorType = constructorType.instantiate(bindings);
-		}
-		return new Constructor(constructorType, new IValue[0]);
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);
+		return new Constructor(instantiatedType, new IValue[0]);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType, IValue... children){
-		Type instantiatedType;
-		if(!constructorType.getAbstractDataType().isParameterized()){
-			instantiatedType = constructorType;
-		}else{
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
-			TypeFactory tf = TypeFactory.getInstance();
-			Type params = constructorType.getAbstractDataType().getTypeParameters();
-			for (Type p : params) {
-				if (p.isParameterType()) {
-					bindings.put(p, tf.voidType());
-				}
-			}
-			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-			instantiatedType = constructorType.instantiate(bindings);
-		}
-		
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		return new Constructor(instantiatedType, children.clone());
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType,
 			Map<String, IValue> annotations, IValue... children)
 			throws FactTypeUseException {
-		Type instantiatedType;
-		if(!constructorType.getAbstractDataType().isParameterized()){
-			instantiatedType = constructorType;
-		}else{
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
-			TypeFactory tf = TypeFactory.getInstance();
-			Type params = constructorType.getAbstractDataType().getTypeParameters();
-			for (Type p : params) {
-				if (p.isParameterType()) {
-					bindings.put(p, tf.voidType());
-				}
-			}
-			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-			instantiatedType = constructorType.instantiate(bindings);
-		}
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		
 		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<String, IValue>();
 		sAnnotations.putAll(annotations);
@@ -238,28 +203,26 @@ public class ValueFactory extends FastBaseValueFactory {
 		return AnnotatedConstructor.createAnnotatedConstructor(instantiatedType, children.clone(), sAnnotations);
 	}
 	
-	public ITuple tuple(){
+	public ITuple tuple() {
 		return new Tuple(EMPTY_TUPLE_TYPE, new IValue[0]);
 	}
-	
-	public ITuple tuple(IValue... args){
+
+	public ITuple tuple(IValue... args) {
 		return new Tuple(args.clone());
 	}
-	
+
 	public ITuple tuple(Type type, IValue... args) {
-    return new Tuple(type, args.clone());
-  }
-	
+		return new Tuple(type, args.clone());
+	}
+
 	private static Type lub(IValue... elements) {
 		Type elementType = TypeFactory.getInstance().voidType();
-		
-		for(int i = elements.length - 1; i >= 0; i--){
+
+		for (int i = elements.length - 1; i >= 0; i--) {
 			elementType = elementType.lub(elements[i].getType());
 		}
-		
+
 		return elementType;
 	}
 
-	
-	
 }

@@ -13,8 +13,6 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
@@ -31,7 +29,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.fast.FastBaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -40,7 +37,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * the Java standard library to implement it in a most straightforward but
  * not necessarily very efficient manner.
  */
-public class ValueFactory extends FastBaseValueFactory {
+public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseValueFactory {
 	private static final ValueFactory sInstance = new ValueFactory();
 	public static ValueFactory getInstance() {
 		return sInstance;
@@ -48,14 +45,6 @@ public class ValueFactory extends FastBaseValueFactory {
 
 	private ValueFactory() {
 		super();
-	}
-
-	private void checkNull(Object ...args ) {
-		for (Object a : args) {
-			if (a == null) {
-				throw new NullPointerException();
-			}
-		}
 	}
 	
 	public IRelation relation(Type tupleType) {
@@ -147,18 +136,18 @@ public class ValueFactory extends FastBaseValueFactory {
 	public ITuple tuple() {
 		return new Tuple(new IValue[0]);
 	}
-	
+
 	public ITuple tuple(IValue... args) {
 		checkNull((Object[]) args);
-		
+
 		return new Tuple(args.clone());
 	}
-	
+
 	public ITuple tuple(Type type, IValue... args) {
-    checkNull((Object[]) args);
-    
-    return new Tuple(type, args.clone());
-  }
+		checkNull((Object[]) args);
+
+		return new Tuple(type, args.clone());
+	}
 	
 	public INode node(String name) {
 		checkNull(name);
@@ -167,7 +156,9 @@ public class ValueFactory extends FastBaseValueFactory {
 	
 	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
 		checkNull(name);
+		checkNull(annotations);
 		checkNull((Object[]) children);
+				
 		return new Node(name, annotations, children);
 	}
 	
@@ -177,38 +168,37 @@ public class ValueFactory extends FastBaseValueFactory {
 		return new Node(name, children);
 	}
 	
+	@Override
+	public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
+			throws FactTypeUseException {
+		checkNull(name);
+		checkNull((Object[]) children);
+//		checkNull(keyArgValues); // fails; are null values allowed?
+		
+		return new Node(name, children.clone(), keyArgValues);
+	}
+		
 	public IConstructor constructor(Type constructorType, IValue... children) {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
-		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
-		TypeFactory tf = TypeFactory.getInstance();
-		Type params = constructorType.getAbstractDataType().getTypeParameters();
-		for (Type p : params) {
-			if (p.isParameterType()) {
-				bindings.put(p, tf.voidType());
-			}
-		}
-		constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
 		
-		return new Constructor(constructorType.instantiate(bindings), children);
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);
+		return new Constructor(instantiatedType, children);
 	}
 	
 	public IConstructor constructor(Type constructorType, java.util.Map<String,IValue> annotations, IValue... children) {
-		Constructor cons = (Constructor) constructor(constructorType, children);
-		return new Constructor(cons, annotations);
+		checkNull(constructorType);
+		checkNull(annotations);
+		checkNull((Object[]) children);
+				
+		return new Constructor(constructorType, children).setAnnotations(annotations);
 	}
 	
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
-		TypeFactory tf = TypeFactory.getInstance();
-		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
-		Type params = constructorType.getAbstractDataType().getTypeParameters();
-		for (Type p : params) {
-			if (p.isParameterType()) {
-				bindings.put(p, tf.voidType());
-			}
-		}
-		return new Constructor(constructorType.instantiate(bindings));
+		
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);		
+		return new Constructor(instantiatedType);
 	}
 
 	public IMap map(Type keyType, Type valueType) {
@@ -263,11 +253,5 @@ public class ValueFactory extends FastBaseValueFactory {
 		rw.append(tuples);
 		return rw.done();
 	}
-
-	@Override
-	public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
-			throws FactTypeUseException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 }
