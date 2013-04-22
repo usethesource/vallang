@@ -162,8 +162,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
-	protected void checkMutation(){
-		if(constructedMap != null) throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
+	protected void checkMutation() {
+		if (constructedMap != null)
+			throw new UnsupportedOperationException(
+					"Mutation of a finalized map is not supported.");
 	}
 	
 	public IMap done(){

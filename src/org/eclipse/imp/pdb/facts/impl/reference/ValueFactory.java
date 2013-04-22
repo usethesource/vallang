@@ -214,16 +214,16 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 	public IMapWriter mapWriter(Type keyType, Type valueType) {
 		checkNull(keyType);
 		checkNull(valueType);
-		return Map.createMapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
+		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
 	}
 	
 	public IMapWriter mapWriter(Type mapType) {
 		checkNull(mapType);
-		return Map.createMapWriter(mapType);
+		return new MapWriter(mapType);
 	}
 
 	public IMapWriter mapWriter() {
-		return Map.createMapWriter();
+		return new MapWriter();
 	}
 
 	public IListRelationWriter listRelationWriter(Type tupleType) {

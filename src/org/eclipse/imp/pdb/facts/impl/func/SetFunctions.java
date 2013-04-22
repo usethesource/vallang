@@ -25,7 +25,8 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public final class SetFunctions {
 
-    private final static TypeFactory TF = TypeFactory.getInstance();
+    @SuppressWarnings("unused")
+	private final static TypeFactory TF = TypeFactory.getInstance();
 
     public static boolean contains(IValueFactory vf, ISet set1, IValue e) {
         for (IValue v : set1) {
@@ -106,7 +107,6 @@ public final class SetFunctions {
             if (set1.size() == set2.size()) {
 
                 for (IValue v1 : set1) {
-                    // call to Object.equals(Object)
                     if (set2.contains(v1) == false) return false;
                 }
 
