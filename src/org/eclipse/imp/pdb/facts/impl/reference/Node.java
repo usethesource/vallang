@@ -393,31 +393,41 @@ public class Node extends Value implements INode {
 
 	@Override
 	public IValue getKeywordArgumentValue(String name) {
-		// TODO Auto-generated method stub
+		if(keyArgNames != null){
+			int k = getKeywordIndex(name);
+			if(k >= 0)
+				return fChildren[k];
+		}
 		return null;
 	}
 
 	@Override
 	public boolean hasKeywordArguments() {
-		// TODO Auto-generated method stub
-		return false;
+		return keyArgNames != null;
 	}
 
 	@Override
 	public String[] getKeywordArgumentNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return keyArgNames;
 	}
 
 	@Override
 	public int getKeywordIndex(String name) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+		if(keyArgNames != null){
+			for(int i = 0; i < keyArgNames.length; i++){
+				if(name.equals(keyArgNames[i])){
+					return fChildren.length - keyArgNames.length + i;
+				}
+			}
+		}
+		return -1;
+}
 
 	@Override
 	public int positionalArity() {
-		// TODO Auto-generated method stub
-		return 0;
+		if(keyArgNames == null)
+			return fChildren.length;
+		else
+			return fChildren.length - keyArgNames.length;
 	}
 }
