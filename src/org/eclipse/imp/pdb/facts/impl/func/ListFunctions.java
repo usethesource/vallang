@@ -18,6 +18,7 @@
 package org.eclipse.imp.pdb.facts.impl.func;
 
 import org.eclipse.imp.pdb.facts.*;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -55,30 +56,103 @@ public final class ListFunctions {
         return w.done();
     }
 
-    public static IList replace(IValueFactory vf, IList list1, int first, int second, int end, IList repl) {
-        IListWriter w = vf.listWriter(repl.getElementType().lub(list1.getElementType()));
-        if (first < end) {
-            for (int i = 0; i < first; i++) {
-                w.append(list1.get(i));
-            }
-            w.appendAll(repl);
-            for (int i = end; i < list1.length(); i++) {
-                w.append(list1.get(i));
-            }
-        } else {
-            for (int i = list1.length() - 1; i > first; i--) {
-                w.insert(list1.get(i));
-            }
-            for (IValue v : repl) {
-                w.insert(v);
-            }
-            for (int i = end; i >= 0; i--) {
-                w.insert(list1.get(i));
-            }
-        }
-        return w.done();
-    }
+//	public static IList replace(IValueFactory vf, IList list1, int first,
+//			int second, int end, IList repl) {
+//		IListWriter w = vf.listWriter();
+//		if (first < end) {
+//			for (int i = 0; i < first; i++) {
+//				w.append(list1.get(i));
+//			}
+//			w.appendAll(repl);
+//			for (int i = end; i < list1.length(); i++) {
+//				w.append(list1.get(i));
+//			}
+//		} else {
+//			for (int i = list1.length() - 1; i > first; i--) {
+//				w.insert(list1.get(i));
+//			}
+//			for (IValue v : repl) {
+//				w.insert(v);
+//			}
+//			for (int i = end; i >= 0; i--) {
+//				w.insert(list1.get(i));
+//			}
+//		}
+//		return w.done();
+//	}
 
+	public static IList replace(IValueFactory vf, IList list1, int first,
+			int second, int end, IList repl) throws FactTypeUseException,
+			IndexOutOfBoundsException {
+		IListWriter result = vf.listWriter();
+
+		int rlen = repl.length();
+		int increment = Math.abs(second - first);
+
+		if (first < end) {
+			int listIndex = 0;
+			// Before begin
+			while (listIndex < first) {
+				result.append(list1.get(listIndex++));
+			}
+			int replIndex = 0;
+			boolean wrapped = false;
+			// Between begin and end
+			while (listIndex < end) {
+				result.append(repl.get(replIndex++));
+				if (replIndex == rlen) {
+					replIndex = 0;
+					wrapped = true;
+				}
+				listIndex++; // skip the replaced element
+				for (int j = 1; j < increment && listIndex < end; j++) {
+					result.append(list1.get(listIndex++));
+				}
+			}
+			if (!wrapped) {
+				while (replIndex < rlen) {
+					result.append(repl.get(replIndex++));
+				}
+			}
+			// After end
+			int dlen = list1.length();
+			while (listIndex < dlen) {
+				result.append(list1.get(listIndex++));
+			}
+		} else {
+			// Before begin (from right to left)
+			int listIndex = list1.length() - 1;
+			while (listIndex > first) {
+				result.insert(list1.get(listIndex--));
+			}
+			// Between begin (right) and end (left)
+			int replIndex = 0;
+			boolean wrapped = false;
+			while (listIndex > end) {
+				result.insert(repl.get(replIndex++));
+				if (replIndex == repl.length()) {
+					replIndex = 0;
+					wrapped = true;
+				}
+				listIndex--; // skip the replaced element
+				for (int j = 1; j < increment && listIndex > end; j++) {
+					result.insert(list1.get(listIndex--));
+				}
+			}
+			if (!wrapped) {
+				while (replIndex < rlen) {
+					result.insert(repl.get(replIndex++));
+				}
+			}
+			// Left of end
+			while (listIndex >= 0) {
+				result.insert(list1.get(listIndex--));
+			}
+		}
+
+		return result.done();
+	}
+    
     public static IList append(IValueFactory vf, IList list1, IValue e) {
         IListWriter w = vf.listWriter(e.getType().lub(list1.getElementType()));
         w.appendAll(list1);
@@ -96,18 +170,37 @@ public final class ListFunctions {
         return false;
     }
 
-    public static IList delete(IValueFactory vf, IList list1, IValue e) {
-        IListWriter w = vf.listWriter(list1.getElementType());
-        w.appendAll(list1);
-        w.delete(e);
-        return w.done();
+    public static IList delete(IValueFactory vf, IList list1, IValue v) {
+    	IListWriter w = vf.listWriter();
+        
+        boolean deleted = false;
+        for (Iterator<IValue> iterator = list1.iterator(); iterator.hasNext();) {
+			IValue e = iterator.next();
+
+			if (!deleted && e.isEqual(v)) {
+				deleted = true; // skip first occurrence
+			} else {
+				w.append(e);
+			}
+		}
+        return w.done();        
     }
 
-    public static IList delete(IValueFactory vf, IList list1, int i) {
-        IListWriter w = vf.listWriter(list1.getElementType());
-        w.appendAll(list1);
-        w.delete(i);
-        return w.done();
+    public static IList delete(IValueFactory vf, IList list1, int index) {
+    	IListWriter w = vf.listWriter();
+        
+    	int currentIndex = 0;
+    	boolean deleted = false;
+        for (Iterator<IValue> iterator = list1.iterator(); iterator.hasNext(); currentIndex++) {
+			IValue e = iterator.next();
+
+			if (!deleted && index == currentIndex) {
+				deleted = true; // skip first occurrence
+			} else {
+				w.append(e);
+			}
+		}
+        return w.done();  
     }
 
     public static IList reverse(IValueFactory vf, IList list1) {
@@ -123,10 +216,6 @@ public final class ListFunctions {
         w.appendAll(list1);
         w.appendAll(list2);
         return w.done();
-    }
-
-    public static int hashCode(IValueFactory vf, IList list1) {
-        return list1.hashCode();
     }
 
     public static boolean equals(IValueFactory vf, IList list1, Object other) {
@@ -146,7 +235,7 @@ public final class ListFunctions {
                 final Iterator<IValue> it2 = list2.iterator();
 
                 while (it1.hasNext() && it2.hasNext()) {
-                    // call to Object.equals(Object)
+                	// call to Object.equals(Object)
                     if (it1.next().equals(it2.next()) == false) return false;
                 }
 
@@ -156,7 +245,32 @@ public final class ListFunctions {
         }
 
         return false;
-    }
+    }  
+    
+    public static boolean isEqual(IValueFactory vf, IList list1, IValue other) {   	
+        if (other == list1) return true;
+        if (other == null) return false;
+
+        if (other instanceof IList) {
+            IList list2 = (IList) other;
+
+            if (list1.length() == list2.length()) {
+
+                final Iterator<IValue> it1 = list1.iterator();
+                final Iterator<IValue> it2 = list2.iterator();
+
+                while (it1.hasNext() && it2.hasNext()) {
+                    // call to IValue.isEqual(IValue)
+                    if (it1.next().isEqual(it2.next()) == false) return false;
+                }
+
+                assert (!it1.hasNext() && !it2.hasNext());
+                return true;
+            }
+        }
+
+        return false;
+    }    
 
     public static IList product(IValueFactory vf, IList list1, IList list2) {
         Type resultType = TypeFactory.getInstance().tupleType(list1.getElementType(), list2.getElementType());
@@ -210,31 +324,6 @@ public final class ListFunctions {
             return false;
         }
         return true;
-    }
-
-    public static boolean isEqual(IValueFactory vf, IList list1, IValue other) {
-        if (other == list1) return true;
-        if (other == null) return false;
-
-        if (other instanceof IList) {
-            IList list2 = (IList) other;
-
-            if (list1.length() == list2.length()) {
-
-                final Iterator<IValue> it1 = list1.iterator();
-                final Iterator<IValue> it2 = list2.iterator();
-
-                while (it1.hasNext() && it2.hasNext()) {
-                    // call to IValue.isEqual(IValue)
-                    if (it1.next().isEqual(it2.next()) == false) return false;
-                }
-
-                assert (!it1.hasNext() && !it2.hasNext());
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public static IList closure(IValueFactory vf, IList list1) {
