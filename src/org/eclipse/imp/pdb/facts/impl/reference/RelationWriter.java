@@ -13,7 +13,9 @@ package org.eclipse.imp.pdb.facts.impl.reference;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /*package*/ class RelationWriter extends SetWriter implements IRelationWriter {
 
@@ -26,6 +28,11 @@ import org.eclipse.imp.pdb.facts.type.Type;
     }
 
     public IRelation done() {
+    	// Temporary fix of the static vs dynamic type issue
+    	eltType = TypeFactory.getInstance().voidType();
+    	for(IValue el : setContent)
+    		eltType = eltType.lub(el.getType());
+    	// ---
         if (constructedSet == null) {
             constructedSet = SetOrRel.apply(eltType, setContent);
         }

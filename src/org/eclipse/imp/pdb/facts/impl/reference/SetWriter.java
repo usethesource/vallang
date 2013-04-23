@@ -85,6 +85,11 @@ import java.util.HashSet;
     }
 
     public ISet done() {
+    	// Temporary fix of the static vs dynamic type issue
+    	eltType = TypeFactory.getInstance().voidType();
+    	for(IValue el : setContent)
+    		eltType = eltType.lub(el.getType());
+    	// ---
         if (constructedSet == null) {
             constructedSet = SetOrRel.apply(eltType, setContent);
         }

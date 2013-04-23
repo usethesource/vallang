@@ -157,6 +157,11 @@ import java.util.LinkedList;
     }
 
     public IList done() {
+    	// Temporary fix of the static vs dynamic type issue
+    	eltType = TypeFactory.getInstance().voidType();
+    	for(IValue el : listContent)
+    		eltType = eltType.lub(el.getType());
+    	// ---
         if (constructedList == null) {
             constructedList = ListOrRel.apply(eltType, listContent);
         }

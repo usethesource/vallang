@@ -86,7 +86,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	public void putAll(IMap map) throws FactTypeUseException{
 		checkMutation();
 		Type mapType = map.getType();
-		check(mapType.getKeyType(), mapType.getValueType(), keyType, valueType);
+//		check(mapType.getKeyType(), mapType.getValueType(), keyType, valueType);
 		
 		for(IValue key : map){
 			IValue value = map.get(key);
@@ -130,11 +130,19 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	}
 	
 	public IMap done(){
+		// Temporary fix of the static vs dynamic type issue
+		Type keyType = TypeFactory.getInstance().voidType();
+		Type valueType = TypeFactory.getInstance().voidType();
+		for(java.util.Map.Entry<IValue, IValue> entry : mapContent.entrySet()) {
+			keyType = keyType.lub(entry.getKey().getType());
+			valueType = valueType.lub(entry.getValue().getType());
+		}
+		// ---
 		if (constructedMap == null) {
 			if (mapType == null) {
 				mapType = TypeFactory.getInstance().mapType(keyType, valueType);
 			}
-			constructedMap = new Map(mapType, mapContent);
+			constructedMap = new Map(TypeFactory.getInstance().mapType(keyType, valueType), mapContent);
 		}
 
 		return constructedMap;
