@@ -32,9 +32,9 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /*package*/ class MapWriter extends Writer implements IMapWriter {
-	private Type mapType; 
-	private Type keyType;
-	private Type valueType;
+	private Type staticMapType;
+	private Type staticKeyType;
+	private Type staticValueType;
 	private final boolean inferred;
 	private final java.util.HashMap<IValue, IValue> mapContent;
 	private Map constructedMap;
@@ -42,9 +42,11 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	/*package*/ MapWriter(){
 		super();
 		
-		this.mapType = null;
-		this.keyType = TypeFactory.getInstance().voidType();
-		this.valueType = TypeFactory.getInstance().voidType();
+		this.staticMapType = TypeFactory.getInstance().mapType(
+				TypeFactory.getInstance().voidType(),
+				TypeFactory.getInstance().voidType());
+		this.staticKeyType = TypeFactory.getInstance().voidType();
+		this.staticValueType = TypeFactory.getInstance().voidType();
 		this.inferred = true;
 		
 		mapContent = new java.util.HashMap<IValue, IValue>();
@@ -59,9 +61,9 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		
 		if(!mapType.isMapType()) throw new IllegalArgumentException("Argument must be a map type or tuple type: " + mapType);
 
-		this.mapType = mapType;
-		this.keyType = mapType.getKeyType();
-		this.valueType = mapType.getValueType();
+		this.staticMapType = mapType;
+		this.staticKeyType = mapType.getKeyType();
+		this.staticValueType = mapType.getValueType();
 		this.inferred = false;
 		
 		mapContent = new java.util.HashMap<IValue, IValue>();
@@ -97,8 +99,8 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	
 	private void updateTypes(IValue key, IValue value) {
 		if (inferred) {
-			keyType = keyType.lub(key.getType());
-			valueType = valueType.lub(value.getType());
+			staticKeyType = staticKeyType.lub(key.getType());
+			staticValueType = staticValueType.lub(value.getType());
 		}
 		
 	}
@@ -108,7 +110,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		for(Entry<IValue, IValue> entry : map.entrySet()){
 			IValue value = entry.getValue();
 			updateTypes(entry.getKey(), value);
-			check(entry.getKey().getType(), value.getType(), keyType, valueType);
+			check(entry.getKey().getType(), value.getType(), staticKeyType, staticValueType);
 			mapContent.put(entry.getKey(), value);
 		}
 	}
@@ -131,21 +133,23 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	
 	public IMap done(){
 		// Temporary fix of the static vs dynamic type issue
-		Type keyType = TypeFactory.getInstance().voidType();
-		Type valueType = TypeFactory.getInstance().voidType();
-		for(java.util.Map.Entry<IValue, IValue> entry : mapContent.entrySet()) {
-			keyType = keyType.lub(entry.getKey().getType());
-			valueType = valueType.lub(entry.getValue().getType());
+		Type dynamicKeyType = TypeFactory.getInstance().voidType();
+		Type dynamicValueType = TypeFactory.getInstance().voidType();
+		for (java.util.Map.Entry<IValue, IValue> entry : mapContent.entrySet()) {
+			dynamicKeyType = dynamicKeyType.lub(entry.getKey().getType());
+			dynamicValueType = dynamicValueType.lub(entry.getValue().getType());
 		}
 		// ---
+		
 		if (constructedMap == null) {
-			if (mapType == null) {
-				mapType = TypeFactory.getInstance().mapType(keyType, valueType);
-			}
-			constructedMap = new Map(TypeFactory.getInstance().mapType(keyType, valueType), mapContent);
+			Type dynamicMapType = TypeFactory.getInstance().mapType(
+					dynamicKeyType, staticMapType.getKeyLabel(),
+					dynamicValueType, staticMapType.getValueLabel());
+
+			constructedMap = new Map(dynamicMapType, mapContent);
 		}
 
 		return constructedMap;
-	}
-
+	}	
+	
 }
