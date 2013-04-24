@@ -19,9 +19,7 @@ package org.eclipse.imp.pdb.facts.impl.reference;
 
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IListRelationWriter;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /*package*/ class ListRelationWriter extends ListWriter implements IListRelationWriter {
 
@@ -34,15 +32,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
     }
 
     public IListRelation done() {
-    	// Temporary fix of the static vs dynamic type issue
-    	eltType = TypeFactory.getInstance().voidType();
-    	for(IValue el : listContent)
-    		eltType = eltType.lub(el.getType());
-    	// ---
-        if (constructedList == null) {
-            constructedList = ListOrRel.apply(eltType, listContent);
-        }
-        return (IListRelation) constructedList;
+        return (IListRelation) super.done();
     }
 
 }
