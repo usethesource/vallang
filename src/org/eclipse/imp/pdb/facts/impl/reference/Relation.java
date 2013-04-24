@@ -17,9 +17,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import org.eclipse.imp.pdb.facts.IContainer;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.func.SetFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /*package*/ class Relation extends Set implements IRelation {
 
-	/*package*/ Relation(Type elementType, java.util.Set<IValue> content) {
+	/*package*/ Relation(Type elementType, IContainer content) {
 		super(elementType, content);
 	}
 	

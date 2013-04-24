@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import org.eclipse.imp.pdb.facts.IContainer;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -27,6 +28,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 import java.util.HashSet;
+import java.util.Iterator;
 
 /*package*/ class SetWriter extends Writer implements ISetWriter {
     protected final HashSet<IValue> setContent;
@@ -91,7 +93,7 @@ import java.util.HashSet;
     		eltType = eltType.lub(el.getType());
     	// ---
         if (constructedSet == null) {
-            constructedSet = SetOrRel.apply(eltType, setContent);
+            constructedSet = SetOrRel.apply(eltType, new SetContainer(setContent));
         }
 
         return constructedSet;
@@ -111,4 +113,88 @@ import java.util.HashSet;
         setContent.remove(v);
     }
 
+    /*package*/ final class SetContainer implements IContainer {
+
+    	/*package*/ SetContainer(java.util.HashSet<IValue> content) {
+    		this.content = content;
+    	}
+    	
+    	private final java.util.HashSet<IValue> content;
+    	
+		@Override
+		public boolean isEmpty() {
+			return content.isEmpty();
+		}
+
+		@Override
+		public boolean hasCount() {
+			return true;
+		}
+
+		@Override
+		public int getCount() {
+			return content.size();
+		}
+
+		@Override
+		public boolean contains(IValue query) {
+			return content.contains(query);
+		}
+
+		@Override
+		public IValue get(IValue query) {
+			if (contains(query)) {
+				return query;
+			} else {
+				throw new IllegalArgumentException(); // how about none?
+			}
+		}
+
+		@Override
+		public int getArity() {
+			return 1;
+		}
+
+		@Override
+		public Iterator<IValue> iterator() {
+			return content.iterator();
+		}
+
+		@Override
+		public Iterator<IValue> iterator(int arity) {
+			if (arity < 0 || arity >= getArity()) {
+				throw new IllegalArgumentException(); // how about iterator over empty collection?
+			}
+			return content.iterator();
+		}
+
+		@Override
+		public int hashCode() {			
+			return content.hashCode();
+//			int hash = 0;
+//
+//			Iterator<IValue> iterator = iterator();
+//			while (iterator.hasNext()) {
+//				IValue element = iterator.next();
+//				hash = (hash << 1) ^ element.hashCode();
+//			}
+//
+//			return hash;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+	        if (other == this) return true;
+	        if (other == null) return false;
+
+	        if (other instanceof SetContainer) {
+	            SetContainer that = (SetContainer) other;
+
+	            return this.content.equals(that.content);
+	        }
+	        return false;		
+        }
+    	
+    }    
+    
 }

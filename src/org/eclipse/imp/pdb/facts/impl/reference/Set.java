@@ -17,18 +17,16 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IContainer;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-import java.util.Iterator;
-
 /*package*/ class Set extends AbstractSet {
 
-    final java.util.Set<IValue> content;
-
-    /*package*/ Set(Type elementType, java.util.Set<IValue> content) {
+    private final IContainer content;	
+	
+    /*package*/ Set(Type elementType, IContainer content) {
         super(inferSetOrRelType(elementType, content));
 
         this.content = content;
@@ -39,29 +37,9 @@ import java.util.Iterator;
         return ValueFactory.getInstance();
     }
 
-    @Override
-    public boolean isEmpty() {
-        return content.isEmpty();
-    }
-
-    @Override
-    public int size() {
-        return content.size();
-    }
-
-    @Override
-    public boolean contains(IValue e) {
-        return content.contains(e);
-    }
-
-    @Override
-    public int hashCode() {
-        return content.hashCode();
-    }
-
-    @Override
-    public Iterator<IValue> iterator() {
-        return content.iterator();
-    }
-
+	@Override
+	protected IContainer getContainer() {
+		return content;
+	}
+	
 }

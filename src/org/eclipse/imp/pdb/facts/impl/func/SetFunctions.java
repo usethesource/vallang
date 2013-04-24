@@ -28,14 +28,14 @@ public final class SetFunctions {
     @SuppressWarnings("unused")
 	private final static TypeFactory TF = TypeFactory.getInstance();
 
-    public static boolean contains(IValueFactory vf, ISet set1, IValue e) {
-        for (IValue v : set1) {
-            if (v.isEqual(e)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public static boolean contains(IValueFactory vf, ISet set1, IValue e) {
+//        for (IValue v : set1) {
+//            if (v.equals(e)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public static ISet insert(IValueFactory vf, ISet set1, IValue e) {
         ISetWriter sw = vf.setWriter(set1.getElementType().lub(e.getType()));
@@ -169,7 +169,7 @@ public final class SetFunctions {
             for (IValue t2 : set2) {
                 ITuple tuple2 = (ITuple) t2;
 
-                if (tuple1.get(1).isEqual(tuple2.get(0))) {
+                if (tuple1.get(1).equals(tuple2.get(0))) {
                     w.insert(vf.tuple(tuple1.get(0), tuple2.get(1)));
                 }
             }

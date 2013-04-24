@@ -11,15 +11,15 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import org.eclipse.imp.pdb.facts.IContainer;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public class SetOrRel {
 
 	@SuppressWarnings("unchecked")
-	public static <ISetOrRel extends ISet> ISetOrRel apply(Type elementType, java.util.Set<IValue> data) {
+	public static <ISetOrRel extends ISet> ISetOrRel apply(Type elementType, IContainer data) {
 		Type calculatedElementType = data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType;
 		
 		if (calculatedElementType.isTupleType())

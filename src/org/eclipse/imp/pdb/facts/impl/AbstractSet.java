@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.util.Iterator;
+
+import org.eclipse.imp.pdb.facts.IContainer;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -57,6 +60,8 @@ public abstract class AbstractSet extends Value implements ISet {
 
     protected abstract IValueFactory getValueFactory();
 
+    protected abstract IContainer getContainer();
+    
     @Override
     public Type getElementType() {
         return getType().getElementType();
@@ -98,16 +103,6 @@ public abstract class AbstractSet extends Value implements ISet {
     }
 
     @Override
-    public boolean isEqual(IValue other) {
-        return SetFunctions.isEqual(getValueFactory(), this, other);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return SetFunctions.equals(getValueFactory(), this, other);
-    }
-
-    @Override
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 //        if (getElementType().isTupleType()) {
 //            return v.visitRelation(this);
@@ -116,5 +111,40 @@ public abstract class AbstractSet extends Value implements ISet {
 //        }
         return v.visitSet(this);
     }
+
+    @Override
+    public boolean isEqual(IValue other) {
+    	return SetFunctions.isEqual(getValueFactory(), this, other);
+    }	
+    
+    @Override
+    public boolean equals(Object other) {
+    	return SetFunctions.equals(getValueFactory(), this, other);
+    }
+    
+	@Override
+	public boolean isEmpty() {
+		return getContainer().isEmpty();
+	}
+
+	@Override
+	public int size() {
+		return getContainer().getCount();
+	}
+
+	@Override
+	public boolean contains(IValue e) {
+		return getContainer().contains(e);
+	}
+
+	@Override
+	public int hashCode() {
+		return getContainer().hashCode();
+	}
+
+	@Override
+	public Iterator<IValue> iterator() {
+		return getContainer().iterator();
+	}
 
 }
