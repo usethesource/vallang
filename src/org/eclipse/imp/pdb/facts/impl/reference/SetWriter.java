@@ -70,7 +70,8 @@ import java.util.Iterator;
         }
     }
 
-    public void insert(IValue... elems) throws FactTypeUseException {
+    @Override
+	public void insert(IValue... elems) throws FactTypeUseException {
         checkMutation();
 
         for (IValue elem : elems) {
@@ -78,7 +79,8 @@ import java.util.Iterator;
         }
     }
 
-    public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
+    @Override
+	public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
         checkMutation();
 
         for (IValue v : collection) {
@@ -86,7 +88,8 @@ import java.util.Iterator;
         }
     }
 
-    public ISet done() {
+    @Override
+	public ISet done() {
     	// Temporary fix of the static vs dynamic type issue
     	eltType = TypeFactory.getInstance().voidType();
     	for(IValue el : setContent)
@@ -104,11 +107,13 @@ import java.util.Iterator;
             throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
     }
 
-    public int size() {
+    @Override
+	public int size() {
         return constructedSet.size();
     }
 
-    public void delete(IValue v) {
+    @Override
+	public void delete(IValue v) {
         checkMutation();
         setContent.remove(v);
     }

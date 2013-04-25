@@ -25,7 +25,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
         super();
     }
 
-    public IRelation done() {
+    @Override
+	public IRelation done() {
         return (IRelation) super.done();
     }
 

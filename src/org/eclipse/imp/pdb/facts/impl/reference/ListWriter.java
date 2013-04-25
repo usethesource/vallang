@@ -85,7 +85,8 @@ import java.util.LinkedList;
         put(0, elem);
     }
 
-    public void insert(IValue[] elems, int start, int length) throws FactTypeUseException{
+    @Override
+	public void insert(IValue[] elems, int start, int length) throws FactTypeUseException{
         checkMutation();
         checkBounds(elems, start, length);
 
@@ -95,18 +96,21 @@ import java.util.LinkedList;
         }
     }
 
-    public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
+    @Override
+	public void replaceAt(int index, IValue elem) throws FactTypeUseException, IndexOutOfBoundsException {
         checkMutation();
         updateType(elem);
         checkInsert(elem, eltType);
         listContent.set(index, elem);
     }
 
-    public void insert(IValue... elems) throws FactTypeUseException{
+    @Override
+	public void insert(IValue... elems) throws FactTypeUseException{
         insert(elems, 0, elems.length);
     }
 
-    public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException{
+    @Override
+	public void insertAt(int index, IValue[] elems, int start, int length) throws FactTypeUseException{
         checkMutation();
         checkBounds(elems, start, length);
 
@@ -118,7 +122,8 @@ import java.util.LinkedList;
         }
     }
 
-    public void insertAt(int index, IValue... elems) throws FactTypeUseException{
+    @Override
+	public void insertAt(int index, IValue... elems) throws FactTypeUseException{
         insertAt(index,  elems, 0, 0);
     }
 
@@ -128,7 +133,8 @@ import java.util.LinkedList;
         put(listContent.size(), elem);
     }
 
-    public void append(IValue... elems) throws FactTypeUseException{
+    @Override
+	public void append(IValue... elems) throws FactTypeUseException{
         checkMutation();
 
         for(IValue elem : elems){
@@ -137,7 +143,8 @@ import java.util.LinkedList;
         }
     }
 
-    public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
+    @Override
+	public void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException{
         checkMutation();
 
         for(IValue v : collection){
@@ -152,11 +159,13 @@ import java.util.LinkedList;
         }
     }
 
-    public int size() {
+    @Override
+	public int size() {
         return listContent.size();
     }
 
-    public IList done() {
+    @Override
+	public IList done() {
     	// Temporary fix of the static vs dynamic type issue
     	eltType = TypeFactory.getInstance().voidType();
     	for(IValue el : listContent)
@@ -174,12 +183,14 @@ import java.util.LinkedList;
         if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
     }
 
-    public void delete(IValue elem) {
+    @Override
+	public void delete(IValue elem) {
         checkMutation();
         listContent.remove(elem);
     }
 
-    public void delete(int i) {
+    @Override
+	public void delete(int i) {
         checkMutation();
         listContent.remove(i);
     }

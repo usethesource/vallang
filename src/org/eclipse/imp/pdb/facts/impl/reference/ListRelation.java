@@ -29,47 +29,58 @@ public class ListRelation extends List implements IListRelation {
         super(elementType, content);
     }
 
-    public int arity() {
+    @Override
+	public int arity() {
         return getType().getArity();
     }
 
-    public IListRelation closure() {
+    @Override
+	public IListRelation closure() {
         return (IListRelation) ListFunctions.closure(getValueFactory(), this);
     }
 
-    public IListRelation closureStar() {
+    @Override
+	public IListRelation closureStar() {
         return (IListRelation) ListFunctions.closureStar(getValueFactory(), this);
     }
 
-    public IList carrier() {
+    @Override
+	public IList carrier() {
         return ListFunctions.carrier(getValueFactory(), this);
     }
 
-    public IList domain() {
-        return (IListRelation) ListFunctions.domain(getValueFactory(), this);
+    @Override
+	public IList domain() {
+        return ListFunctions.domain(getValueFactory(), this);
     }
 
-    public IList range() {
-        return (IListRelation) ListFunctions.range(getValueFactory(), this);
+    @Override
+	public IList range() {
+        return ListFunctions.range(getValueFactory(), this);
     }
 
-    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+    @Override
+	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
         return v.visitListRelation(this);
     }
 
-    public Type getFieldTypes() {
+    @Override
+	public Type getFieldTypes() {
         return getType().getFieldTypes();
     }
 
-    public IList select(int... fields) {
+    @Override
+	public IList select(int... fields) {
         return ListFunctions.project(getValueFactory(), this, fields);
     }
 
-    public IList selectByFieldNames(String... fields) {
+    @Override
+	public IList selectByFieldNames(String... fields) {
         return ListFunctions.projectByFieldNames(getValueFactory(), this, fields);
     }
 
-    public IListRelation compose(IListRelation that) {
+    @Override
+	public IListRelation compose(IListRelation that) {
         return (IListRelation) ListFunctions.compose(getValueFactory(), this, that);
     }
 
