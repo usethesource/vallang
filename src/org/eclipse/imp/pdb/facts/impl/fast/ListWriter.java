@@ -77,6 +77,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 
+	@Override
 	public void append(IValue... elems){
 		checkMutation();
 		
@@ -86,6 +87,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void appendAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
@@ -103,10 +105,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		data.insert(elem);
 	}
 	
+	@Override
 	public void insert(IValue... elements){
 		insert(elements, 0, elements.length);
 	}
 	
+	@Override
 	public void insert(IValue[] elements, int start, int length){
 		checkMutation();
 		checkBounds(elements, start, length);
@@ -117,6 +121,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void insertAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
@@ -135,10 +140,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		data.insertAt(index, element);
 	}
 	
+	@Override
 	public void insertAt(int index, IValue... elements){
 		insertAt(index, elements, 0, 0);
 	}
 	
+	@Override
 	public void insertAt(int index, IValue[] elements, int start, int length){
 		checkMutation();
 		checkBounds(elements, start, length);
@@ -149,23 +156,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void replaceAt(int index, IValue element){
 		checkMutation();
 		
 		updateType(element);
 		data.set(index, element);
-	}
-	
-	public void delete(int index){
-		checkMutation();
-		
-		data.remove(index);
-	}
-	
-	public void delete(IValue element){
-		checkMutation();
-		
-		data.remove(element);
 	}
 	
 	protected void checkMutation(){
@@ -177,10 +173,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
 	}
 	
+	@Override
 	public int size(){
 		return data.size();
 	}
 	
+	@Override
 	public IList  done(){
 		if (constructedList == null) {
 			if (/*inferred && */elementType.isTupleType() || data.isEmpty()) {

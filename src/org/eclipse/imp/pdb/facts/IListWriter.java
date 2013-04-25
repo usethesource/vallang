@@ -90,20 +90,7 @@ public interface IListWriter extends IWriter {
      * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
      */
     void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
-    
-    /**
-     * Removes the first occurrence of this element in the currently built list
-     * @param elem
-     */
-    void delete(IValue elem);
-    
-    /**
-     * Removed the element at index <code>i</code>.
-     * 
-     * @param i index
-     */
-    void delete(int i);
-    
+        
     /**
      * 
      * @return the size of the list so far.

@@ -112,12 +112,6 @@ import java.util.Iterator;
         return constructedSet.size();
     }
 
-    @Override
-	public void delete(IValue v) {
-        checkMutation();
-        setContent.remove(v);
-    }
-
     /*package*/ final class SetContainer implements IContainer {
 
     	/*package*/ SetContainer(java.util.HashSet<IValue> content) {

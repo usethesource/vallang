@@ -183,16 +183,4 @@ import java.util.LinkedList;
         if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
     }
 
-    @Override
-	public void delete(IValue elem) {
-        checkMutation();
-        listContent.remove(elem);
-    }
-
-    @Override
-	public void delete(int i) {
-        checkMutation();
-        listContent.remove(i);
-    }
-
 }
