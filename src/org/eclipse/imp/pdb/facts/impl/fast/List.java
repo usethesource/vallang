@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
+import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -282,7 +283,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	public IListRelation product(IList lst){
 		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),lst.getElementType());
-		ListRelationWriter w = new ListRelationWriter(resultType);
+		IListRelationWriter w = ListRelation.createListRelationWriter(resultType);
 
 		for(IValue t1 : this){
 			for(IValue t2 : lst){

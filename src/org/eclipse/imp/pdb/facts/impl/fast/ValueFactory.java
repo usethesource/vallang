@@ -95,11 +95,11 @@ public class ValueFactory extends FastBaseValueFactory {
 	}
 	
 	public IListRelationWriter listRelationWriter(Type tupleType) {
-		return new ListRelationWriter(tupleType);
+		return ListRelation.createListRelationWriter(tupleType);
 	}
 
 	public IListRelationWriter listRelationWriter() {
-		return new ListRelationWriter();
+		return ListRelation.createListRelationWriter();
 	}
 	
 	public IList list(Type elementType){
