@@ -85,6 +85,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 
+	@Override
 	public void insert(IValue... elements){
 		checkMutation();
 		
@@ -94,6 +95,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void insertAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
@@ -111,6 +113,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		data.remove(element);
 	}
 	
+	@Override
 	public int size(){
 		return data.size();
 	}
@@ -119,6 +122,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		if(constructedRelation != null) throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
 	}
 	
+	@Override
 	public IRelation done(){
 		if (constructedRelation == null) {
 		  constructedRelation = new Relation(data.isEmpty() ? TypeFactory.getInstance().voidType() : tupleType, data);

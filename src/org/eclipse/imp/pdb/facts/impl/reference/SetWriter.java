@@ -110,10 +110,4 @@ import java.util.HashSet;
         return constructedSet.size();
     }
 
-    @Override
-	public void delete(IValue v) {
-        checkMutation();
-        setContent.remove(v);
-    }
-
 }
