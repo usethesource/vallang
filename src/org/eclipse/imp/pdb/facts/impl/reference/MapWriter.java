@@ -85,6 +85,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 					"Mutation of a finalized list is not supported.");
 	}
 	
+	@Override
 	public void putAll(IMap map) throws FactTypeUseException{
 		checkMutation();
 		Type mapType = map.getType();
@@ -105,6 +106,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		
 	}
 
+	@Override
 	public void putAll(java.util.Map<IValue, IValue> map) throws FactTypeUseException{
 		checkMutation();
 		for(Entry<IValue, IValue> entry : map.entrySet()){
@@ -115,12 +117,14 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 
+	@Override
 	public void put(IValue key, IValue value) throws FactTypeUseException{
 		checkMutation();
 		updateTypes(key,value);
 		mapContent.put(key, value);
 	}
 	
+	@Override
 	public void insert(IValue... value) throws FactTypeUseException {
 		for(IValue tuple : value){
 			ITuple t = (ITuple) tuple;
@@ -131,6 +135,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public IMap done(){
 		// Temporary fix of the static vs dynamic type issue
 		Type dynamicKeyType = TypeFactory.getInstance().voidType();
