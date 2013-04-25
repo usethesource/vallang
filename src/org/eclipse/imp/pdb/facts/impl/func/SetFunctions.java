@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.func;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.*;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -66,12 +68,21 @@ public final class SetFunctions {
         return sw.done();
     }
 
-    public static ISet delete(IValueFactory vf, ISet set1, IValue e) {
-        ISetWriter sw = vf.setWriter(set1.getElementType());
-        sw.insertAll(set1);
-        sw.delete(e);
-        return sw.done();
-    }
+	public static ISet delete(IValueFactory vf, ISet set1, IValue v) {
+		ISetWriter w = vf.setWriter();
+
+		boolean deleted = false;
+		for (Iterator<IValue> iterator = set1.iterator(); iterator.hasNext();) {
+			IValue e = iterator.next();
+
+			if (!deleted && e.isEqual(v)) {
+				deleted = true; // skip first occurrence
+			} else {
+				w.insert(e);
+			}
+		}
+		return w.done();
+	}
 
     public static boolean isSubsetOf(IValueFactory vf, ISet set1, ISet set2) {
         for (IValue elem : set1) {
