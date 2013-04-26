@@ -314,6 +314,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * It is intended to be subclasses by concrete Types.
 	 */
 	protected static class DefaultSubtype implements ITypeVisitor<Boolean> {
+    public DefaultSubtype() { /* for visibility */ }
+
     @Override
     public Boolean visitReal(Type type) {
       return false;

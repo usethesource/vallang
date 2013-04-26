@@ -32,10 +32,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
         return sInstance;
     }
 
-    private NumberType() {
-    	super();
-    }
-
     @Override
     public boolean isNumberType() {
     	return true;
@@ -50,7 +46,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     protected DefaultSubtype getSubtype() {
       return new Subtype();
     }
-    
+     
     @Override
     public Type lub(Type other) {
     	if (other == this) {
