@@ -37,7 +37,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	  
     @Override
     public Boolean visitAbstractData(Type type) {
-      return it == type;
+      return it.getName().equals(type.getName()) 
+          && it.getTypeParameters().isSubtypeOf(type.getTypeParameters());
     }
   }
 
