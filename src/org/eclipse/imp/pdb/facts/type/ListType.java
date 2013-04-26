@@ -20,7 +20,25 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ class ListType extends Type {
-	protected final Type fEltType;
+	protected static class Subtype extends DefaultSubtype {
+	  private final Type fEltType;
+	  
+    public Subtype(Type eltType) {
+	    this.fEltType = eltType;
+    }
+    
+    @Override
+    public Boolean visitList(Type type) {
+      return fEltType.isSubtypeOf(type.getElementType());
+    }
+    
+    @Override
+    public Boolean visitListRelationType(Type type) {
+      return fEltType.isSubtypeOf(type.getElementType());
+    }
+  }
+
+  protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
 		fEltType = eltType;
@@ -37,14 +55,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other.isListType() && !other.isVoidType()) {
-			return fEltType.isSubtypeOf(other.getElementType());
-		}
-		
-		return super.isSubtypeOf(other);
+	protected DefaultSubtype getSubtype() {
+	  return new Subtype(fEltType);
 	}
-
+	
 	@Override
 	public Type lub(Type o) {
 		if (o.isListType()) {

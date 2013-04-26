@@ -43,19 +43,17 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     public int hashCode() {
         return 74843;
     }
-    
+
     @Override
-    public boolean isSubtypeOf(Type other) {
-    	if (other == this) {
-    		return true;
-    	}
-    	if (other.isNumberType()) {
-    		return true;
-    	}
-    	
-    	return super.isSubtypeOf(other);
+    protected DefaultSubtype getSubtype() {
+      return new NumberType.Subtype() {
+        @Override
+        public Boolean visitInteger(Type type) {
+          return true;
+        }
+      };
     }
-    
+    	
     @Override
     public Type lub(Type other) {
     	if (other == this) {

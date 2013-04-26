@@ -157,12 +157,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == this) {
-			return true;
-		}
-		
-		return fBound.isSubtypeOf(other);
+	protected DefaultSubtype getSubtype() {
+	  return new ForwardSubtype(fBound);
 	}
 
 	@Override

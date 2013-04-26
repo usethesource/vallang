@@ -43,12 +43,105 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		// the empty set is a subset of all sets,
-		// and so the void type is a subtype of all types.
-		return true;
-	}
+	protected DefaultSubtype getSubtype() {
+	  return new DefaultSubtype() {
+	    @Override
+	    public Boolean visitReal(Type type) {
+	      return true;
+	    }
 
+	    @Override
+	    public Boolean visitInteger(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitRational(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitList(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitMap(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitNumber(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitRelationType(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitListRelationType(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitSet(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitSourceLocation(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitString(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitNode(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitConstructor(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitAbstractData(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitTuple(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitVoid(Type type) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitBool(Type boolType) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitExternal(Type externalType) {
+	      return true;
+	    }
+
+	    @Override
+	    public Boolean visitDateTime(Type type) {
+	      return true;
+	    }
+	  };
+	}
+	
 	@Override
 	public boolean isVoidType() {
 		return true;
@@ -251,11 +344,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	
 	@Override
 	public boolean isValueType() {
-		return true;
-	}
-	
-	@Override
-	public boolean comparable(Type other) {
 		return true;
 	}
 	

@@ -58,7 +58,7 @@ public abstract class BaseTestList extends TestCase {
 		}
 		
 		try {
-			IList namedList = (IList) tf.aliasType(new TypeStore(), "myList", tf.listType(tf.integerType())).make(vf);
+			IList namedList = (IList) ((IList) tf.aliasType(new TypeStore(), "myList", tf.listType(tf.integerType())).make(vf)).insert(vf.integer(1));
 			if (!namedList.getElementType().isSubtypeOf(tf.integerType())) {
 				fail("named list has wrong elementtype");
 			}

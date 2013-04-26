@@ -31,6 +31,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return true;
     }
     
+    @Override
+    protected DefaultSubtype getSubtype() {
+      return new DefaultSubtype() {
+        @Override
+        public Boolean visitString(Type type) {
+          return true;
+        }
+      };
+    }
+    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */

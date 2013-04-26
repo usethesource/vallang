@@ -315,11 +315,11 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testIntersectISet() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
+		IRelation nonEmpty1 = vf.relation(vf.tuple(vf.integer(1)));
+		ISet nonEmpty2 = vf.set(vf.tuple(vf.real(2.0)));
 		
 		try {
-			final IRelation intersection = empty1.intersect(empty2);
+			final IRelation intersection = nonEmpty1.intersect(nonEmpty2);
 			if (!intersection.isEmpty()) {
 				fail("empty intersection failed");
 			}

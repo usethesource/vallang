@@ -21,6 +21,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 /*package*/ final class NumberType extends Type {
 	private final static NumberType sInstance= new NumberType();
 	
+	protected static class Subtype extends DefaultSubtype {
+	  @Override
+	  public Boolean visitNumber(Type type) {
+	    return true;
+	  }
+	}
+	
     public static NumberType getInstance() {
         return sInstance;
     }
@@ -37,6 +44,11 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     @Override
     public String toString() {
         return "num";
+    }
+    
+    @Override
+    protected DefaultSubtype getSubtype() {
+      return new Subtype();
     }
     
     @Override

@@ -22,7 +22,14 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * and all IConstructors have NodeType as a supertype.
  */
 /*package*/ final class NodeType extends Type {
-	private final static NodeType sInstance= new NodeType();
+	protected static class Subtype extends DefaultSubtype {
+    @Override
+    public Boolean visitNode(Type type) {
+      return true;
+    }
+  }
+
+  private final static NodeType sInstance= new NodeType();
 	
     public static NodeType getInstance() {
         return sInstance;
@@ -42,6 +49,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
         return "node";
     }
     
+    @Override
+    protected DefaultSubtype getSubtype() {
+      return new Subtype();
+    }
    
     @Override
     public Type lub(Type other) {

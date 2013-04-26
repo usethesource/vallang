@@ -50,6 +50,16 @@ public class DateTimeType extends Type {
 	}
 	
 	@Override
+	protected DefaultSubtype getSubtype() {
+	  return new DefaultSubtype() {
+	    @Override
+	    public Boolean visitDateTime(Type type) {
+	      return true;
+	    }
+	  };
+	}
+	
+	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitDateTime(this);
 	}

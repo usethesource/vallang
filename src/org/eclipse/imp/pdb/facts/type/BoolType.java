@@ -51,6 +51,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 	
 	@Override
+	protected DefaultSubtype getSubtype() {
+	  return new DefaultSubtype() {
+	    @Override
+	    public Boolean visitBool(Type boolType) {
+	      return true;
+	    }
+	  };
+	}
+	
+	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitBool(this);
 	}

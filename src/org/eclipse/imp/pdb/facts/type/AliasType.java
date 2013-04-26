@@ -88,16 +88,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == this) {
-			return true;
-		}
-		else if (other.isAliasType() && other.getName().equals(getName())) {
-			return fAliased.isSubtypeOf(other) && fParameters.isSubtypeOf(other.getTypeParameters());
-		}
-		else {
-			return fAliased.isSubtypeOf(other);
-		}
+	protected DefaultSubtype getSubtype() {
+	  return new ForwardSubtype(fAliased);
 	}
 
 	@Override
@@ -262,11 +254,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	@Override
 	public Type getValueType() {
 		return fAliased.getValueType();
-	}
-
-	@Override
-	public boolean comparable(Type other) {
-		return fAliased.comparable(other);
 	}
 
 	@Override

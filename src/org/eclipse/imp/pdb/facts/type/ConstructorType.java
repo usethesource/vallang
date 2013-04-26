@@ -56,14 +56,17 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		}
 		this.postionalArity = positionalArity;
 	}
-	
+
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == this || other == fADT) {
-			return true;
-		}
-		
-		return fADT.isSubtypeOf(other);
+	protected DefaultSubtype getSubtype() {
+	  return new AbstractDataType.Subtype(fADT) {
+	    @Override
+	    public Boolean visitConstructor(Type type) {
+	      return fADT == type
+	          && fName == type.getName()
+	          && fChildrenTypes.isSubtypeOf(type.getFieldTypes());
+	    }
+	  };
 	}
 	
 	@Override

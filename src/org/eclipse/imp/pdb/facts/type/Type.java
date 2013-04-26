@@ -308,7 +308,236 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 		}
 	}
 
+	/*
+	 * A Subtype class declares which other subtypes the current type is 
+	 * a subtype of. This default class returns false to every request.
+	 * It is intended to be subclasses by concrete Types.
+	 */
+	protected static class DefaultSubtype implements ITypeVisitor<Boolean> {
+    @Override
+    public Boolean visitReal(Type type) {
+      return false;
+    }
 
+    @Override
+    public Boolean visitInteger(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitRational(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitList(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitMap(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitNumber(Type type) {
+      return false;
+    }
+
+    @Override
+    public final Boolean visitAlias(Type type) {
+      // dealt with here to avoid cloning acros all types
+      return type.getAliased().accept(this);
+    }
+
+    @Override
+    public Boolean visitRelationType(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitListRelationType(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitSet(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitSourceLocation(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitString(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitNode(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitConstructor(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitAbstractData(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitTuple(Type type) {
+      return false;
+    }
+
+    @Override
+    public final Boolean visitValue(Type type) {
+      // since all types are a sub-type of value, this one is safe to factor out.
+      return true;
+    }
+
+    @Override
+    public Boolean visitVoid(Type type) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitBool(Type boolType) {
+      return false;
+    }
+
+    @Override
+    public final Boolean visitParameter(Type parameterType) {
+      // dealt with here to avoid cloning acros types
+      return parameterType.getBound().accept(this);
+    }
+
+    @Override
+    public Boolean visitExternal(Type externalType) {
+      return false;
+    }
+
+    @Override
+    public Boolean visitDateTime(Type type) {
+      return false;
+    }
+	  
+	}
+	
+	protected static class ForwardSubtype extends DefaultSubtype {
+	  private final Type fwd;
+
+    public ForwardSubtype(Type to) {
+	    this.fwd = to;
+    }
+    
+    @Override
+    public Boolean visitReal(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitInteger(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitRational(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitList(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitMap(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitNumber(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitRelationType(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitListRelationType(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitSet(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitSourceLocation(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitString(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitNode(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitConstructor(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitAbstractData(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitTuple(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitVoid(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitBool(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitExternal(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+
+    @Override
+    public Boolean visitDateTime(Type type) {
+      return fwd.isSubtypeOf(type);
+    }
+	}
+	
+	/**
+	 * Concrete types should return a DefaultSubType that returns true
+	 * for the types that the current type is a sub-type of.
+	 */
+	abstract protected DefaultSubtype getSubtype();
+	
 	/**
 	 * The sub-type relation. Value is the biggest type and void is
 	 * the smallest. Value is the top and void is the bottom of the
@@ -317,25 +546,11 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * @param other
 	 * @return true if the receiver is a subtype of the other type
 	 */
-	public boolean isSubtypeOf(Type other) {
-		// this is the default implementation. Subclasses should override
-		// to take their immediate super types into account.
-		if (other.isValueType() && !other.isVoidType()) {
-			return true;
-		}
-		if (other == this) {
-			return true;
-		}
-		if (other.isAliasType() && !other.isVoidType()) {
-			return isSubtypeOf(other.getAliased());
-		}
-		if (other.isParameterType() && !other.isVoidType()) {
-			return isSubtypeOf(other.getBound());
-		}
-		return false;
-	}
+	 public final boolean isSubtypeOf(Type other) {
+	   return this == other || other.accept(getSubtype());
+	 }
 	
-	/**
+  /**
 	 * Return whether an ADT or an alias Type has any type parameters
 	 * @return true if the type is parameterized
 	 */
@@ -348,7 +563,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * @param other type to compare to
 	 * @return true if the types are comparable.
 	 */
-	public boolean comparable(Type other) {
+	public final boolean comparable(Type other) {
 		return (other == this) || isSubtypeOf(other) || other.isSubtypeOf(this);
 	}
 
@@ -357,7 +572,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	 * @param other type to compare to
 	 * @return true if the two types are sub-types of each-other;
 	 */
-	public boolean equivalent(Type other) {
+	public final boolean equivalent(Type other) {
 		return (other == this) || (isSubtypeOf(other) && other.isSubtypeOf(this));
 	}
 	
@@ -387,94 +602,117 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 	
 	public abstract <T> T accept(ITypeVisitor<T> visitor);
 
+	@Deprecated
 	public boolean isRelationType() {
 		return false;
 	}
 	
+	@Deprecated
 	public boolean isListRelationType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isSetType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isTupleType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isListType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isIntegerType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isRationalType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isRealType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isStringType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isSourceLocationType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isSourceRangeType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isAliasType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isValueType() {
 		return false;
 	}
 	
+	@Deprecated
 	public boolean isVoidType() {
 		return false;
 	}
 	
+	@Deprecated
 	public boolean isExternalType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isNodeType() {
 		return false;
 	}
 	
+	@Deprecated
 	public boolean isConstructorType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isAbstractDataType() {
 		return false;
 	}
 	
+	@Deprecated
 	public boolean isNumberType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isMapType() {
 		return false;
 	}
 	
+	@Deprecated
 	public boolean isBoolType() {
 		return false;
 	}
 	
+	@Deprecated
 	public boolean isParameterType() {
 		return false;
 	}
 
+	@Deprecated
 	public boolean isDateTimeType() {
 		return false;
 	}

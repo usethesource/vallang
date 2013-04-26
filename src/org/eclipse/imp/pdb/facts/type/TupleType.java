@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 /*package*/final class TupleType extends Type {
@@ -186,33 +185,26 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		return super.isSubtypeOf(o);
 	}
 */		
-	@Override
-	public boolean isSubtypeOf(Type o) {
-		if (o == this) {
-			return true; // optimize to prevent loop
-		} else if (o.isTupleType() && !o.isVoidType()) {
-			if (getArity() == o.getArity()) {
-				for (int i = getArity() - 1; i >= 0; i--) {
-					if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
-						return false;
-					}
-				}
-				return true;
-			}
-		}
-
-		return super.isSubtypeOf(o);
-	}
-	
-	/*
-	 * TypeStore.checkoverloading now calls equivalent instead of comparable to ensure that only tuples of the same length are compared.
-	 */
 	
 	@Override
-	public boolean equivalent(Type other) {
-		return (other == this) || (other.isTupleType() && getArity() == other.getArity() && (isSubtypeOf(other) && other.isSubtypeOf(this)));
+	protected DefaultSubtype getSubtype() {
+	  return new DefaultSubtype() {
+	    @Override
+	    public Boolean visitTuple(Type type) {
+	      if (getArity() == type.getArity()) {
+	        for (int i = 0; i < getArity(); i++) {
+	          if (!getFieldType(i).isSubtypeOf(type.getFieldType(i))) {
+	            return false;
+	          }
+	        }
+	        return true;
+	      }
+	      
+	      return false;
+	    }
+	  };
 	}
-
+	
 	/**
 	 * Compute a new tupletype that is the lub of t1 and t2. Precondition: t1
 	 * and t2 have the same arity.

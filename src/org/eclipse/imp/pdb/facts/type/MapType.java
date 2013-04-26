@@ -150,15 +150,18 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     	}
     }
     
+    
     @Override
-    public boolean isSubtypeOf(Type o) {
-        if (o.isMapType() && !o.isVoidType()) {
-        	return fKeyType.isSubtypeOf(o.getKeyType()) && fValueType.isSubtypeOf(o.getValueType());
+    protected DefaultSubtype getSubtype() {
+      return new DefaultSubtype() {
+        @Override
+        public Boolean visitMap(Type type) {
+          return fKeyType.isSubtypeOf(type.getKeyType())
+              && fValueType.isSubtypeOf(type.getValueType());
         }
-        
-        return super.isSubtypeOf(o);
+      };
     }
-
+    
     @Override
     public Type lub(Type o) {
     	if (o.isMapType()) {

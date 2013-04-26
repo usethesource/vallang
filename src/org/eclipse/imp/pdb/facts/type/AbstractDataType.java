@@ -28,7 +28,20 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
  * @see ConstructorType
  */
 /*package*/ final class AbstractDataType extends Type {
-	private final String fName;
+	protected static class Subtype extends NodeType.Subtype {
+	  private final Type it;
+
+    public Subtype(final Type fADT) {
+	    this.it = fADT;
+    }
+	  
+    @Override
+    public Boolean visitAbstractData(Type type) {
+      return it == type;
+    }
+  }
+
+  private final String fName;
 	private final Type fParameters;
 	
 	/* package */ AbstractDataType(String name, Type parameters) {
@@ -50,23 +63,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	public boolean isParameterized() {
 		return !fParameters.isVoidType();
 	}
-	
+
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == this || (!other.isVoidType() && other.isValueType())) {
-			return true;
-		}
-		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
-			return fParameters.isSubtypeOf(other.getTypeParameters());
-		}
-		else if (other.isParameterType() && !other.getBound().isVoidType()) {
-			return isSubtypeOf(other.getBound());
-		}
-		else if (other.isAliasType() && !other.isVoidType()) {
-			return isSubtypeOf(other.getAliased());
-		}
-		
-		return TypeFactory.getInstance().nodeType().isSubtypeOf(other);
+	protected DefaultSubtype getSubtype() {
+	  return new Subtype(this);
 	}
 	
 	@Override

@@ -20,7 +20,25 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ class SetType extends Type {
-	protected final Type fEltType;
+	protected static class Subtype extends DefaultSubtype {
+	  private final Type fEltType;
+
+    public Subtype(Type eltType) {
+	    this.fEltType = eltType;
+    }
+    
+    @Override
+    public Boolean visitSet(Type type) {
+      return fEltType.isSubtypeOf(type.getElementType());
+    }
+    
+    @Override
+    public Boolean visitRelationType(Type type) {
+      return fEltType.isSubtypeOf(type.getElementType());
+    }
+  }
+
+  protected final Type fEltType;
 
     /*package*/ SetType(Type eltType) {
     	fEltType= eltType;
@@ -35,14 +53,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     public boolean isSetType() {
     	return true;
     }
-  
+
     @Override
-    public boolean isSubtypeOf(Type other) {
-        if (other.isSetType() && !other.isVoidType()) {
-        	return fEltType.isSubtypeOf(other.getElementType());
-        }
-        
-        return super.isSubtypeOf(other);
+    protected DefaultSubtype getSubtype() {
+      return new Subtype(fEltType);
     }
 
     @Override

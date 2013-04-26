@@ -35,8 +35,8 @@ public interface ITypeVisitor<T> {
 	T visitTuple(Type type);
 	T visitValue(Type type);
 	T visitVoid(Type type);
-	T visitBool(Type boolType);
-	T visitParameter(Type parameterType);
-	T visitExternal(Type externalType);
+	T visitBool(Type type);
+	T visitParameter(Type type);
+	T visitExternal(Type type);
 	T visitDateTime(Type type);
 }
