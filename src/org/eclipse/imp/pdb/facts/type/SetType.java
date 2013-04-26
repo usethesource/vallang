@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /*package*/ class SetType extends Type {
-	protected static class Subtype extends DefaultSubtype {
+	protected static class Subtype extends ValueSubtype {
 	  private final Type fEltType;
 
     public Subtype(Type eltType) {
@@ -28,13 +28,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     }
     
     @Override
-    public Boolean visitSet(Type type) {
-      return fEltType.isSubtypeOf(type.getElementType());
+    public ValueSubtype visitSet(Type type) {
+      setLub(TF.setType(fEltType.lub(type.getElementType())));
+      setSubtype(fEltType.isSubtypeOf(type.getElementType()));
+      return this;
     }
     
     @Override
-    public Boolean visitRelationType(Type type) {
-      return fEltType.isSubtypeOf(type.getElementType());
+    public ValueSubtype visitRelationType(Type type) {
+      return visitSet(type);
     }
   }
 
@@ -55,7 +57,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     }
 
     @Override
-    protected DefaultSubtype getSubtype() {
+    protected ValueSubtype getSubtype() {
       return new Subtype(fEltType);
     }
 
@@ -64,15 +66,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     	return this;
     }
     
-    @Override
-    public Type lub(Type o) {
-    	if (o.isSetType()) {
-    		return TypeFactory.getInstance().setType(fEltType.lub(o.getElementType()));
-    	}
-    	
-    	return super.lub(o);
-    }
-
     @Override
     public int hashCode() {
         return 56509 + 3511 * fEltType.hashCode();

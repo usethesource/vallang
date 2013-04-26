@@ -37,15 +37,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    protected DefaultSubtype getSubtype() {
-      return new DefaultSubtype();
+    protected ValueSubtype getSubtype() {
+      return new ValueSubtype();
     }
     
-    @Override
-    public Type lub(Type other) {
-        return this;
-    }
-
     @Override
     public String toString() {
         return "value";

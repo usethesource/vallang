@@ -32,11 +32,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    protected DefaultSubtype getSubtype() {
-      return new DefaultSubtype() {
+    protected ValueSubtype getSubtype() {
+      return new ValueSubtype() {
         @Override
-        public Boolean visitString(Type type) {
-          return true;
+        public ValueSubtype visitString(Type type) {
+          setSubtype(true);
+          setLub(type);
+          return this;
         }
       };
     }

@@ -157,19 +157,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	protected DefaultSubtype getSubtype() {
+	protected ValueSubtype getSubtype() {
 	  return new ForwardSubtype(fBound);
 	}
 
-	@Override
-	public Type lub(Type other) {
-		if (other == this) {
-			return this;
-		}
-		
-		return getBound().lub(other);
-	}
-	
 	@Override
 	public String toString() {
 		return fBound.isValueType() ? "&" + fName : "&" + fName + "<:" + fBound.toString();

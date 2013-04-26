@@ -88,25 +88,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	protected DefaultSubtype getSubtype() {
+	protected ValueSubtype getSubtype() {
 	  return new ForwardSubtype(fAliased);
 	}
 
-	@Override
-	public Type lub(Type other) {
-		if (other == this) {
-			return this;
-		}
-		else if (other.isAliasType() && other.getName().equals(getName())) {
-			Type aliased = fAliased.lub(other.getAliased());
-			Type params = fParameters.lub(other.getTypeParameters());
-			return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), getName(), aliased, params);
-		}
-		else {
-			return fAliased.lub(other);
-		}
-	}
-	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

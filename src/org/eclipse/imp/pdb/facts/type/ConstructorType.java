@@ -58,34 +58,18 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 
 	@Override
-	protected DefaultSubtype getSubtype() {
+	protected ValueSubtype getSubtype() {
 	  return new AbstractDataType.Subtype(fADT) {
 	    @Override
-	    public Boolean visitConstructor(Type type) {
-	      return fADT == type
-	          && fName == type.getName()
-	          && fChildrenTypes.isSubtypeOf(type.getFieldTypes());
+	    public ValueSubtype visitConstructor(Type type) {
+	      if (fADT.isSubtypeOf(type) && fName == type.getName()) { 
+	        setSubtype(fChildrenTypes.isSubtypeOf(type.getFieldTypes()));
+	        setLub(fADT);
+	      }
+	      
+	      return this;
 	    }
 	  };
-	}
-	
-	@Override
-	public Type lub(Type other) {
-		if (other == this || other.isVoidType()) {
-			return this;
-		}
-		if (other.isConstructorType()) {
-			return fADT.lub(other.getAbstractDataType());
-		}
-		else if (other.isAbstractDataType()) {
-			return getAbstractDataType().lub(other);
-		}
-		else if (other.isNodeType()) {
-			return other;
-		}
-		else {
-			return super.lub(other);
-		}
 	}
 	
 	@Override

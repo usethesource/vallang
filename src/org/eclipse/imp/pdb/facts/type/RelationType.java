@@ -33,7 +33,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     }
     
     @Override
-    protected DefaultSubtype getSubtype() {
+    protected ValueSubtype getSubtype() {
       return new SetType.Subtype(fEltType);
     }
     

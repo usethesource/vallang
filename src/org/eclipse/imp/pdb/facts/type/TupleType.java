@@ -187,20 +187,27 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 */		
 	
 	@Override
-	protected DefaultSubtype getSubtype() {
-	  return new DefaultSubtype() {
+	protected ValueSubtype getSubtype() {
+	  return new ValueSubtype() {
 	    @Override
-	    public Boolean visitTuple(Type type) {
+	    public ValueSubtype visitTuple(Type type) {
 	      if (getArity() == type.getArity()) {
 	        for (int i = 0; i < getArity(); i++) {
 	          if (!getFieldType(i).isSubtypeOf(type.getFieldType(i))) {
-	            return false;
+	            setSubtype(false);
+	            setLub(lubTupleTypes(TupleType.this, type));
+	            return this;
 	          }
 	        }
-	        return true;
+	        
+	        setSubtype(true);
+	        setLub(lubTupleTypes(TupleType.this, type));
+	        return this;
 	      }
 	      
-	      return false;
+	      setSubtype(false);
+        setLub(TF.valueType());
+        return this;
 	    }
 	  };
 	}
@@ -280,20 +287,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		} else {
 			return TypeFactory.getInstance().tupleType(types);
 		}
-	}
-
-	@Override
-	public Type lub(Type o) {
-		if (o.isTupleType()) {
-			if (getArity() == o.getArity()) {
-				if (hasFieldNames() && o.hasFieldNames()) {
-					return lubNamedTupleTypes(this, o);
-				}
-
-				return lubTupleTypes(this, o);
-			}
-		}
-		return super.lub(o);
 	}
 
 	@Override

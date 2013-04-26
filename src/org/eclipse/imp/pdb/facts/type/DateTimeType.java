@@ -50,11 +50,13 @@ public class DateTimeType extends Type {
 	}
 	
 	@Override
-	protected DefaultSubtype getSubtype() {
-	  return new DefaultSubtype() {
+	protected ValueSubtype getSubtype() {
+	  return new ValueSubtype() {
 	    @Override
-	    public Boolean visitDateTime(Type type) {
-	      return true;
+	    public ValueSubtype visitDateTime(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 	  };
 	}

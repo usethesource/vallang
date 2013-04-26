@@ -22,10 +22,26 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * and all IConstructors have NodeType as a supertype.
  */
 /*package*/ final class NodeType extends Type {
-	protected static class Subtype extends DefaultSubtype {
+	protected static class Subtype extends ValueSubtype {
     @Override
-    public Boolean visitNode(Type type) {
-      return true;
+    public ValueSubtype visitNode(Type type) {
+      setSubtype(true);
+      setLub(type);
+      return null;
+    }
+    
+    @Override
+    public ValueSubtype visitAbstractData(Type type) {
+      setSubtype(false);
+      setLub(TF.nodeType());
+      return null;
+    }
+    
+    @Override
+    public ValueSubtype visitConstructor(Type type) {
+      setSubtype(false);
+      setLub(TF.nodeType());
+      return this;
     }
   }
 
@@ -50,18 +66,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    protected DefaultSubtype getSubtype() {
+    protected ValueSubtype getSubtype() {
       return new Subtype();
     }
    
-    @Override
-    public Type lub(Type other) {
-    	if (other.isSubtypeOf(this)) {
-    		return this;
-    	}
-    	return super.lub(other);
-    }
-    
     /**
      * Should never be called, NodeType is a singleton 
      */

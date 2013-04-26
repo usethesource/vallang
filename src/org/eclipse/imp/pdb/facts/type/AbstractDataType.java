@@ -36,9 +36,22 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
     }
 	  
     @Override
-    public Boolean visitAbstractData(Type type) {
-      return it.getName().equals(type.getName()) 
-          && it.getTypeParameters().isSubtypeOf(type.getTypeParameters());
+    public ValueSubtype visitAbstractData(Type type) {
+      if (it.getName().equals(type.getName())) {
+        setSubtype(it.getTypeParameters().isSubtypeOf(type.getTypeParameters()));
+        setLub(TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), it.getName(), it.getTypeParameters().lub(type.getTypeParameters())));
+      }
+      else {
+        setSubtype(false);
+        setLub(TF.nodeType());
+      }
+      
+      return null;
+    }
+    
+    @Override
+    public ValueSubtype visitConstructor(Type type) {
+      return visitAbstractData(type.getAbstractDataType());
     }
   }
 
@@ -66,27 +79,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 	}
 
 	@Override
-	protected DefaultSubtype getSubtype() {
+	protected ValueSubtype getSubtype() {
 	  return new Subtype(this);
-	}
-	
-	@Override
-	public Type lub(Type other) {
-		if (other == this || other.isVoidType()) {
-			return this;
-		}
-		else if (other.isAbstractDataType() && other.getName().equals(getName())) {
-			return TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), getName(), fParameters.lub(other.getTypeParameters()));
-		}
-		else if (other.isConstructorType() && other.getAbstractDataType().getName().equals(getName())) {
-			return TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), getName(), fParameters.lub(other.getAbstractDataType().getTypeParameters()));
-		}
-		else if (other.isParameterType()) {
-			return lub(other.getBound());
-		}
-		else {
-			return TypeFactory.getInstance().nodeType().lub(other);
-		}
 	}
 	
 	@Override

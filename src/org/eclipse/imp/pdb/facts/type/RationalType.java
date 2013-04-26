@@ -45,27 +45,17 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    protected DefaultSubtype getSubtype() {
+    protected ValueSubtype getSubtype() {
       return new NumberType.Subtype() {
         @Override
-        public Boolean visitRational(Type type) {
-          return true;
+        public ValueSubtype visitRational(Type type) {
+          setSubtype(true);
+          setLub(type);
+          return this;
         }
       };
     }
     
-    @Override
-    public Type lub(Type other) {
-    	if (other == this) {
-    		return this;
-    	}
-    	if (!other.isVoidType() && (other.isNumberType() || other.isIntegerType() || other.isRealType())) {
-    		return TypeFactory.getInstance().numberType();
-    	}
-    	
-    	return super.lub(other);
-    }
-
     @Override
     public String toString() {
         return "rat";

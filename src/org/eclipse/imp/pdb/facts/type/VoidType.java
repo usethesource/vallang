@@ -43,101 +43,139 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 
 	@Override
-	protected DefaultSubtype getSubtype() {
-	  return new DefaultSubtype() {
+	protected ValueSubtype getSubtype() {
+	  return new ValueSubtype() {
 	    @Override
-	    public Boolean visitReal(Type type) {
-	      return true;
+	    public ValueSubtype visitReal(Type type) {
+	      setLub(type);
+	      setSubtype(true);
+	      return this;
 	    }
 
 	    @Override
-	    public Boolean visitInteger(Type type) {
-	      return true;
+	    public ValueSubtype visitInteger(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitRational(Type type) {
-	      return true;
+	    public ValueSubtype visitRational(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitList(Type type) {
-	      return true;
+	    public ValueSubtype visitList(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitMap(Type type) {
-	      return true;
+	    public ValueSubtype visitMap(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitNumber(Type type) {
-	      return true;
+	    public ValueSubtype visitNumber(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitRelationType(Type type) {
-	      return true;
+	    public ValueSubtype visitRelationType(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitListRelationType(Type type) {
-	      return true;
+	    public ValueSubtype visitListRelationType(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitSet(Type type) {
-	      return true;
+	    public ValueSubtype visitSet(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitSourceLocation(Type type) {
-	      return true;
+	    public ValueSubtype visitSourceLocation(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitString(Type type) {
-	      return true;
+	    public ValueSubtype visitString(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitNode(Type type) {
-	      return true;
+	    public ValueSubtype visitNode(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitConstructor(Type type) {
-	      return true;
+	    public ValueSubtype visitConstructor(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitAbstractData(Type type) {
-	      return true;
+	    public ValueSubtype visitAbstractData(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitTuple(Type type) {
-	      return true;
+	    public ValueSubtype visitTuple(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitVoid(Type type) {
-	      return true;
+	    public ValueSubtype visitVoid(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitBool(Type boolType) {
-	      return true;
+	    public ValueSubtype visitBool(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitExternal(Type externalType) {
-	      return true;
+	    public ValueSubtype visitExternal(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 
 	    @Override
-	    public Boolean visitDateTime(Type type) {
-	      return true;
+	    public ValueSubtype visitDateTime(Type type) {
+	      setLub(type);
+        setSubtype(true);
+        return this;
 	    }
 	  };
 	}
@@ -145,11 +183,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	@Override
 	public boolean isVoidType() {
 		return true;
-	}
-	
-	@Override
-	public Type lub(Type other) {
-		return other;
 	}
 	
 	@Override

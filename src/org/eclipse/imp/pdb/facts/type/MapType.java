@@ -152,35 +152,27 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     
     
     @Override
-    protected DefaultSubtype getSubtype() {
-      return new DefaultSubtype() {
+    protected ValueSubtype getSubtype() {
+      return new ValueSubtype() {
         @Override
-        public Boolean visitMap(Type type) {
-          return fKeyType.isSubtypeOf(type.getKeyType())
-              && fValueType.isSubtypeOf(type.getValueType());
+        public ValueSubtype visitMap(Type type) {
+          setSubtype(fKeyType.isSubtypeOf(type.getKeyType())
+              && fValueType.isSubtypeOf(type.getValueType()));
+          setLub(TF.mapType(fKeyType.lub(type.getKeyType()), fValueType.lub(type.getValueType())));
+          return this;
         }
       };
     }
     
     @Override
-    public Type lub(Type o) {
-    	if (o.isMapType()) {
-    		// reusing tuple type here because of complexity dealing with labels
-    		return TypeFactory.getInstance().mapTypeFromTuple(getFieldTypes().lub(o.getFieldTypes()));
-    	}
-    	
-    	return super.lub(o);
-    }
-    
-    @Override
     public Type carrier() {
-    	TypeFactory tf = TypeFactory.getInstance();
-		return tf.setType(fKeyType.lub(fValueType));
+      TypeFactory tf = TypeFactory.getInstance();
+      return tf.setType(fKeyType.lub(fValueType));
     }
 
     @Override
     public int hashCode() {
-        return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode();
+      return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode();
     }
 
     @Override
