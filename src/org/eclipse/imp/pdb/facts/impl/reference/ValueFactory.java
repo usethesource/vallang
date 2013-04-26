@@ -15,8 +15,6 @@ package org.eclipse.imp.pdb.facts.impl.reference;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -45,11 +43,13 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		super();
 	}
 	
+	@Override
 	public ISet relation(Type tupleType) {
 		checkNull(tupleType);
 		return relationWriter(tupleType).done();
 	}
 	
+	@Override
 	public ISet relation(IValue... tuples) {
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
@@ -64,29 +64,35 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return rw.done();
 	}
 	
+	@Override
 	public ISetWriter relationWriter(Type tupleType) {
 		checkNull(tupleType);
 		return new SetWriter(tupleType);
 	}
 	
+	@Override
 	public ISetWriter relationWriter() {
 		return new SetWriter();
 	}
 
+	@Override
 	public ISet set(Type eltType){
 		checkNull(eltType);
 		return setWriter(eltType).done();
 	}
 	
+	@Override
 	public ISetWriter setWriter(Type eltType) {
 		checkNull(eltType);
 		return new SetWriter(eltType);
 	}
 	
+	@Override
 	public ISetWriter setWriter() {
 		return new SetWriter();
 	}
 
+	@Override
 	public ISet set(IValue... elems) throws FactTypeUseException {
 		checkNull((Object[]) elems);
 		Type elementType = lub(elems);
@@ -96,20 +102,24 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return sw.done();
 	}
 
+	@Override
 	public IList list(Type eltType) {
 		checkNull(eltType);
 		return listWriter(eltType).done();
 	}
 	
+	@Override
 	public IListWriter listWriter(Type eltType) {
 		checkNull(eltType);
 		return new ListWriter(eltType);
 	}
 	
+	@Override
 	public IListWriter listWriter() {
 		return new ListWriter();
 	}
 
+	@Override
 	public IList list(IValue... rest) {
 		checkNull((Object[]) rest);
 		Type eltType = lub(rest);
@@ -127,27 +137,32 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return elementType;
 	}
 
+	@Override
 	public ITuple tuple() {
 		return new Tuple(new IValue[0]);
 	}
 
+	@Override
 	public ITuple tuple(IValue... args) {
 		checkNull((Object[]) args);
 
 		return new Tuple(args.clone());
 	}
 
+	@Override
 	public ITuple tuple(Type type, IValue... args) {
 		checkNull((Object[]) args);
 
 		return new Tuple(type, args.clone());
 	}
 	
+	@Override
 	public INode node(String name) {
 		checkNull(name);
 		return new Node(name);
 	}
 	
+	@Override
 	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
 		checkNull(name);
 		checkNull(annotations);
@@ -156,6 +171,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return new Node(name, annotations, children);
 	}
 	
+	@Override
 	public INode node(String name, IValue... children) {
 		checkNull(name);
 		checkNull((Object[]) children);
@@ -172,6 +188,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return new Node(name, children.clone(), keyArgValues);
 	}
 		
+	@Override
 	public IConstructor constructor(Type constructorType, IValue... children) {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
@@ -180,6 +197,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return new Constructor(instantiatedType, children);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType, java.util.Map<String,IValue> annotations, IValue... children) {
 		checkNull(constructorType);
 		checkNull(annotations);
@@ -188,6 +206,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return new Constructor(constructorType, children).setAnnotations(annotations);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
 		
@@ -195,46 +214,55 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		return new Constructor(instantiatedType);
 	}
 
+	@Override
 	public IMap map(Type keyType, Type valueType) {
 		checkNull(keyType);
 		checkNull(valueType);
 		return mapWriter(keyType, valueType).done();
 	}
 	
+	@Override
 	public IMap map(Type mapType) {
 		checkNull(mapType);
 		return mapWriter(mapType).done();
 	}
+	@Override
 	public IMapWriter mapWriter(Type keyType, Type valueType) {
 		checkNull(keyType);
 		checkNull(valueType);
 		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
 	}
 	
+	@Override
 	public IMapWriter mapWriter(Type mapType) {
 		checkNull(mapType);
 		return new MapWriter(mapType);
 	}
 
+	@Override
 	public IMapWriter mapWriter() {
 		return new MapWriter();
 	}
 
-	public IListRelationWriter listRelationWriter(Type tupleType) {
+	@Override
+	public IListWriter listRelationWriter(Type tupleType) {
 		checkNull(tupleType);
-		return new ListRelationWriter(tupleType);
+		return new ListWriter(tupleType);
 	}
 
-	public IListRelationWriter listRelationWriter() {
-		return new ListRelationWriter();
+	@Override
+	public IListWriter listRelationWriter() {
+		return new ListWriter();
 	}
 
-	public IListRelation listRelation(Type tupleType) {
+	@Override
+	public IList listRelation(Type tupleType) {
 		checkNull(tupleType);
-		return listRelationWriter(tupleType).done();
+		return listWriter(tupleType).done();
 	}
 
-	public IListRelation listRelation(IValue... tuples) {
+	@Override
+	public IList listRelation(IValue... tuples) {
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
@@ -243,7 +271,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}
 		
-		IListRelationWriter rw = listRelationWriter(elementType);
+		IListWriter rw = listRelationWriter(elementType);
 		rw.append(tuples);
 		return rw.done();
 	}

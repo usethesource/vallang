@@ -381,7 +381,7 @@ public final class ListFunctions {
         Type[] newTupleFieldTypes = new Type[]{list1.getElementType().getFieldType(0), otherTupleType.getFieldType(1)};
         Type tupleType = TF.tupleType(newTupleFieldTypes);
 
-        IListRelationWriter w = vf.listRelationWriter(tupleType);
+        IListWriter w = vf.listRelationWriter(tupleType);
 
         for (IValue v1 : list1) {
             ITuple tuple1 = (ITuple) v1;

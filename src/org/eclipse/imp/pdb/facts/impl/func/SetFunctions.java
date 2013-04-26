@@ -130,7 +130,7 @@ public final class SetFunctions {
 
     public static ISet product(IValueFactory vf, ISet set1, ISet set2) {
         Type resultType = TypeFactory.getInstance().tupleType(set1.getElementType(), set2.getElementType());
-        ISetWriter w = vf.relationWriter(resultType);
+        ISetWriter w = vf.setWriter(resultType);
 
         for (IValue t1 : set1) {
             for (IValue t2 : set2) {
@@ -160,7 +160,7 @@ public final class SetFunctions {
         Type resultType = set1.getType().closure();
         // an exception will have been thrown if the type is not acceptable
 
-        ISetWriter reflex = vf.relationWriter(resultType.getElementType());
+        ISetWriter reflex = vf.setWriter(resultType.getElementType());
 
         for (IValue e : carrier(vf, set1)) {
             reflex.insert(vf.tuple(new IValue[]{e, e}));
@@ -170,10 +170,11 @@ public final class SetFunctions {
     }
 
     public static ISet compose(IValueFactory vf, ISet set1, ISet set2) throws FactTypeUseException {
-        Type resultType = set1.getType().compose(set2.getType());
+    	Type resultType = set1.getType().compose(set2.getType());
         // an exception will have been thrown if the relations are not both binary and
         // have a comparable field to compose.
-        ISetWriter w = vf.relationWriter(resultType.getFieldTypes());
+    	
+    	ISetWriter w = vf.setWriter(resultType.getFieldTypes());
 
         for (IValue v1 : set1) {
             ITuple tuple1 = (ITuple) v1;

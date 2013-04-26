@@ -385,6 +385,7 @@ public interface IValueFactory {
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
      */
+    @Deprecated
     public IList listRelation(Type tupleType);
     
     /**
@@ -392,6 +393,7 @@ public interface IValueFactory {
      * @param elems an array or variable length argument list of tuples
      * @return a list relation containing a number of elements
      */
+    @Deprecated
     public IList listRelation(IValue... elems);
     
     /**
@@ -399,12 +401,14 @@ public interface IValueFactory {
      * @param type of type TupleType &lt;t1,...,tn&gt;
      * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
      */
+    @Deprecated
     public IListWriter listRelationWriter(Type type);
     
     /**
      * Constructs a list relation writer, which infers its type from the tuples given while
      * writing to the list relation.
      */
+    @Deprecated
     public IListWriter listRelationWriter();
     
     /**
@@ -412,6 +416,7 @@ public interface IValueFactory {
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
+    @Deprecated
     public ISet relation(Type tupleType);
     
     /**
@@ -419,12 +424,14 @@ public interface IValueFactory {
      * @param type of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
+    @Deprecated
     public ISetWriter relationWriter(Type type);
     
     /**
      * Constructs a relation writer, which infers its type from the tuples given while
      * writing to the relation.
      */
+    @Deprecated
     public ISetWriter relationWriter();
     
     /**
@@ -432,6 +439,7 @@ public interface IValueFactory {
      * @param elems an array or variable length argument list of tuples
      * @return a relation containing a number of elements
      */
+    @Deprecated
     public ISet relation(IValue... elems);
     
     /**

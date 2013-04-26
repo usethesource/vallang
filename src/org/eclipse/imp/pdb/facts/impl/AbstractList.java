@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.func.ListFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -114,8 +115,8 @@ public abstract class AbstractList extends Value implements IList {
     }
 
     @Override
-    public IListRelation product(IList that) {
-        return (IListRelation) ListFunctions.product(getValueFactory(), this, that);
+    public IList product(IList that) {
+        return ListFunctions.product(getValueFactory(), this, that);
     }
 
     @Override
@@ -152,4 +153,18 @@ public abstract class AbstractList extends Value implements IList {
         }
     }
 
+	@Override
+	public boolean isRelation() {
+		return getType().isListRelationType();
+	}
+
+	@Override
+	public IListRelation<IList> asRelation() {
+		if (!isRelation())
+			throw new IllegalOperationException(
+					"Cannot be viewed as a relation.", getType());
+
+		return new DefaultRelationViewOnList(getValueFactory(), this);
+	}    
+    
 }

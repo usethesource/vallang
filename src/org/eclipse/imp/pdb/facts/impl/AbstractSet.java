@@ -12,8 +12,10 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.func.SetFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -115,4 +117,18 @@ public abstract class AbstractSet extends Value implements ISet {
         }
     }
 
+	@Override
+	public boolean isRelation() {
+		return getType().isRelationType();
+	}
+
+	@Override
+	public ISetRelation<ISet> asRelation() {
+		if (!isRelation())
+			throw new IllegalOperationException(
+					"Cannot be viewed as a relation.", getType());
+
+		return new DefaultRelationViewOnSet(getValueFactory(), this);
+	}    
+    
 }
