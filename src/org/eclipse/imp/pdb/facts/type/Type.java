@@ -323,7 +323,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return true if the receiver is a subtype of the other type
    */
   public final boolean isSubtypeOf(Type other) {
-    return other.isSupertypeOf(this);
+    return other == this || other.isSupertypeOf(this);
   }
 
   protected abstract boolean isSupertypeOf(Type type);

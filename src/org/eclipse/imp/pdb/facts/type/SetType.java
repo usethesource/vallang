@@ -1,115 +1,93 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ * Copyright (c) 2007 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
-*******************************************************************************/
+ *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ class SetType extends Type {
+/*package*/class SetType extends ValueType {
   protected final Type fEltType;
 
-    /*package*/ SetType(Type eltType) {
-    	fEltType= eltType;
-    }
-    
-    @Override
-    public Type getElementType() {
-    	return fEltType;
-    }
+  /* package */SetType(Type eltType) {
+    fEltType = eltType;
+  }
 
-    @Override
-    public boolean isSetType() {
-    	return true;
-    }
+  @Override
+  public Type getElementType() {
+    return fEltType;
+  }
 
-    @Override
-    public Type carrier() {
-    	return this;
-    }
-    
-    @Override
-    public int hashCode() {
-        return 56509 + 3511 * fEltType.hashCode();
-    }
+  @Override
+  public Type carrier() {
+    return this;
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof SetType)) {
-            return false;
-        }
-        SetType other= (SetType) obj;
-        // N.B.: The element type must have been created and canonicalized before any
-        // attempt to manipulate the outer type (i.e. SetType), so we can use object
-        // identity here for the fEltType.
-        return fEltType == other.fEltType;
-    }
+  @Override
+  public int hashCode() {
+    return 56509 + 3511 * fEltType.hashCode();
+  }
 
-    @Override
-    public String toString() {
-        return "set[" + fEltType + "]";
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof SetType)) {
+      return false;
     }
-    
-    @Override
-    protected IKind getKind() {
-      return new TypeLattice.Set(this);
-    }
-    
-    @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitSet(this);
-    }
-    
-    @Override
-    protected Type acceptLub(IKind kind) {
-      return kind.lubSet(this);
-    }
+    SetType other = (SetType) obj;
+    // N.B.: The element type must have been created and canonicalized before
+    // any
+    // attempt to manipulate the outer type (i.e. SetType), so we can use object
+    // identity here for the fEltType.
+    return fEltType == other.fEltType;
+  }
 
-    @Override
-    protected boolean acceptSubtype(IKind kind) {
-      return kind.subSet(this);
-    }
+  @Override
+  public String toString() {
+    return "set[" + fEltType + "]";
+  }
 
-    @Override
-	public IValue make(IValueFactory f) {
-		return f.set(fEltType);
-	}
-	
-    @Override
-	public IValue make(IValueFactory f, IValue... elems) {
-		return f.set(elems);
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public ISetWriter writer(IValueFactory f) {
-		return f.setWriter(fEltType);
-	}
-	
-	@Override
-	public boolean match(Type matched, Map<Type, Type> bindings)
-			throws FactTypeUseException {
-		return super.match(matched, bindings)
-				&& getElementType().match(matched.getElementType(), bindings);
-	}
-	
-	@Override
-	public Type instantiate(Map<Type, Type> bindings) {
-		return TypeFactory.getInstance().setType(getElementType().instantiate(bindings));
-	}
+  @Override
+  public <T> T accept(ITypeVisitor<T> visitor) {
+    return visitor.visitSet(this);
+  }
+
+  @Override
+  protected boolean isSupertypeOf(Type type) {
+    return type.isSubtypeOfSet(this);
+  }
+
+  @Override
+  public Type lub(Type other) {
+    return other.lubWithSet(this);
+  }
+
+  @Override
+  protected boolean isSubtypeOfSet(Type type) {
+    return fEltType.isSubtypeOf(type.getElementType());
+  }
+
+  @Override
+  protected Type lubWithSet(Type type) {
+    return TF.setType(fEltType.lub(type.getElementType()));
+  }
+
+  @Override
+  public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+    return super.match(matched, bindings) && getElementType().match(matched.getElementType(), bindings);
+  }
+
+  @Override
+  public Type instantiate(Map<Type, Type> bindings) {
+    return TypeFactory.getInstance().setType(getElementType().instantiate(bindings));
+  }
 }
-

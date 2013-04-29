@@ -14,13 +14,9 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ class ListType extends Type {
+/*package*/ class ListType extends ValueType {
   protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
@@ -30,11 +26,6 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	@Override
 	public Type getElementType() {
 		return fEltType;
-	}
-	
-	@Override
-	public boolean isListType() {
-		return true;
 	}
 	
 	@Override
@@ -71,34 +62,13 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	}
 	
 	@Override
-	protected IKind getKind() {
-	  return new TypeLattice.List(this);
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfList(this);
 	}
 	
 	@Override
-	protected boolean acceptSubtype(IKind kind) {
-	  return kind.subList(this);
-	}
-	
-	@Override
-	protected Type acceptLub(IKind kind) {
-	  return kind.lubList(this);
-	}
-
-	@Override
-	public IValue make(IValueFactory f) {
-		return f.list(fEltType);
-	}
-
-	@Override
-	public IValue make(IValueFactory f, IValue... elems) {
-		return f.list(elems);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public IListWriter writer(IValueFactory f) {
-		return f.listWriter(fEltType);
+	public Type lub(Type other) {
+	  return other.lubWithSet(this);
 	}
 	
 	@Override

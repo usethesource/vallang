@@ -12,15 +12,10 @@
 package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by constructors, @see NodeType.

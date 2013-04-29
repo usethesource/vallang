@@ -14,14 +14,10 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ final class MapType extends Type {
+/*package*/ final class MapType extends ValueType {
     private final Type fKeyType;
     private final Type fValueType;
     private final String fKeyLabel;
@@ -66,10 +62,6 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
     	return fValueType;
     }
 
-    @Override
-    public boolean isMapType() {
-    	return true;
-    }
   
     @Override
     public boolean hasFieldNames() {
@@ -200,36 +192,32 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
     }
     
     @Override
-    protected IKind getKind() {
-      return new TypeLattice.Map(this);
-    }
-    
-    @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
       return visitor.visitMap(this);
     }
-    
+
     @Override
-    protected Type acceptLub(IKind kind) {
-      return kind.lubMap(this);
-    }
-    
-    @Override
-    protected boolean acceptSubtype(IKind kind) {
-      return kind.subMap(this);
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfMap(this);
     }
     
     @Override
-    public IMap make(IValueFactory f) {
-      return f.map(this);
+    public Type lub(Type other) {
+      return other.lubWithMap(this);
     }
     
-	@SuppressWarnings("unchecked")
-	@Override
-    public IMapWriter writer(IValueFactory f) {
-    	return f.mapWriter(this);
+    @Override
+    protected boolean isSubtypeOfMap(Type type) {
+      return fKeyType.isSubtypeOf(type.getKeyType())
+          && fValueType.isSubtypeOf(type.getValueType());
     }
-	
+    
+    @Override
+    protected Type lubWithMap(Type type) {
+      return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().lub(type.getFieldTypes()));
+    }
+    
+    
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
