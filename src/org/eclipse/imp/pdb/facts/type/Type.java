@@ -325,6 +325,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public final boolean isSubtypeOf(Type other) {
     return other == this || other.isSupertypeOf(this);
   }
+  
+  public boolean isStrictSubtypeOf(Type other) {
+    return other.equivalent(this) && other.isSupertypeOf(this);
+  }
 
   protected abstract boolean isSupertypeOf(Type type);
 
@@ -348,6 +352,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return true iff the type is an alias
    */
   public boolean isAliased() {
+    return false;
+  }
+  
+  public boolean isExternalType() {
     return false;
   }
   

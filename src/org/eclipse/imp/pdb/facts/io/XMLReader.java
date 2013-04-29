@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -65,6 +66,7 @@ import org.xml.sax.SAXException;
 public class XMLReader extends AbstractTextReader {
 	private DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 	private IValueFactory vf;
+	private static final TypeFactory TF = TypeFactory.getInstance();
 	private TypeStore ts;
 
 	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream)
@@ -87,7 +89,7 @@ public class XMLReader extends AbstractTextReader {
 	}
 	
 	private IValue parse(Node node, Type expected) {
-		if (expected.isAbstractDataType()) {
+		if (expected.isStrictSubtypeOf(TF.nodeType())) {
 			Type sort = expected;
 			String name = node.getNodeName();
 			
@@ -107,16 +109,16 @@ public class XMLReader extends AbstractTextReader {
 			  return parseTreeSort(node, sort);
 			}
 		}
-		else if (expected.isStringType()) {
+		else if (expected.equivalent(TF.stringType())) {
 			return parseString(node);
 		}
-		else if (expected.isIntegerType()) {
+		else if (expected.equivalent(TF.integerType())) {
 			return parseInt(node);
 		}
-		else if (expected.isRealType()) {
+		else if (expected.equivalent(TF.realType())) {
 			return parseDouble(node);
 		}
-		else if (expected.isRationalType()) {
+		else if (expected.equivalent(TF.rationalType())) {
 			return parseRational(node);
 		}
 		else if (expected.isExternalType()) {
@@ -134,7 +136,7 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isListType();
+					&& nodeType.getFieldTypes().getFieldType(0).isSubtypeOf(TF.listType(TF.valueType()));
 		}
 
 		return false;
@@ -146,7 +148,7 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isSetType();
+					&& nodeType.getFieldTypes().getFieldType(0).isSubtypeOf(TF.setType(TF.valueType()));
 		}
 
 		return false;
@@ -158,8 +160,8 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0)
-							.isRelationType();
+					&& nodeType.getFieldTypes().getFieldType(0).isSubtypeOf(TF.setType(TF.valueType()))
+					&& nodeType.getFieldTypes().getFieldType(0).getElementType().isFixedWidth();
 		}
 
 		return false;

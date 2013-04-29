@@ -38,8 +38,6 @@ class Map extends Value implements IMap{
 	/* package */Map(Type mapType, HashMap<IValue, IValue> content){
 		super(mapType);
 		
-		if(!mapType.isMapType()) throw new IllegalArgumentException("Type must be a map type: " + mapType);
-		
 		this.content = content;
 	}
 	
@@ -230,15 +228,13 @@ class Map extends Value implements IMap{
 			mapContent = new HashMap<IValue, IValue>();
 		}
 
-		public MapWriter(Type mapType){
+		/*package*/ MapWriter(Type mapType){
 			super();
 			
-			if(mapType.isTupleType() && mapType.getArity() >= 2) {
+			if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
 				mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
 			}
 			
-			if(!mapType.isMapType()) throw new IllegalArgumentException("Argument must be a map type or tuple type: " + mapType);
-
 			this.mapType = mapType;
 			this.keyType = mapType.getKeyType();
 			this.valueType = mapType.getValueType();

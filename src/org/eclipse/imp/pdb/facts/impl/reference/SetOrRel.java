@@ -22,7 +22,7 @@ public class SetOrRel {
 	public static <ISetOrRel extends ISet> ISetOrRel apply(Type elementType, java.util.Set<IValue> data) {
 		Type calculatedElementType = data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType;
 		
-		if (calculatedElementType.isTupleType())
+		if (calculatedElementType.isFixedWidth())
 			return (ISetOrRel) new Relation(calculatedElementType, data);
 		else
 			return (ISetOrRel) new Set(calculatedElementType, data);

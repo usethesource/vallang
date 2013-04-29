@@ -242,7 +242,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	
 	protected static ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
-		if(elementType.isTupleType()) return new RelationWriter(elementType, data);
+		if(elementType.isFixedWidth()) return new RelationWriter(elementType, data);
 		
 		return new SetWriter(elementType, data);
 	}

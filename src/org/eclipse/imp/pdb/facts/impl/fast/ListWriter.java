@@ -183,7 +183,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	
 	public IList  done(){
 		if (constructedList == null) {
-			if (/*inferred && */elementType.isTupleType() || data.isEmpty()) {
+			if (/*inferred && */elementType.isFixedWidth() || data.isEmpty()) {
 				constructedList = new ListRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
 			}
 			else {

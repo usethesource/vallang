@@ -39,7 +39,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	/*package*/ ListRelationWriter(Type tupleType){
 		super();
 		
-		if (!tupleType.isTupleType()) {
+		if (!tupleType.isFixedWidth()) {
 			throw new IllegalArgumentException("should be a tuple type");
 		}
 		
@@ -80,7 +80,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	private void updateType(IValue element) {
 		if (inferred) {
 			tupleType = tupleType.lub(element.getType());
-			if (!tupleType.isTupleType()) {
+			if (!tupleType.isFixedWidth()) {
 				throw new IllegalArgumentException("relations can only contain tuples of the same arity");
 			} 
 		}

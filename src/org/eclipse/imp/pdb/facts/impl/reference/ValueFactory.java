@@ -68,7 +68,7 @@ public class ValueFactory extends BaseValueFactory {
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			TypeFactory tf = TypeFactory.getInstance();
 			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}
@@ -94,7 +94,7 @@ public class ValueFactory extends BaseValueFactory {
 	
 	public ISetWriter setWriter(Type eltType) {
 		checkNull(eltType);
-		if (eltType.isTupleType()) {
+		if (eltType.isFixedWidth()) {
 			return relationWriter(eltType);
 		}
 		
@@ -185,7 +185,7 @@ public class ValueFactory extends BaseValueFactory {
 		TypeFactory tf = TypeFactory.getInstance();
 		Type params = constructorType.getAbstractDataType().getTypeParameters();
 		for (Type p : params) {
-			if (p.isParameterType()) {
+			if (p.isOpen()) {
 				bindings.put(p, tf.voidType());
 			}
 		}
@@ -205,7 +205,7 @@ public class ValueFactory extends BaseValueFactory {
 		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
 		Type params = constructorType.getAbstractDataType().getTypeParameters();
 		for (Type p : params) {
-			if (p.isParameterType()) {
+			if (p.isOpen()) {
 				bindings.put(p, tf.voidType());
 			}
 		}
@@ -255,7 +255,7 @@ public class ValueFactory extends BaseValueFactory {
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			TypeFactory tf = TypeFactory.getInstance();
 			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}

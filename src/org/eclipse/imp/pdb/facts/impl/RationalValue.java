@@ -203,7 +203,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 	}
 
 	public int compare(INumber other) {
-		if(other.getType().isIntegerType()) {
+		if(isIntegerType(other)) {
 			IInteger div = num.divide(denom);
 			IInteger rem = num.remainder(denom);
 			if(div.compare(other) != 0)
@@ -211,7 +211,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 			else
 				return rem.signum();
 		}
-		else if(other.getType().isRationalType()){
+		else if(isRationalType(other)){
 			IRational diff = subtract((IRational)other);
 			return diff.signum();
 		}

@@ -131,7 +131,7 @@ class Tuple extends Value implements ITuple {
   public IValue select(int... fields) throws IndexOutOfBoundsException {
     Type type = fType.select(fields);
 
-    if (type.isTupleType()) {
+    if (type.isFixedWidth()) {
       return doSelect(type, fields);
     }
 
@@ -151,7 +151,7 @@ class Tuple extends Value implements ITuple {
   public IValue selectByFieldNames(String... fields) throws FactTypeUseException {
     Type type = fType.select(fields);
 
-    if (type.isTupleType()) {
+    if (type.isFixedWidth()) {
       int[] indexes = new int[fields.length];
       int i = 0;
       for (String name : fields) {

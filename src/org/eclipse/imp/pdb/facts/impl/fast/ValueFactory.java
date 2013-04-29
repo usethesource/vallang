@@ -77,7 +77,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	}
 	
 	public ISetWriter setWriter(Type elementType){
-		if(elementType.isTupleType()) return relationWriter(elementType);
+		if(elementType.isFixedWidth()) return relationWriter(elementType);
 		
 		return new SetWriter(elementType);
 	}
@@ -140,7 +140,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	public IRelation relation(IValue... elements){
 		Type elementType = lub(elements);
 		
-		if (!elementType.isTupleType()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
+		if (!elementType.isFixedWidth()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		
 		IRelationWriter relationWriter = relationWriter(elementType);
 		relationWriter.insert(elements);
@@ -154,7 +154,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	public IListRelation listRelation(IValue... elements) {
 		Type elementType = lub(elements);
 		
-		if (!elementType.isTupleType()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
+		if (!elementType.isFixedWidth()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		
 		IListRelationWriter listRelationWriter = listRelationWriter(elementType);
 		listRelationWriter.append(elements);
@@ -181,10 +181,10 @@ public class ValueFactory extends FastBaseValueFactory {
 	
 	public IConstructor constructor(Type constructorType) {
 		Type params = constructorType.getAbstractDataType().getTypeParameters();
-		if (!params.isVoidType()) {
+		if (!params.equivalent(TypeFactory.getInstance().voidType())) {
 			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
 			for (Type p : params) {
-				if (p.isParameterType()) {
+				if (p.isOpen()) {
 					bindings.put(p, TypeFactory.getInstance().voidType());
 				}
 			}
@@ -202,7 +202,7 @@ public class ValueFactory extends FastBaseValueFactory {
 			TypeFactory tf = TypeFactory.getInstance();
 			Type params = constructorType.getAbstractDataType().getTypeParameters();
 			for (Type p : params) {
-				if (p.isParameterType()) {
+				if (p.isOpen()) {
 					bindings.put(p, tf.voidType());
 				}
 			}
@@ -224,7 +224,7 @@ public class ValueFactory extends FastBaseValueFactory {
 			TypeFactory tf = TypeFactory.getInstance();
 			Type params = constructorType.getAbstractDataType().getTypeParameters();
 			for (Type p : params) {
-				if (p.isParameterType()) {
+				if (p.isOpen()) {
 					bindings.put(p, tf.voidType());
 				}
 			}

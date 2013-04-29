@@ -32,6 +32,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -275,19 +276,131 @@ public class StandardTextWriter implements IValueTextWriter {
 			if (indent && o.size() > 1) {
 				for (IValue x : o) {
 					Type type = x.getType();
-					if (type.isNodeType() || type.isTupleType()|| type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
-						return true;
-					}
+					return indented(type);
 				}
 			}
 			return false;
 		}
+
+    private boolean indented(Type type) {
+      return type.accept(new ITypeVisitor<Boolean>() {
+        @Override
+        public Boolean visitReal(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitInteger(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitRational(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitList(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitMap(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitNumber(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitAlias(Type type) {
+          return type.getAliased().accept(this);
+        }
+
+        @Override
+        public Boolean visitRelationType(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitListRelationType(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitSet(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitSourceLocation(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitString(Type type) {
+         return false;
+        }
+
+        @Override
+        public Boolean visitNode(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitConstructor(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitAbstractData(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitTuple(Type type) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitValue(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitVoid(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitBool(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitParameter(Type type) {
+          return type.getBound().accept(this);
+        }
+
+        @Override
+        public Boolean visitExternal(Type type) {
+          return false;
+        }
+
+        @Override
+        public Boolean visitDateTime(Type type) {
+          return false;
+        }
+      });
+    }
 		
 		private boolean checkIndent(IList o) {
 			if (indent && o.length() > 1) {
 				for (IValue x : o) {
 					Type type = x.getType();
-					if (type.isNodeType() || type.isTupleType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+					if (indented(type)) {
 						return true;
 					}
 				}
@@ -299,7 +412,7 @@ public class StandardTextWriter implements IValueTextWriter {
 			if (indent && o.arity() > 1) {
 				for (IValue x : o) {
 					Type type = x.getType();
-					if (type.isNodeType() || type.isTupleType() || type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+					if (indented(type)) {
 						return true;
 					}
 				}
@@ -312,10 +425,10 @@ public class StandardTextWriter implements IValueTextWriter {
 				for (IValue x : o) {
 					Type type = x.getType();
 					Type vType = o.get(x).getType();
-					if (type.isNodeType() ||  type.isTupleType() ||type.isListType() || type.isSetType() || type.isMapType() || type.isRelationType()) {
+					if (indented(type)) {
 						return true;
 					}
-					if (vType.isNodeType() || vType.isTupleType() || vType.isListType() || vType.isSetType() || vType.isMapType() || vType.isRelationType()) {
+					if (indented(vType)) {
 						return true;
 					}
 				}

@@ -37,8 +37,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	/*package*/ Map(Type mapType, ShareableValuesHashMap data){
 		super();
 		
-		if(!mapType.isMapType()) throw new IllegalArgumentException("Type must be a map type: " + mapType);
-
 		this.mapType = mapType;
 		
 		this.data = data;

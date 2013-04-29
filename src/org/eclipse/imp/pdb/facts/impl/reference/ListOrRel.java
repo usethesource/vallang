@@ -22,7 +22,7 @@ public class ListOrRel {
 	public static <IListOrRel extends IList> IListOrRel apply(Type elementType, java.util.List<IValue> data) {
 		Type calculatedElementType = data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType;
 		
-		if (calculatedElementType.isTupleType())
+		if (calculatedElementType.isFixedWidth())
 			return (IListOrRel) new ListRelation(calculatedElementType, data);
 		else
 			return (IListOrRel) new List(calculatedElementType, data);
