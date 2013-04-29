@@ -12,26 +12,20 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ final class StringType extends Type {
-    private final static StringType sInstance= new StringType();
+/*package*/ final class StringType extends ValueType {
+    private static final class InstanceKeeper {
+      private final static StringType sInstance= new StringType();
+    }
 
     public static StringType getInstance() {
-        return sInstance;
+        return InstanceKeeper.sInstance;
     }
 
     private StringType() {
       super();
     }
 
-    @Override
-    public boolean isStringType() {
-      return true;
-    }
-    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -56,22 +50,22 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
     }
     
     @Override
-    public IValue make(IValueFactory f, String arg) {
-    	return f.string(arg);
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfString(this);
     }
-
+    
     @Override
-    protected IKind getKind() {
-      return new TypeLattice.String();
+    public Type lub(Type other) {
+      return other.lubWithString(this);
     }
-
+    
     @Override
-    protected boolean acceptSubtype(IKind kind) {
-      return kind.subString(this);
+    protected boolean isSubtypeOfString(Type type) {
+      return true;
     }
-
+    
     @Override
-    protected Type acceptLub(IKind kind) {
-      return kind.lubString(this);
+    protected Type lubWithString(Type type) {
+      return this;
     }
 }

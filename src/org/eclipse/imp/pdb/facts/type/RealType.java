@@ -12,26 +12,20 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ final class RealType extends Type {
-	private final static RealType sInstance = new RealType();
+/*package*/ final class RealType extends NumberType {
+  private final static class InstanceKeeper {
+    public final static RealType sInstance = new RealType();
+  }
 
 	public static RealType getInstance() {
-		return sInstance;
+		return InstanceKeeper.sInstance;
 	}
 
 	private RealType() {
 		super();
 	}
 
-	@Override
-	public boolean isRealType() {
-		return true;
-	}
-	
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType
@@ -52,42 +46,22 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	}
 
 	@Override
-	protected IKind getKind() {
-	  return new TypeLattice.Real();
-	}
-	
-	@Override
-	protected boolean acceptSubtype(IKind kind) {
-	  return kind.subReal(this);
-	}
-	
-	@Override
-	protected Type acceptLub(IKind kind) {
-	  return kind.lubReal(this);
-	}
-	
-	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitReal(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, double arg) {
-		return f.real(arg);
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfReal(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, TypeStore store, double arg) {
-		return make(f, arg);
+	protected Type lubWithReal(Type type) {
+	  return this;
 	}
-	
+	 
 	@Override
-	public IValue make(IValueFactory f, float arg) {
-		return f.real(arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, float arg) {
-		return make(f, arg);
+	protected boolean isSubtypeOfReal(Type type) {
+	  return true;
 	}
 }

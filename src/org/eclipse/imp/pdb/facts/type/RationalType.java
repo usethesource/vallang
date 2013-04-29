@@ -12,26 +12,20 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ final class RationalType extends Type {
-    private final static RationalType sInstance= new RationalType();
+/*package*/ final class RationalType extends NumberType {
+  private static final class InstanceKeeper {
+    public final static RationalType sInstance= new RationalType();
+  }
 
     public static RationalType getInstance() {
-        return sInstance;
+        return InstanceKeeper.sInstance;
     }
 
     private RationalType() {
     	super();
     }
 
-    @Override
-    public boolean isRationalType() {
-    	return true;
-    }
-    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -51,32 +45,27 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
     }
 
     @Override
-    protected IKind getKind() {
-      return new TypeLattice.Rational();
-    }
-    
-    @Override
-    protected boolean acceptSubtype(IKind kind) {
-      return kind.subRational(this);
-    }
-    
-    @Override
-    protected Type acceptLub(IKind kind) {
-      return kind.lubRational(this);
-    }
-    
-    @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
     	return visitor.visitRational(this);
     }
-    
+
     @Override
-    public IRational make(IValueFactory f, int num, int denom) {
-    	return f.rational(num, denom);
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfRational(this);
     }
     
     @Override
-    public IRational make(IValueFactory f, TypeStore store, int num, int denom) {
-    	return make(f, num, denom);
+    public Type lub(Type other) {
+      return other.lubWithRational(this);
+    }
+    
+    @Override
+    protected Type lubWithRational(Type type) {
+      return this;
+    }
+    
+    @Override
+    protected boolean isSubtypeOfRational(Type type) {
+      return true;
     }
 }

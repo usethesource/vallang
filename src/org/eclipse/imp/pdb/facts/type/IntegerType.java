@@ -12,26 +12,20 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ final class IntegerType extends Type {
-    private final static IntegerType sInstance= new IntegerType();
-
+/*package*/ final class IntegerType extends NumberType {
+    private static final class InstanceKeeper {
+      public final static IntegerType sInstance= new IntegerType();
+    }
+    
     public static IntegerType getInstance() {
-        return sInstance;
+        return InstanceKeeper.sInstance;
     }
 
     private IntegerType() {
     	super();
     }
 
-    @Override
-    public boolean isIntegerType() {
-    	return true;
-    }
-    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -51,32 +45,22 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
     }
     
     @Override
-    protected IKind getKind() {
-      return new TypeLattice.Integer();
-    }
-    
-    @Override
-    protected boolean acceptSubtype(IKind kind) {
-      return kind.subInteger(this);
-    }
-    
-    @Override
-    protected Type acceptLub(IKind kind) {
-      return kind.lubInteger(this);
-    }
-    
-    @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
     	return visitor.visitInteger(this);
     }
     
     @Override
-    public IInteger make(IValueFactory f, int arg) {
-    	return f.integer(arg);
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfInteger(this);
     }
     
     @Override
-    public IInteger make(IValueFactory f, TypeStore store, int arg) {
-    	return make(f, arg);
+    public Type lub(Type other) {
+      return other.lubWithInteger(this);
+    }
+    
+    @Override
+    protected Type lubWithInteger(Type type) {
+      return this;
     }
 }

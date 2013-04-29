@@ -12,26 +12,20 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/ final class BoolType extends Type {
-	private final static BoolType sInstance = new BoolType();
+/*package*/ final class BoolType extends ValueType {
+  private final static class InstanceKeeper {
+    public final static BoolType sInstance = new BoolType();
+  }
 
-	/* package */static BoolType getInstance() {
-		return sInstance;
+	public static BoolType getInstance() {
+		return InstanceKeeper.sInstance;
 	}
 
 	private BoolType() {
 		super();
 	}
 
-	@Override
-	public boolean isBoolType() {
-		return true;
-	}
-	
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType
@@ -52,32 +46,27 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	}
 
 	@Override
-	protected IKind getKind() {
-	  return new TypeLattice.Bool();
-	}
-	
-	@Override
-	protected boolean acceptSubtype(IKind kind) {
-	  return kind.subBool(this);
-	}
-	
-	@Override
-	protected Type acceptLub(IKind kind) {
-	  return kind.lubBool(this);
-	}
-	
-	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitBool(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, boolean arg) {
-		return f.bool(arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, boolean arg) {
-		return make(f, arg);
-	}
+  protected boolean isSupertypeOf(Type type) {
+    return type.isSubtypeOfBool(this);
+  }
+  
+  @Override
+  public Type lub(Type other) {
+    return other.lubWithBool(this);
+  }
+  
+  @Override
+  protected boolean isSubtypeOfBool(Type type) {
+    return true;
+  }
+  
+  @Override
+  protected Type lubWithBool(Type type) {
+    return this;
+  }
 }

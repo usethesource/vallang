@@ -12,16 +12,12 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * This class is the abstract implementation for all types. Types are ordered in
@@ -43,6 +39,8 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
  *        specific types will lead to a @{link FactTypeError} exception.
  */
 public abstract class Type implements Iterable<Type>, Comparable<Type> {
+  protected static final TypeFactory TF = TypeFactory.getInstance();
+  
   /**
    * Retrieve the type of elements in a set or a relation.
    * 
@@ -315,14 +313,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * @return the least upper bound type of the receiver and the argument type
    */
-  public final Type lub(Type other) {
-    return this == other ? this : other.acceptLub(getKind());
-  }
+  public abstract Type lub(Type type);
 
-  abstract protected IKind getKind();
-  abstract protected boolean acceptSubtype(TypeLattice.IKind kind);
-  abstract protected Type acceptLub(TypeLattice.IKind kind);
-  
   /**
    * The sub-type relation. Value is the biggest type and void is the smallest.
    * Value is the top and void is the bottom of the type hierarchy.
@@ -331,8 +323,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return true if the receiver is a subtype of the other type
    */
   public final boolean isSubtypeOf(Type other) {
-    return this == other || other.acceptSubtype(getKind());
+    return other.isSupertypeOf(this);
   }
+
+  protected abstract boolean isSupertypeOf(Type type);
 
   /**
    * Return whether an ADT or an alias Type has any type parameters
@@ -394,482 +388,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
 
   public abstract <T> T accept(ITypeVisitor<T> visitor);
 
-  @Deprecated
-  public boolean isRelationType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isListRelationType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isSetType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isTupleType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isListType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isIntegerType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isRationalType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isRealType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isStringType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isSourceLocationType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isSourceRangeType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isAliasType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isValueType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isVoidType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isExternalType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isNodeType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isConstructorType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isAbstractDataType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isNumberType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isMapType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isBoolType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isParameterType() {
-    return false;
-  }
-
-  @Deprecated
-  public boolean isDateTimeType() {
-    return false;
-  }
-
-  /**
-   * Build a real value. This method is supported by the DoubleTypes
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the double to wrap
-   * @return a real value
-   */
-  public IValue make(IValueFactory f, double arg) {
-    throw new IllegalOperationException("make double", this);
-  }
-
-  /**
-   * Build a real value. This method is supported by the DoubleTypes
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the float to wrap
-   * @return a real value
-   */
-  public IValue make(IValueFactory f, float arg) {
-    throw new IllegalOperationException("make double", this);
-  }
-
-  /**
-   * Build a real value. This method is supported by TreeNodeTypes that wrap a
-   * single double argument.
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the float to wrap
-   * @return a real value
-   */
-  public IValue make(IValueFactory f, TypeStore store, float arg) {
-    throw new IllegalOperationException("make real", this);
-  }
-
-  /**
-   * Build a real value. This method is supported by TreeNodeTypes that wrap a
-   * single double argument.
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the double to wrap
-   * @return a real value
-   */
-  public IValue make(IValueFactory f, TypeStore store, double arg) {
-    throw new IllegalOperationException("make real", this);
-  }
-
-  /**
-   * Build a integer value. This method is supported by IntegerTypes.
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the integer to wrap
-   * @return a integer value
-   */
-  public IValue make(IValueFactory f, int arg) {
-    throw new IllegalOperationException("make int", this);
-  }
-
-  /**
-   * Build a integer value. This method is supported by TreeNodeTypes that wrap
-   * a single integer argument.
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the integer to wrap
-   * @return a integer value
-   */
-  public IValue make(IValueFactory f, TypeStore store, int arg) {
-    throw new IllegalOperationException("make int", this);
-  }
-
-  /**
-   * Build a integer value. This method is supported by TreeNodeTypes that wrap
-   * a single integer argument.
-   * 
-   * @param f
-   *          the factory to use
-   * @param num
-   *          the numerator
-   * @param denom
-   *          the denominator
-   * @return a rational value
-   */
-  public IValue make(IValueFactory f, int num, int denom) {
-    throw new IllegalOperationException("make rational", this);
-  }
-
-  /**
-   * Build a integer value. This method is supported by TreeNodeTypes that wrap
-   * a single integer argument.
-   * 
-   * @param f
-   *          the factory to use
-   * @param num
-   *          the numerator
-   * @param denom
-   *          the denominator
-   * @return a rational value
-   */
-  public IValue make(IValueFactory f, TypeStore store, int num, int denom) {
-    throw new IllegalOperationException("make rational", this);
-  }
-
-  /**
-   * Build a string value. This method is supported by the StringType.
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the string to wrap
-   * @return a string value
-   */
-  public IValue make(IValueFactory f, String arg) {
-    throw new IllegalOperationException("make string", this);
-  }
-
-  /**
-   * Build a string value. This method is supported by TreeNodeTypes that wrap a
-   * single string value
-   * 
-   * @param f
-   *          the factory to use
-   * @param arg
-   *          the string to wrap
-   * @return a tree node that wraps a single string
-   */
-  public IValue make(IValueFactory f, TypeStore store, String arg) {
-    throw new IllegalOperationException("make string", this);
-  }
-
-  /**
-   * Build a value that does not have any children. This method is supported by
-   * list, set, tuple, relation and map, nullary trees and NamedTypes that are
-   * sub-types of any of the previous.
-   * 
-   * @param f
-   * @return a new empty value of the type
-   */
-  public IValue make(IValueFactory f) {
-    throw new IllegalOperationException("make zero constructor", this);
-  }
-
-  /**
-   * Build a value that has a number of children. This method is supported by
-   * tuples types and tree node types with the correct arity, also lists
-   * relations and maps can be constructed with a fixed size.
-   * 
-   * @param f
-   *          factory to use
-   * @param args
-   *          arguments to use
-   * @return a value of the appropriate type
-   */
-  public IValue make(IValueFactory f, IValue... args) {
-    throw new IllegalOperationException("apply to children", this);
-  }
-
-  public IValue make(IValueFactory f, TypeStore ts, IValue... args) {
-    throw new IllegalOperationException("apply to children", this);
-  }
-
-  public IValue make(IValueFactory f, URI uri, int startOffset, int length, int startLine, int endLine, int startCol,
-      int endCol) {
-    throw new IllegalOperationException("make source location", this);
-  }
-
-  public IValue make(IValueFactory f, URI uri) {
-    throw new IllegalOperationException("make source location", this);
-  }
-
-  public IValue make(IValueFactory f, String path, int startOffset, int length, int startLine, int endLine,
-      int startCol, int endCol) {
-    throw new IllegalOperationException("make source location", this);
-  }
-
-  public IValue make(IValueFactory f, String name, IValue... children) {
-    throw new IllegalOperationException("make tree constructor", this);
-  }
-
-  public IValue make(IValueFactory valueFactory, String name, IValue[] argValues, Map<String, IValue> keyArgValues) {
-    throw new IllegalOperationException("make tree constructor", this);
-  }
-
-  public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
-    throw new IllegalOperationException("make tree constructor", this);
-  }
-
-  public IValue make(IValueFactory f, boolean arg) {
-    throw new IllegalOperationException("make boolean", this);
-  }
-
-  public IValue make(IValueFactory f, TypeStore store, boolean arg) {
-    throw new IllegalOperationException("make boolean", this);
-  }
-
-  /**
-   * Build a date. This method is supported by DateTimeType.
-   * 
-   * @param f
-   *          Factory to use
-   * @param year
-   *          Year of the date
-   * @param month
-   *          Month of the date
-   * @param day
-   *          Day of the date
-   * 
-   * @return The constructed date.
-   */
-  public IValue make(IValueFactory f, int year, int month, int day) {
-    throw new IllegalOperationException("make datetime", this);
-  }
-
-  /**
-   * Build a time. This method is supported by DateTimeType.
-   * 
-   * @param f
-   *          Factory to use
-   * @param hour
-   *          Hour of the time
-   * @param minute
-   *          Minute of the time
-   * @param second
-   *          Second of the time
-   * @param millisecond
-   *          Millisecond of the time
-   * 
-   * @return The constructed time.
-   */
-  public IValue make(IValueFactory f, int hour, int minute, int second, int millisecond) {
-    throw new IllegalOperationException("make datetime", this);
-  }
-
-  /**
-   * Build a time. This method is supported by DateTimeType.
-   * 
-   * @param f
-   *          Factory to use
-   * @param hour
-   *          Hour of the time
-   * @param minute
-   *          Minute of the time
-   * @param second
-   *          Second of the time
-   * @param millisecond
-   *          Millisecond of the time
-   * @param hourOffset
-   *          Timezone offset in hours
-   * @param minuteOffset
-   *          Timezone offset in minutes
-   * 
-   * @return The constructed time
-   */
-  public IValue make(IValueFactory f, int hour, int minute, int second, int millisecond, int hourOffset,
-      int minuteOffset) {
-    throw new IllegalOperationException("make datetime", this);
-  }
-
-  /**
-   * Build a datetime. This method is supported by DateTimeType.
-   * 
-   * @param f
-   *          Factory to use
-   * @param year
-   *          Year of the date
-   * @param month
-   *          Month of the date
-   * @param day
-   *          Day of the date
-   * @param hour
-   *          Hour of the time
-   * @param minute
-   *          Minute of the time
-   * @param second
-   *          Second of the time
-   * @param millisecond
-   *          Millisecond of the time
-   * 
-   * @return The constructed datetime
-   */
-  public IValue make(IValueFactory f, int year, int month, int day, int hour, int minute, int second, int millisecond) {
-    throw new IllegalOperationException("make datetime", this);
-  }
-
-  /**
-   * Build a datetime. This method is supported by DateTimeType.
-   * 
-   * @param f
-   *          Factory to use
-   * @param year
-   *          Year of the date
-   * @param month
-   *          Month of the date
-   * @param day
-   *          Day of the date
-   * @param hour
-   *          Hour of the time
-   * @param minute
-   *          Minute of the time
-   * @param second
-   *          Second of the time
-   * @param millisecond
-   *          Millisecond of the time
-   * @param hourOffset
-   *          Timezone offset in hours
-   * @param minuteOffset
-   *          Timezone offset in minutes
-   * 
-   * @return The constructed datetime
-   */
-  public IValue make(IValueFactory f, int year, int month, int day, int hour, int minute, int second, int millisecond,
-      int hourOffset, int minuteOffset) {
-    throw new IllegalOperationException("make datetime", this);
-  }
-
-  /**
-   * Build a datetime. This method is supported by DateTimeType.
-   * 
-   * @param f
-   *          Factory to use
-   * @param Datetime
-   *          instant of this time
-   * 
-   * @return The constructed datetime.
-   */
-  public IValue make(IValueFactory f, long instant) {
-    throw new IllegalOperationException("make datetime", this);
-  }
-
-  /**
-   * Return a writer object. This works for Lists, Sets, Relations and Maps.
-   * Caller is responsible for assigning the result to
-   * I{List,Set,Relation,Map}Writer variable.
-   * 
-   * @param f
-   *          factory to use
-   * @return a writer
-   */
-  public <T extends IWriter> T writer(IValueFactory f) {
-    throw new IllegalOperationException("writer", this);
-  }
-
-  /**
-   * For AliasTypes, return which basic type it hides.
-   * 
-   * @return the first super type of this type that is not a AliasType.
-   */
-  public Type getHiddenType() {
-    throw new IllegalOperationException("getHiddenType", this);
-  }
-
   /**
    * For alias types and adt types return which type parameters there are.
    * 
@@ -905,25 +423,65 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
 
-  // public IValue[] getDefaults(){
-  // throw new IllegalOperationException("getDefaults", this);
-  // }
-
   public int getPositionalArity() {
     throw new IllegalOperationException("getIndexOfFirstDefault", this);
   }
 
-  // public IValue getFieldDefault(int i) {
-  // throw new IllegalOperationException("getFieldDefault", this);
-  // }
-
-  // public IValue getFieldDefault(String fieldName) throws FactTypeUseException
-  // {
-  // throw new IllegalOperationException("getFieldDefault", this);
-  // }
-  //
-  // public boolean hasFieldDefault(String fieldName) {
-  // throw new IllegalOperationException("hasFieldDefault", this);
-  // }
-
+  protected boolean isSubtypeOfParameter(Type type) {
+    return isSubtypeOf(type.getBound());
+  }
+  
+  protected final boolean isSubtypeOfAlias(Type type) {
+    return isSubtypeOf(type.getAliased());
+  }
+  
+  abstract protected boolean isSubtypeOfReal(Type type);
+  abstract protected boolean isSubtypeOfInteger(Type type);
+  abstract protected boolean isSubtypeOfRational(Type type);
+  abstract protected boolean isSubtypeOfList(Type type);
+  abstract protected boolean isSubtypeOfMap(Type type);
+  abstract protected boolean isSubtypeOfNumber(Type type);
+  abstract protected boolean isSubtypeOfRelation(Type type);
+  abstract protected boolean isSubtypeOfListRelation(Type type);
+  abstract protected boolean isSubtypeOfSet(Type type);
+  abstract protected boolean isSubtypeOfSourceLocation(Type type);
+  abstract protected boolean isSubtypeOfString(Type type);
+  abstract protected boolean isSubtypeOfNode(Type type);
+  abstract protected boolean isSubtypeOfConstructor(Type type);
+  abstract protected boolean isSubtypeOfAbstractData(Type type);
+  abstract protected boolean isSubtypeOfTuple(Type type);
+  abstract protected boolean isSubtypeOfValue(Type type);
+  abstract protected boolean isSubtypeOfVoid(Type type);
+  abstract protected boolean isSubtypeOfBool(Type type);
+  abstract protected boolean isSubtypeOfExternal(Type type);
+  abstract protected boolean isSubtypeOfDateTime(Type type);
+  
+  protected Type lubWithAlias(Type type) {
+    return lub(type.getAliased());
+  }
+  
+  protected Type lubWithParameter(Type type) {
+    return lub(type.getBound());
+  }
+  
+  abstract protected Type lubWithReal(Type type) ;
+  abstract protected Type lubWithInteger(Type type) ;
+  abstract protected Type lubWithRational(Type type) ;
+  abstract protected Type lubWithList(Type type) ;
+  abstract protected Type lubWithMap(Type type) ;
+  abstract protected Type lubWithNumber(Type type) ;
+  abstract protected Type lubWithRelation(Type type) ;
+  abstract protected Type lubWithListRelation(Type type) ;
+  abstract protected Type lubWithSet(Type type) ;
+  abstract protected Type lubWithSourceLocation(Type type) ;
+  abstract protected Type lubWithString(Type type) ;
+  abstract protected Type lubWithNode(Type type) ;
+  abstract protected Type lubWithConstructor(Type type) ;
+  abstract protected Type lubWithAbstractData(Type type) ;
+  abstract protected Type lubWithTuple(Type type) ;
+  abstract protected Type lubWithValue(Type type) ;
+  abstract protected Type lubWithVoid(Type type) ;
+  abstract protected Type lubWithBool(Type type) ;
+  abstract protected Type lubWithExternal(Type type) ;
+  abstract protected Type lubWithDateTime(Type type) ;
 }

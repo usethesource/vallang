@@ -28,46 +28,66 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
  * 
  * @see ConstructorType
  */
-/*package*/ final class AbstractDataType extends Type {
+/*package*/ class AbstractDataType extends NodeType {
   private final String fName;
 	private final Type fParameters;
 	
-	/* package */ AbstractDataType(String name, Type parameters) {
+	protected AbstractDataType(String name, Type parameters) {
 		fName = name;
 		fParameters = parameters;
 	}
 	
 	@Override
-	public boolean isAbstractDataType() {
-		return true;
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfAbstractData(this);
 	}
 	
 	@Override
-	public boolean isNodeType() {
-		return true; // All ADT's are built from nodes.
+	public Type lub(Type other) {
+	  return other.lubWithAbstractData(this);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfNode(Type type) {
+	  return true;
+	}
+	
+	@Override
+	protected boolean isSubtypeOfAbstractData(Type type) {
+	  if (this == type) {
+	    return true;
+	  }
+	  
+	  if (getName().equals(type.getName())) {
+	    return getTypeParameters().isSubtypeOf(type.getTypeParameters());
+	  }
+	  
+	  return false;
+	}
+	
+	@Override
+	protected Type lubWithAbstractData(Type type) {
+	  if (this == type) {
+      return this;
+    }
+    
+    if (getName().equals(type.getName())) {
+      return TF.abstractDataTypeFromTuple(new TypeStore(), getName(), getTypeParameters().lub(type.getTypeParameters()));
+    }
+    
+    return TF.nodeType();
+	}
+	
+	@Override
+	protected Type lubWithConstructor(Type type) {
+	  return lubWithAbstractData(type.getAbstractDataType());
 	}
 	
 	@Override
 	public boolean isParameterized() {
-		return !fParameters.isVoidType();
+		return !fParameters.equivalent(VoidType.getInstance());
 	}
 
-
-	@Override
-	protected IKind getKind() {
-	  return new TypeLattice.AbstractData(this);
-	}
-	
-	@Override
-	protected Type acceptLub(IKind kind) {
-	  return kind.lubAbstractData(this); 
-	}
-	
-	@Override
-	protected boolean acceptSubtype(IKind kind) {
-	  return kind.subAbstractData(this);
-	}
-	
 	@Override
 	public boolean hasField(String fieldName, TypeStore store) {
 		// we look up by name because this might be an instantiated parameterized data-type
@@ -80,11 +100,9 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 		}
 		
 		for (Type alt : store.lookupAlternatives(parameterizedADT)) {
-			if (alt.isConstructorType()) {
-				if (alt.hasField(fieldName)) {
-					return true;
-				}
-			}
+		  if (alt.hasField(fieldName)) {
+		    return true;
+		  }
 		}
 		
 		return false;
@@ -95,7 +113,7 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(fName);
-		if (!fParameters.isVoidType()) {
+		if (!fParameters.isParameterized()) {
 			sb.append("[");
 			int idx= 0;
 			for(Type elemType: fParameters) {
@@ -157,77 +175,6 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitAbstractData(this);
-	}
-	
-	private IValue wrap(IValueFactory vf, TypeStore store, Type wrapped, IValue value) {
-		for (Type alt : store.lookupAlternatives(this)) {
-			if (alt.getArity() == 1 && alt.getFieldType(0).isSubtypeOf(wrapped)) {
-				return alt.make(vf, value);
-			}
-		}
-		
-		throw new UndeclaredConstructorException(this, TypeFactory.getInstance().tupleType(wrapped));
-	}
-
-	@Override
-	public IValue make(IValueFactory vf, TypeStore store, boolean arg) {
-		Type wrapped = TypeFactory.getInstance().boolType();
-		IValue value = wrapped.make(vf, arg);
-		
-		return wrap(vf, store, wrapped, value);
-	}
-	
-	@Override
-	public IValue make(IValueFactory vf, TypeStore store, int arg) {
-		Type wrapped = TypeFactory.getInstance().integerType();
-		IValue value = wrapped.make(vf, arg);
-		
-		return wrap(vf, store, wrapped, value);
-	}
-	
-	@Override
-	public IValue make(IValueFactory vf, TypeStore store, double arg) {
-		Type wrapped = TypeFactory.getInstance().realType();
-		IValue value = wrapped.make(vf, arg);
-		
-		return wrap(vf, store, wrapped, value);
-	}
-
-	
-	@Override
-	public IValue make(IValueFactory vf, TypeStore store, String arg) {
-		Type wrapped = TypeFactory.getInstance().stringType();
-		IValue value = wrapped.make(vf, arg);
-		
-		return wrap(vf, store, wrapped, value);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, IValue... children) {
-		Set<Type> possible = store.lookupAlternatives(this);
-		Type childrenTypes = store.getFactory().tupleType(children);
-		
-		for (Type node : possible) {
-			if (childrenTypes.isSubtypeOf(node.getFieldTypes())) {
-				return node.make(f, children);
-			}
-		}
-		
-		throw new UndeclaredConstructorException(this, childrenTypes);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
-		Set<Type> possible = store.lookupConstructor(this, name);
-		Type childrenTypes = store.getFactory().tupleType(children);
-		
-		for (Type node : possible) {
-			if (childrenTypes.isSubtypeOf(node.getFieldTypes())) {
-				return node.make(f, children);
-			}
-		}
-		
-		throw new UndeclaredConstructorException(name, childrenTypes);
 	}
 	
 	@Override

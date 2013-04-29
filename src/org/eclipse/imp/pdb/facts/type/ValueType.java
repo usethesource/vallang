@@ -1,164 +1,247 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ * Copyright (c) 2007 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
-*******************************************************************************/
+ *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.net.URI;
+/* package */class ValueType extends Type {
+  protected static class InstanceHolder {
+    public static final ValueType sInstance = new ValueType();
+  }
 
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
+  public static ValueType getInstance() {
+    return InstanceHolder.sInstance;
+  }
 
-/* package */ final class ValueType extends Type {
-	private static class InstanceHolder {
-		public static final ValueType sInstance= new ValueType();
-	}
-	
-    public static ValueType getInstance() {
-        return InstanceHolder.sInstance;
-    }
+  protected ValueType() {
+    super();
+  }
 
-    private ValueType() {
-    	super();
-    }
+  @Override
+  public String toString() {
+    return "value";
+  }
 
-    @Override
-    public boolean isValueType() {
-    	return true;
-    }
-    
-    @Override
-    protected IKind getKind() {
-      return new TypeLattice.Value();
-    }
-    
-    @Override
-    protected Type acceptLub(IKind kind) {
-      return kind.lubValue(this);
-    }
+  /**
+   * Should never be called, ValueType is a singleton
+   */
+  @Override
+  public boolean equals(Object o) {
+    return (o instanceof ValueType);
+  }
 
-    @Override
-    protected boolean acceptSubtype(IKind kind) {
-      return kind.subValue(this);
-    }
-    
-    @Override
-    public String toString() {
-        return "value";
-    }
-    
-    /**
-     * Should never be called, ValueType is a singleton 
+  @Override
+  public int hashCode() {
+    return 2141;
+  }
+
+  @Override
+  public <T> T accept(ITypeVisitor<T> visitor) {
+    return visitor.visitValue(this);
+  }
+
+  @Override
+  public Type lub(Type other) {
+    return other.lubWithValue(this);
+  }
+
+  @Override
+  protected boolean isSupertypeOf(Type type) {
+    return type.isSubtypeOfValue(this);
+  }
+
+  @Override
+  protected boolean isSubtypeOfValue(Type type) {
+    return true;
+  }
+
+  @Override
+  protected boolean isSubtypeOfReal(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfInteger(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfRational(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfList(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfMap(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfNumber(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfRelation(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfListRelation(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfSet(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfSourceLocation(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfString(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfNode(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfConstructor(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfAbstractData(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfTuple(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfVoid(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfBool(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfExternal(Type type) {
+    return false;
+  }
+
+  @Override
+  protected boolean isSubtypeOfDateTime(Type type) {
+    return false;
+  }
+
+  @Override
+  protected Type lubWithValue(Type type) {
+    return this;
+  }
+  
+  protected Type lubWithReal(Type type) {
+    return ValueType.getInstance();
+  }
+  
+  protected Type lubWithInteger(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithRational(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithList(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithMap(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithNumber(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithRelation(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithListRelation(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithSet(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithSourceLocation(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithString(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithNode(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithConstructor(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithAbstractData(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithTuple(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithVoid(Type type) {
+    /* this is for the semantics of the sub-classes of ValueType
+     * the lub with void for any type should be that other type
+     * and not value.
      */
-    @Override
-    public boolean equals(Object o) {
-        return (o instanceof ValueType);
-    }
-    
-    @Override
-    public int hashCode() {
-    	return 2141;
-    }
-    
-    @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitValue(this);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f) {
-    	// if we don't care what kind of value to make, but it
-    	// should be something that is empty, we make the empty
-    	// tuple
-    	return TypeFactory.getInstance().tupleEmpty().make(f);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, double arg) {
-    	return TypeFactory.getInstance().realType().make(f, arg);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, int arg) {
-    	return TypeFactory.getInstance().integerType().make(f, arg);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, TypeStore s, int arg) {
-    	return TypeFactory.getInstance().integerType().make(f, arg);
-    }
-    
-    
-    @Override
-    public IValue make(IValueFactory f, URI uri, int startOffset, int length,
-    		int startLine, int endLine, int startCol, int endCol) {
-    	return TypeFactory.getInstance().sourceLocationType().make(f, uri, startOffset, length, startLine, endLine, startCol, endCol);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, String path, int startOffset, int length,
-    		int startLine, int endLine, int startCol, int endCol) {
-    	return TypeFactory.getInstance().sourceLocationType().make(f, path, startOffset, length, startLine, endLine, startCol, endCol);
-    }
-    
-    @Override 
-    public IValue make(IValueFactory f, URI uri) {
-    	return f.sourceLocation(uri);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, IValue... args) {
-    	// this could be anything that takes variable sized argument lists.
-    	// for a default, lets construct a tuple:
-    	return TypeFactory.getInstance().tupleType(args).make(f, args);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, String arg) {
-    	return TypeFactory.getInstance().stringType().make(f, arg);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, String name, IValue... children) {
-    	return f.node(name, children);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, TypeStore store, String name,
-    		IValue... children) {
-    	Type[] kids = new Type[children.length];
-    	for (int i = 0; i < kids.length; i++) {
-    		kids[i] = children[i].getType();
-    	}
-    	Type cons = store.lookupFirstConstructor(name, TypeFactory.getInstance().tupleType(kids));
-    	
-    	if (cons == null) {
-    		return TypeFactory.getInstance().nodeType().make(f, name, children);
-    	}
-    	
-    	return cons.make(f, children);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, boolean arg) {
-    	return TypeFactory.getInstance().boolType().make(f, arg);
-    }
-    
-	@SuppressWarnings("unchecked")
-	@Override
-    public IListWriter writer(IValueFactory f) {
-    	// if we don't care what kind of container to make
-    	// we make a list of values
-    	return f.listWriter(TypeFactory.getInstance().valueType());
-    }
+    return this;
+  }
+
+  protected Type lubWithBool(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithExternal(Type type) {
+    return ValueType.getInstance();
+  }
+
+  protected Type lubWithDateTime(Type type) {
+    return ValueType.getInstance();
+  }
+
+
 }

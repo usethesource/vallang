@@ -14,12 +14,8 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalConstructorApplicationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * A tree type is a type of tree node, defined by its name, the types of
@@ -37,13 +33,14 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
  * Boolean ::= or(Boolean lhs, Boolean rhs)
  * 
  */
-/*package*/ final class ConstructorType extends Type {
+/*package*/ final class ConstructorType extends AbstractDataType {
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
 	private int postionalArity;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
+	  super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
@@ -58,21 +55,6 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 		this.postionalArity = positionalArity;
 	}
 
-	@Override
-	protected IKind getKind() {
-	  return new TypeLattice.Constructor(this);
-	}
-	
-	@Override
-	protected Type acceptLub(IKind kind) {
-	  return kind.lubConstructor(this);
-	}
-	
-	@Override
-	protected boolean acceptSubtype(IKind kind) {
-	  return kind.subConstructor(this);
-	}
-	
 	@Override
 	public Type carrier() {
 		return fChildrenTypes.carrier();
@@ -93,16 +75,6 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 					&& fADT == ((ConstructorType) o).fADT;
 		}
 		return false;
-	}
-	
-	@Override
-	public boolean isConstructorType() {
-		return true;
-	}
-	
-	@Override
-	public boolean isNodeType() {
-		return true; // an ADT constructor is a node
 	}
 	
 	@Override
@@ -188,69 +160,36 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	}
 
 	@Override
-	public IValue make(IValueFactory f) {
-		return f.constructor(this);
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfConstructor(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, int arg) {
-		TypeFactory tf = TypeFactory.getInstance();
-		
-		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.integerType())) {
-			return make(f, f.integer(arg));
-		}
+	public Type lub(Type type) {
+	  return type.lubWithConstructor(this);
+	}
+	
+	@Override
+	protected boolean isSubtypeOfConstructor(Type type) {
+	  if (type.getName().equals(getName())) {
+      return getAbstractDataType().isSubtypeOf(type.getAbstractDataType())
+          && getFieldTypes().isSubtypeOf(type.getFieldTypes());
+    }
+    else {
+      return false;
+    }
+	}
+	
+	@Override
+	protected boolean isSubtypeOfAbstractData(Type type) {
+	  return getAbstractDataType().isSubtypeOfAbstractData(type);
+	}
+	
+	@Override
+	protected Type lubWithConstructor(Type type) {
+	  return getAbstractDataType().lubWithAbstractData(type.getAbstractDataType());
+	}
 
-		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.integerType()));
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, double arg) {
-		TypeFactory tf = TypeFactory.getInstance();
-		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.realType())) {
-			return make(f, f.real(arg));
-		}
-		
-		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.realType()));
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, String arg) {
-		TypeFactory tf = TypeFactory.getInstance();
-		if (getArity() == 1 && getFieldType(0).isSubtypeOf(tf.stringType())) {
-			return make(f, f.string(arg));
-		}
-		
-		throw new IllegalConstructorApplicationException(this, tf.tupleType(tf.stringType()));
-	}
-	
-	@Override
-	public IValue make(IValueFactory vf, IValue... args) {
-		return vf.constructor(this, args);
-	}
-	
-	@Override
-	public IValue make(IValueFactory vf, TypeStore ts, IValue... args) {
-		return make(vf, args);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, String name, IValue... children) {
-		if (!name.equals(fName)) {
-			throw new UnsupportedOperationException(name + " does not match constructor name " + getName());
-		}
-		
-		Type childrenTypes = TypeFactory.getInstance().tupleType(children);
-		if (!childrenTypes.isSubtypeOf(fChildrenTypes)) {
-			throw new IllegalConstructorApplicationException(this, childrenTypes);
-		}
-		
-		return make(f, children);
-	}
-	
-	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
-		return make(f, name, children);
-	}
-	
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
