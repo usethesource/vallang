@@ -53,16 +53,16 @@ public class TypeLattice {
   }
   
   protected static abstract class Default implements IKind {
-    protected Type it;
-
+    protected abstract Type getIt();
+    
     @Override
     public boolean subAlias(AliasType type) {
-      return it.isSubtypeOf(type.getAliased());
+      return getIt().isSubtypeOf(type.getAliased());
     }
     
     @Override
     public boolean subParameter(ParameterType type) {
-      return it.isSubtypeOf(type.getBound());
+      return getIt().isSubtypeOf(type.getBound());
     }
     
     @Override
@@ -168,120 +168,127 @@ public class TypeLattice {
 
     @Override
     public Type lubAlias(AliasType type) {
-      return it == type ? it : it.lub(type.getAliased()); 
+      return getIt() == type ? getIt() : getIt().lub(type.getAliased()); 
     }
     
     @Override
     public Type lubParameter(ParameterType type) {
-      return it.lub(type.getBound());
+      return getIt().lub(type.getBound());
     }
     
     @Override
     public Type lubReal(RealType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubInteger(IntegerType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubRational(RationalType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubList(ListType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubMap(MapType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubNumber(NumberType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubRelationType(RelationType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubListRelationType(ListRelationType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubSet(SetType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubSourceLocation(SourceLocationType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubString(StringType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubNode(NodeType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubConstructor(ConstructorType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubAbstractData(AbstractDataType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubTuple(TupleType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubValue(ValueType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubVoid(VoidType type) {
-      return it;
+      return getIt();
     }
 
     @Override
     public Type lubBool(BoolType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubExternal(ExternalType type) {
-      return it;
+      return TF.valueType();
     }
 
     @Override
     public Type lubDateTime(DateTimeType type) {
-      return it;
+      return TF.valueType();
     }
   }  
  
   public abstract static class Forward extends Default {
     private final Type fwd;
+    private final Type it;
 
-    public Forward(Type fwd) {
+    public Forward(Type it, Type fwd) {
       this.fwd = fwd;
+      this.it = it;
+    }
+    
+    @Override
+    protected Type getIt() {
+      return it;
     }
     
     @Override
@@ -487,21 +494,33 @@ public class TypeLattice {
 
   public static class Alias extends Forward {
     public Alias(Type it) {
-      super(it.getAliased());
+      super(it, it.getAliased());
+    }
+    
+    @Override
+    public Type lubAlias(AliasType type) {
+      if (getIt().getName().equals(type.getName())) {
+        TF.aliasTypeFromTuple(new TypeStore(), 
+            type.getName(), 
+            getIt().getAliased().lub(type.getAliased()),
+            getIt().getTypeParameters().lub(type.getTypeParameters()));
+      }
+      
+      return getIt().lub(type.getAliased());
     }
   }
   
   public static class Parameter extends Forward {
     public Parameter(Type it) {
-      super(it.getBound());
+      super(it, it.getBound());
     }
   }
   
   public static class Value extends Default {
-    protected Type it;
 
-    public Value() {
-      this.it = TF.valueType();
+    @Override
+    protected Type getIt() {
+      return TF.valueType();
     }
     
     @Override
@@ -511,8 +530,9 @@ public class TypeLattice {
   }
   
   public static class Number extends Value {
-    public Number() {
-      this.it = TF.numberType();
+    @Override
+    protected Type getIt() {
+      return TF.numberType();
     }
     
     @Override
@@ -522,28 +542,29 @@ public class TypeLattice {
     
     @Override
     public Type lubNumber(NumberType type) {
-      return it;
+      return getIt();
     }
     
     @Override
     public Type lubInteger(IntegerType type) {
-      return it;
+      return TF.numberType();
     }
     
     @Override
     public Type lubReal(RealType type) {
-      return it;
+      return TF.numberType();
     }
     
     @Override
     public Type lubRational(RationalType type) {
-      return it;
+      return TF.numberType();
     }
   }
   
   public static class Integer extends Number {
-    public Integer() {
-      this.it = TF.integerType();
+    @Override
+    protected Type getIt() {
+      return TF.integerType();
     }
     
     @Override
@@ -553,13 +574,19 @@ public class TypeLattice {
     
     @Override
     public Type lubInteger(IntegerType type) {
-      return it;
+      return getIt();
+    }
+    
+    @Override
+    public Type lubNumber(NumberType type) {
+      return type;
     }
   }
   
   public static class Real extends Number {
-    public Real() {
-      this.it = TF.realType();
+    @Override
+    protected Type getIt() {
+      return TF.realType();
     }
     
     @Override
@@ -569,13 +596,20 @@ public class TypeLattice {
     
     @Override
     public Type lubReal(RealType type) {
-      return it;
+      return getIt();
+    }
+    
+    @Override
+    public Type lubNumber(NumberType type) {
+      return type;
     }
   }
   
   public static class Rational extends Number {
-    public Rational() {
-      this.it = TF.rationalType();
+
+    @Override
+    protected Type getIt() {
+      return TF.rationalType();
     }
     
     @Override
@@ -585,16 +619,21 @@ public class TypeLattice {
     
     @Override
     public Type lubRational(RationalType type) {
-      return it;
+      return getIt();
+    }
+    
+    @Override
+    public Type lubNumber(NumberType type) {
+      return type;
     }
   }
   
   public static class Bool extends Value {
-    
-    public Bool() {
-      it = TF.boolType();
+    @Override
+    protected Type getIt() {
+      return TF.boolType();
+      
     }
-    
     @Override
     public boolean subBool(BoolType type) {
       return true;
@@ -602,14 +641,14 @@ public class TypeLattice {
     
     @Override
     public Type lubBool(BoolType type) {
-      return it;
+      return getIt();
     }
   }
   
   public static class String extends Value {
-    
-    public String() {
-      it = TF.stringType();
+    @Override
+    protected Type getIt() {
+      return TF.stringType();
     }
     
     @Override
@@ -619,13 +658,15 @@ public class TypeLattice {
     
     @Override
     public Type lubString(StringType type) {
-      return it;
+      return getIt();
     }
   }
+  
 
   public static class Void extends Value {
-    public Void() {
-      it = TF.voidType();
+    @Override
+    protected Type getIt() {
+      return TF.voidType();
     }
     
     @Override
@@ -635,7 +676,7 @@ public class TypeLattice {
     
     @Override
     public Type lubVoid(VoidType type) {
-      return it;
+      return getIt();
     }
 
     @Override
@@ -830,8 +871,10 @@ public class TypeLattice {
   }
 
   public static class Node extends Value {
-    public Node() {
-      it = TF.nodeType();
+
+    @Override
+    protected Type getIt() {
+      return TF.nodeType();
     }
     
     @Override
@@ -841,23 +884,30 @@ public class TypeLattice {
     
     @Override
     public Type lubNode(NodeType type) {
-      return it;
+      return getIt();
     }
     
     @Override
     public Type lubAbstractData(AbstractDataType type) {
-      return it;
+      return getIt();
     }
     
     @Override
     public Type lubConstructor(ConstructorType type) {
-      return it;
+      return getIt();
     }
   }
 
   public static class AbstractData extends Node {
+    private Type it;
+
     public AbstractData(Type it) {
       this.it = it;
+    }
+    
+    @Override
+    protected Type getIt() {
+      return it;
     }
     
     @Override
@@ -887,7 +937,13 @@ public class TypeLattice {
     public Type lubConstructor(ConstructorType type) {
       return lubAbstractData((AbstractDataType) type.getAbstractDataType());
     }
+    
+    @Override
+    public Type lubNode(NodeType type) {
+      return type;
+    }
   }
+  
 
   public static class Constructor extends AbstractData {
     public Constructor(Type it) {
@@ -896,19 +952,36 @@ public class TypeLattice {
     
     @Override
     public boolean subAbstractData(AbstractDataType type) {
-      return it.getAbstractDataType().isSubtypeOf(type);
+      return getIt().getAbstractDataType().isSubtypeOf(type);
     }
     
     @Override
     public boolean subConstructor(ConstructorType type) {
-      return it.getAbstractDataType().isSubtypeOf(type.getAbstractDataType())
-          && it.getFieldTypes().isSubtypeOf(type.getFieldTypes());
+      if (type.getName().equals(getIt().getName())) {
+        return getIt().getAbstractDataType().isSubtypeOf(type.getAbstractDataType())
+            && getIt().getFieldTypes().isSubtypeOf(type.getFieldTypes());
+      }
+      else {
+        return false;
+      }
+    }
+    
+    @Override
+    public Type lubAbstractData(AbstractDataType type) {
+      return getIt().getAbstractDataType().lub(type);
+    }
+    
+    @Override
+    public Type lubConstructor(ConstructorType type) {
+      return getIt().getAbstractDataType().lub(type.getAbstractDataType()); 
     }
   }
+  
 
   public static class Datetime extends Value {
-    public Datetime() {
-      it = TF.dateTimeType();
+    @Override
+    protected Type getIt() {
+      return TF.dateTimeType();
     }
     
     @Override
@@ -918,13 +991,14 @@ public class TypeLattice {
     
     @Override
     public Type lubDateTime(DateTimeType type) {
-      return it;
+      return getIt();
     }
   }
   
   public static class SourceLocation extends Value {
-    public SourceLocation() {
-      this.it = TF.sourceLocationType();
+    @Override
+    protected Type getIt() {
+      return TF.sourceLocationType();
     }
     
     @Override
@@ -934,13 +1008,21 @@ public class TypeLattice {
     
     @Override
     public Type lubSourceLocation(SourceLocationType type) {
-      return it;
+      return getIt();
     }
   }
+  
 
   public static class Tuple extends Value {
+    private final Type it;
+
     public Tuple(Type it) {
       this.it = it;
+    }
+    
+    @Override
+    protected Type getIt() {
+      return it;
     }
     
     @Override
@@ -951,6 +1033,8 @@ public class TypeLattice {
             return false;
           }
         }
+        
+        return true;
       }
       
       return false;
@@ -965,10 +1049,18 @@ public class TypeLattice {
       return TF.valueType();
     }
   }
+  
 
   public static class Set extends Value {
+    private final Type it;
+
     public Set(Type it) {
       this.it = it;
+    }
+    
+    @Override
+    protected Type getIt() {
+      return it;
     }
     
     @Override
@@ -993,8 +1085,15 @@ public class TypeLattice {
   }
   
   public static class List extends Value {
+    private final Type it;
+
     public List(Type it) {
       this.it = it;
+    }
+    
+    @Override
+    protected Type getIt() {
+      return it;
     }
     
     @Override
@@ -1016,12 +1115,18 @@ public class TypeLattice {
     public Type lubListRelationType(ListRelationType type) {
       return it == type ? it : TF.listType(it.getElementType().lub(type.getElementType()));
     }
-    
   }
   
   public static class Map extends Value {
+    private final Type it;
+
     public Map(Type it) {
       this.it = it;
+    }
+    
+    @Override
+    protected Type getIt() {
+      return it;
     }
     
     @Override
