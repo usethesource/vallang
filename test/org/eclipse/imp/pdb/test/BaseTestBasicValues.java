@@ -105,18 +105,6 @@ abstract public class BaseTestBasicValues extends TestCase {
 		assertTrue(vf.real("1.5").round().isEqual(vf.real("2")));
 	}
 	
-	public void testNumberMakeInt() {
-		assertTrue(tf.numberType().make(vf, 1).isEqual(vf.integer(1)));
-	}
-	
-	public void testNumberMakeReal() {
-		assertTrue(tf.numberType().make(vf, 1.0).isEqual(vf.real(1.0)));
-	}
-
-	public void testNumberMakeRational() {
-		assertTrue(tf.numberType().make(vf, 1, 2).isEqual(vf.rational(1, 2)));
-	}
-	
 	public void testNumberSubTypes() {
 		assertTrue(tf.integerType().isSubtypeOf(tf.numberType()));
 		assertFalse(tf.numberType().isSubtypeOf(tf.integerType()));
@@ -135,12 +123,12 @@ abstract public class BaseTestBasicValues extends TestCase {
 	}
 	
 	public void testNumberArithmatic() {
-		INumber i1 = (INumber) tf.numberType().make(vf, 1);
-		INumber i2 = (INumber) tf.numberType().make(vf, 2);
-		INumber r1 = (INumber) tf.numberType().make(vf, 1.0);
-		INumber r2 = (INumber) tf.numberType().make(vf, 2.0);
-		INumber q1 = (INumber) tf.numberType().make(vf, 1, 1);
-		INumber q2 = (INumber) tf.numberType().make(vf, 2, 1);
+		INumber i1 = vf.integer(1);
+		INumber i2 = vf.integer(2);
+		INumber r1 = vf.real(1.0);
+		INumber r2 = vf.real(2.0);
+		INumber q1 = vf.rational(1, 1);
+		INumber q2 = vf.rational(2, 1);
 		
 		assertEqual(i1.add(i2),vf.integer(3));
 		assertEqual(i1.add(r2),vf.real(3));
@@ -160,7 +148,7 @@ abstract public class BaseTestBasicValues extends TestCase {
 		assertEqual(q1.subtract(i2),vf.rational(-1,1));
 		assertEqual(r1.subtract(q2),vf.real(-1));
 		
-		IInteger i5 =  (IInteger) tf.numberType().make(vf, 5);
+		IInteger i5 =  vf.integer(5);
 		assertEqual(i5.divide(i2, 80*80),vf.real(2.5));
 		assertEqual(i5.divide(i2.toRational()),vf.rational(5, 2));
 		

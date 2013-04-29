@@ -14,14 +14,12 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -41,7 +39,6 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 		return null;
 	}
 
-
 	public T visitRational(IRational o)  throws VisitorException{
 		return null;
 	}
@@ -54,7 +51,7 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 		return null;
 	}
 
-	public T visitRelation(IRelation o)  throws VisitorException{
+	public T visitRelation(ISet o)  throws VisitorException{
 		return null;
 	}
 
@@ -94,7 +91,7 @@ public abstract class NullVisitor<T> implements IValueVisitor<T> {
 		return null;
 	}
 	
-	public T visitListRelation(IListRelation o) throws VisitorException {
+	public T visitListRelation(IList o) throws VisitorException {
 	  return null;
 	}
 }

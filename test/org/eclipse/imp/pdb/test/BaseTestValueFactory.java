@@ -22,7 +22,6 @@ import junit.framework.TestCase;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -52,7 +51,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 	public void testRelationNamedType() {
 		try {
 			Type type = ft.aliasType(new TypeStore(), "myType2", ft.relType(ft.integerType(), ft.integerType()));
-			IRelation r = (IRelation) type.make(ff);
+			ISet r = (ISet) type.make(ff);
 			
 			if (!r.getType().isRelationType()) {
 				fail("relation does not have a relation type");
@@ -75,7 +74,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 	
 	
 	public void testRelationTupleType() {
-		IRelation r = ff.relation(ft.tupleType(ft.integerType()));
+		ISet r = ff.relation(ft.tupleType(ft.integerType()));
 
 		if (r.size() != 0) {
 			fail("empty set is not empty");
@@ -87,7 +86,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 	}
 
 	public void testRelationWith() {
-		IRelation[] relations = new IRelation[7];
+		ISet[] relations = new ISet[7];
 		ITuple[] tuples = new ITuple[7];
 		
 		for (int i = 0; i < 7; i++) {

@@ -16,27 +16,25 @@ package org.eclipse.imp.pdb.facts.type;
  *
  * @param <T> the result type of the visit methods
  */
-public interface ITypeVisitor<T> {
-	T visitReal(Type type);
-	T visitInteger(Type type);
-	T visitRational(Type type);
-	T visitList(Type type);
-	T visitMap(Type type);
-	T visitNumber(Type type);
-	T visitAlias(Type type);
-	T visitRelationType(Type type);
-	T visitListRelationType(Type type);
-	T visitSet(Type type);
-	T visitSourceLocation(Type type);
-	T visitString(Type type);
-	T visitNode(Type type);
-	T visitConstructor(Type type);
-	T visitAbstractData(Type type);
-	T visitTuple(Type type);
-	T visitValue(Type type);
-	T visitVoid(Type type);
-	T visitBool(Type type);
-	T visitParameter(Type type);
-	T visitExternal(Type type);
-	T visitDateTime(Type type);
+public interface ITypeVisitor<T,E extends Exception> {
+	T visitReal(Type type) throws E;
+	T visitInteger(Type type) throws E;
+	T visitRational(Type type) throws E;
+	T visitList(Type type) throws E;
+	T visitMap(Type type) throws E;
+	T visitNumber(Type type) throws E;
+	T visitAlias(Type type) throws E;
+	T visitSet(Type type) throws E;
+	T visitSourceLocation(Type type) throws E;
+	T visitString(Type type) throws E;
+	T visitNode(Type type) throws E;
+	T visitConstructor(Type type) throws E;
+	T visitAbstractData(Type type) throws E;
+	T visitTuple(Type type) throws E;
+	T visitValue(Type type) throws E;
+	T visitVoid(Type type) throws E;
+	T visitBool(Type type) throws E;
+	T visitParameter(Type type) throws E;
+	T visitExternal(Type type) throws E;
+	T visitDateTime(Type type) throws E;
 }

@@ -15,7 +15,9 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
@@ -367,6 +369,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return isSubtypeOf(TF.mapType(TF.valueType(), TF.valueType()));
   }
   
+  public final boolean isBool() {
+    return isSubtypeOf(TF.boolType());
+  }
+  
   public final boolean isRelation() {
     return isSet() && getElementType().isFixedWidth();
   }
@@ -401,6 +407,14 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   
   public final boolean isAbstractData() {
     return isStrictSubtypeOf(TF.nodeType());
+  }
+  
+  public final boolean isBoolean() {
+    return isSubtypeOf(TF.boolType());
+  }
+  
+  public final boolean isSourceLocation() {
+    return isSubtypeOf(TF.sourceLocationType());
   }
   
   public boolean isExternalType() {
@@ -463,7 +477,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return matched.isSubtypeOf(this);
   }
 
-  public abstract <T> T accept(ITypeVisitor<T> visitor);
+  public abstract <T,E extends Exception> T accept(ITypeVisitor<T,E> visitor) throws E;
 
   /**
    * For alias types and adt types return which type parameters there are.

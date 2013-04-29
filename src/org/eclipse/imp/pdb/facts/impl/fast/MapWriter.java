@@ -81,6 +81,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		constructedMap = null;
 	}
 
+	@Override
 	public void put(IValue key, IValue value){
 		checkMutation();
 		updateTypes(key,value);
@@ -95,6 +96,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 
+	@Override
 	public void putAll(IMap map){
 		checkMutation();
 		
@@ -108,6 +110,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void putAll(java.util.Map<IValue, IValue> map){
 		checkMutation();
 		
@@ -121,6 +124,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void insert(IValue... values){
 		checkMutation();
 		
@@ -140,6 +144,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
+	@Override
 	public void insertAll(Iterable<? extends IValue> collection){
 		checkMutation();
 		
@@ -160,10 +165,13 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		}
 	}
 	
-	protected void checkMutation(){
-		if(constructedMap != null) throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
+	protected void checkMutation() {
+		if (constructedMap != null)
+			throw new UnsupportedOperationException(
+					"Mutation of a finalized map is not supported.");
 	}
 	
+	@Override
 	public IMap done(){
 		if(constructedMap == null) {
 			if (mapType == null) {

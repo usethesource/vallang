@@ -45,8 +45,8 @@ package org.eclipse.imp.pdb.facts.type;
     }
 
     @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitRational(this);
+    public <T,E extends Exception> T accept(ITypeVisitor<T,E> visitor) throws E {
+      return visitor.visitRational(this);
     }
 
     @Override

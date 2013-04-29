@@ -385,54 +385,62 @@ public interface IValueFactory {
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
      */
-    public IListRelation listRelation(Type tupleType);
+    @Deprecated
+    public IList listRelation(Type tupleType);
     
     /**
      * Construct a list relation with a fixed number of tuples in it
      * @param elems an array or variable length argument list of tuples
      * @return a list relation containing a number of elements
      */
-    public IListRelation listRelation(IValue... elems);
+    @Deprecated
+    public IList listRelation(IValue... elems);
     
     /**
      * Constructs a list relation writer, using the provided tuple type as a schema
      * @param type of type TupleType &lt;t1,...,tn&gt;
      * @return an empty list relation of type ListRelationType lrel[t1,...,tn]
      */
-    public IListRelationWriter listRelationWriter(Type type);
+    @Deprecated
+    public IListWriter listRelationWriter(Type type);
     
     /**
      * Constructs a list relation writer, which infers its type from the tuples given while
      * writing to the list relation.
      */
-    public IListRelationWriter listRelationWriter();
+    @Deprecated
+    public IListWriter listRelationWriter();
     
     /**
      * Constructs an new empty unmodifiable relation, using the provided tuple type as a schema
      * @param tupleType of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
-    public IRelation relation(Type tupleType);
+    @Deprecated
+    public ISet relation(Type tupleType);
     
     /**
      * Constructs a relation writer, using the provided tuple type as a schema
      * @param type of type TupleType &lt;t1,...,tn&gt;
      * @return an empty relation of type RelationType rel[t1,...,tn]
      */
-    public IRelationWriter relationWriter(Type type);
+    @Deprecated
+    public ISetWriter relationWriter(Type type);
     
     /**
      * Constructs a relation writer, which infers its type from the tuples given while
      * writing to the relation.
      */
-    public IRelationWriter relationWriter();
+    @Deprecated
+    public ISetWriter relationWriter();
     
     /**
      * Construct a relation with a fixed number of tuples in it
      * @param elems an array or variable length argument list of tuples
      * @return a relation containing a number of elements
      */
-    public IRelation relation(IValue... elems);
+    @Deprecated
+    public ISet relation(IValue... elems);
     
     /**
      * Creates an empty unmodifiable map.

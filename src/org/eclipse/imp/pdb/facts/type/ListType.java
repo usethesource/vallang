@@ -74,7 +74,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
+	public <T,E extends Exception> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitList(this);
 	}
 	

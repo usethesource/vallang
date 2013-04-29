@@ -38,7 +38,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   }
 
   @Override
-  public <T> T accept(ITypeVisitor<T> visitor) {
+  public <T,E extends Exception> T accept(ITypeVisitor<T,E> visitor) throws E {
     return visitor.visitVoid(this);
   }
 

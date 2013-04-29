@@ -13,25 +13,18 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.HashMap;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -39,9 +32,8 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * This is a reference implementation for an @{link IValueFactory}. It uses
  * the Java standard library to implement it in a most straightforward but
  * not necessarily very efficient manner.
- *
  */
-public class ValueFactory extends BaseValueFactory {
+public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseValueFactory {
 	private static final ValueFactory sInstance = new ValueFactory();
 	public static ValueFactory getInstance() {
 		return sInstance;
@@ -50,21 +42,15 @@ public class ValueFactory extends BaseValueFactory {
 	private ValueFactory() {
 		super();
 	}
-
-	private void checkNull(Object ...args ) {
-		for (Object a : args) {
-			if (a == null) {
-				throw new NullPointerException();
-			}
-		}
-	}
 	
-	public IRelation relation(Type tupleType) {
+	@Override
+	public ISet relation(Type tupleType) {
 		checkNull(tupleType);
 		return relationWriter(tupleType).done();
 	}
 	
-	public IRelation relation(IValue... tuples) {
+	@Override
+	public ISet relation(IValue... tuples) {
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
@@ -75,36 +61,38 @@ public class ValueFactory extends BaseValueFactory {
 		
 		ISetWriter rw = setWriter(elementType);
 		rw.insert(tuples);
-		return (IRelation) rw.done();
+		return rw.done();
 	}
 	
-	public IRelationWriter relationWriter(Type tupleType) {
+	@Override
+	public ISetWriter relationWriter(Type tupleType) {
 		checkNull(tupleType);
-		return Relation.createRelationWriter(tupleType);
+		return new SetWriter(tupleType);
 	}
 	
-	public IRelationWriter relationWriter() {
-		return Relation.createRelationWriter();
+	@Override
+	public ISetWriter relationWriter() {
+		return new SetWriter();
 	}
 
+	@Override
 	public ISet set(Type eltType){
 		checkNull(eltType);
 		return setWriter(eltType).done();
 	}
 	
+	@Override
 	public ISetWriter setWriter(Type eltType) {
 		checkNull(eltType);
-		if (eltType.isFixedWidth()) {
-			return relationWriter(eltType);
-		}
-		
-		return Set.createSetWriter(eltType);
+		return new SetWriter(eltType);
 	}
 	
+	@Override
 	public ISetWriter setWriter() {
-		return Set.createSetWriter();
+		return new SetWriter();
 	}
 
+	@Override
 	public ISet set(IValue... elems) throws FactTypeUseException {
 		checkNull((Object[]) elems);
 		Type elementType = lub(elems);
@@ -114,20 +102,24 @@ public class ValueFactory extends BaseValueFactory {
 		return sw.done();
 	}
 
+	@Override
 	public IList list(Type eltType) {
 		checkNull(eltType);
 		return listWriter(eltType).done();
 	}
 	
+	@Override
 	public IListWriter listWriter(Type eltType) {
 		checkNull(eltType);
-		return List.createListWriter(eltType);
+		return new ListWriter(eltType);
 	}
 	
+	@Override
 	public IListWriter listWriter() {
-		return List.createListWriter();
+		return new ListWriter();
 	}
 
+	@Override
 	public IList list(IValue... rest) {
 		checkNull((Object[]) rest);
 		Type eltType = lub(rest);
@@ -145,113 +137,130 @@ public class ValueFactory extends BaseValueFactory {
 		return elementType;
 	}
 
+	@Override
 	public ITuple tuple() {
 		return new Tuple(new IValue[0]);
 	}
-	
+
+	@Override
 	public ITuple tuple(IValue... args) {
 		checkNull((Object[]) args);
-		
+
 		return new Tuple(args.clone());
 	}
-	
+
+	@Override
 	public ITuple tuple(Type type, IValue... args) {
-    checkNull((Object[]) args);
-    
-    return new Tuple(type, args.clone());
-  }
+		checkNull((Object[]) args);
+
+		return new Tuple(type, args.clone());
+	}
 	
+	@Override
 	public INode node(String name) {
 		checkNull(name);
 		return new Node(name);
 	}
 	
+	@Override
 	public INode node(String name, java.util.Map<String, IValue> annotations, IValue... children) {
 		checkNull(name);
+		checkNull(annotations);
 		checkNull((Object[]) children);
+				
 		return new Node(name, annotations, children);
 	}
 	
+	@Override
 	public INode node(String name, IValue... children) {
 		checkNull(name);
 		checkNull((Object[]) children);
 		return new Node(name, children);
 	}
 	
+	@Override
+	public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
+			throws FactTypeUseException {
+		checkNull(name);
+		checkNull((Object[]) children);
+//		checkNull(keyArgValues); // fails; are null values allowed?
+		
+		return new Node(name, children.clone(), keyArgValues);
+	}
+		
+	@Override
 	public IConstructor constructor(Type constructorType, IValue... children) {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
-		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
-		TypeFactory tf = TypeFactory.getInstance();
-		Type params = constructorType.getAbstractDataType().getTypeParameters();
-		for (Type p : params) {
-			if (p.isOpen()) {
-				bindings.put(p, tf.voidType());
-			}
-		}
-		constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-		
-		return new Constructor(constructorType.instantiate(bindings), children);
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);
+		return new Constructor(instantiatedType, children);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType, java.util.Map<String,IValue> annotations, IValue... children) {
-		Constructor cons = (Constructor) constructor(constructorType, children);
-		return new Constructor(cons, annotations);
+		checkNull(constructorType);
+		checkNull(annotations);
+		checkNull((Object[]) children);
+				
+		return new Constructor(constructorType, children).setAnnotations(annotations);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
-		TypeFactory tf = TypeFactory.getInstance();
-		java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
-		Type params = constructorType.getAbstractDataType().getTypeParameters();
-		for (Type p : params) {
-			if (p.isOpen()) {
-				bindings.put(p, tf.voidType());
-			}
-		}
-		return new Constructor(constructorType.instantiate(bindings));
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);		
+		return new Constructor(instantiatedType);
 	}
 
+	@Override
 	public IMap map(Type keyType, Type valueType) {
 		checkNull(keyType);
 		checkNull(valueType);
 		return mapWriter(keyType, valueType).done();
 	}
 	
+	@Override
 	public IMap map(Type mapType) {
 		checkNull(mapType);
 		return mapWriter(mapType).done();
 	}
+	@Override
 	public IMapWriter mapWriter(Type keyType, Type valueType) {
 		checkNull(keyType);
 		checkNull(valueType);
-		return Map.createMapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
+		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
 	}
 	
+	@Override
 	public IMapWriter mapWriter(Type mapType) {
 		checkNull(mapType);
-		return Map.createMapWriter(mapType);
+		return new MapWriter(mapType);
 	}
 
+	@Override
 	public IMapWriter mapWriter() {
-		return Map.createMapWriter();
+		return new MapWriter();
 	}
 
-	public IListRelationWriter listRelationWriter(Type tupleType) {
+	@Override
+	public IListWriter listRelationWriter(Type tupleType) {
 		checkNull(tupleType);
-		return ListRelation.createListRelationWriter(tupleType);
+		return new ListWriter(tupleType);
 	}
 
-	public IListRelationWriter listRelationWriter() {
-		return ListRelation.createListRelationWriter();
+	@Override
+	public IListWriter listRelationWriter() {
+		return new ListWriter();
 	}
 
-	public IListRelation listRelation(Type tupleType) {
+	@Override
+	public IList listRelation(Type tupleType) {
 		checkNull(tupleType);
-		return listRelationWriter(tupleType).done();
+		return listWriter(tupleType).done();
 	}
 
-	public IListRelation listRelation(IValue... tuples) {
+	@Override
+	public IList listRelation(IValue... tuples) {
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
@@ -260,15 +269,9 @@ public class ValueFactory extends BaseValueFactory {
 			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}
 		
-		IListRelationWriter rw = listRelationWriter(elementType);
+		IListWriter rw = listRelationWriter(elementType);
 		rw.append(tuples);
 		return rw.done();
 	}
-
-	@Override
-	public INode node(String name,  IValue[] children, java.util.Map<String, IValue> keyArgValues)
-			throws FactTypeUseException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 }

@@ -139,13 +139,15 @@ class Tuple extends Value implements ITuple {
   }
 
   private IValue doSelect(Type type, int... fields) throws IndexOutOfBoundsException {
+	if(fields.length == 1) 
+		return get(fields[0]);
     IValue[] elems = new IValue[fields.length];
-
+    Type[] elemTypes = new Type[fields.length];
     for (int i = 0; i < fields.length; i++) {
       elems[i] = get(fields[i]);
+      elemTypes[i] = elems[i].getType();
     }
-
-    return new Tuple(type, elems);
+    return new Tuple(TypeFactory.getInstance().tupleType(elemTypes), elems);
   }
 
   public IValue selectByFieldNames(String... fields) throws FactTypeUseException {

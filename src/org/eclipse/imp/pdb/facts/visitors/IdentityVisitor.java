@@ -16,12 +16,10 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -54,11 +52,11 @@ public abstract class IdentityVisitor implements IValueVisitor<IValue> {
 		return o;
 	}
 
-	public IValue visitRelation(IRelation o)  throws VisitorException{
+	public IValue visitRelation(ISet o)  throws VisitorException{
 		return o;
 	}
 	
-	public IValue visitListRelation(IListRelation o)  throws VisitorException{
+	public IValue visitListRelation(IList o)  throws VisitorException{
 		return o;
 	}
 

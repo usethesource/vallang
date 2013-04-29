@@ -18,14 +18,10 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListRelationWriter;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -44,7 +40,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	
 	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();
 	
-	protected ValueFactory(){
+	protected ValueFactory() {
 		super();
 	}
 
@@ -77,8 +73,6 @@ public class ValueFactory extends FastBaseValueFactory {
 	}
 	
 	public ISetWriter setWriter(Type elementType){
-		if(elementType.isFixedWidth()) return relationWriter(elementType);
-		
 		return new SetWriter(elementType);
 	}
 	
@@ -86,20 +80,20 @@ public class ValueFactory extends FastBaseValueFactory {
 		return new SetWriter();
 	}
 	
-	public IRelationWriter relationWriter(Type tupleType){
-		return new RelationWriter(tupleType);
+	public ISetWriter relationWriter(Type tupleType){
+		return new SetWriter(tupleType);
 	}
 	
-	public IRelationWriter relationWriter(){
-		return new RelationWriter();
+	public ISetWriter relationWriter(){
+		return new SetWriter();
 	}
 	
-	public IListRelationWriter listRelationWriter(Type tupleType) {
-		return new ListRelationWriter(tupleType);
+	public IListWriter listRelationWriter(Type tupleType) {
+		return new ListWriter(tupleType);
 	}
 
-	public IListRelationWriter listRelationWriter() {
-		return new ListRelationWriter();
+	public IListWriter listRelationWriter() {
+		return new ListWriter();
 	}
 	
 	public IList list(Type elementType){
@@ -133,43 +127,43 @@ public class ValueFactory extends FastBaseValueFactory {
 		return setWriter.done();
 	}
 	
-	public IRelation relation(Type tupleType){
+	public ISet relation(Type tupleType){
 		return relationWriter(tupleType).done();
 	}
 	
-	public IRelation relation(IValue... elements){
+	public ISet relation(IValue... elements) {
 		Type elementType = lub(elements);
 		
 		if (!elementType.isFixedWidth()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		
-		IRelationWriter relationWriter = relationWriter(elementType);
+		ISetWriter relationWriter = relationWriter(elementType);
 		relationWriter.insert(elements);
 		return relationWriter.done();
 	}
 	
-	public IListRelation listRelation(Type tupleType) {
+	public IList listRelation(Type tupleType) {
 		return listRelationWriter(tupleType).done();
 	}
 
-	public IListRelation listRelation(IValue... elements) {
+	public IList listRelation(IValue... elements) {
 		Type elementType = lub(elements);
 		
 		if (!elementType.isFixedWidth()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		
-		IListRelationWriter listRelationWriter = listRelationWriter(elementType);
+		IListWriter listRelationWriter = listRelationWriter(elementType);
 		listRelationWriter.append(elements);
 		return listRelationWriter.done();
 	}
 	
-	public INode node(String name){
+	public INode node(String name) {
 		return new Node(name, new IValue[0]);
 	}
-	
-	public INode node(String name, Map<String,IValue> annos, IValue... children){
+
+	public INode node(String name, Map<String, IValue> annos, IValue... children) {
 		return new AnnotatedNode(name, children.clone(), annos);
 	}
-	
-	public INode node(String name, IValue... children){
+
+	public INode node(String name, IValue... children) {
 		return new Node(name, children.clone());
 	}
 	
@@ -179,58 +173,23 @@ public class ValueFactory extends FastBaseValueFactory {
 		return new Node(name, children.clone(), keyArgValues);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType) {
-		Type params = constructorType.getAbstractDataType().getTypeParameters();
-		if (!params.equivalent(TypeFactory.getInstance().voidType())) {
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
-			for (Type p : params) {
-				if (p.isOpen()) {
-					bindings.put(p, TypeFactory.getInstance().voidType());
-				}
-			}
-			constructorType = constructorType.instantiate(bindings);
-		}
-		return new Constructor(constructorType, new IValue[0]);
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);
+		return new Constructor(instantiatedType, new IValue[0]);
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType, IValue... children){
-		Type instantiatedType;
-		if(!constructorType.getAbstractDataType().isParameterized()){
-			instantiatedType = constructorType;
-		}else{
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
-			TypeFactory tf = TypeFactory.getInstance();
-			Type params = constructorType.getAbstractDataType().getTypeParameters();
-			for (Type p : params) {
-				if (p.isOpen()) {
-					bindings.put(p, tf.voidType());
-				}
-			}
-			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-			instantiatedType = constructorType.instantiate(bindings);
-		}
-		
+		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		return new Constructor(instantiatedType, children.clone());
 	}
 	
+	@Override
 	public IConstructor constructor(Type constructorType,
 			Map<String, IValue> annotations, IValue... children)
 			throws FactTypeUseException {
-		Type instantiatedType;
-		if(!constructorType.getAbstractDataType().isParameterized()){
-			instantiatedType = constructorType;
-		}else{
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type,Type>();
-			TypeFactory tf = TypeFactory.getInstance();
-			Type params = constructorType.getAbstractDataType().getTypeParameters();
-			for (Type p : params) {
-				if (p.isOpen()) {
-					bindings.put(p, tf.voidType());
-				}
-			}
-			constructorType.getFieldTypes().match(tf.tupleType(children), bindings);
-			instantiatedType = constructorType.instantiate(bindings);
-		}
+	  Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		
 		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<String, IValue>();
 		sAnnotations.putAll(annotations);
@@ -238,28 +197,26 @@ public class ValueFactory extends FastBaseValueFactory {
 		return AnnotatedConstructor.createAnnotatedConstructor(instantiatedType, children.clone(), sAnnotations);
 	}
 	
-	public ITuple tuple(){
+	public ITuple tuple() {
 		return new Tuple(EMPTY_TUPLE_TYPE, new IValue[0]);
 	}
-	
-	public ITuple tuple(IValue... args){
+
+	public ITuple tuple(IValue... args) {
 		return new Tuple(args.clone());
 	}
-	
+
 	public ITuple tuple(Type type, IValue... args) {
-    return new Tuple(type, args.clone());
-  }
-	
-	private static Type lub(IValue... elements) {
-		Type elementType = TypeFactory.getInstance().voidType();
-		
-		for(int i = elements.length - 1; i >= 0; i--){
-			elementType = elementType.lub(elements[i].getType());
-		}
-		
-		return elementType;
+		return new Tuple(type, args.clone());
 	}
 
-	
+	private static Type lub(IValue... elements) {
+		Type elementType = TypeFactory.getInstance().voidType();
+
+		for (int i = elements.length - 1; i >= 0; i--) {
+			elementType = elementType.lub(elements[i].getType());
+		}
+
+		return elementType;
+	}
 	
 }

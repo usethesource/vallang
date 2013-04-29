@@ -16,13 +16,14 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+
+import static org.eclipse.imp.pdb.facts.impl.fast.RelationalFunctionsOnSet.*;
 
 public abstract class BaseTestSet extends TestCase {
 	private IValueFactory vf;
@@ -298,9 +299,9 @@ public abstract class BaseTestSet extends TestCase {
 
 	public void testProductISet() {
 		ISet test = vf.set(integers[0], integers[1], integers[2],integers[3]);
-		IRelation prod = test.product(test);
+		ISet prod = test.product(test);
 		
-		if (prod.arity() != 2) {
+		if (arity(prod) != 2) {
 			fail("product's arity should be 2");
 		}
 		
@@ -312,10 +313,10 @@ public abstract class BaseTestSet extends TestCase {
 	
 	public void testProductIRelation() {
 		ISet test = vf.set(integers[0], integers[1], integers[2],integers[3]);
-		IRelation prod = test.product(test);
-		IRelation prod2 = test.product(prod);
+		ISet prod = test.product(test);
+		ISet prod2 = test.product(prod);
 		
-		if (prod2.arity() != 2) {
+		if (arity(prod2) != 2) {
 			fail("product's arity should be 3");
 		}
 		

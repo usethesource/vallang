@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public interface IList extends Iterable<IValue>, IValue {
+public interface IList extends IListAlgebra<IList>, Iterable<IValue>, IValue {
 	/**
 	 * @return the type of the elements in the list
 	 */
@@ -29,7 +29,7 @@ public interface IList extends Iterable<IValue>, IValue {
     /**
      * @return a new list with all elements in reverse order
      */
-    public <ListOrRel extends IList> ListOrRel reverse();
+    public IList reverse();
     
     /**
      * Appends an element to the end of the list
@@ -37,14 +37,14 @@ public interface IList extends Iterable<IValue>, IValue {
      * @param e the new element
      * @return a new list with the element at the end
      */
-    public <ListOrRel extends IList> ListOrRel append(IValue e);
+    public IList append(IValue e);
     
     /**
      * Inserts an element in front of the list
      * @param e the new element
      * @return a new list with the element in front
      */
-    public <ListOrRel extends IList> ListOrRel insert(IValue e);
+    public IList insert(IValue e);
     
     /**
      * Concatenates this list with another
@@ -52,7 +52,7 @@ public interface IList extends Iterable<IValue>, IValue {
      * @return a concatenated list with the elements of the 
      *         receiver before the elements of o.
      */
-    public <ListOrRel extends IList> ListOrRel concat(IList o);
+    public IList concat(IList o);
     
     /**
      * Replaces the value of the ith element in the list with a new value
@@ -62,7 +62,7 @@ public interface IList extends Iterable<IValue>, IValue {
      * @throws FactTypeUseException when the type of the element is not a subtype of the element type
      * @throws IndexOutOfBoundsException when the i < 0 or i >= IList.length()
      */
-    public <ListOrRel extends IList> ListOrRel put(int i, IValue e) throws FactTypeUseException, IndexOutOfBoundsException;
+    public IList put(int i, IValue e) throws FactTypeUseException, IndexOutOfBoundsException;
     
     /**
      * Replaces the value of the elements first, second ... end in the list with the elements in the list r
@@ -77,7 +77,7 @@ public interface IList extends Iterable<IValue>, IValue {
      * @throws FactTypeUseException when the type of the element is not a subtype of the element type
      * @throws IndexOutOfBoundsException when the b < 0 or b >= IList.length() or e < 0 or e > IList.length()
      */
-    public <ListOrRel extends IList> ListOrRel replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException;
+    public IList replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException;
     
     /**
      * Return the ith element of the list.
@@ -95,7 +95,7 @@ public interface IList extends Iterable<IValue>, IValue {
      * @param length number of elements in the resulting list
      * @return a new list that contains this[offset] until this[offset+length-1].
      */
-    public <ListOrRel extends IList> ListOrRel sublist(int offset, int length);
+    public IList sublist(int offset, int length);
     
     /**
      * @return true iff the list is non-empty
@@ -115,7 +115,7 @@ public interface IList extends Iterable<IValue>, IValue {
      * @param e
      * @return a new list, with one element removed.
      */
-    public <ListOrRel extends IList> ListOrRel delete(IValue e);
+    public IList delete(IValue e);
     
     /**
      * Removes the element at index <code>i</code>.
@@ -123,7 +123,7 @@ public interface IList extends Iterable<IValue>, IValue {
      * @param i
      * @return a new list with one element removed.
      */
-    public <ListOrRel extends IList> ListOrRel delete(int i);
+    public IList delete(int i);
     
     /**
      * Carthesian product of two lists.
@@ -131,24 +131,29 @@ public interface IList extends Iterable<IValue>, IValue {
      * @param l
      * @return a new list relation containing the product
      */
-    public IListRelation product(IList l);
+    public IList product(IList l);
     
     /**
      * Intersection of two lists
      * @param l
      * @return a new list that is the intersection
      */
-    public <ListOrRel extends IList> ListOrRel intersect(IList l);
+    public IList intersect(IList l);
     
     /**
      * Difference of two lists
      * @param l
      * @return a new list that is the intersection
      */
-    public <ListOrRel extends IList> ListOrRel subtract(IList l);
+    public IList subtract(IList l);
     
     /**
      * @return true if this list is a sublist of list l
      */
     public boolean isSubListOf(IList l);
+
+    public boolean isRelation();
+    
+    public IListRelation<IList> asRelation();
+
 }

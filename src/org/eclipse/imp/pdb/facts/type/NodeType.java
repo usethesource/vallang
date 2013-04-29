@@ -78,7 +78,7 @@ class NodeType extends ValueType {
   }
   
   @Override
-  public <T> T accept(ITypeVisitor<T> visitor) {
+  public <T,E extends Exception> T accept(ITypeVisitor<T,E> visitor) throws E {
     return visitor.visitNode(this);
   }
 }

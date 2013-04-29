@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -33,22 +34,27 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  */
 /*package*/ class List extends Value implements IList{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
+	protected final static Type voidType = typeFactory.voidType();
 	
 	protected final Type listType;
 	protected final Type elementType;
-	protected final static Type voidType = typeFactory.voidType();
-
 	
 	protected final ShareableValuesList data;
+
 	protected int hashCode = 0;
 
 	/*package*/ List(Type elementType, ShareableValuesList data){
 		super();
-
-		this.listType = typeFactory.listType(elementType);
-		this.elementType = elementType;
 		
+		if (data.isEmpty())
+			this.elementType = voidType;
+		else
+			this.elementType = elementType;		
+		
+		this.listType = typeFactory.listType(this.elementType);
+				
 		this.data = data;
+		
 		this.hashCode = data.hashCode();
 	}
 	
@@ -89,20 +95,18 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-		return v.visitList(this);
+			return v.visitList(this);
 	}
-	
-	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel  append(IValue element){
+
+	public IList append(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.append(element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 
-	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel concat(IList other){
+	public IList concat(IList other){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		Iterator<IValue> otherIterator = other.iterator();
 		while(otherIterator.hasNext()){
@@ -110,29 +114,26 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 		
 		Type newElementType = elementType.lub(other.getElementType());
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 
-	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel insert(IValue element){
+	public IList insert(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.insert(element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public  <ListOrRel extends IList> ListOrRel put(int index, IValue element) throws IndexOutOfBoundsException{
+	public IList put(int index, IValue element) throws IndexOutOfBoundsException{
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.set(index, element);
 
 		Type newElementType = elementType.lub(element.getType());
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel replace(int first, int second, int end, IList repl)
+	public IList replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		ShareableValuesList newData = new ShareableValuesList();
 		int rlen = repl.length();
@@ -198,11 +199,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			}
 		}
 		Type newElementType = elementType.lub(repl.getElementType());
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public  <ListOrRel extends IList> ListOrRel delete(int index){
+	public IList delete(int index){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(index);
 		
@@ -210,11 +210,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		for(IValue el : newData)
 			newElementType = newElementType.lub(el.getType());
 		
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public  <ListOrRel extends IList> ListOrRel delete(IValue element){
+	public IList delete(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.remove(element);
 		
@@ -222,26 +221,24 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		for(IValue el : newData)
 				newElementType = newElementType.lub(el.getType());
 		
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 
-	@SuppressWarnings("unchecked")
-	public  <ListOrRel extends IList> ListOrRel reverse(){
+	public IList reverse(){
 		ShareableValuesList newData = new ShareableValuesList(data);
 		newData.reverse();
 		
-		return (ListOrRel) new ListWriter(elementType, newData).done();
+		return new ListWriter(elementType, newData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public  <ListOrRel extends IList> ListOrRel sublist(int offset, int length){
+	public  IList sublist(int offset, int length){
 		ShareableValuesList newData = data.subList(offset, length);
 		
 		Type newElementType = TypeFactory.getInstance().voidType();
 		for(IValue el : newData)
 			newElementType = newElementType.lub(el.getType());
 		
-		return (ListOrRel) new ListWriter(newElementType, newData).done();
+		return new ListWriter(newElementType, newData).done();
 	}
 	
 	public int hashCode(){
@@ -280,9 +277,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return false;
 	}
 	
-	public IListRelation product(IList lst){
+	public IList product(IList lst){
 		Type resultType = TypeFactory.getInstance().tupleType(getElementType(),lst.getElementType());
-		ListRelationWriter w = new ListRelationWriter(resultType);
+		ListWriter w = new ListWriter(resultType);
 
 		for(IValue t1 : this){
 			for(IValue t2 : lst){
@@ -292,11 +289,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			}
 		}
 
-		return (IListRelation) w.done();
+		return (IList) w.done();
 	}
 
-	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel intersect(IList other) {
+	public IList intersect(IList other) {
 		IListWriter w = ValueFactory.getInstance().listWriter();
 		List o = (List) other;
 		
@@ -306,11 +302,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			}
 		}
 		
-		return (ListOrRel) w.done();
+		return w.done();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <ListOrRel extends IList> ListOrRel subtract(IList lst) {
+	public IList subtract(IList lst) {
 		IListWriter w = ValueFactory.getInstance().listWriter();
 		for (IValue v: this.data) {
 			if (lst.contains(v)) {
@@ -318,7 +313,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			} else
 				w.append(v);
 		}
-		return (ListOrRel) w.done();
+		return w.done();
 	}
 
 	public boolean isSubListOf(IList lst) {
@@ -335,5 +330,19 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 				return false;
 			}
 		return true;
+	}
+
+	@Override
+	public boolean isRelation() {
+		return getType().isListRelation();
+	}
+
+	@Override
+	public IListRelation<IList> asRelation() {
+		if (!isRelation())
+			throw new IllegalOperationException(
+					"Cannot be viewed as a relation.", getType());
+
+		return new RelationViewOnList(this);
 	}
 }

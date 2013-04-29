@@ -16,8 +16,6 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -33,10 +31,10 @@ public abstract class BaseTestRelation extends TestCase {
 	private IValue[] integers;
 	private ITuple[] integerTuples;
 	private ISet setOfIntegers;
-	private IRelation integerRelation;
+	private ISet integerRelation;
 	private IValue[] doubles;
 	private ISet setOfDoubles;
-	private IRelation doubleRelation;
+	private ISet doubleRelation;
 	private ITuple[] doubleTuples;
     
 	protected void setUp(IValueFactory factory) throws Exception {
@@ -64,7 +62,7 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		setOfDoubles = sw2.done();
 		
-		IRelationWriter rw = vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+		ISetWriter rw = vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
 		integerTuples = new ITuple[integers.length * integers.length];
 		
 		for (int i = 0; i < integers.length; i++) {
@@ -76,7 +74,7 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		integerRelation = rw.done();
 		
-		IRelationWriter rw2 = vf.relationWriter(tf.tupleType(tf.realType(), tf.realType()));
+		ISetWriter rw2 = vf.relationWriter(tf.tupleType(tf.realType(), tf.realType()));
 		doubleTuples = new ITuple[doubles.length * doubles.length];
 		
 		for (int i = 0; i < doubles.length; i++) {
@@ -98,11 +96,11 @@ public abstract class BaseTestRelation extends TestCase {
 			fail("this relation should be empty");
 		}
 		
-		IRelation emptyRel = vf.relation();
+		ISet emptyRel = vf.relation();
 		if (!emptyRel.isEmpty()) {
 			fail("empty relation is not empty?");
 		}
-		if (!emptyRel.getType().isRelationType()) {
+		if (!emptyRel.getType().isRelation()) {
 			fail("empty relation should have relation type");
 		}
 		
@@ -116,15 +114,15 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testArity() {
-		if (integerRelation.arity() != 2) {
+		if (integerRelation.asRelation().arity() != 2) {
 			fail("arity should be 2");
 		}
 	}
 
 	public void testProductIRelation() {
-		IRelation prod = integerRelation.product(integerRelation);
+		ISet prod = integerRelation.product(integerRelation);
 		
-		if (prod.arity() != 2 ) {
+		if (prod.asRelation().arity() != 2 ) {
 			fail("arity of product should be 2");
 		}
 		
@@ -134,9 +132,9 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testProductISet() {
-		IRelation prod = integerRelation.product(setOfIntegers);
+		ISet prod = integerRelation.product(setOfIntegers);
 		
-		if (prod.arity() != 2) {
+		if (prod.asRelation().arity() != 2) {
 			fail("arity of product should be 2");
 		}
 		
@@ -147,7 +145,7 @@ public abstract class BaseTestRelation extends TestCase {
 
 	public void testClosure() {
 		try {
-			if (!integerRelation.closure().isEqual(integerRelation)) {
+			if (!integerRelation.asRelation().closure().isEqual(integerRelation)) {
 				fail("closure adds extra tuples?");
 			}
 		} catch (FactTypeUseException e) {
@@ -155,8 +153,8 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		
 		try {
-			IRelation rel = vf.relation(tf.tupleType(tf.integerType(), tf.integerType()));
-			rel.closure();
+			ISet rel = vf.relation(tf.tupleType(tf.integerType(), tf.integerType()));
+			rel.asRelation().closure();
 		}
 		catch (FactTypeUseException e) {
 			fail("reflexivity with subtyping is allowed");
@@ -172,10 +170,10 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t5 = vf.tuple(integers[1], integers[3]);
 			ITuple t6 = vf.tuple(integers[0], integers[3]);
 			
-			IRelation test = vf.relation(t1, t2, t3);
-			IRelation closed = test.closure();
+			ISet test = vf.relation(t1, t2, t3);
+			ISet closed = test.asRelation().closure();
 			
-			if (closed.arity() != test.arity()) {
+			if (closed.asRelation().arity() != test.asRelation().arity()) {
 				fail("closure should produce relations of same arity");
 			}
 			
@@ -198,9 +196,9 @@ public abstract class BaseTestRelation extends TestCase {
 
 	public void testCompose() {
 		try {
-			IRelation comp = integerRelation.compose(integerRelation);
+			ISet comp = integerRelation.asRelation().compose(integerRelation.asRelation());
 			
-			if (comp.arity() != integerRelation.arity() * 2 - 2) {
+			if (comp.asRelation().arity() != integerRelation.asRelation().arity() * 2 - 2) {
 				fail("composition is a product with the last column of the first relation and the first column of the last relation removed");
 			}
 			
@@ -215,27 +213,27 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t1 = vf.tuple(integers[0], doubles[0]);
 			ITuple t2 = vf.tuple(integers[1], doubles[1]);
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
-			IRelation rel1 = vf.relation(t1, t2, t3);
+			ISet rel1 = vf.relation(t1, t2, t3);
 
 			ITuple t4 = vf.tuple(doubles[0], integers[0]);
 			ITuple t5 = vf.tuple(doubles[1], integers[1]);
 			ITuple t6 = vf.tuple(doubles[2], integers[2]);
-			IRelation rel2 = vf.relation(t4, t5, t6);
+			ISet rel2 = vf.relation(t4, t5, t6);
 			
 			ITuple t7 = vf.tuple(integers[0], integers[0]);
 			ITuple t8 = vf.tuple(integers[1], integers[1]);
 			ITuple t9 = vf.tuple(integers[2], integers[2]);
-			IRelation rel3 = vf.relation(t7, t8, t9);
+			ISet rel3 = vf.relation(t7, t8, t9);
 			
 			try {
-			  vf.relation(vf.tuple(doubles[0],doubles[0])).compose(rel1);
+			  vf.relation(vf.tuple(doubles[0],doubles[0])).asRelation().compose(rel1.asRelation());
 			  fail("relations should not be composable");
 			}
 			catch (FactTypeUseException e) {
 				// this should happen
 			}
 			
-			IRelation comp = rel1.compose(rel2);
+			ISet comp = rel1.asRelation().compose(rel2.asRelation());
 			
 			if (!comp.isEqual(rel3)) {
 				fail("composition does not produce expected result");
@@ -259,18 +257,18 @@ public abstract class BaseTestRelation extends TestCase {
 
 	public void testInsert() {
 		try {
-			IRelation rel = integerRelation.insert(vf.tuple(vf.integer(0),vf.integer(0)));
+			ISet rel = integerRelation.insert(vf.tuple(vf.integer(0),vf.integer(0)));
 			
 			if (!rel.isEqual(integerRelation)) {
 				fail("insert into a relation of an existing tuple should not change the relation");
 			}
 			
-			IRelationWriter relw3 = vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+			ISetWriter relw3 = vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
 			relw3.insertAll(integerRelation);
-			IRelation rel3 = relw3.done();
+			ISet rel3 = relw3.done();
 			 
 			final ITuple tuple = vf.tuple(vf.integer(100), vf.integer(100));
-			IRelation rel4 = rel3.insert(tuple);
+			ISet rel4 = rel3.insert(tuple);
 			
 			if (rel4.size() != integerRelation.size() + 1) {
 				fail("insert failed");
@@ -292,11 +290,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IRelation threeFourFive = vf.relation(integerTuples[2],
+			ISet threeFourFive = vf.relation(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[2]);
+			ISet result = vf.relation(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -315,11 +313,11 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testIntersectISet() {
-		IRelation nonEmpty1 = vf.relation(vf.tuple(vf.integer(1)));
-		ISet nonEmpty2 = vf.set(vf.tuple(vf.real(2.0)));
+		ISet empty1 = vf.relation(tf.tupleType(tf.integerType()));
+		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
 		
 		try {
-			final IRelation intersection = nonEmpty1.intersect(nonEmpty2);
+			final ISet intersection = empty1.intersect(empty2);
 			if (!intersection.isEmpty()) {
 				fail("empty intersection failed");
 			}
@@ -337,11 +335,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
 			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[2]);
+			ISet result = vf.relation(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -361,11 +359,11 @@ public abstract class BaseTestRelation extends TestCase {
 
 
 	public void testSubtractIRelation() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		IRelation empty2 = vf.relation(tf.tupleType(tf.realType()));
+		ISet empty1 = vf.relation(tf.tupleType(tf.integerType()));
+		ISet empty2 = vf.relation(tf.tupleType(tf.realType()));
 		
 		try {
-			final IRelation diff = empty1.subtract(empty2);
+			final ISet diff = empty1.subtract(empty2);
 			if (!diff.isEmpty()) {
 				fail("empty diff failed");
 			}
@@ -375,12 +373,12 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		
 		try {
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IRelation threeFourFive = vf.relation(integerTuples[2],
+			ISet threeFourFive = vf.relation(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result1 = vf.relation(integerTuples[0],integerTuples[1]);
-			IRelation result2 = vf.relation(integerTuples[3],integerTuples[4]);
+			ISet result1 = vf.relation(integerTuples[0],integerTuples[1]);
+			ISet result2 = vf.relation(integerTuples[3],integerTuples[4]);
 
 			if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
 				fail("subtraction failed");
@@ -389,7 +387,7 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("subtraction failed");
 			}
 			
-			IRelation empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
+			ISet empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
 			if (!empty3.subtract(threeFourFive).isEmpty()) {
 				fail("subtracting from empty set should produce empty");
 			}
@@ -400,11 +398,11 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testSubtractISet() {
-		IRelation empty1 = vf.relation(tf.tupleType(tf.integerType()));
+		ISet empty1 = vf.relation(tf.tupleType(tf.integerType()));
 		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
 		
 		try {
-			final IRelation diff = empty1.subtract(empty2);
+			final ISet diff = empty1.subtract(empty2);
 			if (!diff.isEmpty()) {
 				fail("empty diff failed");
 			}
@@ -414,17 +412,17 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		
 		try {
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
 			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result1 = vf.relation(integerTuples[0],integerTuples[1]);
+			ISet result1 = vf.relation(integerTuples[0],integerTuples[1]);
 
 			if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
 				fail("subtraction failed");
 			}
 			
-			IRelation empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
+			ISet empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
 			if (!empty3.subtract(threeFourFive).isEmpty()) {
 				fail("subtracting from empty set should produce empty");
 			}
@@ -440,11 +438,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			IRelation threeFourFive = vf.relation(integerTuples[2],
+			ISet threeFourFive = vf.relation(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[0],
+			ISet result = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
 
 			if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
@@ -464,16 +462,16 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 	
 	public void testEmptySetIsARelation() {
-	  assertTrue(vf.set() instanceof IRelation);
-	  assertTrue(vf.set(tf.integerType()) instanceof IRelation);
+	  assertTrue(vf.set().getType().isRelation());
+	  assertTrue(vf.set(tf.integerType()).getType().isRelation());
 	  
-	  IRelation r = vf.relation().insert(vf.tuple(vf.integer(1), vf.integer(2)));
+	  ISet r = vf.relation().insert(vf.tuple(vf.integer(1), vf.integer(2)));
 	  r = r.subtract(r);
-	  assertTrue(r.getType().isRelationType());
+	  assertTrue(r.getType().isRelation());
 	  
 	  ISet s = vf.set().insert(vf.integer(1));
 	  s = s.subtract(s);
-	  assertTrue(s instanceof IRelation); // yes really!
+	  assertTrue(s.getType().isRelation()); // yes really!
 	}
 
 	public void testUnionISet() {
@@ -482,11 +480,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
-			IRelation oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
 			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			IRelation result = vf.relation(integerTuples[0],
+			ISet result = vf.relation(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
 
 			if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
@@ -527,8 +525,8 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testCarrier() {
-		ISet carrier = integerRelation.carrier();
-		
+		ISet carrier = integerRelation.asRelation().carrier();
+
 		if (!carrier.isEqual(setOfIntegers)) {
 			fail("carrier should be equal to this set");
 		}
@@ -537,9 +535,9 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t1 = vf.tuple(integers[0], doubles[0]);
 			ITuple t2 = vf.tuple(integers[1], doubles[1]);
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
-			IRelation rel1 = vf.relation(t1, t2, t3);
+			ISet rel1 = vf.relation(t1, t2, t3);
 			
-			ISet carrier1 = rel1.carrier();
+			ISet carrier1 = rel1.asRelation().carrier();
 			
 			if (carrier1.getElementType() != tf.numberType()) {
 				fail("expected number type on carrier");
