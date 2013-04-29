@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/ final class StringType extends Type {
     private final static StringType sInstance= new StringType();
@@ -23,24 +24,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
 
     private StringType() {
-    	super();
+      super();
     }
 
     @Override
     public boolean isStringType() {
-    	return true;
-    }
-    
-    @Override
-    protected ValueSubtype getSubtype() {
-      return new ValueSubtype() {
-        @Override
-        public ValueSubtype visitString(Type type) {
-          setSubtype(true);
-          setLub(type);
-          return this;
-        }
-      };
+      return true;
     }
     
     /**
@@ -71,4 +60,18 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return f.string(arg);
     }
 
+    @Override
+    protected IKind getKind() {
+      return new TypeLattice.String();
+    }
+
+    @Override
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subString(this);
+    }
+
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubString(this);
+    }
 }

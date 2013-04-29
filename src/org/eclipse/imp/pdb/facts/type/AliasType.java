@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be
@@ -88,10 +89,20 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new ForwardSubtype(fAliased);
+	protected IKind getKind() {
+	  return new TypeLattice.Alias(this);
 	}
-
+	
+  @Override
+  protected Type acceptLub(IKind kind) {
+    return kind.lubAlias(this);
+  }
+  
+  @Override
+  protected boolean acceptSubtype(IKind kind) {
+    return kind.subAlias(this);
+  }
+  
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

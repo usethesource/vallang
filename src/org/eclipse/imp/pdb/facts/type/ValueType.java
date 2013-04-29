@@ -17,6 +17,7 @@ import java.net.URI;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /* package */ final class ValueType extends Type {
 	private static class InstanceHolder {
@@ -37,8 +38,18 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    protected ValueSubtype getSubtype() {
-      return new ValueSubtype();
+    protected IKind getKind() {
+      return new TypeLattice.Value();
+    }
+    
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubValue(this);
+    }
+
+    @Override
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subValue(this);
     }
     
     @Override

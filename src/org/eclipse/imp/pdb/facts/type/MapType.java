@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/ final class MapType extends Type {
     private final Type fKeyType;
@@ -150,20 +151,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     	}
     }
     
-    
-    @Override
-    protected ValueSubtype getSubtype() {
-      return new ValueSubtype() {
-        @Override
-        public ValueSubtype visitMap(Type type) {
-          setSubtype(fKeyType.isSubtypeOf(type.getKeyType())
-              && fValueType.isSubtypeOf(type.getValueType()));
-          setLub(TF.mapType(fKeyType.lub(type.getKeyType()), fValueType.lub(type.getValueType())));
-          return this;
-        }
-      };
-    }
-    
     @Override
     public Type carrier() {
       TypeFactory tf = TypeFactory.getInstance();
@@ -213,13 +200,28 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     }
     
     @Override
+    protected IKind getKind() {
+      return new TypeLattice.Map(this);
+    }
+    
+    @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitMap(this);
+      return visitor.visitMap(this);
+    }
+    
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubMap(this);
+    }
+    
+    @Override
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subMap(this);
     }
     
     @Override
     public IMap make(IValueFactory f) {
-    	return f.map(this);
+      return f.map(this);
     }
     
 	@SuppressWarnings("unchecked")

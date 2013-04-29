@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * A AbstractDataType is an algebraic sort. A sort is produced by constructors, @see NodeType.
@@ -28,33 +29,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
  * @see ConstructorType
  */
 /*package*/ final class AbstractDataType extends Type {
-	protected static class Subtype extends NodeType.Subtype {
-	  private final Type it;
-
-    public Subtype(final Type fADT) {
-	    this.it = fADT;
-    }
-	  
-    @Override
-    public ValueSubtype visitAbstractData(Type type) {
-      if (it.getName().equals(type.getName())) {
-        setSubtype(it.getTypeParameters().isSubtypeOf(type.getTypeParameters()));
-        setLub(TypeFactory.getInstance().abstractDataTypeFromTuple(new TypeStore(), it.getName(), it.getTypeParameters().lub(type.getTypeParameters())));
-      }
-      else {
-        setSubtype(false);
-        setLub(TF.nodeType());
-      }
-      
-      return null;
-    }
-    
-    @Override
-    public ValueSubtype visitConstructor(Type type) {
-      return visitAbstractData(type.getAbstractDataType());
-    }
-  }
-
   private final String fName;
 	private final Type fParameters;
 	
@@ -78,9 +52,20 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 		return !fParameters.isVoidType();
 	}
 
+
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new Subtype(this);
+	protected IKind getKind() {
+	  return new TypeLattice.AbstractData(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubAbstractData(this); 
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subAbstractData(this);
 	}
 	
 	@Override

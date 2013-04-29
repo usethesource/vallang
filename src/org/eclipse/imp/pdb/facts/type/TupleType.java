@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/final class TupleType extends Type {
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
@@ -51,14 +52,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		} else {
 			fFieldNames = null;
 		}
-		// Optional check for duplicate field names
-//		for(int i = 0; i < fieldNames.length - 1; i++){
-//			for(int j = i + 1; j < fieldNames.length; j++){
-//				if(fieldNames[i].equals(fieldNames[j])){
-//					throw new RedeclaredFieldNameException(fieldNames[i], fieldTypes[i], fieldTypes[j], this);
-//				}
-//			}
-//		}
 	}
 	
 	@Override
@@ -152,66 +145,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		return TypeFactory.getInstance().setType(lub);
 	}
 	
-/*
- *  Experimental version that does not depend on the order of fields:
- *  
-	@Override
-	public boolean isSubtypeOf(Type o) {
-		if (o == this) {
-			return true; // optimize to prevent loop
-		} else if (o.isTupleType() && !o.isVoidType()) {
-			if (!hasFieldNames() || !o.hasFieldNames() || sameFieldNamePrefix(o.getFieldNames())) {
-				if (getArity() <= o.getArity()) {
-					for (int i = getArity() - 1; i >= 0; i--) {
-						if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
-							return false;
-						}
-					}
-					return true;
-				}
-			} else {
-				if (getArity() <= o.getArity()) {
-					for (int i = getArity() - 1; i >= 0; i--) {
-						if (!getFieldType(i).isSubtypeOf(
-								o.getFieldType(getFieldName(i)))) {
-							return false;
-						}
-					}
-					return true;
-				}
-			}
-		}
-
-		return super.isSubtypeOf(o);
-	}
-*/		
-	
-	@Override
-	protected ValueSubtype getSubtype() {
-	  return new ValueSubtype() {
-	    @Override
-	    public ValueSubtype visitTuple(Type type) {
-	      if (getArity() == type.getArity()) {
-	        for (int i = 0; i < getArity(); i++) {
-	          if (!getFieldType(i).isSubtypeOf(type.getFieldType(i))) {
-	            setSubtype(false);
-	            setLub(lubTupleTypes(TupleType.this, type));
-	            return this;
-	          }
-	        }
-	        
-	        setSubtype(true);
-	        setLub(lubTupleTypes(TupleType.this, type));
-	        return this;
-	      }
-	      
-	      setSubtype(false);
-        setLub(TF.valueType());
-        return this;
-	    }
-	  };
-	}
-	
 	/**
 	 * Compute a new tupletype that is the lub of t1 and t2. Precondition: t1
 	 * and t2 have the same arity.
@@ -220,7 +153,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	 * @param t2
 	 * @return a TupleType which is the lub of t1 and t2
 	 */
-	private Type lubTupleTypes(Type t1, Type t2) {
+	 static Type lubTupleTypes(Type t1, Type t2) {
 		int N = t1.getArity();
 		Type[] fieldTypes = new Type[N];
 		String[] fieldNames = new String[N];
@@ -253,7 +186,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	 *         equal at every position, they remain, otherwise we get an
 	 *         unlabeled tuple.
 	 */
-	private Type lubNamedTupleTypes(Type t1, Type t2) {
+	 static Type lubNamedTupleTypes(Type t1, Type t2) {
 		int N = t1.getArity();
 		Object[] fieldTypes = new Object[N * 2];
 		Type[] types = new Type[N];
@@ -383,6 +316,21 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitTuple(this);
+	}
+	
+	@Override
+	protected IKind getKind() {
+	  return new TypeLattice.Tuple(this);
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subTuple(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubTuple(this);
 	}
 
 	@Override

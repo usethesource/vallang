@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 
 
@@ -157,11 +158,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new ForwardSubtype(fBound);
-	}
-
-	@Override
 	public String toString() {
 		return fBound.isValueType() ? "&" + fName : "&" + fName + "<:" + fBound.toString();
 	}
@@ -181,8 +177,23 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	protected IKind getKind() {
+	  return new TypeLattice.Parameter(this);
+	}
+	
+	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitParameter(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubParameter(this);
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subParameter(this);
 	}
 
 	@Override

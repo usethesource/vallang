@@ -18,28 +18,9 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/ class ListType extends Type {
-	protected static class Subtype extends ValueSubtype {
-	  private final Type fEltType;
-	  
-    public Subtype(Type eltType) {
-	    this.fEltType = eltType;
-    }
-    
-    @Override
-    public ValueSubtype visitList(Type type) {
-      setSubtype(fEltType.isSubtypeOf(type.getElementType()));
-      setLub(TF.listType(fEltType.lub(type.getElementType())));
-      return this;
-    }
-    
-    @Override
-    public ValueSubtype visitListRelationType(Type type) {
-      return visitList(type);
-    }
-  }
-
   protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
@@ -54,11 +35,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	@Override
 	public boolean isListType() {
 		return true;
-	}
-	
-	@Override
-	protected ValueSubtype getSubtype() {
-	  return new Subtype(fEltType);
 	}
 	
 	@Override
@@ -92,6 +68,21 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitList(this);
+	}
+	
+	@Override
+	protected IKind getKind() {
+	  return new TypeLattice.List(this);
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subList(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubList(this);
 	}
 
 	@Override

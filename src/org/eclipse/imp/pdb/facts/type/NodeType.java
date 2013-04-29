@@ -16,35 +16,13 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * A type for values that are nodes. All INode have the type NodeType, 
  * and all IConstructors have NodeType as a supertype.
  */
 /*package*/ final class NodeType extends Type {
-	protected static class Subtype extends ValueSubtype {
-    @Override
-    public ValueSubtype visitNode(Type type) {
-      setSubtype(true);
-      setLub(type);
-      return null;
-    }
-    
-    @Override
-    public ValueSubtype visitAbstractData(Type type) {
-      setSubtype(false);
-      setLub(TF.nodeType());
-      return null;
-    }
-    
-    @Override
-    public ValueSubtype visitConstructor(Type type) {
-      setSubtype(false);
-      setLub(TF.nodeType());
-      return this;
-    }
-  }
-
   private final static NodeType sInstance= new NodeType();
 	
     public static NodeType getInstance() {
@@ -64,12 +42,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     public String toString() {
         return "node";
     }
-    
-    @Override
-    protected ValueSubtype getSubtype() {
-      return new Subtype();
-    }
-   
+
     /**
      * Should never be called, NodeType is a singleton 
      */
@@ -81,6 +54,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     @Override
     public int hashCode() {
     	return 20102;
+    }
+    
+    @Override
+    protected IKind getKind() {
+      return new TypeLattice.Node();
+    }
+    
+    @Override
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subNode(this);
+    }
+    
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubNode(this);
     }
     
     @Override

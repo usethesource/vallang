@@ -16,6 +16,7 @@ import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 
 /*package*/ final class SourceLocationType  extends Type {
@@ -34,17 +35,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     	return true;
     }
     
-    @Override
-    protected ValueSubtype getSubtype() {
-      return new ValueSubtype() {
-        @Override
-        public ValueSubtype visitSourceLocation(Type type) {
-          setSubtype(true);
-          setLub(type);
-          return this;
-        }
-      };
-    }
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
@@ -61,6 +51,21 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     @Override
     public String toString() {
         return "loc";
+    }
+    
+    @Override
+    protected IKind getKind() {
+      return new TypeLattice.SourceLocation();
+    }
+    
+    @Override
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subSourceLocation(this);
+    }
+    
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubSourceLocation(this);
     }
     
     @Override

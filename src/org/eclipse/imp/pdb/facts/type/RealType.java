@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/ final class RealType extends Type {
 	private final static RealType sInstance = new RealType();
@@ -46,20 +47,23 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new NumberType.Subtype() {
-	    @Override
-	    public ValueSubtype visitReal(Type type) {
-	      setSubtype(true);
-	      setLub(type);
-	      return this;
-	    }
-	  };
-	}
-    
-	@Override
 	public String toString() {
 		return "real";
+	}
+
+	@Override
+	protected IKind getKind() {
+	  return new TypeLattice.Real();
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subReal(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubReal(this);
 	}
 	
 	@Override

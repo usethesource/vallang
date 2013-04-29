@@ -12,6 +12,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * @author mhills
@@ -48,17 +49,20 @@ public class DateTimeType extends Type {
 	public String toString() {
 		return "datetime";
 	}
+
+	@Override
+	protected IKind getKind() {
+	  return new TypeLattice.Datetime();
+	}
 	
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new ValueSubtype() {
-	    @Override
-	    public ValueSubtype visitDateTime(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-	  };
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subDateTime(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubDateTime(this);
 	}
 	
 	@Override

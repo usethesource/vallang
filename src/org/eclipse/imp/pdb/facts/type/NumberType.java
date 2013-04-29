@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * A type for values that are either ints or reals
@@ -21,35 +22,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 /*package*/ final class NumberType extends Type {
 	private final static NumberType sInstance= new NumberType();
 	
-	protected static class Subtype extends ValueSubtype {
-	  @Override
-	  public ValueSubtype visitNumber(Type type) {
-	    setLub(type);
-      setSubtype(true);
-      return this;
-	  }
-	  
-	  @Override
-	  public ValueSubtype visitInteger(Type type) {
-	    setSubtype(false);
-	    setLub(TF.numberType());
-	    return this;
-	  }
-	  
-	  @Override
-	  public ValueSubtype visitReal(Type type) {
-	    setSubtype(false);
-      setLub(TF.numberType());
-      return this;
-	  }
-	  
-	  @Override
-	  public ValueSubtype visitRational(Type type) {
-	    setSubtype(false);
-      setLub(TF.numberType());
-      return this;
-	  }
-	}
 	
     public static NumberType getInstance() {
         return sInstance;
@@ -64,10 +36,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     public String toString() {
         return "num";
     }
-    
+
     @Override
-    protected ValueSubtype getSubtype() {
-      return new Subtype();
+    protected IKind getKind() {
+      return new TypeLattice.Number();
     }
      
     /**
@@ -86,6 +58,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     @Override
     public <T> T accept(ITypeVisitor<T> visitor) {
     	return visitor.visitNumber(this);
+    }
+    
+    @Override
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subNumber(this);
+    }
+    
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubNumber(this);
     }
     
     @Override

@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/ final class BoolType extends Type {
 	private final static BoolType sInstance = new BoolType();
@@ -49,17 +50,20 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public String toString() {
 		return "bool";
 	}
+
+	@Override
+	protected IKind getKind() {
+	  return new TypeLattice.Bool();
+	}
 	
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new ValueSubtype() {
-	    @Override
-	    public ValueSubtype visitBool(Type boolType) {
-	      setLub(boolType);
-        setSubtype(true);
-        return this;
-	    }
-	  };
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subBool(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubBool(this);
 	}
 	
 	@Override

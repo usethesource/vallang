@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/ final class IntegerType extends Type {
     private final static IntegerType sInstance= new IntegerType();
@@ -45,20 +46,23 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
 
     @Override
-    protected ValueSubtype getSubtype() {
-      return new NumberType.Subtype() {
-        @Override
-        public ValueSubtype visitInteger(Type type) {
-          setLub(type);
-          setSubtype(true);
-          return this;
-        }
-      };
-    }
-    	
-    @Override
     public String toString() {
         return "int";
+    }
+    
+    @Override
+    protected IKind getKind() {
+      return new TypeLattice.Integer();
+    }
+    
+    @Override
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subInteger(this);
+    }
+    
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubInteger(this);
     }
     
     @Override

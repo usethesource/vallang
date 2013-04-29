@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 
 /** 
@@ -38,146 +39,23 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	}
 	
 	@Override
+	protected IKind getKind() {
+	  return new TypeLattice.Void();
+	}
+	
+	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitVoid(this);
 	}
 
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new ValueSubtype() {
-	    @Override
-	    public ValueSubtype visitReal(Type type) {
-	      setLub(type);
-	      setSubtype(true);
-	      return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitInteger(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitRational(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitList(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitMap(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitNumber(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitRelationType(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitListRelationType(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitSet(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitSourceLocation(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitString(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitNode(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitConstructor(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitAbstractData(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitTuple(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitVoid(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitBool(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitExternal(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-
-	    @Override
-	    public ValueSubtype visitDateTime(Type type) {
-	      setLub(type);
-        setSubtype(true);
-        return this;
-	    }
-	  };
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubVoid(this);
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subVoid(this);
 	}
 	
 	@Override

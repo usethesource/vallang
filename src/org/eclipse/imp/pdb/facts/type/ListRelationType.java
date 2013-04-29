@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 
 /*package*/ final class ListRelationType extends ListType {
@@ -31,11 +32,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
         if(!tupleType.isTupleType()) {
         	throw new IllegalArgumentException("Argument should be a tupletype: " + tupleType);
         }
-    }
-    
-    @Override
-    protected ValueSubtype getSubtype() {
-      return new ListType.Subtype(fEltType);
     }
     
     @Override
@@ -149,6 +145,16 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitListRelationType(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubListRelationType(this);
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subListRelation(this);
 	}
 
 	@Override

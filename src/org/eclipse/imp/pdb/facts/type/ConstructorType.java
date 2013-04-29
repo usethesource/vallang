@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalConstructorApplicationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /**
  * A tree type is a type of tree node, defined by its name, the types of
@@ -58,18 +59,18 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 
 	@Override
-	protected ValueSubtype getSubtype() {
-	  return new AbstractDataType.Subtype(fADT) {
-	    @Override
-	    public ValueSubtype visitConstructor(Type type) {
-	      if (fADT.isSubtypeOf(type) && fName == type.getName()) { 
-	        setSubtype(fChildrenTypes.isSubtypeOf(type.getFieldTypes()));
-	        setLub(fADT);
-	      }
-	      
-	      return this;
-	    }
-	  };
+	protected IKind getKind() {
+	  return new TypeLattice.Constructor(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubConstructor(this);
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subConstructor(this);
 	}
 	
 	@Override

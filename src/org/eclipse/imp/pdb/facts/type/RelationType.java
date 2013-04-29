@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 
 /*package*/ final class RelationType extends SetType {
@@ -31,11 +32,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
         	throw new IllegalArgumentException("Argument should be a tupletype: " + tupleType);
         }
     }
-    
-    @Override
-    protected ValueSubtype getSubtype() {
-      return new SetType.Subtype(fEltType);
-    }
+
     
     @Override
     public int getArity() {
@@ -149,6 +146,16 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitRelationType(this);
+	}
+	
+	@Override
+	protected Type acceptLub(IKind kind) {
+	  return kind.lubRelationType(this);
+	}
+	
+	@Override
+	protected boolean acceptSubtype(IKind kind) {
+	  return kind.subRelation(this);
 	}
 
 	@Override

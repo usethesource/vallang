@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 /*package*/ final class RationalType extends Type {
     private final static RationalType sInstance= new RationalType();
@@ -45,20 +46,23 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    protected ValueSubtype getSubtype() {
-      return new NumberType.Subtype() {
-        @Override
-        public ValueSubtype visitRational(Type type) {
-          setSubtype(true);
-          setLub(type);
-          return this;
-        }
-      };
+    public String toString() {
+        return "rat";
+    }
+
+    @Override
+    protected IKind getKind() {
+      return new TypeLattice.Rational();
     }
     
     @Override
-    public String toString() {
-        return "rat";
+    protected boolean acceptSubtype(IKind kind) {
+      return kind.subRational(this);
+    }
+    
+    @Override
+    protected Type acceptLub(IKind kind) {
+      return kind.lubRational(this);
     }
     
     @Override
