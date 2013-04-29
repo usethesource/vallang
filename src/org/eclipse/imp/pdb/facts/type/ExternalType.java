@@ -24,15 +24,11 @@ package org.eclipse.imp.pdb.facts.type;
  * <br> 
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE EXTENDING THIS CLASS
  */
-public abstract class ExternalType extends Type {
+public abstract class ExternalType extends ValueType {
 
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitExternal(this);
 	}
 	
-	@Override
-	public boolean isExternalType() {
-		return true;
-	}
 }

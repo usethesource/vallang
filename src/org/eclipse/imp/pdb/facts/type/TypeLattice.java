@@ -58,39 +58,6 @@ public class TypeLattice {
     }
   }
   
-  public static class Constructor extends AbstractData {
-    public Constructor(Type it) {
-      super(it);
-    }
-    
-    @Override
-    public boolean subAbstractData(AbstractDataType type) {
-      return getIt().getAbstractDataType().isSubtypeOf(type);
-    }
-    
-    @Override
-    public boolean subConstructor(ConstructorType type) {
-      if (type.getName().equals(getIt().getName())) {
-        return getIt().getAbstractDataType().isSubtypeOf(type.getAbstractDataType())
-            && getIt().getFieldTypes().isSubtypeOf(type.getFieldTypes());
-      }
-      else {
-        return false;
-      }
-    }
-    
-    @Override
-    public Type lubAbstractData(AbstractDataType type) {
-      return getIt().getAbstractDataType().lub(type);
-    }
-    
-    @Override
-    public Type lubConstructor(ConstructorType type) {
-      return getIt().getAbstractDataType().lub(type.getAbstractDataType()); 
-    }
-  }
-  
-
   public static class Tuple extends Value {
     private final Type it;
 

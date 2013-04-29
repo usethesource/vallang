@@ -15,14 +15,11 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
-import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
-/*package*/final class TupleType extends Type {
+/*package*/final class TupleType extends ValueType {
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
 	protected final String[] fFieldNames;
 	protected int fHashcode = -1;
@@ -57,11 +54,6 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	@Override
 	public boolean hasFieldNames() {
 		return fFieldNames != null;
-	}
-
-	@Override
-	public boolean isTupleType() {
-		return true;
 	}
 
 	@Override
@@ -107,7 +99,7 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 
 	@Override
 	public Type compose(Type other) {
-		if (other.isVoidType()) {
+		if (other.equivalent(TF.voidType())) {
 			return other;
 		}
 
@@ -319,30 +311,39 @@ import org.eclipse.imp.pdb.facts.type.TypeLattice.IKind;
 	}
 	
 	@Override
-	protected IKind getKind() {
-	  return new TypeLattice.Tuple(this);
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfTuple(this);
 	}
 	
 	@Override
-	protected boolean acceptSubtype(IKind kind) {
-	  return kind.subTuple(this);
+	public Type lub(Type other) {
+	  return other.lubWithTuple(this);
 	}
 	
 	@Override
-	protected Type acceptLub(IKind kind) {
-	  return kind.lubTuple(this);
+	protected boolean isSubtypeOfTuple(Type type) {
+	  if (getArity() == type.getArity()) {
+      for (int i = 0; i < getArity(); i++) {
+        if (!getFieldType(i).isSubtypeOf(type.getFieldType(i))) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    return false;
 	}
-
+	
 	@Override
-	public IValue make(IValueFactory f) {
-		return f.tuple();
+	protected Type lubWithTuple(Type type) {
+	  if (getArity() == type.getArity()) {
+      return TupleType.lubNamedTupleTypes(this, type);
+    }
+    
+    return TF.valueType();
 	}
-
-	@Override
-	public IValue make(IValueFactory f, IValue... elems) {
-		return f.tuple(elems);
-	}
-
+	
 	@Override
 	public String getFieldName(int i) {
 		return fFieldNames != null ? fFieldNames[i] : null;
