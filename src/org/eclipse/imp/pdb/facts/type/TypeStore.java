@@ -362,7 +362,7 @@ public class TypeStore {
 	private void checkOverloading(Set<Type> signature, String name,
 	    Type tupleType) throws FactTypeDeclarationException {
 	  for (Type alt : signature) {
-	    if (alt.isConstructorType() && alt.getName().equals(name)) {
+	    if (alt.getName().equals(name)) {
 	      Type fieldTypes = alt.getFieldTypes();
 	      if (fieldTypes != tupleType && fieldTypes.comparable(tupleType)) {
 	        throw new RedeclaredConstructorException(name, fieldTypes, tupleType);
@@ -404,7 +404,7 @@ public class TypeStore {
 	public Set<Type> lookupAlternatives(Type adt) {
 	  synchronized (fConstructors) {
 	    synchronized (fImports) {
-	      while (adt.isAliasType()) {
+	      while (adt.isAliased()) {
 	        adt = adt.getAliased();
 	      }
 
@@ -438,7 +438,7 @@ public class TypeStore {
 	public Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
 	  synchronized (fConstructors) {
 	    synchronized (fImports) {
-	      while (adt.isAliasType()) {
+	      while (adt.isAliased()) {
 	        adt = adt.getAliased();
 	      }
 	      Type parameterizedADT = fADTs.get(adt.getName());

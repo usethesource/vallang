@@ -336,6 +336,27 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   public boolean isParameterized() {
     return false;
   }
+  
+  /**
+   * @return true iff the type contains any uninstantiated type parameters 
+   */
+  public boolean isOpen() {
+    return false;
+  }
+  
+  /**
+   * @return true iff the type is an alias
+   */
+  public boolean isAliased() {
+    return false;
+  }
+  
+  /**
+   * @return true iff type is a tuple
+   */
+  public boolean isFixedWidth() {
+    return false;
+  }
 
   /**
    * Compute whether this type is a subtype of the other or vice versa

@@ -217,6 +217,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
       return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().lub(type.getFieldTypes()));
     }
     
+    @Override
+    public boolean isOpen() {
+      return fKeyType.isOpen() || fValueType.isOpen();
+    }
     
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)

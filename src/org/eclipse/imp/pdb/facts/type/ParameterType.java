@@ -332,4 +332,9 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   protected Type lubWithDateTime(Type type) {
     return getBound().lubWithDateTime(type);
   }
+  
+  @Override
+  public boolean isOpen() {
+    return true;
+  }
 }

@@ -50,6 +50,21 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		return !fParameters.equivalent(VoidType.getInstance());
 	}
 	
+	@Override
+	public boolean isOpen() {
+	  return fParameters.isOpen();
+	}
+	
+	@Override
+	public boolean isAliased() {
+	  return true;
+	}
+	
+	@Override
+	public boolean isFixedWidth() {
+	  return fAliased.isFixedWidth();
+	}
+	
 	/**
 	 * @return the type parameters of the alias type, void when there are none
 	 */

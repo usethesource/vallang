@@ -57,6 +57,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	}
 
 	@Override
+	public boolean isFixedWidth() {
+	  return true;
+	}
+	
+	@Override
 	public Type getFieldType(int i) {
 		return fFieldTypes[i];
 	}
@@ -342,6 +347,17 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     }
     
     return TF.valueType();
+	}
+	
+	@Override
+	public boolean isOpen() {
+	  for (Type arg : fFieldTypes) {
+	    if (arg.isOpen()) {
+	      return true;
+	    }
+	  }
+	  
+	  return false;
 	}
 	
 	@Override

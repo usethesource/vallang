@@ -35,7 +35,24 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	@Override
 	public String toString() {
-		return "list[" + fEltType + "]";
+	  if (fEltType.isFixedWidth()) {
+	        StringBuilder sb = new StringBuilder();
+	    sb.append("lrel[");
+	    int idx = 0;
+	    for (Type elemType : fEltType.getFieldTypes()) {
+	      if (idx++ > 0)
+	        sb.append(",");
+	      sb.append(elemType.toString());
+	      if (hasFieldNames()) {
+	        sb.append(" " + fEltType.getFieldName(idx - 1));
+	      }
+	    }
+	    sb.append("]");
+	    return sb.toString();
+	  }
+	  else {
+	    return "list[" + fEltType + "]";
+	  }
 	}
 
 	@Override
@@ -59,6 +76,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	@Override
 	public <T> T accept(ITypeVisitor<T> visitor) {
 		return visitor.visitList(this);
+	}
+	
+	@Override
+	public boolean isOpen() {
+	  return fEltType.isOpen();
 	}
 	
 	@Override

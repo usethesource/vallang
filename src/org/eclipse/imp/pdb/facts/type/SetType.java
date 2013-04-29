@@ -53,7 +53,24 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
   @Override
   public String toString() {
-    return "set[" + fEltType + "]";
+    if (fEltType.isFixedWidth()) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("rel[");
+      int idx = 0;
+      for (Type elemType : fEltType.getFieldTypes()) {
+        if (idx++ > 0)
+          sb.append(",");
+        sb.append(elemType.toString());
+        if (hasFieldNames()) {
+          sb.append(" " + fEltType.getFieldName(idx - 1));
+        }
+      }
+      sb.append("]");
+      return sb.toString();
+    }
+    else {
+      return "set[" + fEltType + "]";
+    }
   }
 
   @Override
@@ -81,6 +98,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     return TF.setType(fEltType.lub(type.getElementType()));
   }
 
+  @Override
+  public boolean isOpen() {
+    return fEltType.isOpen();
+  }
+  
   @Override
   public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
     return super.match(matched, bindings) && getElementType().match(matched.getElementType(), bindings);

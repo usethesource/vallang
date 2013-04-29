@@ -38,6 +38,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public boolean isOpen() {
+	  return getTypeParameters().isOpen();
+	}
+	
+	@Override
 	public Type lub(Type other) {
 	  return other.lubWithAbstractData(this);
 	}
