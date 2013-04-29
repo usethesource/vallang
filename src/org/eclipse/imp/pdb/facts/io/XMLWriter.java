@@ -50,7 +50,6 @@ import org.w3c.dom.Node;
 public class XMLWriter implements IValueTextWriter {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder fBuilder;
-//	private XMLHelper helper;
 	
 	public void write(IValue value, java.io.Writer stream) throws IOException {
 		try {
@@ -78,7 +77,7 @@ public class XMLWriter implements IValueTextWriter {
 	private Node yield(IValue value, Document doc) {
 		Type type = value.getType();
 		
-		if (type.isAbstractDataType()) {
+		if (type.isAbstractData()) {
 			Type node = ((IConstructor) value).getConstructorType();
 			
 			if (isListWrapper(node)) {

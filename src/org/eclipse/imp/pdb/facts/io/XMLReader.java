@@ -173,7 +173,7 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isMapType();
+					&& nodeType.getFieldTypes().getFieldType(0).isMap();
 		}
 
 		return false;
@@ -214,7 +214,7 @@ public class XMLReader extends AbstractTextReader {
 		for (int i = 0; i + 1 < children.getLength(); ) {
 			IValue key, value;
 			
-			if (keyType.isTupleType()) {
+			if (keyType.isFixedWidth()) {
 				Type tuple = keyType;
 				IValue [] elements = new IValue[tuple.getArity()];
 				for (int j = 0; j < tuple.getArity(); j++) {
@@ -227,7 +227,7 @@ public class XMLReader extends AbstractTextReader {
 			  key = parse(children.item(i++), keyType);
 			}
 			
-			if (valueType.isTupleType()) {
+			if (valueType.isFixedWidth()) {
 				Type tuple = keyType;
 				IValue [] elements = new IValue[tuple.getArity()];
 				for (int j = 0; j < tuple.getArity(); j++) {
@@ -278,7 +278,7 @@ public class XMLReader extends AbstractTextReader {
 		NodeList children = node.getChildNodes();
 		ISetWriter writer = setType.writer(vf);
 		
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			for (int i = 0; i < children.getLength(); i++) {
 				writer.insert(parse(children.item(i), elementType));
 			}
@@ -307,7 +307,7 @@ public class XMLReader extends AbstractTextReader {
 		NodeList children = node.getChildNodes();
 		IListWriter writer = listType.writer(vf);
 		
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			for (int i = 0; i < children.getLength(); i++) {
 				writer.append(parse(children.item(i), elementType));
 			}
@@ -341,7 +341,7 @@ public class XMLReader extends AbstractTextReader {
 		while(sourceIndex < children.getLength() && targetIndex < nodeType.getArity()) {
 			Type childType = childrenTypes.getFieldType(targetIndex);
 			
-			if (childType.isTupleType()) {
+			if (childType.isFixedWidth()) {
 				Type tuple = childType;
 				IValue[] elements = new IValue[tuple.getArity()];
 			  

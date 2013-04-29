@@ -147,7 +147,7 @@ public class ATermReader extends AbstractBinaryReader {
 			String funname = parseId(reader);
 			
 			Type node;
-			if (expected.isAbstractDataType()) {
+			if (expected.isAbstractData()) {
 				Set<Type> nodes = ts.lookupConstructor(expected, funname);
 				// TODO deal with overloading
 				Iterator<Type> iterator = nodes.iterator();
@@ -170,7 +170,7 @@ public class ATermReader extends AbstractBinaryReader {
 					result = node.make(vf, ts, funname, new IValue[0]);
 				} else {
 					IValue[] list;
-					if (expected.isAbstractDataType()) {
+					if (expected.isAbstractData()) {
 					   list = parseFixedSizeATermsArray(reader, node.getFieldTypes());
 					}
 					else {
@@ -182,7 +182,7 @@ public class ATermReader extends AbstractBinaryReader {
 								+ (char) reader.getLastChar() + "'", reader.getPosition());
 					}
 					
-					if (expected.isAbstractDataType()) {
+					if (expected.isAbstractData()) {
 						result = node.make(vf, ts, funname, list);
 					}
 					else {
@@ -191,7 +191,7 @@ public class ATermReader extends AbstractBinaryReader {
 				}
 				c = reader.readSkippingWS();
 			} else {
-				if (node.isAbstractDataType() || node.isConstructorType()) {
+				if (node.isAbstractData()) {
 					result = node.make(vf, ts);
 				}
 				else {
@@ -262,9 +262,9 @@ public class ATermReader extends AbstractBinaryReader {
 		if (c == ']') {
 			c = reader.readSkippingWS();
 
-			if (expected.isListType()) {
+			if (expected.isList()) {
 				result = expected.make(vf);
-			} else if (expected.isValueType()) {
+			} else if (expected.equivalent(TypeFactory.getInstance().valueType())) {
 				result = tf.listType(tf.valueType()).make(vf);
 			}
 			else {
@@ -304,7 +304,7 @@ public class ATermReader extends AbstractBinaryReader {
 					reader.readSkippingWS();
 					IValue value = parse(reader, annoType);
 					
-					if (result.getType().isConstructorType() || result.getType().isAbstractDataType()) {
+					if (result.getType().isAbstractData()) {
 						result = ((IConstructor) result).setAnnotation(key, value);
 					}
 					
@@ -500,7 +500,7 @@ public class ATermReader extends AbstractBinaryReader {
 		Type elementType = getElementType(expected);
 		IValue[] terms = parseATermsArray(reader, elementType);
 
-		if (base.isListType() || base.isValueType()) {
+		if (base.isList() || base.equivalent(tf.valueType())) {
 			IListWriter w = expected.writer(vf);
 
 			for (int i = terms.length - 1; i >= 0; i--) {
@@ -508,11 +508,11 @@ public class ATermReader extends AbstractBinaryReader {
 			}
 
 			return w.done();
-		} else if (base.isSetType()) {
+		} else if (base.isSet()) {
 			ISetWriter w = expected.writer(vf);
 			w.insert(terms);
 			return w.done();
-		} else if (base.isMapType()) {
+		} else if (base.isMap()) {
 			IMapWriter w = expected.writer(vf);
 			
 			for (IValue elem : terms) {
@@ -521,7 +521,7 @@ public class ATermReader extends AbstractBinaryReader {
 			}
 			
 			return w.done();
-		} else if (base.isRelationType()) {
+		} else if (base.isRelation()) {
 			ISetWriter w = expected.writer(vf);
 			w.insert(terms);
 			return w.done();
@@ -533,15 +533,15 @@ public class ATermReader extends AbstractBinaryReader {
 	private Type getElementType(Type expected) {
 		Type base = expected;
 
-		if (base.isListType()) {
+		if (base.isList()) {
 			return base.getElementType();
-		} else if (base.isSetType()) {
+		} else if (base.isSet()) {
 			return base.getElementType();
-		} else if (base.isMapType()) {
+		} else if (base.isMap()) {
 			return tf.tupleType(base.getKeyType(), base.getValueType());
-		} else if (base.isRelationType()) {
+		} else if (base.isRelation()) {
 			return base.getFieldTypes();
-		} else if (base.isValueType()) {
+		} else if (base.isTop()) {
 			return base;
 		} 
 		else {

@@ -355,6 +355,54 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return false;
   }
   
+  public final boolean isSet() {
+    return isSubtypeOf(TF.setType(TF.valueType()));
+  }
+  
+  public final boolean isList() {
+    return isSubtypeOf(TF.listType(TF.valueType()));
+  }
+  
+  public final boolean isMap() {
+    return isSubtypeOf(TF.mapType(TF.valueType(), TF.valueType()));
+  }
+  
+  public final boolean isRelation() {
+    return isSet() && getElementType().isFixedWidth();
+  }
+  
+  public final boolean isListRelation() {
+    return isList() && getElementType().isFixedWidth();
+  }
+  
+  public final boolean isInteger() {
+    return isSubtypeOf(TF.integerType());
+  }
+  
+  public final boolean isReal() {
+    return isSubtypeOf(TF.realType());
+  }
+  
+  public final boolean isRational() {
+    return isSubtypeOf(TF.rationalType());
+  }
+  
+  public final boolean isNumber() {
+    return isSubtypeOf(TF.numberType());
+  }
+  
+  public final boolean isTop() {
+    return equivalent(TF.valueType());
+  }
+  
+  public final boolean isBottom() {
+    return equivalent(TF.voidType());
+  }
+  
+  public final boolean isAbstractData() {
+    return isStrictSubtypeOf(TF.nodeType());
+  }
+  
   public boolean isExternalType() {
     return false;
   }
