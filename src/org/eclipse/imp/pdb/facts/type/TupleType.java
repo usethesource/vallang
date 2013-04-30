@@ -343,7 +343,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	@Override
 	protected Type lubWithTuple(Type type) {
 	  if (getArity() == type.getArity()) {
-      return TupleType.lubNamedTupleTypes(this, type);
+		  if(hasFieldNames() && type.hasFieldNames())
+			  return TupleType.lubNamedTupleTypes(this, type);
+		  else
+			  return TupleType.lubTupleTypes(this, type);
     }
     
     return TF.valueType();
