@@ -51,6 +51,11 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   public Type lub(Type other) {
     return other.lubWithVoid(this);
   }
+  
+  @Override
+  public boolean isFixedWidth() {
+	  return true;
+  }
 
   @Override
   protected boolean isSubtypeOfAbstractData(Type type) {
