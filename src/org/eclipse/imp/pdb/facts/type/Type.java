@@ -326,8 +326,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return other == this || other.isSupertypeOf(this);
   }
   
-  public boolean isStrictSubtypeOf(Type other) {
-    return other.equivalent(this) && other.isSupertypeOf(this);
+  public final boolean isStrictSubtypeOf(Type other) {
+    return (!other.equivalent(this)) && other.isSupertypeOf(this);
   }
 
   protected abstract boolean isSupertypeOf(Type type);
@@ -403,6 +403,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return equivalent(TF.voidType());
   }
   
+  public final boolean isNode() {
+	  return equivalent(TF.nodeType());
+  }
+  
   public final boolean isAbstractData() {
     return isStrictSubtypeOf(TF.nodeType());
   }
@@ -423,7 +427,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return isSubtypeOf(TF.sourceLocationType());
   }
   
-  public boolean isTuple() {
+  public final boolean isTuple() {
 	  return isFixedWidth();
   }
   
