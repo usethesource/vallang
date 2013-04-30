@@ -15,9 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
@@ -409,12 +407,24 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return isStrictSubtypeOf(TF.nodeType());
   }
   
+  public final boolean isConstructor() {
+	  return isAbstractData() && !this.equivalent(this.getAbstractDataType());
+  }
+  
   public final boolean isBoolean() {
     return isSubtypeOf(TF.boolType());
   }
   
+  public final boolean isString() {
+	  return isSubtypeOf(TF.stringType());
+  }
+  
   public final boolean isSourceLocation() {
     return isSubtypeOf(TF.sourceLocationType());
+  }
+  
+  public boolean isTuple() {
+	  return false;
   }
   
   public boolean isExternalType() {

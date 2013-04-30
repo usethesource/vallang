@@ -316,6 +316,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	}
 	
 	@Override
+	public boolean isTuple() {
+		return true;
+	}
+	
+	@Override
 	protected boolean isSupertypeOf(Type type) {
 	  return type.isSubtypeOfTuple(this);
 	}

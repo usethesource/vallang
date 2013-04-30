@@ -173,6 +173,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public Type getAbstractDataType() {
+		return this;
+	}
+	
+	@Override
 	public <T,E extends Exception> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitAbstractData(this);
 	}
