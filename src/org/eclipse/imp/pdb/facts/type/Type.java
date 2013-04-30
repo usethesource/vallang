@@ -424,7 +424,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public boolean isTuple() {
-	  return false;
+	  return isFixedWidth();
   }
   
   public boolean isExternalType() {
