@@ -91,6 +91,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	  return type.isSubtypeOfList(this);
 	}
 	
+	@Override 
+	protected boolean isSubtypeOfList(Type type) {
+		return fEltType.isSubtypeOf(type.getElementType());
+	}
+	
 	@Override
 	public Type lub(Type other) {
 	  return other.lubWithSet(this);
