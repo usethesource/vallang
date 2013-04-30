@@ -64,17 +64,17 @@ class NodeType extends ValueType {
 
   @Override
   protected Type lubWithAbstractData(Type type) {
-    return this;
+    return NodeType.getInstance();
   }
 
   @Override
   protected Type lubWithConstructor(Type type) {
-    return this;
+    return NodeType.getInstance();
   }
 
   @Override
   protected Type lubWithNode(Type type) {
-    return this;
+    return type;
   }
   
   @Override
