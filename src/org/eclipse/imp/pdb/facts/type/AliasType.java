@@ -85,7 +85,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	@Override
 	protected boolean isSupertypeOf(Type type) {
-	  return type.isSubtypeOfAlias(type);
+	  return type.isSubtypeOfAlias(this);
 	}
 	
 	@Override
