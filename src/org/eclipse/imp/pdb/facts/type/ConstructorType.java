@@ -187,7 +187,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	protected Type lubWithConstructor(Type type) {
-	  return getAbstractDataType().lubWithAbstractData(type.getAbstractDataType());
+		if(this == type)
+			return this;
+		return getAbstractDataType().lubWithAbstractData(type.getAbstractDataType());
 	}
 
 	@Override

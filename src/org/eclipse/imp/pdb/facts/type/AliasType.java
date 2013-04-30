@@ -95,14 +95,16 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	@Override
 	protected Type lubWithAlias(Type type) {
-	  if (getName().equals(type.getName())) {
-      TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), 
-          type.getName(), 
-          getAliased().lub(type.getAliased()),
-          getTypeParameters().lub(type.getTypeParameters()));
-    }
+		if(this == type)
+			return this;
+		if (getName().equals(type.getName())) {
+			return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), 
+						type.getName(), 
+						getAliased().lub(type.getAliased()),
+						getTypeParameters().lub(type.getTypeParameters()));
+		}
     
-    return getAliased().lub(type);
+		return getAliased().lub(type);
 	}
 	
 	@Override

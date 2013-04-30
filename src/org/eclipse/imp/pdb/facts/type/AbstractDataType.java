@@ -67,15 +67,15 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	protected Type lubWithAbstractData(Type type) {
-	  if (this == type) {
-      return this;
-    }
+		if (this == type) {
+			return this;
+		}
     
-    if (getName().equals(type.getName())) {
-      return TF.abstractDataTypeFromTuple(new TypeStore(), getName(), getTypeParameters().lub(type.getTypeParameters()));
-    }
+		if (fName.equals(type.getName())) {
+			return TF.abstractDataTypeFromTuple(new TypeStore(), fName, getTypeParameters().lub(type.getTypeParameters()));
+		}
     
-    return TF.nodeType();
+		return TF.nodeType();
 	}
 	
 	@Override
@@ -134,6 +134,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	public boolean equals(Object o) {
+		if(o instanceof ConstructorType)
+			return false;
 		if (o instanceof AbstractDataType) {
 			AbstractDataType other = (AbstractDataType) o;
 			return fName.equals(other.fName) && fParameters == other.fParameters;

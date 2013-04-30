@@ -39,7 +39,7 @@ class NodeType extends ValueType {
    */
   @Override
   public boolean equals(Object o) {
-    return (o instanceof NodeType);
+    return o == NodeType.getInstance();
   }
 
   @Override

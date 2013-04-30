@@ -32,7 +32,7 @@ package org.eclipse.imp.pdb.facts.type;
      */
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof SourceLocationType);
+        return obj == SourceLocationType.getInstance();
     }
 
     @Override

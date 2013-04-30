@@ -31,7 +31,7 @@ package org.eclipse.imp.pdb.facts.type;
      */
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof IntegerType);
+        return obj == IntegerType.getInstance();
     }
 
     @Override

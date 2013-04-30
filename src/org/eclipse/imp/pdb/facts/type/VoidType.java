@@ -259,7 +259,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof VoidType;
+    return obj == VoidType.getInstance();
   }
 
   @Override

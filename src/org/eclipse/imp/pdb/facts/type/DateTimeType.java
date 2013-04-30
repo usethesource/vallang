@@ -30,7 +30,7 @@ public class DateTimeType extends ValueType {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof DateTimeType);
+        return obj == DateTimeType.getInstance();
     }
 
     @Override
