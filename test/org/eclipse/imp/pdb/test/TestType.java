@@ -104,11 +104,11 @@ public class TestType extends TestCase {
 
 	public void testRelations() {
 		for (Type t : allTypes) {
-			if (t.isSetType() && t.getElementType().isTupleType()
-					&& !t.isRelationType()) {
+			if (t.isSet() && t.getElementType().isTuple()
+					&& !t.isRelation()) {
 				fail("Sets of tuples should be relations");
 			}
-			if (t.isRelationType() && !t.getElementType().isTupleType()) {
+			if (t.isRelation() && !t.getElementType().isTuple()) {
 				fail("Relations should contain tuples");
 			}
 		}
@@ -160,16 +160,16 @@ public class TestType extends TestCase {
 
 		assertTrue(E.isSubtypeOf(ft.valueType()));
 		assertTrue(E.isSubtypeOf(ft.nodeType()));
-		assertTrue(E.lub(ft.nodeType()).isNodeType());
-		assertTrue(ft.nodeType().lub(E).isNodeType());
+		assertTrue(E.lub(ft.nodeType()).isNode());
+		assertTrue(ft.nodeType().lub(E).isNode());
 		
 		Type f = ft.constructor(ts, E, "f", ft.integerType(), "i");
 		Type g = ft.constructor(ts, E, "g", ft.integerType(), "j");
 
 		assertTrue(f.isSubtypeOf(ft.nodeType()));
 		
-		assertTrue(f.lub(ft.nodeType()).isNodeType());
-		assertTrue(ft.nodeType().lub(f).isNodeType());
+		assertTrue(f.lub(ft.nodeType()).isNode());
+		assertTrue(ft.nodeType().lub(f).isNode());
 		
 		
 		Type a = ft.aliasType(ts, "a", ft.integerType());
@@ -213,8 +213,8 @@ public class TestType extends TestCase {
 				fail("any type should be a subtype of itself: " + t);
 			}
 
-			if (t.isSetType() && t.getElementType().isTupleType()
-					&& !t.isRelationType()) {
+			if (t.isSet() && t.getElementType().isTuple()
+					&& !t.isRelation()) {
 				fail("Sets of tuples should be relations");
 			}
 		}
@@ -307,11 +307,11 @@ public class TestType extends TestCase {
 		}
 		
 		for (Type t1 : allTypes) {
-			if (!t1.isAliasType() && t1.lub(TypeFactory.getInstance().voidType()) != t1) {
+			if (!t1.isAliased() && t1.lub(TypeFactory.getInstance().voidType()) != t1) {
 				System.err.println(t1 + " lub void is not " + t1 + "? its "+ t1.lub(TypeFactory.getInstance().voidType()));
 				fail("void should be bottom: " + t1 + ".lub = " + t1.lub(TypeFactory.getInstance().voidType()));
 			}
-			if (t1.isAliasType() && t1.lub(TypeFactory.getInstance().voidType()) != t1.getAliased()) {
+			if (t1.isAliased() && t1.lub(TypeFactory.getInstance().voidType()) != t1.getAliased()) {
 				fail("void should be bottom:" + t1);
 			}
 			if (t1.lub(TypeFactory.getInstance().valueType()) != TypeFactory.getInstance().valueType()) {

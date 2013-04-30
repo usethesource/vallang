@@ -51,9 +51,9 @@ public abstract class BaseTestValueFactory extends TestCase {
 	public void testRelationNamedType() {
 		try {
 			Type type = ft.aliasType(new TypeStore(), "myType2", ft.relType(ft.integerType(), ft.integerType()));
-			ISet r = (ISet) type.make(ff);
+			ISet r = ff.set(type.getElementType());
 			
-			if (!r.getType().isRelationType()) {
+			if (!r.getType().isRelation()) {
 				fail("relation does not have a relation type");
 			}
 		} catch (FactTypeUseException e) {

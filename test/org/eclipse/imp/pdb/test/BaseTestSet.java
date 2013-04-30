@@ -95,7 +95,7 @@ public abstract class BaseTestSet extends TestCase {
 			fail("empty set is not empty?");
 		}
 		
-		if (!emptySet.getType().isRelationType()) {
+		if (!emptySet.getType().isRelation()) {
 			fail("empty set should have relation type (yes really!)");
 		}
 	}
@@ -292,7 +292,7 @@ public abstract class BaseTestSet extends TestCase {
 	}
 
 	public void testGetElementType() {
-		if (!integerUniverse.getElementType().isIntegerType()) {
+		if (!integerUniverse.getElementType().isInteger()) {
 			fail("elementType is broken");
 		}
 	}

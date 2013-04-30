@@ -397,7 +397,7 @@ public abstract class BaseTestMap extends TestCase {
 				type = tf.mapType(tf.stringType(), keyLabel, tf.stringType(), valueLabel);
 			else
 				type = tf.mapType(tf.stringType(), tf.stringType());
-			this.value = ((IMap)type.make(vf)).put(vf.string(key), vf.string(value));
+			this.value = vf.map(type).put(vf.string(key), vf.string(value));
 		}
 		
 		public String toString() {
