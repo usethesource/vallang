@@ -133,8 +133,8 @@ public abstract class BaseTestValueFactory extends TestCase {
 				fail("elements should be integers");
 			}
 
-			if (l.size() != 0) {
-				fail("empty list not empty");
+			if (l.size() != 1) {
+				fail("??");
 			}
 		} catch (FactTypeUseException e1) {
 			fail("this was a correct type");
@@ -202,8 +202,8 @@ public abstract class BaseTestValueFactory extends TestCase {
 				fail("elements should be integers");
 			}
 
-			if (l.length() != 0) {
-				fail("empty list not empty");
+			if (l.length() != 1) {
+				fail("???");
 			}
 		} catch (FactTypeUseException e1) {
 			fail("this was a correct type");

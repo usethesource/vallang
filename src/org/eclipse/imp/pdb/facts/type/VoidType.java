@@ -53,6 +53,11 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   }
   
   @Override
+  public Type closure() {
+    return this;
+  }
+
+  @Override
   public boolean isFixedWidth() {
 	  return true;
   }
@@ -369,7 +374,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
   @Override
   public Type carrier() {
-    return TypeFactory.getInstance().setType(this);
+    return this;
   }
 
   @Override

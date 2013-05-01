@@ -99,13 +99,13 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
   @Override
   public String toString() {
-    if (fEltType.isFixedWidth()) {
+    if (fEltType.isFixedWidth() && !fEltType.equivalent(VoidType.getInstance())) {
       StringBuilder sb = new StringBuilder();
       sb.append("rel[");
       int idx = 0;
       Iterator<Type> iter = fEltType.iterator();
       while(iter.hasNext()) {
-    	Type elemType = iter.next();
+        Type elemType = iter.next();
         if (idx++ > 0)
           sb.append(",");
         sb.append(elemType.toString());

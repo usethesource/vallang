@@ -81,8 +81,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	@Override
 	public String toString() {
-	  if (fEltType.isFixedWidth()) {
-	        StringBuilder sb = new StringBuilder();
+	  if (fEltType.isFixedWidth() && !fEltType.equivalent(VoidType.getInstance())) {
+	    StringBuilder sb = new StringBuilder();
 	    sb.append("lrel[");
 	    int idx = 0;
 	    Iterator<Type> iter = fEltType.iterator();
