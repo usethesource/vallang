@@ -591,6 +591,15 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type lubWithValue(Type type) ;
   abstract protected Type lubWithVoid(Type type) ;
   abstract protected Type lubWithBool(Type type) ;
-  abstract protected Type lubWithExternal(Type type) ;
+  
+  /**
+   * This makes sure that lubbing can be done by the external type whether
+   * or not it is the initial receiver or the second parameter to lub.
+   */
+  protected Type lubWithExternal(Type type) {
+    // the external type should be the receiver
+    return type.lub(this);
+  }
+  
   abstract protected Type lubWithDateTime(Type type) ;
 }

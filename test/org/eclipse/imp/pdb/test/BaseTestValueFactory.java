@@ -123,7 +123,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 		ISet l;
 		try {
 			TypeStore typeStore = new TypeStore();
-			l = (ISet) ft.aliasType(typeStore, "mySet", ft.setType(ft.integerType())).make(ff);
+			l = ff.set(ff.integer(1));
 
 			if (!l.getType().isSubtypeOf(ft.aliasType(typeStore, "mySet", ft.setType(ft.integerType())))) {
 				fail("named types should be aliases");
@@ -138,14 +138,6 @@ public abstract class BaseTestValueFactory extends TestCase {
 			}
 		} catch (FactTypeUseException e1) {
 			fail("this was a correct type");
-		}
-		
-		try {
-			ft.aliasType(new TypeStore(), "notASet", ft.integerType()).make(ff);
-			fail("should not be possible to make a set that is not a set");
-		}
-		catch (FactTypeUseException e) {
-			// should happen
 		}
 	}
 
@@ -199,7 +191,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 		IList l;
 		try {
 			TypeStore ts = new TypeStore();
-			l = (IList) ft.aliasType(ts, "myList", ft.listType(ft.integerType())).make(ff);
+			l = ff.list(ff.integer(1));
 
 			if (!l.getType().isSubtypeOf(ft.aliasType(ts, "myList", ft.listType(ft
 					.integerType())))) {
@@ -215,14 +207,6 @@ public abstract class BaseTestValueFactory extends TestCase {
 			}
 		} catch (FactTypeUseException e1) {
 			fail("this was a correct type");
-		}
-		
-		try {
-			ft.aliasType(new TypeStore(), "notAList", ft.integerType()).make(ff);
-			fail("should not be possible to make a list that is not a list");
-		}
-		catch (FactTypeUseException e) {
-			// should happen
 		}
 	}
 

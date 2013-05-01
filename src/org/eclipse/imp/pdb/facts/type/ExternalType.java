@@ -31,4 +31,19 @@ public abstract class ExternalType extends ValueType {
 		return visitor.visitExternal(this);
 	}
 	
+	@Override
+	public Type lub(Type other) {
+	  return other.lubWithExternal(this);    
+	}
+	
+	@Override
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfExternal(this);
+	}
+	
+	@Override
+	abstract protected Type lubWithExternal(Type type);
+	
+	@Override
+	abstract protected boolean isSubtypeOfExternal(Type type);
 }

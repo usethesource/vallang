@@ -160,7 +160,7 @@ package org.eclipse.imp.pdb.facts.type;
 
   @Override
   protected Type lubWithValue(Type type) {
-    return type;
+    return ValueType.getInstance();
   }
   
   protected Type lubWithReal(Type type) {
@@ -235,13 +235,7 @@ package org.eclipse.imp.pdb.facts.type;
     return ValueType.getInstance();
   }
 
-  protected Type lubWithExternal(Type type) {
-    return ValueType.getInstance();
-  }
-
   protected Type lubWithDateTime(Type type) {
     return ValueType.getInstance();
   }
-
-
 }
