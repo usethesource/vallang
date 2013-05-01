@@ -292,52 +292,48 @@ public class StandardTextReader extends AbstractTextReader {
 
 	private IValue readConstructor(Type expected) throws IOException {
 		String id = readIdentifier();
-		
-		if (id.equals("true")) {
-			return factory.bool(true);
-		}
-		else if (id.equals("false")) {
-			return factory.bool(false);
-		}
-		else {
-			if (current == START_OF_ARGUMENTS) {
-				ArrayList<IValue> arr = new ArrayList<>();
-				Type args = expected;
-				
-				if (expected.isAbstractDataType()) {
-					Set<Type> alternatives = store.lookupConstructor(expected, id);
-					if (alternatives.size() > 1) {
-						throw new OverloadingNotSupportedException(expected, id);
-					}
-					else if (alternatives.size() == 0) {
-						args = types.valueType(); 
-					}
-					else {
-						args = alternatives.iterator().next().getFieldTypes();
-					}
-				}
-				readFixed(args, END_OF_ARGUMENTS, arr);
-				IValue[] result = new IValue[arr.size()];
-				result = arr.toArray(result);
-				return expected.make(factory, store, id, result);
-			}
-			
-			Type args = types.tupleType(new Type[0]);
-			
-			Type cons;
-			if (expected.isAbstractDataType()) {
-				cons = store.lookupConstructor(expected, id, args);
-			}
-			else {
-				cons = store.lookupFirstConstructor(id, args);
-			}
-			
-			if (cons != null) {
-				return cons.make(factory);
-			}
-			
-			return factory.node(id);
-		}
+
+        switch (id) {
+            case "true":
+                return factory.bool(true);
+            case "false":
+                return factory.bool(false);
+            default:
+                if (current == START_OF_ARGUMENTS) {
+                    ArrayList<IValue> arr = new ArrayList<>();
+                    Type args = expected;
+
+                    if (expected.isAbstractDataType()) {
+                        Set<Type> alternatives = store.lookupConstructor(expected, id);
+                        if (alternatives.size() > 1) {
+                            throw new OverloadingNotSupportedException(expected, id);
+                        } else if (alternatives.size() == 0) {
+                            args = types.valueType();
+                        } else {
+                            args = alternatives.iterator().next().getFieldTypes();
+                        }
+                    }
+                    readFixed(args, END_OF_ARGUMENTS, arr);
+                    IValue[] result = new IValue[arr.size()];
+                    result = arr.toArray(result);
+                    return expected.make(factory, store, id, result);
+                }
+
+                Type args = types.tupleType(new Type[0]);
+
+                Type cons;
+                if (expected.isAbstractDataType()) {
+                    cons = store.lookupConstructor(expected, id, args);
+                } else {
+                    cons = store.lookupFirstConstructor(id, args);
+                }
+
+                if (cons != null) {
+                    return cons.make(factory);
+                }
+
+                return factory.node(id);
+        }
 	}
 
 	/**

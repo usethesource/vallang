@@ -408,7 +408,7 @@ public class ATermReader extends AbstractBinaryReader {
 			}
 			double val;
 			try {
-				val = Double.valueOf(str.toString()).doubleValue();
+				val = Double.valueOf(str.toString());
 				result = expected.make(vf,ts, val);
 			} catch (NumberFormatException e) {
 				throw new FactParseError("malformed real", reader.getPosition(), e);

@@ -111,14 +111,11 @@ public class TestIO extends TestCase {
 					fail(testXML[i] + " did not parse correctly: " + result + " != " + testValues[i]);
 				}
 			}
-		} catch (FactTypeUseException e) {
-			e.printStackTrace();
-			fail();
-		} catch (IOException e) {
+		} catch (FactTypeUseException | IOException e) {
 			e.printStackTrace();
 			fail();
 		}
-	}
+    }
 	
 	public void testStandardReader() {
 		StandardTextReader reader = new StandardTextReader();
@@ -149,12 +146,10 @@ public class TestIO extends TestCase {
       System.err.println(u);
       assertEquals(u, vf.tuple());
 			
-		} catch (FactTypeUseException e) {
-			fail(e.getMessage());
-		} catch (IOException e) {
+		} catch (FactTypeUseException | IOException e) {
 			fail(e.getMessage());
 		}
-	}
+    }
 
 	
 }

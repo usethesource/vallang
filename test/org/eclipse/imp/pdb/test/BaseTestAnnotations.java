@@ -58,14 +58,11 @@ public abstract class BaseTestAnnotations extends TestCase {
 		try {
 			ts.declareAnnotation(E, "size", tf.integerType());
 		}
-		catch (FactTypeDeclarationException e) {
+		catch (FactTypeDeclarationException | FactTypeUseException e) {
 			fail(e.toString());
 		}
-		catch (FactTypeUseException e) {
-			fail(e.toString());
-		}
-		
-		try {
+
+        try {
 			ts.declareAnnotation(E, "size", tf.realType());
 			fail("double declaration is not allowed");
 		}
@@ -81,13 +78,10 @@ public abstract class BaseTestAnnotations extends TestCase {
 		try {
 			n.setAnnotation("size", vf.integer(0));
 		}
-		catch (FactTypeDeclarationException e) {
+		catch (FactTypeDeclarationException | FactTypeUseException e) {
 			fail(e.toString());
 		}
-		catch (FactTypeUseException e) {
-			fail(e.toString());
-		}
-	}
+    }
 	
 	public void testGetAnnotation() {
 		IConstructor n = (IConstructor) N.make(vf, vf.integer(0));

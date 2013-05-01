@@ -90,7 +90,7 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     		return "set[void]";
     	}
     	
-    	StringBuffer b = new StringBuffer();
+    	StringBuilder b = new StringBuilder();
 
     	b.append("rel[");
     	int idx = 0;
