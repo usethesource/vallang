@@ -32,7 +32,7 @@ package org.eclipse.imp.pdb.facts.type;
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof BoolType);
+		return obj == BoolType.getInstance();
 	}
 
 	@Override

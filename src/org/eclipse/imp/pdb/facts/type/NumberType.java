@@ -48,22 +48,22 @@ package org.eclipse.imp.pdb.facts.type;
 
   @Override
   protected Type lubWithNumber(Type type) {
-    return this;
+    return type;
   }
 
   @Override
   protected Type lubWithInteger(Type type) {
-    return this;
+    return NumberType.getInstance();
   }
 
   @Override
   protected Type lubWithReal(Type type) {
-    return this;
+    return NumberType.getInstance();
   }
 
   @Override
   protected Type lubWithRational(Type type) {
-    return this;
+    return NumberType.getInstance();
   }
 
   /**
@@ -71,7 +71,7 @@ package org.eclipse.imp.pdb.facts.type;
    */
   @Override
   public boolean equals(Object o) {
-    return (o instanceof NumberType);
+    return o == NumberType.getInstance();
   }
 
   @Override

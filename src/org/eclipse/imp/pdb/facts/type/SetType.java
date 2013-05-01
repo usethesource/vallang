@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -57,7 +58,9 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
       StringBuilder sb = new StringBuilder();
       sb.append("rel[");
       int idx = 0;
-      for (Type elemType : fEltType.getFieldTypes()) {
+      Iterator<Type> iter = fEltType.iterator();
+      while(iter.hasNext()) {
+    	Type elemType = iter.next();
         if (idx++ > 0)
           sb.append(",");
         sb.append(elemType.toString());

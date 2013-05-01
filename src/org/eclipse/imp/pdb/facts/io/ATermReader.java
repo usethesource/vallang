@@ -167,7 +167,11 @@ public class ATermReader extends AbstractBinaryReader {
 					throw new FactParseError("premature EOF encountered.", reader.getPosition());
 				}
 				if (reader.getLastChar() == ')') {
-					result = node.make(vf, ts, funname, new IValue[0]);
+					// result = node.make(vf, ts, funname, new IValue[0]);
+					if(node.isConstructor())
+						result = vf.constructor(node, new IValue[0]);
+					else
+						result = vf.node(funname, new IValue[0]); 
 				} else {
 					IValue[] list;
 					if (expected.isAbstractData()) {
@@ -182,20 +186,18 @@ public class ATermReader extends AbstractBinaryReader {
 								+ (char) reader.getLastChar() + "'", reader.getPosition());
 					}
 					
-					if (expected.isAbstractData()) {
-						result = node.make(vf, ts, funname, list);
-					}
-					else {
-						result = node.make(vf, ts, funname, list);
-					}
+					if (node.isConstructor()) 
+						result = vf.constructor(node, list);
+					else
+						result = vf.node(funname, list);
 				}
 				c = reader.readSkippingWS();
 			} else {
-				if (node.isAbstractData()) {
-					result = node.make(vf, ts);
+				if (node.isConstructor()) {
+					result = vf.constructor(node);
 				}
 				else {
-					result = tf.nodeType().make(vf, ts, funname);
+					result = vf.node(funname);
 				}
 			}
 		} else {
@@ -215,7 +217,7 @@ public class ATermReader extends AbstractBinaryReader {
 			throw new FactParseError("premature EOF encountered.", reader.getPosition());
 		}
 		if (reader.getLastChar() == ')') {
-			result = expected.make(vf);
+			result = vf.tuple();
 		} else {
 			IValue[] list = parseFixedSizeATermsArray(reader, expected);
 
@@ -224,7 +226,7 @@ public class ATermReader extends AbstractBinaryReader {
 						+ (char) reader.getLastChar() + "'", reader.getPosition());
 			}
 
-			result = expected.make(vf, list);
+			result = vf.tuple(list);
 		}
 		c = reader.readSkippingWS();
 		
@@ -240,7 +242,7 @@ public class ATermReader extends AbstractBinaryReader {
 		// note that we interpret all strings as strings, not possible function names.
 		// this deviates from the ATerm library.
 		
-		result = expected.make(vf, str);
+		result = vf.string(str);
 		
 		c = reader.readSkippingWS();
 		if (c == -1) {
@@ -263,9 +265,9 @@ public class ATermReader extends AbstractBinaryReader {
 			c = reader.readSkippingWS();
 
 			if (expected.isList()) {
-				result = expected.make(vf);
+				result = vf.list(expected.getElementType());
 			} else if (expected.equivalent(TypeFactory.getInstance().valueType())) {
-				result = tf.listType(tf.valueType()).make(vf);
+				result = vf.list(tf.valueType());
 			}
 			else {
 				throw new FactParseError("Did not expect a list, rather a "
@@ -379,7 +381,7 @@ public class ATermReader extends AbstractBinaryReader {
 				throw new FactParseError("malformed int:" + str, reader.getPosition());
 			}
 			
-			result = expected.make(vf,ts, val);
+			result = vf.integer(val);
 		} else if (reader.getLastChar() == 'l' || reader.getLastChar() == 'L') {
 			reader.read();
 			throw new FactParseError("No support for longs", reader.getPosition());
@@ -409,7 +411,7 @@ public class ATermReader extends AbstractBinaryReader {
 			double val;
 			try {
 				val = Double.valueOf(str.toString()).doubleValue();
-				result = expected.make(vf,ts, val);
+				result = vf.real(val);
 			} catch (NumberFormatException e) {
 				throw new FactParseError("malformed real", reader.getPosition(), e);
 			}
@@ -501,7 +503,7 @@ public class ATermReader extends AbstractBinaryReader {
 		IValue[] terms = parseATermsArray(reader, elementType);
 
 		if (base.isList() || base.equivalent(tf.valueType())) {
-			IListWriter w = expected.writer(vf);
+			IListWriter w = vf.listWriter(expected.getElementType());
 
 			for (int i = terms.length - 1; i >= 0; i--) {
 				w.insert(terms[i]);
@@ -509,11 +511,11 @@ public class ATermReader extends AbstractBinaryReader {
 
 			return w.done();
 		} else if (base.isSet()) {
-			ISetWriter w = expected.writer(vf);
+			ISetWriter w = vf.setWriter(expected.getElementType());
 			w.insert(terms);
 			return w.done();
 		} else if (base.isMap()) {
-			IMapWriter w = expected.writer(vf);
+			IMapWriter w = vf.mapWriter(expected);
 			
 			for (IValue elem : terms) {
 				ITuple tuple = (ITuple) elem;
@@ -522,7 +524,7 @@ public class ATermReader extends AbstractBinaryReader {
 			
 			return w.done();
 		} else if (base.isRelation()) {
-			ISetWriter w = expected.writer(vf);
+			ISetWriter w = vf.setWriter(expected.getElementType());
 			w.insert(terms);
 			return w.done();
 		}

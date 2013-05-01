@@ -15,9 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
@@ -328,8 +326,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return other == this || other.isSupertypeOf(this);
   }
   
-  public boolean isStrictSubtypeOf(Type other) {
-    return other.equivalent(this) && other.isSupertypeOf(this);
+  public final boolean isStrictSubtypeOf(Type other) {
+    return (!other.equivalent(this)) && other.isSupertypeOf(this);
   }
 
   protected abstract boolean isSupertypeOf(Type type);
@@ -405,16 +403,36 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return equivalent(TF.voidType());
   }
   
+  public final boolean isNode() {
+	  return equivalent(TF.nodeType());
+  }
+  
   public final boolean isAbstractData() {
     return isStrictSubtypeOf(TF.nodeType());
+  }
+  
+  public final boolean isConstructor() {
+	  return isAbstractData() && !this.equivalent(this.getAbstractDataType());
   }
   
   public final boolean isBoolean() {
     return isSubtypeOf(TF.boolType());
   }
   
+  public final boolean isString() {
+	  return isSubtypeOf(TF.stringType());
+  }
+  
   public final boolean isSourceLocation() {
     return isSubtypeOf(TF.sourceLocationType());
+  }
+  
+  public final boolean isDateTime() {
+	  return isSubtypeOf(TF.dateTimeType());
+  }
+  
+  public final boolean isTuple() {
+	  return isFixedWidth();
   }
   
   public boolean isExternalType() {

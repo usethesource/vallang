@@ -342,7 +342,7 @@ public class TypeStore {
 	  for (Type alt : signature) {
 	    Type altArgs = alt.getFieldTypes();
 	    if (!altArgs.hasFieldNames()) {
-	      return;
+	      continue;
 	    }
 	    for (int i = tupleType.getArity() - 1; i >= 0; i--) {
 	      Type type = tupleType.getFieldType(i);
@@ -351,7 +351,7 @@ public class TypeStore {
 	      for (int j = altArgs.getArity() - 1; j >= 0; j--) {
 	        if (altArgs.getFieldName(j).equals(label)) {
 	          if (!altArgs.getFieldType(j).equivalent(type)) {
-	            throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(i), tupleType);
+	        	throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(j), tupleType);
 	          }
 	        }
 	      }

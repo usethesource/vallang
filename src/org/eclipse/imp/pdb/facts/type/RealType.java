@@ -32,7 +32,7 @@ package org.eclipse.imp.pdb.facts.type;
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof RealType);
+		return obj == RealType.getInstance();
 	}
 
 	@Override
@@ -53,6 +53,11 @@ package org.eclipse.imp.pdb.facts.type;
 	@Override
 	protected boolean isSupertypeOf(Type type) {
 	  return type.isSubtypeOfReal(this);
+	}
+	
+	@Override
+	public Type lub(Type type) {
+		return type.lubWithReal(this);
 	}
 	
 	@Override
