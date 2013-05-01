@@ -427,6 +427,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return isSubtypeOf(TF.sourceLocationType());
   }
   
+  public final boolean isDateTime() {
+	  return isSubtypeOf(TF.dateTimeType());
+  }
+  
   public final boolean isTuple() {
 	  return isFixedWidth();
   }
