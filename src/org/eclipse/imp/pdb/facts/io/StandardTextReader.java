@@ -310,35 +310,39 @@ public class StandardTextReader extends AbstractTextReader {
 			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> arr = new ArrayList<IValue>();
 				Type args = expected;
-				
-				if (expected.isStrictSubtypeOf(TF.nodeType())) {
+				Type constr = null;
+				if (expected.isAbstractData()) {
 					Set<Type> alternatives = store.lookupConstructor(expected, id);
 					if (alternatives.size() > 1) {
 						throw new OverloadingNotSupportedException(expected, id);
 					}
 					else if (alternatives.size() == 0) {
 						args = types.valueType(); 
+						// TODO: Should not it be an undeclared constructor exception?!
 					}
 					else {
-						args = alternatives.iterator().next().getFieldTypes();
+						constr = alternatives.iterator().next();
+						args = constr.getFieldTypes();
 					}
 				}
 				readFixed(args, END_OF_ARGUMENTS, arr);
 				IValue[] result = new IValue[arr.size()];
 				result = arr.toArray(result);
 				
-				return expected.make(factory, store, id, result);
+				return constr != null ? factory.constructor(constr, result) : factory.node(id, result);
+					   // expected.make(factory, store, id, result);
 				
 			}
 			
 			Type args = types.tupleType(new Type[0]);
 			
 			Type cons;
-			if (expected.isStrictSubtypeOf(TF.nodeType())) {
+			if (expected.isAbstractData()) {
 				cons = store.lookupConstructor(expected, id, args);
 			}
 			else {
 				cons = store.lookupFirstConstructor(id, args);
+				// TODO: check this!
 			}
 			
 			if (cons != null) {
