@@ -28,10 +28,55 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   public Type getElementType() {
     return fEltType;
   }
+  
+  @Override
+  public int getFieldIndex(String fieldName) {
+    return fEltType.getFieldIndex(fieldName);
+  }
+  
+  @Override
+  public Type getFieldType(int i) {
+    return fEltType.getFieldType(i);
+  }
+  
+  @Override
+  public String getFieldName(int i) {
+    return fEltType.getFieldName(i);
+  }
+  
+  @Override
+  public String[] getFieldNames() {
+    return fEltType.getFieldNames();
+  }
+  
+  @Override
+  public Type getFieldType(String fieldName) throws FactTypeUseException {
+    return fEltType.getFieldType(fieldName);
+  }
+  
+  @Override
+  public Type getFieldTypes() {
+    return fEltType.getFieldTypes();
+  }
 
   @Override
+  public int getArity() {
+    return fEltType.getArity();
+  }
+  
+  @Override
   public Type carrier() {
-    return this;
+    return fEltType.carrier();
+  }
+  
+  @Override
+  public Type closure() {
+    return TF.setType(fEltType.closure());
+  }
+  
+  @Override
+  public Type compose(Type other) {
+    return TF.setType(fEltType.compose(other.getElementType()));
   }
 
   @Override

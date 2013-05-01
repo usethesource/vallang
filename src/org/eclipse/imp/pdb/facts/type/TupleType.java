@@ -142,6 +142,20 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		return TypeFactory.getInstance().setType(lub);
 	}
 	
+	@Override
+	public Type getFieldTypes() {
+	  return this;
+	}
+	
+	@Override
+	public Type closure() {
+	  if (getArity() == 2) {
+	    Type lub = fFieldTypes[0].lub(fFieldTypes[1]);
+      return TF.tupleType(lub, lub);
+	  }
+	  return super.closure();
+	}
+	
 	/**
 	 * Compute a new tupletype that is the lub of t1 and t2. Precondition: t1
 	 * and t2 have the same arity.

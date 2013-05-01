@@ -112,7 +112,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(fName);
-		if (!isParameterized()) {
+		if (isParameterized()) {
 			sb.append("[");
 			int idx= 0;
 			for(Type elemType: fParameters) {
