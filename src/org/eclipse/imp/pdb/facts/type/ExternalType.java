@@ -27,6 +27,11 @@ package org.eclipse.imp.pdb.facts.type;
 public abstract class ExternalType extends ValueType {
 
 	@Override
+	public boolean isExternalType() {
+		return true;
+	}
+
+	@Override
 	public final <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitExternal(this);
 	}
