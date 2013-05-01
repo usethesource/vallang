@@ -16,7 +16,7 @@ package org.eclipse.imp.pdb.facts.type;
  *
  * @param <T> the result type of the visit methods
  */
-public interface ITypeVisitor<T,E extends Exception> {
+public interface ITypeVisitor<T,E extends Throwable> {
 	T visitReal(Type type) throws E;
 	T visitInteger(Type type) throws E;
 	T visitRational(Type type) throws E;
