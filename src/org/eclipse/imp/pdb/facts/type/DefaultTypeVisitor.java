@@ -1,7 +1,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 public abstract class DefaultTypeVisitor<T,E extends Throwable> implements ITypeVisitor<T, E> {
-  private T def;
+  private final T def;
 
   public DefaultTypeVisitor(T def) {
     this.def = def;
