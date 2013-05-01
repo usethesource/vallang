@@ -20,6 +20,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -397,7 +398,9 @@ public abstract class BaseTestMap extends TestCase {
 				type = tf.mapType(tf.stringType(), keyLabel, tf.stringType(), valueLabel);
 			else
 				type = tf.mapType(tf.stringType(), tf.stringType());
-			this.value = ((IMap)type.make(vf)).put(vf.string(key), vf.string(value));
+			IMapWriter writer = vf.mapWriter(type);
+			writer.put(vf.string(key), vf.string(value));
+      this.value = writer.done();
 		}
 		
 		public String toString() {
