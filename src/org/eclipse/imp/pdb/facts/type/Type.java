@@ -404,7 +404,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   public final boolean isNode() {
-	  return equivalent(TF.nodeType());
+	  return isSubtypeOf(TF.nodeType());
   }
   
   public final boolean isAbstractData() {
@@ -413,10 +413,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   
   public final boolean isConstructor() {
 	  return isAbstractData() && !this.equivalent(this.getAbstractDataType());
-  }
-  
-  public final boolean isBoolean() {
-    return isSubtypeOf(TF.boolType());
   }
   
   public final boolean isString() {
