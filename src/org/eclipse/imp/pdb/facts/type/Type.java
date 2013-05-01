@@ -495,7 +495,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return matched.isSubtypeOf(this);
   }
 
-  public abstract <T,E extends Exception> T accept(ITypeVisitor<T,E> visitor) throws E;
+  public abstract <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E;
 
   /**
    * For alias types and adt types return which type parameters there are.
