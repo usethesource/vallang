@@ -166,7 +166,7 @@ public class RelationalFunctionsOnSet {
 		if(!rel1.getElementType().getFieldType(1).comparable(otherTupleType.getFieldType(0))) throw new IllegalOperationException("compose", rel1.getElementType(), otherTupleType);
 		
 		// Index
-		ShareableHashMap<IValue, ShareableValuesList> rightSides = new ShareableHashMap<IValue, ShareableValuesList>();
+		ShareableHashMap<IValue, ShareableValuesList> rightSides = new ShareableHashMap<>();
 		
 		Iterator<IValue> otherRelationIterator = rel2.iterator();
 		while(otherRelationIterator.hasNext()){
@@ -210,11 +210,11 @@ public class RelationalFunctionsOnSet {
 	private static ShareableValuesHashSet computeClosure(ISet rel1, Type tupleType){
 		ShareableValuesHashSet allData = new ShareableValuesHashSet(((Set)rel1).data);
 		
-		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<IValue>();
-		RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<RotatingQueue<IValue>>();
+		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
+		RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
 		
-		ValueIndexedHashMap<RotatingQueue<IValue>> interestingLeftSides = new ValueIndexedHashMap<RotatingQueue<IValue>>();
-		ValueIndexedHashMap<ShareableValuesHashSet> potentialRightSides = new ValueIndexedHashMap<ShareableValuesHashSet>();
+		ValueIndexedHashMap<RotatingQueue<IValue>> interestingLeftSides = new ValueIndexedHashMap<>();
+		ValueIndexedHashMap<ShareableValuesHashSet> potentialRightSides = new ValueIndexedHashMap<>();
 		
 		// Index
 		Iterator<IValue> allDataIterator = allData.iterator();
@@ -228,7 +228,7 @@ public class RelationalFunctionsOnSet {
 			if(leftValues != null){
 				rightValues = potentialRightSides.get(key);
 			}else{
-				leftValues = new RotatingQueue<IValue>();
+				leftValues = new RotatingQueue<>();
 				iLeftKeys.put(key);
 				iLefts.put(leftValues);
 				interestingLeftSides.put(key, leftValues);
@@ -246,7 +246,7 @@ public class RelationalFunctionsOnSet {
 		// Compute
 		do{
 			ValueIndexedHashMap<ShareableValuesHashSet> rightSides = potentialRightSides;
-			potentialRightSides = new ValueIndexedHashMap<ShareableValuesHashSet>();
+			potentialRightSides = new ValueIndexedHashMap<>();
 			
 			for(; size > 0; size--){
 				IValue leftKey = iLeftKeys.get();
@@ -266,7 +266,7 @@ public class RelationalFunctionsOnSet {
 									nextSize++;
 									
 									iLeftKeys.put(leftKey);
-									interestingLeftValues = new RotatingQueue<IValue>();
+									interestingLeftValues = new RotatingQueue<>();
 									iLefts.put(interestingLeftValues);
 								}
 								interestingLeftValues.put(rightValue);

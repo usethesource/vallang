@@ -116,7 +116,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 				while(entry != lastUnchangedEntryChain){
 					int hash = entry.hash;
 					int position = hash & hashMask;
-					newData[position] = new Entry<IValue>(hash, entry.value, newData[position]);
+					newData[position] = new Entry<>(hash, entry.value, newData[position]);
 					
 					entry = entry.next;
 				}
@@ -151,7 +151,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			}while(entry != null);
 		}
 		
-		data[position] = new Entry<IValue>(hash, value, currentStartEntry); // Insert the new entry.
+		data[position] = new Entry<>(hash, value, currentStartEntry); // Insert the new entry.
 		
 		load++;
 		
@@ -192,7 +192,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 					data[position] = entry.next;
 					// Reconstruct the other entries (if necessary).
 					while(e != entry){
-						data[position] = new Entry<IValue>(e.hash, e.value, data[position]);
+						data[position] = new Entry<>(e.hash, e.value, data[position]);
 						
 						e = e.next;
 					}
@@ -418,7 +418,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 			data = entries;
 
 			index = data.length - 1;
-			current = new Entry<IValue>(0, null, data[index]);
+			current = new Entry<>(0, null, data[index]);
 			locateNext();
 		}
 		

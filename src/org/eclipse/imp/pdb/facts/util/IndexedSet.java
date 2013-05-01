@@ -80,7 +80,7 @@ public final class IndexedSet<E>{
 				while(entry != lastUnchangedEntryChain){
 					int hash = entry.hash;
 					int position = hash & hashMask;
-					newData[position] = new Entry<E>(hash, entry.key, entry.value, newData[position]);
+					newData[position] = new Entry<>(hash, entry.key, entry.value, newData[position]);
 					
 					entry = entry.next;
 				}
@@ -121,7 +121,7 @@ public final class IndexedSet<E>{
 		
 		position = hash & hashMask;
 		
-		data[position] = new Entry<E>(hash, element, load++, data[position]);
+		data[position] = new Entry<>(hash, element, load++, data[position]);
 		
 		return -1;
 	}

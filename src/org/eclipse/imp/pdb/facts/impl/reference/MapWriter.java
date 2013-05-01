@@ -49,7 +49,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		this.staticValueType = TypeFactory.getInstance().voidType();
 		this.inferred = true;
 		
-		mapContent = new java.util.HashMap<IValue, IValue>();
+		mapContent = new java.util.HashMap<>();
 	}
 
 	/*package*/ MapWriter(Type mapType){
@@ -66,7 +66,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		this.staticValueType = mapType.getValueType();
 		this.inferred = false;
 		
-		mapContent = new java.util.HashMap<IValue, IValue>();
+		mapContent = new java.util.HashMap<>();
 	}
 	
 	private static void check(Type key, Type value, Type keyType, Type valueType)

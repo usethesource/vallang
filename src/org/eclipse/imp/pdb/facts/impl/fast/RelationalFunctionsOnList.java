@@ -34,7 +34,7 @@ public class RelationalFunctionsOnList {
 	public static IList carrier(IList rel1) {
 		Type newType = rel1.getType().carrier();
 		IListWriter w = List.createListWriter(newType.getElementType());
-		HashSet<IValue> cache = new HashSet<IValue>();
+		HashSet<IValue> cache = new HashSet<>();
 		
 		for (IValue v : rel1) {
 			ITuple t = (ITuple) v;
@@ -52,7 +52,7 @@ public class RelationalFunctionsOnList {
 	public static IList domain(IList rel1) {
 		Type lrelType = rel1.getType();
 		IListWriter w = List.createListWriter(lrelType.getFieldType(0));
-		HashSet<IValue> cache = new HashSet<IValue>();
+		HashSet<IValue> cache = new HashSet<>();
 		
 		for (IValue elem : rel1) {
 			ITuple tuple = (ITuple) elem;
@@ -69,7 +69,7 @@ public class RelationalFunctionsOnList {
 		Type lrelType = rel1.getType();
 		int last = lrelType.getArity() - 1;
 		IListWriter w = List.createListWriter(lrelType.getFieldType(last));
-		HashSet<IValue> cache = new HashSet<IValue>();
+		HashSet<IValue> cache = new HashSet<>();
 		
 		for (IValue elem : rel1) {
 			ITuple tuple = (ITuple) elem;

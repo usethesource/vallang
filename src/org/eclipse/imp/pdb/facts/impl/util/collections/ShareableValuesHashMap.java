@@ -117,7 +117,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 				while(entry != lastUnchangedEntryChain){
 					int hash = entry.hash;
 					int position = hash & hashMask;
-					newData[position] = new Entry<IValue, IValue>(hash, entry.key, entry.value, newData[position]);
+					newData[position] = new Entry<>(hash, entry.key, entry.value, newData[position]);
 					
 					entry = entry.next;
 				}
@@ -137,11 +137,11 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 		Entry<IValue, IValue> e = data[position];
 		
 		// Reconstruct the updated entry.
-		data[position] = new Entry<IValue, IValue>(entry.hash, entry.key, newValue, entry.next);
+		data[position] = new Entry<>(entry.hash, entry.key, newValue, entry.next);
 		
 		// Reconstruct the other entries (if necessary).
 		while(e != entry){
-			data[position] = new Entry<IValue, IValue>(e.hash, e.key, e.value, data[position]);
+			data[position] = new Entry<>(e.hash, e.key, e.value, data[position]);
 			
 			e = e.next;
 		}
@@ -168,7 +168,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 			}while(entry != null);
 		}
 		
-		data[position] = new Entry<IValue, IValue>(hash, key, value, currentStartEntry); // Insert the new entry.
+		data[position] = new Entry<>(hash, key, value, currentStartEntry); // Insert the new entry.
 		
 		load++;
 		
@@ -193,7 +193,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 					data[position] = entry.next;
 					// Reconstruct the other entries (if necessary).
 					while(e != entry){
-						data[position] = new Entry<IValue, IValue>(e.hash, e.key, e.value, data[position]);
+						data[position] = new Entry<>(e.hash, e.key, e.value, data[position]);
 						
 						e = e.next;
 					}
@@ -293,7 +293,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	}
 	
 	public Set<Map.Entry<IValue, IValue>> entrySet(){
-		ShareableHashSet<Map.Entry<IValue, IValue>> entrySet = new ShareableHashSet<Map.Entry<IValue, IValue>>();
+		ShareableHashSet<Map.Entry<IValue, IValue>> entrySet = new ShareableHashSet<>();
 		
 		Iterator<Map.Entry<IValue, IValue>> entriesIterator = entryIterator();
 		while(entriesIterator.hasNext()){
@@ -304,7 +304,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	}
 	
 	public Set<IValue> keySet(){
-		ShareableHashSet<IValue> keysSet = new ShareableHashSet<IValue>();
+		ShareableHashSet<IValue> keysSet = new ShareableHashSet<>();
 		
 		Iterator<IValue> keysIterator = keysIterator();
 		while(keysIterator.hasNext()){
@@ -315,7 +315,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 	}
 	
 	public Collection<IValue> values(){
-		ShareableHashSet<IValue> valuesSet = new ShareableHashSet<IValue>();
+		ShareableHashSet<IValue> valuesSet = new ShareableHashSet<>();
 		
 		Iterator<IValue> valuesIterator = valuesIterator();
 		while(valuesIterator.hasNext()){
@@ -482,7 +482,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>{
 			data = entries;
 
 			index = data.length - 1;
-			current = new Entry<IValue, IValue>(0, null, null, data[index]);
+			current = new Entry<>(0, null, null, data[index]);
 			locateNext();
 		}
 		

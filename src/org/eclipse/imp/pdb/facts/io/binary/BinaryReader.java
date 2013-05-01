@@ -131,13 +131,13 @@ public class BinaryReader{
 		this.typeStore = typeStore;
 		this.in = inputStream;
 
-		sharedValues = new ResizingArray<IValue>(DEFAULT_SHARED_VALUES_STORE_SIZE);
+		sharedValues = new ResizingArray<>(DEFAULT_SHARED_VALUES_STORE_SIZE);
 		currentSharedValueId = 0;
-		sharedTypes = new ResizingArray<Type>(DEFAULT_SHARED_TYPES_STORE_SIZE);
+		sharedTypes = new ResizingArray<>(DEFAULT_SHARED_TYPES_STORE_SIZE);
 		currentSharedTypeId = 0;
-		sharedPaths = new ResizingArray<String>(DEFAULT_SHARED_PATHS_STORE_SIZE);
+		sharedPaths = new ResizingArray<>(DEFAULT_SHARED_PATHS_STORE_SIZE);
 		currentSharedPathId = 0;
-		sharedNames = new ResizingArray<String>(DEFAULT_SHARED_NAMES_STORE_SIZE);
+		sharedNames = new ResizingArray<>(DEFAULT_SHARED_NAMES_STORE_SIZE);
 		currentSharedNamesId = 0;
 	}
 	
@@ -527,7 +527,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<>();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -568,7 +568,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<>();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];

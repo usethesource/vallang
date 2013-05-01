@@ -32,8 +32,8 @@ public class TestType extends TestCase {
 	private static TypeFactory ft = TypeFactory.getInstance();
 	private static TypeStore ts = new TypeStore();
 
-	private static List<Type> basic = new LinkedList<Type>();
-	private static List<Type> allTypes = new LinkedList<Type>();
+	private static List<Type> basic = new LinkedList<>();
+	private static List<Type> allTypes = new LinkedList<>();
 
 	static {
 		try {
@@ -56,7 +56,7 @@ public class TestType extends TestCase {
 	}
 
 	private static void recombine() throws FactTypeUseException {
-		List<Type> newTypes = new LinkedList<Type>();
+		List<Type> newTypes = new LinkedList<>();
 		int max1 = COMBINATION_UPPERBOUND;
 
 		for (Type t1 : allTypes) {
@@ -129,7 +129,7 @@ public class TestType extends TestCase {
 		assertFalse(DiGraph.isSubtypeOf(IntInstance));
 		assertTrue(DiGraph.isSubtypeOf(ValueInstance));
 
-		Map<Type, Type> bindings = new HashMap<Type, Type>();
+		Map<Type, Type> bindings = new HashMap<>();
 		DiGraph.match(IntInstance, bindings);
 		assertTrue(bindings.get(T) == ft.integerType());
 
@@ -343,7 +343,7 @@ public class TestType extends TestCase {
 
 	public void testMatchAndInstantiate() {
 		Type X = ft.parameterType("X");
-		Map<Type, Type> bindings = new HashMap<Type, Type>();
+		Map<Type, Type> bindings = new HashMap<>();
 
 		Type subject = ft.integerType();
 		X.match(subject, bindings);

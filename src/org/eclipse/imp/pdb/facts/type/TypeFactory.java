@@ -41,7 +41,7 @@ public class TypeFactory {
     /**
      * Caches all types to implement canonicalization
      */
-	private final Map<Type,Type> fCache = new HashMap<Type,Type>();
+	private final Map<Type,Type> fCache = new HashMap<>();
 
 
     public static TypeFactory getInstance() {

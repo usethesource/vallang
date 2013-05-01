@@ -39,14 +39,14 @@ import java.util.HashSet;
 
         this.eltType = eltType;
         this.inferred = false;
-        setContent = new HashSet<IValue>();
+        setContent = new HashSet<>();
     }
 
     /*package*/ SetWriter() {
         super();
         this.eltType = TypeFactory.getInstance().voidType();
         this.inferred = true;
-        setContent = new HashSet<IValue>();
+        setContent = new HashSet<>();
     }
 
     private static void checkInsert(IValue elem, Type eltType) throws FactTypeUseException {

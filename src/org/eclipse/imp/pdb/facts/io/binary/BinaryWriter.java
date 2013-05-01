@@ -109,10 +109,10 @@ public class BinaryWriter{
 		this.out = outputStream;
 		this.typeStore = typeStore;
 		
-		sharedValues = new IndexedSet<IValue>();
-		sharedTypes = new IndexedSet<Type>();
-		sharedPaths = new IndexedSet<String>();
-		sharedNames = new IndexedSet<String>();
+		sharedValues = new IndexedSet<>();
+		sharedTypes = new IndexedSet<>();
+		sharedPaths = new IndexedSet<>();
+		sharedNames = new IndexedSet<>();
 	}
 	
 	public void serialize() throws IOException{

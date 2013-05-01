@@ -63,7 +63,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 	}
 	
 	public Map<String, IValue> getAnnotations(){
-		return new ShareableHashMap<String, IValue>(annotations);
+		return new ShareableHashMap<>(annotations);
 	}
 	
 	@Override
@@ -74,19 +74,19 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>(annotations);
 		newAnnotations.put(label, value);
 		return newAnnotations;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>(annotations);
 		newAnnotations.remove(label);
 		return newAnnotations;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>(annotations);
 		
 		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
 		while(newAnnosIterator.hasNext()){
@@ -144,13 +144,13 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		public Map<String, IValue> getAnnotations(){
-			ShareableHashMap<String, IValue> shm = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> shm = new ShareableHashMap<>();
 			shm.put(annotationLabelOne, annotationValueOne);
 			return shm;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			if (! annotationLabelOne.equals(label))
 				newAnnotations.put(annotationLabelOne, annotationValueOne);
 			newAnnotations.put(label, value);
@@ -158,14 +158,14 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			if (! annotationLabelOne.equals(label))
 				newAnnotations.put(annotationLabelOne, annotationValueOne);
 			return newAnnotations;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			boolean foundAnnotationLabelOne = false;
 			
 			Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
@@ -231,14 +231,14 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		public Map<String, IValue> getAnnotations(){
-			ShareableHashMap<String, IValue> shm = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> shm = new ShareableHashMap<>();
 			shm.put(annotationLabelOne, annotationValueOne);
 			shm.put(annotationLabelTwo, annotationValueTwo);
 			return shm;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			if (! annotationLabelOne.equals(label))
 				newAnnotations.put(annotationLabelOne, annotationValueOne);
 			if (! annotationLabelTwo.equals(label))
@@ -248,7 +248,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			if (! annotationLabelOne.equals(label))
 				newAnnotations.put(annotationLabelOne, annotationValueOne);
 			if (! annotationLabelTwo.equals(label))
@@ -257,7 +257,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			boolean foundAnnotationLabelOne = false;
 			boolean foundAnnotationLabelTwo = false;
 			
@@ -331,7 +331,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		public Map<String, IValue> getAnnotations(){
-			ShareableHashMap<String, IValue> shm = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> shm = new ShareableHashMap<>();
 			shm.put(annotationLabelOne, annotationValueOne);
 			shm.put(annotationLabelTwo, annotationValueTwo);
 			shm.put(annotationLabelThree, annotationValueThree);
@@ -339,7 +339,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			if (! annotationLabelOne.equals(label))
 				newAnnotations.put(annotationLabelOne, annotationValueOne);
 			if (! annotationLabelTwo.equals(label))
@@ -351,7 +351,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			if (! annotationLabelOne.equals(label))
 				newAnnotations.put(annotationLabelOne, annotationValueOne);
 			if (! annotationLabelTwo.equals(label))
@@ -362,7 +362,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 		}
 		
 		protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+			ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 			boolean foundAnnotationLabelOne = false;
 			boolean foundAnnotationLabelTwo = false;
 			boolean foundAnnotationLabelThree = false;

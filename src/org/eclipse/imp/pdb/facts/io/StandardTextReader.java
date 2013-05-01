@@ -142,7 +142,7 @@ public class StandardTextReader extends AbstractTextReader {
 
 			String url = parseURL();
 			if (current == START_OF_ARGUMENTS) {
-				ArrayList<IValue> args = new ArrayList<IValue>(4);
+				ArrayList<IValue> args = new ArrayList<>(4);
 				readFixed(types.valueType(), ')', args);
 
 				if (args.size() >= 2) {
@@ -235,7 +235,7 @@ public class StandardTextReader extends AbstractTextReader {
 	}
 
 	private IValue readTuple(Type expected) throws IOException {
-		ArrayList<IValue> arr = new ArrayList<IValue>();
+		ArrayList<IValue> arr = new ArrayList<>();
 		readFixed(expected, END_OF_TUPLE, arr);
 		IValue[] result = new IValue[arr.size()];
 		return factory.tuple(arr.toArray(result));
@@ -301,7 +301,7 @@ public class StandardTextReader extends AbstractTextReader {
 		}
 		else {
 			if (current == START_OF_ARGUMENTS) {
-				ArrayList<IValue> arr = new ArrayList<IValue>();
+				ArrayList<IValue> arr = new ArrayList<>();
 				Type args = expected;
 				
 				if (expected.isAbstractDataType()) {
@@ -624,7 +624,7 @@ public class StandardTextReader extends AbstractTextReader {
 		
 		
 		if (current == START_OF_ARGUMENTS) {
-			ArrayList<IValue> arr = new ArrayList<IValue>();
+			ArrayList<IValue> arr = new ArrayList<>();
 			readFixed(expected, END_OF_ARGUMENTS, arr);
 			IValue[] result = new IValue[arr.size()];
 			result = arr.toArray(result);
