@@ -60,6 +60,11 @@ package org.eclipse.imp.pdb.facts.type;
     }
     
     @Override
+    protected boolean isSubtypeOfInteger(Type type) {
+    	return true;
+    }
+    
+    @Override
     protected Type lubWithInteger(Type type) {
       return this;
     }
