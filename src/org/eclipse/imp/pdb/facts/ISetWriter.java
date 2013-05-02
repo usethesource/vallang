@@ -13,11 +13,17 @@
 package org.eclipse.imp.pdb.facts;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.func.TypeFunctions;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+
+import com.google.java.contract.Ensures;
 
 
 public interface ISetWriter extends IWriter {
     void insert(IValue... v) throws FactTypeUseException ;
     void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
-    ISet done();
     int size();
+
+	@Ensures({ "result.getElementType().equals(TypeFunctions.lub(result))" })
+	ISet done();
 }

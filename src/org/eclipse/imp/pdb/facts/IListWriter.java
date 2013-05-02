@@ -13,6 +13,10 @@
 package org.eclipse.imp.pdb.facts;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.func.TypeFunctions;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+
+import com.google.java.contract.Ensures;
 
 
 /**
@@ -101,5 +105,8 @@ public interface IListWriter extends IWriter {
      * Finalize an immutable list. After this method none of the others may be called anymore.
      * @return an immutable IList
      */
+	@Ensures({
+			"result.getType().equals(TypeFactory.getInstance().listType(result.getElementType()))",
+			"result.getElementType().equals(TypeFunctions.lub(result))" })
     IList done();
 }
