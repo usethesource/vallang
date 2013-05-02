@@ -20,6 +20,8 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 
+import com.google.java.contract.Requires;
+
 /**
  * An IValueFactory is an AbstractFactory for values. Implementations of this
  * class should guarantee that the values returned are immutable. For batch
@@ -352,10 +354,11 @@ public interface IValueFactory {
     
     /**
      * Construct an empty still unmodifiable list.
-     * @param eltType
+     * @param elementType
      * @return an empty list of ListType list[eltType]
      */
-    public IList list(Type eltType);
+	@Requires({ "elementType != null" })
+    public IList list(Type elementType);
     
     /**
      * Get a list writer for a specific kind of list
