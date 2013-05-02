@@ -311,14 +311,14 @@ public class StandardTextReader extends AbstractTextReader {
 				ArrayList<IValue> arr = new ArrayList<IValue>();
 				Type args = expected;
 				Type constr = null;
-				if (expected.isAbstractData()) {
+				if (expected.isAbstractData() ) {
 					Set<Type> alternatives = store.lookupConstructor(expected, id);
 					if (alternatives.size() > 1) {
 						throw new OverloadingNotSupportedException(expected, id);
 					}
 					else if (alternatives.size() == 0) {
 						args = types.valueType(); 
-						// TODO: Should not it be an undeclared constructor exception?!
+						// TODO: Should not it be an undeclared abstract data/constructor exception?!
 					}
 					else {
 						constr = alternatives.iterator().next();
@@ -329,8 +329,14 @@ public class StandardTextReader extends AbstractTextReader {
 				IValue[] result = new IValue[arr.size()];
 				result = arr.toArray(result);
 				
-				return constr != null ? factory.constructor(constr, result) : factory.node(id, result);
-					   // expected.make(factory, store, id, result);
+				// return expected.make(factory, store, id, result);
+				if(expected.isTop())
+					constr = store.lookupFirstConstructor(id, TF.tupleType(result));
+				
+				if(constr != null)
+					return factory.constructor(constr, result);
+				else
+					return factory.node(id, result);
 				
 			}
 			
@@ -342,7 +348,6 @@ public class StandardTextReader extends AbstractTextReader {
 			}
 			else {
 				cons = store.lookupFirstConstructor(id, args);
-				// TODO: check this!
 			}
 			
 			if (cons != null) {

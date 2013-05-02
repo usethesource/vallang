@@ -167,15 +167,21 @@ public class ATermReader extends AbstractBinaryReader {
 					throw new FactParseError("premature EOF encountered.", reader.getPosition());
 				}
 				if (reader.getLastChar() == ')') {
+					
 					// result = node.make(vf, ts, funname, new IValue[0]);
+					if(node.isTop()) {
+						Type constr = ts.lookupFirstConstructor(funname, tf.tupleType(new Type[0]));
+						if(constr != null) node = constr;
+					}
 					if(node.isConstructor())
 						result = vf.constructor(node, new IValue[0]);
 					else
 						result = vf.node(funname, new IValue[0]); 
+					
 				} else {
 					IValue[] list;
 					if (expected.isAbstractData()) {
-					   list = parseFixedSizeATermsArray(reader, node.getFieldTypes());
+						list = parseFixedSizeATermsArray(reader, node.getFieldTypes());
 					}
 					else {
 						list = parseATermsArray(reader, TypeFactory.getInstance().valueType());
@@ -186,7 +192,11 @@ public class ATermReader extends AbstractBinaryReader {
 								+ (char) reader.getLastChar() + "'", reader.getPosition());
 					}
 					
-					if (node.isConstructor()) 
+					if(node.isTop()) {
+						Type constr = ts.lookupFirstConstructor(funname, tf.tupleType(list));
+						if(constr != null) node = constr;
+					}
+					if (node.isConstructor())
 						result = vf.constructor(node, list);
 					else
 						result = vf.node(funname, list);
