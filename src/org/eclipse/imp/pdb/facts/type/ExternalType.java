@@ -42,7 +42,7 @@ public abstract class ExternalType extends ValueType {
 	}
 	
 	@Override
-	protected final boolean isSupertypeOf(Type type) {
+	protected /*final*/ boolean isSupertypeOf(Type type) {
 	  return type.isSubtypeOfExternal(this);
 	}
 	
