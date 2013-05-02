@@ -28,6 +28,16 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   public Type getElementType() {
     return fEltType;
   }
+
+  @Override
+  public boolean hasFieldNames() {
+	return fEltType.hasFieldNames();
+  }
+  
+  @Override 
+  public boolean hasField(String fieldName) {
+	  return fEltType.hasField(fieldName);
+  }
   
   @Override
   public int getFieldIndex(String fieldName) {
@@ -78,6 +88,17 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   public Type compose(Type other) {
     return TF.setType(fEltType.compose(other.getElementType()));
   }
+  
+  @Override
+  public Type select(int... fields) {
+	  return TF.setType(fEltType.select(fields));
+  }
+	
+  @Override
+  public Type select(String... names) {
+	  return TF.setType(fEltType.select(names));
+  }
+
 
   @Override
   public int hashCode() {

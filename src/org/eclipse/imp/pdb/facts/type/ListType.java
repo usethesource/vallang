@@ -29,6 +29,16 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		return fEltType;
 	}
 	
+	@Override
+	public boolean hasFieldNames() {
+		return fEltType.hasFieldNames();
+	}
+	
+	@Override 
+	public boolean hasField(String fieldName) {
+		return fEltType.hasField(fieldName);
+	}
+	
 	 @Override
 	  public int getFieldIndex(String fieldName) {
 	    return fEltType.getFieldIndex(fieldName);
@@ -77,6 +87,16 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	@Override
 	public Type compose(Type other) {
 	  return TF.listType(fEltType.compose(other.getElementType()));
+	}
+
+	@Override
+	public Type select(int... fields) {
+		return TF.listType(fEltType.select(fields));
+	}
+	
+	@Override
+	public Type select(String... names) {
+		return TF.listType(fEltType.select(names));
 	}
 	
 	@Override
@@ -143,7 +163,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	@Override
 	public Type lub(Type other) {
-	  return other.lubWithSet(this);
+	  return other.lubWithList(this);
+	}
+	
+	@Override
+	public Type lubWithList(Type type) {
+		return TF.listType(fEltType.lub(type.getElementType()));
 	}
 	
 	@Override
