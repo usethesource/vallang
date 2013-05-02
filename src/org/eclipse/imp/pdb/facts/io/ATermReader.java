@@ -513,7 +513,7 @@ public class ATermReader extends AbstractBinaryReader {
 		IValue[] terms = parseATermsArray(reader, elementType);
 
 		if (base.isList() || base.equivalent(tf.valueType())) {
-			IListWriter w = vf.listWriter(expected.getElementType());
+			IListWriter w = vf.listWriter(base.equivalent(tf.valueType()) ? tf.valueType() : expected.getElementType());
 
 			for (int i = terms.length - 1; i >= 0; i--) {
 				w.insert(terms[i]);
@@ -544,7 +544,7 @@ public class ATermReader extends AbstractBinaryReader {
 
 	private Type getElementType(Type expected) {
 		Type base = expected;
-
+		
 		if (base.isList()) {
 			return base.getElementType();
 		} else if (base.isSet()) {
