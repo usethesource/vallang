@@ -32,6 +32,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.IndexedSet;
@@ -56,7 +57,6 @@ public class BinaryWriter{
 	private final static int ANNOTATED_CONSTRUCTOR_HEADER = 0x0b;
 	private final static int LIST_HEADER = 0x0c;
 	private final static int SET_HEADER = 0x0d;
-	private final static int RELATION_HEADER = 0x0e;
 	private final static int MAP_HEADER = 0x0f;
 	private final static int RATIONAL_HEADER = 0x11;
 
@@ -72,7 +72,6 @@ public class BinaryWriter{
 	private final static int TUPLE_TYPE_HEADER = 0x09;
 	private final static int LIST_TYPE_HEADER = 0x0a;
 	private final static int SET_TYPE_HEADER = 0x0b;
-	private final static int RELATION_TYPE_HEADER = 0x0c;
 	private final static int MAP_TYPE_HEADER = 0x0d;
 	private final static int PARAMETER_TYPE_HEADER = 0x0e;
 	private final static int ADT_TYPE_HEADER = 0x0f;
@@ -124,13 +123,13 @@ public class BinaryWriter{
 		// at least one location annotation, don't try to hash it
 		boolean tryHashing = true;
 		
-		if (value.getType().isAbstractDataType()) {
+		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.hasAnnotations()) {
 				Map<String,IValue> amap = consValue.getAnnotations();
 				for (Entry<String, IValue> aEntry : amap.entrySet()) {
 					Type aType = aEntry.getValue().getType();
-					if (!aType.isVoidType() && aType.isSourceLocationType()) {
+					if (!aType.isBottom() && aType.isSourceLocation()) {
 						tryHashing = false;
 						break;
 					}
@@ -175,9 +174,6 @@ public class BinaryWriter{
 		}else if(value instanceof IList){
 			writeList((IList) value);
 		}else if(value instanceof ISet){
-			if (((ISet)value).getType().isRelationType())
-				writeRelation((ISet) value);
-			else
 				writeSet((ISet) value);
 		}else if(value instanceof IMap){
 			writeMap((IMap) value);
@@ -190,45 +186,128 @@ public class BinaryWriter{
 	
 	private void doWriteType(Type type) throws IOException{
 		// This sucks and is order dependent :-/.
-		if(type.isVoidType()){
-			writeVoidType();
-		}else if(type.isAliasType()){
-			writeAliasType(type);
-		}else if(type.isParameterType()){
-			writeParameterType(type);
-		}else if(type.isValueType()){
-			writeValueType();
-		}else if(type.isBoolType()){
-			writeBoolType();
-		}else if(type.isIntegerType()){
-			writeIntegerType();
-		}else if(type.isRealType()){
-			writeDoubleType();
-		}else if(type.isRationalType()){
-			writeRationalType();
-		}else if(type.isStringType()){
-			writeStringType();
-		}else if(type.isSourceLocationType()){
-			writeSourceLocationType();
-		}else if(type.isDateTimeType()){
-			writeDateTimeType(type);
-		}else if(type.isListType()){
-			writeListType(type);
-		}else if(type.isSetType()){
-			writeSetType(type);
-		}else if(type.isRelationType()){
-			writeRelationType(type);
-		}else if(type.isMapType()){
-			writeMapType(type);
-		}else if(type.isAbstractDataType()){
-			writeADTType(type);
-		}else if(type.isConstructorType()){
-			writeConstructorType(type);
-		}else if(type.isNodeType()){
-			writeNodeType(type);
-		}else if(type.isTupleType()){
-			writeTupleType(type);
-		}
+	  type.accept(new ITypeVisitor<Type,IOException>() {
+
+      @Override
+      public Type visitReal(Type type) throws IOException {
+        writeDoubleType();
+        return type;
+      }
+
+      @Override
+      public Type visitInteger(Type type) throws IOException {
+        writeIntegerType();
+        return type;
+      }
+
+      @Override
+      public Type visitRational(Type type) throws IOException {
+        writeRationalType();
+        return type;
+      }
+
+      @Override
+      public Type visitList(Type type) throws IOException {
+        writeListType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitMap(Type type) throws IOException {
+        writeMapType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitNumber(Type type) {
+        return type;
+        // should not happen
+      }
+
+      @Override
+      public Type visitAlias(Type type) throws IOException {
+        writeAliasType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitSet(Type type) throws IOException {
+        writeSetType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitSourceLocation(Type type) throws IOException {
+        writeSourceLocationType();
+        return type;
+      }
+
+      @Override
+      public Type visitString(Type type) throws IOException {
+        writeStringType();
+        return type;
+      }
+
+      @Override
+      public Type visitNode(Type type) throws IOException {
+        writeNodeType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitConstructor(Type type) throws IOException {
+        writeConstructorType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitAbstractData(Type type) throws IOException {
+        writeADTType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitTuple(Type type) throws IOException {
+        writeTupleType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitValue(Type type) throws IOException {
+        writeValueType();
+        return type;
+      }
+
+      @Override
+      public Type visitVoid(Type type) throws IOException {
+        writeVoidType();
+        return type;
+      }
+
+      @Override
+      public Type visitBool(Type type) throws IOException {
+        writeBoolType();
+        return type;
+      }
+
+      @Override
+      public Type visitParameter(Type type) throws IOException {
+        writeParameterType(type);
+        return type;
+      }
+
+      @Override
+      public Type visitExternal(Type type) {
+        // do nothing
+        return type;
+      }
+
+      @Override
+      public Type visitDateTime(Type type) throws IOException {
+        writeDateTimeType(type);
+        return type;
+      }
+    });
 	}
 	
 	private void writeType(Type type) throws IOException{
@@ -579,30 +658,6 @@ public class BinaryWriter{
 		}
 	}
 	
-	private void writeRelation(ISet relation) throws IOException{
-		Type elementType = relation.getElementType();
-		int elementTypeId = sharedTypes.get(elementType);
-		
-		if(elementTypeId == -1){
-			out.write(RELATION_HEADER);
-			
-			doWriteType(elementType);
-			
-			sharedTypes.store(elementType);
-		}else{
-			out.write(RELATION_HEADER | TYPE_SHARED_FLAG);
-			
-			printInteger(elementTypeId);
-		}
-		
-		printInteger(relation.size());
-		
-		Iterator<IValue> content = relation.iterator();
-		while(content.hasNext()){
-			doSerialize(content.next());
-		}
-	}
-	
 	private void writeMap(IMap map) throws IOException{
 		Type mapType = map.getType();
 		int mapTypeId = sharedTypes.get(mapType);
@@ -728,12 +783,6 @@ public class BinaryWriter{
 		out.write(SET_TYPE_HEADER);
 		
 		writeType(setType.getElementType());
-	}
-	
-	private void writeRelationType(Type relationType) throws IOException{
-		out.write(RELATION_TYPE_HEADER);
-		
-		writeType(relationType.getElementType());
 	}
 	
 	private void writeMapType(Type mapType) throws IOException{

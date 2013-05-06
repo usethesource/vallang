@@ -12,32 +12,27 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 
-/*package*/ final class RealType extends Type {
-	private final static RealType sInstance = new RealType();
+/*package*/ final class RealType extends NumberType {
+  private final static class InstanceKeeper {
+    public final static RealType sInstance = new RealType();
+  }
 
 	public static RealType getInstance() {
-		return sInstance;
+		return InstanceKeeper.sInstance;
 	}
 
 	private RealType() {
 		super();
 	}
 
-	@Override
-	public boolean isRealType() {
-		return true;
-	}
-	
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof RealType);
+		return obj == RealType.getInstance();
 	}
 
 	@Override
@@ -46,55 +41,32 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	}
 
 	@Override
-    public boolean isSubtypeOf(Type other) {
-    	if (other == this) {
-    		return true;
-    	}
-    	if (other.isNumberType()) {
-    		return true;
-    	}
-    	
-    	return super.isSubtypeOf(other);
-    }
-    
-    @Override
-    public Type lub(Type other) {
-    	if (other == this) {
-    		return this;
-    	}
-    	if (!other.isVoidType() && (other.isNumberType() || other.isIntegerType() || other.isRationalType())) {
-    		return TypeFactory.getInstance().numberType();
-    	}
-    	return super.lub(other);
-    }
-    
-	@Override
 	public String toString() {
 		return "real";
 	}
-	
+
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
+	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitReal(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, double arg) {
-		return f.real(arg);
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfReal(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, TypeStore store, double arg) {
-		return make(f, arg);
+	public Type lub(Type type) {
+		return type.lubWithReal(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, float arg) {
-		return f.real(arg);
+	protected Type lubWithReal(Type type) {
+	  return this;
 	}
-	
+	 
 	@Override
-	public IValue make(IValueFactory f, TypeStore store, float arg) {
-		return make(f, arg);
+	protected boolean isSubtypeOfReal(Type type) {
+	  return true;
 	}
 }

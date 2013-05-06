@@ -12,14 +12,9 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /**
@@ -51,16 +46,25 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public boolean isAliasType() {
-		return true;
+	public boolean isParameterized() {
+		return !fParameters.equivalent(VoidType.getInstance());
 	}
 	
 	@Override
-	public boolean isParameterized() {
-		return !fParameters.isVoidType();
+	public boolean isOpen() {
+	  return fParameters.isOpen();
 	}
 	
-
+	@Override
+	public boolean isAliased() {
+	  return true;
+	}
+	
+	@Override
+	public boolean isFixedWidth() {
+	  return fAliased.isFixedWidth();
+	}
+	
 	/**
 	 * @return the type parameters of the alias type, void when there are none
 	 */
@@ -79,40 +83,28 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		return fAliased;
 	}
 	
-	/**
-	 * @return the first super type of this type that is not a AliasType.
-	 */
 	@Override
-	public Type getHiddenType() {
-		return fAliased;
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfAlias(this);
 	}
-
-	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == this) {
-			return true;
-		}
-		else if (other.isAliasType() && other.getName().equals(getName())) {
-			return fAliased.isSubtypeOf(other) && fParameters.isSubtypeOf(other.getTypeParameters());
-		}
-		else {
-			return fAliased.isSubtypeOf(other);
-		}
-	}
-
+	
 	@Override
 	public Type lub(Type other) {
-		if (other == this) {
+	  return other.lubWithAlias(this);
+	}
+	
+	@Override
+	protected Type lubWithAlias(Type type) {
+		if(this == type)
 			return this;
+		if (getName().equals(type.getName())) {
+			return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), 
+						type.getName(), 
+						getAliased().lub(type.getAliased()),
+						getTypeParameters().lub(type.getTypeParameters()));
 		}
-		else if (other.isAliasType() && other.getName().equals(getName())) {
-			Type aliased = fAliased.lub(other.getAliased());
-			Type params = fParameters.lub(other.getTypeParameters());
-			return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), getName(), aliased, params);
-		}
-		else {
-			return fAliased.lub(other);
-		}
+    
+		return getAliased().lub(type);
 	}
 	
 	@Override
@@ -120,7 +112,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(fName);
-		if (!fParameters.isVoidType()) {
+		if (isParameterized()) {
 			sb.append("[");
 			int idx= 0;
 			for(Type elemType: fParameters) {
@@ -149,61 +141,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
+	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitAlias(this);
 	}
 	
-	@Override
-	public IInteger make(IValueFactory f, int arg) {
-		return (IInteger) fAliased.make(f, arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f) {
-		return fAliased.make(f);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, IValue... children) {
-		return fAliased.make(f, children);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, URI url, int startOffset, int length, int startLine, int endLine, int startCol, int endCol) {
-		return fAliased.make(f, url, startOffset, length, startLine, endLine, startCol, endCol);
-	}
-	
-	@Override 
-	public IValue make(IValueFactory f, String path, int startOffset, int length,
-			int startLine, int endLine, int startCol, int endCol) {
-		return f.sourceLocation(path, startOffset, length, startLine, endLine, startCol, endCol);
-	}
-
-	@Override 
-    public IValue make(IValueFactory f, URI uri) {
-    	return f.sourceLocation(uri);
-    }
-	
-	@Override
-	public IValue make(IValueFactory f, double arg) {
-		return fAliased.make(f, arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, String arg) {
-		return fAliased.make(f, arg);
-	}
-	
-	@Override
-	public <T extends IWriter> T writer(IValueFactory f) {
-	    // RMF Feb 9, 2009: Work around a javac bug (see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954)
-	    // that causes an erroneous compile error.
-	    // Use this method's type parameter as an explicit qualifier on the method call type parameter.
-	    // N.B.: The JDT doesn't exhibit this bug (at least not as of 3.3.2), so this fix is only
-	    // relevant to the release build scripts.
-		return fAliased.<T>writer(f);
-	}
-
 	@Override
 	public int getArity() {
 		return fAliased.getArity();
@@ -265,11 +206,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	public boolean comparable(Type other) {
-		return fAliased.comparable(other);
-	}
-
-	@Override
 	public Type compose(Type other) {
 		return fAliased.compose(other);
 	}
@@ -304,133 +240,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 
 	@Override
-	public boolean isBoolType() {
-		return fAliased.isBoolType();
-	}
-
-	@Override
-	public boolean isRealType() {
-		return fAliased.isRealType();
-	}
-
-	@Override
-	public boolean isIntegerType() {
-		return fAliased.isIntegerType();
-	}
-
-	@Override
-	public boolean isListType() {
-		return fAliased.isListType();
-	}
-
-	@Override
-	public boolean isMapType() {
-		return fAliased.isMapType();
-	}
-
-	@Override
-	public boolean isAbstractDataType() {
-		return fAliased.isAbstractDataType();
-	}
-
-	@Override
-	public boolean isParameterType() {
-		return fAliased.isParameterType();
-	}
-
-	@Override
-	public boolean isRelationType() {
-		return fAliased.isRelationType();
-	}
-	
-	@Override
-	public boolean isListRelationType() {
-		return fAliased.isListRelationType();
-	}
-
-	@Override
-	public boolean isSetType() {
-		return fAliased.isSetType();
-	}
-
-	@Override
-	public boolean isSourceLocationType() {
-		return fAliased.isSourceLocationType();
-	}
-
-	@Override
-	public boolean isSourceRangeType() {
-		return fAliased.isSourceRangeType();
-	}
-
-	@Override
-	public boolean isStringType() {
-		return fAliased.isStringType();
-	}
-
-	@Override
-	public boolean isConstructorType() {
-		return fAliased.isConstructorType();
-	}
-
-	@Override
-	public boolean isNodeType() {
-		return fAliased.isNodeType();
-	}
-
-	@Override
-	public boolean isTupleType() {
-		return fAliased.isTupleType();
-	}
-
-	@Override
-	public boolean isValueType() {
-		return fAliased.isValueType();
-	}
-
-	@Override
-	public boolean isVoidType() {
-		return fAliased.isVoidType();
-	}
-
-	@Override
-	public boolean isExternalType(){
-		return fAliased.isExternalType();
-	}
-
-	@Override
 	public Iterator<Type> iterator() {
 		return fAliased.iterator();
-	}
-
-	@Override
-	public IValue make(IValueFactory f, boolean arg) {
-		return fAliased.make(f, arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, boolean arg) {
-		return fAliased.make(f, store, arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, double arg) {
-		return fAliased.make(f, store, arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, int arg) {
-		return fAliased.make(f, store, arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, String arg) {
-		return fAliased.make(f, store, arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
-		return fAliased.make(f, store, name, children);
 	}
 
 	@Override
@@ -452,4 +263,204 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	public boolean hasField(String fieldName, TypeStore store){
 		return fAliased.hasField(fieldName, store);
 	}
+
+  @Override
+  protected boolean isSubtypeOfReal(Type type) {
+    return fAliased.isSubtypeOfReal(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfInteger(Type type) {
+    return fAliased.isSubtypeOfInteger(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfRational(Type type) {
+    return fAliased.isSubtypeOfRational(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfList(Type type) {
+    return fAliased.isSubtypeOfList(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfMap(Type type) {
+    return fAliased.isSubtypeOfMap(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfNumber(Type type) {
+    return fAliased.isSubtypeOfNumber(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfRelation(Type type) {
+    return fAliased.isSubtypeOfRelation(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfListRelation(Type type) {
+    return fAliased.isSubtypeOfListRelation(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfSet(Type type) {
+    return fAliased.isSubtypeOfSet(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfSourceLocation(Type type) {
+    return fAliased.isSubtypeOfSourceLocation(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfString(Type type) {
+    return fAliased.isSubtypeOfString(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfNode(Type type) {
+    return fAliased.isSubtypeOfNode(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfConstructor(Type type) {
+    return fAliased.isSubtypeOfConstructor(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfAbstractData(Type type) {
+    return fAliased.isSubtypeOfAbstractData(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfTuple(Type type) {
+    return fAliased.isSubtypeOfTuple(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfVoid(Type type) {
+    return fAliased.isSubtypeOfVoid(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfBool(Type type) {
+    return fAliased.isSubtypeOfBool(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfExternal(Type type) {
+    return fAliased.isSubtypeOfExternal(type); 
+  }
+
+  @Override
+  protected boolean isSubtypeOfDateTime(Type type) {
+    return fAliased.isSubtypeOfDateTime(type); 
+  }
+
+  @Override
+  protected Type lubWithReal(Type type) {
+    return fAliased.lubWithReal(type);
+  }
+
+  @Override
+  protected Type lubWithInteger(Type type) {
+    return fAliased.lubWithInteger(type);
+  }
+
+  @Override
+  protected Type lubWithRational(Type type) {
+    return fAliased.lubWithRational(type);
+  }
+
+  @Override
+  protected Type lubWithList(Type type) {
+    return fAliased.lubWithList(type);
+  }
+
+  @Override
+  protected Type lubWithMap(Type type) {
+    return fAliased.lubWithMap(type);
+  }
+
+  @Override
+  protected Type lubWithNumber(Type type) {
+    return fAliased.lubWithNumber(type);
+  }
+
+  @Override
+  protected Type lubWithRelation(Type type) {
+    return fAliased.lubWithRelation(type);
+  }
+
+  @Override
+  protected Type lubWithListRelation(Type type) {
+    return fAliased.lubWithListRelation(type);
+  }
+
+  @Override
+  protected Type lubWithSet(Type type) {
+    return fAliased.lubWithSet(type);
+  }
+
+  @Override
+  protected Type lubWithSourceLocation(Type type) {
+    return fAliased.lubWithSourceLocation(type);
+  }
+
+  @Override
+  protected Type lubWithString(Type type) {
+    return fAliased.lubWithString(type);
+  }
+
+  @Override
+  protected Type lubWithNode(Type type) {
+    return fAliased.lubWithNode(type);
+  }
+
+  @Override
+  protected Type lubWithConstructor(Type type) {
+    return fAliased.lubWithConstructor(type);
+  }
+
+  @Override
+  protected Type lubWithAbstractData(Type type) {
+    return fAliased.lubWithAbstractData(type);
+  }
+
+  @Override
+  protected Type lubWithTuple(Type type) {
+    return fAliased.lubWithTuple(type);
+  }
+
+  @Override
+  protected Type lubWithValue(Type type) {
+    return fAliased.lubWithValue(type);
+  }
+
+  @Override
+  protected Type lubWithVoid(Type type) {
+    return fAliased.lubWithVoid(type);
+  }
+
+  @Override
+  protected Type lubWithBool(Type type) {
+    return fAliased.lubWithBool(type);
+  }
+
+  @Override
+  protected Type lubWithExternal(Type type) {
+    return fAliased.lubWithExternal(type);
+  }
+
+  @Override
+  protected Type lubWithDateTime(Type type) {
+    return fAliased.lubWithDateTime(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfValue(Type type) {
+   return true;
+  }
 }

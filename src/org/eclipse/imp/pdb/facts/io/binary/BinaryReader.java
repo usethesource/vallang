@@ -211,13 +211,13 @@ public class BinaryReader{
 		
 		boolean hashValue = true;
 		
-		if (value.getType().isAbstractDataType()) {
+		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.hasAnnotations()) {
 				Map<String,IValue> amap = consValue.getAnnotations();
 				for (Entry<String, IValue> aEntry : amap.entrySet()) {
 					Type aType = aEntry.getValue().getType();
-					if (!aType.isVoidType() && aType.isSourceLocationType()) {
+					if (!aType.equivalent(tf.voidType()) && aType.isSourceLocation()) {
 						hashValue = false;
 						break;
 					}

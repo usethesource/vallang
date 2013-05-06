@@ -12,32 +12,27 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 
-/*package*/ final class BoolType extends Type {
-	private final static BoolType sInstance = new BoolType();
+/*package*/ final class BoolType extends ValueType {
+  private final static class InstanceKeeper {
+    public final static BoolType sInstance = new BoolType();
+  }
 
-	/* package */static BoolType getInstance() {
-		return sInstance;
+	public static BoolType getInstance() {
+		return InstanceKeeper.sInstance;
 	}
 
 	private BoolType() {
 		super();
 	}
 
-	@Override
-	public boolean isBoolType() {
-		return true;
-	}
-	
 	/**
 	 * Should never need to be called; there should be only one instance of
 	 * IntegerType
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof BoolType);
+		return obj == BoolType.getInstance();
 	}
 
 	@Override
@@ -49,19 +44,29 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 	public String toString() {
 		return "bool";
 	}
-	
+
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
+	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitBool(this);
 	}
 	
 	@Override
-	public IValue make(IValueFactory f, boolean arg) {
-		return f.bool(arg);
-	}
-	
-	@Override
-	public IValue make(IValueFactory f, TypeStore store, boolean arg) {
-		return make(f, arg);
-	}
+  protected boolean isSupertypeOf(Type type) {
+    return type.isSubtypeOfBool(this);
+  }
+  
+  @Override
+  public Type lub(Type other) {
+    return other.lubWithBool(this);
+  }
+  
+  @Override
+  protected boolean isSubtypeOfBool(Type type) {
+    return true;
+  }
+  
+  @Override
+  protected Type lubWithBool(Type type) {
+    return this;
+  }
 }

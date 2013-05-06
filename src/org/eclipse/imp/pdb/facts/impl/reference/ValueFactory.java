@@ -54,7 +54,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			TypeFactory tf = TypeFactory.getInstance();
 			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}
@@ -192,7 +192,6 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 	public IConstructor constructor(Type constructorType, IValue... children) {
 		checkNull(constructorType);
 		checkNull((Object[]) children);
-		
 		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);
 		return new Constructor(instantiatedType, children);
 	}
@@ -209,7 +208,6 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 	@Override
 	public IConstructor constructor(Type constructorType) {
 		checkNull(constructorType);
-		
 		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);		
 		return new Constructor(instantiatedType);
 	}
@@ -266,7 +264,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 		checkNull((Object[]) tuples);
 		Type elementType = lub(tuples);
 	
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			TypeFactory tf = TypeFactory.getInstance();
 			throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		}

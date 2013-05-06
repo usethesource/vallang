@@ -31,7 +31,7 @@ public abstract class AbstractMap extends Value implements IMap {
     }
 
     protected static Type inferMapType(final Type candidateMapType, final java.util.Map<IValue, IValue> content) {
-		if (!candidateMapType.isMapType())
+		if (!candidateMapType.isMap())
 			throw new IllegalArgumentException("Type must be a map type: "
 					+ candidateMapType);
     	

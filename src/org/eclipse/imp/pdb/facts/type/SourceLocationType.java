@@ -12,34 +12,27 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.net.URI;
-
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 
 
-/*package*/ final class SourceLocationType  extends Type {
-    private final static SourceLocationType sInstance= new SourceLocationType();
+/*package*/ final class SourceLocationType  extends ValueType {
+    private static final class InstanceKeeper {
+      public final static SourceLocationType sInstance= new SourceLocationType();
+    }
 
-    /*package*/ static SourceLocationType getInstance() {
-        return sInstance;
+    public static SourceLocationType getInstance() {
+        return InstanceKeeper.sInstance;
     }
 
     private SourceLocationType() {
     	super();
     }
 
-    @Override
-    public boolean isSourceLocationType() {
-    	return true;
-    }
-    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof SourceLocationType);
+        return obj == SourceLocationType.getInstance();
     }
 
     @Override
@@ -53,30 +46,27 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
+    public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
     	return visitor.visitSourceLocation(this);
     }
-    
-    @Override 
-    public IValue make(IValueFactory f, URI uri, int startOffset, int length,
-    		int startLine, int endLine, int startCol, int endCol) {
-    	return f.sourceLocation(uri, startOffset, length, startLine, endLine, startCol, endCol);
-    }
-    
-    @Override 
-    public IValue make(IValueFactory f, URI uri) {
-    	return f.sourceLocation(uri);
+
+    @Override
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfSourceLocation(this);
     }
     
     @Override
-    public IValue make(IValueFactory f, String path) {
-    	return f.sourceLocation(path);
+    public Type lub(Type other) {
+      return other.lubWithSourceLocation(this);
     }
     
-    @Override 
-    public IValue make(IValueFactory f, String path, int startOffset, int length,
-    		int startLine, int endLine, int startCol, int endCol) {
-    	return f.sourceLocation(path, startOffset, length, startLine, endLine, startCol, endCol);
+    @Override
+    protected boolean isSubtypeOfSourceLocation(Type type) {
+      return true;
     }
     
+    @Override
+    protected Type lubWithSourceLocation(Type type) {
+      return this;
+    }
 }

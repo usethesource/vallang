@@ -12,15 +12,13 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
-/*package*/ class ListType extends Type {
-	protected final Type fEltType;
+/*package*/ class ListType extends ValueType {
+  protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
 		fEltType = eltType;
@@ -32,36 +30,97 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public boolean isListType() {
-		return true;
+	public boolean hasFieldNames() {
+		return fEltType.hasFieldNames();
+	}
+	
+	@Override 
+	public boolean hasField(String fieldName) {
+		return fEltType.hasField(fieldName);
+	}
+	
+	 @Override
+	  public int getFieldIndex(String fieldName) {
+	    return fEltType.getFieldIndex(fieldName);
+	  }
+	  
+	  @Override
+	  public Type getFieldType(int i) {
+	    return fEltType.getFieldType(i);
+	  }
+	  
+	  @Override
+	  public String getFieldName(int i) {
+	    return fEltType.getFieldName(i);
+	  }
+	  
+	  @Override
+	  public String[] getFieldNames() {
+	    return fEltType.getFieldNames();
+	  }
+	  
+	  @Override
+	  public int getArity() {
+	    return fEltType.getArity();
+	  }
+	  
+	  @Override
+	  public Type getFieldType(String fieldName) throws FactTypeUseException {
+	    return fEltType.getFieldType(fieldName);
+	  }
+	  
+	  @Override
+	  public Type getFieldTypes() {
+	    return fEltType.getFieldTypes();
+	  }
+	  
+	@Override
+	public Type carrier() {
+		return fEltType.carrier();
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other.isListType() && !other.isVoidType()) {
-			return fEltType.isSubtypeOf(other.getElementType());
-		}
-		
-		return super.isSubtypeOf(other);
+	public Type closure() {
+	  return TF.listType(fEltType.closure());
+	}
+	
+	@Override
+	public Type compose(Type other) {
+	  return TF.listType(fEltType.compose(other.getElementType()));
 	}
 
 	@Override
-	public Type lub(Type o) {
-		if (o.isListType()) {
-			return TypeFactory.getInstance().listType(fEltType.lub(o.getElementType()));
-		}
-		
-		return super.lub(o);
+	public Type select(int... fields) {
+		return TF.listType(fEltType.select(fields));
 	}
 	
 	@Override
-	public Type carrier() {
-		return TypeFactory.getInstance().setType(fEltType);
+	public Type select(String... names) {
+		return TF.listType(fEltType.select(names));
 	}
 	
 	@Override
 	public String toString() {
-		return "list[" + fEltType + "]";
+	  if (fEltType.isFixedWidth() && !fEltType.equivalent(VoidType.getInstance())) {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("lrel[");
+	    int idx = 0;
+	    Iterator<Type> iter = fEltType.iterator();
+	    while(iter.hasNext()) {
+	      Type elemType = iter.next();
+	      if (idx++ > 0)
+	        sb.append(",");
+	      sb.append(elemType.toString());
+	      if (hasFieldNames()) {
+	        sb.append(" " + fEltType.getFieldName(idx - 1));
+	      }
+	    }
+	    sb.append("]");
+	    return sb.toString();
+	  }
+	  else {
+	    return "list[" + fEltType + "]";
+	  }
 	}
 
 	@Override
@@ -83,24 +142,33 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
+	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitList(this);
 	}
-
+	
 	@Override
-	public IValue make(IValueFactory f) {
-		return f.list(fEltType);
+	public boolean isOpen() {
+	  return fEltType.isOpen();
 	}
-
+	
 	@Override
-	public IValue make(IValueFactory f, IValue... elems) {
-		return f.list(elems);
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfList(this);
 	}
-
-	@SuppressWarnings("unchecked")
+	
+	@Override 
+	protected boolean isSubtypeOfList(Type type) {
+		return fEltType.isSubtypeOf(type.getElementType());
+	}
+	
 	@Override
-	public IListWriter writer(IValueFactory f) {
-		return f.listWriter(fEltType);
+	public Type lub(Type other) {
+	  return other.lubWithList(this);
+	}
+	
+	@Override
+	public Type lubWithList(Type type) {
+		return TF.listType(fEltType.lub(type.getElementType()));
 	}
 	
 	@Override

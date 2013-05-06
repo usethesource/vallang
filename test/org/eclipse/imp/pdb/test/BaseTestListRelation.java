@@ -99,7 +99,7 @@ public abstract class BaseTestListRelation extends TestCase {
 		if (!emptyRel.isEmpty()) {
 			fail("empty relation is not empty?");
 		}
-		if (!emptyRel.getType().isListRelationType()) {
+		if (!emptyRel.getType().isListRelation()) {
 			fail("empty relation should have relation type");
 		}
 		
@@ -293,7 +293,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			}
 			
 			Type type = intersection.getType();
-			if (!type.getFieldType(0).isVoidType()) {
+			if (!type.getFieldType(0).isBottom()) {
 				fail("intersection should produce lub types");
 			}
 		} catch (FactTypeUseException e) {
@@ -338,7 +338,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			}
 			
 			Type type = intersection.getType();
-			if (!type.getFieldType(0).isVoidType()) {
+			if (!type.getFieldType(0).isBottom()) {
 				fail("empty intersection should produce void type");
 			}
 		} catch (FactTypeUseException e) {
@@ -383,7 +383,7 @@ public abstract class BaseTestListRelation extends TestCase {
 			}
 			
 			Type type = concat.getType();
-			if (!type.getFieldType(0).isVoidType()) {
+			if (!type.getFieldType(0).isBottom()) {
 				fail("concat should produce void type");
 			}
 		} catch (FactTypeUseException e) {

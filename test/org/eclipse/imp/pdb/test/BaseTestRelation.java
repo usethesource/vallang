@@ -100,7 +100,7 @@ public abstract class BaseTestRelation extends TestCase {
 		if (!emptyRel.isEmpty()) {
 			fail("empty relation is not empty?");
 		}
-		if (!emptyRel.getType().isRelationType()) {
+		if (!emptyRel.getType().isRelation()) {
 			fail("empty relation should have relation type");
 		}
 		
@@ -462,16 +462,16 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 	
 	public void testEmptySetIsARelation() {
-	  assertTrue(vf.set().getType().isRelationType());
-	  assertTrue(vf.set(tf.integerType()).getType().isRelationType());
+	  assertTrue(vf.set().getType().isRelation());
+	  assertTrue(vf.set(tf.integerType()).getType().isRelation());
 	  
 	  ISet r = vf.relation().insert(vf.tuple(vf.integer(1), vf.integer(2)));
 	  r = r.subtract(r);
-	  assertTrue(r.getType().isRelationType());
+	  assertTrue(r.getType().isRelation());
 	  
 	  ISet s = vf.set().insert(vf.integer(1));
 	  s = s.subtract(s);
-	  assertTrue(s.getType().isRelationType()); // yes really!
+	  assertTrue(s.getType().isRelation()); // yes really!
 	}
 
 	public void testUnionISet() {

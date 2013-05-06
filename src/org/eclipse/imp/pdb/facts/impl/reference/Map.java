@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 
 	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content){
 		super(inferMapType(candidateMapType, content));
-				
 		this.content = content;
 	}
 	

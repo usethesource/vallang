@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnsupportedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -65,6 +66,7 @@ import org.xml.sax.SAXException;
 public class XMLReader extends AbstractTextReader {
 	private DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 	private IValueFactory vf;
+	private static final TypeFactory TF = TypeFactory.getInstance();
 	private TypeStore ts;
 
 	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream)
@@ -87,7 +89,7 @@ public class XMLReader extends AbstractTextReader {
 	}
 	
 	private IValue parse(Node node, Type expected) {
-		if (expected.isAbstractDataType()) {
+		if (expected.isAbstractData()) {
 			Type sort = expected;
 			String name = node.getNodeName();
 			
@@ -107,16 +109,16 @@ public class XMLReader extends AbstractTextReader {
 			  return parseTreeSort(node, sort);
 			}
 		}
-		else if (expected.isStringType()) {
+		else if (expected.equivalent(TF.stringType())) {
 			return parseString(node);
 		}
-		else if (expected.isIntegerType()) {
+		else if (expected.equivalent(TF.integerType())) {
 			return parseInt(node);
 		}
-		else if (expected.isRealType()) {
+		else if (expected.equivalent(TF.realType())) {
 			return parseDouble(node);
 		}
-		else if (expected.isRationalType()) {
+		else if (expected.equivalent(TF.rationalType())) {
 			return parseRational(node);
 		}
 		else if (expected.isExternalType()) {
@@ -134,7 +136,7 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isListType();
+					&& nodeType.getFieldTypes().getFieldType(0).isSubtypeOf(TF.listType(TF.valueType()));
 		}
 
 		return false;
@@ -146,7 +148,7 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isSetType();
+					&& nodeType.getFieldTypes().getFieldType(0).isSubtypeOf(TF.setType(TF.valueType()));
 		}
 
 		return false;
@@ -158,8 +160,8 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0)
-							.isRelationType();
+					&& nodeType.getFieldTypes().getFieldType(0).isSubtypeOf(TF.setType(TF.valueType()))
+					&& nodeType.getFieldTypes().getFieldType(0).getElementType().isFixedWidth();
 		}
 
 		return false;
@@ -171,7 +173,7 @@ public class XMLReader extends AbstractTextReader {
 		if (nodeTypes.size() > 0) {
 			Type nodeType = nodeTypes.iterator().next();
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isMapType();
+					&& nodeType.getFieldTypes().getFieldType(0).isMap();
 		}
 
 		return false;
@@ -207,12 +209,12 @@ public class XMLReader extends AbstractTextReader {
 		Type keyType = mapType.getKeyType();
 		Type valueType = mapType.getValueType();
 		NodeList children = node.getChildNodes();
-		IMapWriter writer = mapType.writer(vf);
+		IMapWriter writer = vf.mapWriter(mapType);
 		
 		for (int i = 0; i + 1 < children.getLength(); ) {
 			IValue key, value;
 			
-			if (keyType.isTupleType()) {
+			if (keyType.isFixedWidth()) {
 				Type tuple = keyType;
 				IValue [] elements = new IValue[tuple.getArity()];
 				for (int j = 0; j < tuple.getArity(); j++) {
@@ -225,7 +227,7 @@ public class XMLReader extends AbstractTextReader {
 			  key = parse(children.item(i++), keyType);
 			}
 			
-			if (valueType.isTupleType()) {
+			if (valueType.isFixedWidth()) {
 				Type tuple = keyType;
 				IValue [] elements = new IValue[tuple.getArity()];
 				for (int j = 0; j < tuple.getArity(); j++) {
@@ -252,7 +254,7 @@ public class XMLReader extends AbstractTextReader {
 		Type relType = nodeType.getFieldType(0);
 		Type fields = relType.getFieldTypes();
 		NodeList children = node.getChildNodes();
-		ISetWriter writer = relType.writer(vf);
+		ISetWriter writer = vf.setWriter(relType.getElementType());
 		
 		for (int i = 0; i < children.getLength(); ) {
 			IValue[] elements = new IValue[fields.getArity()];
@@ -274,9 +276,9 @@ public class XMLReader extends AbstractTextReader {
 		Type setType = nodeType.getFieldType(0);
 		Type elementType = setType.getElementType();
 		NodeList children = node.getChildNodes();
-		ISetWriter writer = setType.writer(vf);
+		ISetWriter writer = vf.setWriter(elementType);
 		
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			for (int i = 0; i < children.getLength(); i++) {
 				writer.insert(parse(children.item(i), elementType));
 			}
@@ -303,9 +305,9 @@ public class XMLReader extends AbstractTextReader {
 		Type listType = nodeType.getFieldType(0);
 		Type elementType = listType.getElementType();
 		NodeList children = node.getChildNodes();
-		IListWriter writer = listType.writer(vf);
+		IListWriter writer = vf.listWriter(elementType);
 		
-		if (!elementType.isTupleType()) {
+		if (!elementType.isFixedWidth()) {
 			for (int i = 0; i < children.getLength(); i++) {
 				writer.append(parse(children.item(i), elementType));
 			}
@@ -339,7 +341,7 @@ public class XMLReader extends AbstractTextReader {
 		while(sourceIndex < children.getLength() && targetIndex < nodeType.getArity()) {
 			Type childType = childrenTypes.getFieldType(targetIndex);
 			
-			if (childType.isTupleType()) {
+			if (childType.isFixedWidth()) {
 				Type tuple = childType;
 				IValue[] elements = new IValue[tuple.getArity()];
 			  

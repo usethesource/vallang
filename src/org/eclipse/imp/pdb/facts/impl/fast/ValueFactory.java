@@ -134,7 +134,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	public ISet relation(IValue... elements) {
 		Type elementType = lub(elements);
 		
-		if (!elementType.isTupleType()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
+		if (!elementType.isFixedWidth()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		
 		ISetWriter relationWriter = relationWriter(elementType);
 		relationWriter.insert(elements);
@@ -148,7 +148,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	public IList listRelation(IValue... elements) {
 		Type elementType = lub(elements);
 		
-		if (!elementType.isTupleType()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
+		if (!elementType.isFixedWidth()) throw new UnexpectedElementTypeException(tf.tupleType(tf.voidType()), elementType);
 		
 		IListWriter listRelationWriter = listRelationWriter(elementType);
 		listRelationWriter.append(elements);
@@ -189,7 +189,7 @@ public class ValueFactory extends FastBaseValueFactory {
 	public IConstructor constructor(Type constructorType,
 			Map<String, IValue> annotations, IValue... children)
 			throws FactTypeUseException {
-		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
+	  Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		
 		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<>();
 		sAnnotations.putAll(annotations);

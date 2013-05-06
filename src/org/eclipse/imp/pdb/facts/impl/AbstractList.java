@@ -47,7 +47,7 @@ public abstract class AbstractList extends Value implements IList {
         }
 
         // consists collection out of tuples?
-        if (inferredElementType.isTupleType()) {
+        if (inferredElementType.isFixedWidth()) {
             inferredCollectionType = getTypeFactory().lrelTypeFromTuple(inferredElementType);
         } else {
             inferredCollectionType = getTypeFactory().listType(inferredElementType);
@@ -146,7 +146,7 @@ public abstract class AbstractList extends Value implements IList {
 
     @Override
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-        if (getElementType().isTupleType()) {
+        if (getElementType().isFixedWidth()) {
             return v.visitListRelation(this);
         } else {
             return v.visitList(this);
@@ -155,7 +155,7 @@ public abstract class AbstractList extends Value implements IList {
 
 	@Override
 	public boolean isRelation() {
-		return getType().isListRelationType();
+		return getType().isListRelation();
 	}
 
 	@Override

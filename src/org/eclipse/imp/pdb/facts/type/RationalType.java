@@ -12,31 +12,26 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 
-/*package*/ final class RationalType extends Type {
-    private final static RationalType sInstance= new RationalType();
+/*package*/ final class RationalType extends NumberType {
+  private static final class InstanceKeeper {
+    public final static RationalType sInstance= new RationalType();
+  }
 
     public static RationalType getInstance() {
-        return sInstance;
+        return InstanceKeeper.sInstance;
     }
 
     private RationalType() {
     	super();
     }
 
-    @Override
-    public boolean isRationalType() {
-    	return true;
-    }
-    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof RationalType);
+        return obj == RationalType.getInstance();
     }
 
     @Override
@@ -45,46 +40,32 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    public boolean isSubtypeOf(Type other) {
-    	if (other == this) {
-    		return true;
-    	}
-    	if (other.isNumberType()) {
-    		return true;
-    	}
-    	
-    	return super.isSubtypeOf(other);
+    public String toString() {
+        return "rat";
+    }
+
+    @Override
+    public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+      return visitor.visitRational(this);
+    }
+
+    @Override
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfRational(this);
     }
     
     @Override
     public Type lub(Type other) {
-    	if (other == this) {
-    		return this;
-    	}
-    	if (!other.isVoidType() && (other.isNumberType() || other.isIntegerType() || other.isRealType())) {
-    		return TypeFactory.getInstance().numberType();
-    	}
-    	
-    	return super.lub(other);
-    }
-
-    @Override
-    public String toString() {
-        return "rat";
+      return other.lubWithRational(this);
     }
     
     @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitRational(this);
+    protected Type lubWithRational(Type type) {
+      return this;
     }
     
     @Override
-    public IRational make(IValueFactory f, int num, int denom) {
-    	return f.rational(num, denom);
-    }
-    
-    @Override
-    public IRational make(IValueFactory f, TypeStore store, int num, int denom) {
-    	return make(f, num, denom);
+    protected boolean isSubtypeOfRational(Type type) {
+      return true;
     }
 }

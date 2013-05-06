@@ -51,10 +51,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		else
 			this.elementType = elementType;		
 		
-		if (elementType.isTupleType())
-			this.listType = typeFactory.lrelTypeFromTuple(this.elementType);
-		else
-			this.listType = typeFactory.listType(this.elementType);
+		this.listType = typeFactory.listType(this.elementType);
 				
 		this.data = data;
 		
@@ -98,11 +95,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-		if (getElementType().isTupleType()) {
-			return v.visitListRelation(this);
-		} else {
 			return v.visitList(this);
-		}	
 	}
 
 	public IList append(IValue element){
@@ -341,7 +334,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	@Override
 	public boolean isRelation() {
-		return getType().isListRelationType();
+		return getType().isListRelation();
 	}
 
 	@Override

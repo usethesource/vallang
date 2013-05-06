@@ -208,10 +208,13 @@ public class StandardTextReader extends AbstractTextReader {
 		return result.toString();
 	}
 
+	private static final TypeFactory TF = TypeFactory.getInstance();
+	private static final Type generalMapType = TF.mapType(TF.valueType(), TF.valueType());
+	
 	private IValue readMap(Type expected) throws IOException {
-		Type keyType = expected.isMapType() ? expected.getKeyType() : types.valueType();
-		Type valueType = expected.isMapType() ? expected.getValueType() : types.valueType();
-		IMapWriter w = expected.isMapType() ? factory.mapWriter(keyType, valueType) : factory.mapWriter();
+		Type keyType = expected.isSubtypeOf(generalMapType) ? expected.getKeyType() : types.valueType();
+		Type valueType = expected.isSubtypeOf(generalMapType) ? expected.getValueType() : types.valueType();
+		IMapWriter w = expected.isSubtypeOf(generalMapType) ? factory.mapWriter(keyType, valueType) : factory.mapWriter();
 
 		checkAndRead(START_OF_MAP);
 
@@ -241,14 +244,18 @@ public class StandardTextReader extends AbstractTextReader {
 		return factory.tuple(arr.toArray(result));
 	}
 	
+	private static final Type genericSetType = TF.setType(TF.valueType());
+	
 	private IValue readSet(Type expected) throws FactTypeUseException, IOException {
-		Type elemType = expected.isSetType() ? expected.getElementType() : types.valueType();
-		return readContainer(elemType, expected.isSetType() ? factory.setWriter(elemType) : factory.setWriter(), END_OF_SET);
+		Type elemType = expected.isSubtypeOf(genericSetType) ? expected.getElementType() : types.valueType();
+		return readContainer(elemType, expected.isSubtypeOf(genericSetType) ? factory.setWriter(elemType) : factory.setWriter(), END_OF_SET);
 	}
 		
+	private static final Type genericListType = TF.listType(TF.valueType());
+	
 	private IValue readList(Type expected) throws FactTypeUseException, IOException {
-		Type elemType = expected.isListType() ? expected.getElementType() : types.valueType();
-		return readList(elemType, expected.isListType() ? factory.listWriter(expected.getElementType()) : factory.listWriter(), END_OF_LIST);
+		Type elemType = expected.isSubtypeOf(genericListType) ? expected.getElementType() : types.valueType();
+		return readList(elemType, expected.isSubtypeOf(genericListType) ? factory.listWriter(expected.getElementType()) : factory.listWriter(), END_OF_LIST);
 	}
 
 	private IValue readNumber(Type expected) throws IOException {
@@ -292,48 +299,63 @@ public class StandardTextReader extends AbstractTextReader {
 
 	private IValue readConstructor(Type expected) throws IOException {
 		String id = readIdentifier();
-
-        switch (id) {
-            case "true":
-                return factory.bool(true);
-            case "false":
-                return factory.bool(false);
-            default:
-                if (current == START_OF_ARGUMENTS) {
-                    ArrayList<IValue> arr = new ArrayList<>();
-                    Type args = expected;
-
-                    if (expected.isAbstractDataType()) {
-                        Set<Type> alternatives = store.lookupConstructor(expected, id);
-                        if (alternatives.size() > 1) {
-                            throw new OverloadingNotSupportedException(expected, id);
-                        } else if (alternatives.size() == 0) {
-                            args = types.valueType();
-                        } else {
-                            args = alternatives.iterator().next().getFieldTypes();
-                        }
-                    }
-                    readFixed(args, END_OF_ARGUMENTS, arr);
-                    IValue[] result = new IValue[arr.size()];
-                    result = arr.toArray(result);
-                    return expected.make(factory, store, id, result);
-                }
-
-                Type args = types.tupleType(new Type[0]);
-
-                Type cons;
-                if (expected.isAbstractDataType()) {
-                    cons = store.lookupConstructor(expected, id, args);
-                } else {
-                    cons = store.lookupFirstConstructor(id, args);
-                }
-
-                if (cons != null) {
-                    return cons.make(factory);
-                }
-
-                return factory.node(id);
-        }
+		
+		if (id.equals("true")) {
+			return factory.bool(true);
+		}
+		else if (id.equals("false")) {
+			return factory.bool(false);
+		}
+		else {
+			if (current == START_OF_ARGUMENTS) {
+				ArrayList<IValue> arr = new ArrayList<IValue>();
+				Type args = expected;
+				Type constr = null;
+				if (expected.isAbstractData() ) {
+					Set<Type> alternatives = store.lookupConstructor(expected, id);
+					if (alternatives.size() > 1) {
+						throw new OverloadingNotSupportedException(expected, id);
+					}
+					else if (alternatives.size() == 0) {
+						args = types.valueType(); 
+						// TODO: Should not it be an undeclared abstract data/constructor exception?!
+					}
+					else {
+						constr = alternatives.iterator().next();
+						args = constr.getFieldTypes();
+					}
+				}
+				readFixed(args, END_OF_ARGUMENTS, arr);
+				IValue[] result = new IValue[arr.size()];
+				result = arr.toArray(result);
+				
+				// return expected.make(factory, store, id, result);
+				if(expected.isTop())
+					constr = store.lookupFirstConstructor(id, TF.tupleType(result));
+				
+				if(constr != null)
+					return factory.constructor(constr, result);
+				else
+					return factory.node(id, result);
+				
+			}
+			
+			Type args = types.tupleType(new Type[0]);
+			
+			Type cons;
+			if (expected.isAbstractData()) {
+				cons = store.lookupConstructor(expected, id, args);
+			}
+			else {
+				cons = store.lookupFirstConstructor(id, args);
+			}
+			
+			if (cons != null) {
+				return factory.constructor(cons);
+			}
+			
+			return factory.node(id);
+		}
 	}
 
 	/**
@@ -655,7 +677,7 @@ public class StandardTextReader extends AbstractTextReader {
 
 	private Type getAnnoType(Type expected, String key) {
 		Type annoType;
-		if (expected.isAbstractDataType() || expected.isConstructorType()) {
+		if (expected.isStrictSubtypeOf(TF.nodeType())) {
 			if (expected.declaresAnnotation(store, key)) {
 				annoType = store.getAnnotationType(expected, key);
 			}
@@ -679,7 +701,7 @@ public class StandardTextReader extends AbstractTextReader {
 //		}
 		
 	   for (int i = 0; current != end; i++) {
-		   Type exp = expected.isTupleType() ? expected.getFieldType(i) : types.valueType();
+		   Type exp = expected.isFixedWidth() ? expected.getFieldType(i) : types.valueType();
 		   arr.add(readValue(exp));
 		   
 		   if (current != ',' || current == end) {

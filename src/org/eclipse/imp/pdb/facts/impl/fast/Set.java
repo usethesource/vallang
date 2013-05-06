@@ -45,10 +45,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		else
 			this.elementType = elementType;
 		
-		if (elementType.isTupleType())
-			this.setType = typeFactory.relTypeFromTuple(this.elementType);
-		else
-			this.setType = typeFactory.setType(this.elementType);
+		this.setType = typeFactory.setType(this.elementType);
 				
 		this.data = data;
 	}
@@ -74,7 +71,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-		if (getElementType().isTupleType()) {
+		if (getElementType().isFixedWidth()) {
 			return v.visitRelation(this);
 		} else {
 			return v.visitSet(this);
@@ -237,7 +234,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	@Override
 	public boolean isRelation() {
-		return getType().isRelationType();
+		return getType().isRelation();
 	}
 
 	@Override

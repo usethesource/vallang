@@ -3,7 +3,6 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 /*package*/ abstract class AbstractNumberValue extends Value implements INumber{
@@ -14,138 +13,133 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	}
 
 	public INumber add(INumber other){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return add(other.toInteger());
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return add(other.toReal());
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return add(other.toRational());
 		}
 		
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 	
 	public INumber divide(INumber other, int precision){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return divide(other.toInteger(), precision);
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return divide(other.toReal(), precision);
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return divide(other.toRational(), precision);
 		}
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 
 	public IBool greater(INumber other){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return greater(other.toInteger());
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return greater(other.toReal());
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return greater(other.toRational());
 		}
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 	
 
   public IBool equal(INumber other){
-    Type otherType = other.getType();
-    if(otherType.isIntegerType()){
+    if(isIntegerType(other)){
       return equal(other.toInteger());
     }
-    if(otherType.isRealType()){
+    if(isRealType(other)){
       return equal(other.toReal());
     }
-    if(otherType.isRationalType()){
+    if(isRationalType(other)){
       return equal(other.toRational());
     }
-    throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+    throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
   }
   
-//  public boolean isEqual(IValue other) {
-//    if (other instanceof INumber) {
-//      return equal((INumber) other).getValue();
-//    }
-//    
-//    return equals(other);
-//  }
-	
 	public IBool greaterEqual(INumber other){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return greaterEqual(other.toInteger());
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return greaterEqual(other.toReal());
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return greaterEqual(other.toRational());
 		}
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 	
 	public IBool less(INumber other){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return less(other.toInteger());
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return less(other.toReal());
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return less(other.toRational());
 		}
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 	
 	public IBool lessEqual(INumber other){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return lessEqual(other.toInteger());
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return lessEqual(other.toReal());
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return lessEqual(other.toRational());
 		}
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 
 	public INumber multiply(INumber other){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return multiply(other.toInteger());
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return multiply(other.toReal());
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return multiply(other.toRational());
 		}
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 
 	public INumber subtract(INumber other){
-		Type otherType = other.getType();
-		if(otherType.isIntegerType()){
+		if(isIntegerType(other)){
 			return subtract(other.toInteger());
 		}
-		if(otherType.isRealType()){
+		if(isRealType(other)){
 			return subtract(other.toReal());
 		}
-		if(otherType.isRationalType()){
+		if(isRationalType(other)){
 			return subtract(other.toRational());
 		}
-		throw new UnexpectedTypeException(typeFactory.numberType(), otherType);
+		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
+
+  protected boolean isRationalType(INumber other) {
+    return other.getType().equivalent(TypeFactory.getInstance().rationalType());
+  }
+
+  protected boolean isRealType(INumber other) {
+    return other.getType().equivalent(TypeFactory.getInstance().realType());
+  }
+
+  protected boolean isIntegerType(INumber other) {
+    return other.getType().equivalent(TypeFactory.getInstance().integerType());
+  }
 }

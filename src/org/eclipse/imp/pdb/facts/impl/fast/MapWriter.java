@@ -55,11 +55,9 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	/*package*/ MapWriter(Type mapType) {
 		super();
 		
-		if(mapType.isTupleType() && mapType.getArity() >= 2) {
+		if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
 			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
 		}
-		
-		if(!mapType.isMapType()) throw new IllegalArgumentException("Argument must be a map type or tuple type: " + mapType);
 		
 		this.mapType = mapType;
 		this.keyType = mapType.getKeyType();

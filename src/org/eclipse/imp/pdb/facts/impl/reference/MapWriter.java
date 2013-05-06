@@ -55,12 +55,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	/*package*/ MapWriter(Type mapType){
 		super();
 		
-		if(mapType.isTupleType() && mapType.getArity() >= 2) {
+		if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
 			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
 		}
 		
-		if(!mapType.isMapType()) throw new IllegalArgumentException("Argument must be a map type or tuple type: " + mapType);
-
 		this.staticMapType = mapType;
 		this.staticKeyType = mapType.getKeyType();
 		this.staticValueType = mapType.getValueType();
@@ -88,8 +86,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	@Override
 	public void putAll(IMap map) throws FactTypeUseException{
 		checkMutation();
-		Type mapType = map.getType();
-//		check(mapType.getKeyType(), mapType.getValueType(), keyType, valueType);
 		
 		for(IValue key : map){
 			IValue value = map.get(key);

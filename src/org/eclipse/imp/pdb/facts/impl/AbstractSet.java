@@ -47,7 +47,7 @@ public abstract class AbstractSet extends Value implements ISet {
         }
 
         // consists collection out of tuples?
-        if (inferredElementType.isTupleType()) {
+        if (inferredElementType.isFixedWidth()) {
             inferredCollectionType = getTypeFactory().relTypeFromTuple(inferredElementType);
         } else {
             inferredCollectionType = getTypeFactory().setType(inferredElementType);
@@ -110,16 +110,12 @@ public abstract class AbstractSet extends Value implements ISet {
 
     @Override
     public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-        if (getElementType().isTupleType()) {
-            return v.visitRelation(this);
-        } else {
-            return v.visitSet(this);
-        }
+      return v.visitSet(this);
     }
 
 	@Override
 	public boolean isRelation() {
-		return getType().isRelationType();
+		return getType().isRelation();
 	}
 
 	@Override

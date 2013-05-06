@@ -152,7 +152,7 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 			TypeFactory tf = TypeFactory.getInstance();
 			Type params = constructorType.getAbstractDataType().getTypeParameters();
 			for (Type p : params) {
-				if (p.isParameterType()) {
+				if (p.isOpen()) {
 					bindings.put(p, tf.voidType());
 				}
 			}

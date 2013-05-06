@@ -49,7 +49,6 @@ import org.w3c.dom.Node;
 public class XMLWriter implements IValueTextWriter {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	private DocumentBuilder fBuilder;
-//	private XMLHelper helper;
 	
 	public void write(IValue value, java.io.Writer stream) throws IOException {
 		try {
@@ -77,7 +76,7 @@ public class XMLWriter implements IValueTextWriter {
 	private Node yield(IValue value, Document doc) {
 		Type type = value.getType();
 		
-		if (type.isAbstractDataType()) {
+		if (type.isAbstractData()) {
 			Type node = ((IConstructor) value).getConstructorType();
 			
 			if (isListWrapper(node)) {
@@ -96,16 +95,16 @@ public class XMLWriter implements IValueTextWriter {
 			  return yieldTree((INode) value, doc);
 			}
 		}
-		else if (type.isStringType()) {
+		else if (type.isString()) {
 			return yieldString((IString) value, doc);
 		}
-		else if (type.isIntegerType()) {
+		else if (type.isInteger()) {
 			return yieldInt((IInteger) value, doc);
 		}
-		else if (type.isRationalType()) {
+		else if (type.isRational()) {
 			return yieldRational((IRational) value, doc);
 		}
-		else if (type.isRealType()) {
+		else if (type.isReal()) {
 			return yieldDouble((IReal) value, doc);
 		}
 		else if (type.isExternalType()) {
@@ -118,23 +117,23 @@ public class XMLWriter implements IValueTextWriter {
 	
 	private boolean isListWrapper(Type nodeType) {
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isListType();
+					&& nodeType.getFieldTypes().getFieldType(0).isList();
 	}
 
 	private boolean isSetWrapper(Type nodeType) {
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isSetType();
+					&& nodeType.getFieldTypes().getFieldType(0).isSet();
 	}
 
 	private boolean isRelationWrapper(Type nodeType) {
 			return nodeType.getArity() == 1
 					&& nodeType.getFieldTypes().getFieldType(0)
-							.isRelationType();
+							.isRelation();
 	}
 
 	private boolean isMapWrapper(Type nodeType) {
 			return nodeType.getArity() == 1
-					&& nodeType.getFieldTypes().getFieldType(0).isMapType();
+					&& nodeType.getFieldTypes().getFieldType(0).isMap();
 	}
 
 	
@@ -170,14 +169,14 @@ public class XMLWriter implements IValueTextWriter {
 		for (IValue key : map) {
 			IValue value = map.get(key);
 			
-			if (key.getType().isTupleType()) {
+			if (key.getType().isTuple()) {
 				appendTupleElements(doc, treeNode, key);
 			}
 			else {
 			  treeNode.appendChild(yield(key, doc));
 			}
 			
-			if (value.getType().isTupleType()) {
+			if (value.getType().isTuple()) {
                 appendTupleElements(doc, treeNode, value);
 			}
 			else {
@@ -199,7 +198,7 @@ public class XMLWriter implements IValueTextWriter {
 	private Node yieldRelation(INode node, Document doc) {
 		Element treeNode = doc.createElement(node.getName());
 		ISet relation = (ISet) node.get(0);
-		assert (relation.getType().isRelationType());
+		assert (relation.getType().isRelation());
 		 
 		for (IValue tuple : relation) {
 			appendTupleElements(doc, treeNode, tuple);
@@ -213,7 +212,7 @@ public class XMLWriter implements IValueTextWriter {
 		ISet set = (ISet) node.get(0);
 		
 		for (IValue elem : set) {
-			if (elem.getType().isTupleType()) {
+			if (elem.getType().isTuple()) {
 			  appendTupleElements(doc, treeNode, elem);
 			}
 			else {
@@ -229,7 +228,7 @@ public class XMLWriter implements IValueTextWriter {
 		IList list = (IList) node.get(0);
 		
 		for (IValue elem : list) {
-			if (elem.getType().isTupleType()) {
+			if (elem.getType().isTuple()) {
 				appendTupleElements(doc, treeNode, elem);
 			}
 			else {
@@ -244,7 +243,7 @@ public class XMLWriter implements IValueTextWriter {
 		Element treeNode = doc.createElement(value.getName());
 		
 		for (IValue child : value) {
-			if (child.getType().isTupleType()) {
+			if (child.getType().isTuple()) {
 				appendTupleElements(doc, treeNode, child);
 			}
 			else {
