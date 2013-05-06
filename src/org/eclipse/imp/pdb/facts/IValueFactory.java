@@ -249,7 +249,9 @@ public interface IValueFactory {
      * 
      * @param args a variable length argument list or an array of IValue
      * @return a tuple with as many children as there are args
+     * @deprecated will be replaced by tuple(IValue ... arg).checkBounds(Type ... types)
      */
+     @Deprecated
      public ITuple tuple(Type type, IValue... args);
 
     /**
@@ -330,7 +332,9 @@ public interface IValueFactory {
      * 
      * @param eltType the type of the elements of the set
      * @return a set writer
+     * @deprecated will be replaced by a setWriter().checkBound(Type t)
      */
+    @Deprecated
     public ISetWriter setWriter(Type eltType);
     
     /**
@@ -362,7 +366,9 @@ public interface IValueFactory {
      * 
      * @param eltType the type of the elements of the list
      * @return a list writer
+     * @deprecated will be replaced by a listWriter().checkBound(Type t)
      */
+    @Deprecated
     public IListWriter listWriter(Type eltType);
     
     /**
@@ -447,31 +453,39 @@ public interface IValueFactory {
      * @param key   type to use for keys
      * @param value type to use for values
      * @return an empty map
+     * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v) 
      */
+     @Deprecated
 	public IMap map(Type key, Type value);
 
-    /**
-     * Creates an empty unmodifiable map.
-     * @param mapType the type of the map
-     * @return an empty map
-     */
+  /**
+   * Creates an empty unmodifiable map.
+   * @param mapType the type of the map
+   * @return an empty map
+   * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v) 
+   */
+  @Deprecated
 	public IMap map(Type mapType);
 
 	/**
 	 * Create a map writer
 	 * 
-     * @param mapType the type of the map
+   * @param mapType the type of the map
 	 * @return a map writer
-	 */
+   * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v) 
+   */
+  @Deprecated
 	public IMapWriter mapWriter(Type mapType);
 
 	/**
 	 * Create a map writer
 	 * 
-     * @param key   the type of the keys in the map
+   * @param key   the type of the keys in the map
 	 * @param value the type of the values in the map
 	 * @return a map writer
-	 */
+   * @deprecated will be replaced by a mapWriter().checkBounds(Type k, Type v) 
+   */
+	@Deprecated
 	public IMapWriter mapWriter(Type key, Type value);
 
 	

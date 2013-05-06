@@ -52,6 +52,7 @@ public class ValueFactory extends FastBaseValueFactory {
 		return InstanceKeeper.instance;
 	}
 		
+	@Deprecated
 	public IListWriter listWriter(Type elementType){
 		return new ListWriter(elementType);
 	}
@@ -60,6 +61,7 @@ public class ValueFactory extends FastBaseValueFactory {
 		return new ListWriter();
 	}
 	
+	@Deprecated
 	public IMapWriter mapWriter(Type keyType, Type valueType){
 		return new MapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
 	}
