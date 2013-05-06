@@ -215,13 +215,18 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	public IList delete(IValue element){
 		ShareableValuesList newData = new ShareableValuesList(data);
-		newData.remove(element);
 		
-		Type newElementType = TypeFactory.getInstance().voidType();
-		for(IValue el : newData)
-				newElementType = newElementType.lub(el.getType());
+		if (newData.remove(element)) {
+		  Type newElementType = TypeFactory.getInstance().voidType();
+		  
+		  for (IValue el : newData) {
+		    newElementType = newElementType.lub(el.getType());
+		  }
+		  
+		  return new ListWriter(newElementType, newData).done();
+		}
 		
-		return new ListWriter(newElementType, newData).done();
+		return this;
 	}
 
 	public IList reverse(){
