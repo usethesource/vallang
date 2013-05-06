@@ -319,12 +319,10 @@ public abstract class BaseTestValueFactory extends TestCase {
 				}
 			}
 
-		} catch (FactTypeUseException e1) {
-			fail(e1.toString());
-		} catch (MalformedURLException e1) {
+		} catch (FactTypeUseException | MalformedURLException e1) {
 			fail(e1.toString());
 		}
-	}
+    }
 	
 	public void testStandardReaderWriter() {
 		StandardTextWriter w = new StandardTextWriter();

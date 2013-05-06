@@ -420,7 +420,7 @@ public class ATermReader extends AbstractBinaryReader {
 			}
 			double val;
 			try {
-				val = Double.valueOf(str.toString()).doubleValue();
+				val = Double.valueOf(str.toString());
 				result = vf.real(val);
 			} catch (NumberFormatException e) {
 				throw new FactParseError("malformed real", reader.getPosition(), e);
@@ -563,7 +563,7 @@ public class ATermReader extends AbstractBinaryReader {
 
 	private IValue[] parseATermsArray(SharingStream reader,
 			Type elementType) throws IOException {
-		List<IValue> list = new ArrayList<IValue>(2);
+		List<IValue> list = new ArrayList<>(2);
 
 		IValue term = parse(reader, elementType);
 		list.add(term);
@@ -584,7 +584,7 @@ public class ATermReader extends AbstractBinaryReader {
 	
 	private IValue[] parseFixedSizeATermsArray(SharingStream reader,
 			Type elementTypes) throws IOException {
-		List<IValue> list = new ArrayList<IValue>(elementTypes.getArity());
+		List<IValue> list = new ArrayList<>(elementTypes.getArity());
 		int i = 0;
 		Type elementType = elementTypes.getFieldType(i++);
 

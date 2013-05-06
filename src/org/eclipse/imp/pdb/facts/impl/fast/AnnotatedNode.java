@@ -56,7 +56,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 	}
 	
 	public Map<String, IValue> getAnnotations(){
-		return new ShareableHashMap<String, IValue>(annotations);
+		return new ShareableHashMap<>(annotations);
 	}
 	
 	public INode removeAnnotations(){
@@ -64,19 +64,19 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>(annotations);
 		newAnnotations.put(label, value);
 		return newAnnotations;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>(annotations);
 		newAnnotations.remove(label);
 		return newAnnotations;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>(annotations);
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>(annotations);
 		
 		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
 		while(newAnnosIterator.hasNext()){
@@ -91,7 +91,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 	}
 	
 	protected static ShareableHashMap<String, IValue> importAnnos(Map<String,IValue> annos) {
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 		
 		Iterator<Map.Entry<String, IValue>> newAnnosIterator = annos.entrySet().iterator();
 		while(newAnnosIterator.hasNext()){

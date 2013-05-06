@@ -26,8 +26,8 @@ import java.util.Map;
  */
 public class DataGenerator {
 
-	protected final Map<Class<?>, List<? extends Object>> staticValues = new HashMap<Class<?>, List<? extends Object>>();
-	protected final Map<Class<?>, RandomGenerator<?>> random = new HashMap<Class<?>, RandomGenerator<?>>();
+	protected final Map<Class<?>, List<? extends Object>> staticValues = new HashMap<>();
+	protected final Map<Class<?>, RandomGenerator<?>> random = new HashMap<>();
 
 	public DataGenerator() {
 	}
@@ -67,7 +67,7 @@ public class DataGenerator {
 	 */
 	public <T> Iterable<T> generate(Class<T> type, int n) {
 		if(staticValues.containsKey(type)) {
-			return new DataIterable<T>((List<T>)staticValues.get(type), (RandomGenerator<T>)random.get(type), n);
+			return new DataIterable<>((List<T>)staticValues.get(type), (RandomGenerator<T>)random.get(type), n);
 		}
 		else {
 			throw new IllegalArgumentException("Don't know how do create data of type " + type.getName());

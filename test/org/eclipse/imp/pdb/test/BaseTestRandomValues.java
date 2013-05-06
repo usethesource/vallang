@@ -98,8 +98,8 @@ abstract public class BaseTestRandomValues extends TestCase {
 				vf.rational(1,2), vf.rational(2,1),
 				vf.rational(-1,2), vf.rational(-2,1),
 				vf.rational(Long.MAX_VALUE,Long.MIN_VALUE));
-		realTestSet = new ArrayList<IReal>();
-		mixedTestSet = new ArrayList<INumber>();
+		realTestSet = new ArrayList<>();
+		mixedTestSet = new ArrayList<>();
 		for(IInteger i : intTestSet) {
 			if(!ratTestSet.contains(i.toRational())) {
 				realTestSet.add(i.toReal());

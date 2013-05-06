@@ -188,7 +188,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public Map<String, IValue> getAnnotations(){
-		return new ShareableHashMap<String, IValue>();
+		return new ShareableHashMap<>();
 	}
 	
 	public INode setAnnotation(String label, IValue value){
@@ -212,19 +212,19 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 		newAnnotations.put(label, value);
 		return newAnnotations;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 		newAnnotations.remove(label);
 		return newAnnotations;
 	}
 	
 	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 		
 		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
 		while(newAnnosIterator.hasNext()){
@@ -239,7 +239,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	protected ShareableHashMap<String, IValue> getSetAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
 		
 		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
 		while(newAnnosIterator.hasNext()){

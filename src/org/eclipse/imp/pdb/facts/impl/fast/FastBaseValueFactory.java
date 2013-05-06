@@ -148,7 +148,7 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 		if (!constructorType.getAbstractDataType().isParameterized()) {
 			instantiatedType = constructorType;
 		} else {
-			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<Type, Type>();
+			ShareableHashMap<Type, Type> bindings = new ShareableHashMap<>();
 			TypeFactory tf = TypeFactory.getInstance();
 			Type params = constructorType.getAbstractDataType().getTypeParameters();
 			for (Type p : params) {

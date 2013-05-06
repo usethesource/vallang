@@ -44,7 +44,7 @@ import java.util.LinkedList;
 
         this.eltType = eltType;
         this.inferred = false;
-        listContent = new LinkedList<IValue>();
+        listContent = new LinkedList<>();
 
         constructedList = null;
     }
@@ -54,7 +54,7 @@ import java.util.LinkedList;
 
         this.eltType = TypeFactory.getInstance().voidType();
         inferred = true;
-        listContent = new LinkedList<IValue>();
+        listContent = new LinkedList<>();
 
         constructedList = null;
     }

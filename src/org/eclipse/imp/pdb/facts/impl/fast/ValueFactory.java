@@ -191,7 +191,7 @@ public class ValueFactory extends FastBaseValueFactory {
 			throws FactTypeUseException {
 	  Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		
-		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<>();
 		sAnnotations.putAll(annotations);
 		
 		return AnnotatedConstructor.createAnnotatedConstructor(instantiatedType, children.clone(), sAnnotations);
