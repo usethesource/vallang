@@ -109,8 +109,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		
 		if (newData.remove(value)) {
 			Type newElementType = TypeFactory.getInstance().voidType();
-			for(IValue el : newData)
+			for (IValue el : newData) {
 				newElementType = newElementType.lub(el.getType());
+			}
 			return new SetWriter(newElementType, newData).done();
 		} else {
 			return this;
