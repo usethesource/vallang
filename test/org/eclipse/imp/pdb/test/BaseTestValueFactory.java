@@ -22,7 +22,6 @@ import junit.framework.TestCase;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -52,9 +51,9 @@ public abstract class BaseTestValueFactory extends TestCase {
 	public void testRelationNamedType() {
 		try {
 			Type type = ft.aliasType(new TypeStore(), "myType2", ft.relType(ft.integerType(), ft.integerType()));
-			IRelation r = (IRelation) type.make(ff);
+			ISet r = ff.set(type.getElementType());
 			
-			if (!r.getType().isRelationType()) {
+			if (!r.getType().isRelation()) {
 				fail("relation does not have a relation type");
 			}
 		} catch (FactTypeUseException e) {
@@ -75,7 +74,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 	
 	
 	public void testRelationTupleType() {
-		IRelation r = ff.relation(ft.tupleType(ft.integerType()));
+		ISet r = ff.relation(ft.tupleType(ft.integerType()));
 
 		if (r.size() != 0) {
 			fail("empty set is not empty");
@@ -87,7 +86,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 	}
 
 	public void testRelationWith() {
-		IRelation[] relations = new IRelation[7];
+		ISet[] relations = new ISet[7];
 		ITuple[] tuples = new ITuple[7];
 		
 		for (int i = 0; i < 7; i++) {
@@ -124,7 +123,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 		ISet l;
 		try {
 			TypeStore typeStore = new TypeStore();
-			l = (ISet) ft.aliasType(typeStore, "mySet", ft.setType(ft.integerType())).make(ff);
+			l = ff.set(ff.integer(1));
 
 			if (!l.getType().isSubtypeOf(ft.aliasType(typeStore, "mySet", ft.setType(ft.integerType())))) {
 				fail("named types should be aliases");
@@ -134,19 +133,11 @@ public abstract class BaseTestValueFactory extends TestCase {
 				fail("elements should be integers");
 			}
 
-			if (l.size() != 0) {
-				fail("empty list not empty");
+			if (l.size() != 1) {
+				fail("??");
 			}
 		} catch (FactTypeUseException e1) {
 			fail("this was a correct type");
-		}
-		
-		try {
-			ft.aliasType(new TypeStore(), "notASet", ft.integerType()).make(ff);
-			fail("should not be possible to make a set that is not a set");
-		}
-		catch (FactTypeUseException e) {
-			// should happen
 		}
 	}
 
@@ -200,7 +191,7 @@ public abstract class BaseTestValueFactory extends TestCase {
 		IList l;
 		try {
 			TypeStore ts = new TypeStore();
-			l = (IList) ft.aliasType(ts, "myList", ft.listType(ft.integerType())).make(ff);
+			l = ff.list(ff.integer(1));
 
 			if (!l.getType().isSubtypeOf(ft.aliasType(ts, "myList", ft.listType(ft
 					.integerType())))) {
@@ -211,19 +202,11 @@ public abstract class BaseTestValueFactory extends TestCase {
 				fail("elements should be integers");
 			}
 
-			if (l.length() != 0) {
-				fail("empty list not empty");
+			if (l.length() != 1) {
+				fail("???");
 			}
 		} catch (FactTypeUseException e1) {
 			fail("this was a correct type");
-		}
-		
-		try {
-			ft.aliasType(new TypeStore(), "notAList", ft.integerType()).make(ff);
-			fail("should not be possible to make a list that is not a list");
-		}
-		catch (FactTypeUseException e) {
-			// should happen
 		}
 	}
 
@@ -336,12 +319,10 @@ public abstract class BaseTestValueFactory extends TestCase {
 				}
 			}
 
-		} catch (FactTypeUseException e1) {
-			fail(e1.toString());
-		} catch (MalformedURLException e1) {
+		} catch (FactTypeUseException | MalformedURLException e1) {
 			fail(e1.toString());
 		}
-	}
+    }
 	
 	public void testStandardReaderWriter() {
 		StandardTextWriter w = new StandardTextWriter();

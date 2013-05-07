@@ -259,7 +259,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		StringBuilder sb = new StringBuilder();
 		String decimalString = value.toString();
 		sb.append(decimalString);
-		if(decimalString.indexOf(".") == -1) sb.append(".");
+		if(!decimalString.contains(".")) sb.append(".");
 		return sb.toString();
 	}
 	

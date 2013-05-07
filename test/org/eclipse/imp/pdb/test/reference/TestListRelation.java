@@ -13,9 +13,9 @@
 package org.eclipse.imp.pdb.test.reference;
 
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
-import org.eclipse.imp.pdb.test.BaseTestRelation;
+import org.eclipse.imp.pdb.test.BaseTestListRelation;
 
-public class TestListRelation extends BaseTestRelation {
+public class TestListRelation extends BaseTestListRelation {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp(ValueFactory.getInstance());

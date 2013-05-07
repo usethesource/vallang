@@ -130,7 +130,7 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 				while(entry != lastUnchangedEntryChain){
 					int hash = entry.hash;
 					int position = hash & hashMask;
-					newData[position] = new Entry<V>(hash, entry.value, newData[position]);
+					newData[position] = new Entry<>(hash, entry.value, newData[position]);
 					
 					entry = entry.next;
 				}
@@ -176,7 +176,7 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 			}while(entry != null);
 		}
 		
-		data[position] = new Entry<V>(hash, value, currentStartEntry); // Insert the new entry.
+		data[position] = new Entry<>(hash, value, currentStartEntry); // Insert the new entry.
 		
 		load++;
 		
@@ -227,7 +227,7 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 					data[position] = entry.next;
 					// Reconstruct the other entries (if necessary).
 					while(e != entry){
-						data[position] = new Entry<V>(e.hash, e.value, data[position]);
+						data[position] = new Entry<>(e.hash, e.value, data[position]);
 						
 						e = e.next;
 					}
@@ -272,7 +272,7 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 	 * @see java.lang.Iterable#iterator()
 	 */
 	public Iterator<V> iterator(){
-		return new SetIterator<V>(data);
+		return new SetIterator<>(data);
 	}
 	
 	/**
@@ -538,7 +538,7 @@ public final class ShareableHashSet<V> implements Set<V>, Iterable<V>{
 			data = entries;
 
 			index = data.length - 1;
-			current = new Entry<V>(0, null, data[index]);
+			current = new Entry<>(0, null, data[index]);
 			locateNext();
 		}
 		

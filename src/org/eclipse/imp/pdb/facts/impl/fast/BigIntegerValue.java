@@ -262,10 +262,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public int compare(INumber other) {
-		if (other.getType().isIntegerType()) {
+		if (isIntegerType(other)) {
 			return compare(other.toInteger());
 		}
-		else if (other.getType().isRationalType()) {
+		else if (isRationalType(other)) {
 			return toRational().compare(other);
 		}
 		else {

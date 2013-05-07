@@ -15,14 +15,11 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
-/*package*/final class TupleType extends Type {
+/*package*/final class TupleType extends ValueType {
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
 	protected final String[] fFieldNames;
 	protected int fHashcode = -1;
@@ -52,14 +49,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		} else {
 			fFieldNames = null;
 		}
-		// Optional check for duplicate field names
-//		for(int i = 0; i < fieldNames.length - 1; i++){
-//			for(int j = i + 1; j < fieldNames.length; j++){
-//				if(fieldNames[i].equals(fieldNames[j])){
-//					throw new RedeclaredFieldNameException(fieldNames[i], fieldTypes[i], fieldTypes[j], this);
-//				}
-//			}
-//		}
 	}
 	
 	@Override
@@ -68,10 +57,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	}
 
 	@Override
-	public boolean isTupleType() {
-		return true;
+	public boolean isFixedWidth() {
+	  return true;
 	}
-
+	
 	@Override
 	public Type getFieldType(int i) {
 		return fFieldTypes[i];
@@ -115,31 +104,29 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
 	@Override
 	public Type compose(Type other) {
-		if (other.isVoidType()) {
+		if (other.equivalent(TF.voidType())) {
 			return other;
 		}
 
 		if (this.getArity() != 2 || other.getArity() != 2) {
 			throw new IllegalOperationException("compose", this, other);
 		}
-
+		
 		if (!getFieldType(1).comparable(other.getFieldType(0))) {
-			throw new IllegalOperationException("compose", this, other);
+			return TF.voidType(); // since nothing will be composable
 		}
-
-		TypeFactory tf = TypeFactory.getInstance();
 
 		if (hasFieldNames() && other.hasFieldNames()) {
 			String fieldNameLeft = this.getFieldName(0);
 			String fieldNameRight = other.getFieldName(1);
 
 			if (!fieldNameLeft.equals(fieldNameRight)) {
-				return tf.tupleType(this.getFieldType(0), fieldNameLeft,
+				return TF.tupleType(this.getFieldType(0), fieldNameLeft,
 						other.getFieldType(1), fieldNameRight);
 			}
 		}
 
-		return tf.tupleType(this.getFieldType(0), other.getFieldType(1));
+		return TF.tupleType(this.getFieldType(0), other.getFieldType(1));
 	}
 
 	@Override
@@ -153,66 +140,20 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		return TypeFactory.getInstance().setType(lub);
 	}
 	
-/*
- *  Experimental version that does not depend on the order of fields:
- *  
 	@Override
-	public boolean isSubtypeOf(Type o) {
-		if (o == this) {
-			return true; // optimize to prevent loop
-		} else if (o.isTupleType() && !o.isVoidType()) {
-			if (!hasFieldNames() || !o.hasFieldNames() || sameFieldNamePrefix(o.getFieldNames())) {
-				if (getArity() <= o.getArity()) {
-					for (int i = getArity() - 1; i >= 0; i--) {
-						if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
-							return false;
-						}
-					}
-					return true;
-				}
-			} else {
-				if (getArity() <= o.getArity()) {
-					for (int i = getArity() - 1; i >= 0; i--) {
-						if (!getFieldType(i).isSubtypeOf(
-								o.getFieldType(getFieldName(i)))) {
-							return false;
-						}
-					}
-					return true;
-				}
-			}
-		}
-
-		return super.isSubtypeOf(o);
-	}
-*/		
-	@Override
-	public boolean isSubtypeOf(Type o) {
-		if (o == this) {
-			return true; // optimize to prevent loop
-		} else if (o.isTupleType() && !o.isVoidType()) {
-			if (getArity() == o.getArity()) {
-				for (int i = getArity() - 1; i >= 0; i--) {
-					if (!getFieldType(i).isSubtypeOf(o.getFieldType(i))) {
-						return false;
-					}
-				}
-				return true;
-			}
-		}
-
-		return super.isSubtypeOf(o);
+	public Type getFieldTypes() {
+	  return this;
 	}
 	
-	/*
-	 * TypeStore.checkoverloading now calls equivalent instead of comparable to ensure that only tuples of the same length are compared.
-	 */
-	
 	@Override
-	public boolean equivalent(Type other) {
-		return (other == this) || (other.isTupleType() && getArity() == other.getArity() && (isSubtypeOf(other) && other.isSubtypeOf(this)));
+	public Type closure() {
+	  if (getArity() == 2) {
+	    Type lub = fFieldTypes[0].lub(fFieldTypes[1]);
+      return TF.tupleType(lub, lub); 
+	  }
+	  return super.closure();
 	}
-
+	
 	/**
 	 * Compute a new tupletype that is the lub of t1 and t2. Precondition: t1
 	 * and t2 have the same arity.
@@ -221,7 +162,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	 * @param t2
 	 * @return a TupleType which is the lub of t1 and t2
 	 */
-	private Type lubTupleTypes(Type t1, Type t2) {
+	 static Type lubTupleTypes(Type t1, Type t2) {
 		int N = t1.getArity();
 		Type[] fieldTypes = new Type[N];
 		String[] fieldNames = new String[N];
@@ -254,7 +195,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	 *         equal at every position, they remain, otherwise we get an
 	 *         unlabeled tuple.
 	 */
-	private Type lubNamedTupleTypes(Type t1, Type t2) {
+	 static Type lubNamedTupleTypes(Type t1, Type t2) {
 		int N = t1.getArity();
 		Object[] fieldTypes = new Object[N * 2];
 		Type[] types = new Type[N];
@@ -288,20 +229,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		} else {
 			return TypeFactory.getInstance().tupleType(types);
 		}
-	}
-
-	@Override
-	public Type lub(Type o) {
-		if (o.isTupleType()) {
-			if (getArity() == o.getArity()) {
-				if (hasFieldNames() && o.hasFieldNames()) {
-					return lubNamedTupleTypes(this, o);
-				}
-
-				return lubTupleTypes(this, o);
-			}
-		}
-		return super.lub(o);
 	}
 
 	@Override
@@ -396,20 +323,58 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	}
 
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
+	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitTuple(this);
 	}
-
+	
 	@Override
-	public IValue make(IValueFactory f) {
-		return f.tuple();
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfTuple(this);
 	}
-
+	
 	@Override
-	public IValue make(IValueFactory f, IValue... elems) {
-		return f.tuple(elems);
+	public Type lub(Type other) {
+	  return other.lubWithTuple(this);
 	}
-
+	
+	@Override
+	protected boolean isSubtypeOfTuple(Type type) {
+	  if (getArity() == type.getArity()) {
+      for (int i = 0; i < getArity(); i++) {
+        if (!getFieldType(i).isSubtypeOf(type.getFieldType(i))) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    return false;
+	}
+	
+	@Override
+	protected Type lubWithTuple(Type type) {
+	  if (getArity() == type.getArity()) {
+		  if(hasFieldNames() && type.hasFieldNames())
+			  return TupleType.lubNamedTupleTypes(this, type);
+		  else
+			  return TupleType.lubTupleTypes(this, type);
+    }
+    
+    return TF.valueType();
+	}
+	
+	@Override
+	public boolean isOpen() {
+	  for (Type arg : fFieldTypes) {
+	    if (arg.isOpen()) {
+	      return true;
+	    }
+	  }
+	  
+	  return false;
+	}
+	
 	@Override
 	public String getFieldName(int i) {
 		return fFieldNames != null ? fFieldNames[i] : null;

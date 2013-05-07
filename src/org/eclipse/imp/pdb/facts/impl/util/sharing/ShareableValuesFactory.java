@@ -43,7 +43,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 		
 		segments = (Segment<E>[]) new Segment[1 << logNrOfSegments];
 		for(int i = segments.length - 1; i >= 0; i--){
-			segments[i] = new Segment<E>(logNrOfSegments);
+			segments[i] = new Segment<>(logNrOfSegments);
 		}
 	}
 	
@@ -65,7 +65,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 		
 		segments = (Segment<E>[]) new Segment[1 << logNrOfSegments];
 		for(int i = segments.length - 1; i >= 0; i--){
-			segments[i] = new Segment<E>(logNrOfSegments);
+			segments[i] = new Segment<>(logNrOfSegments);
 		}
 	}
 	
@@ -169,7 +169,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 			load = 0;
 			
 			flaggedForCleanup = false;
-			garbageCollectionDetector = new WeakReference<GarbageCollectionDetector<E>>(new GarbageCollectionDetector<E>(this)); // Allocate a (unreachable) GC detector.
+			garbageCollectionDetector = new WeakReference<>(new GarbageCollectionDetector<>(this)); // Allocate a (unreachable) GC detector.
 			cleanupScaler = 50; // Initially we set the average cleanup percentage to 50%, to make sure the cleanup can and will be executed the first time.
 			cleanupThreshold = cleanupScaler;
 		}
@@ -226,8 +226,8 @@ public final class ShareableValuesFactory<E extends IShareable>{
 			
 			// Construct temporary entries that function as roots for the entries that remain in
 			// the current bucket and those that are being shifted.
-			Entry<E> currentEntryRoot = new Entry<E>(null, 0);
-			Entry<E> shiftedEntryRoot = new Entry<E>(null, 0);
+			Entry<E> currentEntryRoot = new Entry<>(null, 0);
+			Entry<E> shiftedEntryRoot = new Entry<>(null, 0);
 			
 			int newLoad = load;
 			int oldSize = oldEntries.length;
@@ -331,7 +331,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 							cleanupThreshold <<= 1;
 						}
 						
-						garbageCollectionDetector = new WeakReference<GarbageCollectionDetector<E>>(new GarbageCollectionDetector<E>(this)); // Allocate a new (unreachable) GC detector.
+						garbageCollectionDetector = new WeakReference<>(new GarbageCollectionDetector<>(this)); // Allocate a new (unreachable) GC detector.
 					}
 				}
 			}
@@ -346,7 +346,7 @@ public final class ShareableValuesFactory<E extends IShareable>{
 		 *            The hash code that is associated with the given shareable.
 		 */
 		private void put(E shareable, int hash){
-			Entry<E> e = new Entry<E>(shareable, hash);
+			Entry<E> e = new Entry<>(shareable, hash);
 			
 			Entry<E>[] table = entries;
 			int position = hash & hashMask;

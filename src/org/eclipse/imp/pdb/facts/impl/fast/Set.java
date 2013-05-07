@@ -13,10 +13,10 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Set extends Value implements ISet{
+/*package*/ class Set extends Value implements ISet {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	
@@ -39,23 +39,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	
 	/*package*/ Set(Type elementType, ShareableValuesHashSet data){
 		super();
+
+		if (data.isEmpty())
+			this.elementType = voidType;
+		else
+			this.elementType = elementType;
 		
-		this.setType = typeFactory.setType(elementType);
-		
-		this.elementType = elementType;
-		
+		this.setType = typeFactory.setType(this.elementType);
+				
 		this.data = data;
 	}
 	
-	/*package*/ Set(Type subTypeOfSet, Type elementType, ShareableValuesHashSet data){
-		super();
-		
-		this.setType = subTypeOfSet;
-		this.elementType = elementType;
-		
-		this.data = data;
-	}
-
 	public Type getType(){
 		return setType;
 	}
@@ -77,7 +71,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
-		return v.visitSet(this);
+		if (getElementType().isFixedWidth()) {
+			return v.visitRelation(this);
+		} else {
+			return v.visitSet(this);
+		}
 	}
 	
 	public boolean contains(IValue element){
@@ -95,30 +93,31 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet insert(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
 		if(newData.add(value)) {
 			Type type = elementType.lub(value.getType());
-			return createSetWriter(type, newData).done();
+			return new SetWriter(type, newData).done();
 		} else {
 			return this;
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public ISet delete(IValue value){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
 		if (newData.remove(value)) {
-			return createSetWriter(elementType, newData).done();
+			Type newElementType = TypeFactory.getInstance().voidType();
+			for (IValue el : newData) {
+				newElementType = newElementType.lub(el.getType());
+			}
+			return new SetWriter(newElementType, newData).done();
 		} else {
 			return this;
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet intersect(ISet other){
 		ShareableValuesHashSet commonData = new ShareableValuesHashSet();
 		Iterator<IValue> setIterator;
@@ -133,18 +132,18 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			theOtherSet = other;
 		}
 		
+		Type newElementType = TypeFactory.getInstance().voidType();
 		while(setIterator.hasNext()){
 			IValue value = setIterator.next();
 			if(theOtherSet.contains(value)){
+				newElementType = newElementType.lub(value.getType());
 				commonData.add(value);
 			}
 		}
 		
-		Type type = elementType.lub(other.getElementType());
-		return createSetWriter(type, commonData).done();
+		return new SetWriter(newElementType, commonData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet subtract(ISet other){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
 		
@@ -152,11 +151,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		while(setIterator.hasNext()){
 			newData.remove(setIterator.next());
 		}
-		
-		return createSetWriter(elementType, newData).done();
+		Type newElementType = TypeFactory.getInstance().voidType();
+		for(IValue el : newData)
+			newElementType = newElementType.lub(el.getType());
+		return new SetWriter(newElementType, newData).done();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ISet union(ISet other){
 		ShareableValuesHashSet newData;
 		Iterator<IValue> setIterator;
@@ -176,10 +176,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 		
 		Type newElementType = elementType.lub(otherSet.elementType);
-		return createSetWriter(newElementType, newData).done();
+		return new SetWriter(newElementType, newData).done();
 	}
 	
-	public IRelation product(ISet other){
+	public ISet product(ISet other){
 		ShareableValuesHashSet newData = new ShareableValuesHashSet();
 		
 		Type tupleType = typeFactory.tupleType(elementType, other.getElementType());
@@ -197,7 +197,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			}
 		}
 		
-		return new RelationWriter(tupleType, newData).done();
+		return new SetWriter(tupleType, newData).done();
 	}
 	
 	public int hashCode(){
@@ -232,12 +232,19 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		
 		return false;
 	}
-	
-	
-	
-	protected static ISetWriter createSetWriter(Type elementType, ShareableValuesHashSet data){
-		if(elementType.isTupleType()) return new RelationWriter(elementType, data);
-		
-		return new SetWriter(elementType, data);
+
+	@Override
+	public boolean isRelation() {
+		return getType().isRelation();
 	}
+
+	@Override
+	public ISetRelation<ISet> asRelation() {
+		if (!isRelation())
+			throw new IllegalOperationException(
+					"Cannot be viewed as a relation.", getType());
+
+		return new RelationViewOnSet(this);
+	}
+	
 }

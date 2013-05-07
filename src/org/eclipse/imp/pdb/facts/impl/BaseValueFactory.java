@@ -28,22 +28,32 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 
+/*
+ * TODO:
+ * * Benchmark base vs fast-base.
+ * * Merge most optimized version to a single base class. 
+ */
+@Deprecated
 public abstract class BaseValueFactory implements IValueFactory {
 	protected final static int DEFAULT_PRECISION = 10;
 	protected AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
 	
+	@Deprecated // Specialized in FastBaseValueFactory
     public IInteger integer(int i) {
         return new IntegerValue(i);
     }
     
+	@Deprecated // Specialized in FastBaseValueFactory
     public IInteger integer(long l) {
     	return new IntegerValue(l);
     }
     
+	@Deprecated // Specialized in FastBaseValueFactory
     public IInteger integer(byte[] a) {
     	return new IntegerValue(a);
     }
     
+    @Deprecated // Specialized in FastBaseValueFactory
     public IInteger integer(String s) {
     	return new IntegerValue(new BigInteger(s));
     }
@@ -56,6 +66,7 @@ public abstract class BaseValueFactory implements IValueFactory {
 		return rational(integer(a), integer(b));
 	}
 
+	@Deprecated // Specialized in FastBaseValueFactory
 	public IRational rational(IInteger a, IInteger b) {
 		return new RationalValue(a, b);
 	}
@@ -76,14 +87,17 @@ public abstract class BaseValueFactory implements IValueFactory {
 		}
 	}
 
+	@Deprecated // Specialized in FastBaseValueFactory
     public IReal real(double d) {
         return new RealValue(d);
     }
     
+	@Deprecated // Specialized in FastBaseValueFactory
     public IReal real(double d, int p) {
     	return new RealValue(d, p);
     }
     
+	@Deprecated // Specialized in FastBaseValueFactory
     public IReal real(float f) {
     	return new RealValue(f);
     }
@@ -92,10 +106,12 @@ public abstract class BaseValueFactory implements IValueFactory {
     	return new RealValue(f, p);
     }
     
+    @Deprecated // Specialized in FastBaseValueFactory
     public IReal real(String s) throws NumberFormatException {
     	return new RealValue(s);
     }
 
+    @Deprecated // Specialized in FastBaseValueFactory
     public IReal real(String s, int p) throws NumberFormatException {
     	return new RealValue(s, p);
     }
@@ -108,14 +124,17 @@ public abstract class BaseValueFactory implements IValueFactory {
     	return currentPrecision.getAndSet(p);
     }
 
+    @Deprecated // Specialized in FastBaseValueFactory
     public IReal pi(int precision) {
     	return RealValue.pi(precision);
     }
     
+    @Deprecated // Specialized in FastBaseValueFactory
     public IReal e(int precision) {
     	return RealValue.e(precision);
     }
     
+    @Deprecated // Specialized in FastBaseValueFactory
     public IString string(String s) {
     	if (s == null) {
     		throw new NullPointerException();

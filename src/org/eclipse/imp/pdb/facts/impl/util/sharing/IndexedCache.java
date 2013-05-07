@@ -33,7 +33,7 @@ public class IndexedCache<T>{
 	public IndexedCache(int size){
 		super();
 		
-		atomicCacheArray = new AtomicReferenceArray<T>(size);
+		atomicCacheArray = new AtomicReferenceArray<>(size);
 		this.size = size;
 	}
 	

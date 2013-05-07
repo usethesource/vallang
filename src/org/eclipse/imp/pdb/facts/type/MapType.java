@@ -14,13 +14,10 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
-/*package*/ final class MapType extends Type {
+/*package*/ final class MapType extends ValueType {
     private final Type fKeyType;
     private final Type fValueType;
     private final String fKeyLabel;
@@ -65,10 +62,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     	return fValueType;
     }
 
-    @Override
-    public boolean isMapType() {
-    	return true;
-    }
   
     @Override
     public boolean hasFieldNames() {
@@ -151,33 +144,14 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     }
     
     @Override
-    public boolean isSubtypeOf(Type o) {
-        if (o.isMapType() && !o.isVoidType()) {
-        	return fKeyType.isSubtypeOf(o.getKeyType()) && fValueType.isSubtypeOf(o.getValueType());
-        }
-        
-        return super.isSubtypeOf(o);
-    }
-
-    @Override
-    public Type lub(Type o) {
-    	if (o.isMapType()) {
-    		// reusing tuple type here because of complexity dealing with labels
-    		return TypeFactory.getInstance().mapTypeFromTuple(getFieldTypes().lub(o.getFieldTypes()));
-    	}
-    	
-    	return super.lub(o);
-    }
-    
-    @Override
     public Type carrier() {
-    	TypeFactory tf = TypeFactory.getInstance();
-		return tf.setType(fKeyType.lub(fValueType));
+      TypeFactory tf = TypeFactory.getInstance();
+      return tf.setType(fKeyType.lub(fValueType));
     }
 
     @Override
     public int hashCode() {
-        return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode();
+      return 56509 + 3511 * fKeyType.hashCode() + 1171 * fValueType.hashCode();
     }
 
     @Override
@@ -218,21 +192,36 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     }
     
     @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitMap(this);
+    public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+      return visitor.visitMap(this);
+    }
+
+    @Override
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfMap(this);
     }
     
     @Override
-    public IMap make(IValueFactory f) {
-    	return f.map(this);
+    public Type lub(Type other) {
+      return other.lubWithMap(this);
     }
     
-	@SuppressWarnings("unchecked")
-	@Override
-    public IMapWriter writer(IValueFactory f) {
-    	return f.mapWriter(this);
+    @Override
+    protected boolean isSubtypeOfMap(Type type) {
+      return fKeyType.isSubtypeOf(type.getKeyType())
+          && fValueType.isSubtypeOf(type.getValueType());
     }
-	
+    
+    @Override
+    protected Type lubWithMap(Type type) {
+      return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().lub(type.getFieldTypes()));
+    }
+    
+    @Override
+    public boolean isOpen() {
+      return fKeyType.isOpen() || fValueType.isOpen();
+    }
+    
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {

@@ -12,31 +12,26 @@
 
 package org.eclipse.imp.pdb.facts.type;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 
-/*package*/ final class StringType extends Type {
-    private final static StringType sInstance= new StringType();
+/*package*/ final class StringType extends ValueType {
+    private static final class InstanceKeeper {
+      private final static StringType sInstance= new StringType();
+    }
 
     public static StringType getInstance() {
-        return sInstance;
+        return InstanceKeeper.sInstance;
     }
 
     private StringType() {
-    	super();
+      super();
     }
 
-    @Override
-    public boolean isStringType() {
-    	return true;
-    }
-    
     /**
      * Should never need to be called; there should be only one instance of IntegerType
      */
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof StringType);
+        return obj == StringType.getInstance();
     }
 
     @Override
@@ -50,13 +45,27 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
     }
     
     @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
+    public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
     	return visitor.visitString(this);
     }
     
     @Override
-    public IValue make(IValueFactory f, String arg) {
-    	return f.string(arg);
+    protected boolean isSupertypeOf(Type type) {
+      return type.isSubtypeOfString(this);
     }
-
+    
+    @Override
+    public Type lub(Type other) {
+      return other.lubWithString(this);
+    }
+    
+    @Override
+    protected boolean isSubtypeOfString(Type type) {
+      return true;
+    }
+    
+    @Override
+    protected Type lubWithString(Type type) {
+      return this;
+    }
 }

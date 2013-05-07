@@ -125,7 +125,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 				while(entry != lastUnchangedEntryChain){
 					int hash = entry.hash;
 					int position = hash & hashMask;
-					newData[position] = new Entry<V>(hash, entry.key, entry.value, newData[position]);
+					newData[position] = new Entry<>(hash, entry.key, entry.value, newData[position]);
 					
 					entry = entry.next;
 				}
@@ -159,11 +159,11 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		Entry<V> e = data[position];
 		
 		// Reconstruct the updated entry.
-		data[position] = new Entry<V>(entry.hash, entry.key, newValue, entry.next);
+		data[position] = new Entry<>(entry.hash, entry.key, newValue, entry.next);
 		
 		// Reconstruct the other entries (if necessary).
 		while(e != entry){
-			data[position] = new Entry<V>(e.hash, e.key, e.value, data[position]);
+			data[position] = new Entry<>(e.hash, e.key, e.value, data[position]);
 			
 			e = e.next;
 		}
@@ -200,7 +200,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 			}while(entry != null);
 		}
 		
-		data[position] = new Entry<V>(hash, key, value, currentStartEntry); // Insert the new entry.
+		data[position] = new Entry<>(hash, key, value, currentStartEntry); // Insert the new entry.
 		
 		load++;
 		
@@ -231,7 +231,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 					data[position] = entry.next;
 					// Reconstruct the other entries (if necessary).
 					while(e != entry){
-						data[position] = new Entry<V>(e.hash, e.key, e.value, data[position]);
+						data[position] = new Entry<>(e.hash, e.key, e.value, data[position]);
 						
 						e = e.next;
 					}
@@ -308,7 +308,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return An iterator for the entries in this map.
 	 */
 	public Iterator<Map.Entry<IValue, V>> entryIterator(){
-		return new EntryIterator<V>(data);
+		return new EntryIterator<>(data);
 	}
 	
 	/**
@@ -317,7 +317,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return An iterator for the keys in this map.
 	 */
 	public Iterator<IValue> keysIterator(){
-		return new KeysIterator<V>(data);
+		return new KeysIterator<>(data);
 	}
 	
 	/**
@@ -326,7 +326,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * @return An iterator for the values in this map.
 	 */
 	public Iterator<V> valuesIterator(){
-		return new ValuesIterator<V>(data);
+		return new ValuesIterator<>(data);
 	}
 	
 	/**
@@ -379,7 +379,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * Constructs a set containing all entries from this map.
 	 */
 	public Set<Map.Entry<IValue, V>> entrySet(){
-		ShareableHashSet<Map.Entry<IValue, V>> entrySet = new ShareableHashSet<Map.Entry<IValue, V>>();
+		ShareableHashSet<Map.Entry<IValue, V>> entrySet = new ShareableHashSet<>();
 		
 		Iterator<Map.Entry<IValue, V>> entriesIterator = entryIterator();
 		while(entriesIterator.hasNext()){
@@ -407,7 +407,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * Constructs a collection containing all values from this map.
 	 */
 	public Collection<V> values(){
-		ShareableHashSet<V> valuesSet = new ShareableHashSet<V>();
+		ShareableHashSet<V> valuesSet = new ShareableHashSet<>();
 		
 		Iterator<V> valuesIterator = valuesIterator();
 		while(valuesIterator.hasNext()){
@@ -613,7 +613,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 			data = entries;
 
 			index = data.length - 1;
-			current = new Entry<V>(0, null, null, data[index]);
+			current = new Entry<>(0, null, null, data[index]);
 			locateNext();
 		}
 		
@@ -702,7 +702,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		public KeysIterator(Entry<V>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator<V>(entries);
+			entryIterator = new EntryIterator<>(entries);
 		}
 		
 		/**
@@ -762,7 +762,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 		public ValuesIterator(Entry<V>[] entries){
 			super();
 			
-			entryIterator = new EntryIterator<V>(entries);
+			entryIterator = new EntryIterator<>(entries);
 		}
 		
 		/**

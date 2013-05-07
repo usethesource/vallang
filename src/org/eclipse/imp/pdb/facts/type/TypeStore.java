@@ -43,11 +43,11 @@ public class TypeStore {
 
 	private final TypeFactory factory = TypeFactory.getInstance();
 
-	private final Map<String, Type> fAliases= new HashMap<String, Type>();
-	private final Map<String, Type> fADTs= new HashMap<String, Type>();
-	private final Map<Type, Set<Type>> fConstructors = new HashMap<Type, Set<Type>>();
-	private final Map<Type, Map<String, Type>> fAnnotations = new HashMap<Type, Map<String, Type>>();
-	private final Set<TypeStore> fImports = new HashSet<TypeStore>();
+	private final Map<String, Type> fAliases= new HashMap<>();
+	private final Map<String, Type> fADTs= new HashMap<>();
+	private final Map<Type, Set<Type>> fConstructors = new HashMap<>();
+	private final Map<Type, Map<String, Type>> fAnnotations = new HashMap<>();
+	private final Set<TypeStore> fImports = new HashSet<>();
 
 	/**
 	 * A type store that is initially empty and imports the given TypeStores.
@@ -81,7 +81,7 @@ public class TypeStore {
 	 * annotations to the types of the values that give access to these annotations.
 	 */
 	public Map<Type, Map<String, Type>> getAnnotations() {
-	  Map<Type, Map<String,Type>> unmodifiableMap = new HashMap<Type,Map<String,Type>>();
+	  Map<Type, Map<String,Type>> unmodifiableMap = new HashMap<>();
 	  for (Type key : fAnnotations.keySet()) {
 	    unmodifiableMap.put(key, Collections.unmodifiableMap(fAnnotations.get(key)));
 	  }
@@ -93,7 +93,7 @@ public class TypeStore {
 	 * not return the constructors of imported TypeStores.
 	 */
 	public Collection<Type> getConstructors() {
-	  Set<Type> result = new HashSet<Type>();
+	  Set<Type> result = new HashSet<>();
 	  for (Set<Type> adt : fConstructors.values()) {
 	    result.addAll(adt);
 	  }
@@ -158,7 +158,7 @@ public class TypeStore {
 	      Set<Type> set = fConstructors.get(type);
 
 	      if (set == null) {
-	        set = new HashSet<Type>();
+	        set = new HashSet<>();
 	      }
 
 	      set.addAll(other.fConstructors.get(type));
@@ -321,7 +321,7 @@ public class TypeStore {
 
 	      Set<Type> localSignature = fConstructors.get(adt);
 	      if (localSignature == null) {
-	        localSignature = new HashSet<Type>();
+	        localSignature = new HashSet<>();
 	        fConstructors.put(adt, localSignature);
 
 	        if (!fADTs.containsKey(adt.getName())) {
@@ -342,7 +342,7 @@ public class TypeStore {
 	  for (Type alt : signature) {
 	    Type altArgs = alt.getFieldTypes();
 	    if (!altArgs.hasFieldNames()) {
-	      return;
+	      continue;
 	    }
 	    for (int i = tupleType.getArity() - 1; i >= 0; i--) {
 	      Type type = tupleType.getFieldType(i);
@@ -351,7 +351,7 @@ public class TypeStore {
 	      for (int j = altArgs.getArity() - 1; j >= 0; j--) {
 	        if (altArgs.getFieldName(j).equals(label)) {
 	          if (!altArgs.getFieldType(j).equivalent(type)) {
-	            throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(i), tupleType);
+	        	throw new RedeclaredFieldNameException(label, type, altArgs.getFieldType(j), tupleType);
 	          }
 	        }
 	      }
@@ -362,7 +362,7 @@ public class TypeStore {
 	private void checkOverloading(Set<Type> signature, String name,
 	    Type tupleType) throws FactTypeDeclarationException {
 	  for (Type alt : signature) {
-	    if (alt.isConstructorType() && alt.getName().equals(name)) {
+	    if (alt.getName().equals(name)) {
 	      Type fieldTypes = alt.getFieldTypes();
 	      if (fieldTypes != tupleType && fieldTypes.comparable(tupleType)) {
 	        throw new RedeclaredConstructorException(name, fieldTypes, tupleType);
@@ -404,14 +404,14 @@ public class TypeStore {
 	public Set<Type> lookupAlternatives(Type adt) {
 	  synchronized (fConstructors) {
 	    synchronized (fImports) {
-	      while (adt.isAliasType()) {
+	      while (adt.isAliased()) {
 	        adt = adt.getAliased();
 	      }
 
 	      Set<Type> result = fConstructors.get(adt);
 
 	      if (result == null) {
-	        result = new HashSet<Type>();
+	        result = new HashSet<>();
 	      }
 
 	      for (TypeStore s : fImports) {
@@ -438,12 +438,12 @@ public class TypeStore {
 	public Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
 	  synchronized (fConstructors) {
 	    synchronized (fImports) {
-	      while (adt.isAliasType()) {
+	      while (adt.isAliased()) {
 	        adt = adt.getAliased();
 	      }
 	      Type parameterizedADT = fADTs.get(adt.getName());
 	      Set<Type> local = parameterizedADT != null ? fConstructors.get(parameterizedADT) : null;
-	      Set<Type> result = new HashSet<Type>();
+	      Set<Type> result = new HashSet<>();
 
 	      if (local != null) {
 	        for (Type cand : local) {
@@ -494,7 +494,7 @@ public class TypeStore {
 	private Set<Type> allAbstractDataTypes() {
 	  synchronized (fADTs) {
 	    synchronized (fImports) {
-	      Set<Type> result = new HashSet<Type>();
+	      Set<Type> result = new HashSet<>();
 	      result.addAll(fADTs.values());
 
 	      for (TypeStore s : fImports) {
@@ -538,7 +538,7 @@ public class TypeStore {
 	public Set<Type> lookupConstructors(String constructorName) {
 	  synchronized (fConstructors) {
 	    synchronized (fImports) {
-	      Set<Type> result = new HashSet<Type>();
+	      Set<Type> result = new HashSet<>();
 
 	      for (Set<Type> adt : fConstructors.values()) {
 	        for (Type cand : adt) {
@@ -617,7 +617,7 @@ public class TypeStore {
 	    }
 
 	    if (annotationsForType == null) {
-	      annotationsForType = new HashMap<String, Type>();
+	      annotationsForType = new HashMap<>();
 	      fAnnotations.put(onType, annotationsForType);
 	    }
 
@@ -647,7 +647,7 @@ public class TypeStore {
 
 	  synchronized(fAnnotations) {
 	    synchronized (fImports) {
-	      Map<String, Type> result = new HashMap<String,Type>();
+	      Map<String, Type> result = new HashMap<>();
 
 	      if (onType != NODE_TYPE) {
 	        Map<String, Type> local = fAnnotations.get(onType);

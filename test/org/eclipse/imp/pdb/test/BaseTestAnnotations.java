@@ -58,14 +58,11 @@ public abstract class BaseTestAnnotations extends TestCase {
 		try {
 			ts.declareAnnotation(E, "size", tf.integerType());
 		}
-		catch (FactTypeDeclarationException e) {
+		catch (FactTypeDeclarationException | FactTypeUseException e) {
 			fail(e.toString());
 		}
-		catch (FactTypeUseException e) {
-			fail(e.toString());
-		}
-		
-		try {
+
+        try {
 			ts.declareAnnotation(E, "size", tf.realType());
 			fail("double declaration is not allowed");
 		}
@@ -75,22 +72,19 @@ public abstract class BaseTestAnnotations extends TestCase {
 	}
 	
 	public void testSetAnnotation() {
-		IConstructor n = (IConstructor) N.make(vf, vf.integer(0));
+		IConstructor n = vf.constructor(N, vf.integer(0));
 		ts.declareAnnotation(E, "size", tf.integerType());
 		
 		try {
 			n.setAnnotation("size", vf.integer(0));
 		}
-		catch (FactTypeDeclarationException e) {
+		catch (FactTypeDeclarationException | FactTypeUseException e) {
 			fail(e.toString());
 		}
-		catch (FactTypeUseException e) {
-			fail(e.toString());
-		}
-	}
+    }
 	
 	public void testGetAnnotation() {
-		IConstructor n = (IConstructor) N.make(vf, vf.integer(0));
+		IConstructor n = vf.constructor(N, vf.integer(0));
 		ts.declareAnnotation(E, "size", tf.integerType());
 		
 		try {
@@ -109,7 +103,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 	}
 	
 	public void testImmutability() {
-		IConstructor n = (IConstructor) N.make(vf, vf.integer(0));
+		IConstructor n = vf.constructor(N, vf.integer(0));
 		ts.declareAnnotation(E, "size", tf.integerType());
 		
 		IConstructor m = n.setAnnotation("size", vf.integer(1));
@@ -122,7 +116,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 	}
 	
 	public void testDeclaresAnnotation() {
-		IConstructor n = (IConstructor) N.make(vf, vf.integer(0));
+		IConstructor n = vf.constructor(N,  vf.integer(0));
 		ts.declareAnnotation(E, "size", tf.integerType());
 		
 		if (!n.declaresAnnotation(ts, "size")) {
@@ -145,7 +139,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 	}
 	
 	public void testEqualityConstructor() {
-		IConstructor n = (IConstructor) N.make(vf, vf.integer(1));
+		IConstructor n = vf.constructor(N, vf.integer(1));
 		IConstructor na = n.setAnnotation("x", vf.integer(1));
 		
 		assertTrue(n.isEqual(na));
@@ -159,10 +153,10 @@ public abstract class BaseTestAnnotations extends TestCase {
 		INode n = vf.node("hello");
 		INode na = n.setAnnotation("foo", vf.bool(true));
 		
-		assertTrue(na.getAnnotation("foo").getType().isBoolType());
+		assertTrue(na.getAnnotation("foo").getType().isBool());
 		
 		// annotations on node type should be propagated
-		assertTrue(ts.getAnnotationType(tf.nodeType(), "foo").isBoolType());
+		assertTrue(ts.getAnnotationType(tf.nodeType(), "foo").isBool());
 		assertTrue(ts.getAnnotations(E).containsKey("foo"));
 		
 		// annotations sets should not collapse into one big set

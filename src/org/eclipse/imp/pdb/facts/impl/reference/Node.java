@@ -33,7 +33,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  */
 public class Node extends Value implements INode {
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
-    protected static final HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<String,IValue>();
+    protected static final HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<>();
 	protected final IValue[] fChildren;
     protected final String fName;
 	protected final HashMap<String, IValue> fAnnotations;
@@ -52,7 +52,7 @@ public class Node extends Value implements INode {
 		super(TypeFactory.getInstance().nodeType());
 		fName = name;
 		fChildren = children.clone();
-		fAnnotations = new HashMap<String,IValue>(annos.size());
+		fAnnotations = new HashMap<>(annos.size());
 		fAnnotations.putAll(annos);
 		keyArgNames = null;
 	}
@@ -322,7 +322,7 @@ public class Node extends Value implements INode {
 	
 	public INode replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
-		ArrayList<IValue> newChildren = new ArrayList<IValue>();
+		ArrayList<IValue> newChildren = new ArrayList<>();
 		int rlen = repl.length();
 		int increment = Math.abs(second - first);
 		if(first < end){
@@ -393,31 +393,41 @@ public class Node extends Value implements INode {
 
 	@Override
 	public IValue getKeywordArgumentValue(String name) {
-		// TODO Auto-generated method stub
+		if(keyArgNames != null){
+			int k = getKeywordIndex(name);
+			if(k >= 0)
+				return fChildren[k];
+		}
 		return null;
 	}
 
 	@Override
 	public boolean hasKeywordArguments() {
-		// TODO Auto-generated method stub
-		return false;
+		return keyArgNames != null;
 	}
 
 	@Override
 	public String[] getKeywordArgumentNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return keyArgNames;
 	}
 
 	@Override
 	public int getKeywordIndex(String name) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+		if(keyArgNames != null){
+			for(int i = 0; i < keyArgNames.length; i++){
+				if(name.equals(keyArgNames[i])){
+					return fChildren.length - keyArgNames.length + i;
+				}
+			}
+		}
+		return -1;
+}
 
 	@Override
 	public int positionalArity() {
-		// TODO Auto-generated method stub
-		return 0;
+		if(keyArgNames == null)
+			return fChildren.length;
+		else
+			return fChildren.length - keyArgNames.length;
 	}
 }

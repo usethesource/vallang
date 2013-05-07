@@ -156,18 +156,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		data.set(index, element);
 	}
 	
-	public void delete(int index){
-		checkMutation();
-		
-		data.remove(index);
-	}
-	
-	public void delete(IValue element){
-		checkMutation();
-		
-		data.remove(element);
-	}
-	
 	protected void checkMutation(){
 		if(constructedList != null) throw new UnsupportedOperationException("Mutation of a finalized list is not supported.");
 	}
@@ -177,18 +165,15 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		if((start + length) > elems.length) throw new ArrayIndexOutOfBoundsException("(start + length) > elems.length");
 	}
 	
+	@Override
 	public int size(){
 		return data.size();
 	}
 	
+	@Override
 	public IList  done(){
 		if (constructedList == null) {
-			if (/*inferred && */elementType.isTupleType() || data.isEmpty()) {
-				constructedList = new ListRelation(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
-			}
-			else {
-				constructedList = new List(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
-			}
+			constructedList = new List(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
 		}
 		
 		return constructedList;

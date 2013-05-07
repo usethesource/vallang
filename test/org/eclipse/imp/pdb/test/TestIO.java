@@ -111,24 +111,21 @@ public class TestIO extends TestCase {
 					fail(testXML[i] + " did not parse correctly: " + result + " != " + testValues[i]);
 				}
 			}
-		} catch (FactTypeUseException e) {
-			e.printStackTrace();
-			fail();
-		} catch (IOException e) {
+		} catch (FactTypeUseException | IOException e) {
 			e.printStackTrace();
 			fail();
 		}
-	}
+    }
 	
 	public void testStandardReader() {
 		StandardTextReader reader = new StandardTextReader();
 		
 		try {
 		  IValue s = reader.read(vf,  new StringReader("\"a b c\""));
-		  assertEquals(s, tf.stringType().make(vf, "a b c"));
+		  assertEquals(s, vf.string("a b c"));
 		  
 			IValue v = reader.read(vf, new StringReader("\"f\"(\"a b c\")"));
-			assertEquals(v, tf.nodeType().make(vf, "f", tf.stringType().make(vf, "a b c")));
+			assertEquals(v, vf.node("f", vf.string("a b c")));
 			
 			IValue r = reader.read(vf, new StringReader("[1.7976931348623157E+308]"));
 			System.err.println(r);
@@ -149,12 +146,10 @@ public class TestIO extends TestCase {
       System.err.println(u);
       assertEquals(u, vf.tuple());
 			
-		} catch (FactTypeUseException e) {
-			fail(e.getMessage());
-		} catch (IOException e) {
+		} catch (FactTypeUseException | IOException e) {
 			fail(e.getMessage());
 		}
-	}
+    }
 
 	
 }

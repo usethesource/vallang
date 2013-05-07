@@ -421,7 +421,7 @@ public class ShareableList<E> implements Iterable<E>{
 		if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller then 0.");
 		if((offset + length) > size()) throw new IndexOutOfBoundsException("'offset + length' may not be larger then 'list.size()'");
 		
-		return new ShareableList<E>(this, offset, length);
+		return new ShareableList<>(this, offset, length);
 	}
 	
 	/**
@@ -471,7 +471,7 @@ public class ShareableList<E> implements Iterable<E>{
 	 * @see java.lang.Iterable#iterator()
 	 */
 	public Iterator<E> iterator(){
-		return new ListIterator<E>(this);
+		return new ListIterator<>(this);
 	}
 	
 	/**

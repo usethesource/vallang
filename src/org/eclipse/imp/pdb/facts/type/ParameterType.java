@@ -37,101 +37,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public boolean isParameterType() {
-		return true;
-	}
-	
-	@Override
-	public boolean isValueType() {
-		return fBound.isValueType();
-	}
-	
-	@Override
-	public boolean isBoolType() {
-		return fBound.isBoolType();
-	}
-	
-	@Override
-	public boolean isRealType() {
-		return fBound.isRealType();
-	}
-	
-	@Override
-	public boolean isIntegerType() {
-		return fBound.isIntegerType();
-	}
-	
-	@Override
-	public boolean isListType() {
-		return fBound.isListType();
-	}
-	
-	@Override
-	public boolean isMapType() {
-		return fBound.isMapType();
-	}
-	
-	@Override
-	public boolean isAbstractDataType() {
-		return fBound.isAbstractDataType();
-	}
-	
-	@Override
-	public boolean isAliasType() {
-		return fBound.isAliasType();
-	}
-	
-	@Override
-	public boolean isRelationType() {
-		return fBound.isRelationType();
-	}
-	
-	@Override
-	public boolean isListRelationType() {
-		return fBound.isListRelationType();
-	}
-	
-	@Override
-	public boolean isSetType() {
-		return fBound.isSetType();
-	}
-	
-	@Override
-	public boolean isSourceLocationType() {
-		return fBound.isSourceLocationType();
-	}
-	
-	@Override
-	public boolean isSourceRangeType() {
-		return fBound.isSourceRangeType();
-	}
-	
-	@Override
-	public boolean isStringType() {
-		return fBound.isStringType();
-	}
-	
-	@Override
-	public boolean isConstructorType() {
-		return fBound.isConstructorType();
-	}
-	
-	@Override
-	public boolean isNodeType() {
-		return fBound.isNodeType();
-	}
-	
-	@Override
-	public boolean isTupleType() {
-		return fBound.isTupleType();
-	}
-	
-	@Override
-	public boolean isVoidType() {
-		return fBound.isVoidType();
-	}
-	
-	@Override
 	public Type getBound() {
 		return fBound;
 	}
@@ -157,26 +62,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public boolean isSubtypeOf(Type other) {
-		if (other == this) {
-			return true;
-		}
-		
-		return fBound.isSubtypeOf(other);
-	}
-
-	@Override
-	public Type lub(Type other) {
-		if (other == this) {
-			return this;
-		}
-		
-		return getBound().lub(other);
-	}
-	
-	@Override
 	public String toString() {
-		return fBound.isValueType() ? "&" + fName : "&" + fName + "<:" + fBound.toString();
+		return fBound.equivalent(ValueType.getInstance()) ? "&" + fName : "&" + fName + "<:" + fBound.toString();
 	}
 	
 	@Override
@@ -194,10 +81,29 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public <T> T accept(ITypeVisitor<T> visitor) {
+	public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
 		return visitor.visitParameter(this);
 	}
 
+	@Override
+	protected boolean isSupertypeOf(Type type) {
+	  return type.isSubtypeOfParameter(this);
+	}
+	
+	@Override
+	public Type lub(Type type) {
+	  return type.lubWithParameter(this);
+	}
+	
+	@Override
+	protected Type lubWithParameter(Type type) {
+	  if (type == this) {
+	    return this;
+	  }
+	  
+	  return getBound().lub(type.getBound());
+	}
+	
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
@@ -226,4 +132,209 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 		Type result = bindings.get(this);
 		return result != null ? result : this;
 	}
+
+  @Override
+  protected boolean isSubtypeOfReal(Type type) {
+    return getBound().isSubtypeOfReal(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfInteger(Type type) {
+    return getBound().isSubtypeOfInteger(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfRational(Type type) {
+    return getBound().isSubtypeOfRational(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfList(Type type) {
+    return getBound().isSubtypeOfList(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfMap(Type type) {
+    return getBound().isSubtypeOfMap(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfNumber(Type type) {
+    return getBound().isSubtypeOfNumber(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfRelation(Type type) {
+    return getBound().isSubtypeOfRelation(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfListRelation(Type type) {
+    return getBound().isSubtypeOfListRelation(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfSet(Type type) {
+    return getBound().isSubtypeOfSet(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfSourceLocation(Type type) {
+    return getBound().isSubtypeOfSourceLocation(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfString(Type type) {
+    return getBound().isSubtypeOfString(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfNode(Type type) {
+    return getBound().isSubtypeOfNode(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfConstructor(Type type) {
+    return getBound().isSubtypeOfConstructor(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfAbstractData(Type type) {
+    return getBound().isSubtypeOfAbstractData(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfTuple(Type type) {
+    return getBound().isSubtypeOfTuple(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfValue(Type type) {
+    return getBound().isSubtypeOfValue(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfVoid(Type type) {
+    return getBound().isSubtypeOfVoid(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfBool(Type type) {
+    return getBound().isSubtypeOfBool(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfExternal(Type type) {
+    return getBound().isSubtypeOfExternal(type);
+  }
+
+  @Override
+  protected boolean isSubtypeOfDateTime(Type type) {
+    return getBound().isSubtypeOfDateTime(type);
+  }
+
+  @Override
+  protected Type lubWithReal(Type type) {
+    return getBound().lubWithReal(type);
+  }
+
+  @Override
+  protected Type lubWithInteger(Type type) {
+    return getBound().lubWithInteger(type);
+  }
+
+  @Override
+  protected Type lubWithRational(Type type) {
+    return getBound().lubWithRational(type);
+  }
+
+  @Override
+  protected Type lubWithList(Type type) {
+    return getBound().lubWithList(type);
+  }
+
+  @Override
+  protected Type lubWithMap(Type type) {
+    return getBound().lubWithMap(type);
+  }
+
+  @Override
+  protected Type lubWithNumber(Type type) {
+    return getBound().lubWithNumber(type);
+  }
+
+  @Override
+  protected Type lubWithRelation(Type type) {
+    return getBound().lubWithRelation(type);
+  }
+
+  @Override
+  protected Type lubWithListRelation(Type type) {
+    return getBound().lubWithListRelation(type);
+  }
+
+  @Override
+  protected Type lubWithSet(Type type) {
+    return getBound().lubWithSet(type);
+  }
+
+  @Override
+  protected Type lubWithSourceLocation(Type type) {
+    return getBound().lubWithSourceLocation(type);
+  }
+
+  @Override
+  protected Type lubWithString(Type type) {
+    return getBound().lubWithString(type);
+  }
+
+  @Override
+  protected Type lubWithNode(Type type) {
+    return getBound().lubWithNode(type);
+  }
+
+  @Override
+  protected Type lubWithConstructor(Type type) {
+    return getBound().lubWithConstructor(type);
+  }
+
+  @Override
+  protected Type lubWithAbstractData(Type type) {
+    return getBound().lubWithAbstractData(type);
+  }
+
+  @Override
+  protected Type lubWithTuple(Type type) {
+    return getBound().lubWithTuple(type);
+  }
+
+  @Override
+  protected Type lubWithValue(Type type) {
+    return getBound().lubWithValue(type);
+  }
+
+  @Override
+  protected Type lubWithVoid(Type type) {
+    return getBound().lubWithVoid(type);
+  }
+
+  @Override
+  protected Type lubWithBool(Type type) {
+    return getBound().lubWithBool(type);
+  }
+
+  @Override
+  protected Type lubWithExternal(Type type) {
+    return getBound().lubWithExternal(type);
+  }
+
+  @Override
+  protected Type lubWithDateTime(Type type) {
+    return getBound().lubWithDateTime(type);
+  }
+  
+  @Override
+  public boolean isOpen() {
+    return true;
+  }
 }

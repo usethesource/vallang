@@ -1,95 +1,84 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ * Copyright (c) 2007 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
-*******************************************************************************/
+ *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts.type;
 
-import java.util.Map;
-
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-
 /**
- * A type for values that are nodes. All INode have the type NodeType, 
- * and all IConstructors have NodeType as a supertype.
+ * A type for values that are nodes. All INode have the type NodeType, and all
+ * IConstructors have NodeType as a supertype.
  */
-/*package*/ final class NodeType extends Type {
-	private final static NodeType sInstance= new NodeType();
-	
-    public static NodeType getInstance() {
-        return sInstance;
-    }
+class NodeType extends ValueType {
+  protected static class InstanceKeeper {
+    public final static NodeType sInstance = new NodeType();
+  }
 
-    private NodeType() {
-    	super();
-    }
+  public static NodeType getInstance() {
+    return InstanceKeeper.sInstance;
+  }
 
-    @Override
-    public boolean isNodeType() {
-    	return true;
-    }
-    
-    @Override
-    public String toString() {
-        return "node";
-    }
-    
-   
-    @Override
-    public Type lub(Type other) {
-    	if (other.isSubtypeOf(this)) {
-    		return this;
-    	}
-    	return super.lub(other);
-    }
-    
-    /**
-     * Should never be called, NodeType is a singleton 
-     */
-    @Override
-    public boolean equals(Object o) {
-        return (o instanceof NodeType);
-    }
-    
-    @Override
-    public int hashCode() {
-    	return 20102;
-    }
-    
-    @Override
-    public <T> T accept(ITypeVisitor<T> visitor) {
-    	return visitor.visitNode(this);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, String name) {
-    	return f.node(name);
-    }
-    
-    public IValue make(IValueFactory f, TypeStore store, String name) {
-    	return f.node(name);
-	}
-    
-    @Override
-    public IValue make(IValueFactory f, String name, IValue... children) {
-    	return f.node(name, children);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, String name, IValue[] children, Map<String,IValue> keyArgValues) {
-    	return f.node(name, children, keyArgValues);
-    }
-    
-    @Override
-    public IValue make(IValueFactory f, TypeStore store, String name, IValue... children) {
-    	return make(f, name, children);
-    }
+  protected NodeType() {
+    super();
+  }
+
+  @Override
+  public String toString() {
+    return "node";
+  }
+
+  /**
+   * Should never be called, NodeType is a singleton
+   */
+  @Override
+  public boolean equals(Object o) {
+    return o == NodeType.getInstance();
+  }
+
+  @Override
+  public int hashCode() {
+    return 20102;
+  }
+
+  @Override
+  protected boolean isSupertypeOf(Type type) {
+    return type.isSubtypeOfNode(this);
+  }
+
+  @Override
+  public Type lub(Type other) {
+    return other.lubWithNode(this);
+  }
+
+  @Override
+  protected boolean isSubtypeOfNode(Type type) {
+    return true;
+  }
+
+  @Override
+  protected Type lubWithAbstractData(Type type) {
+    return NodeType.getInstance();
+  }
+
+  @Override
+  protected Type lubWithConstructor(Type type) {
+    return NodeType.getInstance();
+  }
+
+  @Override
+  protected Type lubWithNode(Type type) {
+    return type;
+  }
+  
+  @Override
+  public <T,E extends Throwable> T accept(ITypeVisitor<T,E> visitor) throws E {
+    return visitor.visitNode(this);
+  }
 }

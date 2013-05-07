@@ -22,7 +22,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public abstract class BaseTestList extends TestCase {
     private IValueFactory vf;
@@ -56,16 +55,6 @@ public abstract class BaseTestList extends TestCase {
 		if (!integerList.getElementType().isSubtypeOf(tf.integerType())) {
 			fail("funny getElementType");
 		}
-		
-		try {
-			IList namedList = (IList) tf.aliasType(new TypeStore(), "myList", tf.listType(tf.integerType())).make(vf);
-			if (!namedList.getElementType().isSubtypeOf(tf.integerType())) {
-				fail("named list has wrong elementtype");
-			}
-		} catch (FactTypeUseException e) {
-			fail("the above should be type correct");
-		}
-		
 	}
 
 	public void testAppend() {
@@ -86,7 +75,7 @@ public abstract class BaseTestList extends TestCase {
 		}
 		
 		try {
-			if (!integerList.append(vf.real(2)).getElementType().isNumberType()) {
+			if (!integerList.append(vf.real(2)).getElementType().equivalent(tf.numberType())) {
 			  fail("append should lub the element type");
 			}
 		} catch (FactTypeUseException e) {
@@ -120,7 +109,7 @@ public abstract class BaseTestList extends TestCase {
 		}
 		
 		try {
-			if (!integerList.insert(vf.real(2)).getElementType().isNumberType()) {
+			if (!integerList.insert(vf.real(2)).getElementType().equivalent(tf.numberType())) {
 			  fail("insert should lub the element type");
 			}
 		} catch (FactTypeUseException e) {

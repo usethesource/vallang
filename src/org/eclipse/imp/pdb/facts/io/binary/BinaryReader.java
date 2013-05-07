@@ -31,8 +31,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -133,13 +131,13 @@ public class BinaryReader{
 		this.typeStore = typeStore;
 		this.in = inputStream;
 
-		sharedValues = new ResizingArray<IValue>(DEFAULT_SHARED_VALUES_STORE_SIZE);
+		sharedValues = new ResizingArray<>(DEFAULT_SHARED_VALUES_STORE_SIZE);
 		currentSharedValueId = 0;
-		sharedTypes = new ResizingArray<Type>(DEFAULT_SHARED_TYPES_STORE_SIZE);
+		sharedTypes = new ResizingArray<>(DEFAULT_SHARED_TYPES_STORE_SIZE);
 		currentSharedTypeId = 0;
-		sharedPaths = new ResizingArray<String>(DEFAULT_SHARED_PATHS_STORE_SIZE);
+		sharedPaths = new ResizingArray<>(DEFAULT_SHARED_PATHS_STORE_SIZE);
 		currentSharedPathId = 0;
-		sharedNames = new ResizingArray<String>(DEFAULT_SHARED_NAMES_STORE_SIZE);
+		sharedNames = new ResizingArray<>(DEFAULT_SHARED_NAMES_STORE_SIZE);
 		currentSharedNamesId = 0;
 	}
 	
@@ -213,13 +211,13 @@ public class BinaryReader{
 		
 		boolean hashValue = true;
 		
-		if (value.getType().isAbstractDataType()) {
+		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.hasAnnotations()) {
 				Map<String,IValue> amap = consValue.getAnnotations();
 				for (Entry<String, IValue> aEntry : amap.entrySet()) {
 					Type aType = aEntry.getValue().getType();
-					if (!aType.isVoidType() && aType.isSourceLocationType()) {
+					if (!aType.equivalent(tf.voidType()) && aType.isSourceLocation()) {
 						hashValue = false;
 						break;
 					}
@@ -529,7 +527,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<>();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -570,7 +568,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<String, IValue>();
+		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<>();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -612,12 +610,12 @@ public class BinaryReader{
 		return setWriter.done();
 	}
 	
-	private IRelation readRelation(int header) throws IOException{
+	private ISet readRelation(int header) throws IOException{
 		Type elementType = readType(header);
 		
 		int length = parseInteger();
 		
-		IRelationWriter relationWriter = valueFactory.relationWriter(elementType);
+		ISetWriter relationWriter = valueFactory.relationWriter(elementType);
 		for(int i = 0; i < length; i++){
 			relationWriter.insert(deserialize());
 		}
