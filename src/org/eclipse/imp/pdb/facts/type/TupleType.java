@@ -111,24 +111,22 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		if (this.getArity() != 2 || other.getArity() != 2) {
 			throw new IllegalOperationException("compose", this, other);
 		}
-
+		
 		if (!getFieldType(1).comparable(other.getFieldType(0))) {
-			throw new IllegalOperationException("compose", this, other);
+			return TF.voidType(); // since nothing will be composable
 		}
-
-		TypeFactory tf = TypeFactory.getInstance();
 
 		if (hasFieldNames() && other.hasFieldNames()) {
 			String fieldNameLeft = this.getFieldName(0);
 			String fieldNameRight = other.getFieldName(1);
 
 			if (!fieldNameLeft.equals(fieldNameRight)) {
-				return tf.tupleType(this.getFieldType(0), fieldNameLeft,
+				return TF.tupleType(this.getFieldType(0), fieldNameLeft,
 						other.getFieldType(1), fieldNameRight);
 			}
 		}
 
-		return tf.tupleType(this.getFieldType(0), other.getFieldType(1));
+		return TF.tupleType(this.getFieldType(0), other.getFieldType(1));
 	}
 
 	@Override
@@ -151,7 +149,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	public Type closure() {
 	  if (getArity() == 2) {
 	    Type lub = fFieldTypes[0].lub(fFieldTypes[1]);
-      return TF.tupleType(lub, lub);
+      return TF.tupleType(lub, lub); 
 	  }
 	  return super.closure();
 	}
