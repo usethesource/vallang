@@ -159,11 +159,19 @@ public class RelationalFunctionsOnSet {
 	public static ISet compose(ISet rel1, ISet rel2){
 		Type otherTupleType = rel2.getElementType();
 		
-		if(rel1.getElementType() == voidType) return rel1;
-		if(otherTupleType == voidType) return rel2;
+		if (rel1.getElementType() == voidType) {
+		  return rel1;
+		}
+		if(otherTupleType == voidType) {
+		  return rel2;
+		}
 		
-		if(rel1.getElementType().getArity() != 2 || otherTupleType.getArity() != 2) throw new IllegalOperationException("compose", rel1.getElementType(), otherTupleType);
-		if(!rel1.getElementType().getFieldType(1).comparable(otherTupleType.getFieldType(0))) throw new IllegalOperationException("compose", rel1.getElementType(), otherTupleType);
+		if(rel1.getElementType().getArity() != 2 || otherTupleType.getArity() != 2) {
+		  throw new IllegalOperationException("compose", rel1.getElementType(), otherTupleType);
+		}
+		if(!rel1.getElementType().getFieldType(1).comparable(otherTupleType.getFieldType(0))) {
+		  return new SetWriter().done();
+		}
 		
 		// Index
 		ShareableHashMap<IValue, ShareableValuesList> rightSides = new ShareableHashMap<>();
