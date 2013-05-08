@@ -600,7 +600,6 @@ public class StandardTextReader extends AbstractTextReader {
 		current = stream.read();
 		
 		while (current != END_OF_STRING) {
-			
 			if (current == '\\') {
 				current = stream.read();
 				switch (current) {
@@ -628,6 +627,30 @@ public class StandardTextReader extends AbstractTextReader {
 				case '\\':
 					builder.append('\\');
 					break;
+				case 'a':
+          StringBuilder a = new StringBuilder();
+          a.append(stream.read());
+          a.append(stream.read());
+          builder.append((char) Integer.parseInt(a.toString(), 16));
+          break;
+        case 'u':
+          StringBuilder u = new StringBuilder();
+          u.append(stream.read());
+          u.append(stream.read());
+          u.append(stream.read());
+          u.append(stream.read());
+          builder.append((char) Integer.parseInt(u.toString(), 16));
+          break;
+        case 'U':
+          StringBuilder U = new StringBuilder();
+          U.append(stream.read());
+          U.append(stream.read());
+          U.append(stream.read());
+          U.append(stream.read());
+          U.append(stream.read());
+          U.append(stream.read());
+          int cp = Integer.parseInt(U.toString(), 16);
+          builder.appendCodePoint(cp);
 				}
 				current = stream.read();
 			}
