@@ -462,47 +462,86 @@ public class StandardTextWriter implements IValueTextWriter {
 
     private void printString(String o) throws VisitorException {
       append('\"');
-		    for (char ch : o.toCharArray()) {
-		    	switch (ch) {
-		    	case '\"':
-		    		append('\\');
-		    		append('\"');
-		    		break;
-		    	case '>':
-		    		append('\\');
-		    		append('>');
-		    		break;
-		    	case '<':
-		    		append('\\');
-		    		append('<');
-		    		break;
-		    	case '\'':
-		    		append('\\');
-		    		append('\'');
-		    		break;
-		    	case '\\':
-		    		append('\\');
-		    		append('\\');
-		    		break;
-		    	case '\n':
-		    		append('\\');
-		    		append('n');
-		    		break;
-		    	case '\r':
-		    		append('\\');
-		    		append('r');
-		    		break;
-		    	case '\t':
-		    		append('\\');
-		    		append('t');
-		    		break;
-		    	default:
-		    		append((char) ch);
-		    	}
-		    }
- 		    append('\"');
-    }
+      char[] chars = o.toCharArray();
+      for (int i = 0; i < chars.length; i++) {
+        char ch = chars[i];
+        switch (ch) {
+        case '\"':
+          append('\\');
+          append('\"');
+          break;
+        case '>':
+          append('\\');
+          append('>');
+          break;
+        case '<':
+          append('\\');
+          append('<');
+          break;
+        case '\'':
+          append('\\');
+          append('\'');
+          break;
+        case '\\':
+          append('\\');
+          append('\\');
+          break;
+        case '\n':
+          append('\\');
+          append('n');
+          break;
+        case '\r':
+          append('\\');
+          append('r');
+          break;
+        case '\t':
+          append('\\');
+          append('t');
+          break;
+        case ' ':
+          // needed because other space chars will be escaped in the default branch
+          append(' ');
+          break;
+        default:
+          int cp = Character.codePointAt(chars, i);
 
+          if (Character.isSpaceChar(cp)
+              || Character.isISOControl(cp)
+              || Character.UnicodeBlock.SPECIALS.equals(Character.UnicodeBlock.of(cp))) {
+            // these characters are invisible or otherwise unreadable and we escape them here
+            // for clarity of the serialized string
+            
+            if (cp <= 16) {
+              append("\\a0");
+            }
+            else if (cp <= Byte.MAX_VALUE) {
+              append("\\a");
+            }
+            else if (cp <= Character.MAX_VALUE) {
+              append("\\u");
+            }
+            else {
+              append("\\U");
+            }
+            
+            append(Integer.toString(ch, 16));
+
+            if (Character.isHighSurrogate(ch)) {
+              i++; // skip the next char
+            }
+          }
+          else {
+            append(ch);
+
+            if (Character.isHighSurrogate(ch)) {
+              append(chars[++i]);
+            }
+          }
+        }
+      }
+      append('\"');
+    }
+    
 		public IValue visitTuple(ITuple o) throws VisitorException {
 			 append('<');
 			 

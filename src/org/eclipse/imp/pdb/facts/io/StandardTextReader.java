@@ -651,6 +651,8 @@ public class StandardTextReader extends AbstractTextReader {
           U.append(stream.read());
           int cp = Integer.parseInt(U.toString(), 16);
           builder.appendCodePoint(cp);
+        default:
+          builder.append(current);
 				}
 				current = stream.read();
 			}
