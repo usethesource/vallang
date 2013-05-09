@@ -594,7 +594,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    */
   protected Type lubWithExternal(Type type) {
     // the external type should be the receiver
-    return type.lub(this);
+    return lub(type);
   }
   
   abstract protected Type lubWithDateTime(Type type) ;
