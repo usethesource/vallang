@@ -53,7 +53,7 @@ public class TestType extends TestCase {
 			}
 			
 			RandomTypeGenerator rg = new RandomTypeGenerator();
-			for (int i = 0; i < 100; i++) {
+			for (int i = 0; i < 1000; i++) {
 			  allTypes.add(rg.next(10));
 			}
 			
