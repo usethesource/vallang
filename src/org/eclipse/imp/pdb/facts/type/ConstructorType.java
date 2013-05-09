@@ -170,6 +170,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public Type glb(Type type) {
+	  return type.glbWithConstructor(this);
+	}
+	
+	@Override
 	protected boolean isSubtypeOfConstructor(Type type) {
 	  if (type.getName().equals(getName())) {
       return getAbstractDataType().isSubtypeOf(type.getAbstractDataType())
@@ -187,9 +192,17 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	protected Type lubWithConstructor(Type type) {
-		if(this == type)
+		if(this == type) {
 			return this;
+		}
 		return getAbstractDataType().lubWithAbstractData(type.getAbstractDataType());
+	}
+	
+	@Override
+	protected Type glbWithConstructor(Type type) {
+	  if (this == type) {
+	    return this;
+	  }
 	}
 
 	@Override

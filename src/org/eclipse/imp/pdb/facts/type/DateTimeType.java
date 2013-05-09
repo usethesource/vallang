@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
  * @author mhills
  *
  */
-public class DateTimeType extends ValueType {
+public class DateTimeType extends DefaultSubtypeOfValue {
    private static final class InstanceKeeper {
     public final static DateTimeType sInstance= new DateTimeType();
    }
@@ -59,12 +59,22 @@ public class DateTimeType extends ValueType {
 	}
 	
 	@Override
+	public Type glb(Type type) {
+	  return type.glbWithDateTime(type);
+	}
+	
+	@Override
 	protected boolean isSubtypeOfDateTime(Type type) {
 	  return true;
 	}
 	
 	@Override
 	protected Type lubWithDateTime(Type type) {
+	  return this;
+	}
+	
+	@Override
+	protected Type glbWithDateTime(Type type) {
 	  return this;
 	}
 }

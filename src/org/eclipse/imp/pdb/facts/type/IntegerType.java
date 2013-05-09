@@ -60,6 +60,11 @@ package org.eclipse.imp.pdb.facts.type;
     }
     
     @Override
+    public Type glb(Type type) {
+      return type.glbWithInteger(this);
+    }
+    
+    @Override
     protected boolean isSubtypeOfInteger(Type type) {
     	return true;
     }

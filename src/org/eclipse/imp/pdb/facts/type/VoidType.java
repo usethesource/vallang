@@ -198,11 +198,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   }
 
   @Override
-  protected Type lubWithListRelation(Type type) {
-    return type;
-  }
-
-  @Override
   protected Type lubWithMap(Type type) {
     return type;
   }
@@ -224,11 +219,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
   @Override
   protected Type lubWithReal(Type type) {
-    return type;
-  }
-
-  @Override
-  protected Type lubWithRelation(Type type) {
     return type;
   }
 

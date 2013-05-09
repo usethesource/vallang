@@ -24,7 +24,7 @@ package org.eclipse.imp.pdb.facts.type;
  * <br> 
  * Note that NORMAL USE OF THE PDB DOES NOT REQUIRE EXTENDING THIS CLASS
  */
-public abstract class ExternalType extends ValueType {
+public abstract class ExternalType extends DefaultSubtypeOfValue {
 
 	@Override
 	public boolean isExternalType() {
@@ -42,12 +42,21 @@ public abstract class ExternalType extends ValueType {
 	}
 	
 	@Override
+	public final Type glb(Type type) {
+	  return type.glbWithExternal(this);
+	}
+	
+	@Override
 	protected /*final*/ boolean isSupertypeOf(Type type) {
 	  return type.isSubtypeOfExternal(this);
 	}
 	
 	@Override
 	abstract protected Type lubWithExternal(Type type);
+	
+	@Override
+  abstract protected Type glbWithExternal(Type type);
+  
 	
 	@Override
 	abstract protected boolean isSubtypeOfExternal(Type type);

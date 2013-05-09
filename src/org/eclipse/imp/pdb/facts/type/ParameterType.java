@@ -92,7 +92,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	@Override
 	public Type lub(Type type) {
-	  return type.lubWithParameter(this);
+	  return type.glbWithParameter(this);
+	}
+	
+	@Override
+	public Type glb(Type type) {
+	  return type.glbWithParameter(this);
 	}
 	
 	@Override
@@ -102,6 +107,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	  }
 	  
 	  return getBound().lub(type.getBound());
+	}
+	
+	@Override
+	protected Type glbWithParameter(Type type) {
+	  if (type == this) {
+	    return this;
+	  }
+	  
+	  return getBound().glb(type.getBound());
 	}
 	
 	@Override
@@ -264,16 +278,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   }
 
   @Override
-  protected Type lubWithRelation(Type type) {
-    return getBound().lubWithRelation(type);
-  }
-
-  @Override
-  protected Type lubWithListRelation(Type type) {
-    return getBound().lubWithListRelation(type);
-  }
-
-  @Override
   protected Type lubWithSet(Type type) {
     return getBound().lubWithSet(type);
   }
@@ -333,8 +337,99 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
     return getBound().lubWithDateTime(type);
   }
   
+  
   @Override
   public boolean isOpen() {
     return true;
+  }
+  
+  @Override
+  protected Type glbWithReal(Type type) {
+    return getBound().glbWithReal(type);
+  }
+
+  @Override
+  protected Type glbWithInteger(Type type) {
+    return getBound().glbWithInteger(type);
+  }
+
+  @Override
+  protected Type glbWithRational(Type type) {
+    return getBound().glbWithRational(type);
+  }
+
+  @Override
+  protected Type glbWithList(Type type) {
+    return getBound().glbWithList(type);
+  }
+
+  @Override
+  protected Type glbWithMap(Type type) {
+    return getBound().glbWithMap(type);
+  }
+
+  @Override
+  protected Type glbWithNumber(Type type) {
+    return getBound().glbWithNumber(type);
+  }
+
+  @Override
+  protected Type glbWithSet(Type type) {
+    return getBound().glbWithSet(type);
+  }
+
+  @Override
+  protected Type glbWithSourceLocation(Type type) {
+    return getBound().glbWithSourceLocation(type);
+  }
+
+  @Override
+  protected Type glbWithString(Type type) {
+    return getBound().glbWithString(type);
+  }
+
+  @Override
+  protected Type glbWithNode(Type type) {
+    return getBound().glbWithNode(type);
+  }
+
+  @Override
+  protected Type glbWithConstructor(Type type) {
+    return getBound().glbWithConstructor(type);
+  }
+
+  @Override
+  protected Type glbWithAbstractData(Type type) {
+    return getBound().glbWithAbstractData(type);
+  }
+
+  @Override
+  protected Type glbWithTuple(Type type) {
+    return getBound().glbWithTuple(type);
+  }
+
+  @Override
+  protected Type glbWithValue(Type type) {
+    return getBound().glbWithValue(type);
+  }
+
+  @Override
+  protected Type glbWithVoid(Type type) {
+    return getBound().glbWithVoid(type);
+  }
+
+  @Override
+  protected Type glbWithBool(Type type) {
+    return getBound().glbWithBool(type);
+  }
+
+  @Override
+  protected Type glbWithExternal(Type type) {
+    return getBound().glbWithExternal(type);
+  }
+
+  @Override
+  protected Type glbWithDateTime(Type type) {
+    return getBound().glbWithDateTime(type);
   }
 }

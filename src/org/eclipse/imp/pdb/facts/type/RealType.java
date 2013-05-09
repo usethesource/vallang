@@ -61,10 +61,35 @@ package org.eclipse.imp.pdb.facts.type;
 	}
 	
 	@Override
+	public Type glb(Type type) {
+	  return type.glbWithReal(this);
+	}
+	
+	@Override
 	protected Type lubWithReal(Type type) {
 	  return this;
 	}
 	 
+	@Override
+	protected Type glbWithReal(Type type) {
+	  return this;
+	}
+	
+	@Override
+	protected Type glbWithNumber(Type type) {
+	  return this;
+	}
+	
+	@Override
+	protected Type glbWithRational(Type type) {
+	  return VoidType.getInstance();
+	}
+	
+	@Override
+	protected Type glbWithInteger(Type type) {
+	  return VoidType.getInstance();
+	}
+	
 	@Override
 	protected boolean isSubtypeOfReal(Type type) {
 	  return true;

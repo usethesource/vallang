@@ -16,7 +16,7 @@ package org.eclipse.imp.pdb.facts.type;
  * A type for values that are nodes. All INode have the type NodeType, and all
  * IConstructors have NodeType as a supertype.
  */
-class NodeType extends ValueType {
+class NodeType extends DefaultSubtypeOfValue {
   protected static class InstanceKeeper {
     public final static NodeType sInstance = new NodeType();
   }
@@ -64,16 +64,36 @@ class NodeType extends ValueType {
 
   @Override
   protected Type lubWithAbstractData(Type type) {
-    return NodeType.getInstance();
+    return this;
   }
 
   @Override
   protected Type lubWithConstructor(Type type) {
-    return NodeType.getInstance();
+    return this;
   }
 
   @Override
   protected Type lubWithNode(Type type) {
+    return type;
+  }
+  
+  @Override
+  public Type glb(Type type) {
+    return type.glbWithNode(this);
+  }
+  
+  @Override
+  protected Type glbWithNode(Type type) {
+    return this;
+  }
+  
+  @Override
+  protected Type glbWithConstructor(Type type) {
+    return type;
+  }
+  
+  @Override
+  protected Type glbWithAbstractData(Type type) {
     return type;
   }
   
