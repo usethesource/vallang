@@ -511,7 +511,7 @@ public class StandardTextWriter implements IValueTextWriter {
             // these characters are invisible or otherwise unreadable and we escape them here
             // for clarity of the serialized string
             
-            if (cp <= 16) {
+            if (cp <= 15) {
               append("\\a0");
             }
             else if (cp <= Byte.MAX_VALUE) {
