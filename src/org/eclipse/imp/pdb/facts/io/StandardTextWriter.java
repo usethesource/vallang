@@ -511,21 +511,16 @@ public class StandardTextWriter implements IValueTextWriter {
             // these characters are invisible or otherwise unreadable and we escape them here
             // for clarity of the serialized string
             
-            if (cp <= 15) {
-              append("\\a0");
-            }
-            else if (cp <= Byte.MAX_VALUE) {
-              append("\\a");
+            if (cp <= Byte.MAX_VALUE) {
+              append("\\a" + String.format("%02x", (int) ch));
             }
             else if (cp <= Character.MAX_VALUE) {
-              append("\\u");
+              append("\\u" + String.format("%04x", (int) ch));
             }
             else {
-              append("\\U");
+              append("\\U" + String.format("%06x", (int) ch));
             }
             
-            append(Integer.toString(ch, 16));
-
             if (Character.isHighSurrogate(ch)) {
               i++; // skip the next char
             }
