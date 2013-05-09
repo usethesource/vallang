@@ -515,6 +515,20 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   }
 
   @Override
+  protected Type glbWithAlias(Type type) {
+    if(this == type)
+      return this;
+    if (getName().equals(type.getName())) {
+      return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), 
+            type.getName(), 
+            getAliased().glb(type.getAliased()),
+            getTypeParameters().glb(type.getTypeParameters()));
+    }
+    
+    return getAliased().glb(type);
+  }
+  
+  @Override
   protected Type glbWithAbstractData(Type type) {
     return fAliased.glbWithAbstractData(type);
   }

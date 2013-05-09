@@ -60,7 +60,7 @@ public class DateTimeType extends DefaultSubtypeOfValue {
 	
 	@Override
 	public Type glb(Type type) {
-	  return type.glbWithDateTime(type);
+	  return type.glbWithDateTime(this);
 	}
 	
 	@Override

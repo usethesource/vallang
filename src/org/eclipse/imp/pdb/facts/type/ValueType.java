@@ -233,7 +233,7 @@ package org.eclipse.imp.pdb.facts.type;
   }
 
   protected Type lubWithDateTime(Type type) {
-    return VoidType.getInstance();
+    return ValueType.getInstance();
   }
   
   @Override

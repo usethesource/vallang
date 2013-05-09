@@ -73,4 +73,19 @@ package org.eclipse.imp.pdb.facts.type;
     protected Type lubWithInteger(Type type) {
       return this;
     }
+    
+    @Override
+    protected Type glbWithReal(Type type) {
+      return TF.voidType();
+    }
+    
+    @Override
+    protected Type glbWithRational(Type type) {
+      return TF.voidType();
+    }
+    
+    @Override
+    protected Type glbWithNumber(Type type) {
+      return this;
+    }
 }

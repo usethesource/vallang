@@ -54,9 +54,6 @@ package org.eclipse.imp.pdb.facts.type;
     return VoidType.getInstance();
   }
 
-  protected Type glbWithListRelation(Type type) {
-    return VoidType.getInstance();
-  }
 
   protected Type glbWithSet(Type type) {
     return VoidType.getInstance();

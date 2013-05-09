@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
-/*package*/ final class MapType extends ValueType {
+/*package*/ final class MapType extends DefaultSubtypeOfValue {
     private final Type fKeyType;
     private final Type fValueType;
     private final String fKeyLabel;

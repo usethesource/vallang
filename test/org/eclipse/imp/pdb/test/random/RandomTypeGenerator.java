@@ -19,13 +19,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-public class RandomTypeGenerator extends RandomGenerator<Type> {
+public class RandomTypeGenerator {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final LinkedList<Type> atomicTypes;
 	private final Random random;
 
-	public RandomTypeGenerator(IValueFactory vf) {
-	  super(vf);
+	public RandomTypeGenerator() {
 		atomicTypes = new LinkedList<Type>();
 		atomicTypes.add(tf.realType());
 		atomicTypes.add(tf.integerType());
@@ -39,12 +38,6 @@ public class RandomTypeGenerator extends RandomGenerator<Type> {
 		this.random = new Random();
 	}
 	
-	@Override
-	public Type next() {
-	  return next(1);
-	}
-	
-	@Override
   public Type next(int maxDepth) {
 		int cntRecursiveTypes = 4; // list, set, map, tuple
 		int cntAtomicTypes = atomicTypes.size();

@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.test.random.RandomTypeGenerator;
 
 public class TestType extends TestCase {
 	private static final int COMBINATION_UPPERBOUND = 5;
@@ -50,6 +51,12 @@ public class TestType extends TestCase {
 			for (int i = 0; i < 2; i++) {
 				recombine();
 			}
+			
+			RandomTypeGenerator rg = new RandomTypeGenerator();
+			for (int i = 0; i < 100; i++) {
+			  allTypes.add(rg.next(10));
+			}
+			
 		} catch (FactTypeUseException e) {
 			throw new RuntimeException("fact type error in setup", e);
 		}
@@ -303,6 +310,15 @@ public class TestType extends TestCase {
 					System.err.println(t2 + ".lub(" + t1 + ") = " + lub2);
 					fail("lub should be commutative");
 				}
+				
+				 if (t1.comparable(t2)) {
+	          if (t1.isSubtypeOf(t2)) {
+	            assertTrue(t1.lub(t2).equivalent(t2));
+	          }
+	          if (t2.isSubtypeOf(t1)) {
+	            assertTrue(t1.lub(t2).equivalent(t1));
+	          }
+	        }
 			}
 		}
 		
@@ -321,6 +337,50 @@ public class TestType extends TestCase {
 		}
 	}
 
+	public void testGlb() {
+    for (Type t : allTypes) {
+      if (t.glb(t) != t) {
+        fail("glb should be idempotent: " + t + " != " + t.glb(t));
+      }
+    }
+
+    for (Type t1 : allTypes) {
+      for (Type t2 : allTypes) {
+        Type glb1 = t1.glb(t2);
+        Type glb2 = t2.glb(t1);
+
+        if (glb1 != glb2) {
+          System.err.println("Failure:");
+          System.err.println(t1 + ".glb(" + t2 + ") = " + glb1);
+          System.err.println(t2 + ".glb(" + t1 + ") = " + glb2);
+          fail("glb should be commutative");
+        }
+        
+        if (t1.comparable(t2)) {
+          if (t1.isSubtypeOf(t2)) {
+            assertTrue(t1.glb(t2).equivalent(t1));
+          }
+          if (t2.isSubtypeOf(t1)) {
+            assertTrue(t1.glb(t2).equivalent(t2));
+          }
+        }
+      }
+    }
+    
+    for (Type t1 : allTypes) {
+      if (!t1.isAliased() && t1.glb(TypeFactory.getInstance().valueType()) != t1) {
+        System.err.println(t1 + " glb value is not " + t1 + "? its "+ t1.glb(TypeFactory.getInstance().valueType()));
+        fail("value should be top: " + t1 + ".lub = " + t1.lub(TypeFactory.getInstance().valueType()));
+      }
+      if (t1.isAliased() && t1.glb(TypeFactory.getInstance().valueType()) != t1.getAliased()) {
+        fail("value should be top:" + t1);
+      }
+      if (t1.glb(TypeFactory.getInstance().voidType()) != TypeFactory.getInstance().voidType()) {
+        System.err.println(t1 + " glb void is not void?");
+        fail("void should be bottom:" + t1);
+      }
+    }
+  }
 	public void testGetTypeDescriptor() {
 		int count = 0;
 		for (Type t1 : allTypes) {
