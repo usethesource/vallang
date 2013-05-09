@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 
 
-/*package*/ final class SourceLocationType  extends ValueType {
+/*package*/ final class SourceLocationType  extends DefaultSubtypeOfValue {
     private static final class InstanceKeeper {
       public final static SourceLocationType sInstance= new SourceLocationType();
     }
@@ -61,12 +61,22 @@ package org.eclipse.imp.pdb.facts.type;
     }
     
     @Override
+    public Type glb(Type type) {
+      return type.glbWithSourceLocation(this);
+    }
+    
+    @Override
     protected boolean isSubtypeOfSourceLocation(Type type) {
       return true;
     }
     
     @Override
     protected Type lubWithSourceLocation(Type type) {
+      return this;
+    }
+    
+    @Override
+    protected Type glbWithSourceLocation(Type type) {
       return this;
     }
 }

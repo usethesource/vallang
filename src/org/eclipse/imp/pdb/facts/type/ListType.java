@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
-/*package*/ class ListType extends ValueType {
+/*package*/ class ListType extends DefaultSubtypeOfValue {
   protected final Type fEltType;
 	
 	/*package*/ ListType(Type eltType) {
@@ -167,8 +167,18 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	public Type glb(Type type) {
+	  return type.glbWithList(this);
+	}
+	
+	@Override
 	public Type lubWithList(Type type) {
-		return TF.listType(fEltType.lub(type.getElementType()));
+		return this == type ? this : TF.listType(fEltType.lub(type.getElementType()));
+	}
+	
+	@Override
+	protected Type glbWithList(Type type) {
+	  return this == type ? this : TF.listType(fEltType.glb(type.getElementType()));
 	}
 	
 	@Override

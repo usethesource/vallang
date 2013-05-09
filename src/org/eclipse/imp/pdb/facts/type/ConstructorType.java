@@ -200,9 +200,29 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	protected Type glbWithConstructor(Type type) {
-	  if (this == type) {
+	  if (type.isSubtypeOf(this)) {
+	    return type;
+	  }
+	  else if (isSubtypeOf(type)) {
 	    return this;
 	  }
+	  else {
+	    return TF.voidType();
+	  }
+	}
+	
+	@Override
+	protected Type glbWithAbstractData(Type type) {
+	  if (isSubtypeOf(type)) {
+	    return this;
+	  }
+	  
+	  return TF.voidType();
+	}
+	
+	@Override
+	protected Type glbWithNode(Type type) {
+	  return this;
 	}
 
 	@Override

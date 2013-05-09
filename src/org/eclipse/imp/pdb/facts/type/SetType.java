@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
-/*package*/class SetType extends ValueType {
+/*package*/class SetType extends DefaultSubtypeOfValue {
   protected final Type fEltType;
 
   /* package */SetType(Type eltType) {
@@ -155,6 +155,16 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   @Override
   public Type lub(Type other) {
     return other.lubWithSet(this);
+  }
+  
+  @Override
+  public Type glb(Type type) {
+    return type.glbWithSet(this);
+  }
+  
+  @Override
+  protected Type glbWithSet(Type type) {
+    return this == type ? this : TF.setType(fEltType.glb(type.getElementType()));
   }
 
   @Override
