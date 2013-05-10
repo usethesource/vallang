@@ -626,6 +626,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   
   protected Type glbWithExternal(Type type) {
     // the external type should be the receiver
-    return type.glb(this);
+    return glb(type);
   }
 }
