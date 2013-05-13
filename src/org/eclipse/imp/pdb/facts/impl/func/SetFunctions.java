@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public final class SetFunctions {
 
-    @SuppressWarnings("unused")
 	private final static TypeFactory TF = TypeFactory.getInstance();
 
     public static boolean contains(IValueFactory vf, ISet set1, IValue e) {
@@ -168,6 +167,9 @@ public final class SetFunctions {
     }
 
     public static ISet compose(IValueFactory vf, ISet set1, ISet set2) throws FactTypeUseException {
+		if (set1.getElementType() == TF.voidType()) return set1;
+		if (set2.getElementType() == TF.voidType()) return set2;
+
 		if (set1.getElementType().getArity() != 2 || set2.getElementType().getArity() != 2) {
 			throw new IllegalOperationException("Incompatible types for composition.", set1.getElementType(), set2.getElementType());
 		}
