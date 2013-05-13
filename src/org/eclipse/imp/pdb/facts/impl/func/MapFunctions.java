@@ -61,17 +61,7 @@ public final class MapFunctions {
 	}
    
 	public static IMap put(IValueFactory vf, IMap map1, IValue key, IValue value) {
-		Type newMapType = map1.getType();
-		Type newKeyType = map1.getType().getKeyType().lub(key.getType());
-		Type newValueType = map1.getType().getValueType().lub(value.getType());
-		if (newKeyType != map1.getType().getKeyType()
-				|| newValueType != map1.getType().getValueType()) {
-			newMapType = TypeFactory.getInstance().mapType(newKeyType,
-					map1.getType().getKeyLabel(), newValueType,
-					map1.getType().getValueLabel());
-		}
-
-		IMapWriter sw = vf.mapWriter(newMapType);
+		IMapWriter sw = vf.mapWriter(map1.getType());
 		sw.putAll(map1);
 		sw.put(key, value);
 		return sw.done();
