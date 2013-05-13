@@ -34,7 +34,7 @@ public final class ListFunctions {
         if (offset < 0 || length < 0 || offset + length > list1.length()) {
             throw new IndexOutOfBoundsException();
         }
-        IListWriter w = vf.listWriter(list1.getElementType());
+        IListWriter w = vf.listWriter();
         for (int i = offset; i < offset + length; i++) {
             w.append(list1.get(i));
         }
@@ -42,7 +42,7 @@ public final class ListFunctions {
     }
 
     public static IList insert(IValueFactory vf, IList list1, IValue e) {
-        IListWriter w = vf.listWriter(e.getType().lub(list1.getElementType()));
+        IListWriter w = vf.listWriter();
         w.appendAll(list1);
         w.insert(e);
 
@@ -50,7 +50,7 @@ public final class ListFunctions {
     }
 
     public static IList put(IValueFactory vf, IList list1, int i, IValue e) throws IndexOutOfBoundsException {
-        IListWriter w = vf.listWriter(e.getType().lub(list1.getElementType()));
+        IListWriter w = vf.listWriter();
         w.appendAll(list1);
         w.replaceAt(i, e);
         return w.done();
@@ -154,7 +154,7 @@ public final class ListFunctions {
 	}
     
     public static IList append(IValueFactory vf, IList list1, IValue e) {
-        IListWriter w = vf.listWriter(e.getType().lub(list1.getElementType()));
+        IListWriter w = vf.listWriter();
         w.appendAll(list1);
         w.append(e);
 
@@ -204,7 +204,7 @@ public final class ListFunctions {
     }
 
     public static IList reverse(IValueFactory vf, IList list1) {
-        IListWriter w = vf.listWriter(list1.getElementType());
+        IListWriter w = vf.listWriter();
         for (IValue e : list1) {
             w.insert(e);
         }
@@ -212,7 +212,7 @@ public final class ListFunctions {
     }
 
     public static IList concat(IValueFactory vf, IList list1, IList list2) {
-        IListWriter w = vf.listWriter(list1.getElementType().lub(list2.getElementType()));
+        IListWriter w = vf.listWriter();
         w.appendAll(list1);
         w.appendAll(list2);
         return w.done();
@@ -273,13 +273,12 @@ public final class ListFunctions {
     }    
 
     public static IList product(IValueFactory vf, IList list1, IList list2) {
-        Type resultType = TypeFactory.getInstance().tupleType(list1.getElementType(), list2.getElementType());
-        IListWriter w = vf.listWriter(resultType);
+        IListWriter w = vf.listWriter();
 
         for (IValue t1 : list1) {
             for (IValue t2 : list2) {
                 IValue values[] = {t1, t2};
-                ITuple t3 = vf.tuple(resultType, values);
+                ITuple t3 = vf.tuple(values);
                 w.insert(t3);
             }
         }
@@ -327,7 +326,7 @@ public final class ListFunctions {
     }
 
     public static IList closure(IValueFactory vf, IList list1) {
-        Type resultType = list1.getType().closure(); // will throw exception if not binary and reflexive
+        list1.getType().closure(); // will throw exception if not binary and reflexive
         IList tmp = list1;
 
         int prevCount = 0;
@@ -336,7 +335,7 @@ public final class ListFunctions {
         while (prevCount != tmp.length()) {
             prevCount = tmp.length();
             IList tcomp = compose(vf, tmp, tmp);
-            IListWriter w = vf.listWriter(resultType.getElementType());
+            IListWriter w = vf.listWriter();
             for (IValue t1 : tcomp) {
                 if (!tmp.contains(t1)) {
                     if (!addedTuples.contains(t1)) {
@@ -352,10 +351,10 @@ public final class ListFunctions {
     }
 
     public static IList closureStar(IValueFactory vf, IList list1) {
-        Type resultType = list1.getType().closure();
+        list1.getType().closure();
         // an exception will have been thrown if the type is not acceptable
 
-        IListWriter reflex = vf.listWriter(resultType.getElementType());
+        IListWriter reflex = vf.listWriter();
 
         for (IValue e : carrier(vf, list1)) {
             reflex.insert(vf.tuple(new IValue[]{e, e}));
@@ -378,10 +377,7 @@ public final class ListFunctions {
         if (!list1.getElementType().getFieldType(1).comparable(otherTupleType.getFieldType(0)))
             throw new IllegalOperationException("compose", list1.getElementType(), otherTupleType);
 
-        Type[] newTupleFieldTypes = new Type[]{list1.getElementType().getFieldType(0), otherTupleType.getFieldType(1)};
-        Type tupleType = TF.tupleType(newTupleFieldTypes);
-
-        IListWriter w = vf.listRelationWriter(tupleType);
+        IListWriter w = vf.listWriter();
 
         for (IValue v1 : list1) {
             ITuple tuple1 = (ITuple) v1;
@@ -397,8 +393,7 @@ public final class ListFunctions {
     }
 
     public static IList carrier(IValueFactory vf, IList rel1) {
-        Type newType = rel1.getType().carrier();
-        IListWriter w = vf.listWriter(newType.getElementType());
+        IListWriter w = vf.listWriter();
         java.util.HashSet<IValue> cache = new java.util.HashSet<>();
 
         for (IValue v : rel1) {
@@ -415,13 +410,13 @@ public final class ListFunctions {
     }
 
     public static IList domain(IValueFactory vf, IList rel1) {
-        Type lrelType = rel1.getType();
-        IListWriter w = vf.listWriter(lrelType.getFieldType(0));
+        int columnIndex = 0;
+    	IListWriter w = vf.listWriter();
         java.util.HashSet<IValue> cache = new java.util.HashSet<>();
 
         for (IValue elem : rel1) {
             ITuple tuple = (ITuple) elem;
-            IValue e = tuple.get(0);
+            IValue e = tuple.get(columnIndex);
             if (!cache.contains(e)) {
                 cache.add(e);
                 w.append(e);
@@ -431,14 +426,13 @@ public final class ListFunctions {
     }
 
     public static IList range(IValueFactory vf, IList rel1) {
-        Type lrelType = rel1.getType();
-        int last = lrelType.getArity() - 1;
-        IListWriter w = vf.listWriter(lrelType.getFieldType(last));
+    	int columnIndex = rel1.getType().getArity() - 1;
+        IListWriter w = vf.listWriter();
         java.util.HashSet<IValue> cache = new java.util.HashSet<>();
 
         for (IValue elem : rel1) {
             ITuple tuple = (ITuple) elem;
-            IValue e = tuple.get(last);
+            IValue e = tuple.get(columnIndex);
             if (!cache.contains(e)) {
                 cache.add(e);
                 w.append(e);
@@ -449,8 +443,7 @@ public final class ListFunctions {
     }
 
     public static IList project(IValueFactory vf, IList list1, int... fields) {
-        Type eltType = list1.getType().getFieldTypes().select(fields);
-        IListWriter w = vf.listWriter(eltType);
+        IListWriter w = vf.listWriter();
 
         for (IValue v : list1) {
             w.append(((ITuple) v).select(fields));

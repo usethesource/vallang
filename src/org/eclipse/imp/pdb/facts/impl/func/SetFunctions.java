@@ -22,7 +22,6 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.*;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public final class SetFunctions {
@@ -40,14 +39,14 @@ public final class SetFunctions {
     }
 
     public static ISet insert(IValueFactory vf, ISet set1, IValue e) {
-        ISetWriter sw = vf.setWriter(set1.getElementType().lub(e.getType()));
+        ISetWriter sw = vf.setWriter();
         sw.insertAll(set1);
         sw.insert(e);
         return sw.done();
     }
 
     public static ISet intersect(IValueFactory vf, ISet set1, ISet set2) {
-        ISetWriter w = vf.setWriter(set2.getElementType().lub(set1.getElementType()));
+        ISetWriter w = vf.setWriter();
 
         for (IValue v : set1) {
             if (set2.contains(v)) {
@@ -59,7 +58,7 @@ public final class SetFunctions {
     }
 
     public static ISet subtract(IValueFactory vf, ISet set1, ISet set2) {
-        ISetWriter sw = vf.setWriter(set1.getElementType());
+        ISetWriter sw = vf.setWriter();
         for (IValue a : set1) {
             if (!set2.contains(a)) {
                 sw.insert(a);
@@ -94,7 +93,7 @@ public final class SetFunctions {
     }
 
     public static ISet union(IValueFactory vf, ISet set1, ISet set2) {
-        ISetWriter w = vf.setWriter(set2.getElementType().lub(set1.getElementType()));
+        ISetWriter w = vf.setWriter();
         w.insertAll(set1);
         w.insertAll(set2);
         return w.done();
@@ -129,8 +128,7 @@ public final class SetFunctions {
     }
 
     public static ISet product(IValueFactory vf, ISet set1, ISet set2) {
-        Type resultType = TypeFactory.getInstance().tupleType(set1.getElementType(), set2.getElementType());
-        ISetWriter w = vf.setWriter(resultType);
+        ISetWriter w = vf.setWriter();
 
         for (IValue t1 : set1) {
             for (IValue t2 : set2) {
@@ -157,10 +155,10 @@ public final class SetFunctions {
     }
 
     public static ISet closureStar(IValueFactory vf, ISet set1) throws FactTypeUseException {
-        Type resultType = set1.getType().closure();
+        set1.getType().closure();
         // an exception will have been thrown if the type is not acceptable
 
-        ISetWriter reflex = vf.setWriter(resultType.getElementType());
+        ISetWriter reflex = vf.setWriter();
 
         for (IValue e : carrier(vf, set1)) {
             reflex.insert(vf.tuple(new IValue[]{e, e}));
@@ -170,28 +168,30 @@ public final class SetFunctions {
     }
 
     public static ISet compose(IValueFactory vf, ISet set1, ISet set2) throws FactTypeUseException {
-    	Type resultType = set1.getType().compose(set2.getType());
-        // an exception will have been thrown if the relations are not both binary and
-        // have a comparable field to compose.
+		if (set1.getElementType().getArity() != 2 || set2.getElementType().getArity() != 2) {
+			throw new IllegalOperationException("Incompatible types for composition.", set1.getElementType(), set2.getElementType());
+		}
     	
-    	ISetWriter w = vf.setWriter(resultType.getFieldTypes());
+    	ISetWriter w = vf.setWriter();
 
-        for (IValue v1 : set1) {
-            ITuple tuple1 = (ITuple) v1;
-            for (IValue t2 : set2) {
-                ITuple tuple2 = (ITuple) t2;
+		if (set1.getElementType().getFieldType(1)
+				.comparable(set2.getElementType().getFieldType(0))) {
+			for (IValue v1 : set1) {
+				ITuple tuple1 = (ITuple) v1;
+				for (IValue t2 : set2) {
+					ITuple tuple2 = (ITuple) t2;
 
-                if (tuple1.get(1).isEqual(tuple2.get(0))) {
-                    w.insert(vf.tuple(tuple1.get(0), tuple2.get(1)));
-                }
-            }
-        }
+					if (tuple1.get(1).isEqual(tuple2.get(0))) {
+						w.insert(vf.tuple(tuple1.get(0), tuple2.get(1)));
+					}
+				}
+			}
+		}
         return w.done();
     }
 
     public static ISet carrier(IValueFactory vf, ISet set1) {
-        Type newType = set1.getType().carrier();
-        ISetWriter w = vf.setWriter(newType.getElementType());
+        ISetWriter w = vf.setWriter();
 
         for (IValue t : set1) {
             w.insertAll((ITuple) t);
@@ -201,32 +201,30 @@ public final class SetFunctions {
     }
 
     public static ISet domain(IValueFactory vf, ISet set1) {
-        Type relType = set1.getType();
-        ISetWriter w = vf.setWriter(relType.getFieldType(0));
+        int columnIndex = 0;
+    	ISetWriter w = vf.setWriter();
 
         for (IValue elem : set1) {
             ITuple tuple = (ITuple) elem;
-            w.insert(tuple.get(0));
+            w.insert(tuple.get(columnIndex));
         }
         return w.done();
     }
 
     public static ISet range(IValueFactory vf, ISet set1) {
-        Type relType = set1.getType();
-        int last = relType.getArity() - 1;
-        ISetWriter w = vf.setWriter(relType.getFieldType(last));
+    	int columnIndex = set1.getType().getArity() - 1;
+        ISetWriter w = vf.setWriter();
 
         for (IValue elem : set1) {
             ITuple tuple = (ITuple) elem;
-            w.insert(tuple.get(last));
+            w.insert(tuple.get(columnIndex));
         }
 
         return w.done();
     }
 
     public static ISet project(IValueFactory vf, ISet set1, int... fields) {
-        Type eltType = set1.getType().getFieldTypes().select(fields);
-        ISetWriter w = vf.setWriter(eltType);
+        ISetWriter w = vf.setWriter();
 
         for (IValue v : set1) {
             w.insert(((ITuple) v).select(fields));

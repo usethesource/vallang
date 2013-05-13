@@ -213,25 +213,22 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t1 = vf.tuple(integers[0], doubles[0]);
 			ITuple t2 = vf.tuple(integers[1], doubles[1]);
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
-			ISet rel1 = vf.relation(t1, t2, t3);
+			ISet rel1 = vf.set(t1, t2, t3);
 
 			ITuple t4 = vf.tuple(doubles[0], integers[0]);
 			ITuple t5 = vf.tuple(doubles[1], integers[1]);
 			ITuple t6 = vf.tuple(doubles[2], integers[2]);
-			ISet rel2 = vf.relation(t4, t5, t6);
+			ISet rel2 = vf.set(t4, t5, t6);
 			
 			ITuple t7 = vf.tuple(integers[0], integers[0]);
 			ITuple t8 = vf.tuple(integers[1], integers[1]);
 			ITuple t9 = vf.tuple(integers[2], integers[2]);
-			ISet rel3 = vf.relation(t7, t8, t9);
+			ISet rel3 = vf.set(t7, t8, t9);
 			
-			try {
-			  vf.relation(vf.tuple(doubles[0],doubles[0])).asRelation().compose(rel1.asRelation());
-			  fail("relations should not be composable");
-			}
-			catch (FactTypeUseException e) {
-				// this should happen
-			}
+			assertTrue(
+					"Non-comparable types should yield empty composition result.",
+					vf.set(vf.tuple(doubles[0], doubles[0])).asRelation()
+							.compose(rel1.asRelation()).isEmpty());
 			
 			ISet comp = rel1.asRelation().compose(rel2.asRelation());
 			
