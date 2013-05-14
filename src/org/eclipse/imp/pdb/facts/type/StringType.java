@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 
-/*package*/ final class StringType extends ValueType {
+/*package*/ final class StringType extends DefaultSubtypeOfValue {
     private static final class InstanceKeeper {
       private final static StringType sInstance= new StringType();
     }
@@ -60,12 +60,22 @@ package org.eclipse.imp.pdb.facts.type;
     }
     
     @Override
+    public Type glb(Type type) {
+      return type.glbWithString(this);
+    }
+    
+    @Override
     protected boolean isSubtypeOfString(Type type) {
       return true;
     }
     
     @Override
     protected Type lubWithString(Type type) {
+      return this;
+    }
+    
+    @Override
+    protected Type glbWithString(Type type) {
       return this;
     }
 }

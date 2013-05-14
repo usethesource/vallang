@@ -48,6 +48,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public Type glb(Type type) {
+	  return type.glbWithAbstractData(this);
+	}
+	
+	@Override
 	protected boolean isSubtypeOfNode(Type type) {
 	  return true;
 	}
@@ -81,6 +86,33 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	@Override
 	protected Type lubWithConstructor(Type type) {
 	  return lubWithAbstractData(type.getAbstractDataType());
+	}
+	
+	@Override
+	protected Type glbWithNode(Type type) {
+	  return this;
+	}
+	
+	@Override
+	protected Type glbWithAbstractData(Type type) {
+	  if (this == type) {
+      return this;
+    }
+    
+    if (fName.equals(type.getName())) {
+      return TF.abstractDataTypeFromTuple(new TypeStore(), fName, getTypeParameters().glb(type.getTypeParameters()));
+    }
+    
+    return TF.voidType();
+	}
+	
+	@Override
+	protected Type glbWithConstructor(Type type) {
+	  if (type.isSubtypeOf(this)) {
+	    return type;
+	  }
+	  
+	  return TF.voidType();
 	}
 	
 	@Override

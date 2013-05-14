@@ -62,7 +62,7 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		setOfDoubles = sw2.done();
 		
-		ISetWriter rw = vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+		ISetWriter rw = vf.setWriter(tf.tupleType(tf.integerType(), tf.integerType()));
 		integerTuples = new ITuple[integers.length * integers.length];
 		
 		for (int i = 0; i < integers.length; i++) {
@@ -74,7 +74,7 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		integerRelation = rw.done();
 		
-		ISetWriter rw2 = vf.relationWriter(tf.tupleType(tf.realType(), tf.realType()));
+		ISetWriter rw2 = vf.setWriter(tf.tupleType(tf.realType(), tf.realType()));
 		doubleTuples = new ITuple[doubles.length * doubles.length];
 		
 		for (int i = 0; i < doubles.length; i++) {
@@ -92,11 +92,11 @@ public abstract class BaseTestRelation extends TestCase {
 			fail("integerRelation is not empty");
 		}
 		
-		if (!vf.relation(tf.tupleType(tf.integerType())).isEmpty()) {
+		if (!vf.set(tf.tupleType(tf.integerType())).isEmpty()) {
 			fail("this relation should be empty");
 		}
 		
-		ISet emptyRel = vf.relation();
+		ISet emptyRel = vf.set();
 		if (!emptyRel.isEmpty()) {
 			fail("empty relation is not empty?");
 		}
@@ -153,7 +153,7 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		
 		try {
-			ISet rel = vf.relation(tf.tupleType(tf.integerType(), tf.integerType()));
+			ISet rel = vf.set(tf.tupleType(tf.integerType(), tf.integerType()));
 			rel.asRelation().closure();
 		}
 		catch (FactTypeUseException e) {
@@ -170,7 +170,7 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t5 = vf.tuple(integers[1], integers[3]);
 			ITuple t6 = vf.tuple(integers[0], integers[3]);
 			
-			ISet test = vf.relation(t1, t2, t3);
+			ISet test = vf.set(t1, t2, t3);
 			ISet closed = test.asRelation().closure();
 			
 			if (closed.asRelation().arity() != test.asRelation().arity()) {
@@ -224,12 +224,10 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t8 = vf.tuple(integers[1], integers[1]);
 			ITuple t9 = vf.tuple(integers[2], integers[2]);
 			ISet rel3 = vf.set(t7, t8, t9);
-			
 			assertTrue(
 					"Non-comparable types should yield empty composition result.",
 					vf.set(vf.tuple(doubles[0], doubles[0])).asRelation()
 							.compose(rel1.asRelation()).isEmpty());
-			
 			ISet comp = rel1.asRelation().compose(rel2.asRelation());
 			
 			if (!comp.isEqual(rel3)) {
@@ -260,7 +258,7 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("insert into a relation of an existing tuple should not change the relation");
 			}
 			
-			ISetWriter relw3 = vf.relationWriter(tf.tupleType(tf.integerType(), tf.integerType()));
+			ISetWriter relw3 = vf.setWriter(tf.tupleType(tf.integerType(), tf.integerType()));
 			relw3.insertAll(integerRelation);
 			ISet rel3 = relw3.done();
 			 
@@ -287,11 +285,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			ISet oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.set(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			ISet threeFourFive = vf.relation(integerTuples[2],
+			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			ISet result = vf.relation(integerTuples[2]);
+			ISet result = vf.set(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -300,7 +298,7 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("intersection should be commutative");
 			}
 			
-			if (!oneTwoThree.intersect(vf.relation(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
+			if (!oneTwoThree.intersect(vf.set(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
 				fail("intersection with empty set should produce empty");
 			}
 
@@ -310,7 +308,7 @@ public abstract class BaseTestRelation extends TestCase {
 	}
 
 	public void testIntersectISet() {
-		ISet empty1 = vf.relation(tf.tupleType(tf.integerType()));
+		ISet empty1 = vf.set(tf.tupleType(tf.integerType()));
 		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
 		
 		try {
@@ -332,11 +330,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting relations should produce empty intersections");
 			}
 
-			ISet oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.set(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
 			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			ISet result = vf.relation(integerTuples[2]);
+			ISet result = vf.set(integerTuples[2]);
 
 			if (!oneTwoThree.intersect(threeFourFive).isEqual(result)) {
 				fail("intersection failed");
@@ -345,7 +343,7 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("intersection should be commutative");
 			}
 			
-			if (!oneTwoThree.intersect(vf.relation(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
+			if (!oneTwoThree.intersect(vf.set(tf.tupleType(tf.integerType(),tf.integerType()))).isEmpty()) {
 				fail("intersection with empty set should produce empty");
 			}
 
@@ -356,46 +354,7 @@ public abstract class BaseTestRelation extends TestCase {
 
 
 	public void testSubtractIRelation() {
-		ISet empty1 = vf.relation(tf.tupleType(tf.integerType()));
-		ISet empty2 = vf.relation(tf.tupleType(tf.realType()));
-		
-		try {
-			final ISet diff = empty1.subtract(empty2);
-			if (!diff.isEmpty()) {
-				fail("empty diff failed");
-			}
-			
-		} catch (FactTypeUseException e) {
-		    fail("subtracting types which have a lub should be possible");
-		}
-		
-		try {
-			ISet oneTwoThree = vf.relation(integerTuples[0],
-					integerTuples[1], integerTuples[2]);
-			ISet threeFourFive = vf.relation(integerTuples[2],
-					integerTuples[3], integerTuples[4]);
-			ISet result1 = vf.relation(integerTuples[0],integerTuples[1]);
-			ISet result2 = vf.relation(integerTuples[3],integerTuples[4]);
-
-			if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
-				fail("subtraction failed");
-			}
-			if (!threeFourFive.subtract(oneTwoThree).isEqual(result2)) {
-				fail("subtraction failed");
-			}
-			
-			ISet empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
-			if (!empty3.subtract(threeFourFive).isEmpty()) {
-				fail("subtracting from empty set should produce empty");
-			}
-
-		} catch (FactTypeUseException e) {
-			fail("the above should all be type safe");
-		} 
-	}
-
-	public void testSubtractISet() {
-		ISet empty1 = vf.relation(tf.tupleType(tf.integerType()));
+		ISet empty1 = vf.set(tf.tupleType(tf.integerType()));
 		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
 		
 		try {
@@ -409,17 +368,56 @@ public abstract class BaseTestRelation extends TestCase {
 		}
 		
 		try {
-			ISet oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.set(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
 			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			ISet result1 = vf.relation(integerTuples[0],integerTuples[1]);
+			ISet result1 = vf.set(integerTuples[0],integerTuples[1]);
+			ISet result2 = vf.set(integerTuples[3],integerTuples[4]);
+
+			if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
+				fail("subtraction failed");
+			}
+			if (!threeFourFive.subtract(oneTwoThree).isEqual(result2)) {
+				fail("subtraction failed");
+			}
+			
+			ISet empty3 = vf.set(tf.tupleType(tf.integerType(),tf.integerType()));
+			if (!empty3.subtract(threeFourFive).isEmpty()) {
+				fail("subtracting from empty set should produce empty");
+			}
+
+		} catch (FactTypeUseException e) {
+			fail("the above should all be type safe");
+		} 
+	}
+
+	public void testSubtractISet() {
+		ISet empty1 = vf.set(tf.tupleType(tf.integerType()));
+		ISet empty2 = vf.set(tf.tupleType(tf.realType()));
+		
+		try {
+			final ISet diff = empty1.subtract(empty2);
+			if (!diff.isEmpty()) {
+				fail("empty diff failed");
+			}
+			
+		} catch (FactTypeUseException e) {
+		    fail("subtracting types which have a lub should be possible");
+		}
+		
+		try {
+			ISet oneTwoThree = vf.set(integerTuples[0],
+					integerTuples[1], integerTuples[2]);
+			ISet threeFourFive = vf.set(integerTuples[2],
+					integerTuples[3], integerTuples[4]);
+			ISet result1 = vf.set(integerTuples[0],integerTuples[1]);
 
 			if (!oneTwoThree.subtract(threeFourFive).isEqual(result1)) {
 				fail("subtraction failed");
 			}
 			
-			ISet empty3 = vf.relation(tf.tupleType(tf.integerType(),tf.integerType()));
+			ISet empty3 = vf.set(tf.tupleType(tf.integerType(),tf.integerType()));
 			if (!empty3.subtract(threeFourFive).isEmpty()) {
 				fail("subtracting from empty set should produce empty");
 			}
@@ -435,11 +433,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
-			ISet oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.set(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
-			ISet threeFourFive = vf.relation(integerTuples[2],
+			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			ISet result = vf.relation(integerTuples[0],
+			ISet result = vf.set(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
 
 			if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
@@ -449,7 +447,7 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("union should be commutative");
 			}
 			
-			if (!oneTwoThree.union(vf.relation(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
+			if (!oneTwoThree.union(vf.set(tf.tupleType(tf.integerType(),tf.integerType()))).isEqual(oneTwoThree)) {
 				fail("union with empty set should produce same set");
 			}
 
@@ -462,7 +460,7 @@ public abstract class BaseTestRelation extends TestCase {
 	  assertTrue(vf.set().getType().isRelation());
 	  assertTrue(vf.set(tf.integerType()).getType().isRelation());
 	  
-	  ISet r = vf.relation().insert(vf.tuple(vf.integer(1), vf.integer(2)));
+	  ISet r = vf.set().insert(vf.tuple(vf.integer(1), vf.integer(2)));
 	  r = r.subtract(r);
 	  assertTrue(r.getType().isRelation());
 	  
@@ -477,11 +475,11 @@ public abstract class BaseTestRelation extends TestCase {
 				fail("non-intersecting non-intersectiopn relations should produce relation that is the sum of the sizes");
 			}
 
-			ISet oneTwoThree = vf.relation(integerTuples[0],
+			ISet oneTwoThree = vf.set(integerTuples[0],
 					integerTuples[1], integerTuples[2]);
 			ISet threeFourFive = vf.set(integerTuples[2],
 					integerTuples[3], integerTuples[4]);
-			ISet result = vf.relation(integerTuples[0],
+			ISet result = vf.set(integerTuples[0],
 					integerTuples[1], integerTuples[2], integerTuples[3], integerTuples[4]);
 
 			if (!oneTwoThree.union(threeFourFive).isEqual(result)) {
@@ -532,7 +530,7 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t1 = vf.tuple(integers[0], doubles[0]);
 			ITuple t2 = vf.tuple(integers[1], doubles[1]);
 			ITuple t3 = vf.tuple(integers[2], doubles[2]);
-			ISet rel1 = vf.relation(t1, t2, t3);
+			ISet rel1 = vf.set(t1, t2, t3);
 			
 			ISet carrier1 = rel1.asRelation().carrier();
 			

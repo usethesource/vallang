@@ -13,7 +13,7 @@
 package org.eclipse.imp.pdb.facts.type;
 
 
-/*package*/ final class BoolType extends ValueType {
+/*package*/ final class BoolType extends DefaultSubtypeOfValue {
   private final static class InstanceKeeper {
     public final static BoolType sInstance = new BoolType();
   }
@@ -67,6 +67,16 @@ package org.eclipse.imp.pdb.facts.type;
   
   @Override
   protected Type lubWithBool(Type type) {
+    return this;
+  }
+  
+  @Override
+  public Type glb(Type type) {
+    return type.glbWithBool(this);
+  }
+  
+  @Override
+  protected Type glbWithBool(Type type) {
     return this;
   }
 }

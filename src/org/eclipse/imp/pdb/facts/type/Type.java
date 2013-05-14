@@ -315,6 +315,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    */
   public abstract Type lub(Type type);
 
+  public abstract Type glb(Type type);
+  
   /**
    * The sub-type relation. Value is the biggest type and void is the smallest.
    * Value is the top and void is the bottom of the type hierarchy.
@@ -575,8 +577,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type lubWithList(Type type) ;
   abstract protected Type lubWithMap(Type type) ;
   abstract protected Type lubWithNumber(Type type) ;
-  abstract protected Type lubWithRelation(Type type) ;
-  abstract protected Type lubWithListRelation(Type type) ;
   abstract protected Type lubWithSet(Type type) ;
   abstract protected Type lubWithSourceLocation(Type type) ;
   abstract protected Type lubWithString(Type type) ;
@@ -587,6 +587,33 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   abstract protected Type lubWithValue(Type type) ;
   abstract protected Type lubWithVoid(Type type) ;
   abstract protected Type lubWithBool(Type type) ;
+  abstract protected Type lubWithDateTime(Type type) ;
+  
+  protected Type glbWithAlias(Type type) {
+    return glb(type.getAliased());
+  }
+  
+  protected Type glbWithParameter(Type type) {
+    return glb(type.getBound());
+  }
+  
+  abstract protected Type glbWithReal(Type type) ;
+  abstract protected Type glbWithInteger(Type type) ;
+  abstract protected Type glbWithRational(Type type) ;
+  abstract protected Type glbWithList(Type type) ;
+  abstract protected Type glbWithMap(Type type) ;
+  abstract protected Type glbWithNumber(Type type) ;
+  abstract protected Type glbWithSet(Type type) ;
+  abstract protected Type glbWithSourceLocation(Type type) ;
+  abstract protected Type glbWithString(Type type) ;
+  abstract protected Type glbWithNode(Type type) ;
+  abstract protected Type glbWithConstructor(Type type) ;
+  abstract protected Type glbWithAbstractData(Type type) ;
+  abstract protected Type glbWithTuple(Type type) ;
+  abstract protected Type glbWithValue(Type type) ;
+  abstract protected Type glbWithVoid(Type type) ;
+  abstract protected Type glbWithBool(Type type) ;
+  abstract protected Type glbWithDateTime(Type type) ;
   
   /**
    * This makes sure that lubbing can be done by the external type whether
@@ -597,5 +624,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return lub(type);
   }
   
-  abstract protected Type lubWithDateTime(Type type) ;
+  protected Type glbWithExternal(Type type) {
+    // the external type should be the receiver
+    return glb(type);
+  }
 }

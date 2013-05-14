@@ -32,5 +32,4 @@ public abstract class RandomGenerator<T> {
 	 * @return the next random value for the generator
 	 */
 	public abstract T next();
-
 }

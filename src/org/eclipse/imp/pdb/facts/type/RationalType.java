@@ -68,4 +68,28 @@ package org.eclipse.imp.pdb.facts.type;
     protected boolean isSubtypeOfRational(Type type) {
       return true;
     }
+    
+    @Override
+    public Type glb(Type type) {
+      return type.glbWithRational(this);
+    }
+    
+    @Override
+    protected Type glbWithNumber(Type type) {
+      return this;
+    }
+    
+    @Override
+    protected Type glbWithRational(Type type) {
+      return this;
+    }
+    
+    @Override
+    protected Type glbWithReal(Type type) {
+      return VoidType.getInstance();
+    }
+    
+    protected Type glbWithInteger(Type type) {
+      return VoidType.getInstance();
+    }
 }

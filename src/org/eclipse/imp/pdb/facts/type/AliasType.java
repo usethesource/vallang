@@ -94,6 +94,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
+	public Type glb(Type type) {
+	  return type.glbWithAlias(this);
+	}
+	
+	@Override
 	protected Type lubWithAlias(Type type) {
 		if(this == type)
 			return this;
@@ -390,16 +395,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   }
 
   @Override
-  protected Type lubWithRelation(Type type) {
-    return fAliased.lubWithRelation(type);
-  }
-
-  @Override
-  protected Type lubWithListRelation(Type type) {
-    return fAliased.lubWithListRelation(type);
-  }
-
-  @Override
   protected Type lubWithSet(Type type) {
     return fAliased.lubWithSet(type);
   }
@@ -463,4 +458,109 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
   protected boolean isSubtypeOfValue(Type type) {
    return true;
   }
+  
+  @Override
+  protected Type glbWithReal(Type type) {
+    return fAliased.glbWithReal(type);
+  }
+
+  @Override
+  protected Type glbWithInteger(Type type) {
+    return fAliased.glbWithInteger(type);
+  }
+
+  @Override
+  protected Type glbWithRational(Type type) {
+    return fAliased.glbWithRational(type);
+  }
+
+  @Override
+  protected Type glbWithList(Type type) {
+    return fAliased.glbWithList(type);
+  }
+
+  @Override
+  protected Type glbWithMap(Type type) {
+    return fAliased.glbWithMap(type);
+  }
+
+  @Override
+  protected Type glbWithNumber(Type type) {
+    return fAliased.glbWithNumber(type);
+  }
+
+  @Override
+  protected Type glbWithSet(Type type) {
+    return fAliased.glbWithSet(type);
+  }
+
+  @Override
+  protected Type glbWithSourceLocation(Type type) {
+    return fAliased.glbWithSourceLocation(type);
+  }
+
+  @Override
+  protected Type glbWithString(Type type) {
+    return fAliased.glbWithString(type);
+  }
+
+  @Override
+  protected Type glbWithNode(Type type) {
+    return fAliased.glbWithNode(type);
+  }
+
+  @Override
+  protected Type glbWithConstructor(Type type) {
+    return fAliased.glbWithConstructor(type);
+  }
+
+  @Override
+  protected Type glbWithAlias(Type type) {
+    if(this == type)
+      return this;
+    if (getName().equals(type.getName())) {
+      return TypeFactory.getInstance().aliasTypeFromTuple(new TypeStore(), 
+            type.getName(), 
+            getAliased().glb(type.getAliased()),
+            getTypeParameters().glb(type.getTypeParameters()));
+    }
+    
+    return getAliased().glb(type);
+  }
+  
+  @Override
+  protected Type glbWithAbstractData(Type type) {
+    return fAliased.glbWithAbstractData(type);
+  }
+
+  @Override
+  protected Type glbWithTuple(Type type) {
+    return fAliased.glbWithTuple(type);
+  }
+
+  @Override
+  protected Type glbWithValue(Type type) {
+    return fAliased.glbWithValue(type);
+  }
+
+  @Override
+  protected Type glbWithVoid(Type type) {
+    return fAliased.glbWithVoid(type);
+  }
+
+  @Override
+  protected Type glbWithBool(Type type) {
+    return fAliased.glbWithBool(type);
+  }
+
+  @Override
+  protected Type glbWithExternal(Type type) {
+    return fAliased.glbWithExternal(type);
+  }
+
+  @Override
+  protected Type glbWithDateTime(Type type) {
+    return fAliased.glbWithDateTime(type);
+  }
+
 }

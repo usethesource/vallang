@@ -198,11 +198,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   }
 
   @Override
-  protected Type lubWithListRelation(Type type) {
-    return type;
-  }
-
-  @Override
   protected Type lubWithMap(Type type) {
     return type;
   }
@@ -224,11 +219,6 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
   @Override
   protected Type lubWithReal(Type type) {
-    return type;
-  }
-
-  @Override
-  protected Type lubWithRelation(Type type) {
     return type;
   }
 
@@ -407,4 +397,93 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
     };
   }
 
+  @Override
+  public Type glb(Type type) {
+    return type.glbWithVoid(this);
+  }
+
+  @Override
+  protected Type glbWithReal(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithInteger(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithRational(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithList(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithMap(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithNumber(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithSet(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithSourceLocation(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithString(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithNode(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithConstructor(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithAbstractData(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithTuple(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithValue(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithVoid(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithBool(Type type) {
+    return this;
+  }
+
+  @Override
+  protected Type glbWithDateTime(Type type) {
+    return this;
+  }
 }

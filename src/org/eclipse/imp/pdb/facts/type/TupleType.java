@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
-/*package*/final class TupleType extends ValueType {
+/*package*/final class TupleType extends DefaultSubtypeOfValue {
 	protected final Type[] fFieldTypes; // protected access for the benefit of inner classes
 	protected final String[] fFieldNames;
 	protected int fHashcode = -1;
@@ -185,6 +185,38 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 		}
 	}
 
+	 /**
+	   * Compute a new tupletype that is the glb of t1 and t2. Precondition: t1
+	   * and t2 have the same arity.
+	   * 
+	   * @param t1
+	   * @param t2
+	   * @return a TupleType which is the glb of t1 and t2
+	   */
+	   static Type glbTupleTypes(Type t1, Type t2) {
+	    int N = t1.getArity();
+	    Type[] fieldTypes = new Type[N];
+	    String[] fieldNames = new String[N];
+
+	    for (int i = 0; i < N; i++) {
+	      fieldTypes[i] = t1.getFieldType(i).glb(t2.getFieldType(i));
+
+	      if (t1.hasFieldNames()) {
+	        fieldNames[i] = t1.getFieldName(i);
+	      } else if (t2.hasFieldNames()) {
+	        fieldNames[i] = t2.getFieldName(i);
+	      }
+	    }
+
+	    if(t1.hasFieldNames() || t2.hasFieldNames()) {
+	      return TypeFactory.getInstance().tupleType(fieldTypes, fieldNames);
+	    }
+	    else {
+	      return TypeFactory.getInstance().tupleType(fieldTypes);
+	    }
+	  }
+
+	   
 	/**
 	 * Compute a new tupletype that is the lub of t1 and t2. Precondition: t1
 	 * and t2 have the same arity.
@@ -230,6 +262,52 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 			return TypeFactory.getInstance().tupleType(types);
 		}
 	}
+	 
+	 /**
+	   * Compute a new tupletype that is the glb of t1 and t2. Precondition: t1
+	   * and t2 have the same arity.
+	   * 
+	   * @param t1
+	   * @param t2
+	   * @return a TupleType which is the glb of t1 and t2, if all the names are
+	   *         equal at every position, they remain, otherwise we get an
+	   *         unlabeled tuple.
+	   */
+	 static Type glbNamedTupleTypes(Type t1, Type t2) {
+	    int N = t1.getArity();
+	    Object[] fieldTypes = new Object[N * 2];
+	    Type[] types = new Type[N];
+	    boolean first = t1.hasFieldNames();
+	    boolean second = t2.hasFieldNames();
+	    boolean consistent = true;
+
+	    for (int i = 0, j = 0; i < N; i++, j++) {
+	      Type lub = t1.getFieldType(i).glb(t2.getFieldType(i));
+	      types[i] = lub;
+	      fieldTypes[j++] = lub;
+
+	      if (first && second) {
+	        String fieldName1 = t1.getFieldName(i);
+	        String fieldName2 = t2.getFieldName(i);
+
+	        if (fieldName1.equals(fieldName2)) {
+	          fieldTypes[j] = fieldName1;
+	        } else {
+	          consistent = false;
+	        }
+	      } else if (first) {
+	        fieldTypes[j] = t1.getFieldName(i);
+	      } else if (second) {
+	        fieldTypes[i] = t2.getFieldName(i);
+	      }
+	    }
+
+	    if (consistent && first && second) {
+	      return TypeFactory.getInstance().tupleType(fieldTypes);
+	    } else {
+	      return TypeFactory.getInstance().tupleType(types);
+	    }
+	  }
 
 	@Override
 	public int hashCode() {
@@ -338,6 +416,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 	}
 	
 	@Override
+	public Type glb(Type type) {
+	  return type.glbWithTuple(this);
+	}
+	
+	@Override
 	protected boolean isSubtypeOfTuple(Type type) {
 	  if (getArity() == type.getArity()) {
       for (int i = 0; i < getArity(); i++) {
@@ -362,6 +445,18 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     }
     
     return TF.valueType();
+	}
+	
+	@Override
+	protected Type glbWithTuple(Type type) {
+	  if (getArity() == type.getArity()) {
+      if(hasFieldNames() && type.hasFieldNames())
+        return TupleType.glbNamedTupleTypes(this, type);
+      else
+        return TupleType.glbTupleTypes(this, type);
+    }
+    
+    return TF.voidType();
 	}
 	
 	@Override

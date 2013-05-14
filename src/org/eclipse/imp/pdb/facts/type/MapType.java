@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 
-/*package*/ final class MapType extends ValueType {
+/*package*/ final class MapType extends DefaultSubtypeOfValue {
     private final Type fKeyType;
     private final Type fValueType;
     private final String fKeyLabel;
@@ -207,6 +207,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     }
     
     @Override
+    public Type glb(Type type) {
+      return type.glbWithMap(this);
+    }
+    
+    @Override
     protected boolean isSubtypeOfMap(Type type) {
       return fKeyType.isSubtypeOf(type.getKeyType())
           && fValueType.isSubtypeOf(type.getValueType());
@@ -215,6 +220,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
     @Override
     protected Type lubWithMap(Type type) {
       return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().lub(type.getFieldTypes()));
+    }
+    
+    @Override
+    protected Type glbWithMap(Type type) {
+      return this == type ? this : TF.mapTypeFromTuple(getFieldTypes().glb(type.getFieldTypes()));
     }
     
     @Override

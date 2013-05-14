@@ -54,6 +54,11 @@ package org.eclipse.imp.pdb.facts.type;
   }
 
   @Override
+  public Type glb(Type type) {
+    return type.glbWithValue(this);
+  }
+  
+  @Override
   protected boolean isSupertypeOf(Type type) {
     return type.isSubtypeOfValue(this);
   }
@@ -187,14 +192,6 @@ package org.eclipse.imp.pdb.facts.type;
     return ValueType.getInstance();
   }
 
-  protected Type lubWithRelation(Type type) {
-    return ValueType.getInstance();
-  }
-
-  protected Type lubWithListRelation(Type type) {
-    return ValueType.getInstance();
-  }
-
   protected Type lubWithSet(Type type) {
     return ValueType.getInstance();
   }
@@ -237,5 +234,82 @@ package org.eclipse.imp.pdb.facts.type;
 
   protected Type lubWithDateTime(Type type) {
     return ValueType.getInstance();
+  }
+  
+  @Override
+  protected Type glbWithValue(Type type) {
+    return this; // such that sub-classes do not have to override
+  }
+  
+  protected Type glbWithReal(Type type) {
+    return type;
+  }
+  
+  protected Type glbWithInteger(Type type) {
+    return type;
+  }
+
+  protected Type glbWithRational(Type type) {
+    return type;
+  }
+
+  protected Type glbWithList(Type type) {
+    return type;
+  }
+
+  protected Type glbWithMap(Type type) {
+    return type;
+  }
+
+  protected Type glbWithNumber(Type type) {
+    return type;
+  }
+
+  protected Type glbWithRelation(Type type) {
+    return type;
+  }
+
+  protected Type glbWithListRelation(Type type) {
+    return type;
+  }
+
+  protected Type glbWithSet(Type type) {
+    return type;
+  }
+
+  protected Type glbWithSourceLocation(Type type) {
+    return type;
+  }
+
+  protected Type glbWithString(Type type) {
+    return type;
+  }
+
+  protected Type glbWithNode(Type type) {
+    return type;
+  }
+
+  protected Type glbWithConstructor(Type type) {
+    return type;
+  }
+
+  protected Type glbWithAbstractData(Type type) {
+    return type;
+  }
+
+  protected Type glbWithTuple(Type type) {
+    return type;
+  }
+
+  protected Type glbWithVoid(Type type) {
+    return type;
+  }
+
+  protected Type glbWithBool(Type type) {
+    return type;
+  }
+
+  protected Type glbWithDateTime(Type type) {
+    return type;
   }
 }

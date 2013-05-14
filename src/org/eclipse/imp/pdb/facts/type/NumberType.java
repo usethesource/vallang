@@ -15,7 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 /**
  * A type for values that are either ints or reals
  */
-/* package */class NumberType extends ValueType {
+/* package */class NumberType extends DefaultSubtypeOfValue {
   protected final static NumberType sInstance = new NumberType();
 
   protected NumberType() {
@@ -65,7 +65,32 @@ package org.eclipse.imp.pdb.facts.type;
   protected Type lubWithRational(Type type) {
     return NumberType.getInstance();
   }
+  
+  @Override
+  public Type glb(Type type) {
+    return type.glbWithNumber(this);
+  }
+  
+  @Override
+  protected Type glbWithNumber(Type type) {
+    return this;
+  }
 
+  @Override
+  protected Type glbWithInteger(Type type) {
+    return type;
+  }
+  
+  @Override
+  protected Type glbWithReal(Type type) {
+    return type;
+  }
+  
+  @Override
+  protected Type glbWithRational(Type type) {
+    return type;
+  }
+  
   /**
    * Should never be called, NodeType is a singleton
    */
