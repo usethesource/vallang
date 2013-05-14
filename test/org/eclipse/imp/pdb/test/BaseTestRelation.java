@@ -224,7 +224,10 @@ public abstract class BaseTestRelation extends TestCase {
 			ITuple t8 = vf.tuple(integers[1], integers[1]);
 			ITuple t9 = vf.tuple(integers[2], integers[2]);
 			ISet rel3 = vf.set(t7, t8, t9);
-			
+			assertTrue(
+					"Non-comparable types should yield empty composition result.",
+					vf.set(vf.tuple(doubles[0], doubles[0])).asRelation()
+							.compose(rel1.asRelation()).isEmpty());
 			ISet comp = rel1.asRelation().compose(rel2.asRelation());
 			
 			if (!comp.isEqual(rel3)) {
