@@ -145,7 +145,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(fName);
-		if (!fParameters.isParameterized()) {
+		if (isParameterized()) {
 			sb.append("[");
 			int idx= 0;
 			for(Type elemType: fParameters) {
