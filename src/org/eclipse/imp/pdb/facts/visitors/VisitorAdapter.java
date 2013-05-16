@@ -28,66 +28,66 @@ import org.eclipse.imp.pdb.facts.ITuple;
  * Extend this class to easily create a reusable generic visitor implementation.
  *
  */
-public abstract class VisitorAdapter<T> implements IValueVisitor<T> {
-	protected IValueVisitor<T> fVisitor;
+public abstract class VisitorAdapter<T, E extends Throwable> implements IValueVisitor<T,E> {
+	protected IValueVisitor<T,E> fVisitor;
 
-	public VisitorAdapter(IValueVisitor<T> visitor) {
+	public VisitorAdapter(IValueVisitor<T,E> visitor) {
 		this.fVisitor = visitor;
 	}
 
-	public T visitReal(IReal o) throws VisitorException {
+	public T visitReal(IReal o) throws E {
 		return fVisitor.visitReal(o);
 	}
 
-	public T visitInteger(IInteger o) throws VisitorException {
+	public T visitInteger(IInteger o) throws E {
 		return fVisitor.visitInteger(o);
 	}
 
-	public T visitRational(IRational o) throws VisitorException {
+	public T visitRational(IRational o) throws E {
 		return fVisitor.visitRational(o);
 	}
 
-	public T visitList(IList o) throws VisitorException {
+	public T visitList(IList o) throws E {
 		return fVisitor.visitList(o);
 	}
 
-	public T visitMap(IMap o) throws VisitorException {
+	public T visitMap(IMap o) throws E {
 		return fVisitor.visitMap(o);
 	}
 
-	public T visitRelation(ISet o) throws VisitorException {
+	public T visitRelation(ISet o) throws E {
 		return fVisitor.visitRelation(o);
 	}
 
-	public T visitSet(ISet o) throws VisitorException {
+	public T visitSet(ISet o) throws E {
 		return fVisitor.visitSet(o);
 	}
 
-	public T visitSourceLocation(ISourceLocation o) throws VisitorException {
+	public T visitSourceLocation(ISourceLocation o) throws E {
 		return fVisitor.visitSourceLocation(o);
 	}
 
-	public T visitString(IString o) throws VisitorException {
+	public T visitString(IString o) throws E {
 		return fVisitor.visitString(o);
 	}
 
-	public T visitNode(INode o) throws VisitorException {
+	public T visitNode(INode o) throws E {
 		return fVisitor.visitNode(o);
 	}
 
-	public T visitConstructor(IConstructor o) throws VisitorException {
+	public T visitConstructor(IConstructor o) throws E {
 		return fVisitor.visitNode(o);
 	}
 	
-	public T visitTuple(ITuple o) throws VisitorException {
+	public T visitTuple(ITuple o) throws E {
 		return fVisitor.visitTuple(o);
 	}
 	
-	public T visitBoolean(IBool o) throws VisitorException {
+	public T visitBoolean(IBool o) throws E {
 		return fVisitor.visitBoolean(o);
 	}
 	
-	public T visitDateTime(IDateTime o) throws VisitorException {
+	public T visitDateTime(IDateTime o) throws E {
 		return fVisitor.visitDateTime(o);
 	}
 }

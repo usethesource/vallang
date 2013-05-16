@@ -26,7 +26,7 @@ public abstract class ExternalValue extends Value implements IExternalValue {
 		super(type);
 	}
 
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitExternal(this);
 	}
 }

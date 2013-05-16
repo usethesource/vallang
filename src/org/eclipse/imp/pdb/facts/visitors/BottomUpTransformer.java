@@ -28,16 +28,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * This visitor will apply another visitor in a bottom-up fashion to an IValue 
  *
  */
-public class BottomUpTransformer extends VisitorAdapter<IValue> {
+public class BottomUpTransformer<E extends Throwable> extends VisitorAdapter<IValue,E> {
 	protected IValueFactory fFactory;
 
-	public BottomUpTransformer(IValueVisitor<IValue> visitor, IValueFactory factory) {
+	public BottomUpTransformer(IValueVisitor<IValue,E> visitor, IValueFactory factory) {
 		super(visitor);
 		this.fFactory = factory;
 	}
 	
 	@Override
-	public IValue visitNode(INode o) throws VisitorException {
+	public IValue visitNode(INode o) throws E {
 		for (int i = 0; i < o.arity(); i++) {
 			o = o.set(i, o.get(i).accept(this));
 		}
@@ -45,7 +45,7 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 		return fVisitor.visitNode(o);
 	}
 	
-	public IValue visitConstructor(IConstructor o) throws VisitorException {
+	public IValue visitConstructor(IConstructor o) throws E {
 		for (int i = 0; i < o.arity(); i++) {
 			o = o.set(i, o.get(i).accept(this));
 		}
@@ -54,7 +54,7 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 	}
 	
 	@Override
-	public IValue visitList(IList o) throws VisitorException {
+	public IValue visitList(IList o) throws E {
 		IListWriter w = fFactory.listWriter(o.getElementType());
 		for (IValue elem : o) {
 			w.append(elem.accept(this));
@@ -64,7 +64,7 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 	}
 	
 	@Override
-	public IValue visitSet(ISet o) throws VisitorException {
+	public IValue visitSet(ISet o) throws E {
 		ISetWriter w = fFactory.setWriter(o.getElementType());
 		for (IValue elem : o) {
 			w.insert(elem.accept(this));
@@ -74,7 +74,7 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 	}
 	
 	@Override
-	public IValue visitMap(IMap o) throws VisitorException {
+	public IValue visitMap(IMap o) throws E {
 		IMapWriter w = fFactory.mapWriter(o.getKeyType(), o.getValueType());
 		for (IValue elem : o) {
 			w.put(elem.accept(this), o.get(elem).accept(this));
@@ -84,7 +84,7 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 	}
 
 	@Override
-	public IValue visitRelation(ISet o) throws VisitorException {
+	public IValue visitRelation(ISet o) throws E {
 		ISetWriter w = fFactory.relationWriter(o.getType().getFieldTypes());
 		
 		for (IValue tuple : o) {
@@ -95,7 +95,7 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 	}
 	
 	@Override
-	public IValue visitTuple(ITuple o) throws VisitorException {
+	public IValue visitTuple(ITuple o) throws E {
 		for (int i = 0; i < o.arity(); i++) {
 			o.set(i, o.get(i).accept(this));
 		}
@@ -103,11 +103,11 @@ public class BottomUpTransformer extends VisitorAdapter<IValue> {
 		return fVisitor.visitTuple(o);
 	}
 
-	public IValue visitExternal(IExternalValue externalValue) throws VisitorException {
+	public IValue visitExternal(IExternalValue externalValue) throws E {
 		return fVisitor.visitExternal(externalValue);
 	}
 
-	public IValue visitListRelation(IList o) throws VisitorException {
+	public IValue visitListRelation(IList o) throws E {
 		IListWriter w = fFactory.listWriter(o.getType().getFieldTypes());
 		
 		for (IValue tuple : o) {

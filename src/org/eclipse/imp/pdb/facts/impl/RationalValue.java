@@ -223,7 +223,7 @@ public class RationalValue extends AbstractNumberValue implements IRational {
 		return RATIONAL_TYPE;
 	}
 
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitRational(this);
 	}
 

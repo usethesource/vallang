@@ -169,7 +169,7 @@ public class Node extends Value implements INode {
 		keyArgNames = null;
 	}
 
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitNode(this);
 	}
 

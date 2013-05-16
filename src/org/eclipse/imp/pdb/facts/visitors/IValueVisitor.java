@@ -26,21 +26,21 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 
-public interface IValueVisitor<R> {
-   public R visitString(IString o) throws VisitorException;
-   public R visitReal(IReal o) throws VisitorException;
-   public R visitRational(IRational o) throws VisitorException;
-   public R visitList(IList o) throws VisitorException;
-   public R visitRelation(ISet o) throws VisitorException;
-   public R visitListRelation(IList o) throws VisitorException;
-   public R visitSet(ISet o) throws VisitorException;
-   public R visitSourceLocation(ISourceLocation o) throws VisitorException;
-   public R visitTuple(ITuple o) throws VisitorException;
-   public R visitNode(INode o) throws VisitorException;
-   public R visitConstructor(IConstructor o) throws VisitorException;
-   public R visitInteger(IInteger o) throws VisitorException;
-   public R visitMap(IMap o) throws VisitorException;
-   public R visitBoolean(IBool boolValue) throws VisitorException;
-   public R visitExternal(IExternalValue externalValue) throws VisitorException;
-   public R visitDateTime(IDateTime o) throws VisitorException;
+public interface IValueVisitor<R,E extends Throwable>  {
+   public R visitString(IString o) throws E;
+   public R visitReal(IReal o) throws E;
+   public R visitRational(IRational o) throws E;
+   public R visitList(IList o) throws E;
+   public R visitRelation(ISet o) throws E;
+   public R visitListRelation(IList o) throws E;
+   public R visitSet(ISet o) throws E;
+   public R visitSourceLocation(ISourceLocation o) throws E;
+   public R visitTuple(ITuple o) throws E;
+   public R visitNode(INode o) throws E;
+   public R visitConstructor(IConstructor o) throws E;
+   public R visitInteger(IInteger o) throws E;
+   public R visitMap(IMap o) throws E;
+   public R visitBoolean(IBool boolValue) throws E;
+   public R visitExternal(IExternalValue externalValue) throws E;
+   public R visitDateTime(IDateTime o) throws E;
 }

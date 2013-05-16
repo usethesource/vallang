@@ -60,7 +60,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return 0;
 	}
 	
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException{
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
 		return v.visitString(this);
 	}
 	

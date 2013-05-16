@@ -31,68 +31,68 @@ import org.eclipse.imp.pdb.facts.IValue;
  * to easily implement a visitor that visits selected types of IValues.
  * 
  */
-public abstract class IdentityVisitor implements IValueVisitor<IValue> {
-	public IValue visitReal(IReal o)  throws VisitorException{
+public abstract class IdentityVisitor<E extends Throwable> implements IValueVisitor<IValue, E> {
+	public IValue visitReal(IReal o)  throws E{
 		return o;
 	}
 
-	public IValue visitInteger(IInteger o)  throws VisitorException{
+	public IValue visitInteger(IInteger o)  throws E{
 		return o;
 	}
 
-	public IValue visitRational(IRational o)  throws VisitorException{
+	public IValue visitRational(IRational o)  throws E{
 		return o;
 	}
 
-	public IValue visitList(IList o)  throws VisitorException{
+	public IValue visitList(IList o)  throws E{
 		return o;
 	}
 
-	public IValue visitMap(IMap o)  throws VisitorException{
+	public IValue visitMap(IMap o)  throws E{
 		return o;
 	}
 
-	public IValue visitRelation(ISet o)  throws VisitorException{
+	public IValue visitRelation(ISet o)  throws E{
 		return o;
 	}
 	
-	public IValue visitListRelation(IList o)  throws VisitorException{
+	public IValue visitListRelation(IList o)  throws E{
 		return o;
 	}
 
-	public IValue visitSet(ISet o)  throws VisitorException{
+	public IValue visitSet(ISet o)  throws E{
 		return o;
 	}
 
-	public IValue visitSourceLocation(ISourceLocation o)  throws VisitorException{
+	public IValue visitSourceLocation(ISourceLocation o)  throws E{
 		return o;
 	}
 
-	public IValue visitString(IString o)  throws VisitorException{
+	public IValue visitString(IString o)  throws E{
 		return o;
 	}
 
-	public IValue visitNode(INode o)  throws VisitorException{
+	public IValue visitNode(INode o)  throws E{
 		return o;
 	}
 	
-	public IValue visitConstructor(IConstructor o) throws VisitorException {
+	public IValue visitConstructor(IConstructor o) throws E {
 		return o;
 	}
 
-	public IValue visitTuple(ITuple o)  throws VisitorException{
+	public IValue visitTuple(ITuple o)  throws E{
 		return o;
 	}
 	
-	public IValue visitBoolean(IBool o) throws VisitorException {
+	public IValue visitBoolean(IBool o) throws E {
 		return o;
 	}
 	
-	public IValue visitExternal(IExternalValue o) throws VisitorException {
+	public IValue visitExternal(IExternalValue o) throws E {
 		return o;
 	}
 	
-	public IValue visitDateTime(IDateTime o) throws VisitorException {
+	public IValue visitDateTime(IDateTime o) throws E {
 		return o;
 	}
 }

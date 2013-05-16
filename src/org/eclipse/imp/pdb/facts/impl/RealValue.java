@@ -240,7 +240,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
     return Double.valueOf(fValue.doubleValue()).hashCode();
   }
 
-  public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+  public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
     return v.visitReal(this);
   }
 

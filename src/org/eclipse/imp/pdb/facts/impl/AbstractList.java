@@ -145,7 +145,7 @@ public abstract class AbstractList extends Value implements IList {
     }
 
     @Override
-    public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+    public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
         if (getElementType().isFixedWidth()) {
             return v.visitListRelation(this);
         } else {

@@ -34,7 +34,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * This class implements the ATerm readable syntax for {@link IValue}'s.
@@ -42,63 +41,50 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  */
 public class ATermWriter implements IValueTextWriter {
 	public void write(IValue value, java.io.Writer stream) throws IOException {
-		try {
-			value.accept(new Writer(stream));
-		} catch (VisitorException e) {
-			throw (IOException) e.getCause();
-		}
+	  value.accept(new Writer(stream));
 	}
 	
 	public void write(IValue value, java.io.Writer stream, TypeStore typeStore) throws IOException {
 		write(value, stream);
 	}
 	
-	private static class Writer implements IValueVisitor<IValue> {
+	private static class Writer implements IValueVisitor<IValue, IOException> {
 		private java.io.Writer stream;
 
 		public Writer(java.io.Writer stream) {
 			this.stream = stream;
 		}
 		
-		private void append(String string) throws VisitorException {
-			try {
-				stream.write(string);
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+		private void append(String string) throws IOException {
+		  stream.write(string);
 		}
 		
-		private void append(char c) throws VisitorException {
-			try {
-				stream.write(c);
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+		private void append(char c) throws IOException {
+		  stream.write(c);
 		}
 		
-		public IValue visitBoolean(IBool boolValue)
-				throws VisitorException {
+		public IValue visitBoolean(IBool boolValue) throws IOException {
 			append(boolValue.getStringRepresentation());
 			return boolValue;
 		}
 
-		public IValue visitConstructor(IConstructor o) throws VisitorException {
+		public IValue visitConstructor(IConstructor o) throws IOException {
 			return visitNode(o);
 		}
 
-		public IValue visitReal(IReal o) throws VisitorException {
+		public IValue visitReal(IReal o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
-		public IValue visitInteger(IInteger o) throws VisitorException {
+		public IValue visitInteger(IInteger o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
 		// TODO: There probably isn't a good ATerm repr of rationals,
 		// what should we do here?
-		public IValue visitRational(IRational o) throws VisitorException {
+		public IValue visitRational(IRational o) throws IOException {
 			append("rat");
 			append('(');
 			append(o.numerator().getStringRepresentation());
@@ -108,7 +94,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 		
-		public IValue visitList(IList o) throws VisitorException {
+		public IValue visitList(IList o) throws IOException {
 			append('[');
 			
 			Iterator<IValue> listIterator = o.iterator();
@@ -126,7 +112,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitMap(IMap o) throws VisitorException {
+		public IValue visitMap(IMap o) throws IOException {
 			append('[');
 		
 			Iterator<IValue> mapIterator = o.iterator();
@@ -153,7 +139,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitNode(INode o) throws VisitorException {
+		public IValue visitNode(INode o) throws IOException {
 			String name = o.getName();
 			
 			append(name);
@@ -187,11 +173,11 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitRelation(ISet o) throws VisitorException {
+		public IValue visitRelation(ISet o) throws IOException {
 			return visitSet(o);
 		}
 
-		public IValue visitSet(ISet o) throws VisitorException {
+		public IValue visitSet(ISet o) throws IOException {
 			append('[');
 			
 			Iterator<IValue> setIterator = o.iterator();
@@ -209,7 +195,7 @@ public class ATermWriter implements IValueTextWriter {
 		}
 
 		public IValue visitSourceLocation(ISourceLocation o)
-				throws VisitorException {
+				throws IOException {
 			append("loc(");
 			append('\"');
 			append(o.getURI().toString());
@@ -224,7 +210,7 @@ public class ATermWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitString(IString o) throws VisitorException {
+		public IValue visitString(IString o) throws IOException {
 			// TODO optimize this implementation and finish all escapes
 			append('\"');
 		    append(o.getValue().replaceAll("\"", "\\\"").replaceAll("\n","\\\\n"));
@@ -232,7 +218,7 @@ public class ATermWriter implements IValueTextWriter {
 		    return o;
 		}
 
-		public IValue visitTuple(ITuple o) throws VisitorException {
+		public IValue visitTuple(ITuple o) throws IOException {
 			 append('(');
 			 
 			 Iterator<IValue> it = o.iterator();
@@ -255,7 +241,7 @@ public class ATermWriter implements IValueTextWriter {
 			return externalValue;
 		}
 
-		public IValue visitDateTime(IDateTime o) throws VisitorException {
+		public IValue visitDateTime(IDateTime o) throws IOException {
 			append("$");
 			if (o.isDate()) {
 				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -272,7 +258,7 @@ public class ATermWriter implements IValueTextWriter {
 		}
 
 		public IValue visitListRelation(IList o)
-				throws VisitorException {
+				throws IOException {
 			visitList(o);
 			return o;
 		}

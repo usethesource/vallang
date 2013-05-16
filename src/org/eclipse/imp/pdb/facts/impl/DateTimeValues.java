@@ -63,7 +63,7 @@ public class DateTimeValues {
 			}
 		}
 
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			return v.visitDateTime(this);
 		}
 
@@ -315,7 +315,7 @@ public class DateTimeValues {
 			}
 		}
 
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			return v.visitDateTime(this);
 		}
 
@@ -590,7 +590,7 @@ public class DateTimeValues {
 			this.timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % TimeValue.millisInAnHour / TimeValue.millisInAMinute;			
 		}
 
-		public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			return v.visitDateTime(this);
 		}
 

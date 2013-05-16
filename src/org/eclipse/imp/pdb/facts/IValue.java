@@ -15,7 +15,6 @@ package org.eclipse.imp.pdb.facts;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 
 public interface IValue  {
@@ -29,7 +28,7 @@ public interface IValue  {
      * 
      * @param
      */
-    <T> T accept(IValueVisitor<T> v) throws VisitorException;
+    <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E;
     
     /**
      * Warning: you may not want to use this method. The semantics of this 

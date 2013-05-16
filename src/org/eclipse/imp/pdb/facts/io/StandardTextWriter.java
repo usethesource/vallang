@@ -34,7 +34,6 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * This class implements the standard readable syntax for {@link IValue}'s.
@@ -58,11 +57,8 @@ public class StandardTextWriter implements IValueTextWriter {
 	}
 	
 	public void write(IValue value, java.io.Writer stream) throws IOException {
-		try {
+	  try {
 			value.accept(new Writer(stream, indent, tabSize));
-		} 
-		catch (VisitorException e) {
-			throw (IOException) e.getCause();
 		} 
 		finally {
 			stream.flush();
@@ -73,7 +69,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		write(value, stream);
 	}
 	
-	private static class Writer implements IValueVisitor<IValue> {
+	private static class Writer implements IValueVisitor<IValue, IOException> {
 		private final java.io.Writer stream;
 		private final int tabSize;
 		private final boolean indent;
@@ -85,20 +81,12 @@ public class StandardTextWriter implements IValueTextWriter {
 			this.tabSize = tabSize;
 		}
 		
-		private void append(String string) throws VisitorException {
-			try {
-				stream.write(string);
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+		private void append(String string) throws IOException {
+		  stream.write(string);
 		}
 		
-		private void append(char c) throws VisitorException {
-			try {
-				stream.write(c);
-			} catch (IOException e) {
-				throw new VisitorException(e);
-			}
+		private void append(char c) throws IOException {
+		  stream.write(c);
 		}
 		
 		private void tab() {
@@ -110,27 +98,27 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 		
 		public IValue visitBoolean(IBool boolValue)
-				throws VisitorException {
+				throws IOException {
 			append(boolValue.getValue() ? "true" : "false");
 			return boolValue;
 		}
 
-		public IValue visitReal(IReal o) throws VisitorException {
+		public IValue visitReal(IReal o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
-		public IValue visitInteger(IInteger o) throws VisitorException {
+		public IValue visitInteger(IInteger o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
-		public IValue visitRational(IRational o) throws VisitorException {
+		public IValue visitRational(IRational o) throws IOException {
 			append(o.getStringRepresentation());
 			return o;
 		}
 
-		public IValue visitList(IList o) throws VisitorException {
+		public IValue visitList(IList o) throws IOException {
 			append('[');
 			
 			boolean indent = checkIndent(o);
@@ -153,7 +141,7 @@ public class StandardTextWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitMap(IMap o) throws VisitorException {
+		public IValue visitMap(IMap o) throws IOException {
 			append('(');
 			tab();
 			boolean indent = checkIndent(o);
@@ -181,7 +169,7 @@ public class StandardTextWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitConstructor(IConstructor o) throws VisitorException {
+		public IValue visitConstructor(IConstructor o) throws IOException {
 			String name = o.getName();
 			
 			if (name.equals("loc")) {
@@ -231,11 +219,11 @@ public class StandardTextWriter implements IValueTextWriter {
 			return o;
 		}
 
-		private void indent() throws VisitorException {
+		private void indent() throws IOException {
 			indent(indent);
 		}
 		
-		private void indent(boolean indent) throws VisitorException {
+		private void indent(boolean indent) throws IOException {
 			if (indent) {
 				append('\n');
 				for (int i = 0; i < tabSize * tab; i++) {
@@ -244,11 +232,11 @@ public class StandardTextWriter implements IValueTextWriter {
 			}
 		}
 
-		public IValue visitRelation(ISet o) throws VisitorException {
+		public IValue visitRelation(ISet o) throws IOException {
 			return visitSet(o);
 		}
 
-		public IValue visitSet(ISet o) throws VisitorException {
+		public IValue visitSet(ISet o) throws IOException {
 			append('{');
 			
 			boolean indent = checkIndent(o);
@@ -425,7 +413,7 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 
 		public IValue visitSourceLocation(ISourceLocation o)
-				throws VisitorException {
+				throws IOException {
 			append('|');
 			append(o.getURI().toString());
 			append('|');
@@ -455,12 +443,12 @@ public class StandardTextWriter implements IValueTextWriter {
 			return o;
 		}
 
-		public IValue visitString(IString o) throws VisitorException {
+		public IValue visitString(IString o) throws IOException {
 			printString(o.getValue());
 			return o;
 		}
 
-    private void printString(String o) throws VisitorException {
+    private void printString(String o) throws IOException {
       append('\"');
       char[] chars = o.toCharArray();
       for (int i = 0; i < chars.length; i++) {
@@ -537,7 +525,7 @@ public class StandardTextWriter implements IValueTextWriter {
       append('\"');
     }
     
-		public IValue visitTuple(ITuple o) throws VisitorException {
+		public IValue visitTuple(ITuple o) throws IOException {
 			 append('<');
 			 
 			 Iterator<IValue> it = o.iterator();
@@ -555,12 +543,12 @@ public class StandardTextWriter implements IValueTextWriter {
 			 return o;
 		}
 
-		public IValue visitExternal(IExternalValue externalValue) throws VisitorException {
+		public IValue visitExternal(IExternalValue externalValue) throws IOException {
 			append(externalValue.toString());
 			return externalValue;
 		}
 
-		public IValue visitDateTime(IDateTime o) throws VisitorException {
+		public IValue visitDateTime(IDateTime o) throws IOException {
 			append("$");
 			if (o.isDate()) {
 				append(String.format("%04d", o.getYear()));
@@ -611,12 +599,12 @@ public class StandardTextWriter implements IValueTextWriter {
 		}
 
 		public IValue visitListRelation(IList o)
-				throws VisitorException {
+				throws IOException {
 			visitList(o);
 			return o;
 		}
 
-    public IValue visitNode(INode o) throws VisitorException {
+    public IValue visitNode(INode o) throws IOException {
     	printString(o.getName());
 
     	boolean indent = checkIndent(o);

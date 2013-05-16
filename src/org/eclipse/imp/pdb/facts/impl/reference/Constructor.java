@@ -104,7 +104,7 @@ public class Constructor extends Node implements IConstructor {
 	}
 	
 	@Override
-	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
+	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitConstructor(this);
 	}
 	

@@ -28,16 +28,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
  * This visitor will apply another visitor in a bottom-up fashion to an IValue 
  *
  */
-public class BottomUpVisitor<T> extends VisitorAdapter<T> {
+public class BottomUpVisitor<T, E extends Throwable> extends VisitorAdapter<T, E> {
 	protected IValueFactory fFactory;
 
-	public BottomUpVisitor(IValueVisitor<T> visitor, IValueFactory factory) {
+	public BottomUpVisitor(IValueVisitor<T, E> visitor, IValueFactory factory) {
 		super(visitor);
 		this.fFactory = factory;
 	}
 	
 	@Override
-	public T visitNode(INode o) throws VisitorException {
+	public T visitNode(INode o) throws E {
 		for (int i = 0; i < o.arity(); i++) {
 			o.get(i).accept(this);
 		}
@@ -45,7 +45,7 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 		return fVisitor.visitNode(o);
 	}
 	
-	public T visitConstructor(IConstructor o) throws VisitorException {
+	public T visitConstructor(IConstructor o) throws E {
 		for (int i = 0; i < o.arity(); i++) {
 			o.get(i).accept(this);
 		}
@@ -54,7 +54,7 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 	}
 	
 	@Override
-	public T visitList(IList o) throws VisitorException {
+	public T visitList(IList o) throws E {
 		IListWriter w = fFactory.listWriter(o.getElementType());
 		for (IValue elem : o) {
 			elem.accept(this);
@@ -64,7 +64,7 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 	}
 	
 	@Override
-	public T visitSet(ISet o) throws VisitorException {
+	public T visitSet(ISet o) throws E {
 		ISetWriter w = fFactory.setWriter(o.getElementType());
 		for (IValue elem : o) {
 			elem.accept(this);
@@ -74,7 +74,7 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 	}
 	
 	@Override
-	public T visitMap(IMap o) throws VisitorException {
+	public T visitMap(IMap o) throws E {
 		IMapWriter w = fFactory.mapWriter(o.getKeyType(), o.getValueType());
 		for (IValue elem : o) {
 			elem.accept(this);
@@ -85,7 +85,7 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 	}
 
 	@Override
-	public T visitRelation(ISet o) throws VisitorException {
+	public T visitRelation(ISet o) throws E {
 		ISetWriter w = fFactory.relationWriter(o.getType().getFieldTypes());
 		
 		for (IValue tuple : o) {
@@ -96,7 +96,7 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 	}
 	
 	@Override
-	public T visitTuple(ITuple o) throws VisitorException {
+	public T visitTuple(ITuple o) throws E {
 		for (int i = 0; i < o.arity(); i++) {
 			o.get(i).accept(this);
 		}
@@ -104,11 +104,11 @@ public class BottomUpVisitor<T> extends VisitorAdapter<T> {
 		return fVisitor.visitTuple(o);
 	}
 
-	public T visitExternal(IExternalValue externalValue) throws VisitorException {
+	public T visitExternal(IExternalValue externalValue) throws E {
 		return fVisitor.visitExternal(externalValue);
 	}
 
-	public T visitListRelation(IList o) throws VisitorException {
+	public T visitListRelation(IList o) throws E {
 		IListWriter w = fFactory.listWriter(o.getType().getFieldTypes());
 		
 		for (IValue tuple : o) {
