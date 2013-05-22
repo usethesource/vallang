@@ -64,5 +64,10 @@ public class DefaultRelationViewOnSet implements ISetRelation<ISet> {
 	public ISet asSet() {
 		return rel1;
 	}
+	
+	@Override
+	public String toString() {
+		return rel1.toString();
+	}	
 
 }
