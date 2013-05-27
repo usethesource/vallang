@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of ISet.
@@ -94,9 +93,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 	
 	public ISet insert(IValue value){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
-		
-		if(newData.add(value)) {
+		if(!contains(value)) {
+			ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
+			newData.add(value);
+			
 			Type type = elementType.lub(value.getType());
 			return new SetWriter(type, newData).done();
 		} else {
@@ -105,9 +105,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	}
 
 	public ISet delete(IValue value){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
-		
-		if (newData.remove(value)) {
+		if (contains(value)) {
+			ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
+			newData.remove(value);
+			
 			Type newElementType = TypeFactory.getInstance().voidType();
 			for (IValue el : newData) {
 				newElementType = newElementType.lub(el.getType());
