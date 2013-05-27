@@ -218,6 +218,18 @@ public final class ListFunctions {
         return w.done();
     }
 
+    public static int hashCode(IValueFactory vf, IList list1) {
+        int hash = 0;
+
+        Iterator<IValue> iterator = list1.iterator();
+        while (iterator.hasNext()) {
+            IValue element = iterator.next();
+            hash = (hash << 1) ^ element.hashCode();
+        }
+
+        return hash;
+    }
+
     public static boolean equals(IValueFactory vf, IList list1, Object other) {
         if (other == list1) return true;
         if (other == null) return false;
@@ -227,7 +239,7 @@ public final class ListFunctions {
 
             if (list1.getType() != list2.getType()) return false;
 
-            if (list1.hashCode() != list2.hashCode()) return false;
+            if (hashCode(vf, list1) != hashCode(vf, list2)) return false;
 
             if (list1.length() == list2.length()) {
 

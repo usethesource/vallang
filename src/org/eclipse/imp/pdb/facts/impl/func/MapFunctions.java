@@ -108,7 +108,19 @@ public final class MapFunctions {
 		}
 		return true;
 	}
-	
+
+    public static int hashCode(IValueFactory vf, IMap map1) {
+        int hash = 0;
+
+        Iterator<IValue> keyIterator = map1.iterator();
+        while (keyIterator.hasNext()) {
+            IValue key = keyIterator.next();
+            hash ^= key.hashCode();
+        }
+
+        return hash;
+    }
+
 	public static boolean equals(IValueFactory vf, IMap map1, Object other){
         if (other == map1) return true;
         if (other == null) return false;
@@ -118,7 +130,7 @@ public final class MapFunctions {
 
             if (map1.getType() != map2.getType()) return false;
 
-            if (map1.hashCode() != map2.hashCode()) return false;
+            if (hashCode(vf, map1) != hashCode(vf, map2)) return false;
 
             if (map1.size() == map2.size()) {
 

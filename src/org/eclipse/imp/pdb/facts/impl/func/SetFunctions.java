@@ -98,8 +98,16 @@ public final class SetFunctions {
         return w.done();
     }
 
-    public static boolean isEqual(IValueFactory vf, ISet set1, IValue other) {
-        return equals(vf, set1, other);
+    public static int hashCode(IValueFactory vf, ISet set1) {
+        int hash = 0;
+
+        Iterator<IValue> iterator = set1.iterator();
+        while (iterator.hasNext()) {
+            IValue element = iterator.next();
+            hash ^= element.hashCode();
+        }
+
+        return hash;
     }
 
     public static boolean equals(IValueFactory vf, ISet set1, Object other) {
@@ -111,7 +119,7 @@ public final class SetFunctions {
 
             if (set1.getType() != set2.getType()) return false;
 
-            if (set1.hashCode() != set2.hashCode()) return false;
+            if (hashCode(vf, set1) != hashCode(vf, set2)) return false;
 
             if (set1.size() == set2.size()) {
 
@@ -124,6 +132,10 @@ public final class SetFunctions {
         }
 
         return false;
+    }
+
+    public static boolean isEqual(IValueFactory vf, ISet set1, IValue other) {
+        return equals(vf, set1, other);
     }
 
     public static ISet product(IValueFactory vf, ISet set1, ISet set2) {
