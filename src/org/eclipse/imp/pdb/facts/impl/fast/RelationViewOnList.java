@@ -61,4 +61,9 @@ public class RelationViewOnList implements IListRelation<IList> {
 		return rel1;
 	}
 
+	@Override
+	public String toString() {
+		return rel1.toString();
+	}	
+	
 }
