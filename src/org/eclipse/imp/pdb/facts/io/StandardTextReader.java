@@ -650,6 +650,10 @@ public class StandardTextReader extends AbstractTextReader {
           U.append((char)stream.read());
           U.append((char)stream.read());
           int cp = Integer.parseInt(U.toString(), 16);
+          
+          if (!Character.isValidCodePoint(cp)) {
+            throw new FactParseError(U + " is not a valid 24 bit Unicode character", stream.getOffset());
+          }
           builder.appendCodePoint(cp);
         default:
           builder.append(current);
