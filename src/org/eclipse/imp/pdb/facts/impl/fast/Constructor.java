@@ -39,10 +39,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	/*package*/ Constructor(Type constructorType, IValue[] children){
 		super();
 		
-		if (constructorType.getAbstractDataType().isParameterized()) {
-		  assert constructorType.getAbstractDataType().isOpen();
-		}
-		
 		this.constructorType = constructorType;
 		this.children = children;
 	}
@@ -58,8 +54,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	public Type getConstructorType(){
 	  if (constructorType.getAbstractDataType().isParameterized()) {
-      assert constructorType.getAbstractDataType().isOpen();
-    
       // this assures we always have the most concrete type for constructors.
       Type[] actualTypes = new Type[children.length];
       for (int i = 0; i < children.length; i++) {
