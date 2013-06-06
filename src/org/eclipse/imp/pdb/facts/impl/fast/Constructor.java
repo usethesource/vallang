@@ -39,10 +39,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	/*package*/ Constructor(Type constructorType, IValue[] children){
 		super();
 		
-		if (constructorType.getAbstractDataType().isParameterized()) {
-		  assert constructorType.getAbstractDataType().isOpen();
-		}
-		
 		this.constructorType = constructorType;
 		this.children = children;
 	}
