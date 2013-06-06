@@ -47,6 +47,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.children = children;
 	}
 	
+	@Override
+	public Type getUninstantiatedConstructorType() {
+	  return constructorType;
+	}
+	
 	public Type getType(){
 		return getConstructorType().getAbstractDataType();
 	}

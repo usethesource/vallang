@@ -548,7 +548,7 @@ public class BinaryWriter{
 	}
 	
 	private void writeConstructor(IConstructor constructor) throws IOException{
-		Type constructorType = constructor.getConstructorType();
+		Type constructorType = constructor.getUninstantiatedConstructorType();
 		int constructorTypeId = sharedTypes.get(constructorType);
 		
 		if(constructorTypeId == -1){

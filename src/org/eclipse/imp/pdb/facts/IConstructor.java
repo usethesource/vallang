@@ -34,6 +34,12 @@ public interface IConstructor extends INode {
 	public Type getConstructorType();
 	
 	/**
+   * @return the specific ConstructorType of this constructor but before instantiating
+   * type parameters. This is needed for serialization purposes.
+   */
+	public Type getUninstantiatedConstructorType();
+	
+	/**
 	 * Get a child from a labeled position in the tree.
 	 * @param label the name of the child
 	 * @return a value at the position indicated by the label.

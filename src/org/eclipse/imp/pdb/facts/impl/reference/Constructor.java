@@ -51,6 +51,11 @@ public class Constructor extends Node implements IConstructor {
 		return getConstructorType().getAbstractDataType();
 	}
 	
+	@Override
+	public Type getUninstantiatedConstructorType() {
+	  return fType;
+	}
+	
 	public Type getConstructorType() {
 	  if (fType.getAbstractDataType().isParameterized()) {
       assert fType.getAbstractDataType().isOpen();
