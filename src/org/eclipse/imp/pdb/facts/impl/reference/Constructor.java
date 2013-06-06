@@ -1,5 +1,6 @@
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -8,9 +9,9 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of a typed tree node with access to children via labels
@@ -47,11 +48,32 @@ public class Constructor extends Node implements IConstructor {
 
 	@Override
 	public Type getType() {
-		return fType.getAbstractDataType();
+		return getConstructorType().getAbstractDataType();
 	}
 	
 	public Type getConstructorType() {
-		return fType;
+	  if (fType.getAbstractDataType().isParameterized()) {
+      assert fType.getAbstractDataType().isOpen();
+    
+      // this assures we always have the most concrete type for constructors.
+      Type[] actualTypes = new Type[fChildren.length];
+      for (int i = 0; i < fChildren.length; i++) {
+        actualTypes[i] = fChildren[i].getType();
+      }
+    
+      Map<Type,Type> bindings = new HashMap<Type,Type>();
+      fType.getFieldTypes().match(TypeFactory.getInstance().tupleType(actualTypes), bindings);
+      
+      for (Type field : fType.getAbstractDataType().getTypeParameters()) {
+        if (!bindings.containsKey(field)) {
+          bindings.put(field, TypeFactory.getInstance().voidType());
+        }
+      }
+      
+      return fType.instantiate(bindings);
+    }
+    
+    return fType;
 	}
 
 	public IValue get(String label) {
