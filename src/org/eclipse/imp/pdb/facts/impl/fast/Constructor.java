@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -17,11 +18,12 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of IConstructor.
@@ -37,16 +39,40 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	/*package*/ Constructor(Type constructorType, IValue[] children){
 		super();
 		
-		this.constructorType = constructorType;
+		if (constructorType.getAbstractDataType().isParameterized()) {
+		  assert constructorType.getAbstractDataType().isOpen();
+		}
 		
+		this.constructorType = constructorType;
 		this.children = children;
 	}
 	
 	public Type getType(){
-		return constructorType.getAbstractDataType();
+		return getConstructorType().getAbstractDataType();
 	}
 	
 	public Type getConstructorType(){
+	  if (constructorType.getAbstractDataType().isParameterized()) {
+      assert constructorType.getAbstractDataType().isOpen();
+    
+      // this assures we always have the most concrete type for constructors.
+      Type[] actualTypes = new Type[children.length];
+      for (int i = 0; i < children.length; i++) {
+        actualTypes[i] = children[i].getType();
+      }
+    
+      Map<Type,Type> bindings = new HashMap<Type,Type>();
+      constructorType.getFieldTypes().match(TypeFactory.getInstance().tupleType(actualTypes), bindings);
+      
+      for (Type field : constructorType.getAbstractDataType().getTypeParameters()) {
+        if (!bindings.containsKey(field)) {
+          bindings.put(field, TypeFactory.getInstance().voidType());
+        }
+      }
+      
+      return constructorType.instantiate(bindings);
+    }
+	  
 		return constructorType;
 	}
 	

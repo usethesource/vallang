@@ -177,26 +177,24 @@ public class ValueFactory extends FastBaseValueFactory {
 	
 	@Override
 	public IConstructor constructor(Type constructorType) {
-		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, new IValue[0]);
-		return new Constructor(instantiatedType, new IValue[0]);
+		return new Constructor(constructorType, new IValue[0]);
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructorType, IValue... children){
-		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
-		return new Constructor(instantiatedType, children.clone());
+//		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
+		return new Constructor(constructorType, children.clone());
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructorType,
 			Map<String, IValue> annotations, IValue... children)
 			throws FactTypeUseException {
-	  Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		
 		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<>();
 		sAnnotations.putAll(annotations);
 		
-		return AnnotatedConstructor.createAnnotatedConstructor(instantiatedType, children.clone(), sAnnotations);
+		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children.clone(), sAnnotations);
 	}
 	
 	public ITuple tuple() {
