@@ -74,16 +74,6 @@ public abstract class BaseValueFactory implements IValueFactory {
     public int setPrecision(int p) {
     	return currentPrecision.getAndSet(p);
     }
-
-    @Deprecated // Specialized in FastBaseValueFactory
-    public IReal pi(int precision) {
-    	return RealValue.pi(precision);
-    }
-    
-    @Deprecated // Specialized in FastBaseValueFactory
-    public IReal e(int precision) {
-    	return RealValue.e(precision);
-    }
     
     @Deprecated // Specialized in FastBaseValueFactory
     public IString string(String s) {
