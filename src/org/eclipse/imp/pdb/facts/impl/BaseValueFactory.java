@@ -37,26 +37,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 public abstract class BaseValueFactory implements IValueFactory {
 	protected final static int DEFAULT_PRECISION = 10;
 	protected AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
-	
-	@Deprecated // Specialized in FastBaseValueFactory
-    public IInteger integer(int i) {
-        return new IntegerValue(i);
-    }
-    
-	@Deprecated // Specialized in FastBaseValueFactory
-    public IInteger integer(long l) {
-    	return new IntegerValue(l);
-    }
-    
-	@Deprecated // Specialized in FastBaseValueFactory
-    public IInteger integer(byte[] a) {
-    	return new IntegerValue(a);
-    }
-    
-    @Deprecated // Specialized in FastBaseValueFactory
-    public IInteger integer(String s) {
-    	return new IntegerValue(new BigInteger(s));
-    }
     
 	public IRational rational(int a, int b) {
 		return rational(integer(a), integer(b));
