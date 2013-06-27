@@ -38,19 +38,23 @@ public abstract class BaseValueFactory implements IValueFactory {
 	protected final static int DEFAULT_PRECISION = 10;
 	protected AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
     
+	@Override
 	public IRational rational(int a, int b) {
 		return rational(integer(a), integer(b));
 	}
 
+	@Override
 	public IRational rational(long a, long b) {
 		return rational(integer(a), integer(b));
 	}
 
+	@Override
 	@Deprecated // Specialized in FastBaseValueFactory
 	public IRational rational(IInteger a, IInteger b) {
 		return new RationalValue(a, b);
 	}
 
+	@Override
 	public IRational rational(String rat) throws NumberFormatException {
 		if(rat.contains("r")) {
 			String[] parts = rat.split("r");
@@ -67,15 +71,18 @@ public abstract class BaseValueFactory implements IValueFactory {
 		}
 	}
 
-    public int getPrecision() {
+    @Override
+	public int getPrecision() {
       return currentPrecision.get();
     }
 
-    public int setPrecision(int p) {
+    @Override
+	public int setPrecision(int p) {
     	return currentPrecision.getAndSet(p);
     }
     
-    @Deprecated // Specialized in FastBaseValueFactory
+    @Override
+	@Deprecated // Specialized in FastBaseValueFactory
     public IString string(String s) {
     	if (s == null) {
     		throw new NullPointerException();
@@ -83,6 +90,7 @@ public abstract class BaseValueFactory implements IValueFactory {
         return new StringValue(s);
     }
     
+	@Override
 	public IString string(int[] chars) {
 		StringBuilder b = new StringBuilder(chars.length);
 		for (int ch : chars) {
@@ -91,13 +99,15 @@ public abstract class BaseValueFactory implements IValueFactory {
 		return string(b.toString());
 	}
 
+	@Override
 	public IString string(int ch) {
 		StringBuilder b = new StringBuilder(1);
 		b.appendCodePoint(ch);
 		return string(b.toString());
 	}    
     
-    public ISourceLocation sourceLocation(URI uri, int offset, int length) {
+    @Override
+	public ISourceLocation sourceLocation(URI uri, int offset, int length) {
 		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
 	
@@ -112,6 +122,7 @@ public abstract class BaseValueFactory implements IValueFactory {
 		return new SourceLocationValues.IntInt(uri, offset, length);
 	} 
 	
+	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
 		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
@@ -151,6 +162,7 @@ public abstract class BaseValueFactory implements IValueFactory {
 		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 	
+	@Override
 	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
     	try{
 			if (!path.startsWith("/")) {
@@ -162,10 +174,12 @@ public abstract class BaseValueFactory implements IValueFactory {
 		}
     }
 	
+	@Override
 	public ISourceLocation sourceLocation(URI uri){
 		return new SourceLocationValues.OnlyURI(uri); 
 	}
 	
+	@Override
 	public ISourceLocation sourceLocation(String path){
 		try {
 			if (!path.startsWith("/"))
@@ -175,34 +189,41 @@ public abstract class BaseValueFactory implements IValueFactory {
 			throw new FactParseError("Illegal path syntax: " + path, e);
 		}
 	}
-    public IBool bool(boolean value) {
+    @Override
+	public IBool bool(boolean value) {
       return BoolValue.getBoolValue(value);
     }
-    
+
+	@Override
 	public IDateTime date(int year, int month, int day) {
 		return new DateTimeValues.DateValue(year, month, day);
 	}
 
+	@Override
 	public IDateTime time(int hour, int minute, int second, int millisecond) {
 		return new DateTimeValues.TimeValue(hour,minute,second,millisecond);
 	}
 
+	@Override
 	public IDateTime time(int hour, int minute, int second, int millisecond,
 			int hourOffset, int minuteOffset) {
 		return new DateTimeValues.TimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
 	}
-	
+
+	@Override
 	public IDateTime datetime(int year, int month, int day, int hour,
 			int minute, int second, int millisecond) {
 		return new DateTimeValues.DateTimeValue(year,month,day,hour,minute,second,millisecond);
 	}
 
+	@Override
 	public IDateTime datetime(int year, int month, int day, int hour,
 			int minute, int second, int millisecond, int hourOffset,
 			int minuteOffset) {
 		return new DateTimeValues.DateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
 	}
 
+	@Override
 	public IDateTime datetime(long instant) {
 		return new DateTimeValues.DateTimeValue(instant);
 	}
