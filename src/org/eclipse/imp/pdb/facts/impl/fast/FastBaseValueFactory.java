@@ -17,13 +17,12 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.*;
 import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
+import org.eclipse.imp.pdb.facts.impl.BoolValue;
+import org.eclipse.imp.pdb.facts.impl.DateTimeValues;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
@@ -35,7 +34,20 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 
 	private final static String INTEGER_MAX_STRING = "2147483647";
 	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
-		
+
+	protected final static int DEFAULT_PRECISION = 10;
+	protected final AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
+
+	@Override
+	public int getPrecision() {
+		return currentPrecision.get();
+	}
+
+	@Override
+	public int setPrecision(int p) {
+		return currentPrecision.getAndSet(p);
+	}
+
 	@Override
 	public IInteger integer(int value){
 		return new IntegerValue(value);
@@ -93,10 +105,37 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 		}
 		return new IntegerValue(value.intValue());
 	}
-	
+
+	@Override
+	public IRational rational(int a, int b) {
+		return rational(integer(a), integer(b));
+	}
+
+	@Override
+	public IRational rational(long a, long b) {
+		return rational(integer(a), integer(b));
+	}
+
 	@Override
 	public IRational rational(IInteger a, IInteger b) {
 		return new RationalValue(a, b);
+	}
+
+	@Override
+	public IRational rational(String rat) throws NumberFormatException {
+		if(rat.contains("r")) {
+			String[] parts = rat.split("r");
+			if (parts.length == 2) {
+				return rational(integer(parts[0]), integer(parts[1]));
+			}
+			if (parts.length == 1) {
+				return rational(integer(parts[0]), integer(1));
+			}
+			throw new NumberFormatException(rat);
+		}
+		else {
+			return rational(integer(rat), integer(1));
+		}
 	}
 
 	@Override
@@ -132,10 +171,65 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 	public IReal e(int precision) {
 		return BigDecimalValue.e(precision);
 	}
-	
+
+	@Override
+	public IString string(int[] chars) {
+		StringBuilder b = new StringBuilder(chars.length);
+		for (int ch : chars) {
+			b.appendCodePoint(ch);
+		}
+		return string(b.toString());
+	}
+
+	@Override
+	public IString string(int ch) {
+		StringBuilder b = new StringBuilder(1);
+		b.appendCodePoint(ch);
+		return string(b.toString());
+	}
+
 	@Override
 	public IString string(String value){
 		return new StringValue(value);
+	}
+
+	@Override
+	public IBool bool(boolean value) {
+		return BoolValue.getBoolValue(value);
+	}
+
+	@Override
+	public IDateTime date(int year, int month, int day) {
+		return new DateTimeValues.DateValue(year, month, day);
+	}
+
+	@Override
+	public IDateTime time(int hour, int minute, int second, int millisecond) {
+		return new DateTimeValues.TimeValue(hour,minute,second,millisecond);
+	}
+
+	@Override
+	public IDateTime time(int hour, int minute, int second, int millisecond,
+						  int hourOffset, int minuteOffset) {
+		return new DateTimeValues.TimeValue(hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+
+	@Override
+	public IDateTime datetime(int year, int month, int day, int hour,
+							  int minute, int second, int millisecond) {
+		return new DateTimeValues.DateTimeValue(year,month,day,hour,minute,second,millisecond);
+	}
+
+	@Override
+	public IDateTime datetime(int year, int month, int day, int hour,
+							  int minute, int second, int millisecond, int hourOffset,
+							  int minuteOffset) {
+		return new DateTimeValues.DateTimeValue(year,month,day,hour,minute,second,millisecond,hourOffset,minuteOffset);
+	}
+
+	@Override
+	public IDateTime datetime(long instant) {
+		return new DateTimeValues.DateTimeValue(instant);
 	}
 	
 	protected Type inferInstantiatedTypeOfConstructor(final Type constructorType, final IValue... children) {
