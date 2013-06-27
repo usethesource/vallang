@@ -87,36 +87,6 @@ public abstract class BaseValueFactory implements IValueFactory {
 		}
 	}
 
-	@Deprecated // Specialized in FastBaseValueFactory
-    public IReal real(double d) {
-        return new RealValue(d);
-    }
-    
-	@Deprecated // Specialized in FastBaseValueFactory
-    public IReal real(double d, int p) {
-    	return new RealValue(d, p);
-    }
-    
-	@Deprecated // Specialized in FastBaseValueFactory
-    public IReal real(float f) {
-    	return new RealValue(f);
-    }
-
-	@Deprecated // Specialized in FastBaseValueFactory
-	public IReal real(float f, int p) {
-		return new RealValue(f, p);
-	}
-
-	@Deprecated // Specialized in FastBaseValueFactory
-    public IReal real(String s) throws NumberFormatException {
-    	return new RealValue(s);
-    }
-
-    @Deprecated // Specialized in FastBaseValueFactory
-    public IReal real(String s, int p) throws NumberFormatException {
-    	return new RealValue(s, p);
-    }
-
     public int getPrecision() {
       return currentPrecision.get();
     }
