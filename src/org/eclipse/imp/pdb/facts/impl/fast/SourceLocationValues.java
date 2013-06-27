@@ -9,7 +9,7 @@
 *    Arnold Lankamp - implementation
 *    Jurgen Vinju - implementation
 *******************************************************************************/
-package org.eclipse.imp.pdb.facts.impl;
+package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.net.URI;
 
