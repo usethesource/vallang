@@ -37,22 +37,6 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
 	private final AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
 
-	protected static void checkNull(Object... args) {
-		for (Object a : args) {
-			if (a == null) {
-				throw new NullPointerException();
-			}
-		}
-	}
-
-	protected static void checkNull(java.util.Map<Object, Object> args) {
-		for (java.util.Map.Entry<Object, Object> entry : args.entrySet()) {
-			if (entry == null || entry.getKey() == null || entry.getValue() == null) {
-				throw new NullPointerException();
-			}
-		}
-	}
-
 	public IInteger integer(BigInteger value) {
 		if (value.bitLength() > 31) {
 			return new BigIntegerValue(value);
@@ -265,6 +249,5 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 	public IDateTime datetime(long instant) {
 		return new DateTimeValues.DateTimeValue(instant);
 	}
-
 
 }

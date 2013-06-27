@@ -28,6 +28,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
+import java.util.Objects;
+
 /**
  * This is a reference implementation for an @{link IValueFactory}. It uses
  * the Java standard library to implement it in a most straightforward but
@@ -42,7 +44,21 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseVa
 	private ValueFactory() {
 		super();
 	}
-	
+
+	protected static void checkNull(Object... args) {
+		for (Object a : args) {
+			Objects.requireNonNull(a);
+		}
+	}
+
+	protected static void checkNull(java.util.Map<Object, Object> args) {
+		for (java.util.Map.Entry<Object, Object> entry : args.entrySet()) {
+			if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+				throw new NullPointerException();
+			}
+		}
+	}
+
 	@Override
 	public ISet relation(Type tupleType) {
 		checkNull(tupleType);
