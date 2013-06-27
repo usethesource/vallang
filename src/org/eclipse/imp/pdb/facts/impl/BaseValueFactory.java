@@ -101,12 +101,13 @@ public abstract class BaseValueFactory implements IValueFactory {
     public IReal real(float f) {
     	return new RealValue(f);
     }
-    
-    public IReal real(float f, int p) {
-    	return new RealValue(f, p);
-    }
-    
-    @Deprecated // Specialized in FastBaseValueFactory
+
+	@Deprecated // Specialized in FastBaseValueFactory
+	public IReal real(float f, int p) {
+		return new RealValue(f, p);
+	}
+
+	@Deprecated // Specialized in FastBaseValueFactory
     public IReal real(String s) throws NumberFormatException {
     	return new RealValue(s);
     }

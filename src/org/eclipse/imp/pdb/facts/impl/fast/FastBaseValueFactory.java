@@ -113,7 +113,12 @@ public abstract class FastBaseValueFactory extends BaseValueFactory {
 	public IReal real(float value) {
 		return new BigDecimalValue(BigDecimal.valueOf(value));
 	}
-	
+
+	@Override
+	public IReal real(float value, int precision) {
+		return new BigDecimalValue(BigDecimal.valueOf(value), precision);
+	}
+
 	@Override
 	public IReal real(String doubleValue){
 		return new BigDecimalValue(new BigDecimal(doubleValue));
