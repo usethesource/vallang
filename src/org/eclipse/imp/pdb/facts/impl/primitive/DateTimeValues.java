@@ -1,14 +1,16 @@
 /*******************************************************************************
-* Copyright (c) 2009 CWI
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Mark Hills (Mark.Hills@cwi.nl) - initial API and implementation
-*******************************************************************************/
-package org.eclipse.imp.pdb.facts.impl;
+ * Copyright (c) 2009-2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Mark Hills (Mark.Hills@cwi.nl) - initial API and implementation
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *******************************************************************************/
+package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -16,10 +18,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.eclipse.imp.pdb.facts.IDateTime;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 
 /** A concrete instance of IDateTime, representing either a date,
@@ -29,9 +33,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  *  it is not possible to represent "July 2009" or "15" (hours).
  *
  */
-public class DateTimeValues {
+/*package*/ class DateTimeValues {
 
-	public static class DateValue extends Value implements IDateTime {
+	private final static Type DATE_TIME_TYPE = TypeFactory.getInstance().dateTimeType();
+
+	/*package*/ static class DateValue extends AbstractValue implements IDateTime {
 
 		private int year;
 		private int month;
@@ -44,8 +50,8 @@ public class DateTimeValues {
 		 * @param month			The month of the date
 		 * @param day			The day of the date
 		 */
-		public DateValue(int year, int month, int day) {
-			super(TypeFactory.getInstance().dateTimeType());
+		/*package*/ DateValue(int year, int month, int day) {
+			super();
 
 			this.year = year;
 			this.month = month;
@@ -63,10 +69,17 @@ public class DateTimeValues {
 			}
 		}
 
+		@Override
+		public Type getType() {
+			return DATE_TIME_TYPE;
+		}
+
+		@Override
 		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			return v.visitDateTime(this);
 		}
 
+		@Override
 		public int compareTo(IDateTime arg0) {
 			if (arg0.isDate()) {
 				long m1 = this.getInstant();
@@ -85,6 +98,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getInstant()
 		 */
+		@Override
 		public long getInstant() {
 			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
 			cal.setTime(new Date(0));
@@ -95,6 +109,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getCentury()
 		 */
+		@Override
 		public int getCentury() {
 			return (year - (year % 100)) / 100;
 		}
@@ -102,6 +117,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getYear()
 		 */
+		@Override
 		public int getYear() {
 			return this.year;
 		}
@@ -109,6 +125,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMonthOfYear()
 		 */
+		@Override
 		public int getMonthOfYear() {
 			return this.month;
 		}
@@ -116,6 +133,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getDayOfMonth()
 		 */
+		@Override
 		public int getDayOfMonth() {
 			return this.day;
 		}
@@ -123,6 +141,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getHourOfDay()
 		 */
+		@Override
 		public int getHourOfDay() {
 			throw new UnsupportedOperationException("Cannot get hours on a date value");
 		}
@@ -130,6 +149,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMinuteOfHour()
 		 */
+		@Override
 		public int getMinuteOfHour() {
 			throw new UnsupportedOperationException("Cannot get minutes on a date value");
 		}
@@ -137,6 +157,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getSecondOfMinute()
 		 */
+		@Override
 		public int getSecondOfMinute() {
 			throw new UnsupportedOperationException("Cannot get seconds on a date value");
 		}
@@ -144,6 +165,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMillisecondsOfSecond()
 		 */
+		@Override
 		public int getMillisecondsOfSecond() {
 			throw new UnsupportedOperationException("Cannot get milliseconds on a date value");
 		}
@@ -151,6 +173,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getTimezoneOffsetHours()
 		 */
+		@Override
 		public int getTimezoneOffsetHours() {
 			throw new UnsupportedOperationException("Cannot get timezone offset hours on a date value");
 		}
@@ -158,6 +181,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getTimezoneOffsetMinutes()
 		 */
+		@Override
 		public int getTimezoneOffsetMinutes() {
 			throw new UnsupportedOperationException("Cannot get timezone offset minutes on a date value");
 		}
@@ -165,6 +189,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isDate()
 		 */
+		@Override
 		public boolean isDate() {
 			return true;
 		}
@@ -172,6 +197,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isTime()
 		 */
+		@Override
 		public boolean isTime() {
 			return false;
 		}
@@ -179,6 +205,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isDateTime()
 		 */
+		@Override
 		public boolean isDateTime() {
 			return false;
 		}
@@ -210,9 +237,14 @@ public class DateTimeValues {
 				return false;
 			return true;
 		}
+
+		@Override
+		public boolean isEqual(IValue other) {
+			return equals(other);
+		}
 	}
-	
-	public static class TimeValue extends Value implements IDateTime {
+
+	/*package*/ static class TimeValue extends AbstractValue implements IDateTime {
 
 		private int hour;
 		private int minute;
@@ -249,8 +281,8 @@ public class DateTimeValues {
 		 * @param second		The second of the time
 		 * @param millisecond	The millisecond of the time
 		 */
-		public TimeValue(int hour, int minute, int second, int millisecond) {
-			super(TypeFactory.getInstance().dateTimeType());
+		/*package*/ TimeValue(int hour, int minute, int second, int millisecond) {
+			super();
 			
 			this.hour = hour;
 			this.minute = minute;
@@ -289,8 +321,8 @@ public class DateTimeValues {
 		 * @param hourOffset	The timezone offset of the time, in hours
 		 * @param minuteOffset	The timezone offset of the time, in minutes
 		 */
-		public TimeValue(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
-			super(TypeFactory.getInstance().dateTimeType());
+		/*package*/ TimeValue(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+			super();
 			
 			this.hour = hour;
 			this.minute = minute;
@@ -315,10 +347,17 @@ public class DateTimeValues {
 			}
 		}
 
+		@Override
+		public Type getType() {
+			return DATE_TIME_TYPE;
+		}
+
+		@Override
 		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			return v.visitDateTime(this);
 		}
 
+		@Override
 		public int compareTo(IDateTime arg0) {
 			if (arg0.isTime()) {
 				long m1 = this.getInstant();
@@ -337,6 +376,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getInstant()
 		 */
+		@Override
 		public long getInstant() {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(this.timezoneHours,this.timezoneMinutes)),Locale.getDefault());
 			cal.set(1970, 0, 1, this.hour, this.minute, this.second);
@@ -347,6 +387,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getCentury()
 		 */
+		@Override
 		public int getCentury() {
 			throw new UnsupportedOperationException("Cannot get century on a time value");
 		}
@@ -354,6 +395,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getYear()
 		 */
+		@Override
 		public int getYear() {
 			throw new UnsupportedOperationException("Cannot get year on a time value");
 		}
@@ -361,6 +403,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMonthOfYear()
 		 */
+		@Override
 		public int getMonthOfYear() {
 			throw new UnsupportedOperationException("Cannot get month on a time value");
 		}
@@ -368,6 +411,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getDayOfMonth()
 		 */
+		@Override
 		public int getDayOfMonth() {
 			throw new UnsupportedOperationException("Cannot get day on a time value");
 		}
@@ -375,6 +419,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getHourOfDay()
 		 */
+		@Override
 		public int getHourOfDay() {
 			return this.hour;
 		}
@@ -382,6 +427,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMinuteOfHour()
 		 */
+		@Override
 		public int getMinuteOfHour() {
 			return this.minute;
 		}
@@ -389,6 +435,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getSecondOfMinute()
 		 */
+		@Override
 		public int getSecondOfMinute() {
 			return this.second;
 		}
@@ -396,6 +443,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMillisecondsOfSecond()
 		 */
+		@Override
 		public int getMillisecondsOfSecond() {
 			return this.millisecond;
 		}
@@ -403,6 +451,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getTimezoneOffsetHours()
 		 */
+		@Override
 		public int getTimezoneOffsetHours() {
 			return this.timezoneHours;
 		}
@@ -410,6 +459,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getTimezoneOffsetMinutes()
 		 */
+		@Override
 		public int getTimezoneOffsetMinutes() {
 			return this.timezoneMinutes;
 		}
@@ -417,6 +467,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isDate()
 		 */
+		@Override
 		public boolean isDate() {
 			return false;
 		}
@@ -424,6 +475,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isTime()
 		 */
+		@Override
 		public boolean isTime() {
 			return true;
 		}
@@ -431,6 +483,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isDateTime()
 		 */
+		@Override
 		public boolean isDateTime() {
 			return false;
 		}
@@ -471,9 +524,14 @@ public class DateTimeValues {
 				return false;
 			return true;
 		}
+
+		@Override
+		public boolean isEqual(IValue other) {
+			return equals(other);
+		}
 	}
-	
-	public static class DateTimeValue extends Value implements IDateTime {
+
+	/*package*/ static class DateTimeValue extends AbstractValue implements IDateTime {
 
 		private int year;
 		private int month;
@@ -496,8 +554,8 @@ public class DateTimeValues {
 		 * @param second		The second of the datetime
 		 * @param millisecond	The millisecond of the datetime
 		 */
-		public DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond) {
-			super(TypeFactory.getInstance().dateTimeType());
+		/*package*/ DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond) {
+			super();
 			
 			this.year = year;
 			this.month = month;
@@ -540,8 +598,8 @@ public class DateTimeValues {
 		 * @param hourOffset	The timezone offset of the time, in hours
 		 * @param minuteOffset	The timezone offset of the time, in minutes
 		 */
-		public DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
-			super(TypeFactory.getInstance().dateTimeType());
+		/*package*/ DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+			super();
 			this.year = year;
 			this.month = month;
 			this.day = day;
@@ -572,8 +630,8 @@ public class DateTimeValues {
 		 * 
 		 * @param instant The millisecond instant.
 		 */
-		public DateTimeValue(long instant) {
-			super(TypeFactory.getInstance().dateTimeType());
+		/*package*/ DateTimeValue(long instant) {
+			super();
 			
 			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
 			cal.setLenient(false);
@@ -590,10 +648,17 @@ public class DateTimeValues {
 			this.timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % TimeValue.millisInAnHour / TimeValue.millisInAMinute;			
 		}
 
+		@Override
+		public Type getType() {
+			return DATE_TIME_TYPE;
+		}
+
+		@Override
 		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 			return v.visitDateTime(this);
 		}
 
+		@Override
 		public int compareTo(IDateTime arg0) {
 			if (arg0.isDateTime()) {
 				long m1 = this.getInstant();
@@ -612,6 +677,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getInstant()
 		 */
+		@Override
 		public long getInstant() {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(TimeValue.getTZString(this.timezoneHours,this.timezoneMinutes)),Locale.getDefault());
 			cal.set(this.year, this.month-1, this.day, this.hour, this.minute, this.second);
@@ -622,6 +688,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getCentury()
 		 */
+		@Override
 		public int getCentury() {
 			return (year - (year % 100)) / 100;
 		}
@@ -629,6 +696,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getYear()
 		 */
+		@Override
 		public int getYear() {
 			return this.year;
 		}
@@ -636,6 +704,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMonthOfYear()
 		 */
+		@Override
 		public int getMonthOfYear() {
 			return this.month;
 		}
@@ -643,6 +712,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getDayOfMonth()
 		 */
+		@Override
 		public int getDayOfMonth() {
 			return this.day;
 		}
@@ -650,6 +720,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getHourOfDay()
 		 */
+		@Override
 		public int getHourOfDay() {
 			return this.hour;
 		}
@@ -657,6 +728,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMinuteOfHour()
 		 */
+		@Override
 		public int getMinuteOfHour() {
 			return this.minute;
 		}
@@ -664,6 +736,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getSecondOfMinute()
 		 */
+		@Override
 		public int getSecondOfMinute() {
 			return this.second;
 		}
@@ -671,6 +744,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getMillisecondsOfSecond()
 		 */
+		@Override
 		public int getMillisecondsOfSecond() {
 			return this.millisecond;
 		}
@@ -678,6 +752,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getTimezoneOffsetHours()
 		 */
+		@Override
 		public int getTimezoneOffsetHours() {
 			return this.timezoneHours;
 		}
@@ -685,6 +760,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#getTimezoneOffsetMinutes()
 		 */
+		@Override
 		public int getTimezoneOffsetMinutes() {
 			return this.timezoneMinutes;
 		}
@@ -692,6 +768,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isDate()
 		 */
+		@Override
 		public boolean isDate() {
 			return false;
 		}
@@ -699,6 +776,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isTime()
 		 */
+		@Override
 		public boolean isTime() {
 			return false;
 		}
@@ -706,6 +784,7 @@ public class DateTimeValues {
 		/* (non-Javadoc)
 		 * @see org.eclipse.imp.pdb.facts.IDateTime#isDateTime()
 		 */
+		@Override
 		public boolean isDateTime() {
 			return true;
 		}
@@ -754,6 +833,11 @@ public class DateTimeValues {
 			if (year != other.year)
 				return false;
 			return true;
+		}
+
+		@Override
+		public boolean isEqual(IValue other) {
+			return equals(other);
 		}
 	}
 }

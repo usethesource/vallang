@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
+import org.eclipse.imp.pdb.facts.impl.primitive.AbstractPrimitiveValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -35,7 +36,7 @@ import java.util.Objects;
  * the Java standard library to implement it in a most straightforward but
  * not necessarily very efficient manner.
  */
-public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.FastBaseValueFactory {
+public class ValueFactory extends AbstractPrimitiveValueFactory {
 	private static final ValueFactory sInstance = new ValueFactory();
 	public static ValueFactory getInstance() {
 		return sInstance;

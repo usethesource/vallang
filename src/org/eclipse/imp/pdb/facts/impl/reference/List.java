@@ -14,48 +14,65 @@ package org.eclipse.imp.pdb.facts.impl.reference;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractList;
+import org.eclipse.imp.pdb.facts.impl.func.ListFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 import java.util.Iterator;
 
 /*package*/ class List extends AbstractList {
 
-    private final java.util.List<IValue> content;
+	private final Type type;
+	private final java.util.List<IValue> content;
 
-    /*package*/ List(Type elementType, java.util.List<IValue> content) {
-        super(inferListOrRelType(elementType, content));
+	/*package*/ List(Type elementType, java.util.List<IValue> content) {
+		super();
+		this.type = inferListOrRelType(elementType, content);
+		this.content = content;
+	}
 
-        this.content = content;
-    }
+	@Override
+	public Type getType() {
+		return type;
+	}
 
-    @Override
-    public Iterator<IValue> iterator() {
-        return content.iterator();
-    }
+	@Override
+	protected IValueFactory getValueFactory() {
+		return ValueFactory.getInstance();
+	}
 
-    @Override
-    public int length() {
-        return content.size();
-    }
+	@Override
+	public Iterator<IValue> iterator() {
+		return content.iterator();
+	}
 
-    @Override
-    public boolean isEmpty() {
-        return content.isEmpty();
-    }
+	@Override
+	public int length() {
+		return content.size();
+	}
 
-    @Override
-    public IValue get(int i) {
-        return content.get(i);
-    }
+	@Override
+	public IValue get(int i) {
+		return content.get(i);
+	}
 
-    @Override
-    public int hashCode() {
-        return content.hashCode();
-    }
+	@Override
+	public boolean isEmpty() {
+		return content.isEmpty();
+	}
 
-    @Override
-    protected IValueFactory getValueFactory() {
-        return ValueFactory.getInstance();
-    }
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object that) {
+		return ListFunctions.equals(getValueFactory(), this, that);
+	}
+
+	@Override
+	public boolean isEqual(IValue that) {
+		return ListFunctions.isEqual(getValueFactory(), this, that);
+	}
 
 }

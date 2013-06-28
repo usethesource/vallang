@@ -27,11 +27,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapKeyTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedMapValueTypeException;
-import org.eclipse.imp.pdb.facts.impl.Writer;
+import org.eclipse.imp.pdb.facts.impl.AbstractWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-/*package*/ class MapWriter extends Writer implements IMapWriter {
+/*package*/ class MapWriter extends AbstractWriter implements IMapWriter {
 	private Type staticMapType;
 	private Type staticKeyType;
 	private Type staticValueType;

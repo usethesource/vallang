@@ -15,17 +15,17 @@ import java.util.NoSuchElementException;
 
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of ITuple.
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Tuple extends Value implements ITuple{
+/*package*/ class Tuple extends AbstractValue implements ITuple{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type tupleType;

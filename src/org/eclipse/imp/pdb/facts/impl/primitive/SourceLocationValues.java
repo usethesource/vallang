@@ -1,25 +1,26 @@
 /*******************************************************************************
-* Copyright (c) 2012 Centrum Wiskunde en Informatica (CWI)
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Arnold Lankamp - implementation
-*    Jurgen Vinju - implementation
-*******************************************************************************/
-package org.eclipse.imp.pdb.facts.impl.fast;
+ * Copyright (c) 2012-2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Arnold Lankamp - implementation
+ *   * Jurgen Vinju - implementation
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *******************************************************************************/
+package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.Value;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * This is a container class for a number of implementations of ISourceLocation. Each implementation is extremely similar to the others.
@@ -27,72 +28,86 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
  * of heap for each source location object, since at run-time there will be so many of them. We measured the effect of this on some real 
  * applications and showed more than 50% improvement in memory usage.
  */
-public class SourceLocationValues {
+/*package*/ class SourceLocationValues {
 	private abstract static class Complete extends Incomplete {
 		public Complete(URI uri) {
 			super(uri);
 		}
 
+		@Override
 		public boolean hasOffsetLength() {
 			return true;
 		}
 		
+		@Override
 		public boolean hasLineColumn() {
 			return true;
 		}
 	}
 	
-	private abstract static class Incomplete extends Value implements ISourceLocation {
+	private abstract static class Incomplete extends AbstractValue implements ISourceLocation {
 		protected final URI uri;
 
 		public Incomplete(URI uri) {
 			this.uri = uri;
 		}
 		
+		@Override
 		public URI getURI() {
 			return uri;
 		}
 		
+		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
 		}
 		
+		@Override
 		public boolean hasLineColumn() {
 			return false;
 		}
 		
+		@Override
 		public boolean hasOffsetLength() {
 			return false;
 		}
 		
+		@Override
 		public int getBeginColumn() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public int getBeginLine() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public int getEndColumn() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public int getEndLine() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public int getLength() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public int getOffset() throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		
+		@Override
 		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
 	    	return v.visitSourceLocation(this);
 		}
 		
+		@Override
 		public boolean isEqual(IValue value){
 			return equals(value);
 		}
@@ -117,30 +132,37 @@ public class SourceLocationValues {
 			this.endCol = endCol;
 		}
 
+		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
 		}
 		
+		@Override
 		public int getBeginLine(){
 			return beginLine;
 		}
 		
+		@Override
 		public int getEndLine(){
 			return endLine;
 		}
 		
+		@Override
 		public int getBeginColumn(){
 			return beginCol;
 		}
 		
+		@Override
 		public int getEndColumn(){
 			return endCol;
 		}
 		
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}
@@ -194,30 +216,37 @@ public class SourceLocationValues {
 			this.endCol = endCol;
 		}
 
+		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
 		}
 		
+		@Override
 		public int getBeginLine(){
 			return beginLine;
 		}
 		
+		@Override
 		public int getEndLine(){
 			return endLine;
 		}
 		
+		@Override
 		public int getBeginColumn(){
 			return beginCol;
 		}
 		
+		@Override
 		public int getEndColumn(){
 			return endCol;
 		}
 		
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}
@@ -271,30 +300,37 @@ public class SourceLocationValues {
 			this.endCol = endCol;
 		}
 
+		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
 		}
 		
+		@Override
 		public int getBeginLine(){
 			return beginLine;
 		}
 		
+		@Override
 		public int getEndLine(){
 			return endLine;
 		}
 		
+		@Override
 		public int getBeginColumn(){
 			return beginCol;
 		}
 		
+		@Override
 		public int getEndColumn(){
 			return endCol;
 		}
 		
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}
@@ -370,26 +406,32 @@ public class SourceLocationValues {
 			this.endCol = endCol;
 		}
 
+		@Override
 		public int getBeginLine(){
 			return beginLine;
 		}
 		
+		@Override
 		public int getEndLine(){
 			return endLine;
 		}
 		
+		@Override
 		public int getBeginColumn(){
 			return beginCol;
 		}
 		
+		@Override
 		public int getEndColumn(){
 			return endCol;
 		}
 		
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}
@@ -443,26 +485,32 @@ public class SourceLocationValues {
 			this.endCol = endCol;
 		}
 
+		@Override
 		public int getBeginLine(){
 			return beginLine;
 		}
 		
+		@Override
 		public int getEndLine(){
 			return endLine;
 		}
 		
+		@Override
 		public int getBeginColumn(){
 			return beginCol;
 		}
 		
+		@Override
 		public int getEndColumn(){
 			return endCol;
 		}
 		
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}
@@ -508,14 +556,17 @@ public class SourceLocationValues {
 			this.length = length;
 		}
 		
+		@Override
 		public boolean hasOffsetLength() {
 			return true;
 		}
 		
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}
@@ -553,14 +604,17 @@ public class SourceLocationValues {
 			this.length = length;
 		}
 		
+		@Override
 		public boolean hasOffsetLength() {
 			return true;
 		}
 		
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}
@@ -598,18 +652,22 @@ public class SourceLocationValues {
 			this.length = length;
 		}
 		
+		@Override
 		public boolean hasOffsetLength() {
 			return true;
 		}
 		
+		@Override
 		public boolean hasLineColumn() {
 			return false;
 		}
 
+		@Override
 		public int getOffset(){
 			return offset;
 		}
 		
+		@Override
 		public int getLength(){
 			return length;
 		}

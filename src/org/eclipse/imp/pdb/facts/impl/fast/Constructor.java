@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -32,7 +32,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Constructor extends Value implements IConstructor{
+/*package*/ class Constructor extends AbstractValue implements IConstructor{
 	protected final Type constructorType;
 	protected final IValue[] children;
 

@@ -20,48 +20,65 @@ package org.eclipse.imp.pdb.facts.impl.reference;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
+import org.eclipse.imp.pdb.facts.impl.func.SetFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 import java.util.Iterator;
 
 /*package*/ class Set extends AbstractSet {
 
-    final java.util.Set<IValue> content;
+	final Type type;
+	final java.util.Set<IValue> content;
 
-    /*package*/ Set(Type elementType, java.util.Set<IValue> content) {
-        super(inferSetOrRelType(elementType, content));
+	/*package*/ Set(Type elementType, java.util.Set<IValue> content) {
+		super();
+		this.type = inferSetOrRelType(elementType, content);
+		this.content = content;
+	}
 
-        this.content = content;
-    }
+	@Override
+	public Type getType() {
+		return type;
+	}
 
-    @Override
-    protected IValueFactory getValueFactory() {
-        return ValueFactory.getInstance();
-    }
+	@Override
+	public boolean isEmpty() {
+		return content.isEmpty();
+	}
 
-    @Override
-    public boolean isEmpty() {
-        return content.isEmpty();
-    }
+	@Override
+	public int size() {
+		return content.size();
+	}
 
-    @Override
-    public int size() {
-        return content.size();
-    }
+	@Override
+	public boolean contains(IValue e) {
+		return content.contains(e);
+	}
 
-    @Override
-    public boolean contains(IValue e) {
-        return content.contains(e);
-    }
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
 
-    @Override
-    public int hashCode() {
-        return content.hashCode();
-    }
+	@Override
+	public boolean equals(Object other) {
+		return SetFunctions.equals(getValueFactory(), this, other);
+	}
 
-    @Override
-    public Iterator<IValue> iterator() {
-        return content.iterator();
-    }
+	@Override
+	public boolean isEqual(IValue other) {
+		return SetFunctions.isEqual(getValueFactory(), this, other);
+	}
+
+	@Override
+	protected IValueFactory getValueFactory() {
+		return ValueFactory.getInstance();
+	}
+
+	@Override
+	public Iterator<IValue> iterator() {
+		return content.iterator();
+	}
 
 }

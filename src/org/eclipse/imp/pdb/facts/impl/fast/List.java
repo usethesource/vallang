@@ -20,19 +20,18 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.impl.fast.ListWriter;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of IList.
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class List extends Value implements IList{
+/*package*/ class List extends AbstractValue implements IList{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	

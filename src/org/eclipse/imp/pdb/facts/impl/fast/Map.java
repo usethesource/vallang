@@ -16,18 +16,18 @@ import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of IMap.
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Map extends Value implements IMap{
+/*package*/ class Map extends AbstractValue implements IMap{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type mapType;

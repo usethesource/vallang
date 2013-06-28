@@ -22,10 +22,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public abstract class AbstractSet extends Value implements ISet {
+public abstract class AbstractSet extends AbstractValue implements ISet {
 
-    public AbstractSet(Type collectionType) {
-    	super(collectionType);
+    public AbstractSet() {
+    	super();
     }
 
     protected static TypeFactory getTypeFactory() {
@@ -96,16 +96,6 @@ public abstract class AbstractSet extends Value implements ISet {
     @Override
     public boolean isSubsetOf(ISet that) {
         return SetFunctions.isSubsetOf(getValueFactory(), this, that);
-    }
-
-    @Override
-    public boolean isEqual(IValue other) {
-        return SetFunctions.isEqual(getValueFactory(), this, other);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return SetFunctions.equals(getValueFactory(), this, other);
     }
 
     @Override

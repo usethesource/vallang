@@ -22,7 +22,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.Writer;
+import org.eclipse.imp.pdb.facts.impl.AbstractWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -32,7 +32,7 @@ import java.util.LinkedList;
  * This class does not guarantee thread-safety. Users must lock the writer object for thread safety.
  * It is thread-friendly however.
  */
-/*package*/ class ListWriter extends Writer implements IListWriter {
+/*package*/ class ListWriter extends AbstractWriter implements IListWriter {
     protected Type eltType;
     protected final java.util.List<IValue> listContent;
 

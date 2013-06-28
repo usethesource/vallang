@@ -1,56 +1,66 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Arnold Lankamp - interfaces and implementation
-*******************************************************************************/
-package org.eclipse.imp.pdb.facts.impl.fast;
+ * Copyright (c) 2009-2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Arnold Lankamp - interfaces and implementation
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *******************************************************************************/
+package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.nio.CharBuffer;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of IString.
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class StringValue extends Value implements IString {
+/*package*/ class StringValue extends AbstractValue implements IString {
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
-	
+
 	protected final String value;
-	
-	/*package*/ StringValue(String value){
+
+	/*package*/ static IString newString(String value) {
+		return new StringValue(value);
+	}
+
+	private StringValue(String value){
 		super();
 		
 		this.value = value;
 	}
 
+	@Override
 	public Type getType(){
 		return STRING_TYPE;
 	}
 	
+	@Override
 	public String getValue(){
 		return value;
 	}
 	
+	@Override
 	public IString concat(IString other){
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(value);
 		buffer.append(other.getValue());
 		
-		return ValueFactory.getInstance().string(buffer.toString());
+		return StringValue.newString(buffer.toString());
 	}
 	
+	@Override
 	public int compare(IString other){
 		int result = value.compareTo(other.getValue());
 		
@@ -60,6 +70,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return 0;
 	}
 	
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
 		return v.visitString(this);
 	}
@@ -79,15 +90,18 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return false;
 	}
 	
+	@Override
 	public boolean isEqual(IValue value){
 		return equals(value);
 	}
 	
+	@Override
 	public IString reverse() {
 		StringBuilder b = new StringBuilder(value);
 		return new StringValue(b.reverse().toString());
 	}
 
+	@Override
 	public int length() {
 		return value.codePointCount(0, value.length());
 	}
@@ -96,14 +110,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return str.codePointAt(str.offsetByCodePoints(0,i));
 	}
 	
+	@Override
 	public IString substring(int start, int end) {
 		 return new StringValue(value.substring(value.offsetByCodePoints(0, start),value.offsetByCodePoints(0, end)));
 	}
 
+	@Override
 	public IString substring(int start) {
 		 return new StringValue(value.substring(value.offsetByCodePoints(0, start)));
 	}
 	
+	@Override
 	public int charAt(int index) {
 		return codePointAt(value, index);
 	}
@@ -123,6 +140,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 	}
 	
+	@Override
 	public IString replace(int first, int second, int end, IString repl) {
 		StringBuilder buffer = new StringBuilder();
 	
@@ -203,6 +221,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 		
 		String res = buffer.toString();
-		return ValueFactory.getInstance().string(res);
+		return StringValue.newString(res);
 	}
 }

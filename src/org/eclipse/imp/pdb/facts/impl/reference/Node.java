@@ -1,14 +1,15 @@
 /*******************************************************************************
-* Copyright (c) 2007 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*   jurgen@vinju.org
-*******************************************************************************/
-
+ * Copyright (c) 2007-2013 IBM Corporation & CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
-import org.eclipse.imp.pdb.facts.impl.Value;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -31,9 +32,21 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 /**
  * Naive implementation of an untyped tree node, using array of children.
  */
-public class Node extends Value implements INode {
+/*package*/ class Node extends AbstractValue implements INode {
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
     protected static final HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<>();
+
+	@Override
+	public Type getType() {
+		return fType;
+	}
+
+	@Override
+	public boolean isEqual(IValue other) {
+		return equals(other);
+	}
+
+	protected final Type fType;
 	protected final IValue[] fChildren;
     protected final String fName;
 	protected final HashMap<String, IValue> fAnnotations;
@@ -41,7 +54,8 @@ public class Node extends Value implements INode {
 	protected final String[] keyArgNames;
 	
 	/*package*/ Node(String name, IValue[] children) {
-		super(TypeFactory.getInstance().nodeType());
+		super();
+		fType = TypeFactory.getInstance().nodeType();
 		fName = name;
 		fChildren = children.clone();
 		fAnnotations = EMPTY_ANNOTATIONS;
@@ -49,7 +63,8 @@ public class Node extends Value implements INode {
 	}
 	
 	/*package*/ Node(String name, Map<String,IValue> annos, IValue[] children) {
-		super(TypeFactory.getInstance().nodeType());
+		super();
+		fType = TypeFactory.getInstance().nodeType();
 		fName = name;
 		fChildren = children.clone();
 		fAnnotations = new HashMap<>(annos.size());
@@ -58,7 +73,8 @@ public class Node extends Value implements INode {
 	}
 	
 	protected Node(String name, Type type, IValue[] children) {
-		super(type);
+		super();
+		fType = type;
 		fName = name;
 		fChildren = children.clone();
 		fAnnotations = EMPTY_ANNOTATIONS;
@@ -66,9 +82,9 @@ public class Node extends Value implements INode {
 	}
 	
 	/*package*/ Node(String name, IValue[] children, Map<String, IValue> keyArgValues){
-		super(TypeFactory.getInstance().nodeType());
-		
-		this.fName = (name != null ? name.intern() : null); // Handle (weird) special case.
+		super();
+		fType = TypeFactory.getInstance().nodeType();
+		fName = (name != null ? name.intern() : null); // Handle (weird) special case.
 		fAnnotations = EMPTY_ANNOTATIONS;
 		if(keyArgValues != null){
 			int nkw = keyArgValues.size();
@@ -101,7 +117,8 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	protected Node(Node other, String label, IValue anno) {
-		super(other.fType);
+		super();
+		fType = other.fType;
 		fName = other.fName;
 		fChildren = other.fChildren;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
@@ -114,7 +131,8 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	protected Node(Node other, String label) {
-		super(other.fType);
+		super();
+		fType = other.fType;
 		fName = other.fName;
 		fChildren = other.fChildren;
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
@@ -127,7 +145,8 @@ public class Node extends Value implements INode {
 	 * @param other
 	 */
 	protected Node(Node other) {
-		super(other.fType);
+		super();
+		fType = other.fType;
 		fName = other.fName;
 		fChildren = other.fChildren;
 		fAnnotations = EMPTY_ANNOTATIONS;
@@ -146,7 +165,8 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	protected Node(Node other, int index, IValue newChild) {
-		super(other.fType);
+		super();
+		fType = other.fType;
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
@@ -161,7 +181,8 @@ public class Node extends Value implements INode {
 	 */
 	@SuppressWarnings("unchecked")
 	public Node(Node other, Map<String, IValue> annotations) {
-		super(other.fType);
+		super();
+		fType = other.fType;
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
@@ -430,4 +451,5 @@ public class Node extends Value implements INode {
 		else
 			return fChildren.length - keyArgNames.length;
 	}
+
 }

@@ -1,17 +1,30 @@
-package org.eclipse.imp.pdb.facts.impl.fast;
+/*******************************************************************************
+ * Copyright (c) 2009-2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *******************************************************************************/
+package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-/*package*/ abstract class AbstractNumberValue extends Value implements INumber{
+/*package*/ abstract class AbstractNumberValue extends AbstractValue implements INumber{
 	private final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	/*package*/ AbstractNumberValue(){
 		super();
 	}
 
+	@Override
 	public INumber add(INumber other){
 		if(isIntegerType(other)){
 			return add(other.toInteger());
@@ -26,6 +39,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 	
+	@Override
 	public INumber divide(INumber other, int precision){
 		if(isIntegerType(other)){
 			return divide(other.toInteger(), precision);
@@ -39,6 +53,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 
+	@Override
 	public IBool greater(INumber other){
 		if(isIntegerType(other)){
 			return greater(other.toInteger());
@@ -53,6 +68,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	}
 	
 
+  @Override
   public IBool equal(INumber other){
     if(isIntegerType(other)){
       return equal(other.toInteger());
@@ -66,6 +82,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
     throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
   }
   
+	@Override
 	public IBool greaterEqual(INumber other){
 		if(isIntegerType(other)){
 			return greaterEqual(other.toInteger());
@@ -79,6 +96,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 	
+	@Override
 	public IBool less(INumber other){
 		if(isIntegerType(other)){
 			return less(other.toInteger());
@@ -92,6 +110,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 	
+	@Override
 	public IBool lessEqual(INumber other){
 		if(isIntegerType(other)){
 			return lessEqual(other.toInteger());
@@ -105,6 +124,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 
+	@Override
 	public INumber multiply(INumber other){
 		if(isIntegerType(other)){
 			return multiply(other.toInteger());
@@ -118,6 +138,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		throw new UnexpectedTypeException(typeFactory.numberType(), other.getType());
 	}
 
+	@Override
 	public INumber subtract(INumber other){
 		if(isIntegerType(other)){
 			return subtract(other.toInteger());

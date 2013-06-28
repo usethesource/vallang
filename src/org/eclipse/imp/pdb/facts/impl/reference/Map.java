@@ -17,45 +17,58 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractMap;
+import org.eclipse.imp.pdb.facts.impl.func.MapFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
+
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 /*package*/ class Map extends AbstractMap {
 
+	final Type type;
 	final java.util.Map<IValue, IValue> content;
 
-	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content){
-		super(inferMapType(candidateMapType, content));
+	/*package*/ Map(Type candidateMapType, java.util.Map<IValue, IValue> content) {
+		super();
+		this.type = inferMapType(candidateMapType, content);
 		this.content = content;
 	}
-	
-	public int size() {
-		return content.size();
+
+	@Override
+	public Type getType() {
+		return type;
+	}
+
+	@Override
+	protected IValueFactory getValueFactory() {
+		return ValueFactory.getInstance();
 	}
 
 	public boolean isEmpty() {
 		return content.isEmpty();
 	}
 
+	public int size() {
+		return content.size();
+	}
+
 	public IValue get(IValue key) {
 		return content.get(key);
 	}
-	
+
 	public Iterator<IValue> iterator() {
 		return content.keySet().iterator();
 	}
 
-	public Iterator<Entry<IValue, IValue>> entryIterator() {
-		return content.entrySet().iterator();
-	}
-
 	public Iterator<IValue> valueIterator() {
 		return content.values().iterator();
+	}
+
+	public Iterator<Entry<IValue, IValue>> entryIterator() {
+		return content.entrySet().iterator();
 	}
 
 	@Override
@@ -64,8 +77,13 @@ import org.eclipse.imp.pdb.facts.type.Type;
 	}
 
 	@Override
-	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
+	public boolean equals(Object other) {
+		return MapFunctions.equals(getValueFactory(), this, other);
+	}
+
+	@Override
+	public boolean isEqual(IValue other) {
+		return MapFunctions.isEqual(getValueFactory(), this, other);
 	}
 
 }

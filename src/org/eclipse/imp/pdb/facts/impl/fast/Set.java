@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetRelation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -27,7 +28,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Set extends Value implements ISet {
+/*package*/ class Set extends AbstractValue implements ISet {
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	protected final static Type voidType = typeFactory.voidType();
 	

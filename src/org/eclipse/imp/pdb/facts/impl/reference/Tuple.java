@@ -1,15 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation.
+ * Copyright (c) 2007-2013 IBM Corporation & CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+ *
+ *   * Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
-
 package org.eclipse.imp.pdb.facts.impl.reference;
 
 import java.util.Iterator;
@@ -17,152 +17,176 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.Value;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-class Tuple extends Value implements ITuple {
-  protected final IValue[] fElements;
+class Tuple extends AbstractValue implements ITuple {
 
-  /* package */Tuple(IValue... elements) {
-    super(TypeFactory.getInstance().tupleType(elements));
-    this.fElements = elements;
-  }
+	protected final Type fType;
+	protected final IValue[] fElements;
 
-  private Tuple(Tuple other, int i, IValue elem) {
-    super(other.getType());
-    fElements = other.fElements.clone();
-    fElements[i] = elem;
-  }
+	/*package*/ Tuple(IValue... elements) {
+		super();
+		this.fType = TypeFactory.getInstance().tupleType(elements);
+		this.fElements = elements;
+	}
 
-  /* package */ Tuple(Type tupleType, IValue[] elems) {
-    super(tupleType);
-    fElements = elems;
-  }
+	private Tuple(Tuple other, int i, IValue elem) {
+		this.fType = other.getType();
+		fElements = other.fElements.clone();
+		fElements[i] = elem;
+	}
 
-  public int arity() {
-    return fElements.length;
-  }
+	@Override
+	public Type getType() {
+		return fType;
+	}
 
-  public IValue get(int i) throws IndexOutOfBoundsException {
-    try {
-      return fElements[i];
-    } catch (ArrayIndexOutOfBoundsException e) {
-      throw new IndexOutOfBoundsException("Tuple index " + i + " is larger than tuple width " + arity());
-    }
-  }
+	@Override
+	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+		return v.visitTuple(this);
+	}
 
-  public IValue get(String label) throws FactTypeUseException {
-    return fElements[fType.getFieldIndex(label)];
-  }
+	@Override
+	public boolean isEqual(IValue other) {
+		return equals(other);
+	}
 
-  public Iterator<IValue> iterator() {
-    return new Iterator<IValue>() {
-      private int count = 0;
+	/*package*/ Tuple(Type tupleType, IValue[] elems) {
+		super();
+		this.fType = tupleType;
+		this.fElements = elems;
+	}
 
-      public boolean hasNext() {
-        return count < arity();
-      }
+	@Override
+	public Iterator<IValue> iterator() {
+		return new Iterator<IValue>() {
+			private int count = 0;
 
-      public IValue next() {
-        return get(count++);
-      }
+			@Override
+			public boolean hasNext() {
+				return count < arity();
+			}
 
-      public void remove() {
-        throw new UnsupportedOperationException("Can not remove elements from a tuple");
-      }
-    };
-  }
+			@Override
+			public IValue next() {
+				return get(count++);
+			}
 
-  @Override
-  public boolean equals(Object o) {
-	  if(this == o) {
-		  return true;
-	  }
-	  else if(o == null) {
-		  return false;
-	  }
-	  else if (getClass() == o.getClass()) {
-      Tuple peer = (Tuple) o;
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Can not remove elements from a tuple");
+			}
+		};
+	}
 
-      if (!fType.comparable(peer.fType)) {
-        return false;
-      }
+	@Override
+	public int hashCode() {
+		int hash = 0;
 
-      int arity = arity();
-      if (arity != peer.arity()) {
-        return false;
-      }
-      for (int i = 0; i < arity; i++) {
-        if (!get(i).equals(peer.get(i))) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
+		for (int i = 0; i < fElements.length; i++) {
+			hash = (hash << 1) ^ (hash >> 1) ^ fElements[i].hashCode();
+		}
+		return hash;
+	}
 
-  @Override
-  public int hashCode() {
-    int hash = 0;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		} else if (o == null) {
+			return false;
+		} else if (getClass() == o.getClass()) {
+			Tuple peer = (Tuple) o;
 
-    for (int i = 0; i < fElements.length; i++) {
-      hash = (hash << 1) ^ (hash >> 1) ^ fElements[i].hashCode();
-    }
-    return hash;
-  }
+			if (!fType.comparable(peer.fType)) {
+				return false;
+			}
 
-  public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-    return v.visitTuple(this);
-  }
+			int arity = arity();
+			if (arity != peer.arity()) {
+				return false;
+			}
+			for (int i = 0; i < arity; i++) {
+				if (!get(i).equals(peer.get(i))) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 
-  public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
-    return new Tuple(this, i, arg);
-  }
+	@Override
+	public IValue get(int i) throws IndexOutOfBoundsException {
+		try {
+			return fElements[i];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IndexOutOfBoundsException("Tuple index " + i + " is larger than tuple width " + arity());
+		}
+	}
 
-  public ITuple set(String label, IValue arg) throws FactTypeUseException {
-    int i = fType.getFieldIndex(label);
-    return new Tuple(this, i, arg);
-  }
+	@Override
+	public IValue get(String label) throws FactTypeUseException {
+		return fElements[fType.getFieldIndex(label)];
+	}
 
-  public IValue select(int... fields) throws IndexOutOfBoundsException {
-    Type type = fType.select(fields);
+	@Override
+	public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
+		return new Tuple(this, i, arg);
+	}
 
-    if (type.isFixedWidth()) {
-      return doSelect(type, fields);
-    }
+	@Override
+	public ITuple set(String label, IValue arg) throws FactTypeUseException {
+		int i = fType.getFieldIndex(label);
+		return new Tuple(this, i, arg);
+	}
 
-    return get(fields[0]);
-  }
+	@Override
+	public int arity() {
+		return fElements.length;
+	}
 
-  private IValue doSelect(Type type, int... fields) throws IndexOutOfBoundsException {
-	if(fields.length == 1) 
+	@Override
+	public IValue select(int... fields) throws IndexOutOfBoundsException {
+		Type type = fType.select(fields);
+
+		if (type.isFixedWidth()) {
+			return doSelect(type, fields);
+		}
+
 		return get(fields[0]);
-    IValue[] elems = new IValue[fields.length];
-    Type[] elemTypes = new Type[fields.length];
-    for (int i = 0; i < fields.length; i++) {
-      elems[i] = get(fields[i]);
-      elemTypes[i] = elems[i].getType();
-    }
-    return new Tuple(TypeFactory.getInstance().tupleType(elemTypes), elems);
-  }
+	}
 
-  public IValue selectByFieldNames(String... fields) throws FactTypeUseException {
-    Type type = fType.select(fields);
+	@Override
+	public IValue selectByFieldNames(String... fields) throws FactTypeUseException {
+		Type type = fType.select(fields);
 
-    if (type.isFixedWidth()) {
-      int[] indexes = new int[fields.length];
-      int i = 0;
-      for (String name : fields) {
-        indexes[i] = type.getFieldIndex(name);
-      }
+		if (type.isFixedWidth()) {
+			int[] indexes = new int[fields.length];
+			int i = 0;
+			for (String name : fields) {
+				indexes[i] = type.getFieldIndex(name);
+			}
 
-      return doSelect(type, indexes);
-    }
+			return doSelect(type, indexes);
+		}
 
-    return get(fields[0]);
-  }
+		return get(fields[0]);
+	}
+
+	private IValue doSelect(Type type, int... fields) throws IndexOutOfBoundsException {
+		if (fields.length == 1)
+			return get(fields[0]);
+		IValue[] elems = new IValue[fields.length];
+		Type[] elemTypes = new Type[fields.length];
+		for (int i = 0; i < fields.length; i++) {
+			elems[i] = get(fields[i]);
+			elemTypes[i] = elems[i].getType();
+		}
+		return new Tuple(TypeFactory.getInstance().tupleType(elemTypes), elems);
+	}
 }

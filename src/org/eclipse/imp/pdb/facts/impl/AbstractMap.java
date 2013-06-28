@@ -20,10 +20,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public abstract class AbstractMap extends Value implements IMap {
+public abstract class AbstractMap extends AbstractValue implements IMap {
 
-    public AbstractMap(Type collectionType) {
-    	super(collectionType);
+    public AbstractMap() {
+    	super();
     }
 
     protected static TypeFactory getTypeFactory() {
@@ -51,16 +51,6 @@ public abstract class AbstractMap extends Value implements IMap {
     }
 
     protected abstract IValueFactory getValueFactory();
-
-    @Override
-    public boolean isEqual(IValue other) {
-        return MapFunctions.isEqual(getValueFactory(), this, other);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return MapFunctions.equals(getValueFactory(), this, other);
-    }
 
     @Override
     public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {

@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
+import org.eclipse.imp.pdb.facts.impl.primitive.AbstractPrimitiveValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
@@ -35,7 +36,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 /**
  * Implementation of IValueFactory.
  */
-public class ValueFactory extends FastBaseValueFactory {
+public class ValueFactory extends AbstractPrimitiveValueFactory {
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	
 	private final static Type EMPTY_TUPLE_TYPE = TypeFactory.getInstance().tupleEmpty();

@@ -22,10 +22,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
-public abstract class AbstractList extends Value implements IList {
+public abstract class AbstractList extends AbstractValue implements IList {
 
-    public AbstractList(Type collectionType) {
-        super(collectionType);
+    public AbstractList() {
+        super();
     }
 
     protected static TypeFactory getTypeFactory() {
@@ -132,16 +132,6 @@ public abstract class AbstractList extends Value implements IList {
     @Override
     public boolean isSubListOf(IList that) {
         return ListFunctions.isSubListOf(getValueFactory(), this, that);
-    }
-
-    @Override
-    public boolean isEqual(IValue that) {
-        return ListFunctions.isEqual(getValueFactory(), this, that);
-    }
-
-    @Override
-    public boolean equals(Object that) {
-        return ListFunctions.equals(getValueFactory(), this, that);
     }
 
     @Override

@@ -10,15 +10,12 @@
  *    Arnold Lankamp - implementation
  *    Anya Helene Bagge - rational support, labeled maps and tuples
  *    Davy Landman - added PI & E constants
- *    Michael Steindorfer - extracted factory for numeric data
+ *    Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
-package org.eclipse.imp.pdb.facts.impl.fast;
+package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import org.eclipse.imp.pdb.facts.*;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
-import org.eclipse.imp.pdb.facts.impl.BaseValueFactory;
-import org.eclipse.imp.pdb.facts.impl.BoolValue;
-import org.eclipse.imp.pdb.facts.impl.DateTimeValues;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
@@ -33,23 +30,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Base value factory with optimized representations of primitive values.
  */
-public abstract class FastBaseValueFactory implements IValueFactory {
+public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	private final static int DEFAULT_PRECISION = 10;
-	private final static String INTEGER_MAX_STRING = "2147483647";
-	private final static String NEGATIVE_INTEGER_MAX_STRING = "-2147483648";
 	private final AtomicInteger currentPrecision = new AtomicInteger(DEFAULT_PRECISION);
-
-	public IInteger integer(BigInteger value) {
-		if (value.bitLength() > 31) {
-			return new BigIntegerValue(value);
-		}
-		return new IntegerValue(value.intValue());
-	}
-
-	public IReal real(BigDecimal value) {
-		return new BigDecimalValue(value);
-	}
 
 	protected Type inferInstantiatedTypeOfConstructor(final Type constructorType, final IValue... children) {
 		Type instantiatedType;
@@ -73,53 +57,22 @@ public abstract class FastBaseValueFactory implements IValueFactory {
 
 	@Override
 	public IInteger integer(String integerValue) {
-		if (integerValue.startsWith("-")) {
-			if (integerValue.length() < 11 || (integerValue.length() == 11 && integerValue.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)) {
-				return new IntegerValue(Integer.parseInt(integerValue));
-			}
-			return new BigIntegerValue(new BigInteger(integerValue));
-		}
-
-		if (integerValue.length() < 10 || (integerValue.length() == 10 && integerValue.compareTo(INTEGER_MAX_STRING) <= 0)) {
-			return new IntegerValue(Integer.parseInt(integerValue));
-		}
-		return new BigIntegerValue(new BigInteger(integerValue));
+		return IntegerValue.newInteger(integerValue);
 	}
 
 	@Override
 	public IInteger integer(int value) {
-		return new IntegerValue(value);
+		return IntegerValue.newInteger(value);
 	}
 
 	@Override
 	public IInteger integer(long value) {
-		if (((value & 0x000000007fffffffL) == value) || ((value & 0xffffffff80000000L) == 0xffffffff80000000L)) {
-			return integer((int) value);
-		} else {
-			byte[] valueData = new byte[8];
-			valueData[0] = (byte) ((value >>> 56) & 0xff);
-			valueData[1] = (byte) ((value >>> 48) & 0xff);
-			valueData[2] = (byte) ((value >>> 40) & 0xff);
-			valueData[3] = (byte) ((value >>> 32) & 0xff);
-			valueData[4] = (byte) ((value >>> 24) & 0xff);
-			valueData[5] = (byte) ((value >>> 16) & 0xff);
-			valueData[6] = (byte) ((value >>> 8) & 0xff);
-			valueData[7] = (byte) (value & 0xff);
-			return integer(valueData);
-		}
+		return IntegerValue.newInteger(value);
 	}
 
 	@Override
 	public IInteger integer(byte[] integerData) {
-		if (integerData.length <= 4) {
-			int value = 0;
-			for (int i = integerData.length - 1, j = 0; i >= 0; i--, j++) {
-				value |= ((integerData[i] & 0xff) << (j * 8));
-			}
-
-			return new IntegerValue(value);
-		}
-		return new BigIntegerValue(new BigInteger(integerData));
+		return IntegerValue.newInteger(integerData);
 	}
 
 	@Override
@@ -134,7 +87,7 @@ public abstract class FastBaseValueFactory implements IValueFactory {
 
 	@Override
 	public IRational rational(IInteger a, IInteger b) {
-		return new RationalValue(a, b);
+		return RationalValue.newRational(a, b);
 	}
 
 	@Override
@@ -154,23 +107,23 @@ public abstract class FastBaseValueFactory implements IValueFactory {
 	}
 
 	@Override
-	public IReal real(String doubleValue) {
-		return new BigDecimalValue(new BigDecimal(doubleValue));
+	public IReal real(String value) {
+		return BigDecimalValue.newReal(value);
 	}
 
 	@Override
-	public IReal real(String s, int p) throws NumberFormatException {
-		return new BigDecimalValue(new BigDecimal(s, new MathContext(p)));
+	public IReal real(String value, int precision) throws NumberFormatException {
+		return BigDecimalValue.newReal(value, precision);
 	}
 
 	@Override
 	public IReal real(double value) {
-		return new BigDecimalValue(BigDecimal.valueOf(value));
+		return BigDecimalValue.newReal(value);
 	}
 
 	@Override
-	public IReal real(double value, int p) {
-		return new BigDecimalValue(new BigDecimal(value, new MathContext(p)));
+	public IReal real(double value, int precision) {
+		return BigDecimalValue.newReal(value, precision);
 	}
 
 	@Override
@@ -195,7 +148,7 @@ public abstract class FastBaseValueFactory implements IValueFactory {
 
 	@Override
 	public IString string(String value) {
-		return new StringValue(value);
+		return StringValue.newString(value);
 	}
 
 	@Override

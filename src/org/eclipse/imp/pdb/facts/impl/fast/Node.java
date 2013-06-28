@@ -19,19 +19,19 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Implementation of INode.
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Node extends Value implements INode{
+/*package*/ class Node extends AbstractValue implements INode{
 	protected final static Type NODE_TYPE = TypeFactory.getInstance().nodeType();
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 	
