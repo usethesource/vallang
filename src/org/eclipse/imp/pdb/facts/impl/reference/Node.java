@@ -192,10 +192,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		keyArgNames = null;
 	}
 
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitNode(this);
 	}
 
+	@Override
 	public int arity() {
 		return fChildren.length;
 	}
@@ -205,6 +207,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return ValueFactory.getInstance();
 	}
 
+	@Override
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		try {
 		 return fChildren[i];
@@ -214,14 +217,17 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		}
 	}
 
+	@Override
 	public Iterable<IValue> getChildren() {
 		return this;
 	}
 
+	@Override
 	public String getName() {
 		return fName;
 	}
 
+	@Override
 	public  INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		try {
 			return new Node(this, i, newChild);
@@ -235,18 +241,22 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return keyArgNames;
 	}
 
+	@Override
 	public Iterator<IValue> iterator() {
 		return new Iterator<IValue>() {
 			private int i = 0;
 
+			@Override
 			public boolean hasNext() {
 				return i < fChildren.length;
 			}
 
+			@Override
 			public IValue next() {
 				return fChildren[i++];
 			}
 
+			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
@@ -303,10 +313,12 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return fHash;
 	}
 
+	@Override
 	public boolean hasAnnotation(String label) {
 		return fAnnotations.containsKey(label);
 	}
 
+	@Override
 	public INode setAnnotation(String label, IValue value) {
 		IValue previous = getAnnotation(label);
 		
@@ -325,30 +337,37 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return new Node(this, label, value);
 	}
 
+	@Override
 	public IValue getAnnotation(String label) throws FactTypeUseException {
 		return fAnnotations.get(label);
 	}
 
+	@Override
 	public Map<String, IValue> getAnnotations() {
 		return Collections.unmodifiableMap(fAnnotations);
 	}
 
+	@Override
 	public boolean hasAnnotations() {
 		return fAnnotations != null && !fAnnotations.isEmpty();
 	}
 
+	@Override
 	public INode joinAnnotations(Map<String, IValue> annotations) {
 		return new Node(this, annotations);
 	}
 
+	@Override
 	public INode setAnnotations(Map<String, IValue> annotations) {
 		return removeAnnotations().joinAnnotations(annotations);
 	}
 
+	@Override
 	public INode removeAnnotation(String key) {
 		return new Node(this, key);
 	}
 
+	@Override
 	public INode removeAnnotations() {
 		return new Node(this);
 	}
