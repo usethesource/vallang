@@ -176,8 +176,4 @@ public interface INode extends IValue, Iterable<IValue> {
      */
     public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException;
 
-
-
-	
-
 }

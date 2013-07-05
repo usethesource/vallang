@@ -21,8 +21,10 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
+import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -32,7 +34,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 /**
  * Naive implementation of an untyped tree node, using array of children.
  */
-/*package*/ class Node extends AbstractValue implements INode {
+/*package*/ class Node extends AbstractNode implements INode {
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
     protected static final HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<>();
 
@@ -198,6 +200,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return fChildren.length;
 	}
 
+	@Override
+	protected IValueFactory getValueFactory() {
+		return ValueFactory.getInstance();
+	}
+
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		try {
 		 return fChildren[i];
@@ -221,6 +228,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
 		}
+	}
+
+	@Override
+	public String[] getKeywordArgumentNames() {
+		return keyArgNames;
 	}
 
 	public Iterator<IValue> iterator() {
@@ -339,117 +351,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 	public INode removeAnnotations() {
 		return new Node(this);
-	}
-	
-	public INode replace(int first, int second, int end, IList repl)
-			throws FactTypeUseException, IndexOutOfBoundsException {
-		ArrayList<IValue> newChildren = new ArrayList<>();
-		int rlen = repl.length();
-		int increment = Math.abs(second - first);
-		if(first < end){
-			int childIndex = 0;
-			// Before begin
-			while(childIndex < first){
-				newChildren.add(fChildren[childIndex++]);
-			}
-			int replIndex = 0;
-			boolean wrapped = false;
-			// Between begin and end
-			while(childIndex < end){
-				newChildren.add(repl.get(replIndex++));
-				if(replIndex == rlen){
-					replIndex = 0;
-					wrapped = true;
-				}
-				childIndex++; //skip the replaced element
-				for(int j = 1; j < increment && childIndex < end; j++){
-					newChildren.add(fChildren[childIndex++]);
-				}
-			}
-			if(!wrapped){
-				while(replIndex < rlen){
-					newChildren.add(repl.get(replIndex++));
-				}
-			}
-			// After end
-			int dlen = fChildren.length;
-			while( childIndex < dlen){
-				newChildren.add(fChildren[childIndex++]);
-			}
-		} else {
-			// Before begin (from right to left)
-			int childIndex = fChildren.length - 1;
-			while(childIndex > first){
-				newChildren.add(0, fChildren[childIndex--]);
-			}
-			// Between begin (right) and end (left)
-			int replIndex = 0;
-			boolean wrapped = false;
-			while(childIndex > end){
-				newChildren.add(0, repl.get(replIndex++));
-				if(replIndex == repl.length()){
-					replIndex = 0;
-					wrapped = true;
-				}
-				childIndex--; //skip the replaced element
-				for(int j = 1; j < increment && childIndex > end; j++){
-					newChildren.add(0, fChildren[childIndex--]);
-				}
-			}
-			if(!wrapped){
-				while(replIndex < rlen){
-					newChildren.add(0, repl.get(replIndex++));
-				}
-			}
-			// Left of end
-			while(childIndex >= 0){
-				newChildren.add(0, fChildren[childIndex--]);
-			}
-		}
-
-        IValue[] childArray = new IValue[newChildren.size()];
-        newChildren.toArray(childArray);	
-		return new Node(fName, childArray);
-	}
-
-	@Override
-	public IValue getKeywordArgumentValue(String name) {
-		if(keyArgNames != null){
-			int k = getKeywordIndex(name);
-			if(k >= 0)
-				return fChildren[k];
-		}
-		return null;
-	}
-
-	@Override
-	public boolean hasKeywordArguments() {
-		return keyArgNames != null;
-	}
-
-	@Override
-	public String[] getKeywordArgumentNames() {
-		return keyArgNames;
-	}
-
-	@Override
-	public int getKeywordIndex(String name) {
-		if(keyArgNames != null){
-			for(int i = 0; i < keyArgNames.length; i++){
-				if(name.equals(keyArgNames[i])){
-					return fChildren.length - keyArgNames.length + i;
-				}
-			}
-		}
-		return -1;
-}
-
-	@Override
-	public int positionalArity() {
-		if(keyArgNames == null)
-			return fChildren.length;
-		else
-			return fChildren.length - keyArgNames.length;
 	}
 
 }

@@ -100,7 +100,7 @@ public abstract class AbstractSet extends AbstractValue implements ISet {
 
     @Override
     public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-      return v.visitSet(this);
+		return v.visitSet(this);
     }
 
 	@Override
