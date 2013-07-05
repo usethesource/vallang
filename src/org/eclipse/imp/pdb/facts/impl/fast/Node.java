@@ -18,7 +18,9 @@ import java.util.NoSuchElementException;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -31,7 +33,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Node extends AbstractValue implements INode{
+/*package*/ class Node extends AbstractNode implements INode {
 	protected final static Type NODE_TYPE = TypeFactory.getInstance().nodeType();
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
 	
@@ -86,32 +88,29 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
+	@Override
 	public Type getType(){
 		return NODE_TYPE;
 	}
 	
+	@Override
 	public int arity(){
 		return children.length;
 	}
-	
-	public int positionalArity(){
-		if(keyArgNames == null)
-			return children.length;
-		else
-			return children.length - keyArgNames.length;
+
+	@Override
+	protected IValueFactory getValueFactory() {
+		return ValueFactory.getInstance();
 	}
-	
+
+	@Override
 	public IValue get(int i){
 		return children[i];
 	}
 	
+	@Override
 	public String getName(){
 		return name;
-	}
-	
-	@Override
-	public boolean hasKeywordArguments(){
-		return keyArgNames != null;
 	}
 	
 	@Override
@@ -120,50 +119,35 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public int getKeywordIndex(String name){
-		if(keyArgNames != null){
-			for(int i = 0; i < keyArgNames.length; i++){
-				if(name.equals(keyArgNames[i])){
-					return children.length - keyArgNames.length + i;
-				}
-			}
-		}
-		return -1;
-	}
-	
-	public IValue getKeywordArgumentValue(String name){
-		if(keyArgNames != null){
-			int k = getKeywordIndex(name);
-			if(k >= 0)
-				return children[k];
-		}
-		return null;
-	}
-	
 	public Iterator<IValue> iterator(){
 		return new Iterator<IValue>(){
 			private int i = 0;
 
+			@Override
 			public boolean hasNext(){
 				return i < children.length;
 			}
 
+			@Override
 			public IValue next(){
 				if(!hasNext()) throw new NoSuchElementException("There are no more elements in this iteration.");
 				
 				return children[i++];
 			}
 
+			@Override
 			public void remove(){
 				throw new UnsupportedOperationException("Removal is not supported by this iterator.");
 			}
 		};
 	}
 	
+	@Override
 	public Iterable<IValue> getChildren(){
 		return this;
 	}
 
+	@Override
 	public INode set(int i, IValue arg){
 		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
@@ -171,42 +155,52 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new Node(name, newChildren);
 	}
 	
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
 		return v.visitNode(this);
 	}
 	
+	@Override
 	public boolean hasAnnotation(String label){
 		return false;
 	}
 	
+	@Override
 	public boolean hasAnnotations(){
 		return false;
 	}
 	
+	@Override
 	public IValue getAnnotation(String label){
 		return null;
 	}
 	
+	@Override
 	public Map<String, IValue> getAnnotations(){
 		return new ShareableHashMap<>();
 	}
 	
+	@Override
 	public INode setAnnotation(String label, IValue value){
 		return new AnnotatedNode(name, children, getUpdatedAnnotations(label, value));
 	}
 	
+	@Override
 	public INode setAnnotations(Map<String, IValue> newAnnos){
 		return new AnnotatedNode(name, children, getSetAnnotations(newAnnos));
 	}
 	
+	@Override
 	public INode joinAnnotations(Map<String, IValue> newAnnos){
 		return new AnnotatedNode(name, children, getUpdatedAnnotations(newAnnos));
 	}
 	
+	@Override
 	public INode removeAnnotation(String label){
 		return new AnnotatedNode(name, children, getUpdatedAnnotations(label));
 	}
 	
+	@Override
 	public INode removeAnnotations(){
 		return this;
 	}
@@ -252,7 +246,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return newAnnotations;
 	}
-	
+
+	@Override
 	public int hashCode(){
 		int hash = 0;
 		
@@ -262,7 +257,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		return hash;
 	}
-	
+
+	@Override
 	public boolean equals(Object o){
 		if(o == this) return true;
 		if(o == null) return false;
@@ -300,6 +296,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
+	@Override
 	public boolean isEqual(IValue value){
 		if(value == this) return true;
 		if(value == null) return false;
@@ -338,74 +335,5 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		return false;
 	}
-	
-	public INode replace(int first, int second, int end, IList repl)
-			throws FactTypeUseException, IndexOutOfBoundsException {
-		ShareableValuesList newChildren = new ShareableValuesList();
-		int rlen = repl.length();
-		int increment = Math.abs(second - first);
-		if(first < end){
-			int childIndex = 0;
-			// Before begin
-			while(childIndex < first){
-				newChildren.append(children[childIndex++]);
-			}
-			int replIndex = 0;
-			boolean wrapped = false;
-			// Between begin and end
-			while(childIndex < end){
-				newChildren.append(repl.get(replIndex++));
-				if(replIndex == rlen){
-					replIndex = 0;
-					wrapped = true;
-				}
-				childIndex++; //skip the replaced element
-				for(int j = 1; j < increment && childIndex < end; j++){
-					newChildren.append(children[childIndex++]);
-				}
-			}
-			if(!wrapped){
-				while(replIndex < rlen){
-					newChildren.append(repl.get(replIndex++));
-				}
-			}
-			// After end
-			int dlen = children.length;
-			while( childIndex < dlen){
-				newChildren.append(children[childIndex++]);
-			}
-		} else {
-			// Before begin (from right to left)
-			int childIndex = children.length - 1;
-			while(childIndex > first){
-				newChildren.insert(children[childIndex--]);
-			}
-			// Between begin (right) and end (left)
-			int replIndex = 0;
-			boolean wrapped = false;
-			while(childIndex > end){
-				newChildren.insert(repl.get(replIndex++));
-				if(replIndex == repl.length()){
-					replIndex = 0;
-					wrapped = true;
-				}
-				childIndex--; //skip the replaced element
-				for(int j = 1; j < increment && childIndex > end; j++){
-					newChildren.insert(children[childIndex--]);
-				}
-			}
-			if(!wrapped){
-				while(replIndex < rlen){
-					newChildren.insert(repl.get(replIndex++));
-				}
-			}
-			// Left of end
-			while(childIndex >= 0){
-				newChildren.insert(children[childIndex--]);
-			}
-		}
-		return new Node(name, new ListWriter(VALUE_TYPE, newChildren).done());
-	}
-
 	
 }
