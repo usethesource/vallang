@@ -105,9 +105,4 @@ import java.util.HashSet;
             throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
     }
 
-    @Override
-	public int size() {
-        return constructedSet.size();
-    }
-
 }

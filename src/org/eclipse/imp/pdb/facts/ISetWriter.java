@@ -19,5 +19,4 @@ public interface ISetWriter extends IWriter {
     void insert(IValue... v) throws FactTypeUseException ;
     void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
     ISet done();
-    int size();
 }

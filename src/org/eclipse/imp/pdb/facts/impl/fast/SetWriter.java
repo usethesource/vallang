@@ -98,11 +98,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 			data.add(next);
 		}
 	}
-		
-	@Override
-	public int size(){
-		return data.size();
-	}
 
 	protected void checkMutation(){
 		if(constructedSet != null) throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
