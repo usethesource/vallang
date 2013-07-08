@@ -90,12 +90,6 @@ public interface IListWriter extends IWriter {
      * @throws FactTypeUseException when done() was called before or when the elements have an incompatible type.
      */
     void appendAll(Iterable<? extends IValue> collection) throws FactTypeUseException;
-        
-    /**
-     * 
-     * @return the size of the list so far.
-     */
-    int size();
     
     /**
      * Finalize an immutable list. After this method none of the others may be called anymore.

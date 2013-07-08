@@ -166,12 +166,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	}
 	
 	@Override
-	public int size(){
-		return data.size();
-	}
-	
-	@Override
-	public IList  done(){
+	public IList done() {
 		if (constructedList == null) {
 			constructedList = new List(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
 		}

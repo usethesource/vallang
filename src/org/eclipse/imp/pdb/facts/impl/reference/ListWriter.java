@@ -160,11 +160,6 @@ import java.util.LinkedList;
     }
 
     @Override
-	public int size() {
-        return listContent.size();
-    }
-
-    @Override
 	public IList done() {
     	// Temporary fix of the static vs dynamic type issue
     	eltType = TypeFactory.getInstance().voidType();
