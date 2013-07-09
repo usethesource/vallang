@@ -291,4 +291,9 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return rw.done();
 	}
 	
+	@Override
+	public String toString() {
+		return "VF_PDB_REFERENCE";
+	}
+	
 }

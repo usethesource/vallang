@@ -219,5 +219,10 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 
 		return elementType;
 	}
+
+	@Override
+	public String toString() {
+		return "VF_PDB_FAST";
+	}
 	
 }
