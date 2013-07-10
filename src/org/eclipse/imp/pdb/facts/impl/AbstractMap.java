@@ -30,6 +30,10 @@ public abstract class AbstractMap extends AbstractValue implements IMap {
     }
 
     protected static Type inferMapType(final Type candidateMapType, final java.util.Map<IValue, IValue> content) {
+    	return inferMapType(candidateMapType, content.isEmpty());
+    }
+    
+    protected static Type inferMapType(final Type candidateMapType, final boolean isEmpty) {
 		if (!candidateMapType.isMap())
 			throw new IllegalArgumentException("Type must be a map type: "
 					+ candidateMapType);
@@ -37,7 +41,7 @@ public abstract class AbstractMap extends AbstractValue implements IMap {
     	final Type inferredCollectionType;
                        
         // is collection empty?
-        if (content.entrySet().iterator().hasNext() == false) {
+        if (isEmpty) {
 			inferredCollectionType = getTypeFactory().mapType(
 					getTypeFactory().voidType(), candidateMapType.getKeyLabel(),
 					getTypeFactory().voidType(), candidateMapType.getValueLabel());
