@@ -17,12 +17,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-
-import java.util.Iterator;
-import java.util.Map;
 
 public abstract class AbstractNode extends AbstractValue implements INode {
 

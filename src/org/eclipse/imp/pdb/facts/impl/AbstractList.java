@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.impl.func.ListFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public abstract class AbstractList extends AbstractValue implements IList {
 
