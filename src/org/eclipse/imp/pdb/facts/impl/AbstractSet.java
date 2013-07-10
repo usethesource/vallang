@@ -31,15 +31,19 @@ public abstract class AbstractSet extends AbstractValue implements ISet {
         return TypeFactory.getInstance();
     }
 
+    protected static Type inferSetOrRelType(final Type elementType, final Iterable<IValue> content) {
+        return inferSetOrRelType(elementType, content.iterator().hasNext() == false);
+    }
+    
     /*
      * TODO: get rid of code duplication (@see AbstractList.inferListOrRelType)
      */
-    protected static Type inferSetOrRelType(final Type elementType, final Iterable<IValue> content) {
+    protected static Type inferSetOrRelType(final Type elementType, final boolean isEmpty) {
         final Type inferredElementType;
         final Type inferredCollectionType;
 
         // is collection empty?
-        if (content.iterator().hasNext() == false) {
+        if (isEmpty) {
             inferredElementType = getTypeFactory().voidType();
         } else {
             inferredElementType = elementType;
