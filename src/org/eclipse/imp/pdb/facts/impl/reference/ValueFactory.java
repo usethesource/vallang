@@ -42,7 +42,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		return sInstance;
 	}
 
-	private ValueFactory() {
+	protected ValueFactory() {
 		super();
 	}
 
