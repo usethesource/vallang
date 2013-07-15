@@ -115,7 +115,7 @@ public class BinaryReader{
 	private int currentSharedValueId;
 	private final ResizingArray<Type> sharedTypes;
 	private int currentSharedTypeId;
-	private final ResizingArray<String> sharedPaths;
+	private final ResizingArray<URI> sharedPaths;
 	private int currentSharedPathId;
 	private final ResizingArray<String> sharedNames;
 	private int currentSharedNamesId;
@@ -388,7 +388,7 @@ public class BinaryReader{
 	}
 	
 	private ISourceLocation readSourceLocation(int header) throws IOException{
-		String path;
+		URI path;
 		if((header & URL_SHARED_FLAG) == URL_SHARED_FLAG){
 			int path_id = parseInteger();
 			path = sharedPaths.get(path_id);
@@ -400,16 +400,14 @@ public class BinaryReader{
 				data[i] = (byte) read();
 			}
 			
-			path = new String(data, BinaryWriter.CharEncoding);
+			try{
+				path = new URI(new String(data, BinaryWriter.CharEncoding));
+			}catch(URISyntaxException e){
+				throw new FactParseError("Illegal URI", e); // Can't happen.
+			}
 			sharedPaths.set(path, currentSharedPathId++);
 		}
 		
-		URI uri;
-		try{
-			uri = new URI(path);
-		}catch(URISyntaxException e){
-			throw new FactParseError("Illegal URI", e); // Can't happen.
-		}
 		
 		int offset = parseInteger();
 		int length = parseInteger();
@@ -419,14 +417,14 @@ public class BinaryReader{
 		int endCol = parseInteger();
 			
 		if (offset < 0) {
-			return valueFactory.sourceLocation(uri);
+			return valueFactory.sourceLocation(path);
 		}
 		
 		if (beginLine < 0) {
-			return valueFactory.sourceLocation(uri, offset, length);
+			return valueFactory.sourceLocation(path, offset, length);
 		}
 		
-		return valueFactory.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return valueFactory.sourceLocation(path, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 	
 	private IDateTime readDateTime() throws IOException{
