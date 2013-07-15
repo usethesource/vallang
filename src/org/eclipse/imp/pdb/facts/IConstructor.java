@@ -1,16 +1,16 @@
 /*******************************************************************************
-* Copyright (c) 2009 CWI
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*   Jurgen Vinju (jurgen@vinju.org) - initial API and implementation
-*******************************************************************************/
+ * Copyright (c) 2009 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *******************************************************************************/
 package org.eclipse.imp.pdb.facts;
-
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -58,7 +58,8 @@ public interface IConstructor extends INode {
 	 *         when the given value has a type that is not a sub-type of the declared type
 	 *         of the child with this label.
 	 */
-	public IConstructor   set(String label, IValue newChild) throws FactTypeUseException;
+	public IConstructor set(String label, IValue newChild)
+			throws FactTypeUseException;
 	
 	/**
 	 * Find out whether this constructor has a field a given name
@@ -80,12 +81,13 @@ public interface IConstructor extends INode {
 	 *         when the given value has a type that is not a sub-type of the declared type
 	 *         of the child at this index.
 	 */
-	public IConstructor   set(int index, IValue newChild) throws FactTypeUseException;
+	public IConstructor set(int index, IValue newChild)
+			throws FactTypeUseException;
 	
 	/**
 	 * @return a tuple type representing the children types of this node/
 	 */
-	public Type    getChildrenTypes();
+	public Type getChildrenTypes();
 	
 	/**
 	 * Check whether a certain annotation label is declared for this type of node.
@@ -94,16 +96,10 @@ public interface IConstructor extends INode {
 	 */
 	public boolean declaresAnnotation(TypeStore store, String label);
 	
-	public IConstructor setAnnotation(String label, IValue newValue)
-			throws FactTypeUseException;
-	
-	public IConstructor joinAnnotations(Map<String, IValue> annotations);
-	
-	public IConstructor setAnnotations(Map<String, IValue> annotations);
-	
-	public IConstructor removeAnnotations();
-	
-	public IConstructor removeAnnotation(String key);
-
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.imp.pdb.facts.IValue#asAnnotatable()
+     */
+    public IAnnotatable<? extends IConstructor> asAnnotatable();
 	
 }

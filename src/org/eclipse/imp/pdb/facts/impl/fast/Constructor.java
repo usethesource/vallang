@@ -14,11 +14,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultEmptyAnnotatable;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -242,24 +245,31 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		if(value == this) return true;
 		if(value == null) return false;
 		
-		if(value instanceof Constructor){
-			Constructor otherTree = (Constructor) value;
+		if(value instanceof IConstructor){
+			IConstructor otherTree = (IConstructor) value;
 			
-			if(!constructorType.comparable(otherTree.constructorType)) return false;
+			if(!constructorType.comparable(otherTree.getConstructorType())) return false;
 			
-			IValue[] otherChildren = otherTree.children;
-			int nrOfChildren = children.length;
-			if(otherChildren.length == nrOfChildren){
-				for(int i = nrOfChildren - 1; i >= 0; i--){
-					if(!otherChildren[i].isEqual(children[i])) return false;
-				}
-				return true;
+			final Iterator<IValue> it1 = this.iterator();
+			final Iterator<IValue> it2 = otherTree.iterator();
+
+			while (it1.hasNext() && it2.hasNext()) {
+				// call to IValue.isEqual(IValue)
+				if (it1.next().isEqual(it2.next()) == false)
+					return false;
 			}
+
+			assert (!it1.hasNext() && !it2.hasNext());
+			return true;
 		}
 		
 		return false;
 	}
 	
+	/*
+	 * TODO: replace by simple ArrayIterator. No need for Constructor specific
+	 * iterator.
+	 */
 	private static class TreeIterator implements Iterator<IValue>{
 		private final IValue[] children;
 		private int index = 0;
@@ -310,7 +320,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public int getKeywordIndex(String name) {
-		// TODO Auto-generated method stub
 		return constructorType.getFieldIndex(name);
 	}
 
@@ -318,4 +327,28 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	public int positionalArity() {
 		return constructorType.getPositionalArity();
 	}
+	
+	/**
+	 * TODO: Create and move to {@link AbstractConstructor}.
+	 */
+	@Override
+	public boolean isAnnotatable() {
+		return true;
+	}
+	
+	/**
+	 * TODO: Create and move to {@link AbstractConstructor}.
+	 */
+	@Override
+	public IAnnotatable<? extends IConstructor> asAnnotatable() {
+		return new AbstractDefaultEmptyAnnotatable<IConstructor>(this) {
+
+			@Override
+			protected IConstructor wrap(IConstructor content,
+					ShareableHashMap<String, IValue> annotations) {
+				return new AnnotatedConstructorFacade(content, annotations);
+			}
+		};
+	}
+	
 }

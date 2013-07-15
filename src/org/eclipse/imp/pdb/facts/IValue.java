@@ -61,4 +61,17 @@ public interface IValue  {
      * Prints the value to a string using the {@link StandardTextWriter}
      */
     public String toString();
+    
+    /**
+     * @return if this {@link IValue} object can be annotated
+     */
+    public boolean isAnnotatable();
+    
+    /**
+     * Creates a view that exposes the {@link IAnnotatable} annotation API. 
+     * 
+     * @return an {@link IAnnotatable} view on this {@link IValue} object 
+     */
+    public IAnnotatable<? extends IValue> asAnnotatable();
+        
 }

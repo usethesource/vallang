@@ -19,13 +19,10 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.AbstractNode;
-import org.eclipse.imp.pdb.facts.impl.AbstractValue;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
+import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 /**
@@ -118,6 +115,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return keyArgNames;
 	}
 	
+	/*
+	 * TODO: replace by simple ArrayIterator. No need for Constructor specific
+	 * iterator.
+	 */
 	@Override
 	public Iterator<IValue> iterator(){
 		return new Iterator<IValue>(){
@@ -158,94 +159,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
 		return v.visitNode(this);
-	}
-	
-	@Override
-	public boolean hasAnnotation(String label){
-		return false;
-	}
-	
-	@Override
-	public boolean hasAnnotations(){
-		return false;
-	}
-	
-	@Override
-	public IValue getAnnotation(String label){
-		return null;
-	}
-	
-	@Override
-	public Map<String, IValue> getAnnotations(){
-		return new ShareableHashMap<>();
-	}
-	
-	@Override
-	public INode setAnnotation(String label, IValue value){
-		return new AnnotatedNode(name, children, getUpdatedAnnotations(label, value));
-	}
-	
-	@Override
-	public INode setAnnotations(Map<String, IValue> newAnnos){
-		return new AnnotatedNode(name, children, getSetAnnotations(newAnnos));
-	}
-	
-	@Override
-	public INode joinAnnotations(Map<String, IValue> newAnnos){
-		return new AnnotatedNode(name, children, getUpdatedAnnotations(newAnnos));
-	}
-	
-	@Override
-	public INode removeAnnotation(String label){
-		return new AnnotatedNode(name, children, getUpdatedAnnotations(label));
-	}
-	
-	@Override
-	public INode removeAnnotations(){
-		return this;
-	}
-	
-	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		newAnnotations.put(label, value);
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		newAnnotations.remove(label);
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		
-		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
-		while(newAnnosIterator.hasNext()){
-			Map.Entry<String, IValue> entry = newAnnosIterator.next();
-			String key = entry.getKey();
-			IValue value = entry.getValue();
-			
-			newAnnotations.put(key, value);
-		}
-		
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> getSetAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		
-		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
-		while(newAnnosIterator.hasNext()){
-			Map.Entry<String, IValue> entry = newAnnosIterator.next();
-			String key = entry.getKey();
-			IValue value = entry.getValue();
-			
-			newAnnotations.put(key, value);
-		}
-		
-		return newAnnotations;
-	}
+	}	
 
 	@Override
 	public int hashCode(){
@@ -296,44 +210,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
+	/**
+	 * TODO: Check if it is easily possible to cast annotatable's content to
+	 * List and to reuse old isEqual.
+	 */
 	@Override
 	public boolean isEqual(IValue value){
-		if(value == this) return true;
-		if(value == null) return false;
-		
-		if(value instanceof Node){
-			Node other = (Node) value;
-			
-			if(name != other.name) {
-				return false; // Yes '==' works here, since it has been interned.
-			}
-			
-			IValue[] otherChildren = other.children;
-			int nrOfChildren = children.length;
-			
-			if(otherChildren.length == nrOfChildren){
-				int nrOfPosChildren = positionalArity();
-				if(other.positionalArity() != nrOfPosChildren){
-					return false;
-				}
-				for(int i = nrOfPosChildren - 1; i >= 0; i--){
-					if(!otherChildren[i].isEqual(children[i])) return false;
-				}
-				if(nrOfPosChildren < nrOfChildren){
-					if(keyArgNames == null)
-						return false;
-					for(int i = 0; i < keyArgNames.length; i++){
-						String kw = keyArgNames[i];
-						int k = other.getKeywordIndex(kw);
-						if(k < 0 || !children[nrOfPosChildren + i].isEqual(otherChildren[k])){
-							return false;
-						}
-					}
-				}
-				return true;
-			}
-		}
-		return false;
+		return NodeFunctions.isEqual(getValueFactory(), this, value);
 	}
 	
 }

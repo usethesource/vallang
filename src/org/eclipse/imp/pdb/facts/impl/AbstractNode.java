@@ -11,6 +11,7 @@
  ******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -18,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public abstract class AbstractNode extends AbstractValue implements INode {
@@ -48,51 +50,6 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 		return NodeFunctions.positionalArity(getValueFactory(), this);
 	}
 
-//	@Override
-//	public IValue getAnnotation(String label) throws FactTypeUseException {
-//		return null;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public INode setAnnotation(String label, IValue newValue) throws FactTypeUseException {
-//		return null;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public boolean hasAnnotation(String label) throws FactTypeUseException {
-//		return false;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public boolean hasAnnotations() {
-//		return false;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public Map<String, IValue> getAnnotations() {
-//		return null;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public INode setAnnotations(Map<String, IValue> annotations) {
-//		return null;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public INode joinAnnotations(Map<String, IValue> annotations) {
-//		return null;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public INode removeAnnotation(String key) {
-//		return null;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-//
-//	@Override
-//	public INode removeAnnotations() {
-//		return null;  //To change body of implemented methods use File | Settings | File Templates.
-//	}
-
 	@Override
 	public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException {
 		return NodeFunctions.replace(getValueFactory(), this, first, second, end, repl);
@@ -101,6 +58,23 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitNode(this);
+	}
+	
+	@Override
+	public boolean isAnnotatable() {
+		return true;
+	}
+	
+	@Override
+	public IAnnotatable<? extends INode> asAnnotatable() {
+		return new AbstractDefaultEmptyAnnotatable<INode>(this) {
+
+			@Override
+			protected INode wrap(INode content,
+					ShareableHashMap<String, IValue> annotations) {
+				return new AnnotatedNodeFacade(content, annotations);
+			}
+		};
 	}
 
 }
