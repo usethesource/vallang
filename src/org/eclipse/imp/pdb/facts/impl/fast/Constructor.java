@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.AbstractDefaultEmptyAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -51,10 +51,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	  return constructorType;
 	}
 	
+	@Override
 	public Type getType(){
 		return getConstructorType().getAbstractDataType();
 	}
 	
+	@Override
 	public Type getConstructorType(){
 	  if (constructorType.getAbstractDataType().isParameterized()) {
       // this assures we always have the most concrete type for constructors.
@@ -78,38 +80,47 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return constructorType;
 	}
 	
+	@Override
 	public Type getChildrenTypes(){
 		return constructorType.getFieldTypes();
 	}
 
+	@Override
 	public String getName(){
 		return constructorType.getName();
 	}
 	
+	@Override
 	public int arity(){
 		return children.length;
 	}
 
+	@Override
 	public IValue get(int i){
 		return children[i];
 	}
 	
+	@Override
 	public IValue get(String label){
 		return get(constructorType.getFieldIndex(label));
 	}
 
+	@Override
 	public Iterable<IValue> getChildren(){
 		return this;
 	}
 
+	@Override
 	public Iterator<IValue> iterator(){
 		return new TreeIterator(this);
 	}
 	
+	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E{
 		return v.visitConstructor(this);
 	}
 	
+	@Override
 	public IConstructor set(int i, IValue newChild){
 		IValue[] newChildren = children.clone();
 		newChildren[i] = newChild;
@@ -117,6 +128,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new Constructor(constructorType, newChildren);
 	}
 	
+	@Override
 	public IConstructor set(String label, IValue newChild){
 		IValue[] newChildren = children.clone();
 		newChildren[constructorType.getFieldIndex(label)] = newChild;
@@ -124,90 +136,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new Constructor(constructorType, newChildren);
 	}
 	
+	@Override
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return (store.getAnnotationType(constructorType.getAbstractDataType(), label) != null);
 	}
 	
-	public boolean hasAnnotation(String label){
-		return false;
-	}
-	
-	public boolean hasAnnotations(){
-		return false;
-	}
-	
-	public IValue getAnnotation(String label){
-		return null;
-	}
-	
-	public Map<String, IValue> getAnnotations(){
-		return new ShareableHashMap<>();
-	}
-	
-	public IConstructor setAnnotation(String label, IValue value){
-		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label, value));
-	}
-	
-	public IConstructor setAnnotations(Map<String, IValue> newAnnos){
-		if(newAnnos.isEmpty()) return this;
-	
-		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getSetAnnotations(newAnnos));
-	}
-	
-	public IConstructor joinAnnotations(Map<String, IValue> newAnnos){
-		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getUpdatedAnnotations(newAnnos));
-	}
-	
-	public IConstructor removeAnnotation(String label){
-		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children, getUpdatedAnnotations(label));
-	}
-	
-	public IConstructor removeAnnotations(){
-		return this;
-	}
-	
-	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label, IValue value){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		newAnnotations.put(label, value);
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(String label){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		newAnnotations.remove(label);
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> getUpdatedAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		
-		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
-		while(newAnnosIterator.hasNext()){
-			Map.Entry<String, IValue> entry = newAnnosIterator.next();
-			String key = entry.getKey();
-			IValue value = entry.getValue();
-			
-			newAnnotations.put(key, value);
-		}
-		
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> getSetAnnotations(Map<String, IValue> newAnnos){
-		ShareableHashMap<String, IValue> newAnnotations = new ShareableHashMap<>();
-		
-		Iterator<Map.Entry<String, IValue>> newAnnosIterator = newAnnos.entrySet().iterator();
-		while(newAnnosIterator.hasNext()){
-			Map.Entry<String, IValue> entry = newAnnosIterator.next();
-			String key = entry.getKey();
-			IValue value = entry.getValue();
-			
-			newAnnotations.put(key, value);
-		}
-		
-		return newAnnotations;
-	}
-	
+	@Override
 	public int hashCode(){
 		int hash = constructorType.hashCode();
 		
@@ -219,6 +153,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return hash;
 	}
 	
+	@Override
 	public boolean equals(Object o){
 		if(o == this) return true;
 		if(o == null) return false;
@@ -241,6 +176,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
+	@Override
 	public boolean isEqual(IValue value){
 		if(value == this) return true;
 		if(value == null) return false;
@@ -280,23 +216,28 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			children = tree.children;
 		}
 		
+		@Override
 		public boolean hasNext(){
 			return index < children.length;
 		}
 		
+		@Override
 		public IValue next(){
 			return children[index++];
 		}
 		
+		@Override
 		public void remove(){
 			throw new UnsupportedOperationException("This iterator doesn't support removal.");
 		}
 	}
 
+	@Override
 	public boolean has(String label) {
 		return getConstructorType().hasField(label);
 	}
 
+	@Override
 	public IConstructor replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		
@@ -341,7 +282,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	 */
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
-		return new AbstractDefaultEmptyAnnotatable<IConstructor>(this) {
+		return new AbstractDefaultAnnotatable<IConstructor>(this) {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,

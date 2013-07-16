@@ -8,7 +8,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
-import org.eclipse.imp.pdb.facts.impl.AbstractDefaultEmptyAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -143,7 +143,7 @@ public class Constructor extends Node implements IConstructor {
 	 */
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
-		return new AbstractDefaultEmptyAnnotatable<IConstructor>(this) {
+		return new AbstractDefaultAnnotatable<IConstructor>(this) {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,

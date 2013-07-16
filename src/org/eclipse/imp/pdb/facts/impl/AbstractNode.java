@@ -67,7 +67,7 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 	
 	@Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
-		return new AbstractDefaultEmptyAnnotatable<INode>(this) {
+		return new AbstractDefaultAnnotatable<INode>(this) {
 
 			@Override
 			protected INode wrap(INode content,

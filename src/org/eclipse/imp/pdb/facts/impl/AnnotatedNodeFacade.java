@@ -37,7 +37,7 @@ public class AnnotatedNodeFacade implements INode {
 	}
 
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return content.accept(v);
+		return v.visitNode(this);
 	}
 
 	public IValue get(int i) throws IndexOutOfBoundsException {
@@ -45,7 +45,8 @@ public class AnnotatedNodeFacade implements INode {
 	}
 	
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
-		return content.set(i, newChild);
+		INode newContent = content.set(i, newChild);
+		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
 	}
 
 	public boolean hasKeywordArguments() {
@@ -90,7 +91,8 @@ public class AnnotatedNodeFacade implements INode {
 	
 	public INode replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
-		return content.replace(first, second, end, repl);
+		INode newContent = content.replace(first, second, end, repl);
+		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
 	}
 
 	public boolean equals(Object o) {
@@ -123,7 +125,7 @@ public class AnnotatedNodeFacade implements INode {
 	
 	@Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
-		return new AbstractDefaultEmptyAnnotatable<INode>(content, annotations) {
+		return new AbstractDefaultAnnotatable<INode>(content, annotations) {
 
 			@Override
 			protected INode wrap(INode content,

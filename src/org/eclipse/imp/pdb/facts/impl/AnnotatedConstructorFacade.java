@@ -35,7 +35,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	}
 
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return content.accept(v);
+		return v.visitConstructor(this);
 	}
 
 	public Type getType() {
@@ -60,7 +60,8 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 	public IConstructor set(String label, IValue newChild)
 			throws FactTypeUseException {
-		return content.set(label, newChild);
+		IConstructor newContent = content.set(label, newChild);
+		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well			
 	}
 
 	public boolean hasKeywordArguments() {
@@ -97,7 +98,8 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 	public IConstructor set(int index, IValue newChild)
 			throws FactTypeUseException {
-		return content.set(index, newChild);
+		IConstructor newContent = content.set(index, newChild);
+		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well		
 	}
 
 	public String getName() {
@@ -155,7 +157,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
-		return new AbstractDefaultEmptyAnnotatable<IConstructor>(content, annotations) {
+		return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,
