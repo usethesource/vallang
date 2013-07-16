@@ -107,6 +107,9 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	
 	@Override
 	public T setAnnotations(Map<String, IValue> otherAnnotations) {
+		if (otherAnnotations.isEmpty())
+			return content;
+		
 		return wrap(content, replaceAnnotationsWith(otherAnnotations));
 	}
 
