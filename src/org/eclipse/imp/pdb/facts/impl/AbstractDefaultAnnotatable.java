@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
@@ -76,7 +77,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	
 	@Override
 	public Map<String, IValue> getAnnotations() {
-		return annotations;
+		return Collections.unmodifiableMap(annotations);
 	}
 	
 	@Override
