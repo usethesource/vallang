@@ -31,7 +31,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.primitive.AbstractPrimitiveValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 
 /**
  * Implementation of IValueFactory.
@@ -191,11 +190,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	public IConstructor constructor(Type constructorType,
 			Map<String, IValue> annotations, IValue... children)
 			throws FactTypeUseException {
-		
-		ShareableHashMap<String, IValue> sAnnotations = new ShareableHashMap<>();
-		sAnnotations.putAll(annotations);
-		
-		return AnnotatedConstructor.createAnnotatedConstructor(constructorType, children.clone(), sAnnotations);
+		return new Constructor(constructorType, children.clone()).asAnnotatable().setAnnotations(annotations);
 	}
 	
 	public ITuple tuple() {
