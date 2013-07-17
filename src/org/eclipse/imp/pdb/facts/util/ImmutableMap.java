@@ -16,7 +16,7 @@ import java.util.Map;
 public interface ImmutableMap<K, V> extends Map<K, V> {
 	ImmutableMap<K, V> __put(K key, V value);
 
-	ImmutableMap<K, V> __putAll(Map<K, V> map);
+	ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map);
 	
 	ImmutableMap<K, V> __remove(K key);
 }
