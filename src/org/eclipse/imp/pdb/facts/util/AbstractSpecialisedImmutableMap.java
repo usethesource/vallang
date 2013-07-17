@@ -35,9 +35,17 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	}
 	
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
-		return new CopyOnWriteImmutableMap<K, V>(key1, val1, key2, val2, key3, val3, key4, val4);
+		return new Map4<K, V>(key1, val1, key2, val2, key3, val3, key4, val4);
 	}
 
+	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5) {
+		return new Map5<K, V>(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
+	}
+	
+	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5, K key6, V val6) {
+		return new CopyOnWriteImmutableMap<K, V>(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6);
+	}
+	
 	public static <K, V> ImmutableMap<K, V> mapOf(Map<K, V> map) {
 		if (map instanceof AbstractSpecialisedImmutableMap) {
 			return (ImmutableMap<K, V>) map;
@@ -468,6 +476,291 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 }
 
+class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Cloneable {
+	private final K key1;
+	private final V val1;
+	private final K key2;
+	private final V val2;
+	private final K key3;
+	private final V val3;
+	private final K key4;
+	private final V val4;
+	
+	Map4(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
+		this.key1 = key1;
+		this.val1 = val1;
+		this.key2 = key2;
+		this.val2 = val2;
+		this.key3 = key3;
+		this.val3 = val3;
+		this.key4 = key4;
+		this.val4 = val4;
+	}
+
+	@Override
+	public boolean containsValue(Object val) {
+		if (val.equals(val1))
+			return true;
+		else if (val.equals(val2))
+			return true;
+		else if (val.equals(val3))
+			return true;
+		else if (val.equals(val4))
+			return true;
+		else
+			return false;
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		if (key.equals(key1))
+			return true;
+		else if (key.equals(key2))
+			return true;
+		else if (key.equals(key3))
+			return true;
+		else if (key.equals(key4))
+			return true;
+		else
+			return false;
+	}
+
+	@Override
+	public V get(Object key) {
+		if (key.equals(key1))
+			return val1;
+		else if (key.equals(key2))
+			return val2;
+		else if (key.equals(key3))
+			return val3;
+		else if (key.equals(key4))
+			return val4;
+		else
+			return null;
+	}
+
+	@Override
+	public int size() {
+		return 4;
+	}
+
+	@Override
+	public Set<Entry<K, V>> entrySet() {
+		return new HashSet<Entry<K, V>>(
+				Arrays.asList(
+						new Map1<>(key1, val1),
+						new Map1<>(key2, val2),
+						new Map1<>(key3, val3),
+						new Map1<>(key4, val4)));
+	}
+
+	@Override
+	public Set<K> keySet() {
+		return new HashSet<K>(
+				Arrays.asList(key1, key2, key3, key4));
+	}
+
+	@Override
+	public Collection<V> values() {
+		return new HashSet<V>(
+				Arrays.asList(val1, val2, val3, val4));
+	}
+	
+	@Override
+	public ImmutableMap<K, V> __put(K key, V val) {
+		if (key.equals(key1))
+			return mapOf(key, val, key2, val2, key3, val3, key4, val4);
+		else if (key.equals(key2))
+			return mapOf(key1, val1, key, val, key3, val3, key4, val4);
+		else if (key.equals(key3))
+			return mapOf(key1, val1, key2, val2, key, val, key4, val4);
+		else if (key.equals(key4))
+			return mapOf(key1, val1, key2, val2, key3, val3, key, val);
+		else {
+			return mapOf(key1, val1, key2, val2, key3, val3, key4, val4, key, val);
+		}
+	}
+
+	@Override
+	public ImmutableMap<K, V> __remove(K key) {
+		if (key.equals(key1))
+			return mapOf(key2, val2, key3, val3, key4, val4);
+		else if (key.equals(key2))
+			return mapOf(key1, val1, key3, val3, key4, val4);
+		else if (key.equals(key3))
+			return mapOf(key1, val1, key2, val2, key4, val4);
+		else if (key.equals(key4))
+			return mapOf(key1, val1, key2, val2, key3, val3);
+		else
+			return this;
+	}
+
+	@Override
+	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+		return flattenMapFrom(this, map);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("{%s=%s, %s=%s, %s=%s, %s=%s}", key1, val1, key2, val2, key3, val3, key4, val4);
+	}
+}
+
+class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Cloneable {
+	private final K key1;
+	private final V val1;
+	private final K key2;
+	private final V val2;
+	private final K key3;
+	private final V val3;
+	private final K key4;
+	private final V val4;
+	private final K key5;
+	private final V val5;
+	
+	Map5(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5) {
+		this.key1 = key1;
+		this.val1 = val1;
+		this.key2 = key2;
+		this.val2 = val2;
+		this.key3 = key3;
+		this.val3 = val3;
+		this.key4 = key4;
+		this.val4 = val4;
+		this.key5 = key5;
+		this.val5 = val5;
+	}
+
+	@Override
+	public boolean containsValue(Object val) {
+		if (val.equals(val1))
+			return true;
+		else if (val.equals(val2))
+			return true;
+		else if (val.equals(val3))
+			return true;
+		else if (val.equals(val4))
+			return true;
+		else if (val.equals(val5))
+			return true;
+		else
+			return false;
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		if (key.equals(key1))
+			return true;
+		else if (key.equals(key2))
+			return true;
+		else if (key.equals(key3))
+			return true;
+		else if (key.equals(key4))
+			return true;
+		else if (key.equals(key5))
+			return true;
+		else
+			return false;
+	}
+
+	@Override
+	public V get(Object key) {
+		if (key.equals(key1))
+			return val1;
+		else if (key.equals(key2))
+			return val2;
+		else if (key.equals(key3))
+			return val3;
+		else if (key.equals(key4))
+			return val4;
+		else if (key.equals(key5))
+			return val5;
+		else
+			return null;
+	}
+
+	@Override
+	public int size() {
+		return 5;
+	}
+
+	@Override
+	public Set<Entry<K, V>> entrySet() {
+		return new HashSet<Entry<K, V>>(
+				Arrays.asList(
+						new Map1<>(key1, val1),
+						new Map1<>(key2, val2),
+						new Map1<>(key3, val3),
+						new Map1<>(key4, val4),
+						new Map1<>(key5, val5)));
+	}
+
+	@Override
+	public Set<K> keySet() {
+		return new HashSet<K>(
+				Arrays.asList(key1, key2, key3, key4, key5));
+	}
+
+	@Override
+	public Collection<V> values() {
+		return new HashSet<V>(
+				Arrays.asList(val1, val2, val3, val4, val5));
+	}
+	
+	@Override
+	public ImmutableMap<K, V> __put(K key, V val) {
+		if (key.equals(key1))
+			return mapOf(key, val, key2, val2, key3, val3, key4, val4, key5, val5);
+		else if (key.equals(key2))
+			return mapOf(key1, val1, key, val, key3, val3, key4, val4, key5, val5);
+		else if (key.equals(key3))
+			return mapOf(key1, val1, key2, val2, key, val, key4, val4, key5, val5);
+		else if (key.equals(key4))
+			return mapOf(key1, val1, key2, val2, key3, val3, key, val, key5, val5);
+		else if (key.equals(key5))
+			return mapOf(key1, val1, key2, val2, key3, val3, key4, val4, key, val);
+		else {
+			return mapOf(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5, key, val);
+		}
+	}
+
+	@Override
+	public ImmutableMap<K, V> __remove(K key) {
+		if (key.equals(key1))
+			return mapOf(key2, val2, key3, val3, key4, val4, key5, val5);
+		else if (key.equals(key2))
+			return mapOf(key1, val1, key3, val3, key4, val4, key5, val5);
+		else if (key.equals(key3))
+			return mapOf(key1, val1, key2, val2, key4, val4, key5, val5);
+		else if (key.equals(key4))
+			return mapOf(key1, val1, key2, val2, key3, val3, key5, val5);
+		else if (key.equals(key5))
+			return mapOf(key1, val1, key2, val2, key3, val3, key4, val4);
+		else
+			return this;
+	}
+
+	@Override
+	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+		return flattenMapFrom(this, map);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("{%s=%s, %s=%s, %s=%s, %s=%s, %s=%s}", key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
+	}
+}
+
 /**
  * A {@link ImmutableMap} implementation that wraps an arbitrary {@link Map}. On
  * modification, the whole map while be cloned.
@@ -481,13 +774,15 @@ class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
 	
 	private final Map<K, V> content;
 	
-	CopyOnWriteImmutableMap(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
+	CopyOnWriteImmutableMap(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5, K key6, V val6) {
 		this.content = new HashMap<>(8);
 		
 		this.content.put(key1, val1);
 		this.content.put(key2, val2);
 		this.content.put(key3, val3);
 		this.content.put(key4, val4);
+		this.content.put(key5, val5);
+		this.content.put(key6, val6);
 	}	
 	
 	CopyOnWriteImmutableMap(Map<K, V> content) {
