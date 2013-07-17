@@ -50,19 +50,13 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 		if (map instanceof AbstractSpecialisedImmutableMap) {
 			return (ImmutableMap<K, V>) map;
 		} else {
-			return flattenMapFrom(map);
+			return flatten(map);
 		}
 	}
 	
 	@SafeVarargs
-	protected static <K, V> ImmutableMap<K, V> flattenMapFrom(Map<? extends K, ? extends V>... maps) {
-		final ShareableHashMap<K, V> newContent = 
-				new ShareableHashMap<>();
-				
-		for (Map<? extends K, ? extends V> map : maps)
-			newContent.putAll(map);
-		
-		return new CopyOnWriteImmutableMap<K, V>(newContent);
+	protected static <K, V> ImmutableMap<K, V> flatten(Map<? extends K, ? extends V>... maps) {
+		return CopyOnWriteImmutableMap.flatten(maps);
 	}
 	
 	@Override
@@ -142,7 +136,7 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		return flattenMapFrom(this, map);
+		return flatten(this, map);
 	}
 		
 	@Override
@@ -238,7 +232,7 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.En
 	
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		return flattenMapFrom(this, map);
+		return flatten(this, map);
 	}
 
 	@Override
@@ -346,7 +340,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		return flattenMapFrom(this, map);
+		return flatten(this, map);
 	}
 
 	@Override
@@ -472,7 +466,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		return flattenMapFrom(this, map);
+		return flatten(this, map);
 	}
 	
 	@Override
@@ -616,7 +610,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		return flattenMapFrom(this, map);
+		return flatten(this, map);
 	}
 	
 	@Override
@@ -779,7 +773,7 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		return flattenMapFrom(this, map);
+		return flatten(this, map);
 	}
 	
 	@Override
@@ -817,6 +811,17 @@ class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
 		this.content.put(key6, val6);
 	}	
 	
+	@SafeVarargs
+	protected static <K, V> ImmutableMap<K, V> flatten(Map<? extends K, ? extends V>... maps) {
+		final Map<K, V> newContent = 
+				new HashMap<>();
+				
+		for (Map<? extends K, ? extends V> map : maps)
+			newContent.putAll(map);
+		
+		return new CopyOnWriteImmutableMap<K, V>(newContent);
+	}
+		
 	CopyOnWriteImmutableMap(Map<K, V> content) {
 		this.content = content;
 	}
