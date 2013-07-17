@@ -13,7 +13,7 @@ package org.eclipse.imp.pdb.facts.util;
 
 import java.util.*;
 
-public abstract class AbstractSpecialisedImmutableMap<K, V> extends AbstractImmutableMap<K, V> {
+public abstract class AbstractSpecialisedImmutableMap<K, V> implements ImmutableMap<K,V>  {
 	@SuppressWarnings("rawtypes")
 	private static ImmutableMap EMPTY_MAP = new Map0();
 
@@ -55,7 +55,32 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> extends AbstractImmu
 			newContent.putAll(map);
 		
 		return new ImmutableShareableHashMapWrapper<K, V>(newContent);
-	}	
+	}
+	
+	@Override
+	public boolean isEmpty() {
+		return size() != 0;
+	}
+	
+	@Override
+	public V remove(Object key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public V put(K key, V value) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void putAll(Map<? extends K, ? extends V> m) {
+		 throw new UnsupportedOperationException();
+	}
 }
 
 class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
@@ -88,6 +113,16 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 	}
 
 	@Override
+	public Set<K> keySet() {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public Collection<V> values() {
+		return Collections.emptySet();
+	}
+	
+	@Override
 	public ImmutableMap<K, V> __put(K key, V val) {
 		return new Map1<K, V>(key, val);
 	}
@@ -101,6 +136,12 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 	public ImmutableMap<K, V> __putAll(Map<K, V> map) {
 		return flattenMapFrom(this, map);
 	}
+		
+	@Override
+	public String toString() {
+		return "{}";
+	}
+
 }
 
 class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.Entry<K, V>, Cloneable {
@@ -162,6 +203,16 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.En
 	}
 
 	@Override
+	public Set<K> keySet() {
+		return Collections.singleton(key1);
+	}
+
+	@Override
+	public Collection<V> values() {
+		return Collections.singleton(val1);
+	}
+	
+	@Override
 	public ImmutableMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val);
@@ -185,6 +236,11 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.En
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("{%s=%s}", key1, val1);
 	}
 }
 
@@ -245,6 +301,18 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
+	public Set<K> keySet() {
+		return new HashSet<K>(
+				Arrays.asList(key1, key2));
+	}
+
+	@Override
+	public Collection<V> values() {
+		return new HashSet<V>(
+				Arrays.asList(val1, val2));
+	}
+	
+	@Override
 	public ImmutableMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val, key2, val2);
@@ -272,6 +340,11 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("{%s=%s, %s=%s}", key1, val1, key2, val2);
 	}
 }
 
@@ -343,6 +416,18 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
+	public Set<K> keySet() {
+		return new HashSet<K>(
+				Arrays.asList(key1, key2, key3));
+	}
+
+	@Override
+	public Collection<V> values() {
+		return new HashSet<V>(
+				Arrays.asList(val1, val2, val3));
+	}
+	
+	@Override
 	public ImmutableMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val, key2, val2, key3, val3);
@@ -375,6 +460,11 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("{%s=%s, %s=%s, %s=%s}", key1, val1, key2, val2, key3, val3);
 	}
 }
 
@@ -483,5 +573,10 @@ class ImmutableShareableHashMapWrapper<K, V> implements ImmutableMap<K, V> {
 		newContent.putAll(map);
 		
 		return new ImmutableShareableHashMapWrapper<K, V>(newContent);		
+	}
+	
+	@Override
+	public String toString() {
+		return content.toString();
 	}
 }
