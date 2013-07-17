@@ -119,6 +119,11 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 		return wrap(content, annotations.__putAll(otherAnnotations));
 	}
 		
+	@Override
+	public String toString() {
+		return content.toString();
+	}
+	
 //	@Override
 //	public int hashCode() {
 //		// TODO
