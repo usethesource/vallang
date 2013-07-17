@@ -11,13 +11,13 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 
 
 /**
@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
 public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IAnnotatable<T> {
 
 	protected final T content;
-	protected final ShareableHashMap<String, IValue> annotations; // TODO: change to interface Map<String, IValue>
+	protected final ImmutableMap<String, IValue> annotations;
 		
 	/**
 	 * Creates an {@link IAnnotatable} view on {@literal content} with empty
@@ -39,7 +39,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 */
 	public AbstractDefaultAnnotatable(T content) {
 		this.content = content;
-		this.annotations = new ShareableHashMap<>();
+		this.annotations = AbstractSpecialisedImmutableMap.mapOf();
 	}
 	
 	/**
@@ -51,7 +51,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @param annotations
 	 *            is the map of annotations associated to {@link #content}
 	 */
-	public AbstractDefaultAnnotatable(T content, ShareableHashMap<String, IValue> annotations) {
+	public AbstractDefaultAnnotatable(T content, ImmutableMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -68,7 +68,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @return a new representations of {@link #content} with associated
 	 *         {@link #annotations}
 	 */
-	protected abstract T wrap(final T content, final ShareableHashMap<String, IValue> annotations);
+	protected abstract T wrap(final T content, final ImmutableMap<String, IValue> annotations);
 	
 	@Override
 	public boolean hasAnnotations() {
@@ -77,7 +77,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	
 	@Override
 	public Map<String, IValue> getAnnotations() {
-		return Collections.unmodifiableMap(annotations);
+		return annotations;
 	}
 	
 	@Override
@@ -87,7 +87,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	
 	@Override
 	public boolean hasAnnotation(String label) throws FactTypeUseException {
-		return annotations.contains(label);
+		return annotations.containsKey(label);
 	}
 	
 	@Override
@@ -98,12 +98,12 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	@Override
 	public T setAnnotation(String label, IValue newValue)
 			throws FactTypeUseException {
-		return wrap(content, cloneAnnotationsAndPut(label, newValue));
+		return wrap(content, annotations.__put(label, newValue));
 	}
 
 	@Override
 	public T removeAnnotation(String label) {
-		return wrap(content, cloneAnnotationsAndRemove(label));
+		return wrap(content, annotations.__remove(label));
 	}
 	
 	@Override
@@ -111,54 +111,14 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 		if (otherAnnotations.isEmpty())
 			return content;
 		
-		return wrap(content, replaceAnnotationsWith(otherAnnotations));
+		return wrap(content, AbstractSpecialisedImmutableMap.mapOf(otherAnnotations));
 	}
 
 	@Override
 	public T joinAnnotations(Map<String, IValue> otherAnnotations) {
-		return wrap(content, cloneAnnotationsAndJoinWith(otherAnnotations));
+		return wrap(content, annotations.__putAll(otherAnnotations));
 	}
-	
-	protected ShareableHashMap<String, IValue> cloneAnnotationsAndPut(
-			String label, IValue value) {
-		final ShareableHashMap<String, IValue> newAnnotations = 
-				new ShareableHashMap<>(annotations);
-				
-		newAnnotations.put(label, value);
-		return newAnnotations;
-	}
-
-	protected ShareableHashMap<String, IValue> cloneAnnotationsAndRemove(
-			String label) {
-		final ShareableHashMap<String, IValue> newAnnotations = 
-				new ShareableHashMap<>(annotations);
-
-		newAnnotations.remove(label);
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> cloneAnnotationsAndJoinWith(
-			Map<String, IValue> otherAnnotations) {
-		final ShareableHashMap<String, IValue> newAnnotations = 
-				new ShareableHashMap<>(annotations);
 		
-		for (Map.Entry<String, IValue> entry : otherAnnotations.entrySet())
-			newAnnotations.put(entry.getKey(), entry.getValue());
-
-		return newAnnotations;
-	}
-	
-	protected ShareableHashMap<String, IValue> replaceAnnotationsWith(
-			Map<String, IValue> otherAnnotations) {
-		final ShareableHashMap<String, IValue> newAnnotations = 
-				new ShareableHashMap<>();
-
-		for (Map.Entry<String, IValue> entry : otherAnnotations.entrySet())
-			newAnnotations.put(entry.getKey(), entry.getValue());
-						
-		return newAnnotations;
-	}
-	
 //	@Override
 //	public int hashCode() {
 //		// TODO

@@ -19,15 +19,15 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public class AnnotatedNodeFacade implements INode {
 
 	protected final INode content;
-	protected final ShareableHashMap<String, IValue> annotations; // TODO: change to interface Map<String, IValue>
+	protected final ImmutableMap<String, IValue> annotations;
 	
-	public AnnotatedNodeFacade(final INode content, final ShareableHashMap<String, IValue> annotations) {
+	public AnnotatedNodeFacade(final INode content, final ImmutableMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -129,7 +129,7 @@ public class AnnotatedNodeFacade implements INode {
 
 			@Override
 			protected INode wrap(INode content,
-					ShareableHashMap<String, IValue> annotations) {
+					ImmutableMap<String, IValue> annotations) {
 				return new AnnotatedNodeFacade(content, annotations);
 			}
 		};

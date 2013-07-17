@@ -21,15 +21,15 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public class AnnotatedConstructorFacade implements IConstructor {
 
 	protected final IConstructor content;
-	protected final ShareableHashMap<String, IValue> annotations; // TODO: change to interface Map<String, IValue>
+	protected final ImmutableMap<String, IValue> annotations;
 	
-	public AnnotatedConstructorFacade(final IConstructor content, final ShareableHashMap<String, IValue> annotations) {
+	public AnnotatedConstructorFacade(final IConstructor content, final ImmutableMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -161,7 +161,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,
-					ShareableHashMap<String, IValue> annotations) {
+					ImmutableMap<String, IValue> annotations) {
 				return new AnnotatedConstructorFacade(content, annotations);
 			}
 		};
