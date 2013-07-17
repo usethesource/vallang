@@ -259,6 +259,10 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	private final V val2;
 
 	Map2(K key1, V val1, K key2, V val2) {
+		if (key1.equals(key2))
+			throw new IllegalArgumentException(
+					"Duplicate keys are not allowed in specialised map."); 
+		
 		this.key1 = key1;
 		this.val1 = val1;
 		this.key2 = key2;
@@ -365,6 +369,12 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	private final V val3;
 
 	Map3(K key1, V val1, K key2, V val2, K key3, V val3) {
+		if (key1.equals(key2) 
+				|| key1.equals(key3) 
+				|| key2.equals(key3))
+			throw new IllegalArgumentException(
+					"Duplicate keys are not allowed in specialised map."); 
+		
 		this.key1 = key1;
 		this.val1 = val1;
 		this.key2 = key2;
@@ -487,6 +497,15 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	private final V val4;
 	
 	Map4(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
+		if (key1.equals(key2) 
+				|| key1.equals(key3) 
+				|| key1.equals(key4)
+				|| key2.equals(key3) 
+				|| key2.equals(key4) 
+				|| key3.equals(key4))
+			throw new IllegalArgumentException(
+					"Duplicate keys are not allowed in specialised map."); 
+		
 		this.key1 = key1;
 		this.val1 = val1;
 		this.key2 = key2;
@@ -624,6 +643,19 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	private final V val5;
 	
 	Map5(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5) {
+		if (key1.equals(key2) 
+				|| key1.equals(key3) 
+				|| key1.equals(key4)
+				|| key1.equals(key5)
+				|| key2.equals(key3) 
+				|| key2.equals(key4)
+				|| key2.equals(key5)
+				|| key3.equals(key4)
+				|| key3.equals(key5)
+				|| key4.equals(key5))
+			throw new IllegalArgumentException(
+					"Duplicate keys are not allowed in specialised map."); 
+		
 		this.key1 = key1;
 		this.val1 = val1;
 		this.key2 = key2;
