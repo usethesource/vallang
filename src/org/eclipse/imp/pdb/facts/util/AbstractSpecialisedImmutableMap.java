@@ -217,7 +217,7 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.En
 		if (key.equals(key1))
 			return mapOf(key, val);
 		else
-			return mapOf(key, val, key1, val1);
+			return mapOf(key1, val1, key, val);
 	}
 
 	@Override
@@ -319,7 +319,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 		else if (key.equals(key2))
 			return mapOf(key1, val1, key, val);
 		else
-			return mapOf(key, val, key1, val1, key2, val2);
+			return mapOf(key1, val1, key2, val2, key, val);
 	}
 
 	@Override
@@ -436,7 +436,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 		else if (key.equals(key3))
 			return mapOf(key1, val1, key2, val2, key, val);
 		else {
-			return mapOf(key, val, key1, val1, key2, val2, key3, val3);
+			return mapOf(key1, val1, key2, val2, key3, val3, key, val);
 		}
 	}
 
