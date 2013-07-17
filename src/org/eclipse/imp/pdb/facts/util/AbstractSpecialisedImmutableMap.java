@@ -35,7 +35,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	}
 	
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
-		return new ImmutableShareableHashMapWrapper<K, V>(key1, val1, key2, val2, key3, val3, key4, val4);
+		return new CopyOnWriteImmutableMap<K, V>(key1, val1, key2, val2, key3, val3, key4, val4);
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(Map<K, V> map) {
@@ -54,7 +54,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 		for (Map<K, V> map : maps)
 			newContent.putAll(map);
 		
-		return new ImmutableShareableHashMapWrapper<K, V>(newContent);
+		return new CopyOnWriteImmutableMap<K, V>(newContent);
 	}
 	
 	@Override
@@ -468,12 +468,21 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 }
 
-class ImmutableShareableHashMapWrapper<K, V> implements ImmutableMap<K, V> {
-
-	private final ShareableHashMap<K, V> content;	
+/**
+ * A {@link ImmutableMap} implementation that wraps an arbitrary {@link Map}. On
+ * modification, the whole map while be cloned.
+ * 
+ * @param <K>
+ *            the type of keys maintained by this map
+ * @param <V>
+ *            the type of mapped values
+ */
+class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
 	
-	ImmutableShareableHashMapWrapper(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
-		this.content = new ShareableHashMap<>();
+	private final Map<K, V> content;
+	
+	CopyOnWriteImmutableMap(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
+		this.content = new HashMap<>(8);
 		
 		this.content.put(key1, val1);
 		this.content.put(key2, val2);
@@ -481,7 +490,7 @@ class ImmutableShareableHashMapWrapper<K, V> implements ImmutableMap<K, V> {
 		this.content.put(key4, val4);
 	}	
 	
-	ImmutableShareableHashMapWrapper(ShareableHashMap<K, V> content) {
+	CopyOnWriteImmutableMap(Map<K, V> content) {
 		this.content = content;
 	}
 
@@ -547,32 +556,32 @@ class ImmutableShareableHashMapWrapper<K, V> implements ImmutableMap<K, V> {
 
 	@Override
 	public ImmutableMap<K, V> __put(K key, V value) {
-		final ShareableHashMap<K, V> newContent = 
-				new ShareableHashMap<>(content);
+		final Map<K, V> newContent = 
+				new HashMap<>(content);
 		
 		newContent.put(key, value);
 		
-		return new ImmutableShareableHashMapWrapper<K, V>(newContent);		
+		return new CopyOnWriteImmutableMap<K, V>(newContent);		
 	}
 
 	@Override
 	public ImmutableMap<K, V> __remove(K key) {
-		final ShareableHashMap<K, V> newContent = 
-				new ShareableHashMap<>(content);
+		final Map<K, V> newContent = 
+				new HashMap<>(content);
 		
 		newContent.remove(key);
 		
-		return new ImmutableShareableHashMapWrapper<K, V>(newContent);		
+		return new CopyOnWriteImmutableMap<K, V>(newContent);		
 	}
 	
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<K, V> map) {
-		final ShareableHashMap<K, V> newContent = 
-				new ShareableHashMap<>(content);
+		final Map<K, V> newContent = 
+				new HashMap<>(content);
 		
 		newContent.putAll(map);
 		
-		return new ImmutableShareableHashMapWrapper<K, V>(newContent);		
+		return new CopyOnWriteImmutableMap<K, V>(newContent);		
 	}
 	
 	@Override
