@@ -162,7 +162,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 
 	public INode node(String name, Map<String, IValue> annos, IValue... children) {
-		return new AnnotatedNode(name, children.clone(), annos);
+		return new Node(name, children.clone()).asAnnotatable().setAnnotations(annos);
 	}
 
 	public INode node(String name, IValue... children) {
