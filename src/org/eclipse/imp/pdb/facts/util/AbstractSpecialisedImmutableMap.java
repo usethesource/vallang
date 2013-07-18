@@ -61,7 +61,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	
 	@Override
 	public boolean isEmpty() {
-		return size() != 0;
+		return size() == 0;
 	}
 	
 	@Override
