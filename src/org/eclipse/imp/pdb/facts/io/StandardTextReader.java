@@ -693,7 +693,7 @@ public class StandardTextReader extends AbstractTextReader {
 			Type annoType = getAnnoType(expected, key);
 			IValue value = readValue(annoType);
 	
-			result = result.setAnnotation(key, value);
+			result = result.asAnnotatable().setAnnotation(key, value);
 			if (current == ']') {
 				current = stream.read();
 				break;
