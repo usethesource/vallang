@@ -96,6 +96,7 @@ public class BinaryReader{
 	private final static int ANNOTATED_NODE_TYPE_HEADER = 0x12;
 	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
 	private final static int RATIONAL_TYPE_HEADER = 0x15;
+	private final static int NUM_TYPE_HEADER = 0x16;
 	
 	private final static int TYPE_MASK = 0x1f;
 	
@@ -318,6 +319,9 @@ public class BinaryReader{
 			case RATIONAL_TYPE_HEADER:
 				type = readRationalType();
 				break;
+			case NUM_TYPE_HEADER:
+			  type = readNumType();
+			  break;
 			default:
 				throw new RuntimeException("Unkown type type: "+typeType);
 		}
@@ -652,6 +656,10 @@ public class BinaryReader{
 	private Type readIntegerType(){
 		return tf.integerType();
 	}
+	
+	private Type readNumType(){
+    return tf.numberType();
+  }
 	
 	private Type readRationalType(){
 		return tf.rationalType();

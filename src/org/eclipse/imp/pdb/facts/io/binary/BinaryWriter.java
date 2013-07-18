@@ -80,6 +80,7 @@ public class BinaryWriter{
 	private final static int ANNOTATED_NODE_TYPE_HEADER = 0x12;
 	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
 	private final static int RATIONAL_TYPE_HEADER = 0x15;
+	private final static int NUM_TYPE_HEADER = 0x16;
 	
 	private final static int SHARED_FLAG = 0x80;
 	private final static int TYPE_SHARED_FLAG = 0x40;
@@ -219,9 +220,9 @@ public class BinaryWriter{
       }
 
       @Override
-      public Type visitNumber(Type type) {
+      public Type visitNumber(Type type) throws IOException {
+        writeNumType();
         return type;
-        // should not happen
       }
 
       @Override
@@ -700,6 +701,10 @@ public class BinaryWriter{
 	private void writeIntegerType() throws IOException{
 		out.write(INTEGER_TYPE_HEADER);
 	}
+	
+	private void writeNumType() throws IOException {
+    out.write(NUM_TYPE_HEADER);
+  }
 	
 	private void writeRationalType() throws IOException{
 		out.write(RATIONAL_TYPE_HEADER);
