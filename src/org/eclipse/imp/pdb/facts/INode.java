@@ -8,13 +8,12 @@
 * Contributors:
 *    Jurgen Vinju (jurgenv@cwi.nl) - initial API and implementation
 *    Paul Klint (Paul.Klint@cwi.nl) - added replace
-
+*    Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 
 package org.eclipse.imp.pdb.facts;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
@@ -95,72 +94,6 @@ public interface INode extends IValue, Iterable<IValue> {
 	 */
 	public Iterator<IValue> iterator();
 	
-	/**
-	 * Get the value of an annotation
-	 * 
-	 * @param label identifies the annotation
-	 * @return a value if the annotation has a value on this node or null otherwise
-	 */
-	public IValue  getAnnotation(String label) throws FactTypeUseException;
-	
-	/**
-	 * Set the value of an annotation
-	 * 
-	 * @param label identifies the annotation
-	 * @param newValue the new value for the annotation
-	 * @return a new node where the value of the annotation is replaced (if previously present) or newly added
-	 * @throws FactTypeUseException when the type of the new value is not comparable to the old annotation value
-	 */
-	public INode   setAnnotation(String label, IValue newValue) throws FactTypeUseException;
-
-	/**
-	 * Check whether a certain annotation is set.
-	 * 
-	 * @param label identifies the annotation
-	 * @return true iff the annotation has a value on this node
-	 * @throws FactTypeUseException when no annotation with this label is defined for this type of node.
-	 */
-	public boolean hasAnnotation(String label) throws FactTypeUseException;
-
-	/**
-	 * Check whether any annotations are present.
-	 */
-	public boolean hasAnnotations();
-	
-	/**
-	 * @return a map of annotation labels to annotation values.
-	 */
-	public Map<String,IValue> getAnnotations();
-	
-	/**
-	 * Overwrites all annotations by replacing them with new ones.
-	 * @param annotations 
-	 * @return a new node with new annotations
-	 */
-	public INode setAnnotations(Map<String, IValue> annotations); 
-	
-	/**
-	 * Adds a number of annotations to this value. The given annotations
-	 * will overwrite existing ones if the keys are the same.
-	 * 
-	 * @param annotations 
-	 * @return a new node with new annotations
-	 */
-	public INode joinAnnotations(Map<String, IValue> annotations); 
-	
-	/**
-	 * Remove the annotation identified by key
-	 * @param key
-	 * @return a new node without the given annotation
-	 */
-	public INode removeAnnotation(String key);
-	
-	/**
-	 * Remove all annotations on this node
-	 * @return a new node without any annotations
-	 */
-	public INode removeAnnotations();
-	
 	 /**
      * Replaces the value of the children first, second ... end with the elements in the list r
      * Expected:
@@ -175,5 +108,11 @@ public interface INode extends IValue, Iterable<IValue> {
      * @throws IndexOutOfBoundsException when the b < 0 or b >= INode.arity() or e < 0 or e > INOde.arity()
      */
     public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException;
+    
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.imp.pdb.facts.IValue#asAnnotatable()
+     */
+    public IAnnotatable<? extends INode> asAnnotatable();
 
 }

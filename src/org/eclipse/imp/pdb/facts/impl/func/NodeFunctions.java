@@ -11,17 +11,16 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.func;
 
-import org.eclipse.imp.pdb.facts.*;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-
 import java.util.ArrayList;
-import java.util.Iterator;
+
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 public class NodeFunctions {
-
-	private final static TypeFactory TF = TypeFactory.getInstance();
-
+	
 	/*
      * TODO: merge with ListFunctions.replace(...). Algorithm is exactly the same, the only difference is
      * that difference interfaces are used (IList, INode).
@@ -127,6 +126,70 @@ public class NodeFunctions {
 			return node1.arity() - node1.getKeywordArgumentNames().length;
 		else
 			return node1.arity();
+	}
+	
+	public static boolean isEqual(IValueFactory vf, INode node1, IValue value) {
+		if(value == node1) return true;
+		if(value == null) return false;
+		
+		if (value instanceof INode) {
+			INode node2 = (INode) value;
+			
+			// Object equality ('==') is not applicable here
+			// because value is cast to {@link INode}.
+			if (!node1.getName().equals(node2.getName())) {
+				return false;
+			}
+
+//			if (node1.arity() == other.arity()) {
+//				if (node1.positionalArity() != other.positionalArity()) {
+//					return false;
+//				}
+//				
+//				final Iterator<IValue> it1 = node1.iterator();
+//				final Iterator<IValue> it2 = other.iterator();
+//				
+//				while (it1.hasNext() && it2.hasNext()) {
+//					// call to IValue.isEqual(IValue)
+//					if (it1.next().isEqual(it2.next()) == false)
+//						return false;
+//				}
+//
+//				assert (!it1.hasNext() && !it2.hasNext());
+//				return true;
+//				...
+
+			
+			int nrOfChildren = node1.arity();
+			if (nrOfChildren == node2.arity()) {
+				int nrOfPosChildren = node1.positionalArity();
+				if (nrOfPosChildren != node2.positionalArity()) {
+					return false;
+				}
+				for (int i = nrOfPosChildren - 1; i >= 0; i--) {
+					if (!node2.get(i).isEqual(node1.get(i)))
+						return false;
+				}
+
+				if (nrOfPosChildren < nrOfChildren) {
+					if (!node1.hasKeywordArguments())
+						return false;
+
+					final String[] keyArgNames = node1
+							.getKeywordArgumentNames();
+
+					for (int i = 0; i < keyArgNames.length; i++) {
+						String kw = keyArgNames[i];
+						int k = node2.getKeywordIndex(kw);
+						if (k < 0 || !node1.get(nrOfPosChildren + i).isEqual(node2.get(k))) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

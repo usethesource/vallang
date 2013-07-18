@@ -76,7 +76,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 		ts.declareAnnotation(E, "size", tf.integerType());
 		
 		try {
-			n.setAnnotation("size", vf.integer(0));
+			n.asAnnotatable().setAnnotation("size", vf.integer(0));
 		}
 		catch (FactTypeDeclarationException | FactTypeUseException e) {
 			fail(e.toString());
@@ -88,15 +88,15 @@ public abstract class BaseTestAnnotations extends TestCase {
 		ts.declareAnnotation(E, "size", tf.integerType());
 		
 		try {
-			if (n.getAnnotation("size") != null) {
+			if (n.asAnnotatable().getAnnotation("size") != null) {
 				fail("annotation should be null");
 			}
 		} catch (FactTypeUseException e) {
 			fail(e.toString());
 		}
 		
-		IConstructor m = n.setAnnotation("size", vf.integer(1));
-		IValue b = m.getAnnotation("size");
+		IConstructor m = n.asAnnotatable().setAnnotation("size", vf.integer(1));
+		IValue b = m.asAnnotatable().getAnnotation("size");
 		if (!b.isEqual(vf.integer(1))) {
 			fail();
 		}
@@ -106,7 +106,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 		IConstructor n = vf.constructor(N, vf.integer(0));
 		ts.declareAnnotation(E, "size", tf.integerType());
 		
-		IConstructor m = n.setAnnotation("size", vf.integer(1));
+		IConstructor m = n.asAnnotatable().setAnnotation("size", vf.integer(1));
 		
 		if (m == n) {
 			fail("annotation setting should change object identity");
@@ -130,7 +130,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 	
 	public void testEqualityNode() {
 		INode n = vf.node("hello");
-		INode na = n.setAnnotation("audience", vf.string("world"));
+		INode na = n.asAnnotatable().setAnnotation("audience", vf.string("world"));
 		
 		assertTrue(n.isEqual(na));
 		assertTrue(vf.set(n).isEqual(vf.set(na)));
@@ -140,7 +140,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 	
 	public void testEqualityConstructor() {
 		IConstructor n = vf.constructor(N, vf.integer(1));
-		IConstructor na = n.setAnnotation("x", vf.integer(1));
+		IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
 		
 		assertTrue(n.isEqual(na));
 		assertTrue(vf.set(n).isEqual(vf.set(na)));
@@ -151,9 +151,9 @@ public abstract class BaseTestAnnotations extends TestCase {
 	public void testNodeAnnotation() {
 		ts.declareAnnotation(tf.nodeType(), "foo", tf.boolType());
 		INode n = vf.node("hello");
-		INode na = n.setAnnotation("foo", vf.bool(true));
+		INode na = n.asAnnotatable().setAnnotation("foo", vf.bool(true));
 		
-		assertTrue(na.getAnnotation("foo").getType().isBool());
+		assertTrue(na.asAnnotatable().getAnnotation("foo").getType().isBool());
 		
 		// annotations on node type should be propagated
 		assertTrue(ts.getAnnotationType(tf.nodeType(), "foo").isBool());

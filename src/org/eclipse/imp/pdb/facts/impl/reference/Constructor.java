@@ -3,14 +3,17 @@ package org.eclipse.imp.pdb.facts.impl.reference;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 /**
@@ -28,22 +31,6 @@ public class Constructor extends Node implements IConstructor {
 
 	private Constructor(Constructor other, int childIndex, IValue newChild) {
 		super(other, childIndex, newChild);
-	}
-	
-	private Constructor(Constructor constructor, String label, IValue value) {
-		super(constructor, label, value);
-	}
-
-	/*package*/ Constructor(Constructor constructor, Map<String, IValue> annotations) {
-		super(constructor, annotations);
-	}
-
-	private Constructor(Constructor constructor) {
-		super(constructor);
-	}
-
-	private Constructor(Constructor constructor, String key) {
-		super(constructor, key);
 	}
 
 	@Override
@@ -138,43 +125,32 @@ public class Constructor extends Node implements IConstructor {
 	public boolean declaresAnnotation(TypeStore store, String label) {
 		return store.getAnnotationType(getType(), label) != null;
 	}
-	
-	@Override
-	public IConstructor setAnnotation(String label, IValue value) {
-		IValue previous = getAnnotation(label);
-		
-		if (previous != null) {
-			Type expected = previous.getType();
-	
-			if (!expected.comparable(value.getType())) {
-				throw new UnexpectedAnnotationTypeException(expected, value.getType());
-			}
-		}
-	
-		return new Constructor(this, label, value);
-	}
-	
-	@Override
-	public IConstructor joinAnnotations(Map<String, IValue> annotations) {
-		return new Constructor(this, annotations);
-	}
-	
-	@Override
-	public IConstructor setAnnotations(Map<String, IValue> annotations) {
-		return removeAnnotations().joinAnnotations(annotations);
-	}
-	
-	@Override
-	public IConstructor removeAnnotations() {
-		return new Constructor(this);
-	}
-	
-	@Override
-	public IConstructor removeAnnotation(String key) {
-		return new Constructor(this, key);
-	}
 
 	public boolean has(String label) {
 		return getConstructorType().hasField(label);
 	}
+	
+	/**
+	 * TODO: Create and move to {@link AbstractConstructor}.
+	 */
+	@Override
+	public boolean isAnnotatable() {
+		return true;
+	}
+	
+	/**
+	 * TODO: Create and move to {@link AbstractConstructor}.
+	 */
+	@Override
+	public IAnnotatable<? extends IConstructor> asAnnotatable() {
+		return new AbstractDefaultAnnotatable<IConstructor>(this) {
+
+			@Override
+			protected IConstructor wrap(IConstructor content,
+					ImmutableMap<String, IValue> annotations) {
+				return new AnnotatedConstructorFacade(content, annotations);
+			}
+		};
+	}
+	
 }

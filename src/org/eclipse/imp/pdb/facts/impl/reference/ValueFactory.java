@@ -185,7 +185,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		checkNull(annotations);
 		checkNull((Object[]) children);
 				
-		return new Node(name, annotations, children);
+		return new Node(name, children).asAnnotatable().setAnnotations(annotations);
 	}
 	
 	@Override
@@ -219,7 +219,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 		checkNull(annotations);
 		checkNull((Object[]) children);
 				
-		return new Constructor(constructorType, children).setAnnotations(annotations);
+		return new Constructor(constructorType, children).asAnnotatable().setAnnotations(annotations);
 	}
 	
 	@Override

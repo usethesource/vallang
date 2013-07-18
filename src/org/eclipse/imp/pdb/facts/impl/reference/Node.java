@@ -12,46 +12,32 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedAnnotationTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractNode;
-import org.eclipse.imp.pdb.facts.impl.AbstractValue;
+import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 /**
  * Naive implementation of an untyped tree node, using array of children.
  */
 /*package*/ class Node extends AbstractNode implements INode {
 	protected final static Type VALUE_TYPE = TypeFactory.getInstance().valueType();
-    protected static final HashMap<String, IValue> EMPTY_ANNOTATIONS = new HashMap<>();
 
 	@Override
 	public Type getType() {
 		return fType;
 	}
 
-	@Override
-	public boolean isEqual(IValue other) {
-		return equals(other);
-	}
-
 	protected final Type fType;
 	protected final IValue[] fChildren;
     protected final String fName;
-	protected final HashMap<String, IValue> fAnnotations;
 	protected int fHash = 0;
 	protected final String[] keyArgNames;
 	
@@ -60,26 +46,14 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		fType = TypeFactory.getInstance().nodeType();
 		fName = name;
 		fChildren = children.clone();
-		fAnnotations = EMPTY_ANNOTATIONS;
 		keyArgNames = null;
 	}
-	
-	/*package*/ Node(String name, Map<String,IValue> annos, IValue[] children) {
-		super();
-		fType = TypeFactory.getInstance().nodeType();
-		fName = name;
-		fChildren = children.clone();
-		fAnnotations = new HashMap<>(annos.size());
-		fAnnotations.putAll(annos);
-		keyArgNames = null;
-	}
-	
+		
 	protected Node(String name, Type type, IValue[] children) {
 		super();
 		fType = type;
 		fName = name;
 		fChildren = children.clone();
-		fAnnotations = EMPTY_ANNOTATIONS;
 		keyArgNames = null;
 	}
 	
@@ -87,7 +61,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		super();
 		fType = TypeFactory.getInstance().nodeType();
 		fName = (name != null ? name.intern() : null); // Handle (weird) special case.
-		fAnnotations = EMPTY_ANNOTATIONS;
 		if(keyArgValues != null){
 			int nkw = keyArgValues.size();
 			IValue[] extendedChildren = new IValue[children.length + nkw];
@@ -110,51 +83,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			this.keyArgNames = null;
 		}
 	}
-	
-	/**
-	 * Adds one annotation
-	 * @param other
-	 * @param label
-	 * @param anno
-	 */
-	@SuppressWarnings("unchecked")
-	protected Node(Node other, String label, IValue anno) {
-		super();
-		fType = other.fType;
-		fName = other.fName;
-		fChildren = other.fChildren;
-		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
-		fAnnotations.put(label, anno);
-		keyArgNames = null;
-	}
-	
-	/**
-	 * Removes one annotation
-	 */
-	@SuppressWarnings("unchecked")
-	protected Node(Node other, String label) {
-		super();
-		fType = other.fType;
-		fName = other.fName;
-		fChildren = other.fChildren;
-		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
-		fAnnotations.remove(label);
-		keyArgNames = null;
-	}
-	
-	/**
-	 * Removes all annotations
-	 * @param other
-	 */
-	protected Node(Node other) {
-		super();
-		fType = other.fType;
-		fName = other.fName;
-		fChildren = other.fChildren;
-		fAnnotations = EMPTY_ANNOTATIONS;
-		keyArgNames = null;
-	}
-	
+				
 	/*package*/ Node(String name) {
 		this(name, new IValue[0]);
 	}
@@ -165,33 +94,15 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 	 * @param index
 	 * @param newChild
 	 */
-	@SuppressWarnings("unchecked")
 	protected Node(Node other, int index, IValue newChild) {
 		super();
 		fType = other.fType;
 		fName = other.fName;
 		fChildren = other.fChildren.clone();
 		fChildren[index] = newChild;
-		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
 		keyArgNames = null;
 	}
 	
-	/**
-	 * Adds all annotations to the annotations of the other
-	 * @param other
-	 * @param annotations
-	 */
-	@SuppressWarnings("unchecked")
-	public Node(Node other, Map<String, IValue> annotations) {
-		super();
-		fType = other.fType;
-		fName = other.fName;
-		fChildren = other.fChildren.clone();
-		fAnnotations = (HashMap<String, IValue>) other.fAnnotations.clone();
-		fAnnotations.putAll(annotations);
-		keyArgNames = null;
-	}
-
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
 		return v.visitNode(this);
@@ -241,6 +152,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return keyArgNames;
 	}
 
+	/*
+	 * TODO: replace by simple ArrayIterator. No need for yet another inner
+	 * class iterator.
+	 */
 	@Override
 	public Iterator<IValue> iterator() {
 		return new Iterator<IValue>() {
@@ -296,6 +211,11 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 		return false;
 	}
 	
+	@Override
+	public boolean isEqual(IValue value){
+		return NodeFunctions.isEqual(getValueFactory(), this, value);
+	}
+	
 	public int computeHashCode() {
        int hash = fName != null ? fName.hashCode() : 0;
        
@@ -311,65 +231,6 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 			fHash = computeHashCode();
 		}
 		return fHash;
-	}
-
-	@Override
-	public boolean hasAnnotation(String label) {
-		return fAnnotations.containsKey(label);
-	}
-
-	@Override
-	public INode setAnnotation(String label, IValue value) {
-		IValue previous = getAnnotation(label);
-		
-		if (value == null) {
-			throw new NullPointerException();
-		}
-		
-		if (previous != null) {
-			Type expected = previous.getType();
-	
-			if (!expected.comparable(value.getType())) {
-				throw new UnexpectedAnnotationTypeException(expected, value.getType());
-			}
-		}
-	
-		return new Node(this, label, value);
-	}
-
-	@Override
-	public IValue getAnnotation(String label) throws FactTypeUseException {
-		return fAnnotations.get(label);
-	}
-
-	@Override
-	public Map<String, IValue> getAnnotations() {
-		return Collections.unmodifiableMap(fAnnotations);
-	}
-
-	@Override
-	public boolean hasAnnotations() {
-		return fAnnotations != null && !fAnnotations.isEmpty();
-	}
-
-	@Override
-	public INode joinAnnotations(Map<String, IValue> annotations) {
-		return new Node(this, annotations);
-	}
-
-	@Override
-	public INode setAnnotations(Map<String, IValue> annotations) {
-		return removeAnnotations().joinAnnotations(annotations);
-	}
-
-	@Override
-	public INode removeAnnotation(String key) {
-		return new Node(this, key);
-	}
-
-	@Override
-	public INode removeAnnotations() {
-		return new Node(this);
 	}
 
 }

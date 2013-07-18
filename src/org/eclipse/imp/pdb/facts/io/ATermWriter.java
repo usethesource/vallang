@@ -154,10 +154,10 @@ public class ATermWriter implements IValueTextWriter {
 			}
 			append(')');
 			
-			if (o.hasAnnotations()) {
+			if (o.asAnnotatable().hasAnnotations()) {
 				append("{[");
 				int i = 0;
-				Map<String, IValue> annotations = o.getAnnotations();
+				Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
 				for (Entry<String, IValue> entry : annotations.entrySet()) {
 					append("[" + entry.getKey() + ",");
 					entry.getValue().accept(this);

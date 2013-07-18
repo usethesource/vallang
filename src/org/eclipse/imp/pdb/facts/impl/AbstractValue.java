@@ -12,7 +12,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 
 import java.io.IOException;
@@ -34,4 +36,16 @@ public abstract class AbstractValue implements IValue {
 		}
 		return "";
 	}
+
+	@Override
+	public boolean isAnnotatable() {
+		return false;
+	}
+
+	@Override
+	public IAnnotatable<? extends IValue> asAnnotatable() {
+		throw new IllegalOperationException(
+				"Cannot be viewed as annotatable.", getType());
+	}
+	
 }

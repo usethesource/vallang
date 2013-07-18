@@ -196,12 +196,12 @@ public class StandardTextWriter implements IValueTextWriter {
 			}
 			append(')');
 			untab();
-			if (o.hasAnnotations()) {
+			if (o.asAnnotatable().hasAnnotations()) {
 				append('[');
 				tab();
 				indent();
 				int i = 0;
-				Map<String, IValue> annotations = o.getAnnotations();
+				Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
 				for (Entry<String, IValue> entry : annotations.entrySet()) {
 					append("@" + entry.getKey() + "=");
 					entry.getValue().accept(this);
@@ -629,12 +629,12 @@ public class StandardTextWriter implements IValueTextWriter {
     	}
     	append(')');
     	untab();
-    	if (o.hasAnnotations()) {
+    	if (o.asAnnotatable().hasAnnotations()) {
     		append('[');
     		tab();
     		indent();
     		int i = 0;
-    		Map<String, IValue> annotations = o.getAnnotations();
+    		Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
     		for (Entry<String, IValue> entry : annotations.entrySet()) {
     			append("@" + entry.getKey() + "=");
     			entry.getValue().accept(this);

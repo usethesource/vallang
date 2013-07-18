@@ -317,7 +317,7 @@ public class ATermReader extends AbstractBinaryReader {
 					IValue value = parse(reader, annoType);
 					
 					if (result.getType().isAbstractData()) {
-						result = ((IConstructor) result).setAnnotation(key, value);
+						result = ((IConstructor) result).asAnnotatable().setAnnotation(key, value);
 					}
 					
 					if (reader.getLastChar() != ']') {

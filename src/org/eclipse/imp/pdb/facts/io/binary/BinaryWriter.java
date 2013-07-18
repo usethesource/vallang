@@ -125,8 +125,8 @@ public class BinaryWriter{
 		
 		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
-			if (consValue.hasAnnotations()) {
-				Map<String,IValue> amap = consValue.getAnnotations();
+			if (consValue.asAnnotatable().hasAnnotations()) {
+				Map<String,IValue> amap = consValue.asAnnotatable().getAnnotations();
 				for (Entry<String, IValue> aEntry : amap.entrySet()) {
 					Type aType = aEntry.getValue().getType();
 					if (!aType.isBottom() && aType.isSourceLocation()) {
@@ -165,11 +165,11 @@ public class BinaryWriter{
 			writeTuple((ITuple) value);
 		}else if(value instanceof IConstructor){
 			IConstructor constructor = (IConstructor) value;
-			if(!constructor.hasAnnotations()) writeConstructor(constructor);
+			if(!constructor.asAnnotatable().hasAnnotations()) writeConstructor(constructor);
 			else writeAnnotatedConstructor(constructor);
 		}else if(value instanceof INode){
 			INode node = (INode) value;
-			if(!node.hasAnnotations()) writeNode(node);
+			if(!node.asAnnotatable().hasAnnotations()) writeNode(node);
 			else writeAnnotatedNode(node);
 		}else if(value instanceof IList){
 			writeList((IList) value);
@@ -530,7 +530,7 @@ public class BinaryWriter{
 			doSerialize(node.get(i));
 		}
 		
-		Map<String, IValue> annotations = node.getAnnotations();
+		Map<String, IValue> annotations = node.asAnnotatable().getAnnotations();
 		
 		printInteger(annotations.size());
 		
@@ -594,7 +594,7 @@ public class BinaryWriter{
 			doSerialize(constructor.get(i));
 		}
 		
-		Map<String, IValue> annotations = constructor.getAnnotations();
+		Map<String, IValue> annotations = constructor.asAnnotatable().getAnnotations();
 		
 		printInteger(annotations.size());
 		
