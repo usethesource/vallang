@@ -25,6 +25,7 @@ import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.ArrayIterator;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -112,7 +113,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public Iterator<IValue> iterator(){
-		return new TreeIterator(this);
+		return ArrayIterator.of(children);
 	}
 	
 	@Override
@@ -200,36 +201,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		return false;
-	}
-	
-	/*
-	 * TODO: replace by simple ArrayIterator. No need for Constructor specific
-	 * iterator.
-	 */
-	private static class TreeIterator implements Iterator<IValue>{
-		private final IValue[] children;
-		private int index = 0;
-		
-		public TreeIterator(Constructor tree){
-			super();
-			
-			children = tree.children;
-		}
-		
-		@Override
-		public boolean hasNext(){
-			return index < children.length;
-		}
-		
-		@Override
-		public IValue next(){
-			return children[index++];
-		}
-		
-		@Override
-		public void remove(){
-			throw new UnsupportedOperationException("This iterator doesn't support removal.");
-		}
 	}
 
 	@Override

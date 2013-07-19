@@ -13,7 +13,6 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
@@ -23,6 +22,7 @@ import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.ArrayIterator;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 /**
@@ -115,32 +115,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return keyArgNames;
 	}
 	
-	/*
-	 * TODO: replace by simple ArrayIterator. No need for Constructor specific
-	 * iterator.
-	 */
 	@Override
 	public Iterator<IValue> iterator(){
-		return new Iterator<IValue>(){
-			private int i = 0;
-
-			@Override
-			public boolean hasNext(){
-				return i < children.length;
-			}
-
-			@Override
-			public IValue next(){
-				if(!hasNext()) throw new NoSuchElementException("There are no more elements in this iteration.");
-				
-				return children[i++];
-			}
-
-			@Override
-			public void remove(){
-				throw new UnsupportedOperationException("Removal is not supported by this iterator.");
-			}
-		};
+		return ArrayIterator.of(children);
 	}
 	
 	@Override

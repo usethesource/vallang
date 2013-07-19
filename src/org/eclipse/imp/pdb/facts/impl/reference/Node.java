@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.ArrayIterator;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 /**
@@ -152,30 +153,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return keyArgNames;
 	}
 
-	/*
-	 * TODO: replace by simple ArrayIterator. No need for yet another inner
-	 * class iterator.
-	 */
 	@Override
 	public Iterator<IValue> iterator() {
-		return new Iterator<IValue>() {
-			private int i = 0;
-
-			@Override
-			public boolean hasNext() {
-				return i < fChildren.length;
-			}
-
-			@Override
-			public IValue next() {
-				return fChildren[i++];
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+		return ArrayIterator.of(fChildren);
 	}
 	
 	@Override
