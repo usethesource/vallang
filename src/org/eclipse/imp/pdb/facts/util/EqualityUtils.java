@@ -22,12 +22,14 @@ public class EqualityUtils {
 	 * Temporary function in order to support different equality checks.
 	 */
 	@SuppressWarnings("rawtypes")
-	public static Comparator defaultEqualityComparator = new Comparator() {
-		@Override
-		public int compare(Object a, Object b) {
-			return Objects.equals(a, b) ? 0 : -1;
-		}
-	};
+	public static Comparator getDefaultEqualityComparator() {
+		return new Comparator() {
+			@Override
+			public int compare(Object a, Object b) {
+				return Objects.equals(a, b) ? 0 : -1;
+			}
+		};
+	}
 	
 	/**
 	 * Temporary function in order to support equivalence. Note, this
@@ -35,17 +37,19 @@ public class EqualityUtils {
 	 * are of a different type, an unchecked exception will be thrown.
 	 */
 	@SuppressWarnings("rawtypes")
-	public static Comparator equivalenceComparator = new Comparator() {
-		@Override
-		public int compare(Object a, Object b) {
-			IValue v = (IValue) a;
-			IValue w = (IValue) b;
-			
-			if ((v == w) || (v != null && v.isEqual(w)))
-				return 0;
-			else
-				return -1;
-		}
-	};
+	public static Comparator getEquivalenceComparator() {
+		return new Comparator() {
+			@Override
+			public int compare(Object a, Object b) {
+				IValue v = (IValue) a;
+				IValue w = (IValue) b;
+
+				if ((v == w) || (v != null && v.isEqual(w)))
+					return 0;
+				else
+					return -1;
+			}
+		};
+	}
 
 }

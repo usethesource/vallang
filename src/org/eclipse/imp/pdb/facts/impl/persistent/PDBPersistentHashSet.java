@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 public final class PDBPersistentHashSet extends AbstractSet {
 	
 	@SuppressWarnings("rawtypes")
-	private static final Comparator equivalenceComparator = EqualityUtils.equivalenceComparator;
+	private static final Comparator equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 	
 	private Type cachedElementType;
 	private final ImmutableSet<IValue> content;

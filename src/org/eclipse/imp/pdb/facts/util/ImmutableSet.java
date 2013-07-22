@@ -17,6 +17,8 @@ import java.util.Set;
 public interface ImmutableSet<E> extends Set<E> {
 	ImmutableSet<E> __insert(E e);
 
+	ImmutableSet<E> __insertAll(Set<? extends E> set);
+	
 	ImmutableSet<E> __remove(E e);
 
 	/*
@@ -28,6 +30,9 @@ public interface ImmutableSet<E> extends Set<E> {
 
 	@SuppressWarnings("rawtypes")
 	ImmutableSet<E> __insertEquivalent(E e, Comparator cmp);
+	
+	@SuppressWarnings("rawtypes")
+	ImmutableSet<E> __insertAllEquivalent(Set<? extends E> set, Comparator cmp);
 
 	@SuppressWarnings("rawtypes")
 	ImmutableSet<E> __removeEquivalent(E e, Comparator cmp);

@@ -28,7 +28,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return result;
 	}
 		
-	private static final Comparator equalityComparator = EqualityUtils.defaultEqualityComparator;
+	protected static final Comparator equalityComparator = EqualityUtils.getDefaultEqualityComparator();
 	
 	static TrieSet mergeNodes(Object node0, int hash0, Object node1, int hash1, int shift) {
 		assert (!(node0 instanceof TrieSet));
@@ -137,6 +137,24 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return updated(k, k.hashCode(), 0, cmp);
 	}
 	
+	@Override
+	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+		return __insertAllEquivalent(set, equalityComparator);
+	}	
+
+	/*
+	 * TODO: support fast batch operations.
+	 */
+	@Override
+	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set, Comparator cmp) {
+		ImmutableSet<K> result = TrieSet.of();
+		
+		for (K e : set)
+			result = result.__insertEquivalent(e, cmp);
+		
+		return result;
+	}
+	
 	abstract TrieSet removed(K key, int hash, int shift, Comparator comparator);
 
 	@Override
@@ -198,7 +216,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 			if ((valmap & bitpos) != 0) {
 				return comparator.compare(nodes[index(bitpos)], key) == 0;
 			} else {
-				return ((TrieSet) nodes[index(bitpos)]).contains(key, hash, shift + BIT_PARTITION_SIZE, null);
+				return ((TrieSet) nodes[index(bitpos)]).contains(key, hash, shift + BIT_PARTITION_SIZE, comparator);
 			}
 		}
 		return false;
@@ -364,7 +382,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		if (this.hash != hash)
 			return mergeNodes((TrieSet) this, this.hash, key, hash, shift);
 
-		if (contains(key, hash, shift, null))
+		if (contains(key, hash, shift, comparator))
 			return this;
 
 		final K[] keysNew = (K[]) ArrayUtils.arraycopyAndInsert(keys, keys.length, key);
