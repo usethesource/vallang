@@ -16,50 +16,50 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public class ValueFactory {
+public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
 
 	protected ValueFactory() {
 		super();
 	}
 
-	private static class InstanceKeeper{
+	private static class InstanceKeeper {
 		public final static ValueFactory instance = new ValueFactory();
 	}
-	
-	public static ValueFactory getInstance(){
+
+	public static ValueFactory getInstance() {
 		return InstanceKeeper.instance;
 	}
-	
-	public ISetWriter setWriter(Type elementType){
+
+	public ISetWriter setWriter(Type elementType) {
 		return new TemporarySetWriter(elementType);
 	}
-	
-	public ISetWriter setWriter(){
+
+	public ISetWriter setWriter() {
 		return new TemporarySetWriter();
 	}
-	
-	public ISetWriter relationWriter(Type tupleType){
+
+	public ISetWriter relationWriter(Type tupleType) {
 		return new TemporarySetWriter(tupleType);
 	}
-	
-	public ISetWriter relationWriter(){
+
+	public ISetWriter relationWriter() {
 		return new TemporarySetWriter();
 	}
-	
-	public ISet set(Type elementType){
+
+	public ISet set(Type elementType) {
 		return setWriter().done();
 	}
-	
-	public ISet set(IValue... elements){		
+
+	public ISet set(IValue... elements) {
 		ISetWriter setWriter = setWriter();
 		setWriter.insert(elements);
 		return setWriter.done();
 	}
-	
-	public ISet relation(Type tupleType){
+
+	public ISet relation(Type tupleType) {
 		return relationWriter(tupleType).done();
 	}
-	
+
 	public ISet relation(IValue... elements) {
 		return set(elements);
 	}
@@ -67,6 +67,6 @@ public class ValueFactory {
 	@Override
 	public String toString() {
 		return "VF_PDB_PERSISTENT";
-	}	
-	
+	}
+
 }
