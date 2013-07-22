@@ -54,14 +54,14 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				nodes[1] = node0;
 			}
 
-			return new InplaceIndexNode(bitmap, valmap, nodes, 2); // only differs in size param!
+			return new InplaceIndexNode(bitmap, valmap, nodes, 2);
 		} else {
 			// values fit on next level
 			final int bitmap = (1 << mask0);
 			final int valmap = 0;
 			final TrieSet node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
 
-			return new InplaceIndexNode(bitmap, valmap, node, 1);  // only differs in size param!
+			return new InplaceIndexNode(bitmap, valmap, node, 1);
 		}
 	}
 
@@ -83,14 +83,14 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				nodes[1] = node0;
 			}
 
-			return new InplaceIndexNode(bitmap, valmap, nodes, node0.size() + node1.size()); // only differs in size param!
+			return new InplaceIndexNode(bitmap, valmap, nodes, node0.size() + node1.size());
 		} else {
 			// values fit on next level
 			final int bitmap = (1 << mask0);
 			final int valmap = 0;
 			final TrieSet node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
 
-			return new InplaceIndexNode(bitmap, valmap, node, node0.size());  // only differs in size param!
+			return new InplaceIndexNode(bitmap, valmap, node, node0.size());
 		}
 	}
 
@@ -114,14 +114,14 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				nodes[1] = node0;
 			}
 
-			return new InplaceIndexNode(bitmap, valmap, nodes, node0.size() + 1); // only differs in size param!
+			return new InplaceIndexNode(bitmap, valmap, nodes, node0.size() + 1);
 		} else {
 			// values fit on next level
 			final int bitmap = (1 << mask0);
 			final int valmap = 0;
 			final TrieSet node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
 
-			return new InplaceIndexNode(bitmap, valmap, node, node.size());  // only differs in size param!
+			return new InplaceIndexNode(bitmap, valmap, node, node.size());
 		}
 	}
 
@@ -212,7 +212,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
 		final int bitpos = (1 << mask);
 
-		if ((bitmap & bitpos) != 0) {
+		if ((bitmap & bitpos) != 0) {			
 			if ((valmap & bitpos) != 0) {
 				return comparator.compare(nodes[index(bitpos)], key) == 0;
 			} else {
