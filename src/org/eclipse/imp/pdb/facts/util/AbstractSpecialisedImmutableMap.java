@@ -23,7 +23,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	}
 	
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1) {
-		return new Map1<K, V>(key1, val1);
+		return new Map1AndEntry<K, V>(key1, val1);
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2) {
@@ -126,7 +126,7 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 	
 	@Override
 	public ImmutableMap<K, V> __put(K key, V val) {
-		return new Map1<K, V>(key, val);
+		return new Map1AndEntry<K, V>(key, val);
 	}
 
 	@Override
@@ -146,11 +146,11 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 }
 
-class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.Entry<K, V>, Cloneable {
+class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.Entry<K, V>, Cloneable {
 	private final K key1;
 	private final V val1;
 
-	Map1(K key1, V val1) {
+	Map1AndEntry(K key1, V val1) {
 		this.key1 = key1;
 		this.val1 = val1;
 	}
@@ -302,8 +302,8 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2)));
 	}
 
 	@Override
@@ -422,9 +422,9 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2),
-						new Map1<>(key3, val3)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2),
+						new Map1AndEntry<>(key3, val3)));
 	}
 
 	@Override
@@ -561,10 +561,10 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2),
-						new Map1<>(key3, val3),
-						new Map1<>(key4, val4)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2),
+						new Map1AndEntry<>(key3, val3),
+						new Map1AndEntry<>(key4, val4)));
 	}
 
 	@Override
@@ -719,11 +719,11 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2),
-						new Map1<>(key3, val3),
-						new Map1<>(key4, val4),
-						new Map1<>(key5, val5)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2),
+						new Map1AndEntry<>(key3, val3),
+						new Map1AndEntry<>(key4, val4),
+						new Map1AndEntry<>(key5, val5)));
 	}
 
 	@Override
