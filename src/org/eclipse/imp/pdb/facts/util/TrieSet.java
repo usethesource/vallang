@@ -125,21 +125,27 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	abstract TrieSet updated(K key, int hash, int shift, Comparator comparator);
+	abstract TrieSet updated(K key, int hash, int shift, boolean doMutate, Comparator comparator);
 
 	@Override
 	public TrieSet<K> __insert(K k) {
-		return updated(k, k.hashCode(), 0, equalityComparator);
+		return updated(k, k.hashCode(), 0, false, equalityComparator);
 	}
 
 	@Override
 	public TrieSet<K> __insertEquivalent(K k, Comparator cmp) {
-		return updated(k, k.hashCode(), 0, cmp);
+		return updated(k, k.hashCode(), 0, false, cmp);
 	}
 	
+	/*
+	 * TODO: support fast batch operations.
+	 */
 	@Override
 	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
-		return __insertAllEquivalent(set, equalityComparator);
+		TrieSet<K> result = (TrieSet<K>) TrieSet.of();		
+		for (K e : set)
+			result = result.updated(e, e.hashCode(), 0, false, equalityComparator);		
+		return result;
 	}	
 
 	/*
@@ -147,11 +153,9 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	 */
 	@Override
 	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set, Comparator cmp) {
-		ImmutableSet<K> result = TrieSet.of();
-		
+		TrieSet<K> result = (TrieSet<K>) TrieSet.of();		
 		for (K e : set)
-			result = result.__insertEquivalent(e, cmp);
-		
+			result = result.updated(e, e.hashCode(), 0, false, cmp);		
 		return result;
 	}
 	
@@ -184,10 +188,10 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 @SuppressWarnings("rawtypes")
 /*package*/ final class InplaceIndexNode<K> extends TrieSet<K> {
 
-	private final int bitmap;
-	private final int valmap;
-	private final Object[] nodes;
-	private final int cachedSize;
+	private int bitmap;
+	private int valmap;
+	private Object[] nodes;
+	private int cachedSize;
 
 	InplaceIndexNode(int bitmap, int valmap, Object[] nodes, int cachedSize) {
 		assert (Integer.bitCount(bitmap) == nodes.length);
@@ -223,15 +227,26 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public TrieSet updated(Object key, int hash, int shift, Comparator comparator) {
+	public TrieSet updated(Object key, int hash, int shift, boolean doMutate, Comparator comparator) {
 		final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
 		final int bitpos = (1 << mask);
 		final int index = index(bitpos);
 
 		if ((bitmap & bitpos) == 0) {
-			// no entry, create new node with inplace value
+			// no entry, create new node with inplace value		
 			final Object[] nodesReplacement = ArrayUtils.arraycopyAndInsert(nodes, index, key);
-			return new InplaceIndexNode(bitmap | bitpos, valmap | bitpos, nodesReplacement, this.size() + 1);
+			
+			if (doMutate) {
+				// mutate state
+				nodes = nodesReplacement;
+				bitmap |= bitpos;
+				valmap |= bitpos;
+				cachedSize = cachedSize + 1;				
+				return this;
+			} else {
+				// immutable copy
+				return new InplaceIndexNode(bitmap | bitpos, valmap | bitpos, nodesReplacement, this.size() + 1);	
+			}
 		}
 
 		if ((valmap & bitpos) != 0) {
@@ -240,21 +255,44 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				return this;
 
 			final TrieSet nodeNew = mergeNodes(nodes[index], nodes[index].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);
-			final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, nodeNew);
-
-			return new InplaceIndexNode(bitmap | bitpos, valmap & ~bitpos, nodesReplacement, this.size() + 1);
+			
+			if (doMutate) {
+				// mutate state
+				nodes[index] = nodeNew;
+				bitmap |=  bitpos;
+				valmap &= ~bitpos;
+				cachedSize = cachedSize + 1;
+				return this;
+			} else {
+				// immutable copy
+				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, nodeNew);
+				return new InplaceIndexNode(bitmap | bitpos, valmap & ~bitpos, nodesReplacement, this.size() + 1);				
+			}			
 		} else {
 			// it's a TrieSet node, not a inplace value
 			final TrieSet subNode = (TrieSet) nodes[index];
-			final TrieSet subNodeReplacement = subNode.updated(key, hash, shift + BIT_PARTITION_SIZE, comparator);
 
-			if (subNode == subNodeReplacement)
-				return this;
-
-			assert(subNode.size() == subNodeReplacement.size() - 1);
-
-			final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, subNodeReplacement);
-			return new InplaceIndexNode(bitmap, valmap, nodesReplacement, this.size() + 1);
+			if (doMutate) {
+				// mutate subNode state
+				final TrieSet subNodeUpdated = subNode.updated(key, hash, shift + BIT_PARTITION_SIZE, true, comparator);
+				
+				if (subNode != subNodeUpdated) {
+					// update this node's statistics
+					cachedSize = cachedSize + 1;
+				}
+				return this;					
+			} else {
+				// immutable copy subNode
+				final TrieSet subNodeReplacement = subNode.updated(key, hash, shift + BIT_PARTITION_SIZE, false, comparator);
+	
+				if (subNode == subNodeReplacement)
+					return this;
+	
+				assert(subNode.size() == subNodeReplacement.size() - 1);
+	
+				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, subNodeReplacement);
+				return new InplaceIndexNode(bitmap, valmap, nodesReplacement, this.size() + 1);			
+			}
 		}
 	}
 
@@ -345,7 +383,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-}
+}	
 
 @SuppressWarnings("rawtypes")
 /*package*/ final class HashCollisionNode<K> extends TrieSet<K> {
@@ -377,8 +415,11 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return false;
 	}
 
+	/*
+	 * TODO: Support mutation.
+	 */
 	@Override
-	public TrieSet updated(K key, int hash, int shift, Comparator comparator) {
+	public TrieSet updated(K key, int hash, int shift, boolean doMutate, Comparator comparator) {
 		if (this.hash != hash)
 			return mergeNodes((TrieSet) this, this.hash, key, hash, shift);
 
