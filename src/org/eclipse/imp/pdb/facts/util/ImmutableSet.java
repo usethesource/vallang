@@ -25,16 +25,12 @@ public interface ImmutableSet<E> extends Set<E> {
 	 * TODO: move up to Collection Interface that is concerned with different
 	 * equalities
 	 */
-	@SuppressWarnings("rawtypes")
-	boolean containsEquivalent(Object o, Comparator cmp);
+	boolean containsEquivalent(Object o, Comparator<Object> cmp);
 
-	@SuppressWarnings("rawtypes")
-	ImmutableSet<E> __insertEquivalent(E e, Comparator cmp);
+	ImmutableSet<E> __insertEquivalent(E e, Comparator<Object> cmp);
 	
-	@SuppressWarnings("rawtypes")
-	ImmutableSet<E> __insertAllEquivalent(Set<? extends E> set, Comparator cmp);
+	ImmutableSet<E> __insertAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
 
-	@SuppressWarnings("rawtypes")
-	ImmutableSet<E> __removeEquivalent(E e, Comparator cmp);
+	ImmutableSet<E> __removeEquivalent(E e, Comparator<Object> cmp);
 
 }
