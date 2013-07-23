@@ -1,121 +1,112 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Arnold Lankamp - interfaces and implementation
-*******************************************************************************/
+ * Copyright (c) 2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *
+ * Based on code by:
+ *
+ *   * Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
-
-import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
+import org.eclipse.imp.pdb.facts.impl.AbstractWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.ImmutableSet;
+import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 
-// TODO Add checking.
-/**
- * Implementation of ISetWriter.
- * 
- * @author Arnold Lankamp
- */
-/*package*/ class TemporarySetWriter implements ISetWriter{
-	protected Type elementType;
+/*package*/class TemporarySetWriter extends AbstractWriter implements
+		ISetWriter {
+	protected final TransientSet<IValue> setContent;
 	protected final boolean inferred;
-	
-	protected final ShareableValuesHashSet data;
-	
+	protected Type eltType;
 	protected ISet constructedSet;
-	
-	/*package*/ TemporarySetWriter(Type elementType){
+
+	/* package */TemporarySetWriter(Type eltType) {
 		super();
-		
-		this.elementType = elementType;
+
+		this.eltType = eltType;
 		this.inferred = false;
-		
-		data = new ShareableValuesHashSet();
-		
-		constructedSet = null;
+		setContent = TrieSet.transientOf();
 	}
-	
-	/*package*/ TemporarySetWriter(){
+
+	/* package */TemporarySetWriter() {
 		super();
-		
-		this.elementType = TypeFactory.getInstance().voidType();
+		this.eltType = TypeFactory.getInstance().voidType();
 		this.inferred = true;
-		
-		data = new ShareableValuesHashSet();
-		
-		constructedSet = null;
+		setContent = TrieSet.transientOf();
 	}
 
-	/*package*/ TemporarySetWriter(Type elementType, ShareableValuesHashSet data){
-		super();
-		
-		this.elementType = elementType;
-		this.inferred = false;
-		this.data = data;
-		
-		constructedSet = null;
+	private static void checkInsert(IValue elem, Type eltType)
+			throws FactTypeUseException {
+		Type type = elem.getType();
+		if (!type.isSubtypeOf(eltType)) {
+			throw new UnexpectedElementTypeException(eltType, type);
+		}
 	}
-	
-	public void insert(IValue value){
-		checkMutation();
-		updateType(value);
-		data.add(value);
+
+	private void put(IValue elem) {
+		updateType(elem);
+		checkInsert(elem, eltType);
+		setContent.add(elem);
 	}
-	
-	private void updateType(IValue value) {
+
+	private void updateType(IValue elem) {
 		if (inferred) {
-			elementType = elementType.lub(value.getType());
+			eltType = eltType.lub(elem.getType());
 		}
 	}
 
 	@Override
-	public void insert(IValue... elements){
+	public void insert(IValue... elems) throws FactTypeUseException {
 		checkMutation();
-		
-		for(int i = elements.length - 1; i >= 0; i--){
-			updateType(elements[i]);
-			data.add(elements[i]);
+
+		for (IValue elem : elems) {
+			put(elem);
 		}
 	}
-	
+
 	@Override
-	public void insertAll(Iterable<? extends IValue> collection){
+	public void insertAll(Iterable<? extends IValue> collection)
+			throws FactTypeUseException {
 		checkMutation();
-		
-		Iterator<? extends IValue> collectionIterator = collection.iterator();
-		while(collectionIterator.hasNext()){
-			IValue next = collectionIterator.next();
-			updateType(next);
-			data.add(next);
+
+		for (IValue v : collection) {
+			put(v);
 		}
 	}
 
-	protected void checkMutation(){
-		if(constructedSet != null) throw new UnsupportedOperationException("Mutation of a finalized map is not supported.");
-	}
-	
 	@Override
-	public ISet done(){
-		ImmutableSet<IValue> result = TrieSet.of();
-
-		for (IValue e : data)
-			result = result.__insert(e);
-		
+	public ISet done() {
 		if (constructedSet == null) {
-			constructedSet = new PDBPersistentHashSet(result);
+			constructedSet = new PDBPersistentHashSet(setContent.freeze());
 		}
-		
+
 		return constructedSet;
 	}
+
+	private void checkMutation() {
+		if (constructedSet != null)
+			throw new UnsupportedOperationException(
+					"Mutation of a finalized set is not supported.");
+	}
+	
+	@Override
+	public String toString() {
+		return setContent.toString();
+	}
+
 }

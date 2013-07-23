@@ -21,11 +21,17 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	protected static final TrieSet EMPTY = new InplaceIndexNode(0, 0, new TrieSet[0], 0);
 
-	@SafeVarargs
 	public static <K> ImmutableSet<K> of(K... elements) {
 		ImmutableSet<K> result = (ImmutableSet<K>) TrieSet.EMPTY;
 		for (K k : elements) result = result.__insert(k);
 		return result;
+	}
+	
+	public static <K> TransientSet<K> transientOf(K... elements) {
+		TransientSet<K> transientSet = new TransientTrieSet<>();
+		for (K k : elements) 
+			transientSet.add(k);
+		return transientSet;
 	}
 		
 	protected static final Comparator equalityComparator = EqualityUtils.getDefaultEqualityComparator();
@@ -159,16 +165,16 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return result;
 	}
 	
-	abstract TrieSet removed(K key, int hash, int shift, Comparator comparator);
+	abstract TrieSet removed(K key, int hash, int shift, boolean doMutate, Comparator comparator);
 
 	@Override
 	public TrieSet<K> __remove(K k) {
-		return removed(k, k.hashCode(), 0, equalityComparator);
+		return removed(k, k.hashCode(), 0, false, equalityComparator);
 	}
 
 	@Override
 	public TrieSet<K> __removeEquivalent(K k, Comparator cmp) {
-		return removed(k, k.hashCode(), 0, cmp);
+		return removed(k, k.hashCode(), 0, false, cmp);
 	}
 	
 	abstract boolean contains(Object key, int hash, int shift, Comparator comparator);
@@ -183,6 +189,8 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return contains(o, o.hashCode(), 0, cmp);
 	}
 
+	abstract Iterator<K> flatIterator();
+	
 }
 
 @SuppressWarnings("rawtypes")
@@ -274,9 +282,16 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if (doMutate) {
 				// mutate subNode state
-				final TrieSet subNodeUpdated = subNode.updated(key, hash, shift + BIT_PARTITION_SIZE, true, comparator);
+				final int oldSize = subNode.size();
 				
-				if (subNode != subNodeUpdated) {
+				/*
+				 * Returned node might be different, e.g. HashCollisionNode can
+				 * become nested in a InplaceIndexNode.
+				 */
+				final TrieSet subNodeReplacement = subNode.updated(key, hash, shift + BIT_PARTITION_SIZE, true, comparator);
+				nodes[index] = subNodeReplacement;
+				
+				if (oldSize != subNodeReplacement.size()) {
 					// update this node's statistics
 					cachedSize = cachedSize + 1;
 				}
@@ -297,7 +312,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public TrieSet removed(K key, int hash, int shift, Comparator comparator) {
+	public TrieSet removed(K key, int hash, int shift, boolean doMutate, Comparator comparator) {
 		final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
 		final int bitpos = (1 << mask);
 		final int index = index(bitpos);
@@ -308,22 +323,49 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		if ((valmap & bitpos) == 0) {
 			// it's a TrieSet node, not a inplace value
 			final TrieSet subNode = (TrieSet) nodes[index];
-			final TrieSet subNodeReplacement = subNode.removed(key, hash, shift + BIT_PARTITION_SIZE, comparator);
-
-			if (subNode == subNodeReplacement)
+			
+			if (doMutate) {
+				final int oldSize = subNode.size();
+				
+				/*
+				 * Returned node might be different, e.g. HashCollisionNode can
+				 * become nested in a InplaceIndexNode.
+				 */
+				final TrieSet subNodeReplacement = subNode.removed(key, hash, shift + BIT_PARTITION_SIZE, true, comparator);
+				nodes[index] = subNodeReplacement;
+				
+				if (oldSize != subNodeReplacement.size()) {
+					// update this node's statistics
+					cachedSize = cachedSize - 1;
+				}	
 				return this;
-
-			// TODO: optimization if singleton element node is returned
-			final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, subNodeReplacement);
-			return new InplaceIndexNode(bitmap, valmap, nodesReplacement, this.size() - 1);
+			} else {				
+				final TrieSet subNodeReplacement = subNode.removed(key, hash, shift + BIT_PARTITION_SIZE, false, comparator);
+				
+				if (subNode == subNodeReplacement)
+					return this;
+				
+				// TODO: optimization if singleton element node is returned
+				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, subNodeReplacement);
+				return new InplaceIndexNode(bitmap, valmap, nodesReplacement, this.size() - 1);
+			}
 		} else {
 			// it's an inplace value
 			if (comparator.compare(nodes[index], key) != 0)
 				return this;
 
-			// TODO: optimization if singleton element node is returned
-			final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, index);
-			return new InplaceIndexNode(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, this.size() - 1);
+			if (doMutate) {
+				// TODO: optimization if singleton element node is returned
+				this.nodes = ArrayUtils.arraycopyAndRemove(nodes, index);
+				this.bitmap &= ~bitpos;
+				this.valmap &= ~bitpos;
+				this.cachedSize = cachedSize - 1;
+				return this;
+			} else {							
+				// TODO: optimization if singleton element node is returned
+				final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, index);
+				return new InplaceIndexNode(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, this.size() - 1);
+			}
 		}
 	}
 
@@ -335,10 +377,12 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<K> iterator() {
-//		if (isEmpty())
-//			return Collections.emptyIterator();
-//		else
-			return (Iterator<K>) new RecursiveIterator(nodes);
+		return new RecursiveIterator(nodes);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Iterator<K> flatIterator() {
+		return (Iterator<K>) ArrayIterator.of(nodes);
 	}
 
 	/**
@@ -358,7 +402,13 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public boolean hasNext() {
-			return !itStack.isEmpty() && itStack.peek().hasNext();
+			while (!itStack.isEmpty()) {
+				if (itStack.peek().hasNext())
+					return true;
+				else
+					itStack.pop();
+			}
+			return false;
 		}
 
 		@Override
@@ -367,8 +417,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 			final Object next = itStack.peek().next();
 
 			if (next instanceof TrieSet) {
-				itStack.pop();
-				itStack.push(((TrieSet) next).iterator());
+				itStack.push(((TrieSet) next).flatIterator());
 
 				assert hasNext();
 				return next();
@@ -405,6 +454,11 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	public Iterator<K> iterator() {
 		return ArrayIterator.of(keys);
 	}
+	
+	@Override
+	public Iterator<K> flatIterator() {
+		return ArrayIterator.of(keys);
+	}
 
 	@Override
 	public boolean contains(Object key, int hash, int shift, Comparator comparator) {
@@ -415,8 +469,9 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return false;
 	}
 
-	/*
-	 * TODO: Support mutation.
+	/**
+	 * Inserts an object if not yet present. Note, that this implementation always
+	 * returns a new immutable {@link TrieSet} instance.
 	 */
 	@Override
 	public TrieSet updated(K key, int hash, int shift, boolean doMutate, Comparator comparator) {
@@ -430,8 +485,12 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return new HashCollisionNode<>(hash, keysNew);
 	}
 
+	/**
+	 * Removes an object if present. Note, that this implementation always
+	 * returns a new immutable {@link TrieSet} instance.
+	 */
 	@Override
-	public TrieSet removed(K key, int hash, int shift, Comparator comparator) {
+	public TrieSet removed(K key, int hash, int shift, boolean doMutation, Comparator comparator) {
 		// TODO: optimize in general
 		// TODO: optimization if singleton element node is returned
 
@@ -443,3 +502,120 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 }
+
+class TransientTrieSet<E> implements TransientSet<E> {
+	
+	protected TrieSet content;
+	
+	/*package*/ TransientTrieSet() {
+		// allocated a new empty instance, because transient allows inplace modification.
+		content = new InplaceIndexNode(0, 0, new TrieSet[0], 0);
+	}
+	
+	@Override
+	public boolean add(E e) { 
+		content.updated(e, e.hashCode(), 0, true, TrieSet.equalityComparator);
+		/*
+		 * TODO: Support boolean return value by separating mutable from
+		 * immutable version.
+		 */
+		return false;
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		content.removed(o, o.hashCode(), 0, true, TrieSet.equalityComparator);
+		/*
+		 * TODO: Support boolean return value by separating mutable from
+		 * immutable version.
+		 */
+		return false;
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends E> c) {
+		boolean modified = false;
+
+		for (E e : c)
+			modified |= add(e);
+						
+		return modified;	
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		boolean modified = false;
+
+		for (Object o : c)
+			modified |= remove(o);
+						
+		return modified;
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
+		// allocated a new empty instance, because transient allows inplace modification.
+		content = new InplaceIndexNode(0, 0, new TrieSet[0], 0);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return content.equals(o);
+	}
+
+	@Override
+	public Iterator iterator() {
+		return content.iterator();
+	}
+
+	@Override
+	public int size() {
+		return content.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return content.isEmpty();
+	}
+
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
+
+	@Override
+	public Object[] toArray() {
+		return content.toArray();
+	}
+
+	@Override
+	public Object[] toArray(Object[] a) {
+		return content.toArray(a);
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return content.contains(o);
+	}
+
+	@Override
+	public boolean containsAll(Collection c) {
+		return content.containsAll(c);
+	}
+
+	@Override
+	public String toString() {
+		return content.toString();
+	}
+
+	@Override
+	public ImmutableSet<E> freeze() {
+		return content;
+	}
+	
+}77
