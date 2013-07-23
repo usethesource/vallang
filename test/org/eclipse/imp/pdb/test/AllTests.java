@@ -34,6 +34,7 @@ public class AllTests {
 
 		addReferenceTests(suite);
 		addFastTests(suite);
+		addPersistentTests(suite);
 		
 		return suite;
 	}
@@ -63,4 +64,18 @@ public class AllTests {
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestSet.class);
 		suite.addTestSuite(org.eclipse.imp.pdb.test.fast.TestValueFactory.class);
 	}
+	
+	private static void addPersistentTests(TestSuite suite) {
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestAnnotations.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestBasicValues.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestEquality.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestList.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestListRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestMap.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestRandomValues.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestRelation.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestSet.class);
+		suite.addTestSuite(org.eclipse.imp.pdb.test.persistent.TestValueFactory.class);
+	}
+	
 }
