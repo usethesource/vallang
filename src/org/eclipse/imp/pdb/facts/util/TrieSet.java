@@ -43,6 +43,11 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	protected static final <K> Comparator<K> equivalenceComparator() {
+		return EqualityUtils.getEquivalenceComparator();
+	}
+	
+	@SuppressWarnings("unchecked")
 	static <K> TrieSet<K> mergeNodes(Object node0, int hash0, Object node1, int hash1, int shift) {
 		assert (!(node0 instanceof TrieSet));
 		assert (!(node1 instanceof TrieSet));
@@ -142,7 +147,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public TrieSet<K> __insert(K k) {
-		return updated(k, k.hashCode(), 0, false, equalityComparator());
+		return updated(k, k.hashCode(), 0, false, equivalenceComparator());
 	}
 
 	@Override
@@ -529,7 +534,7 @@ class TransientTrieSet<E> implements TransientSet<E> {
 	@Override
 	public boolean add(E e) { 
 		int sizeBeforeUpdate = content.size();
-		content = content.updated(e, e.hashCode(), 0, true, TrieSet.equalityComparator());
+		content = content.updated(e, e.hashCode(), 0, true, TrieSet.equivalenceComparator());
 		
 		return sizeBeforeUpdate != content.size();
 	}
@@ -538,7 +543,7 @@ class TransientTrieSet<E> implements TransientSet<E> {
 	@Override
 	public boolean remove(Object o) {
 		int sizeBeforeUpdate = content.size();
-		content = content.removed((E) o, o.hashCode(), 0, true, TrieSet.equalityComparator());
+		content = content.removed((E) o, o.hashCode(), 0, true, TrieSet.equivalenceComparator());
 
 		return sizeBeforeUpdate != content.size();
 	}

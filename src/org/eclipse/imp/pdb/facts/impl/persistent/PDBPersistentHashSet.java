@@ -29,8 +29,11 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 	
-	@SuppressWarnings("rawtypes")
-	private static final Comparator equivalenceComparator = EqualityUtils.getEquivalenceComparator();
+	@SuppressWarnings("unchecked")
+	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
+	
+	@SuppressWarnings("unchecked")
+	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 	
 	private Type cachedElementType;
 	private final ImmutableSet<IValue> content;
@@ -140,7 +143,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			
 	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that)
-	            if (!content.contains(e))
+	            if (!content.containsEquivalent(e, equalityComparator))
 	                return false;
 
 	        return true;			
