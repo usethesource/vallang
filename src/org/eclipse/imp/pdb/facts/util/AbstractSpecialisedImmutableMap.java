@@ -11,11 +11,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -343,22 +341,19 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return new HashSet<Entry<K, V>>(
-				Arrays.asList(
-						new Map1AndEntry<>(key1, val1),
-						new Map1AndEntry<>(key2, val2)));
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+				new Map1AndEntry<>(key1, val1), 
+				new Map1AndEntry<>(key2, val2));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return new HashSet<K>(
-				Arrays.asList(key1, key2));
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return new HashSet<V>(
-				Arrays.asList(val1, val2));
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2);
 	}
 	
 	@Override
@@ -469,23 +464,20 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return new HashSet<Entry<K, V>>(
-				Arrays.asList(
-						new Map1AndEntry<>(key1, val1),
-						new Map1AndEntry<>(key2, val2),
-						new Map1AndEntry<>(key3, val3)));
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+				new Map1AndEntry<>(key1, val1),
+				new Map1AndEntry<>(key2, val2),
+				new Map1AndEntry<>(key3, val3));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return new HashSet<K>(
-				Arrays.asList(key1, key2, key3));
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return new HashSet<V>(
-				Arrays.asList(val1, val2, val3));
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3);
 	}
 	
 	@Override
@@ -615,24 +607,21 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return new HashSet<Entry<K, V>>(
-				Arrays.asList(
-						new Map1AndEntry<>(key1, val1),
-						new Map1AndEntry<>(key2, val2),
-						new Map1AndEntry<>(key3, val3),
-						new Map1AndEntry<>(key4, val4)));
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+				new Map1AndEntry<>(key1, val1),
+				new Map1AndEntry<>(key2, val2),
+				new Map1AndEntry<>(key3, val3),
+				new Map1AndEntry<>(key4, val4));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return new HashSet<K>(
-				Arrays.asList(key1, key2, key3, key4));
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3, key4);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return new HashSet<V>(
-				Arrays.asList(val1, val2, val3, val4));
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3, val4);
 	}
 	
 	@Override
@@ -781,25 +770,22 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return new HashSet<Entry<K, V>>(
-				Arrays.asList(
-						new Map1AndEntry<>(key1, val1),
-						new Map1AndEntry<>(key2, val2),
-						new Map1AndEntry<>(key3, val3),
-						new Map1AndEntry<>(key4, val4),
-						new Map1AndEntry<>(key5, val5)));
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+				new Map1AndEntry<>(key1, val1),
+				new Map1AndEntry<>(key2, val2),
+				new Map1AndEntry<>(key3, val3),
+				new Map1AndEntry<>(key4, val4),
+				new Map1AndEntry<>(key5, val5));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return new HashSet<K>(
-				Arrays.asList(key1, key2, key3, key4, key5));
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3, key4, key5);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return new HashSet<V>(
-				Arrays.asList(val1, val2, val3, val4, val5));
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3, val4, val5);
 	}
 	
 	@Override
