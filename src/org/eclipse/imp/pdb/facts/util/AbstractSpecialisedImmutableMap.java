@@ -11,7 +11,14 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public abstract class AbstractSpecialisedImmutableMap<K, V> implements ImmutableMap<K,V>  {
 	@SuppressWarnings("rawtypes")
@@ -23,7 +30,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	}
 	
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1) {
-		return new Map1<K, V>(key1, val1);
+		return new Map1AndEntry<K, V>(key1, val1);
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2) {
@@ -83,6 +90,33 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	public void putAll(Map<? extends K, ? extends V> m) {
 		 throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (other == this) return true;
+		if (other == null) return false;
+
+		if (other instanceof Map) {
+			try {
+				@SuppressWarnings("unchecked")
+				Map<K, V> that = (Map<K, V>) other;
+
+				if (this.size() == that.size()) {
+					for (Entry<K, V> e : this.entrySet()) {
+						if (!that.containsKey(e.getKey()))
+							return false;
+						if (!Objects.equals(e.getValue(), that.get(e.getKey())))
+							return false;
+					}
+					return true;
+				}
+			} catch (ClassCastException unused) {
+				return false;
+			}
+		}
+
+		return false;
+	}
 }
 
 class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
@@ -126,7 +160,7 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 	
 	@Override
 	public ImmutableMap<K, V> __put(K key, V val) {
-		return new Map1<K, V>(key, val);
+		return new Map1AndEntry<K, V>(key, val);
 	}
 
 	@Override
@@ -146,11 +180,11 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 }
 
-class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.Entry<K, V>, Cloneable {
+class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.Entry<K, V>, Cloneable {
 	private final K key1;
 	private final V val1;
 
-	Map1(K key1, V val1) {
+	Map1AndEntry(K key1, V val1) {
 		this.key1 = key1;
 		this.val1 = val1;
 	}
@@ -241,6 +275,15 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.En
 	}
 	
 	@Override
+	public int hashCode() {
+		return (Objects.hashCode(key1) ^ Objects.hashCode(val1));
+	}
+
+	/*
+	 * TODO: String representation is incorrect if seen as {@link Map.Entry}.
+	 * Always prints string as set view.
+	 */
+	@Override
 	public String toString() {
 		return String.format("{%s=%s}", key1, val1);
 	}
@@ -302,8 +345,8 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2)));
 	}
 
 	@Override
@@ -347,6 +390,12 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
+	
+	@Override
+	public int hashCode() {
+		return (Objects.hashCode(key1) ^ Objects.hashCode(val1))
+				+ (Objects.hashCode(key2) ^ Objects.hashCode(val2));
+	}	
 	
 	@Override
 	public String toString() {
@@ -422,9 +471,9 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2),
-						new Map1<>(key3, val3)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2),
+						new Map1AndEntry<>(key3, val3)));
 	}
 
 	@Override
@@ -473,6 +522,13 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
+	
+	@Override
+	public int hashCode() {
+		return (Objects.hashCode(key1) ^ Objects.hashCode(val1))
+				+ (Objects.hashCode(key2) ^ Objects.hashCode(val2))
+				+ (Objects.hashCode(key3) ^ Objects.hashCode(val3));
+	}		
 	
 	@Override
 	public String toString() {
@@ -561,10 +617,10 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2),
-						new Map1<>(key3, val3),
-						new Map1<>(key4, val4)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2),
+						new Map1AndEntry<>(key3, val3),
+						new Map1AndEntry<>(key4, val4)));
 	}
 
 	@Override
@@ -617,6 +673,14 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
+	
+	@Override
+	public int hashCode() {
+		return (Objects.hashCode(key1) ^ Objects.hashCode(val1))
+				+ (Objects.hashCode(key2) ^ Objects.hashCode(val2))
+				+ (Objects.hashCode(key3) ^ Objects.hashCode(val3))
+				+ (Objects.hashCode(key4) ^ Objects.hashCode(val4));
+	}		
 	
 	@Override
 	public String toString() {
@@ -719,11 +783,11 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Set<Entry<K, V>> entrySet() {
 		return new HashSet<Entry<K, V>>(
 				Arrays.asList(
-						new Map1<>(key1, val1),
-						new Map1<>(key2, val2),
-						new Map1<>(key3, val3),
-						new Map1<>(key4, val4),
-						new Map1<>(key5, val5)));
+						new Map1AndEntry<>(key1, val1),
+						new Map1AndEntry<>(key2, val2),
+						new Map1AndEntry<>(key3, val3),
+						new Map1AndEntry<>(key4, val4),
+						new Map1AndEntry<>(key5, val5)));
 	}
 
 	@Override
@@ -780,6 +844,15 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
+	
+	@Override
+	public int hashCode() {
+		return (Objects.hashCode(key1) ^ Objects.hashCode(val1))
+				+ (Objects.hashCode(key2) ^ Objects.hashCode(val2))
+				+ (Objects.hashCode(key3) ^ Objects.hashCode(val3))
+				+ (Objects.hashCode(key4) ^ Objects.hashCode(val4))
+				+ (Objects.hashCode(key5) ^ Objects.hashCode(val5));
+	}			
 	
 	@Override
 	public String toString() {
@@ -916,6 +989,16 @@ class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
 		return new CopyOnWriteImmutableMap<K, V>(newContent);		
 	}
 	
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return content.equals(other);
+	}
+
 	@Override
 	public String toString() {
 		return content.toString();
