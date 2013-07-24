@@ -37,10 +37,10 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return transientSet;
 	}
 		
-	@SuppressWarnings("unchecked")
-	protected static final <K> Comparator<K> equalityComparator() {
-		return EqualityUtils.getDefaultEqualityComparator();
-	}
+//	@SuppressWarnings("unchecked")
+//	protected static final <K> Comparator<K> equalityComparator() {
+//		return EqualityUtils.getDefaultEqualityComparator();
+//	}
 	
 	@SuppressWarnings("unchecked")
 	protected static final <K> Comparator<K> equivalenceComparator() {
@@ -163,7 +163,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		@SuppressWarnings("unchecked")
 		TrieSet<K> result = (TrieSet<K>) TrieSet.of();		
 		for (K e : set)
-			result = result.updated(e, e.hashCode(), 0, false, equalityComparator());		
+			result = result.updated(e, e.hashCode(), 0, false, equivalenceComparator());		
 		return result;
 	}	
 
@@ -183,7 +183,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public TrieSet<K> __remove(K k) {
-		return removed(k, k.hashCode(), 0, false, equalityComparator());
+		return removed(k, k.hashCode(), 0, false, equivalenceComparator());
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public boolean contains(Object o) {
-		return contains(o, o.hashCode(), 0, equalityComparator());
+		return contains(o, o.hashCode(), 0, equivalenceComparator());
 	}
 	
 	@Override
