@@ -26,7 +26,13 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
+import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet;
+import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.RotatingQueue;
+import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
+import org.eclipse.imp.pdb.facts.util.ValueIndexedHashMap;
 
 public final class SetFunctions {
 
@@ -185,39 +191,43 @@ public final class SetFunctions {
 		return w.done();
 	}
 
-	public static ISet closure(IValueFactory vf, ISet set1)
-			throws FactTypeUseException {
-		// will throw exception if not binary and reflexive
-		set1.getType().closure();
-
-		ISet tmp = set1;
-
-		int prevCount = 0;
-
-		while (prevCount != tmp.size()) {
-			prevCount = tmp.size();
-			tmp = tmp.union(compose(vf, tmp, tmp));
-		}
-
-		return tmp;
-	}
-
-	public static ISet closureStar(IValueFactory vf, ISet set1)
-			throws FactTypeUseException {
-		set1.getType().closure();
-		// an exception will have been thrown if the type is not acceptable
-
-		ISetWriter reflex = vf.setWriter();
-
-		for (IValue e : carrier(vf, set1)) {
-			reflex.insert(vf.tuple(new IValue[] { e, e }));
-		}
-
-		return closure(vf, set1).union(reflex.done());
-	}
-
-	public static ISet compose(IValueFactory vf, ISet set1, ISet set2)
-			throws FactTypeUseException {
+//	public static ISet compose(IValueFactory vf, ISet set1, ISet set2)
+//			throws FactTypeUseException {
+//		if (set1.getElementType() == TF.voidType())
+//			return set1;
+//		if (set2.getElementType() == TF.voidType())
+//			return set2;
+//
+//		if (set1.getElementType().getArity() != 2
+//				|| set2.getElementType().getArity() != 2) {
+//			throw new IllegalOperationException(
+//					"Incompatible types for composition.",
+//					set1.getElementType(), set2.getElementType());
+//		}
+//
+//		if (!set1.getElementType().getFieldType(1)
+//				.comparable(set2.getElementType().getFieldType(0)))
+//			return vf.set();
+//		
+//		ISetWriter w = vf.setWriter();
+//
+//		if (set1.getElementType().getFieldType(1)
+//				.comparable(set2.getElementType().getFieldType(0))) {
+//			for (IValue v1 : set1) {
+//				ITuple tuple1 = (ITuple) v1;
+//				for (IValue t2 : set2) {
+//					ITuple tuple2 = (ITuple) t2;
+//
+//					if (tuple1.get(1).isEqual(tuple2.get(0))) {
+//						w.insert(vf.tuple(tuple1.get(0), tuple2.get(1)));
+//					}
+//				}
+//			}
+//		}
+//		return w.done();
+//	}
+	
+	public static ISet compose(IValueFactory vf, ISet set1, ISet set2) throws FactTypeUseException {
 		if (set1.getElementType() == TF.voidType())
 			return set1;
 		if (set2.getElementType() == TF.voidType())
@@ -229,24 +239,52 @@ public final class SetFunctions {
 					"Incompatible types for composition.",
 					set1.getElementType(), set2.getElementType());
 		}
-
-		ISetWriter w = vf.setWriter();
-
-		if (set1.getElementType().getFieldType(1)
-				.comparable(set2.getElementType().getFieldType(0))) {
-			for (IValue v1 : set1) {
-				ITuple tuple1 = (ITuple) v1;
-				for (IValue t2 : set2) {
-					ITuple tuple2 = (ITuple) t2;
-
-					if (tuple1.get(1).isEqual(tuple2.get(0))) {
-						w.insert(vf.tuple(tuple1.get(0), tuple2.get(1)));
-					}
-				}
+		
+		if (!set1.getElementType().getFieldType(1)
+				.comparable(set2.getElementType().getFieldType(0)))
+			return vf.set();
+		
+		// Index
+		ShareableHashMap<IValue, ShareableValuesList> rightSides = new ShareableHashMap<>();
+		
+		Iterator<IValue> otherRelationIterator = set2.iterator();
+		while(otherRelationIterator.hasNext()){
+			ITuple tuple = (ITuple) otherRelationIterator.next();
+			
+			IValue key = tuple.get(0);
+			ShareableValuesList values = rightSides.get(key);
+			if(values == null){
+				values = new ShareableValuesList();
+				rightSides.put(key, values);
+			}
+			
+			values.append(tuple.get(1));
+		}
+		
+		// Compute		
+		Type[] newTupleFieldTypes = new Type[]{set1.getElementType().getFieldType(0), set2.getElementType().getFieldType(1)};
+		Type tupleType = TF.tupleType(newTupleFieldTypes);
+		
+		ISetWriter resultWriter = vf.setWriter(tupleType);
+		
+		Iterator<IValue> relationIterator = set1.iterator();
+		while(relationIterator.hasNext()){
+			ITuple thisTuple = (ITuple) relationIterator.next();
+			
+			IValue key = thisTuple.get(1);
+			ShareableValuesList values = rightSides.get(key);
+			if(values != null){
+				Iterator<IValue> valuesIterator = values.iterator();
+				do{
+					IValue value = valuesIterator.next();
+					IValue[] newTupleData = new IValue[]{thisTuple.get(0), value};
+					resultWriter.insert(vf.tuple(tupleType, newTupleData));
+				}while(valuesIterator.hasNext());
 			}
 		}
-		return w.done();
-	}
+		
+		return resultWriter.done();
+	}	
 
 	public static ISet carrier(IValueFactory vf, ISet set1) {
 		ISetWriter w = vf.setWriter();
@@ -258,6 +296,170 @@ public final class SetFunctions {
 		return w.done();
 	}
 
+	private static ShareableValuesHashSet computeClosureDelta(IValueFactory vf, ISet rel1, Type tupleType) {
+		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
+		RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
+		
+		ValueIndexedHashMap<RotatingQueue<IValue>> interestingLeftSides = new ValueIndexedHashMap<>();
+		ValueIndexedHashMap<ShareableValuesHashSet> potentialRightSides = new ValueIndexedHashMap<>();
+		
+		// Index
+		Iterator<IValue> allDataIterator = rel1.iterator();
+		while(allDataIterator.hasNext()){
+			ITuple tuple = (ITuple) allDataIterator.next();
+
+			IValue key = tuple.get(0);
+			IValue value = tuple.get(1);
+			RotatingQueue<IValue> leftValues = interestingLeftSides.get(key);
+			ShareableValuesHashSet rightValues;
+			if(leftValues != null){
+				rightValues = potentialRightSides.get(key);
+			}else{
+				leftValues = new RotatingQueue<>();
+				iLeftKeys.put(key);
+				iLefts.put(leftValues);
+				interestingLeftSides.put(key, leftValues);
+				
+				rightValues = new ShareableValuesHashSet();
+				potentialRightSides.put(key, rightValues);
+			}
+			leftValues.put(value);
+			rightValues.add(value);
+		}
+		
+		int size = potentialRightSides.size();
+		int nextSize = 0;
+		
+		// Compute
+		final ShareableValuesHashSet newTuples = new ShareableValuesHashSet();
+		do{
+			ValueIndexedHashMap<ShareableValuesHashSet> rightSides = potentialRightSides;
+			potentialRightSides = new ValueIndexedHashMap<>();
+			
+			for(; size > 0; size--){
+				IValue leftKey = iLeftKeys.get();
+				RotatingQueue<IValue> leftValues = iLefts.get();
+				
+				RotatingQueue<IValue> interestingLeftValues = null;
+				
+				IValue rightKey;
+				while((rightKey = leftValues.get()) != null){
+					ShareableValuesHashSet rightValues = rightSides.get(rightKey);
+					if(rightValues != null){
+						Iterator<IValue> rightValuesIterator = rightValues.iterator();
+						while(rightValuesIterator.hasNext()){
+							IValue rightValue = rightValuesIterator.next();
+							if(newTuples.add(vf.tuple(tupleType, leftKey, rightValue))){
+								if(interestingLeftValues == null){
+									nextSize++;
+									
+									iLeftKeys.put(leftKey);
+									interestingLeftValues = new RotatingQueue<>();
+									iLefts.put(interestingLeftValues);
+								}
+								interestingLeftValues.put(rightValue);
+								
+								ShareableValuesHashSet potentialRightValues = potentialRightSides.get(rightKey);
+								if(potentialRightValues == null){
+									potentialRightValues = new ShareableValuesHashSet();
+									potentialRightSides.put(rightKey, potentialRightValues);
+								}
+								potentialRightValues.add(rightValue);
+							}
+						}
+					}
+				}
+			}
+			size = nextSize;
+			nextSize = 0;
+		}while(size > 0);
+		
+		return newTuples;
+	}
+	
+//	public static ISet closure(IValueFactory vf, ISet set1)
+//			throws FactTypeUseException {
+//		// will throw exception if not binary and reflexive
+//		set1.getType().closure();
+//
+//		ISet tmp = set1;
+//
+//		int prevCount = 0;
+//
+//		while (prevCount != tmp.size()) {
+//			prevCount = tmp.size();
+//			tmp = tmp.union(compose(vf, tmp, tmp));
+//		}
+//
+//		return tmp;
+//	}
+	
+	public static ISet closure(IValueFactory vf, ISet rel1) {
+		if (rel1.getElementType() == TF.voidType())
+			return rel1;
+		if (!isBinary(rel1))
+			throw new IllegalOperationException("closure", rel1.getType());
+
+		Type tupleElementType = rel1.getElementType().getFieldType(0).lub(rel1.getElementType().getFieldType(1));
+		Type tupleType = TF.tupleType(tupleElementType, tupleElementType);
+
+		java.util.Set<IValue> closureDelta = computeClosureDelta(vf, rel1, tupleType);
+
+		// NOTE: type is already known, thus, using a SetWriter degrades performance
+		ISetWriter resultWriter = vf.setWriter(tupleType);
+		resultWriter.insertAll(rel1);
+		resultWriter.insertAll(closureDelta);
+
+		return resultWriter.done();
+	}
+
+//	public static ISet closureStar(IValueFactory vf, ISet set1)
+//			throws FactTypeUseException {
+//		set1.getType().closure();
+//		// an exception will have been thrown if the type is not acceptable
+//
+//		ISetWriter reflex = vf.setWriter();
+//
+//		for (IValue e : carrier(vf, set1)) {
+//			reflex.insert(vf.tuple(new IValue[] { e, e }));
+//		}
+//
+//		return closure(vf, set1).union(reflex.done());
+//	}
+	
+	// TODO: Currently untested in PDB.
+	public static ISet closureStar(IValueFactory vf, ISet rel1) {
+		if (rel1.getElementType() == TF.voidType())
+			return rel1;
+		if (!isBinary(rel1))
+			throw new IllegalOperationException("closureStar", rel1.getType());
+
+		Type tupleElementType = rel1.getElementType().getFieldType(0).lub(rel1.getElementType().getFieldType(1));
+		Type tupleType = TF.tupleType(tupleElementType, tupleElementType);
+
+		// calculate
+		ShareableValuesHashSet closureDelta = computeClosureDelta(vf, rel1, tupleType);
+		ISet carrier = carrier(vf, rel1);
+
+		// aggregate result
+		// NOTE: type is already known, thus, using a SetWriter degrades performance
+		ISetWriter resultWriter = vf.setWriter(rel1.getElementType());
+		resultWriter.insertAll(rel1);
+		resultWriter.insertAll(closureDelta);
+		
+		Iterator<IValue> carrierIterator = carrier.iterator();
+		while (carrierIterator.hasNext()) {
+			IValue element = carrierIterator.next();
+			resultWriter.insert(vf.tuple(tupleType, element, element));
+		}
+
+		return resultWriter.done();
+	}
+	
+	private static boolean isBinary(ISet rel1){
+		return rel1.getElementType().getArity() == 2;
+	}
+	
 	public static ISet domain(IValueFactory vf, ISet set1) {
 		int columnIndex = 0;
 		ISetWriter w = vf.setWriter();
