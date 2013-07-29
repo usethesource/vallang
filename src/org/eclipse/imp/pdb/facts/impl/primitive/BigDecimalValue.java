@@ -320,17 +320,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public boolean isEqual(IValue o){
-		if(o == null) return false;
-
-		if(o.getClass() == getClass()){
-			BigDecimalValue otherDouble = (BigDecimalValue) o;
-			return (value.compareTo(otherDouble.value) == 0);
-		}
-		else if (o instanceof INumber) {
-		  return compare((INumber) o) == 0;
-		}
-		
-		return false; 
+		return equals(o);
 	}
 	
 	@Override
