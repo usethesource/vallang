@@ -595,6 +595,7 @@ public class StandardTextWriter implements IValueTextWriter {
 				append(":");
 				append(String.format("%02d", o.getTimezoneOffsetMinutes()));
 			}
+			append("$");
 			return o;
 		}
 
