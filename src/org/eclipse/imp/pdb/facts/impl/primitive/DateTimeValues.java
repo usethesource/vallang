@@ -37,7 +37,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	private final static Type DATE_TIME_TYPE = TypeFactory.getInstance().dateTimeType();
 	
-	public static IDateTime newDate(int year, int month, int day) {
+	/*package*/ static IDateTime newDate(int year, int month, int day) {
 		return new DateTimeValues.DateValue(year, month, day);
 	}
 	
@@ -248,11 +248,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	public static IDateTime newTime(int hour, int minute, int second, int millisecond) {
+	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond) {
 		return new DateTimeValues.TimeValue(hour, minute, second, millisecond);
 	}
 
-	public static IDateTime newTime(int hour, int minute, int second, int millisecond,
+	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond,
 						  int hourOffset, int minuteOffset) {
 		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset);
 	}
@@ -544,18 +544,18 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	public static IDateTime newDateTime(int year, int month, int day, int hour,
+	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond) {
 		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond);
 	}
 
-	public static IDateTime newDateTime(int year, int month, int day, int hour,
+	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond, int hourOffset,
 							  int minuteOffset) {
 		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
 	}
 
-	public static IDateTime newDateTime(long instant) {
+	/*package*/ static IDateTime newDateTime(long instant) {
 		return new DateTimeValues.DateTimeValue(instant);
 	}
 	
