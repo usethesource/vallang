@@ -98,7 +98,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	@Override
 	public IString reverse() {
 		StringBuilder b = new StringBuilder(value);
-		return new StringValue(b.reverse().toString());
+		return newString(b.reverse().toString());
 	}
 
 	@Override
@@ -112,12 +112,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IString substring(int start, int end) {
-		 return new StringValue(value.substring(value.offsetByCodePoints(0, start),value.offsetByCodePoints(0, end)));
+		 return newString(value.substring(value.offsetByCodePoints(0, start),value.offsetByCodePoints(0, end)));
 	}
 
 	@Override
 	public IString substring(int start) {
-		 return new StringValue(value.substring(value.offsetByCodePoints(0, start)));
+		 return newString(value.substring(value.offsetByCodePoints(0, start)));
 	}
 	
 	@Override
