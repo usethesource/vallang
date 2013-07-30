@@ -29,8 +29,66 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * applications and showed more than 50% improvement in memory usage.
  */
 /*package*/ class SourceLocationValues {
+	
+	/*package*/ static ISourceLocation newSourceLocation(URI uri, int offset, int length) {
+		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
+		if (length < 0) throw new IllegalArgumentException("length should be positive");
+
+		if (offset < Byte.MAX_VALUE && length < Byte.MAX_VALUE) {
+			return new SourceLocationValues.ByteByte(uri, (byte) offset, (byte) length);
+		}
+
+		if (offset < Character.MAX_VALUE && length < Character.MAX_VALUE) {
+			return new SourceLocationValues.CharChar(uri, (char) offset, (char) length);
+		}
+
+		return new SourceLocationValues.IntInt(uri, offset, length);
+	}
+	
+	/*package*/ static ISourceLocation newSourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
+		if (length < 0) throw new IllegalArgumentException("length should be positive");
+		if (beginLine < 0) throw new IllegalArgumentException("beginLine should be positive");
+		if (beginCol < 0) throw new IllegalArgumentException("beginCol should be positive");
+		if (endCol < 0) throw new IllegalArgumentException("endCol should be positive");
+		if (endLine < beginLine)
+			throw new IllegalArgumentException("endLine should be larger than or equal to beginLine");
+		if (endLine == beginLine && endCol < beginCol)
+			throw new IllegalArgumentException("endCol should be larger than or equal to beginCol, if on the same line");
+
+		if (offset < Character.MAX_VALUE
+				&& length < Character.MAX_VALUE
+				&& beginLine < Byte.MAX_VALUE
+				&& endLine < Byte.MAX_VALUE
+				&& beginCol < Byte.MAX_VALUE
+				&& endCol < Byte.MAX_VALUE) {
+			return new SourceLocationValues.CharCharByteByteByteByte(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
+		} else if (offset < Character.MAX_VALUE
+				&& length < Character.MAX_VALUE
+				&& beginLine < Character.MAX_VALUE
+				&& endLine < Character.MAX_VALUE
+				&& beginCol < Character.MAX_VALUE
+				&& endCol < Character.MAX_VALUE) {
+			return new SourceLocationValues.CharCharCharCharCharChar(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
+		} else if (beginLine < Character.MAX_VALUE
+				&& endLine < Character.MAX_VALUE
+				&& beginCol < Byte.MAX_VALUE
+				&& endCol < Byte.MAX_VALUE) {
+			return new SourceLocationValues.IntIntCharCharByteByte(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
+		} else if (beginCol < Byte.MAX_VALUE
+				&& endCol < Byte.MAX_VALUE) {
+			return new SourceLocationValues.IntIntIntIntByteByte(uri, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
+		}
+
+		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
+	}	
+	
+	/*package*/ static ISourceLocation newSourceLocation(URI uri) {
+		return new SourceLocationValues.OnlyURI(uri);
+	}
+	
 	private abstract static class Complete extends Incomplete {
-		public Complete(URI uri) {
+		private Complete(URI uri) {
 			super(uri);
 		}
 
@@ -48,7 +106,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	private abstract static class Incomplete extends AbstractValue implements ISourceLocation {
 		protected final URI uri;
 
-		public Incomplete(URI uri) {
+		private Incomplete(URI uri) {
 			this.uri = uri;
 		}
 		
@@ -113,7 +171,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 	
-	public static class IntIntIntIntIntInt extends Complete {
+	private static class IntIntIntIntIntInt extends Complete {
 		protected final int offset;
 		protected final int length;
 		protected final int beginLine;
@@ -121,7 +179,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final int beginCol;
 		protected final int endCol;
 		
-		protected IntIntIntIntIntInt(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+		private IntIntIntIntIntInt(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -167,6 +225,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -179,6 +238,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -197,7 +257,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 	
-	public static class CharCharByteByteByteByte extends Complete {
+	private static class CharCharByteByteByteByte extends Complete {
 		protected final char offset;
 		protected final char length;
 		protected final byte beginLine;
@@ -205,7 +265,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		protected CharCharByteByteByteByte(URI uri, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
+		private CharCharByteByteByteByte(URI uri, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -251,6 +311,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -263,6 +324,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -281,7 +343,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 	
-	public static class CharCharCharCharCharChar extends Complete {
+	private static class CharCharCharCharCharChar extends Complete {
 		protected final char offset;
 		protected final char length;
 		protected final char beginLine;
@@ -289,7 +351,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final char beginCol;
 		protected final char endCol;
 		
-		protected CharCharCharCharCharChar(URI uri, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
+		private CharCharCharCharCharChar(URI uri, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -335,6 +397,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -347,6 +410,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -365,16 +429,18 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	public static class OnlyURI extends Incomplete {
+	private static class OnlyURI extends Incomplete {
 		
-		protected OnlyURI(URI uri){
+		private OnlyURI(URI uri){
 			super(uri);
 		}
 
+		@Override
 		public int hashCode(){
 			return uri.hashCode();
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -387,7 +453,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	public static class IntIntIntIntByteByte extends Complete {
+	private static class IntIntIntIntByteByte extends Complete {
 		protected final int offset;
 		protected final int length;
 		protected final int beginLine;
@@ -395,7 +461,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		protected IntIntIntIntByteByte(URI uri, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
+		private IntIntIntIntByteByte(URI uri, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -436,6 +502,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -448,6 +515,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -466,7 +534,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	public static class IntIntCharCharByteByte extends Complete {
+	private static class IntIntCharCharByteByte extends Complete {
 		protected final int offset;
 		protected final int length;
 		protected final char beginLine;
@@ -474,7 +542,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		protected IntIntCharCharByteByte(URI uri, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
+		private IntIntCharCharByteByte(URI uri, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -515,6 +583,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= beginLine << 3;
@@ -527,6 +596,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -545,11 +615,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	public static class ByteByte extends Incomplete {
+	private static class ByteByte extends Incomplete {
 		protected final byte offset;
 		protected final byte length;
 		
-		protected ByteByte(URI uri, byte offset, byte length){
+		private ByteByte(URI uri, byte offset, byte length){
 			super(uri);
 			
 			this.offset = offset;
@@ -571,6 +641,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= (offset << 8);
@@ -579,6 +650,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -593,11 +665,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	public static class CharChar extends Incomplete {
+	private static class CharChar extends Incomplete {
 		protected final char offset;
 		protected final char length;
 		
-		protected CharChar(URI uri, char offset, char length){
+		private CharChar(URI uri, char offset, char length){
 			super(uri);
 			
 			this.offset = offset;
@@ -619,6 +691,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= (offset << 8);
@@ -627,6 +700,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			
@@ -641,11 +715,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 	
-	public static class IntInt extends Incomplete {
+	private static class IntInt extends Incomplete {
 		protected final int offset;
 		protected final int length;
 		
-		protected IntInt(URI uri, int offset, int length){
+		private IntInt(URI uri, int offset, int length){
 			super(uri);
 			
 			this.offset = offset;
@@ -672,6 +746,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return length;
 		}
 		
+		@Override
 		public int hashCode(){
 			int hash = uri.hashCode();
 			hash ^= (offset << 8);
@@ -680,6 +755,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return hash;
 		}
 		
+		@Override
 		public boolean equals(Object o){
 			if(o == null) return false;
 			

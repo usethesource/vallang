@@ -213,57 +213,12 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length) {
-		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
-		if (length < 0) throw new IllegalArgumentException("length should be positive");
-
-		if (offset < Byte.MAX_VALUE && length < Byte.MAX_VALUE) {
-			return new SourceLocationValues.ByteByte(uri, (byte) offset, (byte) length);
-		}
-
-		if (offset < Character.MAX_VALUE && length < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharChar(uri, (char) offset, (char) length);
-		}
-
-		return new SourceLocationValues.IntInt(uri, offset, length);
+		return SourceLocationValues.newSourceLocation(uri, offset, length);	
 	}
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
-		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
-		if (length < 0) throw new IllegalArgumentException("length should be positive");
-		if (beginLine < 0) throw new IllegalArgumentException("beginLine should be positive");
-		if (beginCol < 0) throw new IllegalArgumentException("beginCol should be positive");
-		if (endCol < 0) throw new IllegalArgumentException("endCol should be positive");
-		if (endLine < beginLine)
-			throw new IllegalArgumentException("endLine should be larger than or equal to beginLine");
-		if (endLine == beginLine && endCol < beginCol)
-			throw new IllegalArgumentException("endCol should be larger than or equal to beginCol, if on the same line");
-
-		if (offset < Character.MAX_VALUE
-				&& length < Character.MAX_VALUE
-				&& beginLine < Byte.MAX_VALUE
-				&& endLine < Byte.MAX_VALUE
-				&& beginCol < Byte.MAX_VALUE
-				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.CharCharByteByteByteByte(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
-		} else if (offset < Character.MAX_VALUE
-				&& length < Character.MAX_VALUE
-				&& beginLine < Character.MAX_VALUE
-				&& endLine < Character.MAX_VALUE
-				&& beginCol < Character.MAX_VALUE
-				&& endCol < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharCharCharCharCharChar(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
-		} else if (beginLine < Character.MAX_VALUE
-				&& endLine < Character.MAX_VALUE
-				&& beginCol < Byte.MAX_VALUE
-				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntCharCharByteByte(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
-		} else if (beginCol < Byte.MAX_VALUE
-				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntIntIntByteByte(uri, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
-		}
-
-		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return SourceLocationValues.newSourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 
 	@Override
@@ -280,7 +235,7 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri) {
-		return new SourceLocationValues.OnlyURI(uri);
+		return SourceLocationValues.newSourceLocation(uri);
 	}
 
 	@Override
