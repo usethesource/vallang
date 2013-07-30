@@ -63,6 +63,7 @@ public class StandardTextReader extends AbstractTextReader {
 	private static final char END_OF_LIST = ']';
 	private static final char END_OF_LOCATION = '|';
 	private static final char START_OF_DATETIME = '$';
+	private static final char END_OF_DATETIME = '$';
 	
 	private static final char NEGATIVE_SIGN = '-';
 	
@@ -566,6 +567,11 @@ public class StandardTextReader extends AbstractTextReader {
 			}
 		}
 			
+		if (END_OF_DATETIME == current) {
+			// new-style datatime literal, consume the end character and advance
+			current = stream.read();
+		}
+
 		if (isDate) {
 			return factory.date(dateParts.getYear(), dateParts.getMonth(), dateParts.getDay());				
 		} else { 
