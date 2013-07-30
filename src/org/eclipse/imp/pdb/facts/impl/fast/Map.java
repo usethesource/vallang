@@ -34,7 +34,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	protected final ShareableValuesHashMap data;
 	
-	/*package*/ Map(Type mapType, ShareableValuesHashMap data){
+	/*package*/ static IMap newMap(Type mapType, ShareableValuesHashMap data) {
+		return new Map(mapType, data);
+	}
+	
+	private Map(Type mapType, ShareableValuesHashMap data) {
 		super();
 		
 		this.mapType = mapType;

@@ -37,8 +37,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final String name;
 	protected final IValue[] children;
 	protected final String[] keyArgNames;
+
+	/*package*/ static INode newNode(String name, IValue[] children) {
+		return new Node(name, children);
+	}
 	
-	/*package*/ Node(String name, IValue[] children){
+	private Node(String name, IValue[] children) {
 		super();
 		
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
@@ -46,7 +50,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.keyArgNames = null;
 	}
 
-	/*package*/ public Node(String name, IList children) {
+	/*package*/ static INode newNode(String name, IList children) {
+		return new Node(name, children);
+	}
+	
+	private Node(String name, IList children) {
 		super();
 		IValue[] childArray = new IValue[children.length()];
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
@@ -57,7 +65,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.keyArgNames = null;
 	}
 	
-	/*package*/ Node(String name, IValue[] children, Map<String, IValue> keyArgValues){
+	/*package*/ static INode newNode(String name, IValue[] children, Map<String, IValue> keyArgValues) {
+		return new Node(name, children, keyArgValues);
+	}
+	
+	private Node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
 		super();
 		
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
@@ -130,7 +142,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		IValue[] newChildren = children.clone();
 		newChildren[i] = arg;
 		
-		return new Node(name, newChildren);
+		return newNode(name, newChildren);
 	}
 	
 	@Override

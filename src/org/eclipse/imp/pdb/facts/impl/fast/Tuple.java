@@ -31,7 +31,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final Type tupleType;
 	protected final IValue[] elements;
 	
-	/*package*/ Tuple(Type tupleType, IValue[] elements){
+	/*package*/ static ITuple newTuple(Type tupleType, IValue[] elements) {
+		return new Tuple(tupleType, elements);
+	}
+	
+	private Tuple(Type tupleType, IValue[] elements) {
 		super();
 		
 		this.tupleType = tupleType;
@@ -39,7 +43,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.elements = elements;
 	}
 	
-	/*package*/ Tuple(IValue... elements) {
+	/*package*/ static ITuple newTuple(IValue... elements) {
+		return new Tuple(elements);
+	}
+	
+	private Tuple(IValue... elements) {
 	    super();
 	    this.tupleType = TypeFactory.getInstance().tupleType(elements);
 		this.elements= elements;

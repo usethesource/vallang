@@ -158,51 +158,51 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 	
 	public INode node(String name) {
-		return new Node(name, new IValue[0]);
+		return Node.newNode(name, new IValue[0]);
 	}
 
 	public INode node(String name, Map<String, IValue> annos, IValue... children) {
-		return new Node(name, children.clone()).asAnnotatable().setAnnotations(annos);
+		return Node.newNode(name, children.clone()).asAnnotatable().setAnnotations(annos);
 	}
 
 	public INode node(String name, IValue... children) {
-		return new Node(name, children.clone());
+		return Node.newNode(name, children.clone());
 	}
 	
 	@Override
 	public INode node(String name, IValue[] children, Map<String, IValue> keyArgValues)
 			throws FactTypeUseException {
-		return new Node(name, children.clone(), keyArgValues);
+		return Node.newNode(name, children.clone(), keyArgValues);
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructorType) {
-		return new Constructor(constructorType, new IValue[0]);
+		return Constructor.newConstructor(constructorType, new IValue[0]);
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructorType, IValue... children){
 //		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
-		return new Constructor(constructorType, children.clone());
+		return Constructor.newConstructor(constructorType, children.clone());
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructorType,
 			Map<String, IValue> annotations, IValue... children)
 			throws FactTypeUseException {
-		return new Constructor(constructorType, children.clone()).asAnnotatable().setAnnotations(annotations);
+		return Constructor.newConstructor(constructorType, children.clone()).asAnnotatable().setAnnotations(annotations);
 	}
 	
 	public ITuple tuple() {
-		return new Tuple(EMPTY_TUPLE_TYPE, new IValue[0]);
+		return Tuple.newTuple(EMPTY_TUPLE_TYPE, new IValue[0]);
 	}
 
 	public ITuple tuple(IValue... args) {
-		return new Tuple(args.clone());
+		return Tuple.newTuple(args.clone());
 	}
 
 	public ITuple tuple(Type type, IValue... args) {
-		return new Tuple(type, args.clone());
+		return Tuple.newTuple(type, args.clone());
 	}
 
 	private static Type lub(IValue... elements) {
