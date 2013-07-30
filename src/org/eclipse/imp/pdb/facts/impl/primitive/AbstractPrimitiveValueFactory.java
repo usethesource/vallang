@@ -14,18 +14,23 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
-import org.eclipse.imp.pdb.facts.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IDateTime;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IRational;
+import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.util.ShareableHashMap;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Base value factory with optimized representations of primitive values.
@@ -174,36 +179,36 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	@Override
 	public IDateTime date(int year, int month, int day) {
-		return new DateTimeValues.DateValue(year, month, day);
+		return DateTimeValues.newDate(year, month, day);
 	}
 
 	@Override
 	public IDateTime time(int hour, int minute, int second, int millisecond) {
-		return new DateTimeValues.TimeValue(hour, minute, second, millisecond);
+		return DateTimeValues.newTime(hour, minute, second, millisecond);
 	}
 
 	@Override
 	public IDateTime time(int hour, int minute, int second, int millisecond,
 						  int hourOffset, int minuteOffset) {
-		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset);
+		return DateTimeValues.newTime(hour, minute, second, millisecond, hourOffset, minuteOffset);
 	}
 
 	@Override
 	public IDateTime datetime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond) {
-		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond);
+		return DateTimeValues.newDateTime(year, month, day, hour, minute, second, millisecond);
 	}
 
 	@Override
 	public IDateTime datetime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond, int hourOffset,
 							  int minuteOffset) {
-		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
+		return DateTimeValues.newDateTime(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
 	}
 
 	@Override
 	public IDateTime datetime(long instant) {
-		return new DateTimeValues.DateTimeValue(instant);
+		return DateTimeValues.newDateTime(instant);
 	}
 
 	@Override
