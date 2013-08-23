@@ -312,7 +312,7 @@ public class StandardTextWriter implements IValueTextWriter {
 
         @Override
         public Boolean visitSourceLocation(Type type) {
-          return false;
+          return true;
         }
 
         @Override
