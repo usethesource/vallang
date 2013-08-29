@@ -815,6 +815,13 @@ public class StandardTextReader extends AbstractTextReader {
 			int r = wrapped.read();
 			offset++;
 
+			if (!inString) {
+				while (Character.isWhitespace(r)) {
+					offset++;
+					r = wrapped.read();
+				}
+			}
+			
 			if (!inString && r == '\"') {
 				inString = true;
 			}
@@ -824,13 +831,6 @@ public class StandardTextReader extends AbstractTextReader {
 				}
 			}
 			
-			if (!inString) {
-				while (Character.isWhitespace(r)) {
-					offset++;
-					r = wrapped.read();
-				}
-			}
-
 			prev = r;
 			return r;
 		}
