@@ -14,6 +14,7 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -195,6 +196,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			URI result = reverseLocationCache.get(uri);
 			if (result == null) {
 				result = uri.getURI();
+				try {
+					// assure correct encoding, side effect of JRE's implementation of URIs
+					 result = new URI(result.toASCIIString());
+				} catch (URISyntaxException e) {
+				} 
 				reverseLocationCache.put(uri, result);
 			}
 			return result; 
