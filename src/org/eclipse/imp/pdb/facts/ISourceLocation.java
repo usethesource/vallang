@@ -31,6 +31,23 @@ public interface ISourceLocation extends IValue {
 	 */
     URI getURI();
 
+    String getScheme();
+	String getAuthority() throws UnsupportedOperationException;
+	String getPath() throws UnsupportedOperationException;
+	String getFragment() throws UnsupportedOperationException;
+	String getQuery() throws UnsupportedOperationException;
+	String getHost() throws UnsupportedOperationException;
+	String getUserInformation() throws UnsupportedOperationException;
+	int getPort() throws UnsupportedOperationException;
+	Boolean hasAuthority();
+	Boolean hasPath();
+	Boolean hasFragment();
+	Boolean hasQuery();
+	Boolean hasHost();
+	Boolean hasUserInformation();
+	Boolean hasPort();
+    
+    
     /**
      * @return true iff the source location has offset/length information stored with it.
      */

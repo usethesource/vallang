@@ -177,8 +177,27 @@ public interface IValueFactory {
      *                    first column is always column number 0 (zero).
      * @param endCol      the (exclusive) column number where the location ends.
      * @return a value representing a source location, with type SourceLocationType
+     * @deprecated please use the overload with a ISourceLocation
      */
+    @Deprecated
     public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol);
+    
+    /**
+     * Create an exact reference to a source location.
+     * 
+     * @param loc         where the source is located.
+     * @param offset      the character offset starting from the beginning of the file located 
+     *                    at the given url. Offsets start at 0 (zero).
+     * @param length      the character length of the location (the amount characters).
+     * @param beginLine   the (inclusive) line number where the location begins. The first
+     *                    line is always line number 1.
+     * @param endLine     the (exclusive) line where the location ends
+     * @param beginCol    the (inclusive) column number where the location begins. The
+     *                    first column is always column number 0 (zero).
+     * @param endCol      the (exclusive) column number where the location ends.
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol);
    
     /**
      * Create an exact reference to a source location.
@@ -189,8 +208,22 @@ public interface IValueFactory {
      * @param length      the character length of the location (the amount characters).
      * 
      * @return a value representing a source location, with type SourceLocationType
+     * @deprecated please use the overload with a ISourceLocation
      */
+    @Deprecated
     public ISourceLocation sourceLocation(URI uri, int offset, int length);
+    
+    /**
+     * Create an exact reference to a source location.
+     * 
+     * @param loc         where the source is located.
+     * @param offset      the character offset starting from the beginning of the file located 
+     *                    at the given url. Offsets start at 0 (zero).
+     * @param length      the character length of the location (the amount characters).
+     * 
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length);
    
     
     /**
@@ -217,6 +250,30 @@ public interface IValueFactory {
      * @return a value representing a source location, with type SourceLocationType
      */
     public ISourceLocation sourceLocation(URI uri);
+    
+    /**
+     * Create an exact reference to a source location
+     * 
+     * note that we assume non-encoded input
+     * @param scheme 		the scheme part of an source location
+     * @param authority		the authority part of an source location
+     * @param path			the path part of an source location	
+     * @return
+     */
+    public ISourceLocation sourceLocation(String scheme, String authority, String path);
+    
+    /**
+     * Create an exact reference to a source location
+     * 
+     * note that we assume non-encoded input
+     * @param scheme 		the scheme part of an source location
+     * @param authority		the authority part of an source location
+     * @param path			the path part of an source location	
+     * @param query			the query part of an source location
+     * @param fragment		the fragment part of an source location
+     * @return
+     */
+    public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment);
    
     /**
      * Create an exact reference to a source location.
@@ -580,5 +637,6 @@ public interface IValueFactory {
 	 * @return					a DateTime set to the given instant in time
 	 */
 	public IDateTime datetime(long instant);
+
 	
 }
