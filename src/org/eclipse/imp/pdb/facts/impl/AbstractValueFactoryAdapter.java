@@ -181,6 +181,27 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	public ISourceLocation sourceLocation(String path) {
 		return adapted.sourceLocation(path);
 	}
+	
+	@Override
+	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+		return adapted.sourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
+	}
+	
+	@Override
+	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length) {
+		return adapted.sourceLocation(loc, offset, length);
+	}
+	
+	@Override
+	public ISourceLocation sourceLocation(String scheme, String authority, String path) {
+		return adapted.sourceLocation(scheme, authority, path);
+	}
+	
+	@Override
+	public ISourceLocation sourceLocation(String scheme, String authority,
+			String path, String query, String fragment) {
+		return adapted.sourceLocation(scheme, authority, path, query, fragment);
+	}
 
 	public IString string(String s) {
 		return adapted.string(s);
@@ -318,4 +339,5 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
       throws FactTypeUseException {
    return adapted.constructor(constructor, annotations, children);
   }
+
 }
