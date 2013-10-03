@@ -17,12 +17,14 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -73,6 +75,7 @@ public class StandardTextReader extends AbstractTextReader {
 	private IValueFactory factory;
 	private TypeFactory types;
 	private int current;
+	private LinkedHashMap<String, ISourceLocation> sourceLocationCache;
 
 	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
 		this.store = store;
@@ -80,8 +83,20 @@ public class StandardTextReader extends AbstractTextReader {
 		this.factory = factory;
 		this.types = TypeFactory.getInstance();
 
-		current = this.stream.read();
-		return readValue(type);
+		try {
+			sourceLocationCache = new LinkedHashMap<String, ISourceLocation>(400*4/3, 0.75f, true) {
+				@Override
+				protected boolean removeEldestEntry(java.util.Map.Entry<String, ISourceLocation> eldest) {
+		            return size() > 400;
+				}
+			};
+			current = this.stream.read();
+			return readValue(type);
+		}
+		finally {
+			sourceLocationCache.clear();
+			sourceLocationCache = null;
+		}
 	}
 
 	private IValue readValue(Type expected) throws IOException {
@@ -137,11 +152,17 @@ public class StandardTextReader extends AbstractTextReader {
 		
 		return result;
 	}
+	
 
 	private IValue readLocation(Type expected) throws IOException {
 		try {
 
 			String url = parseURL();
+			ISourceLocation loc = sourceLocationCache.get(url);
+			if (loc == null) {
+				loc = factory.sourceLocation(new URI(url));
+				sourceLocationCache.put(url, loc);
+			}
 			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> args = new ArrayList<>(4);
 				readFixed(types.valueType(), ')', args);
@@ -174,18 +195,18 @@ public class StandardTextReader extends AbstractTextReader {
 						int endLine = Integer.parseInt(((ITuple) args.get(3)).get(0).toString());
 						int endColumn = Integer.parseInt(((ITuple) args.get(3)).get(1).toString());
 						
-						return factory.sourceLocation(new URI(url), offset, length, beginLine, endLine, beginColumn, endColumn);
+						return factory.sourceLocation(loc, offset, length, beginLine, endLine, beginColumn, endColumn);
 					}
 					
 					if (args.size() != 2) {
 						throw new FactParseError("source locations should have either 2 or 4 arguments", offset);
 					}
 					
-					return factory.sourceLocation(new URI(url), offset, length);
+					return factory.sourceLocation(loc, offset, length);
 				}
 			}
 
-			return factory.sourceLocation(new URI(url));
+			return loc;
 
 		} catch (URISyntaxException e) {
 			throw new FactParseError(e.getMessage(), stream.offset, e);
