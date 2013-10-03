@@ -4,19 +4,13 @@ import java.net.URI;
 
 public interface IURI {
 	String getScheme();
-	String getAuthority();
-	String getPath();
-	String getFragment();
-	String getQuery();
-	String getHost();
-	String getUserInformation();
-	int getPort();
+	String getAuthority() throws UnsupportedOperationException;
+	String getPath() throws UnsupportedOperationException;
+	String getFragment() throws UnsupportedOperationException;
+	String getQuery() throws UnsupportedOperationException;
 	Boolean hasAuthority();
 	Boolean hasPath();
 	Boolean hasFragment();
 	Boolean hasQuery();
-	Boolean hasHost();
-	Boolean hasUserInformation();
-	Boolean hasPort();
-	URI toURI();
+	URI getURI();
 }
