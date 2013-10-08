@@ -14,6 +14,9 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -30,7 +33,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  */
 /*package*/ class SourceLocationValues {
 	
-	/*package*/ static ISourceLocation newSourceLocation(URI uri, int offset, int length) {
+	
+	
+	/*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length) {
+		IURI uri = ((Incomplete)loc).uri;
 		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
 
@@ -45,7 +51,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new SourceLocationValues.IntInt(uri, offset, length);
 	}
 	
-	/*package*/ static ISourceLocation newSourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+	/*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+		IURI uri = ((Incomplete)loc).uri;
 		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
 		if (beginLine < 0) throw new IllegalArgumentException("beginLine should be positive");
@@ -83,12 +90,39 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}	
 	
+
+	private final static LinkedHashMap<URI,ISourceLocation>  locationCache = new LinkedHashMap<URI,ISourceLocation>(400*4/3, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<URI,ISourceLocation> eldest) {
+                return size() > 400;
+            }
+        };
+        
+	private final static LinkedHashMap<IURI,URI>  reverseLocationCache = new LinkedHashMap<IURI,URI>(400*4/3, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<IURI, URI> eldest) {
+                return size() > 400;
+            }
+        };
+	
 	/*package*/ static ISourceLocation newSourceLocation(URI uri) {
-		return new SourceLocationValues.OnlyURI(uri);
+		ISourceLocation result = locationCache.get(uri);
+		if (result == null) {
+			result = newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
+			locationCache.put(uri, result);
+		}
+		return result;
 	}
 	
+	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
+			String path, String query, String fragment) {
+		IURI u = SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
+		return new SourceLocationValues.OnlyURI(u);
+	}
+
+	
 	private abstract static class Complete extends Incomplete {
-		private Complete(URI uri) {
+		private Complete(IURI uri) {
 			super(uri);
 		}
 
@@ -103,16 +137,73 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 	
+	
 	private abstract static class Incomplete extends AbstractValue implements ISourceLocation {
-		protected final URI uri;
+		protected IURI uri;
 
-		private Incomplete(URI uri) {
+		public Incomplete(IURI uri) {
 			this.uri = uri;
 		}
 		
 		@Override
+		public Boolean hasAuthority() {
+			return uri.hasAuthority();
+		}
+		
+		@Override
+		public Boolean hasFragment() {
+			return uri.hasFragment();
+		}
+		
+		@Override
+		public Boolean hasPath() {
+			return uri.hasPath();
+		}
+		
+		@Override
+		public Boolean hasQuery() {
+			return uri.hasQuery();
+		}
+		
+		@Override
+		public String getAuthority() throws UnsupportedOperationException {
+			return uri.getAuthority();
+		}
+		
+		@Override
+		public String getFragment() throws UnsupportedOperationException {
+			return uri.getFragment();
+		}
+		
+		@Override
+		public String getPath() throws UnsupportedOperationException {
+			return uri.getPath();
+		}
+		
+		@Override
+		public String getQuery() throws UnsupportedOperationException {
+			return uri.getQuery();
+		}
+		
+		@Override
+		public String getScheme() {
+			return uri.getScheme();
+		}
+		
+		
+		@Override
 		public URI getURI() {
-			return uri;
+			URI result = reverseLocationCache.get(uri);
+			if (result == null) {
+				result = uri.getURI();
+				try {
+					// assure correct encoding, side effect of JRE's implementation of URIs
+					 result = new URI(result.toASCIIString());
+				} catch (URISyntaxException e) {
+				} 
+				reverseLocationCache.put(uri, result);
+			}
+			return result; 
 		}
 		
 		@Override
@@ -179,7 +270,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final int beginCol;
 		protected final int endCol;
 		
-		private IntIntIntIntIntInt(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+		private IntIntIntIntIntInt(IURI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -189,7 +280,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.beginCol = beginCol;
 			this.endCol = endCol;
 		}
-
 		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
@@ -264,8 +354,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final byte endLine;
 		protected final byte beginCol;
 		protected final byte endCol;
-		
-		private CharCharByteByteByteByte(URI uri, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
+
+		private CharCharByteByteByteByte(IURI uri, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -275,7 +365,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.beginCol = beginCol;
 			this.endCol = endCol;
 		}
-
 		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
@@ -351,7 +440,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final char beginCol;
 		protected final char endCol;
 		
-		private CharCharCharCharCharChar(URI uri, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
+		private CharCharCharCharCharChar(IURI uri, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -361,7 +450,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.beginCol = beginCol;
 			this.endCol = endCol;
 		}
-
 		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().sourceLocationType();
@@ -431,7 +519,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	private static class OnlyURI extends Incomplete {
 		
-		private OnlyURI(URI uri){
+		private OnlyURI(IURI uri){
 			super(uri);
 		}
 
@@ -461,7 +549,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		private IntIntIntIntByteByte(URI uri, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
+		private IntIntIntIntByteByte(IURI uri, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -542,7 +630,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		private IntIntCharCharByteByte(URI uri, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
+		private IntIntCharCharByteByte(IURI uri, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
 			super(uri);
 			
 			this.offset = offset;
@@ -619,7 +707,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final byte offset;
 		protected final byte length;
 		
-		private ByteByte(URI uri, byte offset, byte length){
+		private ByteByte(IURI uri, byte offset, byte length){
 			super(uri);
 			
 			this.offset = offset;
@@ -669,7 +757,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final char offset;
 		protected final char length;
 		
-		private CharChar(URI uri, char offset, char length){
+		private CharChar(IURI uri, char offset, char length){
 			super(uri);
 			
 			this.offset = offset;
@@ -719,7 +807,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		protected final int offset;
 		protected final int length;
 		
-		private IntInt(URI uri, int offset, int length){
+		private IntInt(IURI uri, int offset, int length){
 			super(uri);
 			
 			this.offset = offset;
@@ -769,4 +857,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			return false;
 		}
 	}
+
+
 }

@@ -213,24 +213,26 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length) {
-		return SourceLocationValues.newSourceLocation(uri, offset, length);	
+		return sourceLocation(sourceLocation(uri), offset, length);
+	}
+	
+	@Override
+	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length) {
+		return SourceLocationValues.newSourceLocation(loc, offset, length);	
 	}
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
-		return SourceLocationValues.newSourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return sourceLocation(sourceLocation(uri), offset, length, beginLine, endLine, beginCol, endCol);
+	}
+	@Override
+	public ISourceLocation sourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
+		return SourceLocationValues.newSourceLocation(loc, offset, length, beginLine, endLine, beginCol, endCol);
 	}
 
 	@Override
 	public ISourceLocation sourceLocation(String path, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
-		try {
-			if (!path.startsWith("/")) {
-				path = "/" + path;
-			}
-			return sourceLocation(new URI("file", "", path, null), offset, length, beginLine, endLine, beginCol, endCol);
-		} catch (URISyntaxException e) {
-			throw new FactParseError("Illegal path syntax: " + path, e);
-		}
+		return sourceLocation(sourceLocation(path), offset, length, beginLine, endLine, beginCol, endCol);
 	}
 
 	@Override
@@ -240,13 +242,20 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	@Override
 	public ISourceLocation sourceLocation(String path) {
-		try {
-			if (!path.startsWith("/"))
-				path = "/" + path;
-			return sourceLocation(new URI("file", "", path, null));
-		} catch (URISyntaxException e) {
-			throw new FactParseError("Illegal path syntax: " + path, e);
-		}
+		if (!path.startsWith("/"))
+			path = "/" + path;
+		return sourceLocation("file", "", path);
+	}
+	
+	@Override
+	public ISourceLocation sourceLocation(String scheme, String authority, String path) {
+		return sourceLocation(scheme, authority, path, null, null);
+	}
+	
+	@Override
+	public ISourceLocation sourceLocation(String scheme, String authority,
+			String path, String query, String fragment) {
+		return SourceLocationValues.newSourceLocation(scheme, authority, path, query, fragment);
 	}
 
 }
