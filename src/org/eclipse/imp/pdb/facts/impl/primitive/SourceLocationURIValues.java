@@ -13,10 +13,13 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		return newURI(base.getScheme(), base.getAuthority(),base.getPath(), base.getQuery(), base.getFragment());
 	}
 	static IURI newURI(String scheme, String authority, String path, String query, String fragment) {
+		if (path != null && !path.startsWith("/")) {
+			path = "/" + path;
+		}
 		if (scheme == null || scheme.equals(""))
 			throw new IllegalArgumentException("scheme cannot be empty or null");
 		if (authority == null || authority.equals("")) {
-			if (path == null) {
+			if (path == null || path.equals("/")) {
 				if (query == null) {
 					if (fragment == null) {
 						return new SourceLocationURIValues.BaseURI(scheme);
@@ -73,7 +76,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		
 		public URI getURI() {
 			try {
-				return new URI(scheme,"",null,null,null);
+				return new URI(scheme,"","/",null,null);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -105,7 +108,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 
 		@Override
 		public String getPath() {
-			throw new UnsupportedOperationException();
+			return "/";
 		}
 
 		@Override
@@ -125,7 +128,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 
 		@Override
 		public Boolean hasPath() {
-			return false;
+			return true;
 		}
 
 		@Override
@@ -157,6 +160,14 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 			}
 		}
 		
+		@Override
+		public Boolean hasPath() {
+			return false;
+		}
+		@Override
+		public String getPath() {
+			throw new UnsupportedOperationException();
+		}
 		@Override
 		public Boolean hasAuthority() {
 			return true;
