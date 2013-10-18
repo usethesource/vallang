@@ -13,8 +13,13 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		return newURI(base.getScheme(), base.getAuthority(),base.getPath(), base.getQuery(), base.getFragment());
 	}
 	static IURI newURI(String scheme, String authority, String path, String query, String fragment) {
-		if (path != null && !path.startsWith("/")) {
-			path = "/" + path;
+		if (path != null) {
+			if (path.isEmpty()) {
+				path = null;
+			}
+			else if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
 		}
 		if (scheme == null || scheme.equals(""))
 			throw new IllegalArgumentException("scheme cannot be empty or null");
