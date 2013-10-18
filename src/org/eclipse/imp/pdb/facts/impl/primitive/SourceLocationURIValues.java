@@ -290,7 +290,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", null, query, null);
+				return new URI(scheme, "", "/", query, null);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -466,7 +466,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", null, null, fragment);
+				return new URI(scheme, "", "/", null, fragment);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -641,7 +641,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", null, query, fragment);
+				return new URI(scheme, "", "/", query, fragment);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
