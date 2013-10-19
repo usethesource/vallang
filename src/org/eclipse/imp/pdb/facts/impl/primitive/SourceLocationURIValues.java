@@ -13,10 +13,18 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		return newURI(base.getScheme(), base.getAuthority(),base.getPath(), base.getQuery(), base.getFragment());
 	}
 	static IURI newURI(String scheme, String authority, String path, String query, String fragment) {
+		if (path != null) {
+			if (path.isEmpty()) {
+				path = null;
+			}
+			else if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
+		}
 		if (scheme == null || scheme.equals(""))
 			throw new IllegalArgumentException("scheme cannot be empty or null");
 		if (authority == null || authority.equals("")) {
-			if (path == null) {
+			if (path == null || path.equals("/")) {
 				if (query == null) {
 					if (fragment == null) {
 						return new SourceLocationURIValues.BaseURI(scheme);
@@ -73,7 +81,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		
 		public URI getURI() {
 			try {
-				return new URI(scheme,"",null,null,null);
+				return new URI(scheme,"","/",null,null);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -83,7 +91,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof BaseURI) {
+			if(obj.getClass() == getClass()){
 				return scheme == ((BaseURI)obj).scheme;
 			}
 			return false;
@@ -105,7 +113,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 
 		@Override
 		public String getPath() {
-			throw new UnsupportedOperationException();
+			return "/";
 		}
 
 		@Override
@@ -125,7 +133,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 
 		@Override
 		public Boolean hasPath() {
-			return false;
+			return true;
 		}
 
 		@Override
@@ -158,6 +166,14 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		}
 		
 		@Override
+		public Boolean hasPath() {
+			return false;
+		}
+		@Override
+		public String getPath() {
+			throw new UnsupportedOperationException();
+		}
+		@Override
 		public Boolean hasAuthority() {
 			return true;
 		}
@@ -173,7 +189,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof AuthorityURI){
+			if(obj.getClass() == getClass()){
 				AuthorityURI u = (AuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -216,7 +232,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof PathURI){
+			if(obj.getClass() == getClass()){
 				PathURI u = (PathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path);
@@ -258,7 +274,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof PathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				PathAuthorityURI u = (PathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -279,7 +295,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", null, query, null);
+				return new URI(scheme, "", "/", query, null);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -301,7 +317,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryURI){
+			if(obj.getClass() == getClass()){
 				QueryURI u = (QueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -344,7 +360,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryAuthorityURI){
+			if(obj.getClass() == getClass()){
 				QueryAuthorityURI u = (QueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -388,7 +404,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryPathURI){
+			if(obj.getClass() == getClass()){
 				QueryPathURI u = (QueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -432,7 +448,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryPathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				QueryPathAuthorityURI u = (QueryPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -455,7 +471,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", null, null, fragment);
+				return new URI(scheme, "", "/", null, fragment);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -477,7 +493,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentURI){
+			if(obj.getClass() == getClass()){
 				FragmentURI u = (FragmentURI)obj;
 				return scheme == u.scheme
 					&& fragment.equals(u.fragment)
@@ -520,7 +536,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentAuthorityURI u = (FragmentAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -564,7 +580,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentPathURI){
+			if(obj.getClass() == getClass()){
 				FragmentPathURI u = (FragmentPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -608,7 +624,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentPathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentPathAuthorityURI u = (FragmentPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -630,7 +646,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		@Override
 		public URI getURI() {
 			try {
-				return new URI(scheme, "", null, query, fragment);
+				return new URI(scheme, "", "/", query, fragment);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
@@ -652,7 +668,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryURI u = (FragmentQueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -696,7 +712,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryAuthorityURI u = (FragmentQueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -741,7 +757,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryPathURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryPathURI u = (FragmentQueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -786,7 +802,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryPathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryPathAuthorityURI u = (FragmentQueryPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
