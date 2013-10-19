@@ -91,7 +91,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof BaseURI) {
+			if(obj.getClass() == getClass()){
 				return scheme == ((BaseURI)obj).scheme;
 			}
 			return false;
@@ -189,7 +189,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof AuthorityURI){
+			if(obj.getClass() == getClass()){
 				AuthorityURI u = (AuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -232,7 +232,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof PathURI){
+			if(obj.getClass() == getClass()){
 				PathURI u = (PathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path);
@@ -274,7 +274,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof PathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				PathAuthorityURI u = (PathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -317,7 +317,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryURI){
+			if(obj.getClass() == getClass()){
 				QueryURI u = (QueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -360,7 +360,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryAuthorityURI){
+			if(obj.getClass() == getClass()){
 				QueryAuthorityURI u = (QueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -404,7 +404,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryPathURI){
+			if(obj.getClass() == getClass()){
 				QueryPathURI u = (QueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -448,7 +448,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof QueryPathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				QueryPathAuthorityURI u = (QueryPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -493,7 +493,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentURI){
+			if(obj.getClass() == getClass()){
 				FragmentURI u = (FragmentURI)obj;
 				return scheme == u.scheme
 					&& fragment.equals(u.fragment)
@@ -536,7 +536,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentAuthorityURI u = (FragmentAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -580,7 +580,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentPathURI){
+			if(obj.getClass() == getClass()){
 				FragmentPathURI u = (FragmentPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -624,7 +624,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentPathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentPathAuthorityURI u = (FragmentPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -668,7 +668,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryURI u = (FragmentQueryURI)obj;
 				return scheme == u.scheme
 					&& query.equals(u.query)
@@ -712,7 +712,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryAuthorityURI u = (FragmentQueryAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
@@ -757,7 +757,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryPathURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryPathURI u = (FragmentQueryPathURI)obj;
 				return scheme == u.scheme
 					&& path.equals(u.path)
@@ -802,7 +802,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof FragmentQueryPathAuthorityURI){
+			if(obj.getClass() == getClass()){
 				FragmentQueryPathAuthorityURI u = (FragmentQueryPathAuthorityURI)obj;
 				return scheme == u.scheme
 					&& authority == u.authority
