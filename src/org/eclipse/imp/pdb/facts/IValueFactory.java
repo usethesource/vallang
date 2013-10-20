@@ -15,6 +15,7 @@
 package org.eclipse.imp.pdb.facts;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -260,7 +261,7 @@ public interface IValueFactory {
      * @param path			the path part of an source location	
      * @return
      */
-    public ISourceLocation sourceLocation(String scheme, String authority, String path);
+    public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException;
     
     /**
      * Create an exact reference to a source location
@@ -273,7 +274,7 @@ public interface IValueFactory {
      * @param fragment		the fragment part of an source location
      * @return
      */
-    public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment);
+    public ISourceLocation sourceLocation(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException;
    
     /**
      * Create an exact reference to a source location.

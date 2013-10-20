@@ -237,24 +237,32 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri) {
-		return SourceLocationValues.newSourceLocation(uri);
+		try {
+			return SourceLocationValues.newSourceLocation(uri);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("An URI should always be a correct URI", e);
+		}
 	}
 
 	@Override
 	public ISourceLocation sourceLocation(String path) {
 		if (!path.startsWith("/"))
 			path = "/" + path;
-		return sourceLocation("file", "", path);
+		try {
+			return sourceLocation("file", "", path);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("Paths should not cause a incorrect syntax exception", e);
+		}
 	}
 	
 	@Override
-	public ISourceLocation sourceLocation(String scheme, String authority, String path) {
+	public ISourceLocation sourceLocation(String scheme, String authority, String path) throws URISyntaxException {
 		return sourceLocation(scheme, authority, path, null, null);
 	}
 	
 	@Override
 	public ISourceLocation sourceLocation(String scheme, String authority,
-			String path, String query, String fragment) {
+			String path, String query, String fragment) throws URISyntaxException {
 		return SourceLocationValues.newSourceLocation(scheme, authority, path, query, fragment);
 	}
 

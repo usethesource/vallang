@@ -2,17 +2,16 @@ package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
+import java.util.regex.Pattern;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
  */
 /*package*/ class SourceLocationURIValues {
-	static IURI newURI(URI base) {
+	static IURI newURI(URI base) throws URISyntaxException {
 		return newURI(base.getScheme(), base.getAuthority(),base.getPath(), base.getQuery(), base.getFragment());
 	}
-	static IURI newURI(String scheme, String authority, String path, String query, String fragment) {
+	static IURI newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
 		if (path != null) {
 			if (path.isEmpty()) {
 				path = null;
@@ -22,7 +21,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 			}
 		}
 		if (scheme == null || scheme.equals(""))
-			throw new IllegalArgumentException("scheme cannot be empty or null");
+			throw new URISyntaxException(scheme, "scheme cannot be empty or null");
 		if (authority == null || authority.equals("")) {
 			if (path == null || path.equals("/")) {
 				if (query == null) {
@@ -75,10 +74,19 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class BaseURI implements IURI {
 		protected final String scheme;
 		
-		public BaseURI(String scheme) {
+		
+		public BaseURI(String scheme) throws URISyntaxException {
+			validateScheme(scheme);
 			this.scheme = scheme.intern();
 		}
 		
+		private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
+		private void validateScheme(String scheme2) throws URISyntaxException {
+			if (!schemePattern.matcher(scheme2).matches()) {
+				throw new URISyntaxException(scheme2, "New value for scheme is not a valid scheme");
+			}
+		}
+
 		public URI getURI() {
 			try {
 				return new URI(scheme,"","/",null,null);
@@ -151,7 +159,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
-		public AuthorityURI(String scheme, String authority) {
+		public AuthorityURI(String scheme, String authority) throws URISyntaxException {
 			super(scheme);
 			this.authority = authority.intern();
 		}
@@ -202,7 +210,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class PathURI extends BaseURI {
 		protected final String path;
 		
-		public PathURI(String scheme, String path) {
+		public PathURI(String scheme, String path) throws URISyntaxException {
 			super(scheme);
 			this.path = path;
 		}
@@ -244,7 +252,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class PathAuthorityURI extends AuthorityURI {
 		protected final String path;
 		
-		public PathAuthorityURI(String scheme, String authority, String path) {
+		public PathAuthorityURI(String scheme, String authority, String path) throws URISyntaxException {
 			super(scheme, authority);
 			this.path = path;
 		}
@@ -287,7 +295,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class QueryURI extends BaseURI {
 		protected final String query;
 		
-		public QueryURI(String scheme, String query) {
+		public QueryURI(String scheme, String query) throws URISyntaxException {
 			super(scheme);
 			this.query = query;
 		}
@@ -330,7 +338,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class QueryAuthorityURI extends AuthorityURI {
 		protected final String query;
 		
-		public QueryAuthorityURI(String scheme, String authority, String query) {
+		public QueryAuthorityURI(String scheme, String authority, String query) throws URISyntaxException {
 			super(scheme, authority);
 			this.query = query;
 		}
@@ -374,7 +382,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class QueryPathURI extends PathURI {
 		protected final String query;
 		
-		public QueryPathURI(String scheme, String path, String query) {
+		public QueryPathURI(String scheme, String path, String query) throws URISyntaxException {
 			super(scheme, path);
 			this.query = query;
 		}
@@ -418,7 +426,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class QueryPathAuthorityURI extends PathAuthorityURI {
 		protected final String query;
 		
-		public QueryPathAuthorityURI(String scheme, String authority, String path, String query) {
+		public QueryPathAuthorityURI(String scheme, String authority, String path, String query) throws URISyntaxException {
 			super(scheme, authority, path);
 			this.query = query;
 		}
@@ -463,7 +471,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentURI extends BaseURI {
 		protected final String fragment;
 		
-		public FragmentURI(String scheme, String fragment) {
+		public FragmentURI(String scheme, String fragment) throws URISyntaxException {
 			super(scheme);
 			this.fragment = fragment;
 		}
@@ -506,7 +514,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentAuthorityURI extends AuthorityURI {
 		protected final String fragment;
 		
-		public FragmentAuthorityURI(String scheme, String authority, String fragment) {
+		public FragmentAuthorityURI(String scheme, String authority, String fragment) throws URISyntaxException {
 			super(scheme, authority);
 			this.fragment = fragment;
 		}
@@ -550,7 +558,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentPathURI extends PathURI {
 		protected final String fragment;
 		
-		public FragmentPathURI(String scheme, String path, String fragment) {
+		public FragmentPathURI(String scheme, String path, String fragment) throws URISyntaxException {
 			super(scheme, path);
 			this.fragment = fragment;
 		}
@@ -594,7 +602,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentPathAuthorityURI extends PathAuthorityURI {
 		protected final String fragment;
 		
-		public FragmentPathAuthorityURI(String scheme, String authority, String path, String fragment) {
+		public FragmentPathAuthorityURI(String scheme, String authority, String path, String fragment) throws URISyntaxException {
 			super(scheme, authority, path);
 			this.fragment = fragment;
 		}
@@ -638,7 +646,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentQueryURI extends QueryURI {
 		protected final String fragment;
 		
-		public FragmentQueryURI(String scheme, String query, String fragment) {
+		public FragmentQueryURI(String scheme, String query, String fragment) throws URISyntaxException {
 			super(scheme, query);
 			this.fragment = fragment;
 		}
@@ -682,7 +690,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentQueryAuthorityURI extends QueryAuthorityURI {
 		protected final String fragment;
 		
-		public FragmentQueryAuthorityURI(String scheme, String authority, String query, String fragment) {
+		public FragmentQueryAuthorityURI(String scheme, String authority, String query, String fragment) throws URISyntaxException {
 			super(scheme, authority, query);
 			this.fragment = fragment;
 		}
@@ -727,7 +735,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentQueryPathURI extends QueryPathURI {
 		protected final String fragment;
 		
-		public FragmentQueryPathURI(String scheme, String path, String query, String fragment) {
+		public FragmentQueryPathURI(String scheme, String path, String query, String fragment) throws URISyntaxException {
 			super(scheme, path, query);
 			this.fragment = fragment;
 		}
@@ -772,7 +780,7 @@ import org.eclipse.imp.pdb.facts.impl.primitive.IURI;
 	private static class FragmentQueryPathAuthorityURI extends QueryPathAuthorityURI {
 		protected final String fragment;
 		
-		public FragmentQueryPathAuthorityURI(String scheme, String authority, String path, String query, String fragment) {
+		public FragmentQueryPathAuthorityURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
 			super(scheme, authority, path, query);
 			this.fragment = fragment;
 		}

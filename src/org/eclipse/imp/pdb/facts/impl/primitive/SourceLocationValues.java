@@ -105,7 +105,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
             }
         };
 	
-	/*package*/ static ISourceLocation newSourceLocation(URI uri) {
+	/*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
 		ISourceLocation result = locationCache.get(uri);
 		if (result == null) {
 			result = newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
@@ -115,7 +115,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
-			String path, String query, String fragment) {
+			String path, String query, String fragment) throws URISyntaxException {
 		IURI u = SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
 		return new SourceLocationValues.OnlyURI(u);
 	}
