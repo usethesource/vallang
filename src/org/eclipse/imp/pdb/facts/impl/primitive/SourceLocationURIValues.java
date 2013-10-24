@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 	}
 
 	private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
+	private static final Pattern doubleSlashes = Pattern.compile("//+");
 	static IURI newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
 		if (path != null) {
 			if (path.isEmpty()) {
@@ -20,6 +21,10 @@ import java.util.regex.Pattern;
 			}
 			else if (!path.startsWith("/")) {
 				path = "/" + path;
+			}
+			if (path != null) {
+				// normalize double or longer slashes
+				path = doubleSlashes.matcher(path).replaceAll("/");
 			}
 		}
 		if (scheme == null || scheme.equals("")) {
