@@ -8,10 +8,12 @@ import java.util.regex.Pattern;
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
  */
 /*package*/ class SourceLocationURIValues {
-	static IURI newURI(URI base) throws URISyntaxException {
+	static IURI newURI(URI base) throws URISyntaxException  {
 		return newURI(base.getScheme(), base.getAuthority(),base.getPath(), base.getQuery(), base.getFragment());
 	}
-	static IURI newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
+
+	private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
+	static IURI newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
 		if (path != null) {
 			if (path.isEmpty()) {
 				path = null;
@@ -20,8 +22,12 @@ import java.util.regex.Pattern;
 				path = "/" + path;
 			}
 		}
-		if (scheme == null || scheme.equals(""))
+		if (scheme == null || scheme.equals("")) {
 			throw new URISyntaxException(scheme, "scheme cannot be empty or null");
+		}
+		if (!schemePattern.matcher(scheme).matches()) {
+			throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
+		}
 		if (authority == null || authority.equals("")) {
 			if (path == null || path.equals("/")) {
 				if (query == null) {
@@ -75,17 +81,10 @@ import java.util.regex.Pattern;
 		protected final String scheme;
 		
 		
-		public BaseURI(String scheme) throws URISyntaxException {
-			validateScheme(scheme);
+		public BaseURI(String scheme)  {
 			this.scheme = scheme.intern();
 		}
 		
-		private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
-		private void validateScheme(String scheme2) throws URISyntaxException {
-			if (!schemePattern.matcher(scheme2).matches()) {
-				throw new URISyntaxException(scheme2, "New value for scheme is not a valid scheme");
-			}
-		}
 
 		public URI getURI() {
 			try {
@@ -159,7 +158,7 @@ import java.util.regex.Pattern;
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
-		public AuthorityURI(String scheme, String authority) throws URISyntaxException {
+		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
 			this.authority = authority.intern();
 		}
@@ -210,7 +209,7 @@ import java.util.regex.Pattern;
 	private static class PathURI extends BaseURI {
 		protected final String path;
 		
-		public PathURI(String scheme, String path) throws URISyntaxException {
+		public PathURI(String scheme, String path)  {
 			super(scheme);
 			this.path = path;
 		}
@@ -252,7 +251,7 @@ import java.util.regex.Pattern;
 	private static class PathAuthorityURI extends AuthorityURI {
 		protected final String path;
 		
-		public PathAuthorityURI(String scheme, String authority, String path) throws URISyntaxException {
+		public PathAuthorityURI(String scheme, String authority, String path)  {
 			super(scheme, authority);
 			this.path = path;
 		}
@@ -295,7 +294,7 @@ import java.util.regex.Pattern;
 	private static class QueryURI extends BaseURI {
 		protected final String query;
 		
-		public QueryURI(String scheme, String query) throws URISyntaxException {
+		public QueryURI(String scheme, String query)  {
 			super(scheme);
 			this.query = query;
 		}
@@ -338,7 +337,7 @@ import java.util.regex.Pattern;
 	private static class QueryAuthorityURI extends AuthorityURI {
 		protected final String query;
 		
-		public QueryAuthorityURI(String scheme, String authority, String query) throws URISyntaxException {
+		public QueryAuthorityURI(String scheme, String authority, String query)  {
 			super(scheme, authority);
 			this.query = query;
 		}
@@ -382,7 +381,7 @@ import java.util.regex.Pattern;
 	private static class QueryPathURI extends PathURI {
 		protected final String query;
 		
-		public QueryPathURI(String scheme, String path, String query) throws URISyntaxException {
+		public QueryPathURI(String scheme, String path, String query)  {
 			super(scheme, path);
 			this.query = query;
 		}
@@ -426,7 +425,7 @@ import java.util.regex.Pattern;
 	private static class QueryPathAuthorityURI extends PathAuthorityURI {
 		protected final String query;
 		
-		public QueryPathAuthorityURI(String scheme, String authority, String path, String query) throws URISyntaxException {
+		public QueryPathAuthorityURI(String scheme, String authority, String path, String query)  {
 			super(scheme, authority, path);
 			this.query = query;
 		}
@@ -471,7 +470,7 @@ import java.util.regex.Pattern;
 	private static class FragmentURI extends BaseURI {
 		protected final String fragment;
 		
-		public FragmentURI(String scheme, String fragment) throws URISyntaxException {
+		public FragmentURI(String scheme, String fragment)  {
 			super(scheme);
 			this.fragment = fragment;
 		}
@@ -514,7 +513,7 @@ import java.util.regex.Pattern;
 	private static class FragmentAuthorityURI extends AuthorityURI {
 		protected final String fragment;
 		
-		public FragmentAuthorityURI(String scheme, String authority, String fragment) throws URISyntaxException {
+		public FragmentAuthorityURI(String scheme, String authority, String fragment)  {
 			super(scheme, authority);
 			this.fragment = fragment;
 		}
@@ -558,7 +557,7 @@ import java.util.regex.Pattern;
 	private static class FragmentPathURI extends PathURI {
 		protected final String fragment;
 		
-		public FragmentPathURI(String scheme, String path, String fragment) throws URISyntaxException {
+		public FragmentPathURI(String scheme, String path, String fragment)  {
 			super(scheme, path);
 			this.fragment = fragment;
 		}
@@ -602,7 +601,7 @@ import java.util.regex.Pattern;
 	private static class FragmentPathAuthorityURI extends PathAuthorityURI {
 		protected final String fragment;
 		
-		public FragmentPathAuthorityURI(String scheme, String authority, String path, String fragment) throws URISyntaxException {
+		public FragmentPathAuthorityURI(String scheme, String authority, String path, String fragment)  {
 			super(scheme, authority, path);
 			this.fragment = fragment;
 		}
@@ -646,7 +645,7 @@ import java.util.regex.Pattern;
 	private static class FragmentQueryURI extends QueryURI {
 		protected final String fragment;
 		
-		public FragmentQueryURI(String scheme, String query, String fragment) throws URISyntaxException {
+		public FragmentQueryURI(String scheme, String query, String fragment)  {
 			super(scheme, query);
 			this.fragment = fragment;
 		}
@@ -690,7 +689,7 @@ import java.util.regex.Pattern;
 	private static class FragmentQueryAuthorityURI extends QueryAuthorityURI {
 		protected final String fragment;
 		
-		public FragmentQueryAuthorityURI(String scheme, String authority, String query, String fragment) throws URISyntaxException {
+		public FragmentQueryAuthorityURI(String scheme, String authority, String query, String fragment)  {
 			super(scheme, authority, query);
 			this.fragment = fragment;
 		}
@@ -735,7 +734,7 @@ import java.util.regex.Pattern;
 	private static class FragmentQueryPathURI extends QueryPathURI {
 		protected final String fragment;
 		
-		public FragmentQueryPathURI(String scheme, String path, String query, String fragment) throws URISyntaxException {
+		public FragmentQueryPathURI(String scheme, String path, String query, String fragment)  {
 			super(scheme, path, query);
 			this.fragment = fragment;
 		}
@@ -780,7 +779,7 @@ import java.util.regex.Pattern;
 	private static class FragmentQueryPathAuthorityURI extends QueryPathAuthorityURI {
 		protected final String fragment;
 		
-		public FragmentQueryPathAuthorityURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
+		public FragmentQueryPathAuthorityURI(String scheme, String authority, String path, String query, String fragment)  {
 			super(scheme, authority, path, query);
 			this.fragment = fragment;
 		}
