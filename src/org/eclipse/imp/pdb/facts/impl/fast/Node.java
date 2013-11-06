@@ -152,7 +152,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public int hashCode(){
-		int hash = 0;
+		int hash = name.hashCode();
 		
 		for(int i = children.length - 1; i >= 0; i--){
 			hash = (hash << 23) + (hash >> 5);
