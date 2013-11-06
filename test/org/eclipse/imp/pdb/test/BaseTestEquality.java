@@ -92,7 +92,7 @@ public abstract class BaseTestEquality extends TestCase {
 		final INode n = vf.node("constructorComparableName", vf.integer(1), vf.integer(2));
 		
 		final TypeStore ts = new TypeStore();
-		final Type adtType = tf.abstractDataType(ts, "adtTypeNameThatIsIgnored", tf.integerType(), tf.integerType());
+		final Type adtType = tf.abstractDataType(ts, "adtTypeNameThatIsIgnored");
 		final Type constructorType = tf.constructor(ts, adtType, "constructorComparableName", tf.integerType(), tf.integerType());
 		
 		final IConstructor c = vf.constructor(constructorType, vf.integer(1), vf.integer(2));

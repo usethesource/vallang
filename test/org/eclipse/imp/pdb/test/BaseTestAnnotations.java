@@ -179,7 +179,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 		assertIsEqualButNotEquals(vf.node("nestingInNode", n), vf.node("nestingInNode", na));
 		
 		final TypeStore ts = new TypeStore();
-		final Type adtType = tf.abstractDataType(ts, "adtTypeNameThatIsIgnored", tf.valueType());
+		final Type adtType = tf.abstractDataType(ts, "adtTypeNameThatIsIgnored");
 		final Type constructorType = tf.constructor(ts, adtType, "nestingInConstructor", tf.valueType());
 
 		assertIsEqualButNotEquals(vf.constructor(constructorType, n), vf.constructor(constructorType, na));
