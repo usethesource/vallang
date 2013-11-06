@@ -129,10 +129,22 @@ public abstract class BaseTestAnnotations extends TestCase {
 			fail();
 		}
 	}
-		
+	
 	public void testEqualityNode() {
 		final INode n = vf.node("hello");
-		final INode na = n.asAnnotatable().setAnnotation("audience", vf.string("world"));
+		final INode na = n.asAnnotatable().setAnnotation("audience", vf.string("world"));		
+	
+		assertEqualityOfValueWithAndWithoutAnnotations(n, na);
+	}
+	
+	public void testEqualityConstructor() {
+		final IConstructor n = vf.constructor(N, vf.integer(1));
+		final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
+			
+		assertEqualityOfValueWithAndWithoutAnnotations(n, na);
+	}
+	
+	public void assertEqualityOfValueWithAndWithoutAnnotations(IValue n, IValue na) {
 				
 		assertIsEqualButNotEquals(n, na);
 		
@@ -201,16 +213,6 @@ public abstract class BaseTestAnnotations extends TestCase {
 		
 		assertTrue(a.isEqual(b));		
 		assertTrue(a.hashCode() == b.hashCode());		
-	}
-	
-	public void testEqualityConstructor() {
-		IConstructor n = vf.constructor(N, vf.integer(1));
-		IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
-		
-		assertTrue(n.isEqual(na));
-		assertTrue(vf.set(n).isEqual(vf.set(na)));
-		assertTrue(vf.list(n).isEqual(vf.list(na)));
-		assertTrue(vf.set(vf.set(n)).isEqual(vf.set(vf.set(na))));
 	}
 	
 	public void testNodeAnnotation() {
