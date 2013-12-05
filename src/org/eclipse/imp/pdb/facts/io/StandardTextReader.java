@@ -639,6 +639,9 @@ public class StandardTextReader extends AbstractTextReader {
 				case 'r':
 					builder.append('\r');
 					break;
+				case 'b':
+					builder.append('\b');
+					break;
 				case '\"':
 					builder.append('\"');
 					break;
