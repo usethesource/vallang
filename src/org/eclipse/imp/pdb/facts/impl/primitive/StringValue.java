@@ -30,7 +30,23 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
 	/*package*/ static IString newString(String value) {
-		return new FullUnicodeString(value);
+		return newString(value, containsSurrogatePairs(value));
+	}
+	/*package*/ static IString newString(String value, boolean fullUnicode) {
+		if (fullUnicode) {
+			return new FullUnicodeString(value);
+		}
+		return new SimpleUnicodeString(value);
+	}
+
+	private static boolean containsSurrogatePairs(String str) {
+		int len = str.length(); 
+		for (int i = 1; i < len; i++) {
+			if (Character.isSurrogatePair(str.charAt(i - 1), str.charAt(i))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static class FullUnicodeString  extends AbstractValue implements IString {
@@ -224,6 +240,57 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			String res = buffer.toString();
 			return StringValue.newString(res);
+		}
+	}
+	
+	private static class SimpleUnicodeString extends FullUnicodeString {
+		public SimpleUnicodeString(String value) {
+			super(value);
+		}
+		@Override
+		public boolean equals(Object o) {
+			if(o == null) return false;
+			if(this == o) return true;
+			if(o.getClass() == getClass()){
+				SimpleUnicodeString otherString = (SimpleUnicodeString) o;
+				return value.equals(otherString.value);
+			}
+			
+			return false;
+		}
+
+		// Common operations which do not need to be slow
+		@Override
+		public int length() {
+			return value.length();
+		}
+		@Override
+		public int charAt(int index) {
+			return value.charAt(index);
+		}
+
+		@Override
+		public IString substring(int start) {
+			return newString(value.substring(start), false); 
+		}
+		
+		@Override
+		public IString substring(int start, int end) {
+			return newString(value.substring(start, end), false); 
+		}
+		
+		@Override
+		public IString reverse() {
+			return newString(new StringBuilder(value).reverse().toString(), false); 
+		}
+		
+		@Override
+		public IString concat(IString other) {
+			StringBuilder buffer = new StringBuilder();
+			buffer.append(value);
+			buffer.append(other.getValue());
+			
+			return StringValue.newString(buffer.toString(), other.getClass() != getClass());
 		}
 	}
 }
