@@ -75,7 +75,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			buffer.append(value);
 			buffer.append(other.getValue());
 			
-			return StringValue.newString(buffer.toString());
+			return StringValue.newString(buffer.toString(), true);
 		}
 		
 		@Override
@@ -116,7 +116,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		@Override
 		public IString reverse() {
 			StringBuilder b = new StringBuilder(value);
-			return newString(b.reverse().toString());
+			return newString(b.reverse().toString(), true);
 		}
 	
 		@Override
