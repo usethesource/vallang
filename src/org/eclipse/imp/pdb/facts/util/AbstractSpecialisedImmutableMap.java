@@ -850,9 +850,6 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
  * A {@link ImmutableMap} implementation that wraps an arbitrary {@link Map}. On
  * modification, the whole map while be cloned.
  * 
- * Do not construct a {@link CopyOnWriteImmutableMap) with a mutable that might 
- * be modified outside this container. 
- * 
  * @param <K>
  *            the type of keys maintained by this map
  * @param <V>

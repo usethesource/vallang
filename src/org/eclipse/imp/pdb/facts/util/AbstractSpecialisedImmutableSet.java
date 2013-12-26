@@ -100,27 +100,23 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends
 	
 	@Override
 	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}
 
 	@Override
 	public ImmutableSet<K> __insertEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}
 
 	@Override
 	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set,
 			Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}
 
 	@Override
 	public ImmutableSet<K> __removeEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}
 	
 	@Override
@@ -700,27 +696,23 @@ class CopyOnWriteImmutableSet<K> implements ImmutableSet<K> {
 	
 	@Override
 	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}
 
 	@Override
 	public ImmutableSet<K> __insertEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}
 
 	@Override
 	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set,
 			Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}
 
 	@Override
 	public ImmutableSet<K> __removeEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
+		throw new UnsupportedOperationException("Not yet implemented. This class currently only supports java.util.Set.");
 	}	
 
 	@Override
