@@ -14,8 +14,12 @@ package org.eclipse.imp.pdb.test;
 
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 // TODO: this class could use more tests
 public abstract class BaseTestEquality extends TestCase {
@@ -80,4 +84,31 @@ public abstract class BaseTestEquality extends TestCase {
 		assertTrue(vf.set(vf.set(tf.realType())).isEqual(vf.set(vf.set(tf.integerType()))));
 	}
 	
+	/**
+	 * Documenting the current relationship between Node and Constructor in
+	 * terms of equality and hash codes.
+	 */
+	public void testConstructorIsEqualToConstructor() {
+		final INode n = vf.node("constructorComparableName", vf.integer(1), vf.integer(2));
+		
+		final TypeStore ts = new TypeStore();
+		final Type adtType = tf.abstractDataType(ts, "adtTypeNameThatIsIgnored");
+		final Type constructorType = tf.constructor(ts, adtType, "constructorComparableName", tf.integerType(), tf.integerType());
+		
+		final IConstructor c = vf.constructor(constructorType, vf.integer(1), vf.integer(2));
+
+		// they are not the same
+		assertFalse(n.equals(c));
+		assertFalse(c.equals(n));
+		/*
+		 * TODO: what is the general contract between isEqual() and hashCode()?
+		 */
+		assertFalse(n.hashCode() == c.hashCode());
+		
+		// unidirectional: n -> c = true
+		assertTrue(n.isEqual(c));		
+		
+		// unidirectional: c -> n = false
+		assertFalse(c.isEqual(n));	
+	}
 }

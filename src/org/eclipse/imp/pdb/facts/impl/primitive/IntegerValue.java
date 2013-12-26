@@ -41,7 +41,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	private final static int SEVEN_BITS_MASK = 0x0000007f;
 	private final static int FIFTEEN_BITS_MASK = 0x00007fff;
 	private final static int TWENTYTHREE_BITS_MASK = 0x007fffff;
-	public final static IntegerValue INTEGER_ONE = new IntegerValue(1);
+	public final static IInteger INTEGER_ONE = newInteger(1);
 	protected final int value;
 
 	/*
@@ -524,7 +524,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IInteger abs() {
-		return new IntegerValue(Math.abs(value));
+		return newInteger(Math.abs(value));
 	}
 
 	@Override

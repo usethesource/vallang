@@ -319,7 +319,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public IRational toRational(IInteger n, IInteger d) {
-		return new RationalValue(n, d);
+		return newRational(n, d);
 	}
 
 	@Override

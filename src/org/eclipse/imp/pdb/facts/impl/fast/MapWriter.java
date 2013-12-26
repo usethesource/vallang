@@ -181,10 +181,10 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 				Type voidType = TypeFactory.getInstance().voidType();
 				Type voidMapType = TypeFactory.getInstance().mapType(voidType, mapType.getKeyLabel(), voidType, mapType.getValueLabel());
 
-				constructedMap = new Map(voidMapType, data);
+				constructedMap = Map.newMap(voidMapType, data);
 			}
 			else {
-				constructedMap = new Map(mapType, data);
+				constructedMap = Map.newMap(mapType, data);
 			}
 		}
 

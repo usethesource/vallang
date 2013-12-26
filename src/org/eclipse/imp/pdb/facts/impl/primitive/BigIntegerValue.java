@@ -354,7 +354,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IInteger abs() {
-		return new BigIntegerValue(value.abs());
+		return IntegerValue.newInteger(value.abs());
 	}
 
 }

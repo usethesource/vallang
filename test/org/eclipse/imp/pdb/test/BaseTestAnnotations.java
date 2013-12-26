@@ -15,6 +15,8 @@ package org.eclipse.imp.pdb.test;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -129,23 +131,95 @@ public abstract class BaseTestAnnotations extends TestCase {
 	}
 	
 	public void testEqualityNode() {
-		INode n = vf.node("hello");
-		INode na = n.asAnnotatable().setAnnotation("audience", vf.string("world"));
-		
-		assertTrue(n.isEqual(na));
-		assertTrue(vf.set(n).isEqual(vf.set(na)));
-		assertTrue(vf.list(n).isEqual(vf.list(na)));
-		assertTrue(vf.set(vf.set(n)).isEqual(vf.set(vf.set(na))));
+		final INode n = vf.node("hello");
+		final INode na = n.asAnnotatable().setAnnotation("audience", vf.string("world"));		
+	
+		assertEqualityOfValueWithAndWithoutAnnotations(n, na);
 	}
 	
 	public void testEqualityConstructor() {
-		IConstructor n = vf.constructor(N, vf.integer(1));
-		IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
+		final IConstructor n = vf.constructor(N, vf.integer(1));
+		final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
+			
+		assertEqualityOfValueWithAndWithoutAnnotations(n, na);
+	}
+	
+	public void assertEqualityOfValueWithAndWithoutAnnotations(IValue n, IValue na) {
+				
+		assertIsEqualButNotEquals(n, na);
 		
-		assertTrue(n.isEqual(na));
-		assertTrue(vf.set(n).isEqual(vf.set(na)));
-		assertTrue(vf.list(n).isEqual(vf.list(na)));
-		assertTrue(vf.set(vf.set(n)).isEqual(vf.set(vf.set(na))));
+		assertIsEqualButNotEquals(vf.set(n), vf.set(na));
+		assertIsEqualButNotEquals(vf.set(vf.set(n)), vf.set(vf.set(na)));
+				
+		assertIsEqualButNotEquals(vf.list(n), vf.list(na));
+		assertIsEqualButNotEquals(vf.list(vf.list(n)), vf.list(vf.list(na)));
+					
+		// check: with keys
+		{
+			final IMap mapN = createMap(n, vf.integer(1));
+			final IMap mapNA = createMap(na, vf.integer(1));
+			final IMap mapMapN = createMap(mapN, vf.integer(1));
+			final IMap mapMapNA = createMap(mapNA, vf.integer(1));
+
+			assertIsEqualButNotEquals(mapN, mapNA);
+			assertIsEqualButNotEquals(mapMapN, mapMapNA);
+		}
+		
+		// check: with values
+		{
+			final IMap mapN = createMap(vf.integer(1), n);
+			final IMap mapNA = createMap(vf.integer(1), na);
+			final IMap mapMapN = createMap(vf.integer(1), mapN);
+			final IMap mapMapNA = createMap(vf.integer(1), mapNA);
+
+			assertIsEqualButNotEquals(mapN, mapNA);
+			assertIsEqualButNotEquals(mapMapN, mapMapNA);
+		}
+
+		assertIsEqualButNotEquals(vf.node("nestingInNode", n), vf.node("nestingInNode", na));
+		
+		final TypeStore ts = new TypeStore();
+		final Type adtType = tf.abstractDataType(ts, "adtTypeNameThatIsIgnored");
+		final Type constructorType = tf.constructor(ts, adtType, "nestingInConstructor", tf.valueType());
+
+		assertIsEqualButNotEquals(vf.constructor(constructorType, n), vf.constructor(constructorType, na));
+	}
+
+	/**
+	 * Create a @IMap from a variable argument list.
+	 * 
+	 * @param keyValuePairs
+	 *            a sequence of alternating keys and values
+	 * @return an new @IMap instance
+	 */
+	public IMap createMap(IValue... keyValuePairs) {
+		assert (keyValuePairs.length % 2 == 0);
+
+		IMapWriter w = vf.mapWriter();
+
+		for (int i = 0; i < keyValuePairs.length / 2; i++) {
+			w.put(keyValuePairs[i], keyValuePairs[i+1]);
+		}
+		
+		return w.done();
+	}
+	
+	/**
+	 * Asserting the current implementation w.r.t. hash codes and different
+	 * equalities. Note, that this does not reflect the envisioned design that
+	 * we are working towards (= structurally where annotations contribute to
+	 * equality and hash code).
+	 * 
+	 * @param a
+	 *            an object that does not use annotations
+	 * @param b
+	 *            a structurally equal object to {@literal a} with annotations
+	 */
+	public void assertIsEqualButNotEquals(IValue a, IValue b) {
+		assertFalse(a.equals(b));
+		
+		assertTrue(a.isEqual(b));		
+		assertTrue(a.hashCode() == b.hashCode());		
 	}
 	
 	public void testNodeAnnotation() {

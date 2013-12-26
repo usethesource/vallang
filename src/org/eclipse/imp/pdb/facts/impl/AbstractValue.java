@@ -27,8 +27,7 @@ public abstract class AbstractValue implements IValue {
 	}
 
 	public String toString() {
-		try {
-			StringWriter stream = new StringWriter();
+		try(StringWriter stream = new StringWriter()) {
 			new StandardTextWriter().write(this, stream);
 			return stream.toString();
 		} catch (IOException ioex) {

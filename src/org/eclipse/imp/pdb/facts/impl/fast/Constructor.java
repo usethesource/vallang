@@ -40,7 +40,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final Type constructorType;
 	protected final IValue[] children;
 
-	/*package*/ Constructor(Type constructorType, IValue[] children){
+	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
+		return new Constructor(constructorType, children); 
+	}
+	
+	private Constructor(Type constructorType, IValue[] children){
 		super();
 		
 		this.constructorType = constructorType;
@@ -126,7 +130,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		IValue[] newChildren = children.clone();
 		newChildren[i] = newChild;
 		
-		return new Constructor(constructorType, newChildren);
+		return newConstructor(constructorType, newChildren);
 	}
 	
 	@Override
@@ -134,7 +138,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		IValue[] newChildren = children.clone();
 		newChildren[constructorType.getFieldIndex(label)] = newChild;
 		
-		return new Constructor(constructorType, newChildren);
+		return newConstructor(constructorType, newChildren);
 	}
 	
 	@Override
