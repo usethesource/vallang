@@ -18,50 +18,50 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class AbstractSpecialisedImmutableMap<K, V> implements ImmutableMap<K,V>  {
+public abstract class AbstractSpecialisedImmutableJdkMap<K, V> implements ImmutableJdkMap<K,V>  {
 	@SuppressWarnings("rawtypes")
-	private static ImmutableMap EMPTY_MAP = new Map0();
+	private static ImmutableJdkMap EMPTY_MAP = new Map0();
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> ImmutableMap<K, V> mapOf() {
+	public static <K, V> ImmutableJdkMap<K, V> mapOf() {
 		return EMPTY_MAP;
 	}
 	
-	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1) {
+	public static <K, V> ImmutableJdkMap<K, V> mapOf(K key1, V val1) {
 		return new Map1AndEntry<K, V>(key1, val1);
 	}
 
-	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2) {
+	public static <K, V> ImmutableJdkMap<K, V> mapOf(K key1, V val1, K key2, V val2) {
 		return new Map2<K, V>(key1, val1, key2, val2);
 	}
 
-	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3) {
+	public static <K, V> ImmutableJdkMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3) {
 		return new Map3<K, V>(key1, val1, key2, val2, key3, val3);
 	}
 	
-	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
+	public static <K, V> ImmutableJdkMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4) {
 		return new Map4<K, V>(key1, val1, key2, val2, key3, val3, key4, val4);
 	}
 
-	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5) {
+	public static <K, V> ImmutableJdkMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5) {
 		return new Map5<K, V>(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
 	}
 	
-	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5, K key6, V val6) {
-		return new CopyOnWriteImmutableMap<K, V>(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6);
+	public static <K, V> ImmutableJdkMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5, K key6, V val6) {
+		return new CopyOnWriteImmutableJdkMap<K, V>(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6);
 	}
 	
-	public static <K, V> ImmutableMap<K, V> mapOf(Map<K, V> map) {
-		if (map instanceof AbstractSpecialisedImmutableMap) {
-			return (ImmutableMap<K, V>) map;
+	public static <K, V> ImmutableJdkMap<K, V> mapOf(Map<K, V> map) {
+		if (map instanceof AbstractSpecialisedImmutableJdkMap) {
+			return (ImmutableJdkMap<K, V>) map;
 		} else {
 			return flatten(map);
 		}
 	}
 	
 	@SafeVarargs
-	protected static <K, V> ImmutableMap<K, V> flatten(Map<? extends K, ? extends V>... maps) {
-		return CopyOnWriteImmutableMap.flatten(maps);
+	protected static <K, V> ImmutableJdkMap<K, V> flatten(Map<? extends K, ? extends V>... maps) {
+		return CopyOnWriteImmutableJdkMap.flatten(maps);
 	}
 	
 	@Override
@@ -117,7 +117,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 	}
 }
 
-class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
+class Map0<K, V> extends AbstractSpecialisedImmutableJdkMap<K, V> {
 	Map0() {
 	}
 
@@ -157,17 +157,17 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __put(K key, V val) {
+	public ImmutableJdkMap<K, V> __put(K key, V val) {
 		return new Map1AndEntry<K, V>(key, val);
 	}
 
 	@Override
-	public ImmutableMap<K, V> __remove(K key) {
+	public ImmutableJdkMap<K, V> __remove(K key) {
 		return this;
 	}
 
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+	public ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		return flatten(this, map);
 	}
 		
@@ -178,7 +178,7 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 }
 
-class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Map.Entry<K, V>, Cloneable {
+class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableJdkMap<K, V> implements Map.Entry<K, V>, Cloneable {
 	private final K key1;
 	private final V val1;
 
@@ -247,7 +247,7 @@ class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableMap<K, V> implement
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __put(K key, V val) {
+	public ImmutableJdkMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val);
 		else
@@ -255,7 +255,7 @@ class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableMap<K, V> implement
 	}
 
 	@Override
-	public ImmutableMap<K, V> __remove(K key) {
+	public ImmutableJdkMap<K, V> __remove(K key) {
 		if (key.equals(key1))
 			return mapOf();
 		else
@@ -263,7 +263,7 @@ class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableMap<K, V> implement
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+	public ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		return flatten(this, map);
 	}
 
@@ -287,7 +287,7 @@ class Map1AndEntry<K, V> extends AbstractSpecialisedImmutableMap<K, V> implement
 	}
 }
 
-class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Cloneable {
+class Map2<K, V> extends AbstractSpecialisedImmutableJdkMap<K, V> implements Cloneable {
 	private final K key1;
 	private final V val1;
 	private final K key2;
@@ -341,23 +341,23 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(
 				new Map1AndEntry<>(key1, val1), 
 				new Map1AndEntry<>(key2, val2));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableSet.setOf(key1, key2);
+		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return AbstractSpecialisedImmutableSet.setOf(val1, val2);
+		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2);
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __put(K key, V val) {
+	public ImmutableJdkMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val, key2, val2);
 		else if (key.equals(key2))
@@ -367,7 +367,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
-	public ImmutableMap<K, V> __remove(K key) {
+	public ImmutableJdkMap<K, V> __remove(K key) {
 		if (key.equals(key1))
 			return mapOf(key2, val2);
 		else if (key.equals(key2))
@@ -377,7 +377,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+	public ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		return flatten(this, map);
 	}
 
@@ -398,7 +398,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 }
 
-class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Cloneable {
+class Map3<K, V> extends AbstractSpecialisedImmutableJdkMap<K, V> implements Cloneable {
 	private final K key1;
 	private final V val1;
 	private final K key2;
@@ -464,7 +464,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(
 				new Map1AndEntry<>(key1, val1),
 				new Map1AndEntry<>(key2, val2),
 				new Map1AndEntry<>(key3, val3));
@@ -472,16 +472,16 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3);
+		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2, key3);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3);
+		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2, val3);
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __put(K key, V val) {
+	public ImmutableJdkMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val, key2, val2, key3, val3);
 		else if (key.equals(key2))
@@ -494,7 +494,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
-	public ImmutableMap<K, V> __remove(K key) {
+	public ImmutableJdkMap<K, V> __remove(K key) {
 		if (key.equals(key1))
 			return mapOf(key2, val2, key3, val3);
 		else if (key.equals(key2))
@@ -506,7 +506,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+	public ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		return flatten(this, map);
 	}
 	
@@ -528,7 +528,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 }
 
-class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Cloneable {
+class Map4<K, V> extends AbstractSpecialisedImmutableJdkMap<K, V> implements Cloneable {
 	private final K key1;
 	private final V val1;
 	private final K key2;
@@ -607,7 +607,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(
 				new Map1AndEntry<>(key1, val1),
 				new Map1AndEntry<>(key2, val2),
 				new Map1AndEntry<>(key3, val3),
@@ -616,16 +616,16 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3, key4);
+		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2, key3, key4);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3, val4);
+		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2, val3, val4);
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __put(K key, V val) {
+	public ImmutableJdkMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val, key2, val2, key3, val3, key4, val4);
 		else if (key.equals(key2))
@@ -640,7 +640,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
-	public ImmutableMap<K, V> __remove(K key) {
+	public ImmutableJdkMap<K, V> __remove(K key) {
 		if (key.equals(key1))
 			return mapOf(key2, val2, key3, val3, key4, val4);
 		else if (key.equals(key2))
@@ -654,7 +654,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+	public ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		return flatten(this, map);
 	}
 	
@@ -677,7 +677,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 }
 
-class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Cloneable {
+class Map5<K, V> extends AbstractSpecialisedImmutableJdkMap<K, V> implements Cloneable {
 	private final K key1;
 	private final V val1;
 	private final K key2;
@@ -770,7 +770,7 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(
+		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(
 				new Map1AndEntry<>(key1, val1),
 				new Map1AndEntry<>(key2, val2),
 				new Map1AndEntry<>(key3, val3),
@@ -780,16 +780,16 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3, key4, key5);
+		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2, key3, key4, key5);
 	}
 
 	@Override
 	public Collection<V> values() {
-		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3, val4, val5);
+		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2, val3, val4, val5);
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __put(K key, V val) {
+	public ImmutableJdkMap<K, V> __put(K key, V val) {
 		if (key.equals(key1))
 			return mapOf(key, val, key2, val2, key3, val3, key4, val4, key5, val5);
 		else if (key.equals(key2))
@@ -806,7 +806,7 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
-	public ImmutableMap<K, V> __remove(K key) {
+	public ImmutableJdkMap<K, V> __remove(K key) {
 		if (key.equals(key1))
 			return mapOf(key2, val2, key3, val3, key4, val4, key5, val5);
 		else if (key.equals(key2))
@@ -822,7 +822,7 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 	}
 
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+	public ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		return flatten(this, map);
 	}
 	
@@ -847,7 +847,7 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
 }
 
 /**
- * A {@link ImmutableMap} implementation that wraps an arbitrary {@link Map}. On
+ * A {@link ImmutableJdkMap} implementation that wraps an arbitrary {@link Map}. On
  * modification, the whole map while be cloned.
  * 
  * @param <K>
@@ -855,11 +855,11 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> implements Clonea
  * @param <V>
  *            the type of mapped values
  */
-class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
+class CopyOnWriteImmutableJdkMap<K, V> implements ImmutableJdkMap<K, V> {
 	
 	private final Map<K, V> content;
 	
-	CopyOnWriteImmutableMap(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5, K key6, V val6) {
+	CopyOnWriteImmutableJdkMap(K key1, V val1, K key2, V val2, K key3, V val3, K key4, V val4, K key5, V val5, K key6, V val6) {
 		this.content = new HashMap<>(8);
 		
 		this.content.put(key1, val1);
@@ -871,17 +871,17 @@ class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
 	}	
 	
 	@SafeVarargs
-	protected static <K, V> ImmutableMap<K, V> flatten(Map<? extends K, ? extends V>... maps) {
+	protected static <K, V> ImmutableJdkMap<K, V> flatten(Map<? extends K, ? extends V>... maps) {
 		final Map<K, V> newContent = 
 				new HashMap<>();
 				
 		for (Map<? extends K, ? extends V> map : maps)
 			newContent.putAll(map);
 		
-		return new CopyOnWriteImmutableMap<K, V>(newContent);
+		return new CopyOnWriteImmutableJdkMap<K, V>(newContent);
 	}
 		
-	CopyOnWriteImmutableMap(Map<K, V> content) {
+	CopyOnWriteImmutableJdkMap(Map<K, V> content) {
 		this.content = content;
 	}
 
@@ -946,33 +946,33 @@ class CopyOnWriteImmutableMap<K, V> implements ImmutableMap<K, V> {
 	}
 
 	@Override
-	public ImmutableMap<K, V> __put(K key, V value) {
+	public ImmutableJdkMap<K, V> __put(K key, V value) {
 		final Map<K, V> newContent = 
 				new HashMap<>(content);
 		
 		newContent.put(key, value);
 		
-		return new CopyOnWriteImmutableMap<K, V>(newContent);		
+		return new CopyOnWriteImmutableJdkMap<K, V>(newContent);		
 	}
 
 	@Override
-	public ImmutableMap<K, V> __remove(K key) {
+	public ImmutableJdkMap<K, V> __remove(K key) {
 		final Map<K, V> newContent = 
 				new HashMap<>(content);
 		
 		newContent.remove(key);
 		
-		return new CopyOnWriteImmutableMap<K, V>(newContent);		
+		return new CopyOnWriteImmutableJdkMap<K, V>(newContent);		
 	}
 	
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
+	public ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		final Map<K, V> newContent = 
 				new HashMap<>(content);
 		
 		newContent.putAll(map);
 		
-		return new CopyOnWriteImmutableMap<K, V>(newContent);		
+		return new CopyOnWriteImmutableJdkMap<K, V>(newContent);		
 	}
 	
 	@Override

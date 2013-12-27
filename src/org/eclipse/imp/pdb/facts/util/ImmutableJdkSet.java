@@ -11,12 +11,14 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.Map;
+import java.util.Set;
 
-public interface ImmutableMap<K, V> extends Map<K, V> {
-	ImmutableMap<K, V> __put(K key, V value);
-
-	ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map);
+public interface ImmutableJdkSet<E> extends Set<E> {
 	
-	ImmutableMap<K, V> __remove(K key);
+	ImmutableJdkSet<E> __insert(E e);
+
+	ImmutableJdkSet<E> __insertAll(Set<? extends E> set);	
+	
+	ImmutableJdkSet<E> __remove(E e);
+
 }

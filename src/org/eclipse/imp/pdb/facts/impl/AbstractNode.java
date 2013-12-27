@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableJdkMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public abstract class AbstractNode extends AbstractValue implements INode {
@@ -71,7 +71,7 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 
 			@Override
 			protected INode wrap(INode content,
-					ImmutableMap<String, IValue> annotations) {
+					ImmutableJdkMap<String, IValue> annotations) {
 				return new AnnotatedNodeFacade(content, annotations);
 			}
 		};
