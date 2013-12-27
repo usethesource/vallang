@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
@@ -21,7 +19,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
@@ -174,18 +171,6 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		}
 		
 		return false;
-	}	
-		
-	@Override
-	public String toString() {
-		try {
-			StringWriter stream = new StringWriter();
-			new StandardTextWriter().write(this, stream);
-			return stream.toString();
-		} catch (IOException ioex) {
-			// this never happens
-		}
-		return "";
 	}
 
 }

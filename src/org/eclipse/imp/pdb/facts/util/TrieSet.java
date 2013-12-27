@@ -24,7 +24,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	@SafeVarargs
 	public static final <K> ImmutableSet<K> of(K... elements) {
 		@SuppressWarnings("unchecked")
-		ImmutableSet<K> result = (ImmutableSet<K>) TrieSet.EMPTY;
+		ImmutableSet<K> result = TrieSet.EMPTY;
 		for (K k : elements) result = result.__insert(k);
 		return result;
 	}
@@ -33,7 +33,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	public static final <K> TransientSet<K> transientOf(K... elements) {
 		TransientSet<K> transientSet = new TransientTrieSet<>();
 		for (K k : elements) 
-			transientSet.add(k);
+			transientSet.__insert(k);
 		return transientSet;
 	}
 		
@@ -397,6 +397,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return new RecursiveIterator(nodes);
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public Iterator<K> flatIterator() {
 		return (Iterator<K>) ArrayIterator.of(nodes);
@@ -522,6 +523,9 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 }
 
+/*
+ * TODO: exchange TrieSet.equivalenceComparator() with standard equality operator
+ */
 class TransientTrieSet<E> implements TransientSet<E> {
 	
 	protected TrieSet<E> content;
@@ -532,95 +536,119 @@ class TransientTrieSet<E> implements TransientSet<E> {
 	}
 	
 	@Override
-	public boolean add(E e) { 
+	public boolean __insert(E e) {
+		return __insertEquivalent(e, TrieSet.equivalenceComparator());
+	}
+
+	@Override
+	public boolean __insertEquivalent(E e, Comparator<Object> cmp) {
 		int sizeBeforeUpdate = content.size();
-		content = content.updated(e, e.hashCode(), 0, true, TrieSet.equivalenceComparator());
+		content = content.updated(e, e.hashCode(), 0, true, cmp);
 		
 		return sizeBeforeUpdate != content.size();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean remove(Object o) {
+	public boolean __remove(E e) {
+		return __removeEquivalent(e, TrieSet.equivalenceComparator());
+	}
+
+	@Override
+	public boolean __removeEquivalent(E e, Comparator<Object> cmp) {
 		int sizeBeforeUpdate = content.size();
-		content = content.removed((E) o, o.hashCode(), 0, true, TrieSet.equivalenceComparator());
+		content = content.removed((E) e, e.hashCode(), 0, true, cmp);
 
 		return sizeBeforeUpdate != content.size();
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends E> c) {
+	public boolean __insertAll(Set<? extends E> set) {
+		return __insertAllEquivalent(set, TrieSet.equivalenceComparator());
+	}
+
+	@Override
+	public boolean __insertAllEquivalent(Set<? extends E> set,
+			Comparator<Object> cmp) {
 		boolean modified = false;
 
-		for (E e : c)
-			modified |= add(e);
+		for (E e : set)
+			modified |= __insertEquivalent(e, cmp);
 						
 		return modified;	
 	}
-
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		boolean modified = false;
-
-		for (Object o : c)
-			modified |= remove(o);
-						
-		return modified;
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void clear() {
-		// allocated a new empty instance, because transient allows inplace modification.
-		content = new InplaceIndexNode<>(0, 0, new TrieSet[0], 0);
-	}
+	
+//	@Override
+//	public boolean removeAll(Collection<?> c) {
+//		boolean modified = false;
+//
+//		for (Object o : c)
+//			modified |= remove(o);
+//						
+//		return modified;
+//	}
+//
+//	@Override
+//	public boolean retainAll(Collection<?> c) {
+//		throw new UnsupportedOperationException();
+//	}
+//
+//	@Override
+//	public void clear() {
+//		// allocated a new empty instance, because transient allows inplace modification.
+//		content = new InplaceIndexNode<>(0, 0, new TrieSet[0], 0);
+//	}
 
 	@Override
 	public boolean equals(Object o) {
 		return content.equals(o);
 	}
 
-	@Override
-	public Iterator<E> iterator() {
-		return content.iterator();
-	}
-
-	@Override
-	public int size() {
-		return content.size();
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return content.isEmpty();
-	}
+//	@Override
+//	public Iterator<E> iterator() {
+//		return content.iterator();
+//	}
+//
+//	@Override
+//	public int size() {
+//		return content.size();
+//	}
+//
+//	@Override
+//	public boolean isEmpty() {
+//		return content.isEmpty();
+//	}
 
 	@Override
 	public int hashCode() {
 		return content.hashCode();
 	}
 
-	@Override
-	public boolean contains(Object o) {
-		return content.contains(o);
-	}
+//	@Override
+//	public boolean contains(Object o) {
+//		return content.contains(o);
+//	}
+//	
+//	@Override
+//	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+
+//	@Override
+//	public Object[] toArray() {
+//		return content.toArray();
+//	}
+//
+//	@Override
+//	public <T> T[] toArray(T[] a) {
+//		return content.toArray(a);
+//	}
+//
+//	@Override
+//	public boolean containsAll(Collection<?> c) {
+//		return content.containsAll(c);
+//	}
 	
-	public Object[] toArray() {
-		return content.toArray();
-	}
-
-	public <T> T[] toArray(T[] a) {
-		return content.toArray(a);
-	}
-
-	public boolean containsAll(Collection<?> c) {
-		return content.containsAll(c);
-	}
-
 	@Override
 	public String toString() {
 		return content.toString();
