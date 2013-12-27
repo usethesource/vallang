@@ -575,7 +575,7 @@ class TransientTrieSet<E> implements TransientSet<E> {
 			modified |= __insertEquivalent(e, cmp);
 						
 		return modified;	
-	}
+	}	
 	
 //	@Override
 //	public boolean removeAll(Collection<?> c) {
@@ -596,13 +596,8 @@ class TransientTrieSet<E> implements TransientSet<E> {
 //	public void clear() {
 //		// allocated a new empty instance, because transient allows inplace modification.
 //		content = new InplaceIndexNode<>(0, 0, new TrieSet[0], 0);
-//	}
-
-	@Override
-	public boolean equals(Object o) {
-		return content.equals(o);
-	}
-
+//	}	
+//
 //	@Override
 //	public Iterator<E> iterator() {
 //		return content.iterator();
@@ -617,12 +612,7 @@ class TransientTrieSet<E> implements TransientSet<E> {
 //	public boolean isEmpty() {
 //		return content.isEmpty();
 //	}
-
-	@Override
-	public int hashCode() {
-		return content.hashCode();
-	}
-
+//
 //	@Override
 //	public boolean contains(Object o) {
 //		return content.contains(o);
@@ -633,7 +623,7 @@ class TransientTrieSet<E> implements TransientSet<E> {
 //		// TODO Auto-generated method stub
 //		return false;
 //	}
-
+//
 //	@Override
 //	public Object[] toArray() {
 //		return content.toArray();
@@ -648,12 +638,22 @@ class TransientTrieSet<E> implements TransientSet<E> {
 //	public boolean containsAll(Collection<?> c) {
 //		return content.containsAll(c);
 //	}
+
+	@Override
+	public boolean equals(Object o) {
+		return content.equals(o);
+	}
 	
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
+
 	@Override
 	public String toString() {
 		return content.toString();
 	}
-
+	
 	@Override
 	public ImmutableSet<E> freeze() {
 		return content;

@@ -14,9 +14,11 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.Map;
 
 public interface ImmutableJdkMap<K, V> extends Map<K, V> {
+
 	ImmutableJdkMap<K, V> __put(K key, V value);
 
 	ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map);
 	
 	ImmutableJdkMap<K, V> __remove(K key);
+
 }
