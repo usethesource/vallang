@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,19 @@ public class ArrayUtils {
 		return arrayNew;
 	}
 
+	static Object[] arraycopyMoveBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
+		if (indexNew == indexOld) {
+			return arraycopyAndSet(array, indexNew, elementNew);
+		} else {
+			final Object[] arrayNew = new Object[array.length];
+			System.arraycopy(array, 0, arrayNew, 0, indexOld);
+			System.arraycopy(array, indexOld + 1, arrayNew, indexOld, indexNew - indexOld);
+			arrayNew[indexNew] = elementNew;
+			System.arraycopy(array, indexNew + 1, arrayNew, indexNew + 1, array.length - indexNew - 1);
+			return arrayNew;
+		}
+	}	
+	
 	static Object[] arraycopyAndInsert(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length + 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,16 +17,20 @@ import java.util.NoSuchElementException;
 public class ArrayIterator<E> implements Iterator<E> {
 
 	final E[] values;
+	final int length;
 	int currentIndex;
-
-	public ArrayIterator(final E[] values) {
+	
+	public ArrayIterator(final E[] values, int start, int length) {
+		assert start <= length && length <= values.length;
+		
 		this.values = values;
-		this.currentIndex = 0;
+		this.length = length;
+		this.currentIndex = start;
 	}
 
 	@Override
 	public boolean hasNext() {
-		return currentIndex < values.length;
+		return currentIndex < length;
 	}
 
 	@Override
@@ -41,7 +45,11 @@ public class ArrayIterator<E> implements Iterator<E> {
 	}
 
 	public static <E> ArrayIterator<E> of(E[] array) {
-		return new ArrayIterator<>(array);
+		return new ArrayIterator<>(array, 0, array.length);
+	}
+	
+	public static <E> ArrayIterator<E> of(E[] array, int start, int length) {
+		return new ArrayIterator<>(array, start, start + length);
 	}
 
 }

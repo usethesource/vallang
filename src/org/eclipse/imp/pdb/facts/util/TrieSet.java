@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -124,13 +124,14 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 			final int valmap = (1 << mask1);
 			final Object[] nodes = new Object[2];
 
-			if (mask0 < mask1) {
-				nodes[0] = node0;
-				nodes[1] = node1;
-			} else {
+//			if (mask0 < mask1) {
+//				nodes[0] = node0;
+//				nodes[1] = node1;
+//			} else {
+				// inline node first
 				nodes[0] = node1;
 				nodes[1] = node0;
-			}
+//			}
 
 			return new InplaceIndexNode<>(bitmap, valmap, nodes, node0.size() + 1);
 		} else {
@@ -203,8 +204,11 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return contains(o, o.hashCode(), 0, cmp);
 	}
 
-	abstract Iterator<K> flatIterator();
+//	abstract Iterator<K> flatIterator();
+
+	abstract Iterator<K> valueIterator();
 	
+	abstract Iterator<TrieSet<K>> nodeIterator();
 }
 
 @SuppressWarnings("rawtypes")
@@ -233,6 +237,14 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return Integer.bitCount(bitmap & (bitpos - 1));
 	}
 
+	final int bitIndex(int bitpos) {
+		return Integer.bitCount(valmap) + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+	}
+	
+	final int valIndex(int bitpos) {
+		return Integer.bitCount(valmap & (bitpos - 1));
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean contains(Object key, int hash, int shift, Comparator<Object> comparator) {
@@ -241,9 +253,9 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		if ((bitmap & bitpos) != 0) {			
 			if ((valmap & bitpos) != 0) {
-				return comparator.compare(nodes[index(bitpos)], key) == 0;
+				return comparator.compare(nodes[valIndex(bitpos)], key) == 0;
 			} else {
-				return ((TrieSet<K>) nodes[index(bitpos)]).contains(key, hash, shift + BIT_PARTITION_SIZE, comparator);
+				return ((TrieSet<K>) nodes[bitIndex(bitpos)]).contains(key, hash, shift + BIT_PARTITION_SIZE, comparator);
 			}
 		}
 		return false;
@@ -253,11 +265,12 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	public TrieSet<K> updated(K key, int hash, int shift, boolean doMutate, Comparator<Object> comparator) {
 		final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
 		final int bitpos = (1 << mask);
-		final int index = index(bitpos);
+		final int bitIndex = bitIndex(bitpos);
+		final int valIndex = valIndex(bitpos);
 
 		if ((bitmap & bitpos) == 0) {
 			// no entry, create new node with inplace value		
-			final Object[] nodesReplacement = ArrayUtils.arraycopyAndInsert(nodes, index, key);
+			final Object[] nodesReplacement = ArrayUtils.arraycopyAndInsert(nodes, valIndex, key);
 			
 			if (doMutate) {
 				// mutate state
@@ -274,27 +287,35 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		if ((valmap & bitpos) != 0) {
 			// it's an inplace value
-			if (comparator.compare(nodes[index], key) == 0)
+			if (comparator.compare(nodes[valIndex], key) == 0)
 				return this;
 
-			final TrieSet nodeNew = mergeNodes(nodes[index], nodes[index].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);
+			final TrieSet nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);
 			
 			if (doMutate) {
 				// mutate state
-				nodes[index] = nodeNew;
+				/** CODE DUPLCIATION **/ // TODO do shift instead of copy
+				final int bitIndexNewOffset = Integer.bitCount(valmap & ~bitpos);
+				final int bitIndexNew = bitIndexNewOffset + Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1)); 
+				nodes = ArrayUtils.arraycopyMoveBack(nodes, valIndex, bitIndexNew, nodeNew);
+				
 				bitmap |=  bitpos;
 				valmap &= ~bitpos;
 				cachedSize = cachedSize + 1;
 				return this;
 			} else {
 				// immutable copy
-				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, nodeNew);
+				/** CODE DUPLCIATION **/
+				final int bitIndexNewOffset = Integer.bitCount(valmap & ~bitpos);
+				final int bitIndexNew = bitIndexNewOffset + Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1)); 
+				final Object[] nodesReplacement = ArrayUtils.arraycopyMoveBack(nodes, valIndex, bitIndexNew, nodeNew);
+				
 				return new InplaceIndexNode<>(bitmap | bitpos, valmap & ~bitpos, nodesReplacement, this.size() + 1);				
 			}			
 		} else {
 			// it's a TrieSet node, not a inplace value
 			@SuppressWarnings("unchecked")
-			final TrieSet<K> subNode = (TrieSet<K>) nodes[index];
+			final TrieSet<K> subNode = (TrieSet<K>) nodes[bitIndex];
 
 			if (doMutate) {
 				// mutate subNode state
@@ -305,7 +326,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				 * become nested in a InplaceIndexNode.
 				 */
 				final TrieSet<K> subNodeReplacement = subNode.updated(key, hash, shift + BIT_PARTITION_SIZE, true, comparator);
-				nodes[index] = subNodeReplacement;
+				nodes[bitIndex] = subNodeReplacement;
 				
 				if (oldSize != subNodeReplacement.size()) {
 					// update this node's statistics
@@ -321,7 +342,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	
 				assert(subNode.size() == subNodeReplacement.size() - 1);
 	
-				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, subNodeReplacement);
+				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
 				return new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, this.size() + 1);			
 			}
 		}
@@ -394,14 +415,62 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<K> iterator() {
-		return new RecursiveIterator(nodes);
+		return new RecursiveIterator(this);
 	}
 	
-	@Override
-	@SuppressWarnings("unchecked")
-	public Iterator<K> flatIterator() {
-		return (Iterator<K>) ArrayIterator.of(nodes);
-	}
+//	@Override
+//	@SuppressWarnings("unchecked")
+//	public Iterator<K> flatIterator() {
+//		return (Iterator<K>) ArrayIterator.of(nodes);
+//	}
+//
+//	/**
+//	 * Recursive iterator: if an element is of type iterator, the elements
+//	 * iterator will be added, instead of the element itself.
+//	 *
+//	 * Underlying implementation assumption: no iterable element returns and empty iterator.
+//	 */
+//	private static class RecursiveIterator implements Iterator {
+//
+//		final Stack<Iterator> itStack;
+//
+//		RecursiveIterator(Object[] array) {
+//			itStack = new Stack<>();
+//			itStack.push(ArrayIterator.of(array));
+//		}
+//
+//		@Override
+//		public boolean hasNext() {
+//			while (!itStack.isEmpty()) {
+//				if (itStack.peek().hasNext())
+//					return true;
+//				else
+//					itStack.pop();
+//			}
+//			return false;
+//		}
+//
+//		@Override
+//		public Object next() {
+//			if (!hasNext()) throw new NoSuchElementException();
+//			final Object next = itStack.peek().next();
+//
+//			if (next instanceof TrieSet) {
+//				itStack.push(((TrieSet) next).flatIterator());
+//
+//				assert hasNext();
+//				return next();
+//			} else {
+//				return next;
+//			}
+//		}
+//
+//		@Override
+//		public void remove() {
+//			throw new UnsupportedOperationException();
+//		}
+//	}
+	
 
 	/**
 	 * Recursive iterator: if an element is of type iterator, the elements
@@ -411,43 +480,64 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	 */
 	private static class RecursiveIterator implements Iterator {
 
-		final Stack<Iterator> itStack;
-
-		RecursiveIterator(Object[] array) {
-			itStack = new Stack<>();
-			itStack.push(ArrayIterator.of(array));
+		final Stack<TrieSet> nodeIterationStack;
+		Iterator<?> valueIterator;
+		Iterator<TrieSet> nodeIterator;
+		
+		RecursiveIterator(TrieSet trieSet) {
+			nodeIterationStack = new Stack<>();
+//			itStack.push(trieSet.nodeIterator());
+			
+			valueIterator = trieSet.valueIterator();
+			nodeIterator = trieSet.nodeIterator();
 		}
 
 		@Override
 		public boolean hasNext() {
-			while (!itStack.isEmpty()) {
-				if (itStack.peek().hasNext())
+			while (true) {
+				if (valueIterator.hasNext()) {
 					return true;
-				else
-					itStack.pop();
+				} else {						
+					if (nodeIterator.hasNext()) {
+						TrieSet trieSet = nodeIterator.next();						
+						valueIterator = trieSet.valueIterator();
+						nodeIterationStack.push(trieSet);
+						continue;
+					} else {
+						if (nodeIterationStack.isEmpty()) {
+							return false;
+						} else {						
+							nodeIterator = nodeIterationStack.pop().nodeIterator();
+							continue;
+						}
+					}
+				}
 			}
-			return false;
 		}
 
 		@Override
 		public Object next() {
 			if (!hasNext()) throw new NoSuchElementException();
-			final Object next = itStack.peek().next();
-
-			if (next instanceof TrieSet) {
-				itStack.push(((TrieSet) next).flatIterator());
-
-				assert hasNext();
-				return next();
-			} else {
-				return next;
-			}
+			return valueIterator.next();
 		}
 
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
+	}	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	Iterator<K> valueIterator() {
+		return (Iterator) ArrayIterator.of(nodes, 0, Integer.bitCount(valmap));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	Iterator<TrieSet<K>> nodeIterator() {
+		final int valueCount = Integer.bitCount(valmap);		
+		return (Iterator) ArrayIterator.of(nodes, valueCount, nodes.length - valueCount);
 	}
 
 }	
@@ -473,11 +563,23 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return ArrayIterator.of(keys);
 	}
 	
+//	@Override
+//	public Iterator<K> flatIterator() {
+//		return ArrayIterator.of(keys);
+//	}
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator<K> flatIterator() {
+	Iterator<K> valueIterator() {
 		return ArrayIterator.of(keys);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	Iterator<TrieSet<K>> nodeIterator() {
+		return Collections.emptyIterator(); 
+	}
+	
 	@Override
 	public boolean contains(Object key, int hash, int shift, Comparator<Object> comparator) {
 		for (K k : keys) {
