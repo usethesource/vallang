@@ -312,7 +312,7 @@ public class StandardTextWriter implements IValueTextWriter {
 
         @Override
         public Boolean visitSourceLocation(Type type) {
-          return false;
+          return true;
         }
 
         @Override
@@ -595,6 +595,7 @@ public class StandardTextWriter implements IValueTextWriter {
 				append(":");
 				append(String.format("%02d", o.getTimezoneOffsetMinutes()));
 			}
+			append("$");
 			return o;
 		}
 

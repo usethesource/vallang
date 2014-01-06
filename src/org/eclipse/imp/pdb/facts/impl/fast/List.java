@@ -42,7 +42,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	protected int hashCode = 0;
 
-	/*package*/ List(Type elementType, ShareableValuesList data){
+	/*package*/ static IList newList(Type elementType, ShareableValuesList data) {
+		return new List(elementType, data);
+	}
+	
+	private List(Type elementType, ShareableValuesList data){
 		super();
 		
 		if (data.isEmpty())
@@ -288,7 +292,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		for(IValue t1 : this){
 			for(IValue t2 : lst){
 				IValue vals[] = {t1, t2};
-				ITuple t3 = new Tuple(resultType, vals);
+				ITuple t3 = Tuple.newTuple(resultType, vals);
 				w.insert(t3);
 			}
 		}

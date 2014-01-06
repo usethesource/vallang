@@ -36,8 +36,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 /*package*/ class DateTimeValues {
 
 	private final static Type DATE_TIME_TYPE = TypeFactory.getInstance().dateTimeType();
-
-	/*package*/ static class DateValue extends AbstractValue implements IDateTime {
+	
+	/*package*/ static IDateTime newDate(int year, int month, int day) {
+		return new DateTimeValues.DateValue(year, month, day);
+	}
+	
+	private static class DateValue extends AbstractValue implements IDateTime {
 
 		private int year;
 		private int month;
@@ -50,7 +54,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		 * @param month			The month of the date
 		 * @param day			The day of the date
 		 */
-		/*package*/ DateValue(int year, int month, int day) {
+		private DateValue(int year, int month, int day) {
 			super();
 
 			this.year = year;
@@ -244,7 +248,16 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	/*package*/ static class TimeValue extends AbstractValue implements IDateTime {
+	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond) {
+		return new DateTimeValues.TimeValue(hour, minute, second, millisecond);
+	}
+
+	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond,
+						  int hourOffset, int minuteOffset) {
+		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset);
+	}
+	
+	private static class TimeValue extends AbstractValue implements IDateTime {
 
 		private int hour;
 		private int minute;
@@ -281,7 +294,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		 * @param second		The second of the time
 		 * @param millisecond	The millisecond of the time
 		 */
-		/*package*/ TimeValue(int hour, int minute, int second, int millisecond) {
+		private TimeValue(int hour, int minute, int second, int millisecond) {
 			super();
 			
 			this.hour = hour;
@@ -321,7 +334,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		 * @param hourOffset	The timezone offset of the time, in hours
 		 * @param minuteOffset	The timezone offset of the time, in minutes
 		 */
-		/*package*/ TimeValue(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+		private TimeValue(int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
 			super();
 			
 			this.hour = hour;
@@ -531,7 +544,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 	}
 
-	/*package*/ static class DateTimeValue extends AbstractValue implements IDateTime {
+	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
+							  int minute, int second, int millisecond) {
+		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond);
+	}
+
+	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
+							  int minute, int second, int millisecond, int hourOffset,
+							  int minuteOffset) {
+		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
+	}
+
+	/*package*/ static IDateTime newDateTime(long instant) {
+		return new DateTimeValues.DateTimeValue(instant);
+	}
+	
+	private static class DateTimeValue extends AbstractValue implements IDateTime {
 
 		private int year;
 		private int month;
@@ -554,7 +582,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		 * @param second		The second of the datetime
 		 * @param millisecond	The millisecond of the datetime
 		 */
-		/*package*/ DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond) {
+		private DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond) {
 			super();
 			
 			this.year = year;
@@ -598,7 +626,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		 * @param hourOffset	The timezone offset of the time, in hours
 		 * @param minuteOffset	The timezone offset of the time, in minutes
 		 */
-		/*package*/ DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
+		private DateTimeValue(int year, int month, int day, int hour, int minute, int second, int millisecond, int hourOffset, int minuteOffset) {
 			super();
 			this.year = year;
 			this.month = month;
@@ -630,7 +658,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		 * 
 		 * @param instant The millisecond instant.
 		 */
-		/*package*/ DateTimeValue(long instant) {
+		private DateTimeValue(long instant) {
 			super();
 			
 			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());

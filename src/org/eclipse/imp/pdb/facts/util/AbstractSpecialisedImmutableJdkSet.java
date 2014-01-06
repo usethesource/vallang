@@ -14,58 +14,57 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class AbstractSpecialisedImmutableSet<K> extends
-		AbstractCollection<K> implements ImmutableSet<K> {
+public abstract class AbstractSpecialisedImmutableJdkSet<K> extends
+		AbstractCollection<K> implements ImmutableJdkSet<K> {
 
 	@SuppressWarnings("rawtypes")
-	private static ImmutableSet EMPTY_SET = new Set0();
+	private static ImmutableJdkSet EMPTY_SET = new Set0();
 
 	@SuppressWarnings("unchecked")
-	public static <K> ImmutableSet<K> setOf() {
+	public static <K> ImmutableJdkSet<K> setOf() {
 		return EMPTY_SET;
 	}
 	
-	public static <K> ImmutableSet<K> setOf(K key1) {
+	public static <K> ImmutableJdkSet<K> setOf(K key1) {
 		return new Set1<K>(key1);
 	}
 
-	public static <K> ImmutableSet<K> setOf(K key1, K key2) {
+	public static <K> ImmutableJdkSet<K> setOf(K key1, K key2) {
 		return new Set2<K>(key1, key2);
 	}
 
-	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3) {
+	public static <K> ImmutableJdkSet<K> setOf(K key1, K key2, K key3) {
 		return new Set3<K>(key1, key2, key3);
 	}
 	
-	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3, K key4) {
+	public static <K> ImmutableJdkSet<K> setOf(K key1, K key2, K key3, K key4) {
 		return new Set4<K>(key1, key2, key3, key4);
 	}
 
-	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3, K key4, K key5) {
+	public static <K> ImmutableJdkSet<K> setOf(K key1, K key2, K key3, K key4, K key5) {
 		return new Set5<K>(key1, key2, key3, key4, key5);
 	}
 	
-	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3, K key4, K key5, K key6) {
-		return new CopyOnWriteImmutableSet<K>(key1, key2, key3, key4, key5, key6);
+	public static <K> ImmutableJdkSet<K> setOf(K key1, K key2, K key3, K key4, K key5, K key6) {
+		return new CopyOnWriteImmutableJdkSet<K>(key1, key2, key3, key4, key5, key6);
 	}
 	
-	public static <K> ImmutableSet<K> setOf(Set<K> set) {
-		if (set instanceof AbstractSpecialisedImmutableSet) {
-			return (ImmutableSet<K>) set;
+	public static <K> ImmutableJdkSet<K> setOf(Set<K> set) {
+		if (set instanceof AbstractSpecialisedImmutableJdkSet) {
+			return (ImmutableJdkSet<K>) set;
 		} else {
 			return flatten(set);
 		}
 	}
 	
 	@SafeVarargs
-	protected static <K> ImmutableSet<K> flatten(Set<? extends K>... sets) {
-		return CopyOnWriteImmutableSet.flatten(sets);
+	protected static <K> ImmutableJdkSet<K> flatten(Set<? extends K>... sets) {
+		return CopyOnWriteImmutableJdkSet.flatten(sets);
 	}
 	
 	@Override
@@ -97,32 +96,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends
 	public void clear() {
 		throw new UnsupportedOperationException();
 	}
-	
-	@Override
-	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
-	@Override
-	public ImmutableSet<K> __insertEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
-	@Override
-	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set,
-			Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
-	@Override
-	public ImmutableSet<K> __removeEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-	
+		
 	@Override
 	public boolean equals(Object other) {
 		if (other == this) return true;
@@ -148,7 +122,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends
 	}
 }
 
-class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
+class Set0<K> extends AbstractSpecialisedImmutableJdkSet<K> {
 	Set0() {
 	}
 
@@ -168,17 +142,17 @@ class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
 	}
 	
 	@Override
-	public ImmutableSet<K> __insert(K key) {
+	public ImmutableJdkSet<K> __insert(K key) {
 		return new Set1<K>(key);
 	}
 
 	@Override
-	public ImmutableSet<K> __remove(K key) {
+	public ImmutableJdkSet<K> __remove(K key) {
 		return this;
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableJdkSet<K> __insertAll(Set<? extends K> set) {
 		return flatten(this, set);
 	}
 		
@@ -188,7 +162,7 @@ class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
 	}
 }
 
-class Set1<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
+class Set1<K> extends AbstractSpecialisedImmutableJdkSet<K> implements Cloneable {
 	private final K key1;
 
 	Set1(K key1) {
@@ -215,7 +189,7 @@ class Set1<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 	
 	@Override
-	public ImmutableSet<K> __insert(K key) {
+	public ImmutableJdkSet<K> __insert(K key) {
 		if (key.equals(key1))
 			return setOf(key);
 		else
@@ -223,7 +197,7 @@ class Set1<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __remove(K key) {
+	public ImmutableJdkSet<K> __remove(K key) {
 		if (key.equals(key1))
 			return setOf();
 		else
@@ -231,7 +205,7 @@ class Set1<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableJdkSet<K> __insertAll(Set<? extends K> set) {
 		return flatten(this, set);
 	}
 
@@ -251,7 +225,7 @@ class Set1<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 }
 
-class Set2<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
+class Set2<K> extends AbstractSpecialisedImmutableJdkSet<K> implements Cloneable {
 	private final K key1;
 	private final K key2;
 
@@ -286,7 +260,7 @@ class Set2<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}	
 	
 	@Override
-	public ImmutableSet<K> __insert(K key) {
+	public ImmutableJdkSet<K> __insert(K key) {
 		if (key.equals(key1))
 			return setOf(key, key2);
 		else if (key.equals(key2))
@@ -296,7 +270,7 @@ class Set2<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __remove(K key) {
+	public ImmutableJdkSet<K> __remove(K key) {
 		if (key.equals(key1))
 			return setOf(key2);
 		else if (key.equals(key2))
@@ -306,7 +280,7 @@ class Set2<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 	
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableJdkSet<K> __insertAll(Set<? extends K> set) {
 		return flatten(this, set);
 	}
 
@@ -327,7 +301,7 @@ class Set2<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 }
 
-class Set3<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
+class Set3<K> extends AbstractSpecialisedImmutableJdkSet<K> implements Cloneable {
 	private final K key1;
 	private final K key2;
 	private final K key3;
@@ -368,7 +342,7 @@ class Set3<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}	
 	
 	@Override
-	public ImmutableSet<K> __insert(K key) {
+	public ImmutableJdkSet<K> __insert(K key) {
 		if (key.equals(key1))
 			return setOf(key, key2, key3);
 		else if (key.equals(key2))
@@ -381,7 +355,7 @@ class Set3<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __remove(K key) {
+	public ImmutableJdkSet<K> __remove(K key) {
 		if (key.equals(key1))
 			return setOf(key2, key3);
 		else if (key.equals(key2))
@@ -393,7 +367,7 @@ class Set3<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableJdkSet<K> __insertAll(Set<? extends K> set) {
 		return flatten(this, set);
 	}
 	
@@ -415,7 +389,7 @@ class Set3<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 }
 
-class Set4<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
+class Set4<K> extends AbstractSpecialisedImmutableJdkSet<K> implements Cloneable {
 	private final K key1;
 	private final K key2;
 	private final K key3;
@@ -463,7 +437,7 @@ class Set4<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 	
 	@Override
-	public ImmutableSet<K> __insert(K key) {
+	public ImmutableJdkSet<K> __insert(K key) {
 		if (key.equals(key1))
 			return setOf(key, key2, key3, key4);
 		else if (key.equals(key2))
@@ -478,7 +452,7 @@ class Set4<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __remove(K key) {
+	public ImmutableJdkSet<K> __remove(K key) {
 		if (key.equals(key1))
 			return setOf(key2, key3, key4);
 		else if (key.equals(key2))
@@ -492,7 +466,7 @@ class Set4<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableJdkSet<K> __insertAll(Set<? extends K> set) {
 		return flatten(this, set);
 	}
 	
@@ -515,7 +489,7 @@ class Set4<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 }
 
-class Set5<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
+class Set5<K> extends AbstractSpecialisedImmutableJdkSet<K> implements Cloneable {
 	private final K key1;
 	private final K key2;
 	private final K key3;
@@ -571,7 +545,7 @@ class Set5<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 	
 	@Override
-	public ImmutableSet<K> __insert(K key) {
+	public ImmutableJdkSet<K> __insert(K key) {
 		if (key.equals(key1))
 			return setOf(key, key2, key3, key4, key5);
 		else if (key.equals(key2))
@@ -588,7 +562,7 @@ class Set5<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 
 	@Override
-	public ImmutableSet<K> __remove(K key) {
+	public ImmutableJdkSet<K> __remove(K key) {
 		if (key.equals(key1))
 			return setOf(key2, key3, key4, key5);
 		else if (key.equals(key2))
@@ -604,7 +578,7 @@ class Set5<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 	}
 	
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableJdkSet<K> __insertAll(Set<? extends K> set) {
 		return flatten(this, set);
 	}
 	
@@ -629,20 +603,20 @@ class Set5<K> extends AbstractSpecialisedImmutableSet<K> implements Cloneable {
 }
 
 /**
- * A {@link ImmutableSet} implementation that wraps an arbitrary {@link Set}. On
+ * A {@link ImmutableJdkSet} implementation that wraps an arbitrary {@link Set}. On
  * modification, the whole Set while be cloned.
  * 
- * Do not construct a {@link CopyOnWriteImmutableSet) with a mutable that might 
+ * Do not construct a {@link CopyOnWriteImmutableJdkSet) with a mutable that might 
  * be modified outside this container.
  * 
  * @param <K>
  *            the type of keys maintained by this Set
  */
-class CopyOnWriteImmutableSet<K> implements ImmutableSet<K> {
+class CopyOnWriteImmutableJdkSet<K> implements ImmutableJdkSet<K> {
 	
 	private final Set<K> content;
 	
-	CopyOnWriteImmutableSet(K key1, K key2, K key3, K key4, K key5, K key6) {
+	CopyOnWriteImmutableJdkSet(K key1, K key2, K key3, K key4, K key5, K key6) {
 		this.content = new HashSet<>(8);
 		
 		this.content.add(key1);
@@ -654,17 +628,17 @@ class CopyOnWriteImmutableSet<K> implements ImmutableSet<K> {
 	}	
 	
 	@SafeVarargs
-	protected static <K> ImmutableSet<K> flatten(Set<? extends K>... sets) {
+	protected static <K> ImmutableJdkSet<K> flatten(Set<? extends K>... sets) {
 		final Set<K> newContent = 
 				new HashSet<>();
 				
 		for (Set<? extends K> set : sets)
 			newContent.addAll(set);
 		
-		return new CopyOnWriteImmutableSet<K>(newContent);
+		return new CopyOnWriteImmutableJdkSet<K>(newContent);
 	}
 		
-	CopyOnWriteImmutableSet(Set<K> content) {
+	CopyOnWriteImmutableJdkSet(Set<K> content) {
 		this.content = content;
 	}
 	
@@ -699,31 +673,6 @@ class CopyOnWriteImmutableSet<K> implements ImmutableSet<K> {
 	}
 	
 	@Override
-	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
-	@Override
-	public ImmutableSet<K> __insertEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
-	@Override
-	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set,
-			Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}
-
-	@Override
-	public ImmutableSet<K> __removeEquivalent(K e, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Not yet implemented.");
-	}	
-
-	@Override
 	public int size() {
 		return content.size();
 	}
@@ -756,33 +705,33 @@ class CopyOnWriteImmutableSet<K> implements ImmutableSet<K> {
 	}
 
 	@Override
-	public ImmutableSet<K> __insert(K keyue) {
+	public ImmutableJdkSet<K> __insert(K keyue) {
 		final Set<K> newContent = 
 				new HashSet<>(content);
 		
 		newContent.add(keyue);
 		
-		return new CopyOnWriteImmutableSet<K>(newContent);		
+		return new CopyOnWriteImmutableJdkSet<K>(newContent);		
 	}
 
 	@Override
-	public ImmutableSet<K> __remove(K key) {
+	public ImmutableJdkSet<K> __remove(K key) {
 		final Set<K> newContent = 
 				new HashSet<>(content);
 		
 		newContent.remove(key);
 		
-		return new CopyOnWriteImmutableSet<K>(newContent);		
+		return new CopyOnWriteImmutableJdkSet<K>(newContent);		
 	}
 	
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableJdkSet<K> __insertAll(Set<? extends K> set) {
 		final Set<K> newContent = 
 				new HashSet<>(content);
 		
 		newContent.addAll(set);
 		
-		return new CopyOnWriteImmutableSet<K>(newContent);		
+		return new CopyOnWriteImmutableJdkSet<K>(newContent);		
 	}
 	
 	@Override

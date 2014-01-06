@@ -72,7 +72,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal abs() {
-		return new BigDecimalValue(value.abs());
+		return newReal(value.abs());
 	}
 	
 	@Override
@@ -353,53 +353,53 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal ln(int precision) {
-		return new BigDecimalValue(BigDecimalCalculations.ln(value, precision));
+		return newReal(BigDecimalCalculations.ln(value, precision));
 	}
 
 	@Override
 	public IReal sqrt(int precision) {
-		return new BigDecimalValue(BigDecimalCalculations.sqrt(value, precision));
+		return newReal(BigDecimalCalculations.sqrt(value, precision));
 	}
 
 	@Override
 	public IReal nroot(IInteger n, int precision) {
-		return new BigDecimalValue(BigDecimalCalculations.intRoot(value, n.longValue(), precision));
+		return newReal(BigDecimalCalculations.intRoot(value, n.longValue(), precision));
 	}
 	
 	@Override
 	public IReal exp(int precision) {
-		return new BigDecimalValue(BigDecimalCalculations.exp(value, precision));
+		return newReal(BigDecimalCalculations.exp(value, precision));
 	}
 
 	@Override
 	public IReal pow(IInteger power) {
-		return new BigDecimalValue(value.pow(power.intValue()));
+		return newReal(value.pow(power.intValue()));
 	}
 
 	@Override
 	public IReal tan(int precision) {
-		return new BigDecimalValue(BigDecimalCalculations.tan(value, precision));
+		return newReal(BigDecimalCalculations.tan(value, precision));
 	}
 
 	@Override
 	public IReal sin(int precision) {
-		return new BigDecimalValue(BigDecimalCalculations.sin(value, precision));
+		return newReal(BigDecimalCalculations.sin(value, precision));
 	}
 
 	@Override
 	public IReal cos(int precision) {
-		return new BigDecimalValue(BigDecimalCalculations.cos(value, precision));
+		return newReal(BigDecimalCalculations.cos(value, precision));
 	}
 
 	public static IReal pi(int precision) {
 		if (precision < 0 || precision > 1000)
 			throw new IllegalArgumentException("PI max precision is 1000");
-		return new BigDecimalValue(BigDecimalCalculations.PI.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
+		return newReal(BigDecimalCalculations.PI.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
 	}
 	
 	public static IReal e(int precision) {
 		if (precision < 0 || precision > 1000)
 			throw new IllegalArgumentException("E max precision is 1000");
-		return new BigDecimalValue(BigDecimalCalculations.E.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
+		return newReal(BigDecimalCalculations.E.setScale(precision, BigDecimal.ROUND_HALF_EVEN));
 	}	
 }

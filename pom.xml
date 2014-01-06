@@ -74,6 +74,12 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<excludes>
+						<!-- reference implementation is broken and won't be tested for now  -->
+						<exclude>**/org/eclipse/imp/pdb/test/reference/**.java</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

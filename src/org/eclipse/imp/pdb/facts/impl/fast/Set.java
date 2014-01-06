@@ -37,7 +37,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	protected final ShareableValuesHashSet data;
 	
-	/*package*/ Set(Type elementType, ShareableValuesHashSet data){
+	/*package*/ static ISet newSet(Type elementType, ShareableValuesHashSet data) {
+		return new Set(elementType, data);
+	}
+		
+	private Set(Type elementType, ShareableValuesHashSet data) {
 		super();
 
 		if (data.isEmpty())
@@ -195,7 +199,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				IValue right = setIterator.next();
 				
 				IValue[] tuple = new IValue[]{left, right};
-				newData.add(new Tuple(tupleType, tuple));
+				newData.add(Tuple.newTuple(tupleType, tuple));
 			}
 		}
 		

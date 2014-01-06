@@ -13,7 +13,7 @@ import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableJdkMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 /**
@@ -147,7 +147,7 @@ public class Constructor extends Node implements IConstructor {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,
-					ImmutableMap<String, IValue> annotations) {
+					ImmutableJdkMap<String, IValue> annotations) {
 				return new AnnotatedConstructorFacade(content, annotations);
 			}
 		};

@@ -14,23 +14,20 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.Comparator;
 import java.util.Set;
 
-public interface ImmutableSet<E> extends Set<E> {
-	ImmutableSet<E> __insert(E e);
-
-	ImmutableSet<E> __insertAll(Set<? extends E> set);
+public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
 	
-	ImmutableSet<E> __remove(E e);
-
-	/*
-	 * TODO: move up to Collection Interface that is concerned with different
-	 * equalities
-	 */
-	boolean containsEquivalent(Object o, Comparator<Object> cmp);
-
+	ImmutableSet<E> __insert(E e);
+	
 	ImmutableSet<E> __insertEquivalent(E e, Comparator<Object> cmp);
+
+	ImmutableSet<E> __insertAll(Set<? extends E> set);	
 	
 	ImmutableSet<E> __insertAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
+	
+	// TODO: Generic type E or Object like in JDK?
+	ImmutableSet<E> __remove(E e);
 
+	// TODO: Generic type E or Object like in JDK?
 	ImmutableSet<E> __removeEquivalent(E e, Comparator<Object> cmp);
 
 }

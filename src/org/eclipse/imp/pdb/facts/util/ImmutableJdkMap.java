@@ -11,23 +11,14 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.Comparator;
-import java.util.Set;
+import java.util.Map;
 
-public interface TransientSet<E> { // extends ImmutableCollection<E>, Set<E> {
+public interface ImmutableJdkMap<K, V> extends Map<K, V> {
 
-	boolean __insert(E e);
-	
-	boolean __insertEquivalent(E e, Comparator<Object> cmp);
+	ImmutableJdkMap<K, V> __put(K key, V value);
 
-	boolean __insertAll(Set<? extends E> set);	
+	ImmutableJdkMap<K, V> __putAll(Map<? extends K, ? extends V> map);
 	
-	boolean __insertAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
-	
-	boolean __remove(E e);
-	
-	boolean __removeEquivalent(E e, Comparator<Object> cmp);
-	
-	ImmutableSet<E> freeze();
-	
+	ImmutableJdkMap<K, V> __remove(K key);
+
 }

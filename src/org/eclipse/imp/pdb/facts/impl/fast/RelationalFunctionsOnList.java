@@ -106,7 +106,7 @@ public class RelationalFunctionsOnList {
 				ITuple tuple2 = (ITuple) t2;
 				
 				if (tuple1.get(1).isEqual(tuple2.get(0))) {
-						w.append(new Tuple(tuple1.get(0), tuple2.get(1)));
+						w.append(Tuple.newTuple(tuple1.get(0), tuple2.get(1)));
 				}
 			}
 		}
@@ -145,7 +145,7 @@ public class RelationalFunctionsOnList {
 		IListWriter reflex = List.createListWriter(resultType.getElementType());
 
 		for (IValue e: carrier(rel1)) {
-			reflex.insert(new Tuple(new IValue[] {e, e}));
+			reflex.insert(Tuple.newTuple(new IValue[] {e, e}));
 		}
 		
 		return closure(rel1).concat(reflex.done());

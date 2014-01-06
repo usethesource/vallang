@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.AbstractMap;
 import java.util.Map;
 
-public abstract class AbstractImmutableMap<K, V> extends AbstractMap<K, V> implements ImmutableMap<K,V> {
+public abstract class AbstractImmutableMap<K, V> extends AbstractMap<K, V> implements ImmutableJdkMap<K,V> {
 
 	@Override
 	public V remove(Object key) {
