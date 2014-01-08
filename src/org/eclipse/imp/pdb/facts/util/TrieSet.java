@@ -204,10 +204,10 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return contains(o, o.hashCode(), 0, cmp);
 	}
 
-//	abstract Iterator<K> flatIterator();
-
+	abstract boolean hasValues();
 	abstract Iterator<K> valueIterator();
 	
+	abstract boolean hasNodes();
 	abstract Iterator<TrieSet<K>> nodeIterator();
 }
 
@@ -218,6 +218,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	private int valmap;
 	private Object[] nodes;
 	private int cachedSize;
+	private int cachedValmapBitCount;
 
 	InplaceIndexNode(int bitmap, int valmap, Object[] nodes, int cachedSize) {
 		assert (Integer.bitCount(bitmap) == nodes.length);
@@ -227,6 +228,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		this.nodes = nodes;
 
 		this.cachedSize = cachedSize;
+		this.cachedValmapBitCount = Integer.bitCount(valmap);
 	}
 
 	InplaceIndexNode(int bitmap, int valmap, Object node, int cachedSize) {
@@ -267,6 +269,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		final int bitpos = (1 << mask);
 		final int bitIndex = bitIndex(bitpos);
 		final int valIndex = valIndex(bitpos);
+		final int valCount = Integer.bitCount(valmap);
 
 		if ((bitmap & bitpos) == 0) {
 			// no entry, create new node with inplace value		
@@ -277,7 +280,8 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				nodes = nodesReplacement;
 				bitmap |= bitpos;
 				valmap |= bitpos;
-				cachedSize = cachedSize + 1;				
+				cachedSize = cachedSize + 1;
+				cachedValmapBitCount = valCount + 1;
 				return this;
 			} else {
 				// immutable copy
@@ -302,6 +306,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				bitmap |=  bitpos;
 				valmap &= ~bitpos;
 				cachedSize = cachedSize + 1;
+				cachedValmapBitCount = valCount - 1;
 				return this;
 			} else {
 				// immutable copy
@@ -415,81 +420,29 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<K> iterator() {
-		return new RecursiveIterator(this);
+		return new TrieSetIterator(this);
 	}
 	
-//	@Override
-//	@SuppressWarnings("unchecked")
-//	public Iterator<K> flatIterator() {
-//		return (Iterator<K>) ArrayIterator.of(nodes);
-//	}
-//
-//	/**
-//	 * Recursive iterator: if an element is of type iterator, the elements
-//	 * iterator will be added, instead of the element itself.
-//	 *
-//	 * Underlying implementation assumption: no iterable element returns and empty iterator.
-//	 */
-//	private static class RecursiveIterator implements Iterator {
-//
-//		final Stack<Iterator> itStack;
-//
-//		RecursiveIterator(Object[] array) {
-//			itStack = new Stack<>();
-//			itStack.push(ArrayIterator.of(array));
-//		}
-//
-//		@Override
-//		public boolean hasNext() {
-//			while (!itStack.isEmpty()) {
-//				if (itStack.peek().hasNext())
-//					return true;
-//				else
-//					itStack.pop();
-//			}
-//			return false;
-//		}
-//
-//		@Override
-//		public Object next() {
-//			if (!hasNext()) throw new NoSuchElementException();
-//			final Object next = itStack.peek().next();
-//
-//			if (next instanceof TrieSet) {
-//				itStack.push(((TrieSet) next).flatIterator());
-//
-//				assert hasNext();
-//				return next();
-//			} else {
-//				return next;
-//			}
-//		}
-//
-//		@Override
-//		public void remove() {
-//			throw new UnsupportedOperationException();
-//		}
-//	}
-	
-
 	/**
-	 * Recursive iterator: if an element is of type iterator, the elements
-	 * iterator will be added, instead of the element itself.
-	 *
-	 * Underlying implementation assumption: no iterable element returns and empty iterator.
+	 * Iterator that first iterates over inlined-values and then
+	 * continues depth first recursively.
 	 */
-	private static class RecursiveIterator implements Iterator {
+	private static class TrieSetIterator implements Iterator {
 
-		final Stack<TrieSet> nodeIterationStack;
+		final Deque<Iterator<TrieSet>> nodeIterationStack;
 		Iterator<?> valueIterator;
-		Iterator<TrieSet> nodeIterator;
 		
-		RecursiveIterator(TrieSet trieSet) {
-			nodeIterationStack = new Stack<>();
-//			itStack.push(trieSet.nodeIterator());
-			
-			valueIterator = trieSet.valueIterator();
-			nodeIterator = trieSet.nodeIterator();
+		TrieSetIterator(TrieSet trieSet) {			
+			if (trieSet.hasValues()) {
+				valueIterator = trieSet.valueIterator();
+			} else {
+				valueIterator = Collections.emptyIterator();
+			}
+
+			nodeIterationStack = new ArrayDeque<>();
+			if (trieSet.hasNodes()) {
+				nodeIterationStack.push(trieSet.nodeIterator());
+			}
 		}
 
 		@Override
@@ -498,16 +451,21 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				if (valueIterator.hasNext()) {
 					return true;
 				} else {						
-					if (nodeIterator.hasNext()) {
-						TrieSet trieSet = nodeIterator.next();						
-						valueIterator = trieSet.valueIterator();
-						nodeIterationStack.push(trieSet);
-						continue;
+					if (nodeIterationStack.isEmpty()) {
+						return false;
 					} else {
-						if (nodeIterationStack.isEmpty()) {
-							return false;
-						} else {						
-							nodeIterator = nodeIterationStack.pop().nodeIterator();
+						if (nodeIterationStack.peek().hasNext()) {
+							TrieSet trieSet = nodeIterationStack.peek().next();						
+							
+							if (trieSet.hasValues())
+								valueIterator = trieSet.valueIterator();
+							
+							if (trieSet.hasNodes()) {
+								nodeIterationStack.push(trieSet.nodeIterator());
+							}
+							continue;
+						} else {
+							nodeIterationStack.pop();
 							continue;
 						}
 					}
@@ -530,14 +488,29 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	@SuppressWarnings("unchecked")
 	@Override
 	Iterator<K> valueIterator() {
-		return (Iterator) ArrayIterator.of(nodes, 0, Integer.bitCount(valmap));
+//		if (cachedValSize == 0) 
+//			return Collections.emptyIterator();
+//		else
+			return (Iterator) ArrayIterator.of(nodes, 0, cachedValmapBitCount);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	Iterator<TrieSet<K>> nodeIterator() {
-		final int valueCount = Integer.bitCount(valmap);		
-		return (Iterator) ArrayIterator.of(nodes, valueCount, nodes.length - valueCount);
+//		if (cachedValSize == nodes.length)
+//			return Collections.emptyIterator();
+//		else
+			return (Iterator) ArrayIterator.of(nodes, cachedValmapBitCount, nodes.length - cachedValmapBitCount);
+	}
+
+	@Override
+	boolean hasValues() {	
+		return cachedValmapBitCount != 0;
+	}
+
+	@Override
+	boolean hasNodes() {
+		return cachedValmapBitCount != nodes.length;
 	}
 
 }	
@@ -621,6 +594,16 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				return new HashCollisionNode<>(hash, (K[]) ArrayUtils.arraycopyAndRemove(keys, i));
 		}
 		return this;
+	}
+
+	@Override
+	boolean hasValues() {
+		return true;
+	}
+
+	@Override
+	boolean hasNodes() {
+		return false;
 	}
 
 }
