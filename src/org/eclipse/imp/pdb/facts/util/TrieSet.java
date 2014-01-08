@@ -357,7 +357,8 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	public TrieSet<K> removed(K key, int hash, int shift, boolean doMutate, Comparator<Object> comparator) {
 		final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
 		final int bitpos = (1 << mask);
-		final int index = index(bitpos);
+		final int bitIndex = bitIndex(bitpos);
+		final int valIndex = valIndex(bitpos);
 
 		if ((bitmap & bitpos) == 0)
 			return this;
@@ -365,7 +366,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		if ((valmap & bitpos) == 0) {
 			// it's a TrieSet node, not a inplace value
 			@SuppressWarnings("unchecked")
-			final TrieSet<K> subNode = (TrieSet<K>) nodes[index];
+			final TrieSet<K> subNode = (TrieSet<K>) nodes[bitIndex];
 			
 			if (doMutate) {
 				final int oldSize = subNode.size();
@@ -375,7 +376,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				 * become nested in a InplaceIndexNode.
 				 */
 				final TrieSet<K> subNodeReplacement = subNode.removed(key, hash, shift + BIT_PARTITION_SIZE, true, comparator);
-				nodes[index] = subNodeReplacement;
+				nodes[bitIndex] = subNodeReplacement;
 				
 				if (oldSize != subNodeReplacement.size()) {
 					// update this node's statistics
@@ -389,24 +390,24 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 					return this;
 				
 				// TODO: optimization if singleton element node is returned
-				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, index, subNodeReplacement);
+				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
 				return new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, this.size() - 1);
 			}
 		} else {
 			// it's an inplace value
-			if (comparator.compare(nodes[index], key) != 0)
+			if (comparator.compare(nodes[valIndex], key) != 0)
 				return this;
 
 			if (doMutate) {
 				// TODO: optimization if singleton element node is returned
-				this.nodes = ArrayUtils.arraycopyAndRemove(nodes, index);
+				this.nodes = ArrayUtils.arraycopyAndRemove(nodes, valIndex);
 				this.bitmap &= ~bitpos;
 				this.valmap &= ~bitpos;
 				this.cachedSize = cachedSize - 1;
 				return this;
 			} else {							
 				// TODO: optimization if singleton element node is returned
-				final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, index);
+				final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, valIndex);
 				return new InplaceIndexNode<>(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, this.size() - 1);
 			}
 		}
