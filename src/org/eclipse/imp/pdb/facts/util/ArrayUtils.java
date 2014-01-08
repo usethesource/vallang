@@ -12,6 +12,12 @@
 package org.eclipse.imp.pdb.facts.util;
 
 public class ArrayUtils {
+	static Object[] arraycopy(Object[] array) {
+		final Object[] arrayNew = new Object[array.length];
+		System.arraycopy(array, 0, arrayNew, 0, array.length);
+		return arrayNew;
+	}
+	
 	static Object[] arraycopyAndSet(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
@@ -19,7 +25,7 @@ public class ArrayUtils {
 		return arrayNew;
 	}
 
-	static Object[] arraycopyMoveBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
+	static Object[] arraycopyAndMoveToBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		if (indexNew == indexOld) {
 			return arraycopyAndSet(array, indexNew, elementNew);
 		} else {
