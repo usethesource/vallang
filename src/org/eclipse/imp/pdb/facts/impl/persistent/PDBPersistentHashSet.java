@@ -128,6 +128,15 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other == null)
 			return false;
 		
+		if (other instanceof PDBPersistentHashSet) {
+			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return content.equals(that.content);
+		}
+		
 		if (other instanceof ISet) {
 			ISet that = (ISet) other;
 

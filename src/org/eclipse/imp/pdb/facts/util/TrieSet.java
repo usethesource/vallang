@@ -269,7 +269,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		final int bitpos = (1 << mask);
 		final int bitIndex = bitIndex(bitpos);
 		final int valIndex = valIndex(bitpos);
-		final int valCount = Integer.bitCount(valmap);
+		final int valmapBitCount = Integer.bitCount(valmap);
 
 		if ((bitmap & bitpos) == 0) {
 			// no entry, create new node with inplace value		
@@ -281,7 +281,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				bitmap |= bitpos;
 				valmap |= bitpos;
 				cachedSize = cachedSize + 1;
-				cachedValmapBitCount = valCount + 1;
+				cachedValmapBitCount = valmapBitCount + 1;
 				return this;
 			} else {
 				// immutable copy
@@ -306,7 +306,7 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 				bitmap |=  bitpos;
 				valmap &= ~bitpos;
 				cachedSize = cachedSize + 1;
-				cachedValmapBitCount = valCount - 1;
+				cachedValmapBitCount = valmapBitCount - 1;
 				return this;
 			} else {
 				// immutable copy
@@ -513,6 +513,40 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 		return cachedValmapBitCount != nodes.length;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 0;
+		result = prime * result + bitmap;
+		result = prime * result + valmap;
+		result = prime * result + Arrays.hashCode(nodes);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object that) {
+		if (null == that) {
+			return false;
+		}
+		if (this == that) {
+			return true;
+		}
+		if (getClass() != that.getClass()) {
+			return false;
+		}
+		InplaceIndexNode other = (InplaceIndexNode) that;
+		if (bitmap != other.bitmap) {
+			return false;
+		}
+		if (valmap != other.valmap) {
+			return false;
+		}
+		if (!Arrays.equals(nodes, other.nodes)) {
+			return false;
+		}
+		return true;
+	}
+
 }	
 
 @SuppressWarnings("rawtypes")
@@ -604,6 +638,47 @@ public abstract class TrieSet<K> extends AbstractImmutableSet<K> {
 	@Override
 	boolean hasNodes() {
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 0;
+		result = prime * result + hash;
+		result = prime * result + Arrays.hashCode(keys);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (null == obj) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		HashCollisionNode other = (HashCollisionNode) obj;
+		
+		if (hash != other.hash) {
+			return false;
+		}
+
+		// not possible due to arbitrary order
+//		if (!Arrays.equals(keys, other.keys)) {
+//			return false;
+//		}
+		
+		for (K key : keys) {
+			if (!other.contains(key)) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 }
