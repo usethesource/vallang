@@ -212,8 +212,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	
 	@SuppressWarnings("unchecked")
 	static <K> AbstractNode<K> mergeNodes(Object node0, int hash0, Object node1, int hash1, int shift) {
-		assert (!(node0 instanceof TrieSet));
-		assert (!(node1 instanceof TrieSet));
+		assert (!(node0 instanceof AbstractNode));
+		assert (!(node1 instanceof AbstractNode));
 
 		if (hash0 == hash1)
 			return new HashCollisionNode<>(hash0, (K[]) new Object[]{node0, node1});
@@ -246,7 +246,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	static <K> AbstractNode<K> mergeNodes(TrieSet node0, int hash0, TrieSet node1, int hash1, int shift) {
+	static <K> AbstractNode<K> mergeNodes(AbstractNode node0, int hash0, TrieSet node1, int hash1, int shift) {
 		final int mask0 = (hash0 >>> shift) & BIT_PARTITION_MASK;
 		final int mask1 = (hash1 >>> shift) & BIT_PARTITION_MASK;
 
@@ -275,8 +275,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	static <K> AbstractNode<K> mergeNodes(TrieSet node0, int hash0, Object node1, int hash1, int shift) {
-		assert (!(node1 instanceof TrieSet));
+	static <K> AbstractNode<K> mergeNodes(AbstractNode node0, int hash0, Object node1, int hash1, int shift) {
+		assert (!(node1 instanceof AbstractNode));
 
 		final int mask0 = (hash0 >>> shift) & BIT_PARTITION_MASK;
 		final int mask1 = (hash1 >>> shift) & BIT_PARTITION_MASK;
@@ -507,7 +507,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		if ((bitmap & bitpos) == 0) { // no value
 			InplaceIndexNode<K> editableNode = editAndInsert(mutator, valIndex, key);
-			editableNode.updateBitmaps(bitmap |= bitpos, valmap |= bitpos,
+			editableNode.updateBitmaps(bitmap | bitpos, valmap | bitpos,
 					cachedValmapBitCount + 1);			
 			return MutationResult.fromModified(editableNode);
 		}
@@ -522,7 +522,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				AbstractNode nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);				
 				
 				InplaceIndexNode<K> editableNode = editAndMoveToBack(mutator, valIndex, bitIndexNew, nodeNew);
-				editableNode.updateBitmaps(bitmap |= bitpos, valmap &= ~bitpos,
+				editableNode.updateBitmaps(bitmap | bitpos, valmap & ~bitpos,
 						cachedValmapBitCount - 1);								
 				return MutationResult.fromModified(editableNode); 
 			}
@@ -609,8 +609,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			} else {
 				// TODO: optimization if singleton element node is returned
 				InplaceIndexNode<K> editableNode = editAndRemove(mutator, valIndex);
-				editableNode.updateBitmaps(this.bitmap &= ~bitpos,
-						this.valmap &= ~bitpos, cachedValmapBitCount - 1);
+				editableNode.updateBitmaps(this.bitmap & ~bitpos,
+						this.valmap & ~bitpos, cachedValmapBitCount - 1);
 				return MutationResult.fromModified(editableNode);
 			}
 		}
@@ -736,9 +736,15 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	MutationResult<AbstractNode<K>> updated(AtomicReference<Thread> mutator, K key, int hash,
-			int shift, Comparator<Object> cmp) {
-		// TODO specialize
-		return MutationResult.fromModified(updated(key, hash, shift, cmp));
+			int shift, Comparator<Object> cmp) {	
+		AbstractNode nodeResult = updated(key, hash, shift, cmp);
+		
+		if (nodeResult == this) {
+			return MutationResult.fromUnchanged(this);
+		} else {			
+			return MutationResult.fromModified(nodeResult);
+		}		
+
 	}
 
 	/**
@@ -761,8 +767,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	@Override
 	MutationResult<AbstractNode<K>> removed(AtomicReference<Thread> mutator, K key, int hash,
 			int shift, Comparator<Object> comparator) {
-		// TODO specialize
-		return MutationResult.fromModified(removed(key, hash, shift, comparator));
+		AbstractNode nodeResult = removed(key, hash, shift, comparator);
+		
+		if (nodeResult == this) {
+			return MutationResult.fromUnchanged(this);
+		} else {			
+			return MutationResult.fromModified(nodeResult);
+		}		
 	}	
 
 	@Override
