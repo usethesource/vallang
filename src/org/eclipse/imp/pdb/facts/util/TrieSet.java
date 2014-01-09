@@ -19,12 +19,13 @@ import org.eclipse.imp.pdb.facts.util.AbstractNode.MutationResult;
 @SuppressWarnings("rawtypes")
 public class TrieSet<K> extends AbstractImmutableSet<K> {
 
-	private static final TrieSet EMPTY = new TrieSet(AbstractNode.EMPTY, 0);
+	@SuppressWarnings("unchecked")
+	private static final TrieSet EMPTY = new TrieSet(AbstractNode.EMPTY_NODE, 0);
 	
-	final private AbstractNode rootNode;
+	final private AbstractNode<K> rootNode;
 	final private int cachedSize; 
 	
-	TrieSet(AbstractNode rootNode, int cachedSize) {
+	TrieSet(AbstractNode<K> rootNode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.cachedSize = cachedSize;
 	}
@@ -39,7 +40,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	
 	@SafeVarargs
 	public static final <K> TransientSet<K> transientOf(K... elements) {
-		TransientSet<K> transientSet = new TransientTrieSet<>();
+		TransientSet<K> transientSet = new TransientTrieSet<>(EMPTY);
 		for (K k : elements) 
 			transientSet.__insert(k);
 		return transientSet;
@@ -62,8 +63,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public TrieSet<K> __insertEquivalent(K k, Comparator<Object> cmp) {
-		AbstractNode resultNode = rootNode.updated(k, k.hashCode(), 0, cmp);		
-		return (resultNode == rootNode) ? this : new TrieSet(resultNode, cachedSize + 1);
+		AbstractNode<K> resultNode = rootNode.updated(k, k.hashCode(), 0, cmp);		
+		return (resultNode == rootNode) ? this : new TrieSet<K>(resultNode, cachedSize + 1);
 	}
 	
 	/*
@@ -97,8 +98,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public TrieSet<K> __removeEquivalent(K k, Comparator<Object> cmp) {
-		AbstractNode resultNode = rootNode.removed(k, k.hashCode(), 0, cmp);
-		return (resultNode == rootNode) ? this : new TrieSet(resultNode, cachedSize - 1);
+		AbstractNode<K> resultNode = rootNode.removed(k, k.hashCode(), 0, cmp);
+		return (resultNode == rootNode) ? this : new TrieSet<K>(resultNode, cachedSize - 1);
 	}
 
 	@Override
@@ -182,7 +183,171 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
-	}	
+	}
+
+	// TODO: maybe move to ImmutableSet interface?
+	public boolean isTransientSupported() {
+		return true;
+	}
+
+	// TODO: maybe move to ImmutableSet interface?
+	public TransientSet<K> asTransient() {
+		return new TransientTrieSet<K>(this);
+	}
+	
+	/*
+	 * TODO: exchange TrieSet.equivalenceComparator() with standard equality operator
+	 */
+	static final class TransientTrieSet<E> implements TransientSet<E> {		
+		final private AtomicReference<Thread> mutator;		
+		private AbstractNode<E> rootNode;
+		private int cachedSize; 
+				
+		TransientTrieSet(TrieSet<E> trieSet) {
+			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
+			this.rootNode = trieSet.rootNode;
+			this.cachedSize = trieSet.cachedSize;
+		}
+
+		@Override
+		public boolean __insert(E e) {
+			return __insertEquivalent(e, TrieSet.equivalenceComparator());
+		}
+
+		@Override
+		public boolean __insertEquivalent(E e, Comparator<Object> cmp) {
+			 MutationResult<AbstractNode<E>> result = rootNode.updated(mutator, e, e.hashCode(), 0, cmp);		
+			 
+			 if (result.isModified()) {
+				 rootNode = result.getValue();
+				 cachedSize += 1;
+				 return true;
+			 } else {
+				 return false;
+			 }
+		}
+
+		@Override
+		public boolean __remove(E e) {
+			return __removeEquivalent(e, TrieSet.equivalenceComparator());
+		}
+
+		@Override
+		public boolean __removeEquivalent(E e, Comparator<Object> cmp) {
+			MutationResult<AbstractNode<E>> result = rootNode.removed(mutator, (E) e, e.hashCode(), 0, cmp);
+
+			if (result.isModified()) {
+				rootNode = result.getValue();
+				 cachedSize -= 1;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		@Override
+		public boolean __insertAll(Set<? extends E> set) {
+			return __insertAllEquivalent(set, TrieSet.equivalenceComparator());
+		}
+
+		@Override
+		public boolean __insertAllEquivalent(Set<? extends E> set,
+				Comparator<Object> cmp) {
+			boolean modified = false;
+
+			for (E e : set) {
+				if (__insertEquivalent(e, cmp)) {
+					modified = true;
+					cachedSize += 1;
+				}
+			}
+							
+			return modified;	
+		}	
+		
+//		@Override
+//		public boolean removeAll(Collection<?> c) {
+//			boolean modified = false;
+	//
+//			for (Object o : c)
+//				modified |= remove(o);
+//							
+//			return modified;
+//		}
+	//
+//		@Override
+//		public boolean retainAll(Collection<?> c) {
+//			throw new UnsupportedOperationException();
+//		}
+	//
+//		@Override
+//		public void clear() {
+//			// allocated a new empty instance, because transient allows inplace modification.
+//			content = new InplaceIndexNode<>(0, 0, new TrieSet[0], 0);
+//		}	
+	//
+//		@Override
+//		public Iterator<E> iterator() {
+//			return content.iterator();
+//		}
+	//
+//		@Override
+//		public int size() {
+//			return content.size();
+//		}
+	//
+//		@Override
+//		public boolean isEmpty() {
+//			return content.isEmpty();
+//		}
+	//
+//		@Override
+//		public boolean contains(Object o) {
+//			return content.contains(o);
+//		}
+	//	
+//		@Override
+//		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
+//			// TODO Auto-generated method stub
+//			return false;
+//		}
+	//
+//		@Override
+//		public Object[] toArray() {
+//			return content.toArray();
+//		}
+	//
+//		@Override
+//		public <T> T[] toArray(T[] a) {
+//			return content.toArray(a);
+//		}
+	//
+//		@Override
+//		public boolean containsAll(Collection<?> c) {
+//			return content.containsAll(c);
+//		}
+
+		@Override
+		public boolean equals(Object o) {
+			return rootNode.equals(o);
+		}
+		
+		@Override
+		public int hashCode() {
+			return rootNode.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return rootNode.toString();
+		}
+		
+		@Override
+		public ImmutableSet<E> freeze() {
+			mutator.set(null);
+			return new TrieSet<E>(rootNode, cachedSize);
+		}		
+	}
 	
 }
 
@@ -192,7 +357,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	protected static final int BIT_PARTITION_SIZE = 5;
 	protected static final int BIT_PARTITION_MASK = 0x1f;
 	
-	protected static final AbstractNode EMPTY = new InplaceIndexNode(0, 0, new Object[0]);
+	protected static final AbstractNode EMPTY_NODE = new InplaceIndexNode(0, 0, new Object[0]);
 	
 	abstract boolean contains(Object key, int hash, int shift, Comparator<Object> comparator);
 	
@@ -411,7 +576,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		final int bitpos = (1 << mask);
 		final int bitIndex = bitIndex(bitpos);
 		final int valIndex = valIndex(bitpos);
-//		final int valmapBitCount = Integer.bitCount(valmap);
 
 		if ((bitmap & bitpos) == 0) {
 			// no entry, create new node with inplace value		
@@ -827,159 +991,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 		
 		return true;
-	}
-	
-}
-
-/*
- * TODO: exchange TrieSet.equivalenceComparator() with standard equality operator
- */
-class TransientTrieSet<E> implements TransientSet<E> {
-	
-	private AtomicReference<Thread> mutator = new AtomicReference<Thread>(Thread.currentThread());
-	
-	private AbstractNode<E> rootNode;
-	private int cachedSize; 
-
-	
-	/*package*/ TransientTrieSet() {
-		rootNode = new InplaceIndexNode(mutator, 0, 0, new Object[0]); // AbstractNode.EMPTY;
-		cachedSize = 0;
-	}
-	
-	@Override
-	public boolean __insert(E e) {
-		return __insertEquivalent(e, TrieSet.equivalenceComparator());
-	}
-
-	@Override
-	public boolean __insertEquivalent(E e, Comparator<Object> cmp) {
-		 MutationResult<AbstractNode<E>> result = rootNode.updated(mutator, e, e.hashCode(), 0, cmp);		
-		 
-		 if (result.isModified()) {
-			 rootNode = result.getValue();
-			 cachedSize += 1;
-			 return true;
-		 } else {
-			 return false;
-		 }
-	}
-
-	@Override
-	public boolean __remove(E e) {
-		return __removeEquivalent(e, TrieSet.equivalenceComparator());
-	}
-
-	@Override
-	public boolean __removeEquivalent(E e, Comparator<Object> cmp) {
-		MutationResult<AbstractNode<E>> result = rootNode.removed(mutator, (E) e, e.hashCode(), 0, cmp);
-
-		if (result.isModified()) {
-			rootNode = result.getValue();
-			 cachedSize -= 1;
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	@Override
-	public boolean __insertAll(Set<? extends E> set) {
-		return __insertAllEquivalent(set, TrieSet.equivalenceComparator());
-	}
-
-	@Override
-	public boolean __insertAllEquivalent(Set<? extends E> set,
-			Comparator<Object> cmp) {
-		boolean modified = false;
-
-		for (E e : set)
-			modified |= __insertEquivalent(e, cmp);
-						
-		return modified;	
-	}	
-	
-//	@Override
-//	public boolean removeAll(Collection<?> c) {
-//		boolean modified = false;
-//
-//		for (Object o : c)
-//			modified |= remove(o);
-//						
-//		return modified;
-//	}
-//
-//	@Override
-//	public boolean retainAll(Collection<?> c) {
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	@Override
-//	public void clear() {
-//		// allocated a new empty instance, because transient allows inplace modification.
-//		content = new InplaceIndexNode<>(0, 0, new TrieSet[0], 0);
-//	}	
-//
-//	@Override
-//	public Iterator<E> iterator() {
-//		return content.iterator();
-//	}
-//
-//	@Override
-//	public int size() {
-//		return content.size();
-//	}
-//
-//	@Override
-//	public boolean isEmpty() {
-//		return content.isEmpty();
-//	}
-//
-//	@Override
-//	public boolean contains(Object o) {
-//		return content.contains(o);
-//	}
-//	
-//	@Override
-//	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-//
-//	@Override
-//	public Object[] toArray() {
-//		return content.toArray();
-//	}
-//
-//	@Override
-//	public <T> T[] toArray(T[] a) {
-//		return content.toArray(a);
-//	}
-//
-//	@Override
-//	public boolean containsAll(Collection<?> c) {
-//		return content.containsAll(c);
-//	}
-
-	@Override
-	public boolean equals(Object o) {
-		return rootNode.equals(o);
-	}
-	
-	@Override
-	public int hashCode() {
-		return rootNode.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return rootNode.toString();
-	}
-	
-	@Override
-	public ImmutableSet<E> freeze() {
-		mutator.set(null);
-		return new TrieSet(rootNode, cachedSize);
 	}
 	
 }
