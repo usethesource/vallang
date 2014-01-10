@@ -182,4 +182,28 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		return false;
 	}
 
+	@Override
+	public ISet union(ISet other) {
+		if (other == this)
+			return this;
+		if (other == null)
+			return this;
+
+		if (other instanceof PDBPersistentHashSet) {
+			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+
+			if (that.size() >= this.size()) {
+				return new PDBPersistentHashSet(
+						that.content.__insertAllEquivalent(this.content,
+								equivalenceComparator));
+			} else {
+				return new PDBPersistentHashSet(
+						this.content.__insertAllEquivalent(that.content,
+								equivalenceComparator));
+			}
+		} else {
+			return super.union(other);
+		}
+	}
+
 }
