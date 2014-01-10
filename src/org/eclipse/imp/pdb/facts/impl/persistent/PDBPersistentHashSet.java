@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -20,18 +19,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 
 public final class PDBPersistentHashSet extends AbstractSet {
-	
-	@SuppressWarnings("unchecked")
-	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
-	
-	@SuppressWarnings("unchecked")
-	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
-	
+		
 	private Type cachedElementType;
 	private final ImmutableSet<IValue> content;
 
@@ -82,7 +74,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	@Override
 	public ISet insert(IValue value) {
 		final ImmutableSet<IValue> contentNew = 
-				content.__insertEquivalent(value, equivalenceComparator);
+				content.__insert(value);
 
 		if (content == contentNew)
 			return this;
@@ -93,7 +85,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	@Override
 	public ISet delete(IValue value) {
 		final ImmutableSet<IValue> contentNew = 
-				content.__removeEquivalent(value, equivalenceComparator);
+				content.__remove(value);
 
 		if (content == contentNew)
 			return this;
@@ -108,7 +100,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	public boolean contains(IValue value) {
-		return content.containsEquivalent(value, equivalenceComparator);
+		return content.contains(value);
 	}
 
 	@Override
@@ -149,7 +141,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			
 	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that)
-	            if (!content.containsEquivalent(e, equalityComparator))
+	            if (!content.contains(e))
 	                return false;
 
 	        return true;			
@@ -173,7 +165,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			
 	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that)
-	            if (!content.containsEquivalent(e, equivalenceComparator))
+	            if (!content.contains(e))
 	                return false;
 
 	        return true;			
@@ -194,12 +186,10 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 			if (that.size() >= this.size()) {
 				return new PDBPersistentHashSet(
-						that.content.__insertAllEquivalent(this.content,
-								equivalenceComparator));
+						that.content.__insertAll(this.content));
 			} else {
 				return new PDBPersistentHashSet(
-						this.content.__insertAllEquivalent(that.content,
-								equivalenceComparator));
+						this.content.__insertAll(that.content));
 			}
 		} else {
 			return super.union(other);
