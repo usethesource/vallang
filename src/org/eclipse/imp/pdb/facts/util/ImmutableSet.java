@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,14 +11,23 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
+import java.util.Comparator;
 import java.util.Set;
 
 public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
 	
 	ImmutableSet<E> __insert(E e);
 	
+	ImmutableSet<E> __insertEquivalent(E e, Comparator<Object> cmp);
+
 	ImmutableSet<E> __insertAll(Set<? extends E> set);	
 	
-	ImmutableSet<E> __remove(E e);
+	ImmutableSet<E> __insertAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
 	
+	// TODO: Generic type E or Object like in JDK?
+	ImmutableSet<E> __remove(E e);
+
+	// TODO: Generic type E or Object like in JDK?
+	ImmutableSet<E> __removeEquivalent(E e, Comparator<Object> cmp);
+
 }

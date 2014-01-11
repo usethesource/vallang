@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
+import java.util.Comparator;
+
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -25,12 +27,19 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 
 /*package*/class TemporarySetWriter extends AbstractWriter implements
 		ISetWriter {
 	
+	@SuppressWarnings({ "unchecked", "unused" })
+	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
+	
+	@SuppressWarnings("unchecked")
+	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
+
 	protected final TransientSet<IValue> setContent;
 	protected final boolean inferred;
 	protected Type eltType;
@@ -62,7 +71,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	private void put(IValue elem) {
 		updateType(elem);
 		checkInsert(elem, eltType);
-		setContent.__insert(elem);
+		setContent.__insertEquivalent(elem, equivalenceComparator);
 	}
 
 	private void updateType(IValue elem) {
