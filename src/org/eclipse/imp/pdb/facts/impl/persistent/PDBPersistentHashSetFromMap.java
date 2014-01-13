@@ -21,10 +21,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
-import org.eclipse.imp.pdb.facts.util.ImmutableSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.util.TrieMap;
 
-public final class PDBPersistentHashSet extends AbstractSet {
+public final class PDBPersistentHashSetFromMap extends AbstractSet {
+	
+	private static final Object PLACEHOLDER = null; 
 	
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
@@ -33,14 +35,14 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 	
 	private Type cachedElementType;
-	private final ImmutableSet<IValue> content;
+	private final ImmutableMap<IValue,Object> content;
 
-	public PDBPersistentHashSet() {
+	public PDBPersistentHashSetFromMap() {
 		this.cachedElementType = null;
-		this.content = TrieSet.of();
+		this.content = TrieMap.of();
 	}
 
-	public PDBPersistentHashSet(ImmutableSet<IValue> content) {
+	public PDBPersistentHashSetFromMap(ImmutableMap<IValue,Object> content) {
 		Objects.requireNonNull(content);
 		this.content = content;
 	}
@@ -56,7 +58,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (cachedElementType == null) {
 			cachedElementType = getTypeFactory().voidType();
 
-			for (IValue element : content) {
+			for (IValue element : content.keySet()) {
 				cachedElementType = cachedElementType.lub(element.getType());
 			}
 		}
@@ -81,24 +83,24 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	public ISet insert(IValue value) {
-		final ImmutableSet<IValue> contentNew = 
-				content.__insertEquivalent(value, equivalenceComparator);
+		final ImmutableMap<IValue,Object> contentNew = 
+				content.__putEquivalent(value, PLACEHOLDER, equivalenceComparator);
 
 		if (content == contentNew)
 			return this;
 
-		return new PDBPersistentHashSet(contentNew);
+		return new PDBPersistentHashSetFromMap(contentNew);
 	}
 
 	@Override
 	public ISet delete(IValue value) {
-		final ImmutableSet<IValue> contentNew = 
+		final ImmutableMap<IValue,Object> contentNew = 
 				content.__removeEquivalent(value, equivalenceComparator);
 
 		if (content == contentNew)
 			return this;
 
-		return new PDBPersistentHashSet(contentNew);
+		return new PDBPersistentHashSetFromMap(contentNew);
 	}
 
 	@Override
@@ -108,12 +110,12 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	public boolean contains(IValue value) {
-		return content.containsEquivalent(value, equivalenceComparator);
+		return content.containsKeyEquivalent(value, equivalenceComparator);
 	}
 
 	@Override
 	public Iterator<IValue> iterator() {
-		return content.iterator();
+		return content.keySet().iterator();
 	}
 
 	@Override
@@ -128,8 +130,8 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other == null)
 			return false;
 		
-		if (other instanceof PDBPersistentHashSet) {
-			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+		if (other instanceof PDBPersistentHashSetFromMap) {
+			PDBPersistentHashSetFromMap that = (PDBPersistentHashSetFromMap) other;
 
 			if (this.size() != that.size())
 				return false;
@@ -149,7 +151,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			
 	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that)
-	            if (!content.containsEquivalent(e, equalityComparator))
+	            if (!content.containsKeyEquivalent(e, equalityComparator))
 	                return false;
 
 	        return true;			
@@ -189,16 +191,16 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other == null)
 			return this;
 
-		if (other instanceof PDBPersistentHashSet) {
-			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+		if (other instanceof PDBPersistentHashSetFromMap) {
+			PDBPersistentHashSetFromMap that = (PDBPersistentHashSetFromMap) other;
 
 			if (that.size() >= this.size()) {
-				return new PDBPersistentHashSet(
-						that.content.__insertAllEquivalent(this.content,
+				return new PDBPersistentHashSetFromMap(
+						that.content.__putAllEquivalent(this.content,
 								equivalenceComparator));
 			} else {
-				return new PDBPersistentHashSet(
-						this.content.__insertAllEquivalent(that.content,
+				return new PDBPersistentHashSetFromMap(
+						this.content.__putAllEquivalent(that.content,
 								equivalenceComparator));
 			}
 		} else {
