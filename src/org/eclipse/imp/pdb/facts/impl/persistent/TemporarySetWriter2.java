@@ -42,7 +42,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 
-	protected final TransientMap<IValue,Object> setContent;
+	protected final TransientMap<IValue,Object> mapContent;
 	protected final boolean inferred;
 	protected Type eltType;
 	protected ISet constructedSet;
@@ -52,14 +52,14 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 
 		this.eltType = eltType;
 		this.inferred = false;
-		setContent = TrieMap.transientOf();
+		mapContent = TrieMap.transientOf();
 	}
 
 	/* package */TemporarySetWriter2() {
 		super();
 		this.eltType = TypeFactory.getInstance().voidType();
 		this.inferred = true;
-		setContent = TrieMap.transientOf();
+		mapContent = TrieMap.transientOf();
 	}
 
 	private static void checkInsert(IValue elem, Type eltType)
@@ -73,7 +73,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	private void put(IValue elem) {
 		updateType(elem);
 		checkInsert(elem, eltType);
-		setContent.__putEquivalent(elem, PLACEHOLDER, equivalenceComparator);
+		mapContent.__putEquivalent(elem, PLACEHOLDER, equivalenceComparator);
 	}
 
 	private void updateType(IValue elem) {
@@ -104,7 +104,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	@Override
 	public ISet done() {
 		if (constructedSet == null) {
-			constructedSet = new PDBPersistentHashSetFromMap(setContent.freeze());
+			constructedSet = new PDBPersistentHashSetFromMap(mapContent.freeze());
 		}
 
 		return constructedSet;
@@ -118,7 +118,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	
 	@Override
 	public String toString() {
-		return setContent.toString();
+		return mapContent.toString();
 	}
 
 }

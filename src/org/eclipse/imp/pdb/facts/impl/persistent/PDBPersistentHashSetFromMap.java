@@ -115,7 +115,7 @@ public final class PDBPersistentHashSetFromMap extends AbstractSet {
 
 	@Override
 	public Iterator<IValue> iterator() {
-		return content.keySet().iterator();
+		return content.keyIterator();
 	}
 
 	@Override

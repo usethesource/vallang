@@ -31,19 +31,19 @@ public class ValueFactory2 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 	}
 
 	public ISetWriter setWriter(Type elementType) {
-		return new TemporarySetWriter1(elementType);
+		return new TemporarySetWriter2(elementType);
 	}
 
 	public ISetWriter setWriter() {
-		return new TemporarySetWriter1();
+		return new TemporarySetWriter2();
 	}
 
 	public ISetWriter relationWriter(Type tupleType) {
-		return new TemporarySetWriter1(tupleType);
+		return new TemporarySetWriter2(tupleType);
 	}
 
 	public ISetWriter relationWriter() {
-		return new TemporarySetWriter1();
+		return new TemporarySetWriter2();
 	}
 
 	public ISet set(Type elementType) {
