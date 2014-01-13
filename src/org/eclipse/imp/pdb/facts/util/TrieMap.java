@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.util;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -133,8 +134,46 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 	
 	@Override
 	public Set<java.util.Map.Entry<K, V>> entrySet() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		Set<java.util.Map.Entry<K, V>> entrySet = null;
+		
+		if (entrySet == null) {
+            entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
+                public Iterator<java.util.Map.Entry<K, V>> iterator() {
+                    return new Iterator<Entry<K,V>>() {
+                        private final Iterator<Entry<K,V>> i = entryIterator();
+
+						public boolean hasNext() {
+							return i.hasNext();
+						}
+
+						public Entry<K,V> next() {
+							return i.next();
+						}
+
+						public void remove() {
+							i.remove();
+						}
+                    };
+                }
+
+                public int size() {
+                    return TrieMap.this.size();
+                }
+
+                public boolean isEmpty() {
+                    return TrieMap.this.isEmpty();
+                }
+
+                public void clear() {
+                    TrieMap.this.clear();
+                }
+
+                public boolean contains(Object k) {
+                    return TrieMap.this.containsKey(k);
+                }
+            };
+        }
+        return entrySet;	
 	}	
 		
 	/**
@@ -276,14 +315,13 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		@Override
 		public boolean __putAllEquivalent(Map<? extends E, ? extends V> map,
 				Comparator<Object> cmp) {
-			throw new UnsupportedOperationException();
-//			boolean modified = false;
-//			
-//			for (E e : map) {
-//				modified |= __putEquivalent(e, cmp);
-//			}
-//			
-//			return modified;	
+			boolean modified = false;
+			
+			for (Entry<? extends E, ? extends V> entry : map.entrySet()) {
+				modified |= __putEquivalent(entry.getKey(), entry.getValue(), cmp);
+			}
+			
+			return modified;	
 		}	
 		
 //		@Override
@@ -845,17 +883,21 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		Result<K,V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
-			throw new UnsupportedOperationException();
+			return updated(key, keyHash, val, shift, cmp);
 		}
 		
 		@Override
 		Result<K,V> removed(K key, int hash, int shift, Comparator<Object> cmp) {
-			throw new UnsupportedOperationException();
+			if (cmp.compare(this.key, key) == 0) {
+				return Result.fromModified(EMPTY_NODE);
+			} else {
+				return Result.fromUnchanged(this);
+			}
 		}
 		
 		@Override
 		Result<K,V> removed(AtomicReference<Thread> mutator, K key, int hash, int shift, Comparator<Object> cmp) {
-			throw new UnsupportedOperationException();
+			return removed(key, hash, shift, cmp);
 		}
 		
 		@Override
@@ -914,7 +956,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int prime = 31;
 			int result = keyHash;
 			result = prime * result + key.hashCode();
-			result = prime * result + val.hashCode();
+			result = prime * result + ((val == null) ? 0 : val.hashCode());
 			return result;
 		}
 
