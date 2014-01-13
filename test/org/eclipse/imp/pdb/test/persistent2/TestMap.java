@@ -1,24 +1,22 @@
 /*******************************************************************************
-* Copyright (c) 2009 Centrum Wiskunde en Informatica (CWI)
+* Copyright (c) 2012 Centrum Wiskunde en Informatica (CWI)
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Arnold Lankamp - interfaces and implementation
+*    Anya Helene Bagge
 *******************************************************************************/
-package org.eclipse.imp.pdb.test.persistent;
+package org.eclipse.imp.pdb.test.persistent2;
 
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
-import org.eclipse.imp.pdb.test.BaseTestListRelation;
+import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory2;
+import org.eclipse.imp.pdb.test.BaseTestMap;
 
-/**
- * @author Arnold Lankamp
- */
-public class TestListRelation extends BaseTestListRelation{
+public class TestMap extends BaseTestMap {
 	
+	@Override
 	protected void setUp() throws Exception{
-		super.setUp(ValueFactory1.getInstance());
+		super.setUp(ValueFactory2.getInstance());
 	}
 }

@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 
-/*package*/class TemporarySetWriter extends AbstractWriter implements
+/*package*/class TemporarySetWriter1 extends AbstractWriter implements
 		ISetWriter {
 	
 	@SuppressWarnings({ "unchecked", "unused" })
@@ -45,7 +45,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	protected Type eltType;
 	protected ISet constructedSet;
 
-	/* package */TemporarySetWriter(Type eltType) {
+	/* package */TemporarySetWriter1(Type eltType) {
 		super();
 
 		this.eltType = eltType;
@@ -53,7 +53,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 		setContent = TrieSet.transientOf();
 	}
 
-	/* package */TemporarySetWriter() {
+	/* package */TemporarySetWriter1() {
 		super();
 		this.eltType = TypeFactory.getInstance().voidType();
 		this.inferred = true;

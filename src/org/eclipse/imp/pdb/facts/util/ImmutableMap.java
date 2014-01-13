@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,9 +25,9 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
     
 	boolean containsValueEquivalent(Object o, Comparator<Object> cmp);
 	
-	boolean containsAll(Collection<?> c);
-	
-	boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp);
+//	boolean containsAll(Collection<?> c);
+//	
+//	boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp);
 	
 	ImmutableMap<K, V> __put(K key, V value);
 

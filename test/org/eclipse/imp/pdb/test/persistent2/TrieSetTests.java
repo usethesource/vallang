@@ -9,7 +9,7 @@
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package org.eclipse.imp.pdb.test.persistent;
+package org.eclipse.imp.pdb.test.persistent2;
 
 import static org.junit.Assert.*;
 
@@ -22,7 +22,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
+import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory2;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 import org.junit.BeforeClass;
@@ -146,7 +146,7 @@ public class TrieSetTests {
 	
 	@Test
 	public void testExtendedIteration() {
-		IValueFactory valueFactory = ValueFactory1.getInstance();
+		IValueFactory valueFactory = ValueFactory2.getInstance();
 		int size = 10_000;
 		
 		ISetWriter writer = valueFactory.setWriter();

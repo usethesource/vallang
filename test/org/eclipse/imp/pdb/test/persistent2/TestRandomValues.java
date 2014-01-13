@@ -8,15 +8,15 @@
 * Contributors:
 *    Anya Helene Bagge - initial implementation
 *******************************************************************************/
-package org.eclipse.imp.pdb.test.persistent;
+package org.eclipse.imp.pdb.test.persistent2;
 
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
+import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory2;
 import org.eclipse.imp.pdb.test.BaseTestRandomValues;
 
 public class TestRandomValues extends BaseTestRandomValues {
 	
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(ValueFactory1.getInstance());
+		super.setUp(ValueFactory2.getInstance());
 	}
 }

@@ -49,7 +49,7 @@ public final class PDBPersistentHashSetFromMap extends AbstractSet {
 
 	@Override
 	protected IValueFactory getValueFactory() {
-		return ValueFactory.getInstance();
+		return ValueFactory2.getInstance();
 	}
 
 	@Override
@@ -175,7 +175,7 @@ public final class PDBPersistentHashSetFromMap extends AbstractSet {
 			
 	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that)
-	            if (!content.containsEquivalent(e, equivalenceComparator))
+	            if (!content.containsKeyEquivalent(e, equivalenceComparator))
 	                return false;
 
 	        return true;			

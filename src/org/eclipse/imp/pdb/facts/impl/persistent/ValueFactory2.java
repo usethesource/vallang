@@ -16,34 +16,34 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
+public class ValueFactory2 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
 
-	protected ValueFactory() {
+	protected ValueFactory2() {
 		super();
 	}
 
 	private static class InstanceKeeper {
-		public final static ValueFactory instance = new ValueFactory();
+		public final static ValueFactory2 instance = new ValueFactory2();
 	}
 
-	public static ValueFactory getInstance() {
+	public static ValueFactory2 getInstance() {
 		return InstanceKeeper.instance;
 	}
 
 	public ISetWriter setWriter(Type elementType) {
-		return new TemporarySetWriter(elementType);
+		return new TemporarySetWriter1(elementType);
 	}
 
 	public ISetWriter setWriter() {
-		return new TemporarySetWriter();
+		return new TemporarySetWriter1();
 	}
 
 	public ISetWriter relationWriter(Type tupleType) {
-		return new TemporarySetWriter(tupleType);
+		return new TemporarySetWriter1(tupleType);
 	}
 
 	public ISetWriter relationWriter() {
-		return new TemporarySetWriter();
+		return new TemporarySetWriter1();
 	}
 
 	public ISet set(Type elementType) {
@@ -66,7 +66,7 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.ValueFacto
 
 	@Override
 	public String toString() {
-		return "VF_PDB_PERSISTENT";
+		return "VF_PDB_PERSISTENT_2";
 	}
 
 }

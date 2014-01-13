@@ -25,6 +25,16 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 	TrieMap(AbstractNode<K> rootNode) {
 		this.rootNode = rootNode;
 	}
+
+	@SuppressWarnings("unchecked")
+	public static final <K,V> ImmutableMap<K,V> of() {
+		return TrieMap.EMPTY;
+	}	
+	
+	@SuppressWarnings("unchecked")
+	public static final <K,V> TransientMap<K,V> transientOf() {
+		return TrieMap.EMPTY.asTransient();
+	}	
 	
 //	@SafeVarargs
 //	public static final <K,V> ImmutableMap<K,V> of(K... elements) {

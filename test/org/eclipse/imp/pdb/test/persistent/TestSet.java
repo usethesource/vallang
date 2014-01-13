@@ -10,7 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.test.persistent;
 
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
+import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
 import org.eclipse.imp.pdb.test.BaseTestSet;
 
 /**
@@ -19,6 +19,6 @@ import org.eclipse.imp.pdb.test.BaseTestSet;
 public class TestSet extends BaseTestSet{
 	
 	protected void setUp() throws Exception{
-		super.setUp(ValueFactory.getInstance());
+		super.setUp(ValueFactory1.getInstance());
 	}
 }

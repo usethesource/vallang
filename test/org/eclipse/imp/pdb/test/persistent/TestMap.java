@@ -10,13 +10,13 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.test.persistent;
 
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
+import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
 import org.eclipse.imp.pdb.test.BaseTestMap;
 
 public class TestMap extends BaseTestMap {
 	
 	@Override
 	protected void setUp() throws Exception{
-		super.setUp(ValueFactory.getInstance());
+		super.setUp(ValueFactory1.getInstance());
 	}
 }
