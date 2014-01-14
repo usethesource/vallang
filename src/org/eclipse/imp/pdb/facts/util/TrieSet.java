@@ -14,6 +14,13 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+/*
+ * Set as Hash Array Mapped Trie.
+ * 
+ * Uses:
+ *   Inlined Leafs (with valmap)
+ *   Orders first values then nodes (to achive better iteration performance)
+ */
 @SuppressWarnings("rawtypes")
 public class TrieSet<K> extends AbstractImmutableSet<K> {
 
