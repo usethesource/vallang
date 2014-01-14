@@ -11,8 +11,17 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.AbstractSet;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -820,6 +829,9 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				return false;
 			}
 			IndexNode that = (IndexNode) other;
+			if (cachedSize != that.cachedSize) {
+				return false;
+			}
 			if (bitmap != that.bitmap) {
 				return false;
 			}
@@ -978,7 +990,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			if (!key.equals(that.key)) {
 				return false;
 			}
-			if (!val.equals(that.val)) {
+			if (!Objects.equals(val, that.val)) {
 				return false;
 			}
 			return true;
@@ -1131,6 +1143,33 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		Iterator<AbstractNode<K,V>> nodeIterator() {
 			return ArrayIterator.<AbstractNode<K,V>>of(leafs);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
+		
+		if (other instanceof TrieMap) {
+			TrieMap that = (TrieMap) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return rootNode.equals(that.rootNode);
+		}
+		
+		return super.equals(other);
 	}
 	
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1025,6 +1025,33 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		int size() {
 			return keys.length;
 		}		
-	}	
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
+		
+		if (other instanceof TrieSet) {
+			TrieSet that = (TrieSet) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return rootNode.equals(that.rootNode);
+		}
+		
+		return super.equals(other);
+	}
 	
 }
