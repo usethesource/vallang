@@ -398,6 +398,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		 */
 		abstract int size();
 
+		/**
+		 * Returns the first value stored within this node. 
+		 * @return first value
+		 */
+		K head() {
+			// TODO: optimize; push into node implementations and return node[0] iff hasValues()
+			return valueIterator().next();
+		}
 		
 		@SuppressWarnings("unchecked")
 		static <K> AbstractNode<K> mergeNodes(Object node0, int hash0, Object node1, int hash1, int shift) {
@@ -597,6 +605,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return false;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Result<K> updated(K key, int hash, int shift, Comparator<Object> comparator) {
 			final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
@@ -620,14 +629,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// immutable copy
 				/** CODE DUPLCIATION **/
 				final int bitIndexNewOffset = Integer.bitCount(valmap & ~bitpos);
-				final int bitIndexNew = bitIndexNewOffset + Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1)); 
+				final int bitIndexNew = bitIndexNewOffset + Integer.bitCount((bitmap ^ (valmap & ~bitpos)) & (bitpos - 1)); 
 				final Object[] nodesReplacement = ArrayUtils.arraycopyAndMoveToBack(nodes, valIndex, bitIndexNew, nodeNew);
 				
 				return Result.fromModified(new InplaceIndexNode<>(
-						bitmap | bitpos, valmap & ~bitpos, nodesReplacement, cachedSize + 1));				
+						bitmap, valmap & ~bitpos, nodesReplacement, cachedSize + 1));				
 			} else {
 				// it's a TrieSet node, not a inplace value
-				@SuppressWarnings("unchecked")
 				final AbstractNode<K> subNode = (AbstractNode<K>) nodes[bitIndex];
 
 				// immutable copy subNode
@@ -643,52 +651,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 		}
 		
-		InplaceIndexNode<K> editAndInsert(AtomicReference<Thread> mutator, int index, Object elementNew) {		
-			Object[] editableNodes = ArrayUtils.arraycopyAndInsert(this.nodes, index, elementNew);
-			
-			if (this.mutator == mutator) {
-				this.nodes = editableNodes;
-				return this;
-			} else {
-				return new InplaceIndexNode<>(mutator, editableNodes);
-			}
-		}
-		
-		// TODO: only copy when not yet editable
-		InplaceIndexNode<K> editAndMoveToBack(AtomicReference<Thread> mutator, int indexOld, int indexNew, Object elementNew) {
-			Object[] editableNodes = ArrayUtils.arraycopyAndMoveToBack(this.nodes, indexOld, indexNew, elementNew);
-			
-			if (this.mutator == mutator) {
-				this.nodes = editableNodes;
-				return this;
-			} else {
-				return new InplaceIndexNode<>(mutator, editableNodes);
-			}		
-		}
-		
-		// TODO: only copy when not yet editable
-		InplaceIndexNode<K> editAndSet(AtomicReference<Thread> mutator, int index, Object elementNew) {
-			Object[] editableNodes = ArrayUtils.arraycopyAndSet(this.nodes, index, elementNew);
-			
-			if (this.mutator == mutator) {
-				this.nodes = editableNodes;
-				return this;
-			} else {
-				return new InplaceIndexNode<>(mutator, editableNodes);
-			}
-		}
-		
-		InplaceIndexNode<K> editAndRemove(AtomicReference<Thread> mutator, int index) {
-			Object[] editableNodes = ArrayUtils.arraycopyAndRemove(this.nodes, index);
-			
-			if (this.mutator == mutator) {
-				this.nodes = editableNodes;
-				return this;
-			} else {
-				return new InplaceIndexNode<>(mutator, editableNodes);
-			}
-		}
-		
+		@SuppressWarnings("unchecked")
 		@Override
 		public Result<K> updated(AtomicReference<Thread> mutator, K key, int hash, int shift, Comparator<Object> comparator) {
 			final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
@@ -718,7 +681,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					return Result.fromModified(editableNode); 
 				}
 			} else { // node (not value)
-				@SuppressWarnings("unchecked")
 				AbstractNode<K> subNode = (AbstractNode<K>) nodes[bitIndex];
 										
 				Result resultNode = subNode.updated(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
@@ -733,6 +695,65 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 		}
 
+		InplaceIndexNode<K> editAndInsert(AtomicReference<Thread> mutator, int index, Object elementNew) {		
+			Object[] editableNodes = ArrayUtils.arraycopyAndInsert(this.nodes, index, elementNew);
+			
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}
+		
+		// TODO: only copy when not yet editable
+		InplaceIndexNode<K> editAndMoveToBack(AtomicReference<Thread> mutator, int indexOld, int indexNew, Object elementNew) {
+			Object[] editableNodes = ArrayUtils.arraycopyAndMoveToBack(this.nodes, indexOld, indexNew, elementNew);
+			
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}		
+		}
+		
+		// TODO: only copy when not yet editable
+		InplaceIndexNode<K> editAndMoveToFront(AtomicReference<Thread> mutator, int indexOld, int indexNew, Object elementNew) {
+			Object[] editableNodes = ArrayUtils.arraycopyAndMoveToFront(this.nodes, indexOld, indexNew, elementNew);
+			
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}		
+		}	
+		
+		// TODO: only copy when not yet editable
+		InplaceIndexNode<K> editAndSet(AtomicReference<Thread> mutator, int index, Object elementNew) {
+			Object[] editableNodes = ArrayUtils.arraycopyAndSet(this.nodes, index, elementNew);
+			
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}
+		
+		InplaceIndexNode<K> editAndRemove(AtomicReference<Thread> mutator, int index) {
+			Object[] editableNodes = ArrayUtils.arraycopyAndRemove(this.nodes, index);
+			
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}		
+		
+		@SuppressWarnings("unchecked")
 		@Override
 		public Result<K> removed(K key, int hash, int shift, Comparator<Object> comparator) {
 			final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
@@ -745,7 +766,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if ((valmap & bitpos) == 0) {
 				// it's a TrieSet node, not a inplace value
-				@SuppressWarnings("unchecked")
 				final AbstractNode<K> subNode = (AbstractNode<K>) nodes[bitIndex];
 				
 				final Result<K> result = subNode.removed(key, hash, shift + BIT_PARTITION_SIZE, comparator);	
@@ -753,26 +773,57 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				if (!result.isModified())
 					return Result.fromUnchanged(this);
 
-				// TODO: optimization if singleton element node is returned
 				final AbstractNode<K> subNodeReplacement = result.getNode();
-				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
-				return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, cachedSize - 1));
+
+				if (this.arity() == 1) {
+					if (subNodeReplacement == EMPTY_NODE) {
+						// escalate empty result
+						return result;
+					} else if (subNodeReplacement.size() == 1) {
+						// escalate singleton replacement element
+						return result;			
+					} else {
+						assert subNodeReplacement.size() >= 2;   
+						
+						// modify current node (set replacement node)
+						final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
+						return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, cachedSize - 1));
+					}
+				} else {
+					assert this.arity() >= 2;
+					
+					if (subNodeReplacement == EMPTY_NODE) {
+						// remove node
+						final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, bitIndex);
+						return Result.fromModified(new InplaceIndexNode<>(bitmap & ~bitpos, valmap, nodesReplacement, cachedSize - 1));						
+					} else if (subNodeReplacement.size() == 1) {
+						// inline value (move to front)						
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+																
+						final Object[] nodesReplacement = ArrayUtils.arraycopyAndMoveToFront(nodes, bitIndex, valIndexNew, subNodeReplacement.head());
+						return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap | bitpos, nodesReplacement, cachedSize - 1));
+					} else {
+						// modify current node (set replacement node)
+						final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
+						return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, cachedSize - 1));						
+					}					
+				}			
 			} else {
 				// it's an inplace value
-				if (comparator.compare(nodes[valIndex], key) != 0)
+				if (comparator.compare(nodes[valIndex], key) != 0) {
 					return Result.fromUnchanged(this);
-
-				if (arity() == 1) {
-					return Result.fromModified(EMPTY_NODE);
-//				} else if (arity() == 2 && bitmap == valmap) { // two values
-//					return (valIndex == 0) ? ModificationResult.fromValue(nodes[1]) : ModificationResult.fromValue(nodes[0]);
 				} else {
-					final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, valIndex);
-					return Result.fromModified(new InplaceIndexNode<>(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, cachedSize - 1));
+					if (this.arity() == 1) { // && this.size() == 1
+						return Result.fromModified(EMPTY_NODE);
+					} else {
+						final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, valIndex);
+						return Result.fromModified(new InplaceIndexNode<>(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, cachedSize - 1));
+					}
 				}
 			}
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public Result<K> removed(AtomicReference<Thread> mutator, K key, int hash, int shift, Comparator<Object> comparator) {
 			final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
@@ -786,28 +837,65 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if ((valmap & bitpos) == 0) {
 				// it's a TrieSet node, not a inplace value
-				@SuppressWarnings("unchecked")
 				final AbstractNode<K> subNode = (AbstractNode<K>) nodes[bitIndex];
 		
-				Result resultNode = subNode.removed(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
+				final Result result = subNode.removed(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
 				
-				if (resultNode.isModified()) {
-					InplaceIndexNode<K> editableNode = editAndSet(mutator, valIndex, resultNode.getNode());
-					editableNode.updateMetadata(bitmap, valmap, cachedSize - 1, cachedValmapBitCount);
-					return Result.fromModified(editableNode);
+				if (!result.isModified())
+					return Result.fromUnchanged(this);
+				
+				final AbstractNode<K> subNodeReplacement = result.getNode();
+			
+				if (this.arity() == 1) {
+					if (subNodeReplacement == EMPTY_NODE) {
+						// escalate empty result
+						return result;
+					} else if (subNodeReplacement.size() == 1) {
+						// escalate singleton replacement element
+						return result;			
+					} else {
+						assert subNodeReplacement.size() >= 2;   
+						
+						// modify current node (set replacement node)
+						InplaceIndexNode<K> editableNode = editAndSet(mutator, valIndex, subNodeReplacement);
+						editableNode.updateMetadata(bitmap, valmap, cachedSize - 1, cachedValmapBitCount);
+						return Result.fromModified(editableNode);
+					}
 				} else {
-					return Result.fromUnchanged(subNode);
-				}
+					assert this.arity() >= 2;
+					
+					if (subNodeReplacement == EMPTY_NODE) {
+						// remove node
+						InplaceIndexNode<K> editableNode = editAndRemove(mutator, bitIndex);
+						editableNode.updateMetadata(bitmap & ~bitpos, valmap, cachedSize - 1, cachedValmapBitCount);
+						return Result.fromModified(editableNode);		
+					} else if (subNodeReplacement.size() == 1) {
+						// inline value (move to front)
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+						
+						InplaceIndexNode<K> editableNode = editAndMoveToFront(mutator, bitIndex, valIndexNew, subNodeReplacement.head());
+						editableNode.updateMetadata(bitmap, valmap | bitpos, cachedSize - 1, cachedValmapBitCount + 1);
+						return Result.fromModified(editableNode);
+					} else {
+						// modify current node (set replacement node)
+						InplaceIndexNode<K> editableNode = editAndSet(mutator, valIndex, subNodeReplacement);
+						editableNode.updateMetadata(bitmap, valmap, cachedSize - 1, cachedValmapBitCount);
+						return Result.fromModified(editableNode);					
+					}					
+				}			
 			} else {
 				// it's an inplace value
 				if (comparator.compare(nodes[valIndex], key) != 0) {
 					return Result.fromUnchanged(this);
 				} else {
-					// TODO: optimization if singleton element node is returned
-					InplaceIndexNode<K> editableNode = editAndRemove(mutator, valIndex);
-					editableNode.updateMetadata(this.bitmap & ~bitpos,
-							this.valmap & ~bitpos, cachedSize - 1, cachedValmapBitCount - 1);
-					return Result.fromModified(editableNode);
+					if (this.arity() == 1) { // && this.size() == 1
+						return Result.fromModified(EMPTY_NODE);
+					} else {
+						InplaceIndexNode<K> editableNode = editAndRemove(mutator, valIndex);
+						editableNode.updateMetadata(this.bitmap & ~bitpos,
+								this.valmap & ~bitpos, cachedSize - 1, cachedValmapBitCount - 1);
+						return Result.fromModified(editableNode);
+					}								
 				}
 			}
 		}

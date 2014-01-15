@@ -26,6 +26,7 @@ public class ArrayUtils {
 	}
 
 	static Object[] arraycopyAndMoveToBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
+		assert indexOld <= indexNew;		
 		if (indexNew == indexOld) {
 			return arraycopyAndSet(array, indexNew, elementNew);
 		} else {
@@ -34,6 +35,20 @@ public class ArrayUtils {
 			System.arraycopy(array, indexOld + 1, arrayNew, indexOld, indexNew - indexOld);
 			arrayNew[indexNew] = elementNew;
 			System.arraycopy(array, indexNew + 1, arrayNew, indexNew + 1, array.length - indexNew - 1);
+			return arrayNew;
+		}
+	}	
+
+	static Object[] arraycopyAndMoveToFront(Object[] array, int indexOld, int indexNew, Object elementNew) {
+		assert indexOld >= indexNew;
+		if (indexNew == indexOld ) {
+			return arraycopyAndSet(array, indexOld, elementNew);
+		} else {
+			final Object[] arrayNew = new Object[array.length];
+			System.arraycopy(array, 0, arrayNew, 0, indexNew);
+			arrayNew[indexNew] = elementNew;
+			System.arraycopy(array, indexNew, arrayNew, indexNew + 1, indexOld - indexNew);
+			System.arraycopy(array, indexOld + 1, arrayNew, indexOld + 1, array.length - indexOld - 1);
 			return arrayNew;
 		}
 	}	
