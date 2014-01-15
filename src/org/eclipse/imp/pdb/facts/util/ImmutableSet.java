@@ -23,6 +23,14 @@ public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
 	ImmutableSet<E> __insertAll(Set<? extends E> set);	
 	
 	ImmutableSet<E> __insertAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
+
+	ImmutableSet<E> __retainAll(Set<? extends E> set);
+	
+	ImmutableSet<E> __retainAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
+	
+	ImmutableSet<E> __removeAll(Set<? extends E> set);
+	
+	ImmutableSet<E> __removeAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
 	
 	// TODO: Generic type E or Object like in JDK?
 	ImmutableSet<E> __remove(E e);

@@ -27,6 +27,10 @@ public interface TransientSet<E> { // extends ImmutableCollection<E>, Set<E> {
 	boolean __remove(E e);
 	
 	boolean __removeEquivalent(E e, Comparator<Object> cmp);
+
+	boolean __removeAll(Set<? extends E> set);
+	
+	boolean __removeAllEquivalent(Set<? extends E> set, Comparator<Object> cmp);
 	
 	ImmutableSet<E> freeze();
 	

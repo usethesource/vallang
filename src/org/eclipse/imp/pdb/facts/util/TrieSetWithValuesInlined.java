@@ -330,6 +330,19 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		public ImmutableSet<E> freeze() {
 			mutator.set(null);
 			return new TrieSetWithValuesInlined<E>(rootNode);
+		}
+
+		@Override
+		public boolean __removeAll(Set<? extends E> set) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __removeAllEquivalent(Set<? extends E> set,
+				Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return false;
 		}		
 	}
 
@@ -1089,6 +1102,32 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		int size() {
 			return keys.length;
 		}		
+	}
+
+	@Override
+	public ImmutableSet<K> __retainAll(Set<? extends K> set) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ImmutableSet<K> __retainAllEquivalent(Set<? extends K> set,
+			Comparator<Object> cmp) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ImmutableSet<K> __removeAll(Set<? extends K> set) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ImmutableSet<K> __removeAllEquivalent(Set<? extends K> set,
+			Comparator<Object> cmp) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 //	@Override
