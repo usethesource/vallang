@@ -1091,31 +1091,31 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		}		
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (other == this)
-			return true;
-		if (other == null)
-			return false;
-		
-		if (other instanceof TrieSetWithValuesInlined) {
-			TrieSetWithValuesInlined that = (TrieSetWithValuesInlined) other;
-
-			if (this.size() != that.size())
-				return false;
-
-			return rootNode.equals(that.rootNode);
-		}
-		
-		return super.equals(other);
-	}
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = super.hashCode();
+//		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
+//		return result;
+//	}
+//
+//	@Override
+//	public boolean equals(Object other) {
+//		if (other == this)
+//			return true;
+//		if (other == null)
+//			return false;
+//		
+//		if (other instanceof TrieSetWithValuesInlined) {
+//			TrieSetWithValuesInlined that = (TrieSetWithValuesInlined) other;
+//
+//			if (this.size() != that.size())
+//				return false;
+//
+//			return rootNode.equals(that.rootNode);
+//		}
+//		
+//		return super.equals(other);
+//	}
 	
 }
