@@ -182,7 +182,6 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		return false;
 	}
 
-	// TODO: check if operation modified set
 	@Override
 	public ISet union(ISet other) {
 		if (other == this)
@@ -193,15 +192,21 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
+			ImmutableSet<IValue> one;
+			ImmutableSet<IValue> two;
+						
 			if (that.size() >= this.size()) {
-				return new PDBPersistentHashSet(
-						that.content.__insertAllEquivalent(this.content,
-								equivalenceComparator));
+				one = that.content;
+				two = this.content;
 			} else {
-				return new PDBPersistentHashSet(
-						this.content.__insertAllEquivalent(that.content,
-								equivalenceComparator));
+				one = this.content;
+				two = that.content;
 			}
+
+			ImmutableSet<IValue> result = one.__insertAllEquivalent(two,
+					equivalenceComparator);
+
+			return (result == one) ? this : new PDBPersistentHashSet(result);
 		} else {
 			return super.union(other);
 		}
