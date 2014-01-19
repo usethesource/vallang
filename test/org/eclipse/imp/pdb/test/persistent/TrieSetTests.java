@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
@@ -169,6 +170,33 @@ public class TrieSetTests {
 		
 		System.out.println(String.format("realSize[%d] == countedSize[%d]", realSize, countedSize));
 		assertTrue (realSize == countedSize);
+	}
+	
+	@Test
+	public void testEqualityAfterInsertDelete() {
+		IValueFactory valueFactory = ValueFactory1.getInstance();
+		int size = 50;
+				
+		ISetWriter writer1 = valueFactory.setWriter();
+		ISetWriter writer2 = valueFactory.setWriter();
+		
+		for (int i = size; i > 0; i--) {
+			writer1.insert(valueFactory.integer(i));
+			writer2.insert(valueFactory.integer(i));
+		}
+		
+		ISet testSet = writer1.done();
+		ISet testSetDuplicate = writer2.done();
+	
+//		IValue VALUE_EXISTING = valueFactory.integer(size - 1);
+		IValue VALUE_NOT_EXISTING = valueFactory.integer(size + 1);
+
+		testSetDuplicate = testSet.insert(VALUE_NOT_EXISTING);
+		testSetDuplicate = testSetDuplicate.delete(VALUE_NOT_EXISTING);
+		
+		boolean equals = testSet.equals(testSetDuplicate);
+		
+		assertTrue (equals);
 	}
 	
 }
