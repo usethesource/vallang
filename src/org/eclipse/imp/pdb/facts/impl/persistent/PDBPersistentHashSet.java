@@ -212,38 +212,38 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		}
 	}
 	
-//	// TODO: check if operation modified set
-//	@Override
-//	public ISet intersect(ISet other) {
-//		if (other == this)
+	// TODO: check if operation modified set
+	@Override
+	public ISet intersect(ISet other) {
+		if (other == this)
+			return this;
+//		if (other == null)
 //			return this;
-////		if (other == null)
-////			return this;
-//
-//		if (other instanceof PDBPersistentHashSet) {
-//			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
-//
-//			if (that.size() >= this.size()) {
-//				return new PDBPersistentHashSet(
-//						this.content.__retainAllEquivalent(that.content,
-//								equivalenceComparator));
-//			} else {
-//				return new PDBPersistentHashSet(
-//						that.content.__retainAllEquivalent(this.content,
-//								equivalenceComparator));
-//			}
-//		} else {
-//			return super.intersect(other);
-//		}
-//	}
+
+		if (other instanceof PDBPersistentHashSet) {
+			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+
+			if (that.size() >= this.size()) {
+				return new PDBPersistentHashSet(
+						this.content.__retainAllEquivalent(that.content,
+								equivalenceComparator));
+			} else {
+				return new PDBPersistentHashSet(
+						that.content.__retainAllEquivalent(this.content,
+								equivalenceComparator));
+			}
+		} else {
+			return super.intersect(other);
+		}
+	}
 
 	// TODO: check if operation modified set
 	@Override
 	public ISet subtract(ISet other) {
-		if (other == this)
-			return this;
-		if (other == null)
-			return this;
+//		if (other == this)
+//			return this;
+//		if (other == null)
+//			return this;
 
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;

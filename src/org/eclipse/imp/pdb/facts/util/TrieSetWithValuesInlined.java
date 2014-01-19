@@ -70,12 +70,12 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 	}
 	
 	@Override
-	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
+	public ImmutableSet<K> __insertAll(ImmutableSet<? extends K> set) {
 		return __insertAllEquivalent(set, equivalenceComparator());
 	}	
 
 	@Override
-	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set, Comparator<Object> cmp) {
+	public ImmutableSet<K> __insertAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient(); 		
 		tmp.__insertAllEquivalent(set, cmp);		
 		return tmp.freeze();
@@ -198,6 +198,16 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
+		public boolean contains(Object o) {
+			return rootNode.contains(o, o.hashCode(), 0, equivalenceComparator());
+		}
+		
+		@Override
+		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
+			return rootNode.contains(o, o.hashCode(), 0, cmp);
+		}		
+		
+		@Override
 		public boolean __insert(E e) {
 			return __insertEquivalent(e, TrieSetWithValuesInlined.equivalenceComparator());
 		}
@@ -232,12 +242,12 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean __insertAll(Set<? extends E> set) {
+		public boolean __insertAll(ImmutableSet<? extends E> set) {
 			return __insertAllEquivalent(set, TrieSetWithValuesInlined.equivalenceComparator());
 		}
 
 		@Override
-		public boolean __insertAllEquivalent(Set<? extends E> set,
+		public boolean __insertAllEquivalent(ImmutableSet<? extends E> set,
 				Comparator<Object> cmp) {
 			boolean modified = false;
 			
@@ -333,13 +343,32 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean __removeAll(Set<? extends E> set) {
+		public boolean __removeAll(ImmutableSet<? extends E> set) {
 			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
-		public boolean __removeAllEquivalent(Set<? extends E> set,
+		public boolean __removeAllEquivalent(ImmutableSet<? extends E> set,
+				Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public Iterator<E> iterator() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean __retainAll(ImmutableSet<? extends E> set) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __retainAllEquivalent(ImmutableSet<? extends E> set,
 				Comparator<Object> cmp) {
 			// TODO Auto-generated method stub
 			return false;
@@ -1105,26 +1134,26 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public ImmutableSet<K> __retainAll(Set<? extends K> set) {
+	public ImmutableSet<K> __retainAll(ImmutableSet<? extends K> set) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ImmutableSet<K> __retainAllEquivalent(Set<? extends K> set,
+	public ImmutableSet<K> __retainAllEquivalent(ImmutableSet<? extends K> set,
 			Comparator<Object> cmp) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ImmutableSet<K> __removeAll(Set<? extends K> set) {
+	public ImmutableSet<K> __removeAll(ImmutableSet<? extends K> set) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ImmutableSet<K> __removeAllEquivalent(Set<? extends K> set,
+	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set,
 			Comparator<Object> cmp) {
 		// TODO Auto-generated method stub
 		return null;
