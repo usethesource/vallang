@@ -22,10 +22,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *   Orders first values then nodes (to achive better iteration performance)
  *   Hash code follows java.util.Set contract
  */
-@SuppressWarnings("rawtypes")
 public class TrieSet<K> extends AbstractImmutableSet<K> {
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static final TrieSet EMPTY = new TrieSet(AbstractNode.EMPTY_NODE, 0);
 	
 	private final AbstractNode<K> rootNode;
@@ -148,10 +147,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return rootNode.size();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<K> iterator() {
-		return new TrieSetIterator(rootNode);
+		return new TrieSetIterator<K>(rootNode);
 	}
 	
 	/**
@@ -505,6 +503,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		protected static final int BIT_PARTITION_SIZE = 5;
 		protected static final int BIT_PARTITION_MASK = 0x1f;
 		
+		@SuppressWarnings("rawtypes")
 		protected static final AbstractNode EMPTY_NODE = new InplaceIndexNode(0, 0, new Object[0], 0);
 		
 		abstract boolean contains(Object key, int hash, int shift, Comparator<Object> comparator);
@@ -576,13 +575,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// values fit on next level
 				final int bitmap = (1 << mask0);
 				final int valmap = 0;
-				final AbstractNode node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
+				final AbstractNode<K> node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
 
 				return new InplaceIndexNode<>(bitmap, valmap, node, 2);
 			}
 		}
 
-		static <K> AbstractNode<K> mergeNodes(AbstractNode node0, int hash0, Object node1, int hash1, int shift) {
+		static <K> AbstractNode<K> mergeNodes(AbstractNode<K> node0, int hash0, Object node1, int hash1, int shift) {
 			assert (!(node1 instanceof AbstractNode));
 
 			final int mask0 = (hash0 >>> shift) & BIT_PARTITION_MASK;
@@ -608,7 +607,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// values fit on next level
 				final int bitmap = (1 << mask0);
 				final int valmap = 0;
-				final AbstractNode node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
+				final AbstractNode<K> node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
 
 				return new InplaceIndexNode<>(bitmap, valmap, node, node.size());
 			}
@@ -618,11 +617,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			private final Object result;
 			private final boolean isModified;
 			
-			public static <T> Result fromModified(AbstractNode<T> node) {
+			public static <T> Result<T> fromModified(AbstractNode<T> node) {
 				return new Result<>(node, true);
 			}
 			
-			public static <T> Result fromUnchanged(AbstractNode<T> node) {
+			public static <T> Result<T> fromUnchanged(AbstractNode<T> node) {
 				return new Result<>(node, false);
 			}
 			
@@ -721,7 +720,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if ((bitmap & bitpos) == 0) {
 				Object[] nodesReplacement = ArrayUtils.arraycopyAndInsert(nodes, valIndex, key);
-				return Result.fromModified(new InplaceIndexNode<>(
+				return Result.fromModified(new InplaceIndexNode<K>(
 						bitmap | bitpos, valmap | bitpos, nodesReplacement, cachedSize + 1));
 			}
 
@@ -730,7 +729,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				if (comparator.compare(nodes[valIndex], key) == 0)
 					return Result.fromUnchanged(this);
 
-				final AbstractNode nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);
+				final AbstractNode<K> nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);
 				
 				// immutable copy
 				/** CODE DUPLCIATION **/
@@ -738,7 +737,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				final int bitIndexNew = bitIndexNewOffset + Integer.bitCount((bitmap ^ (valmap & ~bitpos)) & (bitpos - 1)); 
 				final Object[] nodesReplacement = ArrayUtils.arraycopyAndMoveToBack(nodes, valIndex, bitIndexNew, nodeNew);
 				
-				return Result.fromModified(new InplaceIndexNode<>(
+				return Result.fromModified(new InplaceIndexNode<K>(
 						bitmap, valmap & ~bitpos, nodesReplacement, cachedSize + 1));				
 			} else {
 				// it's a TrieSet node, not a inplace value
@@ -752,7 +751,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
 
-				return Result.fromModified(new InplaceIndexNode<>(
+				return Result.fromModified(new InplaceIndexNode<K>(
 						bitmap, valmap, nodesReplacement, cachedSize + 1));		
 			}
 		}
@@ -779,7 +778,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					// TODO: simplify this line
 					int bitIndexNewOffset = Integer.bitCount(valmap & ~bitpos);
 					int bitIndexNew = bitIndexNewOffset + Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1)); 								
-					AbstractNode nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);				
+					AbstractNode<K> nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, hash, shift + BIT_PARTITION_SIZE);				
 					
 					InplaceIndexNode<K> editableNode = editAndMoveToBack(mutator, valIndex, bitIndexNew, nodeNew);
 					editableNode.updateMetadata(bitmap | bitpos, valmap & ~bitpos, cachedSize + 1,
@@ -789,7 +788,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			} else { // node (not value)
 				AbstractNode<K> subNode = (AbstractNode<K>) nodes[bitIndex];
 										
-				Result resultNode = subNode.updated(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
+				Result<K> resultNode = subNode.updated(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
 				
 				if (resultNode.isModified()) {
 					InplaceIndexNode<K> editableNode = editAndSet(mutator, bitIndex, resultNode.getNode());
@@ -893,7 +892,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						
 						// modify current node (set replacement node)
 						final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
-						return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, cachedSize - 1));
+						return Result.fromModified(new InplaceIndexNode<K>(bitmap, valmap, nodesReplacement, cachedSize - 1));
 					}
 				} else {
 					assert this.arity() >= 2;
@@ -901,17 +900,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					if (subNodeReplacement == EMPTY_NODE) {
 						// remove node
 						final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, bitIndex);
-						return Result.fromModified(new InplaceIndexNode<>(bitmap & ~bitpos, valmap, nodesReplacement, cachedSize - 1));						
+						return Result.fromModified(new InplaceIndexNode<K>(bitmap & ~bitpos, valmap, nodesReplacement, cachedSize - 1));						
 					} else if (subNodeReplacement.size() == 1) {
 						// inline value (move to front)						
 						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
 						
 						final Object[] nodesReplacement = ArrayUtils.arraycopyAndMoveToFront(nodes, bitIndex, valIndexNew, subNodeReplacement.head());
-						return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap | bitpos, nodesReplacement, cachedSize - 1));
+						return Result.fromModified(new InplaceIndexNode<K>(bitmap, valmap | bitpos, nodesReplacement, cachedSize - 1));
 					} else {
 						// modify current node (set replacement node)
 						final Object[] nodesReplacement = ArrayUtils.arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
-						return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, cachedSize - 1));						
+						return Result.fromModified(new InplaceIndexNode<K>(bitmap, valmap, nodesReplacement, cachedSize - 1));						
 					}					
 				}			
 			} else {
@@ -924,10 +923,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					} else if (this.arity() == 2 && valmap == bitmap) {
 						Object value = (valIndex == 0) ? nodes[1] : nodes[0];
 						int map = 1 << (value.hashCode() & BIT_PARTITION_MASK);
-						return Result.fromModified(new InplaceIndexNode(map, map, value, cachedSize - 1));
+						return Result.fromModified(new InplaceIndexNode<K>(map, map, value, cachedSize - 1));
 					} else {
 						final Object[] nodesReplacement = ArrayUtils.arraycopyAndRemove(nodes, valIndex);
-						return Result.fromModified(new InplaceIndexNode<>(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, cachedSize - 1));
+						return Result.fromModified(new InplaceIndexNode<K>(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, cachedSize - 1));
 					}
 				}
 			}
@@ -949,7 +948,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// it's a TrieSet node, not a inplace value
 				final AbstractNode<K> subNode = (AbstractNode<K>) nodes[bitIndex];
 		
-				final Result result = subNode.removed(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
+				final Result<K> result = subNode.removed(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
 				
 				if (!result.isModified())
 					return Result.fromUnchanged(this);
@@ -1003,7 +1002,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					} else if (this.arity() == 2 && valmap == bitmap) {
 						Object value = (valIndex == 0) ? nodes[1] : nodes[0];
 						int map = 1 << (value.hashCode() & BIT_PARTITION_MASK);
-						return Result.fromModified(new InplaceIndexNode(mutator, map, map, new Object[]{value}, cachedSize - 1));
+						return Result.fromModified(new InplaceIndexNode<K>(mutator, map, map, new Object[]{value}, cachedSize - 1));
 					} else {
 						InplaceIndexNode<K> editableNode = editAndRemove(mutator, valIndex);
 						editableNode.updateMetadata(this.bitmap & ~bitpos,
@@ -1020,10 +1019,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 //			if (cachedValSize == 0) 
 //				return Collections.emptyIterator();
 //			else
-				return (Iterator) ArrayIterator.of(nodes, 0, cachedValmapBitCount);
+				return (Iterator<K>) ArrayIterator.of(nodes, 0, cachedValmapBitCount);
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		Iterator<AbstractNode<K>> nodeIterator() {
 //			if (cachedValSize == nodes.length)
@@ -1073,7 +1072,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			InplaceIndexNode that = (InplaceIndexNode) other;
+			InplaceIndexNode<?> that = (InplaceIndexNode<?>) other;
 			if (bitmap != that.bitmap) {
 				return false;
 			}
@@ -1139,7 +1138,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K> updated(K key, int hash, int shift, Comparator<Object> comparator) {
 			if (this.hash != hash)
 				return Result.fromModified(mergeNodes(
-						(AbstractNode) this, this.hash, key, hash, shift));
+						(AbstractNode<K>) this, this.hash, key, hash, shift));
 
 			if (contains(key, hash, shift, comparator))
 				return Result.fromUnchanged(this);
@@ -1220,7 +1219,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			HashCollisionNode other = (HashCollisionNode) obj;
+			HashCollisionNode<?> other = (HashCollisionNode<?>) obj;
 			
 			if (hash != other.hash) {
 				return false;
@@ -1266,7 +1265,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return false;
 		
 		if (other instanceof TrieSet) {
-			TrieSet that = (TrieSet) other;
+			TrieSet<?> that = (TrieSet<?>) other;
 
 			if (this.size() != that.size())
 				return false;
