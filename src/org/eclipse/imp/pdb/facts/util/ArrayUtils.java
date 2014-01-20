@@ -12,23 +12,23 @@
 package org.eclipse.imp.pdb.facts.util;
 
 public class ArrayUtils {
-	static Object[] arraycopy(Object[] array) {
+	static Object[] copy(Object[] array) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
 		return arrayNew;
 	}
 	
-	static Object[] arraycopyAndSet(Object[] array, int index, Object elementNew) {
+	static Object[] copyAndSet(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
 		arrayNew[index] = elementNew;
 		return arrayNew;
 	}
 
-	static Object[] arraycopyAndMoveToBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
+	static Object[] copyAndMoveToBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		assert indexOld <= indexNew;		
 		if (indexNew == indexOld) {
-			return arraycopyAndSet(array, indexNew, elementNew);
+			return copyAndSet(array, indexNew, elementNew);
 		} else {
 			final Object[] arrayNew = new Object[array.length];
 			System.arraycopy(array, 0, arrayNew, 0, indexOld);
@@ -39,10 +39,10 @@ public class ArrayUtils {
 		}
 	}	
 
-	static Object[] arraycopyAndMoveToFront(Object[] array, int indexOld, int indexNew, Object elementNew) {
+	static Object[] copyAndMoveToFront(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		assert indexOld >= indexNew;
 		if (indexNew == indexOld ) {
-			return arraycopyAndSet(array, indexOld, elementNew);
+			return copyAndSet(array, indexOld, elementNew);
 		} else {
 			final Object[] arrayNew = new Object[array.length];
 			System.arraycopy(array, 0, arrayNew, 0, indexNew);
@@ -53,7 +53,7 @@ public class ArrayUtils {
 		}
 	}	
 	
-	static Object[] arraycopyAndInsert(Object[] array, int index, Object elementNew) {
+	static Object[] copyAndInsert(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length + 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		arrayNew[index] = elementNew;
@@ -61,7 +61,7 @@ public class ArrayUtils {
 		return arrayNew;
 	}
 
-	static Object[] arraycopyAndRemove(Object[] array, int index) {
+	static Object[] copyAndRemove(Object[] array, int index) {
 		final Object[] arrayNew = new Object[array.length - 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		System.arraycopy(array, index + 1, arrayNew, index, array.length - index - 1);
