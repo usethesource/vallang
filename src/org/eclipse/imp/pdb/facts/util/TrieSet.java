@@ -24,14 +24,13 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @SuppressWarnings("rawtypes")
 public class TrieSet<K> extends AbstractImmutableSet<K> {
-
+	
 	@SuppressWarnings("unchecked")
 	private static final TrieSet EMPTY = new TrieSet(AbstractNode.EMPTY_NODE, 0);
 	
 	private final AbstractNode<K> rootNode;
 	private final int hashCode;
 
-	
 	TrieSet(AbstractNode<K> rootNode, int hashCode) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
@@ -47,6 +46,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	
 	@SafeVarargs
 	public static final <K> TransientSet<K> transientOf(K... elements) {
+		@SuppressWarnings("unchecked")
 		TransientSet<K> transientSet = new TransientTrieSet<>(EMPTY);
 		for (K k : elements) 
 			transientSet.__insert(k);
@@ -158,12 +158,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	 * Iterator that first iterates over inlined-values and then
 	 * continues depth first recursively.
 	 */
-	private static class TrieSetIterator implements Iterator {
+	private static class TrieSetIterator<K> implements Iterator<K> {
 
-		final Deque<Iterator<AbstractNode>> nodeIteratorStack;
-		Iterator<?> valueIterator;
+		final Deque<Iterator<AbstractNode<K>>> nodeIteratorStack;
+		Iterator<K> valueIterator;
 		
-		TrieSetIterator(AbstractNode rootNode) {			
+		TrieSetIterator(AbstractNode<K> rootNode) {			
 			if (rootNode.hasValues()) {
 				valueIterator = rootNode.valueIterator();
 			} else {
@@ -186,7 +186,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						return false;
 					} else {
 						if (nodeIteratorStack.peek().hasNext()) {
-							AbstractNode innerNode = nodeIteratorStack.peek().next();						
+							AbstractNode<K> innerNode = nodeIteratorStack.peek().next();						
 							
 							if (innerNode.hasValues())
 								valueIterator = innerNode.valueIterator();
@@ -205,7 +205,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public Object next() {
+		public K next() {
 			if (!hasNext()) throw new NoSuchElementException();
 			return valueIterator.next();
 		}
@@ -215,194 +215,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			throw new UnsupportedOperationException();
 		}
 	}
-	
-//	/**
-//	 * Iterator that first iterates over inlined-values and then
-//	 * continues depth first recursively.
-//	 */
-//	@SuppressWarnings("unused")
-//	private static class TransientTrieSetIterator implements Iterator {		
-//		final AtomicReference<Thread> mutator;
-//
-//		// programmed against linked list because I want to modify not only the top;
-//		// TODO: replace by more performant random access implementation
-//		// TODO: are nodeStack and nodeIterationStack in sync? Should be, right;
-//		final LinkedList<AbstractNode> nodeStack;
-//		final LinkedList<Iterator<AbstractNode>> nodeIteratatorStack;
-//		final LinkedList<Integer> pathIndexStack;
-//		
-////		Iterator<AbstractNode> currentNodeIterator;
-////		Iterator<?> currentValueIterator;
-//		
-//		final AbstractNode rootNode; // ?
-//		
-//		AbstractNode currentNode; // replace with top of stack
-//		int currentValueIndex;
-//		int currentValueLength;
-//		
-//		TransientTrieSetIterator(AtomicReference<Thread> mutator, AbstractNode rootNode) {			
-//			this.mutator = mutator;
-//			this.rootNode = rootNode;
-//
-//			currentNode = rootNode;			
-//			currentValueIndex = 0;
-//			currentValueLength = rootNode.valueSize();
-//
-//			nodeStack = new LinkedList<>();
-//			nodeStack.push(rootNode);
-//
-//			pathIndexStack = new LinkedList<>();
-//			pathIndexStack.push(0);
-//			
-//			nodeIteratatorStack = new LinkedList<>();
-//			if (rootNode.hasNodes()) {
-//				nodeIteratatorStack.push(rootNode.nodeIterator());
-//			} else {
-//				nodeIteratatorStack.push(Collections.<AbstractNode>emptyIterator());
-//			}
-//		}
-//
-//		// TODO: depth first iteration (that there cannot be collapsion 
-//		@Override
-//		public boolean hasNext() {
-//			while (true) {
-//				if (currentValueIndex < currentValueLength) {
-//					return true;
-//				} else {						
-//					if (nodeIteratatorStack.isEmpty()) {
-//						return false;
-//					} else {
-//						if (nodeIteratatorStack.peek().hasNext()) {
-//							AbstractNode innerNode = nodeIteratatorStack.peek().next();						
-//														
-//							if (innerNode.hasNodes()) {
-//								nodeStack.push(innerNode);
-//								nodeIteratatorStack.push(innerNode.nodeIterator());
-//							} else if (innerNode.hasValues()) {
-//								currentNode = innerNode;
-//								currentValueIndex = 0;
-//								currentValueLength = innerNode.valueSize();
-//							}
-//							continue;
-//						} else {
-//							nodeStack.pop();
-//							nodeIteratatorStack.pop();
-//							continue;
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public Object next() {
-//			if (!hasNext()) throw new NoSuchElementException();
-//			return currentNode.getValue(currentValueIndex++);
-//		}
-//
-//		@Override
-//		public void remove() {
-//			int lastValueIndex = currentValueIndex - 1;
-//			
-//			if (0 < lastValueIndex || lastValueIndex >= currentValueLength) throw new IllegalStateException();
-//			
-//			// TODO: set cachedSize--;
-//			
-//			AbstractNode.Result childModificationResult = currentNode.removeValue(mutator, lastValueIndex);
-//			AbstractNode childNode = childModificationResult.getNode();
-//		
-//			if (!childModificationResult.isModified()) {
-//				// nothing to do; node was already clone before, thus idendity is the same;
-//				return;
-//			}
-//			
-//			int parentIndex = nodeStack.size() - 2; // second top most element
-//			
-//			while (parentIndex >= 0) {				
-//				final AbstractNode parentNode = nodeStack.get(parentIndex);
-//				
-//				final int index = 0; // store in multi-dimensional array; for each level; [tuple[node,pathIndex]] maybe also triple [triple[node,pathIndex,subNodeIterator]]
-//
-//				AbstractNode.Result parentModificationResult = parentNode
-//						.externalUpdate(mutator, index, childNode); 
-//				
-//				if (!parentModificationResult.isModified()) {
-//					// nothing to do; node was already clone before, thus idendity is the same;
-//					break;
-//				} else {
-//					// TODO: update node in array, etc.
-//					nodeStack.set(parentIndex, parentModificationResult.getNode());
-//					// = parentModificationResult.getNode().nodeSize();
-//					// = parentModificationResult.getNode().valueSize();
-//				}
-//
-//				// TODO: be aware: external iteration stuff can updates can harm
-//				// you!
-//				childModificationResult = parentModificationResult;
-//				childNode = parentModificationResult.getNode();
-//				parentIndex--;
-//				
-////				if (parentNode.arity() == 1) {
-////					if (childNode == AbstractNode.EMPTY_NODE) {
-////						// escalate empty result
-////						nodeStack.pop();
-////						nodeIteratatorStack.pop();
-////						parentIndex--;
-////					} else if (childNode.size() == 1) {
-////						// escalate singleton replacement element
-////						nodeStack.pop();
-////						nodeIteratatorStack.pop();
-////						parentIndex--;
-////					} else {
-////						assert childNode.size() >= 2;
-////
-////						// modify path until top; optimize by inline here;
-////						// while (parentIndex >= 0) {}
-////																		
-////						final int index = 0; // store in multi-dimensional array; for each level; [tuple[node,pathIndex]] maybe also triple [triple[node,pathIndex,subNodeIterator]]
-////						// modify current node (set replacement node)
-////						AbstractNode.Result parentModificationResult = parentNode.externalEditAndSet(mutator, index, childNode);  
-////			
-////						if (!parentModificationResult.isModified()) {
-////							// nothing to do; node was already clone before, thus idendity is the same;
-////							break;
-////						} else {
-////							// TODO: update node in array, etc.
-////							nodeStack.set(parentIndex, parentModificationResult.getNode());
-////							// = parentModificationResult.getNode().nodeSize();
-////							// = parentModificationResult.getNode().valueSize();
-////						}
-////												
-////						// TODO: be aware: external iteration stuff can updates can harm you!						
-////						childModificationResult = parentModificationResult;
-////						childNode = parentModificationResult.getNode();			
-////						parentIndex--;						
-////					}
-////				} else {
-////					assert parentNode.arity() >= 2;
-////					
-////					final int index = 0; // store in multi-dimensional array; for each level; [tuple[node,pathIndex]] maybe also triple [triple[node,pathIndex,subNodeIterator]]
-////					
-////					if (childNode == EMPTY_NODE) {
-////						// remove node
-////						parentNode.externalEditAndRemove(mutator, index);
-////					} else if (childNode.size() == 1) {
-////						// inline value (move to front)
-////						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-////						
-////						InplaceIndexNode<K> editableNode = editAndMoveToFront(mutator, bitIndex, valIndexNew, subNodeReplacement.head());
-////						editableNode.updateMetadata(bitmap, valmap | bitpos, cachedSize - 1, cachedValmapBitCount + 1);
-////						return Result.fromModified(editableNode);
-////					} else {
-////						// modify current node (set replacement node)
-////						InplaceIndexNode<K> editableNode = editAndSet(mutator, valIndex, subNodeReplacement);
-////						editableNode.updateMetadata(bitmap, valmap, cachedSize - 1, cachedValmapBitCount);
-////						return Result.fromModified(editableNode);					
-////					}
-////				}
-//			}
-//		}
-//	}
 
 	// TODO: maybe move to ImmutableSet interface?
 	public boolean isTransientSupported() {
@@ -593,10 +405,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 //			return content.containsAll(c);
 //		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public Iterator<K> iterator() {
-			return new TransientTrieSetIterator(mutator, this);
+			return new TransientTrieSetIterator<K>(this);
 		}
 		
 		/**
@@ -605,14 +416,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		 */
 		private static class TransientTrieSetIterator<K> implements Iterator<K> {
 
-			final AtomicReference<Thread> mutator;
 			final TransientTrieSet<K> transientTrieSet;
 			final Deque<Iterator<AbstractNode<K>>> nodeIteratorStack;
 			Iterator<K> valueIterator;
 			K lastValue;
 			
-			TransientTrieSetIterator(AtomicReference<Thread> mutator, TransientTrieSet<K> transientTrieSet) {						
-				this.mutator = mutator;
+			TransientTrieSetIterator(TransientTrieSet<K> transientTrieSet) {						
 				this.transientTrieSet = transientTrieSet;
 				
 				AbstractNode<K> rootNode = transientTrieSet.rootNode;				
@@ -638,7 +447,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							return false;
 						} else {
 							if (nodeIteratorStack.peek().hasNext()) {
-								AbstractNode innerNode = nodeIteratorStack.peek().next();						
+								AbstractNode<K> innerNode = nodeIteratorStack.peek().next();						
 								
 								if (innerNode.hasValues())
 									valueIterator = innerNode.valueIterator();
@@ -665,7 +474,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			@Override
 			public void remove() {
-				transientTrieSet.__remove(lastValue); // TODO: improve
+				transientTrieSet.__remove(lastValue);
 			}
 		}
 		
@@ -712,10 +521,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		abstract Iterator<K> valueIterator();
 		abstract int valueSize();
 		
-		// TODO: experimental
-		abstract TransientValueIterator<K> valueIterator(AtomicReference<Thread> mutator);
-		abstract Result<K> externalUpdate(AtomicReference<Thread> mutator, int index, AbstractNode node);
-		
 		abstract boolean hasNodes();
 		abstract Iterator<AbstractNode<K>> nodeIterator();
 		abstract int nodeSize();
@@ -740,9 +545,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// TODO: optimize; push into node implementations and return node[0] iff hasValues()
 			return valueIterator().next();
 		}
-		
-		abstract K getValue(int index);
-		abstract Result<K> removeValue(AtomicReference<Thread> mutator, int index);
 		
 		@SuppressWarnings("unchecked")
 		static <K> AbstractNode<K> mergeNodes(Object node0, int hash0, Object node1, int hash1, int shift) {
@@ -777,35 +579,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				final AbstractNode node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
 
 				return new InplaceIndexNode<>(bitmap, valmap, node, 2);
-			}
-		}
-
-		static <K> AbstractNode<K> mergeNodes(AbstractNode node0, int hash0, AbstractNode node1, int hash1, int shift) {
-			final int mask0 = (hash0 >>> shift) & BIT_PARTITION_MASK;
-			final int mask1 = (hash1 >>> shift) & BIT_PARTITION_MASK;
-
-			if (mask0 != mask1) {
-				// both nodes fit on same level
-				final int bitmap = (1 << mask0) | (1 << mask1);
-				final int valmap = 0;
-				final Object[] nodes = new Object[2];
-
-				if (mask0 < mask1) {
-					nodes[0] = node0;
-					nodes[1] = node1;
-				} else {
-					nodes[0] = node1;
-					nodes[1] = node0;
-				}
-
-				return new InplaceIndexNode<>(bitmap, valmap, nodes, node0.size() + node1.size());
-			} else {
-				// values fit on next level
-				final int bitmap = (1 << mask0);
-				final int valmap = 0;
-				final AbstractNode node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
-
-				return new InplaceIndexNode<>(bitmap, valmap, node, node.size());
 			}
 		}
 
@@ -868,15 +641,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return isModified;
 			}
 		}
-		
-		protected static interface TransientValueIterator<T> extends Iterator<T> {
-			Result<T> getResult();			
-		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static final class InplaceIndexNode<K> extends AbstractNode<K> {
-
 		private AtomicReference<Thread> mutator;
 
 		private int bitmap;
@@ -909,10 +676,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		InplaceIndexNode(int bitmap, int valmap, Object node, int cachedSize) {
 			this(bitmap, valmap, new Object[]{node}, cachedSize);
-		}
-
-		final int index(int bitpos) {
-			return Integer.bitCount(bitmap & (bitpos - 1));
 		}
 
 		final int bitIndex(int bitpos) {
@@ -1142,10 +905,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					} else if (subNodeReplacement.size() == 1) {
 						// inline value (move to front)						
 						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-						final K nodeNew = subNodeReplacement.head();
-//						final int bitposNew = 1 << ((nodeNew.hashCode() >>> shift) & BIT_PARTITION_MASK);
 						
-						final Object[] nodesReplacement = ArrayUtils.arraycopyAndMoveToFront(nodes, bitIndex, valIndexNew, nodeNew);
+						final Object[] nodesReplacement = ArrayUtils.arraycopyAndMoveToFront(nodes, bitIndex, valIndexNew, subNodeReplacement.head());
 						return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap | bitpos, nodesReplacement, cachedSize - 1));
 					} else {
 						// modify current node (set replacement node)
@@ -1221,10 +982,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					} else if (subNodeReplacement.size() == 1) {
 						// inline value (move to front)
 						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-						final K nodeNew = subNodeReplacement.head();
-//						final int bitposNew = (1 << (nodeNew.hashCode() >>> shift) & BIT_PARTITION_MASK);
 						
-						InplaceIndexNode<K> editableNode = editAndMoveToFront(mutator, bitIndex, valIndexNew, nodeNew);
+						InplaceIndexNode<K> editableNode = editAndMoveToFront(mutator, bitIndex, valIndexNew, subNodeReplacement.head());
 						editableNode.updateMetadata(bitmap, valmap | bitpos, cachedSize - 1, cachedValmapBitCount + 1);
 						return Result.fromModified(editableNode);
 					} else {
@@ -1254,55 +1013,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 			}
 		}
-
-		@SuppressWarnings("unchecked")
-		private static class ATransientValueIterator<K> implements TransientValueIterator<K> {
-			final AtomicReference<Thread> mutator;
-			final Iterator<K> valueIterator;
-			
-			K lastValue;
-			Result<K> lastResult;			
-			
-			private ATransientValueIterator(AtomicReference<Thread> mutator, InplaceIndexNode<K> inplaceNode) {
-				this.mutator = mutator;
-				this.valueIterator = inplaceNode.valueIterator();
-				this.lastResult = Result.fromUnchanged(inplaceNode);				
-			}
-
-			@Override
-			public boolean hasNext() {
-				return valueIterator.hasNext();
-			}
-
-			@Override
-			public K next() {
-				lastValue = valueIterator.next(); 
-				return lastValue;
-			}
-
-			@Override
-			public void remove() {
-				if (lastValue == null)
-					throw new IllegalStateException();
-				
-				InplaceIndexNode<K> editableNode = (InplaceIndexNode<K>) lastResult.getNode();
-				// TODO shift and hash code are missing
-				// http://rosettacode.org/wiki/Find_first_and_last_set_bit_of_a_long_integer#Java
-				lastResult = editableNode.removed(mutator, lastValue, 0, 0, equivalenceComparator());
-			}
-
-			@Override
-			public Result<K> getResult() {
-				return lastResult;
-			}
-		}
 		
-		@SuppressWarnings("unchecked")
-		@Override
-		TransientValueIterator<K> valueIterator(AtomicReference<Thread> mutator) {
-			return new ATransientValueIterator(mutator, this);
-		}
-			
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<K> valueIterator() {
@@ -1389,40 +1100,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		int size() {
 			return cachedSize;
 		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		K getValue(int index) {
-			if (0 < index || index >= cachedValmapBitCount) throw new IndexOutOfBoundsException();	
-			return (K) nodes[index];
-		}
-
-		@Override
-		Result<K> removeValue(AtomicReference<Thread> mutator, int index) {
-			if (0 < index || index >= cachedValmapBitCount) throw new IndexOutOfBoundsException();
-			
-			// http://rosettacode.org/wiki/Find_first_and_last_set_bit_of_a_long_integer#Java
-			final int bitpos = 0; // TODO
-
-			if (this.arity() == 1) { // && this.size() == 1
-				return Result.fromModified(EMPTY_NODE);
-			} else {
-				InplaceIndexNode<K> editableNode = editAndRemove(mutator, index);
-				editableNode.updateMetadata(this.bitmap & ~bitpos,
-						this.valmap & ~bitpos, cachedSize - 1, cachedValmapBitCount - 1);
-				return Result.fromModified(editableNode);
-			}								
-		}
-
-		@Override
-		AbstractNode.Result<K> externalUpdate(
-				AtomicReference<Thread> mutator, int index, AbstractNode node) {
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static final class HashCollisionNode<K> extends AbstractNode<K> {
 		private final K[] keys;
 		private final int hash;
@@ -1432,13 +1111,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			this.hash = hash;
 		}
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<K> valueIterator() {
 			return ArrayIterator.of(keys);
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K>> nodeIterator() {
 			return Collections.emptyIterator(); 
@@ -1573,33 +1250,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		int size() {
 			return keys.length;
-		}
-
-		@Override
-		TransientValueIterator<K> valueIterator(
-				AtomicReference<Thread> mutator) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		K getValue(int index) {
-			if (0 < index || index >= keys.length) throw new IndexOutOfBoundsException();	
-			return (K) keys[index];
-		}
-
-		@Override
-		Result<K> removeValue(AtomicReference<Thread> mutator, int index) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		@Override
-		AbstractNode.Result<K> externalUpdate(
-				AtomicReference<Thread> mutator, int index, AbstractNode node) {
-			// TODO Auto-generated method stub
-			return null;
 		}
 	}
 
