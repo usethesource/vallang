@@ -620,7 +620,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		final int bitIndex(int bitpos) {
-			return Integer.bitCount(valmap) + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			return cachedValmapBitCount + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
 		}
 
 		final int valIndex(int bitpos) {
