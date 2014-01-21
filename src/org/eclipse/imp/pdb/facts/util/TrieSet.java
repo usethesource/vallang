@@ -66,12 +66,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public TrieSet<K> __insert(K k) {
+	public ImmutableSet<K> __insert(K k) {
 		return __insertEquivalent(k, equalityComparator());
 	}
 
 	@Override
-	public TrieSet<K> __insertEquivalent(K key, Comparator<Object> cmp) {
+	public ImmutableSet<K> __insertEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final AbstractNode.Result<K> result = rootNode.updated(key, keyHash, 0, cmp);
 
@@ -106,12 +106,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public TrieSet<K> __remove(K k) {
+	public ImmutableSet<K> __remove(K k) {
 		return __removeEquivalent(k, equalityComparator());
 	}
 
 	@Override
-	public TrieSet<K> __removeEquivalent(K key, Comparator<Object> cmp) {
+	public ImmutableSet<K> __removeEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final AbstractNode.Result<K> result = rootNode.removed(key, keyHash, 0, cmp);
 
@@ -216,12 +216,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	// TODO: maybe move to ImmutableSet interface?
+	@Override
 	public boolean isTransientSupported() {
 		return true;
 	}
 
-	// TODO: maybe move to ImmutableSet interface?
+	@Override
 	public TransientSet<K> asTransient() {
 		return new TransientTrieSet<K>(this);
 	}

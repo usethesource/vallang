@@ -46,4 +46,14 @@ public abstract class AbstractImmutableSet<E> extends AbstractSet<E> implements 
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
+	public boolean isTransientSupported() {
+		return false;
+	}
+	
+	@Override
+	public TransientSet<E> asTransient() {
+		throw new UnsupportedOperationException();
+	}
+	
 }

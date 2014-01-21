@@ -32,10 +32,12 @@ public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
 	
 	ImmutableSet<E> __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
 	
-	// TODO: Generic type E or Object like in JDK?
 	ImmutableSet<E> __remove(E e);
 
-	// TODO: Generic type E or Object like in JDK?
 	ImmutableSet<E> __removeEquivalent(E e, Comparator<Object> cmp);
+
+	public abstract TransientSet<E> asTransient();
+
+	public abstract boolean isTransientSupported();
 
 }
