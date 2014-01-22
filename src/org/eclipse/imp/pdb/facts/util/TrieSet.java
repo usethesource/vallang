@@ -150,71 +150,357 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public Iterator<K> iterator() {
-		return new TrieSetIterator<K>(rootNode);
+		return new TrieSetIteratorNG<K>(rootNode);
 	}
 
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieSetIterator<K> implements Iterator<K> {
+	private static class TrieSetIteratorNG<K> implements Iterator<K> {
 
-		final Deque<Iterator<AbstractNode<K>>> nodeIteratorStack;
-		Iterator<K> valueIterator;
+		/*
+		 * TODO replace byte with int everywhere because hash-collsions nodes
+		 * might have more than 32 values.
+		 */
+		
+		byte valueIndex;
+		byte valueLength;
+		AbstractNode<K> valueNode;
+		
+		byte stackLevel;
+		
+		byte nodeIndex0;
+		byte nodeLength0;
+		AbstractNode<K> node0;
+		
+		byte nodeIndex1;
+		byte nodeLength1;
+		AbstractNode<K> node1;
+		
+		byte nodeIndex2;
+		byte nodeLength2;
+		AbstractNode<K> node2;
+		
+		byte nodeIndex3;
+		byte nodeLength3;
+		AbstractNode<K> node3;
+		
+		byte nodeIndex4;
+		byte nodeLength4;
+		AbstractNode<K> node4;
+		
+		byte nodeIndex5;
+		byte nodeLength5;
+		AbstractNode<K> node5;
+		
+		byte nodeIndex6;
+		byte nodeLength6;
+		AbstractNode<K> node6;
+		
+		TrieSetIteratorNG(AbstractNode<K> rootNode) {
+			stackLevel = 0;
+			
+			valueNode = rootNode;
 
-		TrieSetIterator(AbstractNode<K> rootNode) {
-			if (rootNode.hasValues()) {
-				valueIterator = rootNode.valueIterator();
-			} else {
-				valueIterator = Collections.emptyIterator();
-			}
-
-			nodeIteratorStack = new ArrayDeque<>();
-			if (rootNode.hasNodes()) {
-				nodeIteratorStack.push(rootNode.nodeIterator());
-			}
+			valueIndex = 0;
+			valueLength = (byte) rootNode.valueSize();
+			
+			node0 = rootNode;
+			nodeIndex0 = 0;
+			nodeLength0 = (byte) rootNode.nodeSize();
 		}
 
 		@Override
 		public boolean hasNext() {
-			while (true) {
-				if (valueIterator.hasNext()) {
-					return true;
-				} else {
-					if (nodeIteratorStack.isEmpty()) {
-						return false;
+			if (valueIndex < valueLength)
+				return true;
+
+			boolean exhausted = false;
+			boolean hasFoundValueNode = false;
+					
+			while (!exhausted && !hasFoundValueNode) {
+				switch (stackLevel) {
+				case 6:
+					if (nodeIndex6 < nodeLength6) {
+						final AbstractNode<K> nextNode = node6.getNode(nodeIndex6++);
+						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						
+						if (nextNodeValueSize != 0) {
+							hasFoundValueNode = true;
+							valueNode = nextNode;
+							
+							valueIndex = 0;
+							valueLength = nextNodeValueSize;
+						}							
+						
+						/*
+						 * Can only be a hash-collision-leaf node with
+						 * 32-bit hash-codes BIT_PARTITION_SIZE = 5.
+						 */
+						assert nextNode.hasNodes() == false;
+						
+						break;
 					} else {
-						if (nodeIteratorStack.peek().hasNext()) {
-							AbstractNode<K> innerNode = nodeIteratorStack.peek().next();
-
-							if (innerNode.hasValues())
-								valueIterator = innerNode.valueIterator();
-
-							if (innerNode.hasNodes()) {
-								nodeIteratorStack.push(innerNode.nodeIterator());
-							}
-							continue;
-						} else {
-							nodeIteratorStack.pop();
-							continue;
-						}
+						stackLevel--;
+						// no break;
 					}
+					
+				case 5:
+					if (nodeIndex5 < nodeLength5) {						
+						final AbstractNode<K> nextNode = node5.getNode(nodeIndex5++);
+						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						
+						if (nextNodeValueSize != 0) {
+							hasFoundValueNode = true;
+							valueNode = nextNode;
+							
+							valueIndex = 0;
+							valueLength = nextNodeValueSize;
+						}
+						
+						if (nextNodeNodeSize != 0) {
+							stackLevel++;
+							node6 = nextNode;
+							
+							nodeIndex6 = 0;
+							nodeLength6 = (byte) nextNode.nodeSize();
+						}
+
+						break;
+					} else {
+						stackLevel--;
+						// no break;
+					}
+					
+				case 4:
+					if (nodeIndex4 < nodeLength4) {								
+						final AbstractNode<K> nextNode = node4.getNode(nodeIndex4++);
+						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						
+						if (nextNodeValueSize != 0) {
+							hasFoundValueNode = true;
+							valueNode = nextNode;
+							
+							valueIndex = 0;
+							valueLength = nextNodeValueSize;
+						}
+						
+						if (nextNodeNodeSize != 0) {
+							stackLevel++;
+							node5 = nextNode;
+							
+							nodeIndex5 = 0;
+							nodeLength5 = (byte) nextNode.nodeSize();
+						}
+						
+						break;
+					} else {
+						stackLevel--;
+						// no break;
+					}
+					
+				case 3:
+					if (nodeIndex3 < nodeLength3) {
+						final AbstractNode<K> nextNode = node3.getNode(nodeIndex3++);
+						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						
+						if (nextNodeValueSize != 0) {
+							hasFoundValueNode = true;
+							valueNode = nextNode;
+							
+							valueIndex = 0;
+							valueLength = nextNodeValueSize;
+						}
+						
+						if (nextNodeNodeSize != 0) {
+							stackLevel++;								
+							node4 = nextNode;
+							
+							nodeIndex4 = 0;
+							nodeLength4 = (byte) nextNode.nodeSize();
+						}
+						
+						break;
+					} else {
+						stackLevel--;
+						// no break;
+					}
+					
+				case 2:
+					if (nodeIndex2 < nodeLength2) {							
+						final AbstractNode<K> nextNode = node2.getNode(nodeIndex2++);
+						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+
+						if (nextNodeValueSize != 0) {
+							hasFoundValueNode = true;
+							valueNode = nextNode;
+							
+							valueIndex = 0;
+							valueLength = nextNodeValueSize;
+						}
+						
+						if (nextNodeNodeSize != 0) {
+							stackLevel++;
+							node3 = nextNode;
+							
+							nodeIndex3 = 0;
+							nodeLength3 = (byte) nextNode.nodeSize();
+						}
+						
+						break;						
+					} else {
+						stackLevel--;
+						// no break;
+					}
+					
+				case 1:
+					if (nodeIndex1 < nodeLength1) {							
+						final AbstractNode<K> nextNode = node1.getNode(nodeIndex1++);
+						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						
+						if (nextNodeValueSize != 0) {
+							hasFoundValueNode = true;
+							valueNode = nextNode;
+							
+							valueIndex = 0;
+							valueLength = nextNodeValueSize;
+						}
+						
+						if (nextNodeNodeSize != 0) {
+							stackLevel++;
+							node2 = nextNode;
+						
+							nodeIndex2 = 0;
+							nodeLength2 = (byte) nextNode.nodeSize();
+						}
+
+						break;
+					} else {
+						stackLevel--;
+						// no break;
+					}
+					
+				case 0:
+					if (nodeIndex0 < nodeLength0) {
+						final AbstractNode<K> nextNode = node0.getNode(nodeIndex0++);
+						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+
+						if (nextNodeValueSize != 0) {
+							hasFoundValueNode = true;
+							valueNode = nextNode;
+							
+							valueIndex = 0;
+							valueLength = nextNodeValueSize;
+						}
+						
+						if (nextNodeNodeSize != 0) {
+							stackLevel++;							
+							node1 = nextNode;
+							
+							nodeIndex1 = 0;
+							nodeLength1 = (byte) nextNode.nodeSize(); 
+						}
+						
+						break;
+					} else {
+						stackLevel--;
+						// no break;
+					}
+					
+				case -1:
+					exhausted = true;
+					break;
+					
+				default:
+					throw new IllegalStateException();
 				}
 			}
+			
+			return hasFoundValueNode;
 		}
 
 		@Override
 		public K next() {
 			if (!hasNext())
 				throw new NoSuchElementException();
-			return valueIterator.next();
+			return valueNode.getValue(valueIndex++);
 		}
 
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
-	}
+	}	
+	
+//	/**
+//	 * Iterator that first iterates over inlined-values and then continues depth
+//	 * first recursively.
+//	 */
+//	private static class TrieSetIterator<K> implements Iterator<K> {
+//
+//		final Deque<Iterator<AbstractNode<K>>> nodeIteratorStack;
+//		Iterator<K> valueIterator;
+//
+//		TrieSetIterator(AbstractNode<K> rootNode) {
+//			if (rootNode.hasValues()) {
+//				valueIterator = rootNode.valueIterator();
+//			} else {
+//				valueIterator = Collections.emptyIterator();
+//			}
+//
+//			nodeIteratorStack = new ArrayDeque<>();
+//			if (rootNode.hasNodes()) {
+//				nodeIteratorStack.push(rootNode.nodeIterator());
+//			}
+//		}
+//
+//		@Override
+//		public boolean hasNext() {
+//			while (true) {
+//				if (valueIterator.hasNext()) {
+//					return true;
+//				} else {
+//					if (nodeIteratorStack.isEmpty()) {
+//						return false;
+//					} else {
+//						if (nodeIteratorStack.peek().hasNext()) {
+//							AbstractNode<K> innerNode = nodeIteratorStack.peek().next();
+//
+//							if (innerNode.hasValues())
+//								valueIterator = innerNode.valueIterator();
+//
+//							if (innerNode.hasNodes()) {
+//								nodeIteratorStack.push(innerNode.nodeIterator());
+//							}
+//							continue;
+//						} else {
+//							nodeIteratorStack.pop();
+//							continue;
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		@Override
+//		public K next() {
+//			if (!hasNext())
+//				throw new NoSuchElementException();
+//			return valueIterator.next();
+//		}
+//
+//		@Override
+//		public void remove() {
+//			throw new UnsupportedOperationException();
+//		}
+//	}
 
 	@Override
 	public boolean isTransientSupported() {
@@ -467,6 +753,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		abstract int nodeSize();
 
+		abstract K getValue(int index);
+		
+		abstract public AbstractNode<K> getNode(int index);
+		
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
@@ -488,7 +778,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		 * @return first value
 		 */
 		abstract K head();
-
+		
 		@SuppressWarnings("unchecked")
 		static <K> AbstractNode<K> mergeNodes(Object node0, int hash0, Object node1, int hash1, int shift) {
 			assert (!(node0 instanceof AbstractNode));
@@ -1002,6 +1292,18 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return nodes.length - cachedValmapBitCount;
 		}
 
+		@SuppressWarnings("unchecked")
+		@Override
+		K getValue(int index) {
+			return (K) nodes[index];
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public AbstractNode<K> getNode(int index) {
+			return (AbstractNode<K>) nodes[cachedValmapBitCount + index];
+		}	
+		
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -1149,6 +1451,16 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		int nodeSize() {
 			return 0;
 		}
+		
+		@Override
+		K getValue(int index) {
+			return keys[index];
+		}
+		
+		@Override
+		public AbstractNode<K> getNode(int index) {
+			throw new IllegalStateException("Is leaf node.");
+		}	
 
 		@Override
 		public int hashCode() {
