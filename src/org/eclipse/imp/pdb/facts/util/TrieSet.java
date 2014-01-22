@@ -150,14 +150,93 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public Iterator<K> iterator() {
-		return new TrieSetIteratorNG<K>(rootNode);
+		return new TrieSetIterator<K>(rootNode);
 	}
 
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieSetIteratorNG<K> implements Iterator<K> {
+	private static class TrieSetIteratorNGwithArray<K> implements Iterator<K> {		
+		int valueIndex;
+		int valueLength;
+		AbstractNode<K> valueNode;
+		
+		int stackLevel;
+
+		int[] indexAndLength = new int[7 * 2];
+		AbstractNode<K>[] nodes = new AbstractNode[7];
+		
+		TrieSetIteratorNGwithArray(AbstractNode<K> rootNode) {
+			stackLevel = 0;
+			
+			valueNode = rootNode;
+
+			valueIndex = 0;
+			valueLength = (int) rootNode.valueSize();
+			
+			nodes[0] = rootNode;
+			indexAndLength[0] = 0;
+			indexAndLength[1] = rootNode.nodeSize();
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (valueIndex < valueLength)
+				return true;
+
+			while (true) {
+				final int nodeIndex = indexAndLength[2 * stackLevel]; 
+				final int nodeLength = indexAndLength[2 * stackLevel + 1];
+				
+				if (nodeIndex < nodeLength) {						
+					final AbstractNode<K> nextNode = nodes[stackLevel].getNode(nodeIndex);
+					indexAndLength[2 * stackLevel] = (nodeIndex + 1);				
+									
+					final int nextNodeValueSize = nextNode.valueSize();
+					final int nextNodeNodeSize = nextNode.nodeSize();
+
+					if (nextNodeNodeSize != 0) {
+						stackLevel++;						
+	
+						nodes[stackLevel] = nextNode;
+						indexAndLength[2 * stackLevel] = 0;						
+						indexAndLength[2 * stackLevel + 1] = nextNode.nodeSize();
+					}
+					
+					if (nextNodeValueSize != 0) {
+						valueNode = nextNode;						
+						valueIndex = 0;
+						valueLength = nextNodeValueSize;							
+						return true;
+					}
+				} else {
+					if (stackLevel == 0)
+						return false;
+
+					stackLevel--;
+				}
+			}
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext())
+				throw new NoSuchElementException();
+			return valueNode.getValue(valueIndex++);
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	/**
+	 * Iterator that first iterates over inlined-values and then continues depth
+	 * first recursively.
+	 */
+	private static class TrieSetIteratorNGInlined<K> implements Iterator<K> {
 
 		/*
 		 * TODO replace byte with int everywhere because hash-collsions nodes
@@ -198,7 +277,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		byte nodeLength6;
 		AbstractNode<K> node6;
 		
-		TrieSetIteratorNG(AbstractNode<K> rootNode) {
+		TrieSetIteratorNGInlined(AbstractNode<K> rootNode) {
 			stackLevel = 0;
 			
 			valueNode = rootNode;
@@ -439,68 +518,68 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}	
 	
-//	/**
-//	 * Iterator that first iterates over inlined-values and then continues depth
-//	 * first recursively.
-//	 */
-//	private static class TrieSetIterator<K> implements Iterator<K> {
-//
-//		final Deque<Iterator<AbstractNode<K>>> nodeIteratorStack;
-//		Iterator<K> valueIterator;
-//
-//		TrieSetIterator(AbstractNode<K> rootNode) {
-//			if (rootNode.hasValues()) {
-//				valueIterator = rootNode.valueIterator();
-//			} else {
-//				valueIterator = Collections.emptyIterator();
-//			}
-//
-//			nodeIteratorStack = new ArrayDeque<>();
-//			if (rootNode.hasNodes()) {
-//				nodeIteratorStack.push(rootNode.nodeIterator());
-//			}
-//		}
-//
-//		@Override
-//		public boolean hasNext() {
-//			while (true) {
-//				if (valueIterator.hasNext()) {
-//					return true;
-//				} else {
-//					if (nodeIteratorStack.isEmpty()) {
-//						return false;
-//					} else {
-//						if (nodeIteratorStack.peek().hasNext()) {
-//							AbstractNode<K> innerNode = nodeIteratorStack.peek().next();
-//
-//							if (innerNode.hasValues())
-//								valueIterator = innerNode.valueIterator();
-//
-//							if (innerNode.hasNodes()) {
-//								nodeIteratorStack.push(innerNode.nodeIterator());
-//							}
-//							continue;
-//						} else {
-//							nodeIteratorStack.pop();
-//							continue;
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public K next() {
-//			if (!hasNext())
-//				throw new NoSuchElementException();
-//			return valueIterator.next();
-//		}
-//
-//		@Override
-//		public void remove() {
-//			throw new UnsupportedOperationException();
-//		}
-//	}
+	/**
+	 * Iterator that first iterates over inlined-values and then continues depth
+	 * first recursively.
+	 */
+	private static class TrieSetIterator<K> implements Iterator<K> {
+
+		final Deque<Iterator<AbstractNode<K>>> nodeIteratorStack;
+		Iterator<K> valueIterator;
+
+		TrieSetIterator(AbstractNode<K> rootNode) {
+			if (rootNode.hasValues()) {
+				valueIterator = rootNode.valueIterator();
+			} else {
+				valueIterator = Collections.emptyIterator();
+			}
+
+			nodeIteratorStack = new ArrayDeque<>();
+			if (rootNode.hasNodes()) {
+				nodeIteratorStack.push(rootNode.nodeIterator());
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			while (true) {
+				if (valueIterator.hasNext()) {
+					return true;
+				} else {
+					if (nodeIteratorStack.isEmpty()) {
+						return false;
+					} else {
+						if (nodeIteratorStack.peek().hasNext()) {
+							AbstractNode<K> innerNode = nodeIteratorStack.peek().next();
+
+							if (innerNode.hasValues())
+								valueIterator = innerNode.valueIterator();
+
+							if (innerNode.hasNodes()) {
+								nodeIteratorStack.push(innerNode.nodeIterator());
+							}
+							continue;
+						} else {
+							nodeIteratorStack.pop();
+							continue;
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext())
+				throw new NoSuchElementException();
+			return valueIterator.next();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
 
 	@Override
 	public boolean isTransientSupported() {
