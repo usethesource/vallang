@@ -40,10 +40,10 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	private Type inferredValType; // = getTypeFactory().voidType();
 	private final ImmutableMap<IValue,IValue> content;
 
-	public PDBPersistentHashMap() {
-//		this.cachedMapType = null;
-		this.content = TrieMap.of();
-	}
+//	public PDBPersistentHashMap() {
+////		this.cachedMapType = null;
+//		this.content = TrieMap.of();
+//	}
 
 	public PDBPersistentHashMap(Type keyType, Type valType, ImmutableMap<IValue,IValue> content) {
 		Objects.requireNonNull(content);
