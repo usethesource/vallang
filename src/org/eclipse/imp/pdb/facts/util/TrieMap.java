@@ -1057,10 +1057,8 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		
 		@Override
 		boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
-			// TODO cleanup!
-			// NOTE: 0, 0 used because contains does not reference them.
 			for (AbstractNode<K,V> node : leafs) {
-				if (node.containsKey(key, 0, 0, cmp))
+				if (node.containsKey(key, hash, shift + BIT_PARTITION_SIZE, cmp)) // TODO: increase BIT_PARTITION_SIZE?
 					return true;
 			}
 			return false;
@@ -1069,7 +1067,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		@Override
 		Optional<Map.Entry<K,V>> findByKey(Object key, int hash, int shift, Comparator<Object> cmp) {
 			for (AbstractNode<K,V> node : leafs) {
-				final Optional<Map.Entry<K,V>> queryResult = node.findByKey(key, 0, 0, cmp);
+				final Optional<Map.Entry<K,V>> queryResult = node.findByKey(key, hash, shift + BIT_PARTITION_SIZE, cmp); // TODO: increase BIT_PARTITION_SIZE?
 
 				if (queryResult.isPresent()) {
 					return queryResult;

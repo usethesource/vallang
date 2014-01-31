@@ -39,10 +39,19 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	protected final TransientMap<IValue,IValue> mapContent;
 	
 	protected IMap constructedMap;
-//	protected final boolean inferred;
+	protected final boolean inferred;
 	
 	/*package*/ TemporaryMapWriter1() {
+		super();
+				
+		this.mapType = null;
+		this.keyType = TypeFactory.getInstance().voidType();
+		this.valueType =  TypeFactory.getInstance().voidType();
+		this.inferred = true;
+		
 		mapContent = TrieMap.transientOf();
+		
+		constructedMap = null;
 	}
 	
 //	/*package*/ TemporaryMapWriter1(){
@@ -91,17 +100,17 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	@Override
 	public void put(IValue key, IValue value){
 		checkMutation();
-//		updateTypes(key,value);
+		updateTypes(key,value);
 		
 		mapContent.__put(key, value);
 	}
 	
-//	private void updateTypes(IValue key, IValue value) {
-//		if (inferred) {
-//			keyType = keyType.lub(key.getType());
-//			valueType = valueType.lub(value.getType());
-//		}
-//	}
+	private void updateTypes(IValue key, IValue value) {
+		if (inferred) {
+			keyType = keyType.lub(key.getType());
+			valueType = valueType.lub(value.getType());
+		}
+	}
 
 	@Override
 	public void putAll(IMap map){
@@ -146,7 +155,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 			
 			IValue key = tuple.get(0);
 			IValue value2 = tuple.get(1);
-//			updateTypes(key,value2);
+			updateTypes(key,value2);
 			mapContent.__put(key, value2);
 		}
 	}
@@ -167,7 +176,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 			
 			IValue key = tuple.get(0);
 			IValue value2 = tuple.get(1);
-//			updateTypes(key,value2);
+			updateTypes(key,value2);
 			mapContent.__put(key, value2);
 		}
 	}
@@ -181,7 +190,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	@Override
 	public IMap done(){
 		if (constructedMap == null) {
-			constructedMap = new PDBPersistentHashMap(mapContent.freeze());
+			constructedMap = new PDBPersistentHashMap(keyType, valueType, mapContent.freeze());
 		}
 
 		return constructedMap;
