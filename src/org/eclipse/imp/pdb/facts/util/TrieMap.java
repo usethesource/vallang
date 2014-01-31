@@ -79,7 +79,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 	@Override
 	public TrieMap<K,V> __putEquivalent(K k, V v, Comparator<Object> cmp) {
-		AbstractNode.Result<K,V> result = rootNode.updated(k, k.hashCode(), null, 0, cmp);
+		AbstractNode.Result<K,V> result = rootNode.updated(k, k.hashCode(), v, 0, cmp);
 		return (result.isModified()) ? new TrieMap<K,V>(result.getNode()) : this;
 	}
 	
@@ -126,6 +126,17 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		throw new UnsupportedOperationException();
 	}
 		
+	@Override
+	public V get(Object key) {
+		AbstractNode.Optional<Map.Entry<K,V>> result = rootNode.findByKey(key, key.hashCode(), 0, equivalenceComparator());
+		
+		if (result.isPresent()) {
+			return result.get().getValue();
+		} else {
+			return null;
+		}
+	}
+
 	@Override
 	public int size() {
 		return rootNode.size();
@@ -289,7 +300,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		public boolean __putEquivalent(E e, V v, Comparator<Object> cmp) {
-			AbstractNode.Result<E,V> result = rootNode.updated(mutator, e, e.hashCode(), null, 0, cmp);
+			AbstractNode.Result<E,V> result = rootNode.updated(mutator, e, e.hashCode(), v, 0, cmp);
 
 			if (result.isModified()) {
 				rootNode = result.getNode();
@@ -564,7 +575,19 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		}
 		
 		abstract static class Optional<T> {
-			private final static Optional EMPTY = null;
+			private final static Optional EMPTY = new Optional() {
+
+				@Override
+				boolean isPresent() {
+					return false;
+				}
+
+				@Override
+				Object get() {
+					return null;
+				}
+				
+			};
 			
 			@SuppressWarnings("unchecked")
 			static <T> Optional<T> empty() {
@@ -572,11 +595,31 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 			
 			static <T> Optional<T> of(T value) {
-				return null;
+				return new Value(value);
 			}
 			
 			abstract boolean isPresent();
 			abstract T get();
+			
+			private static class Value<T> extends Optional<T> {
+
+				private final T value; 
+				
+				private Value(T value) {
+					this.value = value;
+				}
+				
+				@Override
+				boolean isPresent() {
+					return true;
+				}
+
+				@Override
+				T get() {
+					return value;
+				}
+				
+			}
 			
 //			private final Object result;
 //			private final boolean isModified;
@@ -686,7 +729,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 
 				// immutable copy subNode
-				final AbstractNode<K,V> subNodeReplacement = subNode.updated(key, keyHash, null, shift + BIT_PARTITION_SIZE, comparator).getNode();
+				final AbstractNode<K,V> subNodeReplacement = subNode.updated(key, keyHash, val, shift + BIT_PARTITION_SIZE, comparator).getNode();
 
 				if (subNode == subNodeReplacement)
 					return Result.fromUnchanged(this);
@@ -746,7 +789,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				@SuppressWarnings("unchecked")
 				AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 										
-				Result resultNode = subNode.updated(mutator, key, keyHash, null, shift + BIT_PARTITION_SIZE, comparator);
+				Result resultNode = subNode.updated(mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, comparator);
 				
 				if (resultNode.isModified()) {
 					IndexNode<K,V> editableNode = editAndSet(mutator, index, resultNode.getNode());
@@ -1145,31 +1188,31 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		}
 	}
 
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = super.hashCode();
-//		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
-//		return result;
-//	}
-//
-//	@Override
-//	public boolean equals(Object other) {
-//		if (other == this)
-//			return true;
-//		if (other == null)
-//			return false;
-//		
-//		if (other instanceof TrieMap) {
-//			TrieMap that = (TrieMap) other;
-//
-//			if (this.size() != that.size())
-//				return false;
-//
-//			return rootNode.equals(that.rootNode);
-//		}
-//		
-//		return super.equals(other);
-//	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other == this)
+			return true;
+		if (other == null)
+			return false;
+		
+		if (other instanceof TrieMap) {
+			TrieMap that = (TrieMap) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return rootNode.equals(that.rootNode);
+		}
+		
+		return super.equals(other);
+	}
 	
 }

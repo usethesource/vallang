@@ -459,13 +459,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		abstract Iterator<K> valueIterator();
 
-		abstract int valueSize();
+		abstract int valueSize(); // TODO: rename to make clear: size within node, not deep size
 
 		abstract boolean hasNodes();
 
 		abstract Iterator<AbstractNode<K>> nodeIterator();
 
-		abstract int nodeSize();
+		abstract int nodeSize(); // TODO: rename to make clear: size within node, not deep size
 
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
@@ -488,6 +488,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		 * @return first value
 		 */
 		abstract K head();
+		
+		void assertInvariant() {
+			assert (size() - valueSize() >= 2 * (arity() - valueSize()));
+		}
 
 		@SuppressWarnings("unchecked")
 		static <K> AbstractNode<K> mergeNodes(Object node0, int hash0, Object node1, int hash1, int shift) {
@@ -562,6 +566,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			private final boolean isModified;
 
 			public static <T> Result<T> modified(AbstractNode<T> node) {
+				// assert invariant
+				node.assertInvariant();
 				return new Result<>(node, true);
 			}
 
@@ -604,6 +610,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			this.cachedSize = cachedSize;
 
 			this.cachedValmapBitCount = Integer.bitCount(valmap);
+		
+			// assert invariant
+			this.assertInvariant();
 		}
 
 		InplaceIndexNode(AtomicReference<Thread> mutator, Object[] nodes) {
@@ -634,6 +643,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			this.valmap = valmap;
 			this.cachedSize = cachedSize;
 			this.cachedValmapBitCount = cachedValmapBitCount;
+			
+			// assert invariant
+			this.assertInvariant();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1160,36 +1172,36 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (null == obj) {
+		public boolean equals(Object other) {
+			if (null == other) {
 				return false;
 			}
-			if (this == obj) {
+			if (this == other) {
 				return true;
 			}
-			if (getClass() != obj.getClass()) {
+			if (getClass() != other.getClass()) {
 				return false;
 			}
-
-			HashCollisionNode<?> other = (HashCollisionNode<?>) obj;
-
-			if (hash != other.hash) {
+		
+			HashCollisionNode<?> that = (HashCollisionNode<?>) other;
+		
+			if (hash != that.hash) {
 				return false;
 			}
-
+		
 			// not possible due to arbitrary order
 			// if (!Arrays.equals(keys, other.keys)) {
 			// return false;
 			// }
-
+		
 			for (K key : keys) {
 				// TODO cleanup!
 				// NOTE: 0, 0 used because contains does not reference them.
-				if (!other.contains(key, 0, 0, TrieSet.equalityComparator())) {
+				if (!that.contains(key, 0, 0, TrieSet.equalityComparator())) {
 					return false;
 				}
 			}
-
+		
 			return true;
 		}
 

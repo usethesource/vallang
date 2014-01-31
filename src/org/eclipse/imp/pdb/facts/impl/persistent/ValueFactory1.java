@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -62,6 +64,31 @@ public class ValueFactory1 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 
 	public ISet relation(IValue... elements) {
 		return set(elements);
+	}
+
+	@Override
+	public IMapWriter mapWriter(Type keyType, Type valueType) {
+		return mapWriter();
+	}
+
+	@Override
+	public IMapWriter mapWriter(Type mapType) {
+		return mapWriter();
+	}
+
+	@Override
+	public IMapWriter mapWriter() {
+		return new TemporaryMapWriter1();
+	}
+
+	@Override
+	public IMap map(Type mapType) {
+		return mapWriter().done();
+	}
+
+	@Override
+	public IMap map(Type keyType, Type valueType) {
+		return mapWriter().done();
 	}
 
 	@Override
