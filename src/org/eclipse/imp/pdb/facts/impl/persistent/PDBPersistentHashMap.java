@@ -36,11 +36,11 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 	
-	private Type cachedElementType;
+	private Type cachedMapType;
 	private final ImmutableMap<IValue,IValue> content;
 
 	public PDBPersistentHashMap() {
-		this.cachedElementType = null;
+		this.cachedMapType = null;
 		this.content = TrieMap.of();
 	}
 
@@ -54,11 +54,25 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		return ValueFactory1.getInstance();
 	}
 
+	/*
+	 * TODO: incorporate inferMapType(..)
+	 */
 	@Override
-	public Type getType() {
-		final Type inferredCollectionType = inferMapType(getTypeFactory().voidType(), content);
+	public Type getType() {	
+		// calculate dynamic element type
+		if (cachedMapType == null) {
+			Type inferredKeyType = getTypeFactory().voidType();
+			Type inferredValType = getTypeFactory().voidType();
+			
+			for (Entry<IValue,IValue> entry : content.entrySet()) {
+				inferredKeyType = inferredKeyType.lub(entry.getKey().getType());
+				inferredValType = inferredValType.lub(entry.getValue().getType());				
+			}
+			
+			cachedMapType = getTypeFactory().mapType(inferredKeyType, inferredValType);
+		}
 
-		return inferredCollectionType;
+		return cachedMapType;
 	}
 
 	@Override

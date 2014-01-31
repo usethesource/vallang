@@ -1007,6 +1007,11 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		}
 		
 		@Override
+		public String toString() {
+			return key + "=" + val;
+		}
+		
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = keyHash;
