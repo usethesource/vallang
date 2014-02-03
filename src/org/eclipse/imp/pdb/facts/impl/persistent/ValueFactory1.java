@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public class ValueFactory1 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
 
@@ -68,12 +69,12 @@ public class ValueFactory1 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 
 	@Override
 	public IMapWriter mapWriter(Type keyType, Type valueType) {
-		return mapWriter();
+		return mapWriter(TypeFactory.getInstance().mapType(keyType, valueType));
 	}
 
 	@Override
 	public IMapWriter mapWriter(Type mapType) {
-		return mapWriter();
+		return new TemporaryMapWriter1(mapType);
 	}
 
 	@Override
@@ -83,12 +84,12 @@ public class ValueFactory1 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 
 	@Override
 	public IMap map(Type mapType) {
-		return mapWriter().done();
+		return mapWriter(mapType).done();
 	}
 
 	@Override
 	public IMap map(Type keyType, Type valueType) {
-		return mapWriter().done();
+		return mapWriter(keyType, valueType).done();
 	}
 
 	@Override
