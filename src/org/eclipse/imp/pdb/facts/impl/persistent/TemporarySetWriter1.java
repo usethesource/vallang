@@ -26,7 +26,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
@@ -40,44 +40,42 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 
+	protected final AbstractTypeBag elementTypeBag;
 	protected final TransientSet<IValue> setContent;
-	protected final boolean inferred;
-	protected Type eltType;
+
+	protected final boolean checkUpperBound;
+	protected final Type upperBoundType;
 	protected ISet constructedSet;
 
-	/* package */TemporarySetWriter1(Type eltType) {
+	/* package */TemporarySetWriter1(Type upperBoundType) {
 		super();
 
-		this.eltType = eltType;
-		this.inferred = false;
+		this.checkUpperBound = true;
+		this.upperBoundType = upperBoundType;
+		
+		elementTypeBag = AbstractTypeBag.of();
 		setContent = TrieSet.transientOf();
 	}
 
 	/* package */TemporarySetWriter1() {
 		super();
-		this.eltType = TypeFactory.getInstance().voidType();
-		this.inferred = true;
+		
+		this.checkUpperBound = false;
+		this.upperBoundType = null;
+
+		elementTypeBag = AbstractTypeBag.of();
 		setContent = TrieSet.transientOf();
 	}
 
-	private static void checkInsert(IValue elem, Type eltType)
-			throws FactTypeUseException {
-		Type type = elem.getType();
-		if (!type.isSubtypeOf(eltType)) {
-			throw new UnexpectedElementTypeException(eltType, type);
-		}
-	}
+	private void put(IValue element) {
+		final Type elementType = element.getType();
 
-	private void put(IValue elem) {
-		updateType(elem);
-		checkInsert(elem, eltType);
-		setContent.__insertEquivalent(elem, equivalenceComparator);
-	}
-
-	private void updateType(IValue elem) {
-		if (inferred) {
-			eltType = eltType.lub(elem.getType());
+		if (checkUpperBound && !elementType.isSubtypeOf(upperBoundType)) {
+			throw new UnexpectedElementTypeException(upperBoundType, elementType);
 		}
+
+		elementTypeBag.increase(elementType);
+		setContent.__insertEquivalent(element, equivalenceComparator);
 	}
 
 	@Override
@@ -102,7 +100,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	@Override
 	public ISet done() {
 		if (constructedSet == null) {
-			constructedSet = new PDBPersistentHashSet(setContent.freeze());
+			constructedSet = new PDBPersistentHashSet(elementTypeBag, setContent.freeze());
 		}
 
 		return constructedSet;

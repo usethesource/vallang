@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
@@ -31,17 +32,19 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
-	
-	private Type cachedElementType;
+
+	private Type cachedSetType;
+	private final AbstractTypeBag elementTypeBag;
 	private final ImmutableSet<IValue> content;
 
 	public PDBPersistentHashSet() {
-		this.cachedElementType = null;
+		this.elementTypeBag = AbstractTypeBag.of(); 
 		this.content = TrieSet.of();
 	}
 
-	public PDBPersistentHashSet(ImmutableSet<IValue> content) {
+	public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
 		Objects.requireNonNull(content);
+		this.elementTypeBag = elementTypeBag;
 		this.content = content;
 	}
 
@@ -52,26 +55,17 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	public Type getType() {
-		// calculate dynamic element type
-		if (cachedElementType == null) {
-			cachedElementType = getTypeFactory().voidType();
-
-			for (IValue element : content) {
-				cachedElementType = cachedElementType.lub(element.getType());
+		if (cachedSetType == null) {
+			final Type elementType = elementTypeBag.lub();
+	
+			// consists collection out of tuples?
+			if (elementType.isFixedWidth()) {
+				cachedSetType = getTypeFactory().relTypeFromTuple(elementType);
+			} else {
+				cachedSetType = getTypeFactory().setType(elementType);
 			}
 		}
-
-		final Type inferredElementType = cachedElementType;
-		final Type inferredCollectionType;
-
-		// consists collection out of tuples?
-		if (inferredElementType.isFixedWidth()) {
-			inferredCollectionType = getTypeFactory().relTypeFromTuple(cachedElementType);
-		} else {
-			inferredCollectionType = getTypeFactory().setType(cachedElementType);
-		}
-
-		return inferredCollectionType;
+		return cachedSetType;		
 	}
 
 	@Override
@@ -87,7 +81,10 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (content == contentNew)
 			return this;
 
-		return new PDBPersistentHashSet(contentNew);
+		final AbstractTypeBag elementTypeBagNew = elementTypeBag.clone();
+		elementTypeBagNew.increase(value.getType());
+		
+		return new PDBPersistentHashSet(elementTypeBagNew, contentNew);
 	}
 
 	@Override
@@ -98,7 +95,10 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (content == contentNew)
 			return this;
 
-		return new PDBPersistentHashSet(contentNew);
+		final AbstractTypeBag elementTypeBagNew = elementTypeBag.clone();
+		elementTypeBagNew.decrease(value.getType());
+		
+		return new PDBPersistentHashSet(elementTypeBagNew, contentNew);
 	}
 
 	@Override
@@ -182,77 +182,77 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		return false;
 	}
 
-	@Override
-	public ISet union(ISet other) {
-		if (other == this)
-			return this;
-		if (other == null)
-			return this;
-
-		if (other instanceof PDBPersistentHashSet) {
-			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
-
-			ImmutableSet<IValue> one;
-			ImmutableSet<IValue> two;
-						
-			if (that.size() >= this.size()) {
-				one = that.content;
-				two = this.content;
-			} else {
-				one = this.content;
-				two = that.content;
-			}
-
-			ImmutableSet<IValue> result = one.__insertAllEquivalent(two,
-					equivalenceComparator);
-
-			return (result == one) ? this : new PDBPersistentHashSet(result);
-		} else {
-			return super.union(other);
-		}
-	}
-	
-	// TODO: check if operation modified set
-	@Override
-	public ISet intersect(ISet other) {
-		if (other == this)
-			return this;
-//		if (other == null)
-//			return this;
-
-		if (other instanceof PDBPersistentHashSet) {
-			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
-
-			if (that.size() >= this.size()) {
-				return new PDBPersistentHashSet(
-						this.content.__retainAllEquivalent(that.content,
-								equivalenceComparator));
-			} else {
-				return new PDBPersistentHashSet(
-						that.content.__retainAllEquivalent(this.content,
-								equivalenceComparator));
-			}
-		} else {
-			return super.intersect(other);
-		}
-	}
-
-	// TODO: check if operation modified set
-	@Override
-	public ISet subtract(ISet other) {
+//	@Override
+//	public ISet union(ISet other) {
 //		if (other == this)
 //			return this;
 //		if (other == null)
 //			return this;
-
-		if (other instanceof PDBPersistentHashSet) {
-			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
-
-			return new PDBPersistentHashSet(this.content.__removeAllEquivalent(
-					that.content, equivalenceComparator));
-		} else {
-			return super.intersect(other);
-		}
-	}
+//
+//		if (other instanceof PDBPersistentHashSet) {
+//			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+//
+//			ImmutableSet<IValue> one;
+//			ImmutableSet<IValue> two;
+//						
+//			if (that.size() >= this.size()) {
+//				one = that.content;
+//				two = this.content;
+//			} else {
+//				one = this.content;
+//				two = that.content;
+//			}
+//
+//			ImmutableSet<IValue> result = one.__insertAllEquivalent(two,
+//					equivalenceComparator);
+//
+//			return (result == one) ? this : new PDBPersistentHashSet(result);
+//		} else {
+//			return super.union(other);
+//		}
+//	}
+//	
+//	// TODO: check if operation modified set
+//	@Override
+//	public ISet intersect(ISet other) {
+//		if (other == this)
+//			return this;
+////		if (other == null)
+////			return this;
+//
+//		if (other instanceof PDBPersistentHashSet) {
+//			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+//
+//			if (that.size() >= this.size()) {
+//				return new PDBPersistentHashSet(
+//						this.content.__retainAllEquivalent(that.content,
+//								equivalenceComparator));
+//			} else {
+//				return new PDBPersistentHashSet(
+//						that.content.__retainAllEquivalent(this.content,
+//								equivalenceComparator));
+//			}
+//		} else {
+//			return super.intersect(other);
+//		}
+//	}
+//
+//	// TODO: check if operation modified set
+//	@Override
+//	public ISet subtract(ISet other) {
+////		if (other == this)
+////			return this;
+////		if (other == null)
+////			return this;
+//
+//		if (other instanceof PDBPersistentHashSet) {
+//			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
+//
+//			return new PDBPersistentHashSet(this.content.__removeAllEquivalent(
+//					that.content, equivalenceComparator));
+//		} else {
+//			return super.intersect(other);
+//		}
+//	}
 		
 }
