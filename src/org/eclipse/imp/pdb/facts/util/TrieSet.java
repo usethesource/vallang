@@ -32,9 +32,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	private final AbstractNode<K> rootNode;
 	private final int hashCode;
 
-	TrieSet(AbstractNode<K> rootNode, int hashCode) {
+	private TrieSet(AbstractNode<K> rootNode, int hashCode) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
+		assert invarint();
 	}
 
 	@SafeVarargs
@@ -63,6 +64,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	@SuppressWarnings("unchecked")
 	protected static final <K> Comparator<K> equivalenceComparator() {
 		return EqualityUtils.getEquivalenceComparator();
+	}
+
+	private boolean invarint() {		
+		int _hash = 0; 
+		for (K key : this) {
+			_hash += key.hashCode();
+		}
+		return this.hashCode == _hash;
 	}
 
 	@Override
@@ -157,6 +166,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
+	@SuppressWarnings("unused")
 	private static class TrieSetIteratorNGwithArray<K> implements Iterator<K> {		
 		int valueIndex;
 		int valueLength;
@@ -236,6 +246,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
+	@SuppressWarnings("unused")
 	private static class TrieSetIteratorNGInlined<K> implements Iterator<K> {
 
 		/*
@@ -603,6 +614,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		TransientTrieSet(TrieSet<K> trieSet) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieSet.rootNode;
+			this.hashCode = trieSet.hashCode;
+			assert invarint();
 		}
 
 		@Override
@@ -620,6 +633,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return __insertEquivalent(key, TrieSet.equivalenceComparator());
 		}
 
+		private boolean invarint() {		
+			int _hash = 0; 
+			for (K key : this) {
+				_hash += key.hashCode();
+			}
+			return this.hashCode == _hash;
+		}
+		
 		@Override
 		public boolean __insertEquivalent(K key, Comparator<Object> cmp) {
 			final int keyHash = key.hashCode();
@@ -628,6 +649,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (result.isModified()) {
 				rootNode = result.getNode();
 				hashCode += keyHash;
+				assert invarint();
 				return true;
 			}
 
@@ -683,6 +705,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (result.isModified()) {
 				rootNode = result.getNode();
 				hashCode -= keyHash;
+				assert invarint();
 				return true;
 			}
 
