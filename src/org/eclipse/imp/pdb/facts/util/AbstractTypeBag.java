@@ -73,10 +73,12 @@ public abstract class AbstractTypeBag implements Cloneable {
 
 		@Override
 		public void decrease(Type t) {
+			cachedLub = null; // invalidate cached type
+			
 			final Integer oldCount = countMap.remove(t);
 			if (oldCount == null) {
 				throw new IllegalStateException(String.format("Type '%s' was not present.", t));
-			} else if (oldCount > 0) {
+			} else if (oldCount > 1) {
 				countMap.put(t, oldCount - 1);
 			} else {
 				// count was zero, thus do not reinsert

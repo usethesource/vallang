@@ -704,10 +704,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			for (K key : set) {
 				if (__insertEquivalent(key, cmp)) {
 					modified = true;
-					if (onSuccess == null)
+					if (onSuccess != null)
 						onSuccess.accept(key);
 				} else {
-					if (onFailure == null)
+					if (onFailure != null)
 						onFailure.accept(key);
 				}				
 			}
@@ -746,10 +746,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				if (!set.containsEquivalent(key, cmp)) {
 					thisIterator.remove();
 					modified = true;
-					if (onSuccess == null)
+					if (onSuccess != null)
 						onSuccess.accept(key);
 				} else {
-					if (onFailure == null)
+					if (onFailure != null)
 						onFailure.accept(key);
 				}
 			}
@@ -801,10 +801,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			for (K key : set) {
 				if (__removeEquivalent(key, cmp)) {
 					modified = true;
-					if (onSuccess == null)
+					if (onSuccess != null)
 						onSuccess.accept(key);
 				} else {
-					if (onFailure == null)
+					if (onFailure != null)
 						onFailure.accept(key);
 				}				
 			}

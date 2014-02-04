@@ -195,7 +195,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 			ImmutableSet<IValue> one;
 			ImmutableSet<IValue> two;
-			AbstractTypeBag resultBag;
+			final AbstractTypeBag resultBag;
 			
 			if (that.size() >= this.size()) {
 				one = that.content;
@@ -210,7 +210,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			ImmutableSet<IValue> result = one.__insertAllEquivalent(two, equivalenceComparator, new Consumer<IValue>() {
 				@Override
 				public void accept(IValue value) {
-					elementTypeBag.increase(value.getType());
+					resultBag.increase(value.getType());
 				}
 			}, null);
 
@@ -232,21 +232,21 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
 			if (that.size() >= this.size()) {
-				AbstractTypeBag resultBag = this.elementTypeBag.clone();
+				final AbstractTypeBag resultBag = this.elementTypeBag.clone();
 				return new PDBPersistentHashSet(resultBag, this.content.__retainAllEquivalent(that.content,
 						equivalenceComparator, new Consumer<IValue>() {
 							@Override
 							public void accept(IValue value) {
-								elementTypeBag.decrease(value.getType());
+								resultBag.decrease(value.getType());
 							}
 						}, null));
 			} else {
-				AbstractTypeBag resultBag = that.elementTypeBag.clone();
+				final AbstractTypeBag resultBag = that.elementTypeBag.clone();
 				return new PDBPersistentHashSet(resultBag, that.content.__retainAllEquivalent(this.content,
 						equivalenceComparator, new Consumer<IValue>() {
 							@Override
 							public void accept(IValue value) {
-								elementTypeBag.decrease(value.getType());
+								resultBag.decrease(value.getType());
 							}
 						}, null));
 			}
@@ -266,12 +266,12 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
-			AbstractTypeBag resultBag = this.elementTypeBag.clone();
+			final AbstractTypeBag resultBag = this.elementTypeBag.clone();
 			return new PDBPersistentHashSet(resultBag, this.content.__removeAllEquivalent(that.content,
 					equivalenceComparator, new Consumer<IValue>() {
 						@Override
 						public void accept(IValue value) {
-							elementTypeBag.decrease(value.getType());
+							resultBag.decrease(value.getType());
 						}
 					}, null));
 		} else {
