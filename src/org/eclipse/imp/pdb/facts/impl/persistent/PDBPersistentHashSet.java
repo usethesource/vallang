@@ -31,9 +31,6 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	private static final PDBPersistentHashSet EMPTY = new PDBPersistentHashSet();
 	
 	@SuppressWarnings("unchecked")
-	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
-	
-	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 
 	private Type cachedSetType;
@@ -153,9 +150,8 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			if (this.size() != that.size())
 				return false;
 			
-	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that)
-	            if (!content.containsEquivalent(e, equalityComparator))
+	            if (!content.contains(e))
 	                return false;
 
 	        return true;			
@@ -177,7 +173,6 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			if (this.size() != that.size())
 				return false;
 			
-	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that)
 	            if (!content.containsEquivalent(e, equivalenceComparator))
 	                return false;
