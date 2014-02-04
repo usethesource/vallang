@@ -1163,19 +1163,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 		}
 
-		// TODO: only copy when not yet editable
 		InplaceIndexNode<K> editAndSet(AtomicReference<Thread> mutator, int index, Object elementNew) {
-			Object[] editableNodes = copyAndSet(this.nodes, index, elementNew);
-
 			if (this.mutator == mutator) {
-				this.nodes = editableNodes;
+				// no copying if already editable
+				this.nodes[index] = elementNew;
 				return this;
 			} else {
+				final Object[] editableNodes = copyAndSet(this.nodes, index, elementNew);
 				return new InplaceIndexNode<>(mutator, editableNodes);
 			}
 		}
 
-		// TODO: only copy when not yet editable
 		InplaceIndexNode<K> editAndMoveToBack(AtomicReference<Thread> mutator, int indexOld, int indexNew,
 				Object elementNew) {
 			Object[] editableNodes = copyAndMoveToBack(this.nodes, indexOld, indexNew, elementNew);
@@ -1188,7 +1186,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 		}
 
-		// TODO: only copy when not yet editable
 		InplaceIndexNode<K> editAndMoveToFront(AtomicReference<Thread> mutator, int indexOld, int indexNew,
 				Object elementNew) {
 			Object[] editableNodes = copyAndMoveToFront(this.nodes, indexOld, indexNew, elementNew);
