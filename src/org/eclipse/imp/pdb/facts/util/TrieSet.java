@@ -61,11 +61,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return EqualityUtils.getDefaultEqualityComparator();
 	}
 
-	@SuppressWarnings("unchecked")
-	protected static final <K> Comparator<K> equivalenceComparator() {
-		return EqualityUtils.getEquivalenceComparator();
-	}
-
 	private boolean invarint() {		
 		int _hash = 0; 
 		for (K key : this) {
@@ -92,7 +87,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public ImmutableSet<K> __insertAll(ImmutableSet<? extends K> set) {
-		return __insertAllEquivalent(set, equivalenceComparator());
+		return __insertAllEquivalent(set, equalityComparator());
 	}
 
 	@Override
@@ -104,7 +99,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public ImmutableSet<K> __retainAll(ImmutableSet<? extends K> set) {
-		return __retainAllEquivalent(set, equivalenceComparator());
+		return __retainAllEquivalent(set, equalityComparator());
 	}
 
 	@Override
@@ -132,7 +127,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public ImmutableSet<K> __removeAll(ImmutableSet<? extends K> set) {
-		return __removeAllEquivalent(set, equivalenceComparator());
+		return __removeAllEquivalent(set, equalityComparator());
 	}
 
 	@Override
@@ -144,7 +139,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	
 	@Override
 	public boolean contains(Object o) {
-		return rootNode.contains(o, o.hashCode(), 0, equivalenceComparator());
+		return rootNode.contains(o, o.hashCode(), 0, equalityComparator());
 	}
 
 	@Override
@@ -602,10 +597,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return new TransientTrieSet<K>(this);
 	}
 
-	/*
-	 * TODO: exchange TrieSet.equivalenceComparator() with standard equality
-	 * operator
-	 */
 	static final class TransientTrieSet<K> implements TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractNode<K> rootNode;
@@ -620,7 +611,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public boolean contains(Object o) {
-			return rootNode.contains(o, o.hashCode(), 0, equivalenceComparator());
+			return rootNode.contains(o, o.hashCode(), 0, equalityComparator());
 		}
 
 		@Override
@@ -630,7 +621,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public boolean __insert(K key) {
-			return __insertEquivalent(key, TrieSet.equivalenceComparator());
+			return __insertEquivalent(key, equalityComparator());
 		}
 
 		private boolean invarint() {		
@@ -661,7 +652,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public boolean __insertAll(ImmutableSet<? extends K> set) {
-			return __insertAllEquivalent(set, TrieSet.equivalenceComparator());
+			return __insertAllEquivalent(set, equalityComparator());
 		}
 
 		@Override
@@ -677,7 +668,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	
 		@Override
 		public boolean __retainAll(ImmutableSet<? extends K> set) {
-			return __retainAllEquivalent(set, equivalenceComparator());
+			return __retainAllEquivalent(set, equalityComparator());
 		}
 
 		@Override
@@ -697,7 +688,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		
 		@Override
 		public boolean __remove(K key) {
-			return __removeEquivalent(key, TrieSet.equivalenceComparator());
+			return __removeEquivalent(key, equalityComparator());
 		}
 
 		@Override
@@ -720,7 +711,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public boolean __removeAll(ImmutableSet<? extends K> set) {
-			return __removeAllEquivalent(set, TrieSet.equivalenceComparator());
+			return __removeAllEquivalent(set, equalityComparator());
 		}
 
 		@Override
