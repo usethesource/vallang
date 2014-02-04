@@ -21,12 +21,14 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
-import org.eclipse.imp.pdb.facts.util.Consumer;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
+import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 
 public final class PDBPersistentHashSet extends AbstractSet {
+	
+	private static final PDBPersistentHashSet EMPTY = new PDBPersistentHashSet();
 	
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
@@ -38,12 +40,13 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	private final AbstractTypeBag elementTypeBag;
 	private final ImmutableSet<IValue> content;
 
-	public PDBPersistentHashSet() {
+	private PDBPersistentHashSet() {
 		this.elementTypeBag = AbstractTypeBag.of(); 
 		this.content = TrieSet.of();
 	}
 
 	public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
+		Objects.requireNonNull(elementTypeBag);
 		Objects.requireNonNull(content);
 		this.elementTypeBag = elementTypeBag;
 		this.content = content;
@@ -82,10 +85,10 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (content == contentNew)
 			return this;
 
-		final AbstractTypeBag elementTypeBagNew = elementTypeBag.clone();
-		elementTypeBagNew.increase(value.getType());
+		final AbstractTypeBag bagNew = elementTypeBag.clone();
+		bagNew.increase(value.getType());
 		
-		return new PDBPersistentHashSet(elementTypeBagNew, contentNew);
+		return new PDBPersistentHashSet(bagNew, contentNew);
 	}
 
 	@Override
@@ -96,10 +99,10 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (content == contentNew)
 			return this;
 
-		final AbstractTypeBag elementTypeBagNew = elementTypeBag.clone();
-		elementTypeBagNew.decrease(value.getType());
+		final AbstractTypeBag bagNew = elementTypeBag.clone();
+		bagNew.decrease(value.getType());
 		
-		return new PDBPersistentHashSet(elementTypeBagNew, contentNew);
+		return new PDBPersistentHashSet(bagNew, contentNew);
 	}
 
 	@Override
@@ -132,6 +135,9 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
+			if (this.getType() != that.getType())
+				return false;
+			
 			if (this.size() != that.size())
 				return false;
 
@@ -141,9 +147,8 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other instanceof ISet) {
 			ISet that = (ISet) other;
 
-			// not necessary because of tightly calculated dynamic types
-//			if (this.getType() != that.getType())
-//				return false;
+			if (this.getType() != that.getType())
+				return false;
 			
 			if (this.size() != that.size())
 				return false;
@@ -193,87 +198,124 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
-			ImmutableSet<IValue> one;
-			ImmutableSet<IValue> two;
-			final AbstractTypeBag resultBag;
+			final ImmutableSet<IValue> one;
+			final ImmutableSet<IValue> two;
+			final AbstractTypeBag bag;
+			final ISet def;
 			
 			if (that.size() >= this.size()) {
+				def = that;
 				one = that.content;
-				resultBag = that.elementTypeBag.clone();
+				bag = that.elementTypeBag.clone();
 				two = this.content;
 			} else {
+				def = this;
 				one = this.content;
-				resultBag = this.elementTypeBag.clone();
+				bag = this.elementTypeBag.clone();
 				two = that.content;
 			}
 
-			ImmutableSet<IValue> result = one.__insertAllEquivalent(two, equivalenceComparator, new Consumer<IValue>() {
-				@Override
-				public void accept(IValue value) {
-					resultBag.increase(value.getType());
-				}
-			}, null);
+			final TransientSet<IValue> tmp = one.asTransient();
+			boolean modified = false;
 
-			return (result == one) ? this : new PDBPersistentHashSet(resultBag, result);
+			for (IValue key : two) {
+				if (tmp.__insertEquivalent(key, equivalenceComparator)) {
+					modified = true;
+					bag.increase(key.getType());
+				}
+			}
+			
+			if (modified) {
+				return new PDBPersistentHashSet(bag, tmp.freeze());
+			}
+			return def;
 		} else {
 			return super.union(other);
 		}
 	}
 	
-	// TODO: check if operation modified set
 	@Override
 	public ISet intersect(ISet other) {
 		if (other == this)
 			return this;
-//		if (other == null)
-//			return this;
+		if (other == null)
+			return EMPTY;
 
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
+			final ImmutableSet<IValue> one;
+			final ImmutableSet<IValue> two;
+			final AbstractTypeBag bag;
+			final ISet def;
+			
 			if (that.size() >= this.size()) {
-				final AbstractTypeBag resultBag = this.elementTypeBag.clone();
-				return new PDBPersistentHashSet(resultBag, this.content.__retainAllEquivalent(that.content,
-						equivalenceComparator, new Consumer<IValue>() {
-							@Override
-							public void accept(IValue value) {
-								resultBag.decrease(value.getType());
-							}
-						}, null));
+				def = this;
+				one = this.content;
+				bag = this.elementTypeBag.clone();
+				two = that.content;
 			} else {
-				final AbstractTypeBag resultBag = that.elementTypeBag.clone();
-				return new PDBPersistentHashSet(resultBag, that.content.__retainAllEquivalent(this.content,
-						equivalenceComparator, new Consumer<IValue>() {
-							@Override
-							public void accept(IValue value) {
-								resultBag.decrease(value.getType());
-							}
-						}, null));
+				def = that;
+				one = that.content;
+				bag = that.elementTypeBag.clone();
+				two = this.content;
 			}
+			
+			final TransientSet<IValue> tmp = one.asTransient();
+			boolean modified = false;
+
+			for (Iterator<IValue> it = tmp.iterator(); it.hasNext();) {
+				final IValue key = it.next();
+				if (!two.containsEquivalent(key, equivalenceComparator)) {
+					it.remove();
+					modified = true;
+					bag.decrease(key.getType());
+				}
+			}
+			
+			if (modified) {
+				return new PDBPersistentHashSet(bag, tmp.freeze());
+			}
+			return def;
 		} else {
 			return super.intersect(other);
 		}
 	}
 
-	// TODO: check if operation modified set
 	@Override
 	public ISet subtract(ISet other) {
-//		if (other == this)
-//			return this;
-//		if (other == null)
-//			return this;
+		if (other == this)
+			return EMPTY;
+		if (other == null)
+			return this;
 
 		if (other instanceof PDBPersistentHashSet) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
-			final AbstractTypeBag resultBag = this.elementTypeBag.clone();
-			return new PDBPersistentHashSet(resultBag, this.content.__removeAllEquivalent(that.content,
-					equivalenceComparator, new Consumer<IValue>() {
-						@Override
-						public void accept(IValue value) {
-							resultBag.decrease(value.getType());
-						}
-					}, null));
+			final ImmutableSet<IValue> one;
+			final ImmutableSet<IValue> two;
+			final AbstractTypeBag bag;
+			final ISet def;
+			
+			def = this;
+			one = this.content;
+			bag = this.elementTypeBag.clone();
+			two = that.content;
+			
+			final TransientSet<IValue> tmp = one.asTransient();
+			boolean modified = false;
+
+			for (IValue key : two) {
+				if (tmp.__removeEquivalent(key, equivalenceComparator)) {
+					modified = true;
+					bag.decrease(key.getType());
+				}
+			}
+
+			if (modified) {
+				return new PDBPersistentHashSet(bag, tmp.freeze());
+			}
+			return def;
 		} else {
 			return super.intersect(other);
 		}
