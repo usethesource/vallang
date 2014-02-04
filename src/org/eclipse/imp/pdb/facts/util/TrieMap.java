@@ -45,33 +45,12 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 	public static final <K,V> TransientMap<K,V> transientOf() {
 		return TrieMap.EMPTY.asTransient();
 	}	
-	
-//	@SafeVarargs
-//	public static final <K,V> ImmutableMap<K,V> of(K... elements) {
-//		@SuppressWarnings("unchecked")
-//		ImmutableMap<K,V> result = TrieMap.EMPTY;
-//		for (K k : elements) result = result.__insert(k);
-//		return result;
-//	}
-//	
-//	@SafeVarargs
-//	public static final <K,V> TransientMap<K,V> transientOf(K... elements) {
-//		TransientMap<K,V> transientSet = new TransientTrieMap<>(EMPTY);
-//		for (K k : elements) 
-//			transientSet.__insert(k);
-//		return transientSet;
-//	}
 		
 	@SuppressWarnings("unchecked")
 	protected static final <K> Comparator<K> equalityComparator() {
 		return EqualityUtils.getDefaultEqualityComparator();
 	}
-	
-	@SuppressWarnings("unchecked")
-	protected static final <K> Comparator<K> equivalenceComparator() {
-		return EqualityUtils.getEquivalenceComparator();
-	}
-	
+		
 	@Override
 	public TrieMap<K,V> __put(K k, V v) {
 		return __putEquivalent(k, v, equalityComparator());
@@ -85,7 +64,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 	
 	@Override
 	public ImmutableMap<K,V> __putAll(Map<? extends K, ? extends V> map) {
-		return __putAllEquivalent(map, equivalenceComparator());
+		return __putAllEquivalent(map, equalityComparator());
 	}	
 
 	@Override
@@ -108,7 +87,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 	@Override
 	public boolean containsKey(Object o) {
-		return rootNode.containsKey(o, o.hashCode(), 0, equivalenceComparator());
+		return rootNode.containsKey(o, o.hashCode(), 0, equalityComparator());
 	}
 	
 	@Override
@@ -128,14 +107,19 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		
 	@Override
 	public V get(Object key) {
-		AbstractNode.Optional<Map.Entry<K,V>> result = rootNode.findByKey(key, key.hashCode(), 0, equivalenceComparator());
+		return getEquivalent(key, equalityComparator());
+	}
+	
+	@Override
+	public V getEquivalent(Object key, Comparator<Object> cmp) {
+		AbstractNode.Optional<Map.Entry<K,V>> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 		
 		if (result.isPresent()) {
 			return result.get().getValue();
 		} else {
 			return null;
 		}
-	}
+	}	
 
 	@Override
 	public int size() {
@@ -270,20 +254,17 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			return result.getKey();			
 		}
 	}
-	
-	// TODO: maybe move to ImmutableSet interface?
+
+	@Override
 	public boolean isTransientSupported() {
 		return true;
 	}
 
-	// TODO: maybe move to ImmutableSet interface?
+	@Override
 	public TransientMap<K,V> asTransient() {
 		return new TransientTrieMap<K,V>(this);
 	}
 	
-	/*
-	 * TODO: exchange TrieMap.equivalenceComparator() with standard equality operator
-	 */
 	static final class TransientTrieMap<E,V> implements TransientMap<E,V> {		
 		final private AtomicReference<Thread> mutator;		
 		private AbstractNode<E,V> rootNode;
@@ -295,11 +276,14 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		public boolean __put(E e, V v) {
-			return __putEquivalent(e, v, TrieMap.equivalenceComparator());
+			return __putEquivalent(e, v, equalityComparator());
 		}
 
 		@Override
 		public boolean __putEquivalent(E e, V v, Comparator<Object> cmp) {
+			if (mutator.get() == null)
+				throw new IllegalStateException("Transient already frozen.");
+			
 			AbstractNode.Result<E,V> result = rootNode.updated(mutator, e, e.hashCode(), v, 0, cmp);
 
 			if (result.isModified()) {
@@ -312,11 +296,14 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		public boolean __remove(E e) {
-			return __removeEquivalent(e, TrieMap.equivalenceComparator());
+			return __removeEquivalent(e, equalityComparator());
 		}
 
 		@Override
 		public boolean __removeEquivalent(E e, Comparator<Object> cmp) {
+			if (mutator.get() == null)
+				throw new IllegalStateException("Transient already frozen.");
+			
 			AbstractNode.Result<E,V> result = rootNode.removed(mutator, (E) e, e.hashCode(), 0, cmp);
 
 			if (result.isModified()) {
@@ -329,7 +316,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		public boolean __putAll(Map<? extends E, ? extends V> map) {
-			return __putAllEquivalent(map, TrieMap.equivalenceComparator());
+			return __putAllEquivalent(map, equalityComparator());
 		}
 
 		@Override
@@ -342,69 +329,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 			
 			return modified;	
-		}	
-		
-//		@Override
-//		public boolean removeAll(Collection<?> c) {
-//			boolean modified = false;
-	//
-//			for (Object o : c)
-//				modified |= remove(o);
-//							
-//			return modified;
-//		}
-	//
-//		@Override
-//		public boolean retainAll(Collection<?> c) {
-//			throw new UnsupportedOperationException();
-//		}
-	//
-//		@Override
-//		public void clear() {
-//			// allocated a new empty instance, because transient allows inplace modification.
-//			content = new InplaceIndexNode<>(0, 0, new TrieMap[0], 0);
-//		}	
-	//
-//		@Override
-//		public Iterator<E> iterator() {
-//			return content.iterator();
-//		}
-	//
-//		@Override
-//		public int size() {
-//			return content.size();
-//		}
-	//
-//		@Override
-//		public boolean isEmpty() {
-//			return content.isEmpty();
-//		}
-	//
-//		@Override
-//		public boolean contains(Object o) {
-//			return content.contains(o);
-//		}
-	//	
-//		@Override
-//		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-//			// TODO Auto-generated method stub
-//			return false;
-//		}
-	//
-//		@Override
-//		public Object[] toArray() {
-//			return content.toArray();
-//		}
-	//
-//		@Override
-//		public <T> T[] toArray(T[] a) {
-//			return content.toArray(a);
-//		}
-	//
-//		@Override
-//		public boolean containsAll(Collection<?> c) {
-//			return content.containsAll(c);
-//		}
+		}
 
 		@Override
 		public boolean equals(Object o) {
@@ -421,9 +346,11 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			return rootNode.toString();
 		}
 		
-		// TODO: ensure that only freezed once (like in IWriter implementations)
 		@Override
 		public ImmutableMap<E,V> freeze() {
+			if (mutator.get() == null)
+				throw new IllegalStateException("Transient already frozen.");
+			
 			mutator.set(null);
 			return new TrieMap<E,V>(rootNode);
 		}		
@@ -457,12 +384,12 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 //		return true;
 //	}	
 
-	@SuppressWarnings("rawtypes")
 	private static abstract class AbstractNode<K,V> {
 
 		protected static final int BIT_PARTITION_SIZE = 5;
 		protected static final int BIT_PARTITION_MASK = 0x1f;
 		
+		@SuppressWarnings("unchecked")
 		protected static final AbstractNode EMPTY_NODE = new IndexNode(0, new AbstractNode[0], 0);
 		
 		abstract boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> comparator);
@@ -497,36 +424,36 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		 */
 		abstract int size();
 
-		static AbstractNode[] arraycopyAndSet(AbstractNode[] array, int index, AbstractNode elementNew) {
-			final AbstractNode[] arrayNew = new AbstractNode[array.length];
+		static <K, V> AbstractNode<K, V>[] arraycopyAndSet(AbstractNode<K, V>[] array, int index, AbstractNode<K, V> elementNew) {
+			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length];
 			System.arraycopy(array, 0, arrayNew, 0, array.length);
 			arrayNew[index] = elementNew;
 			return arrayNew;
 		}
 
-		static AbstractNode[] arraycopyAndInsert(AbstractNode[] array, int index, AbstractNode elementNew) {
-			final AbstractNode[] arrayNew = new AbstractNode[array.length + 1];
+		static <K, V> AbstractNode<K, V>[] arraycopyAndInsert(AbstractNode<K, V>[] array, int index, AbstractNode<K, V> elementNew) {
+			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length + 1];
 			System.arraycopy(array, 0, arrayNew, 0, index);
 			arrayNew[index] = elementNew;
 			System.arraycopy(array, index, arrayNew, index + 1, array.length - index);
 			return arrayNew;
 		}
 
-		static AbstractNode[] arraycopyAndRemove(AbstractNode[] array, int index) {
-			final AbstractNode[] arrayNew = new AbstractNode[array.length - 1];
+		static <K, V> AbstractNode<K, V>[] arraycopyAndRemove(AbstractNode<K, V>[] array, int index) {
+			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length - 1];
 			System.arraycopy(array, 0, arrayNew, 0, index);
 			System.arraycopy(array, index + 1, arrayNew, index, array.length - index - 1);
 			return arrayNew;
 		}	
 		
-		static <K,V> AbstractNode<K,V> mergeNodes(AbstractNode node0, int hash0, AbstractNode node1, int hash1, int shift) {
+		static <K,V> AbstractNode<K,V> mergeNodes(AbstractNode<K, V> node0, int hash0, AbstractNode<K, V> node1, int hash1, int shift) {
 			final int mask0 = (hash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (hash1 >>> shift) & BIT_PARTITION_MASK;
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
 				final int bitmap = (1 << mask0) | (1 << mask1);			
-				final AbstractNode[] nodes = new AbstractNode[2];
+				final AbstractNode<K, V>[] nodes = new AbstractNode[2];
 
 				if (mask0 < mask1) {
 					nodes[0] = node0;
@@ -540,7 +467,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			} else {
 				// values fit on next level
 				final int bitmap = (1 << mask0);
-				final AbstractNode node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(node0, hash0, node1, hash1, shift + BIT_PARTITION_SIZE);
 
 				return new IndexNode<>(bitmap, node, node.size());
 			}
@@ -551,11 +478,11 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			private final boolean isModified;
 			private final int sizeDelta;
 			
-			public static <T1,T2> Result fromModified(AbstractNode<T1,T2> node, int sizeDelta) {
+			public static <T1,T2> Result<T1, T2> fromModified(AbstractNode<T1,T2> node, int sizeDelta) {
 				return new Result<>(node, true, sizeDelta);
 			}
 			
-			public static <T1,T2> Result fromUnchanged(AbstractNode<T1,T2> node) {
+			public static <T1,T2> Result<T1, T2> fromUnchanged(AbstractNode<T1,T2> node) {
 				return new Result<>(node, false, 0);
 			}
 			
@@ -577,7 +504,6 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		
 		abstract static class Optional<T> {
 			private final static Optional EMPTY = new Optional() {
-
 				@Override
 				boolean isPresent() {
 					return false;
@@ -587,7 +513,6 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				Object get() {
 					return null;
 				}
-				
 			};
 			
 			@SuppressWarnings("unchecked")
@@ -596,14 +521,13 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 			
 			static <T> Optional<T> of(T value) {
-				return new Value(value);
+				return new Value<T>(value);
 			}
 			
 			abstract boolean isPresent();
 			abstract T get();
 			
 			private static class Value<T> extends Optional<T> {
-
 				private final T value; 
 				
 				private Value(T value) {
@@ -618,39 +542,11 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				@Override
 				T get() {
 					return value;
-				}
-				
+				}				
 			}
-			
-//			private final Object result;
-//			private final boolean isModified;
-//			
-//			public static <T1,T2> Result fromModified(AbstractNode<T1,T2> node) {
-//				return new Result<>(node, true);
-//			}
-//			
-//			public static <T1,T2> Result fromUnchanged(AbstractNode<T1,T2> node) {
-//				return new Result<>(node, false);
-//			}
-//			
-//			private Result(AbstractNode<T1,T2> node, boolean isMutated) {
-//				this.result = node;
-//
-//				this.isModified = isMutated;
-//			}
-//			
-//			@SuppressWarnings("unchecked")
-//			public AbstractNode<T1,T2> getNode() {
-//				return (AbstractNode<T1,T2>) result;
-//			}
-//						
-//			public boolean isModified() {
-//				return isModified;
-//			}
 		}		
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static final class IndexNode<K,V> extends AbstractNode<K,V> {
 
 		private AtomicReference<Thread> mutator;
@@ -659,7 +555,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		private AbstractNode<K,V>[] nodes;
 		private int cachedSize;
 			
-		IndexNode(AtomicReference<Thread> mutator, int bitmap, AbstractNode[] nodes, int cachedSize) {
+		IndexNode(AtomicReference<Thread> mutator, int bitmap, AbstractNode<K, V>[] nodes, int cachedSize) {
 			assert (Integer.bitCount(bitmap) == nodes.length);
 
 			this.mutator = mutator;			
@@ -668,17 +564,17 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			this.cachedSize = cachedSize;
 		}
 			
-		IndexNode(AtomicReference<Thread> mutator, AbstractNode[] nodes) {
+		IndexNode(AtomicReference<Thread> mutator, AbstractNode<K, V>[] nodes) {
 			this.mutator = mutator;
 			this.nodes = nodes;
 		}
 		
-		IndexNode(int bitmap, AbstractNode[] nodes, int cachedSize) {
+		IndexNode(int bitmap, AbstractNode<K, V>[] nodes, int cachedSize) {
 			this(null, bitmap, nodes, cachedSize);
 		}
 
-		IndexNode(int bitmap, AbstractNode node, int cachedSize) {
-			this(bitmap, new AbstractNode[]{node}, cachedSize);
+		IndexNode(int bitmap, AbstractNode<K, V> node, int cachedSize) {
+			this(bitmap, new AbstractNode[] { node }, cachedSize);
 		}
 
 		final int index(int bitpos) {
@@ -690,7 +586,6 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			this.cachedSize = cachedSize; 
 		}
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		public boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> comparator) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
@@ -703,7 +598,6 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 		}
 		
-		@SuppressWarnings("unchecked")
 		Optional<Map.Entry<K,V>> findByKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
@@ -722,11 +616,10 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int index = index(bitpos);
 
 			if ((bitmap & bitpos) == 0) {
-				AbstractNode[] nodesReplacement = arraycopyAndInsert(nodes, index, new LeafNode(key, keyHash, val));
+				AbstractNode<K, V>[] nodesReplacement = arraycopyAndInsert(nodes, index, new LeafNode<K, V>(key, keyHash, val));
 				return Result.fromModified(new IndexNode<>(bitmap | bitpos, nodesReplacement, cachedSize + 1), 1);
 			} else {
 				// it's a TrieMap node, not a inplace value
-				@SuppressWarnings("unchecked")
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 
 				// immutable copy subNode
@@ -736,15 +629,15 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				if (subNode == subNodeReplacement)
 					return Result.fromUnchanged(this);
 
-				final AbstractNode[] nodesReplacement = arraycopyAndSet(nodes, index, subNodeReplacement);
+				final AbstractNode<K, V>[] nodesReplacement = arraycopyAndSet(nodes, index, subNodeReplacement);
 
-				return Result.fromModified(new IndexNode<>(
+				return Result.fromModified(new IndexNode<K, V>(
 						bitmap, nodesReplacement, cachedSize + subNodeResult.sizeDelta), subNodeResult.sizeDelta);		
 			}
 		}
 		
 		IndexNode<K,V> editAndInsert(AtomicReference<Thread> mutator, int index, AbstractNode elementNew) {		
-			AbstractNode[] editableNodes = arraycopyAndInsert(this.nodes, index, elementNew);
+			AbstractNode<K, V>[] editableNodes = arraycopyAndInsert(this.nodes, index, elementNew);
 			
 			if (this.mutator == mutator) {
 				this.nodes = editableNodes;
@@ -754,26 +647,24 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 		}
 		
-		// TODO: only copy when not yet editable
-		IndexNode<K,V> editAndSet(AtomicReference<Thread> mutator, int index, AbstractNode elementNew) {
-			AbstractNode[] editableNodes = arraycopyAndSet(this.nodes, index, elementNew);
-			
+		IndexNode<K,V> editAndSet(AtomicReference<Thread> mutator, int index, AbstractNode<K, V> elementNew) {
 			if (this.mutator == mutator) {
-				this.nodes = editableNodes;
+				nodes[index] = elementNew;
 				return this;
 			} else {
+				final AbstractNode<K, V>[] editableNodes = arraycopyAndSet(this.nodes, index, elementNew);
 				return new IndexNode<>(mutator, editableNodes);
 			}
 		}
 		
 		IndexNode<K,V> editAndRemove(AtomicReference<Thread> mutator, int index) {
-			AbstractNode[] editableNodes = arraycopyAndRemove(this.nodes, index);
+			AbstractNode<K, V>[] editableNodes = arraycopyAndRemove(this.nodes, index);
 			
 			if (this.mutator == mutator) {
 				this.nodes = editableNodes;
 				return this;
 			} else {
-				return new IndexNode<>(mutator, editableNodes);
+				return new IndexNode<K, V>(mutator, editableNodes);
 			}
 		}
 		
@@ -823,7 +714,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 				// TODO: optimization if singleton element node is returned
 				final AbstractNode<K,V> subNodeReplacement = result.getNode();
-				final AbstractNode[] nodesReplacement = arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
+				final AbstractNode<K,V>[] nodesReplacement = arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
 				return Result.fromModified(new IndexNode<>(bitmap, nodesReplacement, cachedSize - 1), -1);
 			}
 		}
@@ -927,17 +818,12 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		@Override
 		Result<K,V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			if (this.keyHash != keyHash)
-				return Result.fromModified(mergeNodes(this, this.keyHash, new LeafNode(key, keyHash, val), keyHash, shift), 1); // insert (no collision)
+				return Result.fromModified(mergeNodes(this, this.keyHash, new LeafNode<K, V>(key, keyHash, val), keyHash, shift), 1); // insert (no collision)
 
 			if (cmp.compare(this.key, key) != 0)
-				return Result.fromModified(new HashCollisionNode(keyHash, new LeafNode[]{this, new LeafNode(key, keyHash, val)}), 1); // insert (hash collision)
+				return Result.fromModified(new HashCollisionNode<K, V>(keyHash, new LeafNode[]{this, new LeafNode<K, V>(key, keyHash, val)}), 1); // insert (hash collision)
 			else
-				return Result.fromModified(new LeafNode(key, keyHash, val), 0); // replace 
-			
-//			if (cmp.compare(this.val, val) != 0)
-//				return Result.fromModified(new LeafNode(key, keyHash, val));
-
-//			return Result.fromUnchanged(this);
+				return Result.fromModified(new LeafNode<K, V>(key, keyHash, val), 0); // replace 
 		}
 
 		@Override
@@ -1054,7 +940,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		private final AbstractNode<K,V>[] leafs;
 		private final int hash;
 
-		HashCollisionNode(int hash, AbstractNode[] leafs) {
+		HashCollisionNode(int hash, AbstractNode<K, V>[] leafs) {
 			this.leafs = leafs;
 			this.hash = hash;
 		}
@@ -1085,22 +971,21 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		 * Inserts an object if not yet present. Note, that this implementation always
 		 * returns a new immutable {@link TrieMap} instance.
 		 */
-		@SuppressWarnings("unchecked")
 		@Override
-		Result<K,V> updated(K key, int keyHash, V val, int shift, Comparator comparator) {
+		Result<K,V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			if (this.hash != keyHash)
 				return Result.fromModified(mergeNodes(
-						this, this.hash, new LeafNode(key, keyHash, val), keyHash, shift), 1); // add one
+						this, this.hash, new LeafNode<K, V>(key, keyHash, val), keyHash, shift), 1); // add one
 
 			for (int i = 0; i < leafs.length; i++) {
 				AbstractNode<K,V> node = leafs[i];
-				if (node.containsKey(key, hash, shift + BIT_PARTITION_SIZE, comparator)) { // TODO: increase BIT_PARTITION_SIZE?
-					final AbstractNode[] leafsNew = arraycopyAndSet(leafs, i, new LeafNode(key, keyHash, val));
-					return Result.fromModified(new HashCollisionNode<>(keyHash, leafsNew), 0); // replace one
+				if (node.containsKey(key, hash, shift + BIT_PARTITION_SIZE, cmp)) { // TODO: increase BIT_PARTITION_SIZE?
+					final AbstractNode<K, V>[] leafsNew = arraycopyAndSet(leafs, i, new LeafNode<K, V>(key, keyHash, val));
+					return Result.fromModified(new HashCollisionNode<K, V>(keyHash, leafsNew), 0); // replace one
 				}
 			}
 			
-			final AbstractNode[] leafsNew = arraycopyAndInsert(leafs, leafs.length, new LeafNode(key, keyHash, val));
+			final AbstractNode<K, V>[] leafsNew = arraycopyAndInsert(leafs, leafs.length, new LeafNode<K, V>(key, keyHash, val));
 			return Result.fromModified(new HashCollisionNode<>(keyHash, leafsNew), 1); // add one			
 		}
 

@@ -21,6 +21,10 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
     
 	boolean containsKeyEquivalent(Object o, Comparator<Object> cmp);
 
+    V get(Object o);
+    
+    V getEquivalent(Object o, Comparator<Object> cmp);
+	
     boolean containsValue(Object o);
     
 	boolean containsValueEquivalent(Object o, Comparator<Object> cmp);
@@ -46,5 +50,9 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
 //	Iterator<V> valueIterator();
 	
 	Iterator<Map.Entry<K, V>> entryIterator();
+	
+	public abstract TransientMap<K, V> asTransient();
+
+	public abstract boolean isTransientSupported();
 	
 }

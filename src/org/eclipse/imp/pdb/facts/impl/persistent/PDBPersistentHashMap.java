@@ -28,9 +28,6 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 public final class PDBPersistentHashMap extends AbstractMap {
 		
 	@SuppressWarnings("unchecked")
-	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
-	
-	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 	
 	private Type cachedMapType;
@@ -39,11 +36,6 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	private final String keyLabel;
 	private final String valLabel;
 	private final ImmutableMap<IValue,IValue> content;
-
-//	public PDBPersistentHashMap() {
-////		this.cachedMapType = null;
-//		this.content = TrieMap.of();
-//	}
 
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
@@ -153,18 +145,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 
 		return new PDBPersistentHashMap(newMapType, contentNew);
 	}
-
-//	@Override
-//	public ISet delete(IValue value) {
-//		final ImmutableMap<IValue,Object> contentNew = 
-//				content.__removeEquivalent(value, equivalenceComparator);
-//
-//		if (content == contentNew)
-//			return this;
-//
-//		return new PDBPersistentHashMap(contentNew);
-//	}
-
+	
 	@Override
 	public int size() {
 		return content.size();
@@ -177,7 +158,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 
 	@Override
 	public IValue get(IValue key) {
-		return content.get(key);
+		return content.getEquivalent(key, equivalenceComparator);
 	}
 	
 	@Override
@@ -209,16 +190,14 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		if (other instanceof IMap) {
 			IMap that = (IMap) other;
 
-			// not necessary because of tightly calculated dynamic types
-//			if (this.getType() != that.getType())
-//				return false;
+			if (this.getType() != that.getType())
+				return false;
 			
 			if (this.size() != that.size())
 				return false;
 			
-	        // TODO: API is missing a containsAll() equivalent
 			for (IValue e : that) {
-	            if (!content.containsKeyEquivalent(e, equalityComparator)) {
+	            if (!content.containsKey(e)) {
 	                return false;
 	            } else if (!content.get(e).equals(that.get(e))) {
 	            	return false;
@@ -237,25 +216,24 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			return true;
 		if (other == null)
 			return false;
-		
+
 		if (other instanceof IMap) {
 			IMap that = (IMap) other;
-			
+
 			if (this.size() != that.size())
 				return false;
-			
-	        // TODO: API is missing a containsAll() equivalent
+
 			for (IValue e : that) {
-	            if (!content.containsKeyEquivalent(e, equivalenceComparator)) {
-	                return false; 
-	            } else if (!content.get(e).isEqual(that.get(e))) { // TODO: about interface: get has to lookup based on isEquals (use comparator)!!!
-	            	return false;
-	            }
+				if (!containsKey(e)) {
+					return false;
+				} else if (!get(e).isEqual(that.get(e))) {
+					return false;
+				}
 			}
-			
-	        return true;			
+
+			return true;
 		}
-		
+
 		return false;
 	}
 
