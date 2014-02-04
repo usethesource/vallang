@@ -103,14 +103,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-			Consumer<K> onSuccess, Consumer<K> onFailure) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__insertAllEquivalent(set, cmp, onSuccess, onFailure);
-		return tmp.freeze();
-	}
-	
-	@Override
 	public ImmutableSet<K> __retainAll(ImmutableSet<? extends K> set) {
 		return __retainAllEquivalent(set, equivalenceComparator());
 	}
@@ -119,14 +111,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	public ImmutableSet<K> __retainAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		tmp.__retainAllEquivalent(set, cmp);
-		return tmp.freeze();
-	}
-
-	@Override
-	public ImmutableSet<K> __retainAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-			Consumer<K> onSuccess, Consumer<K> onFailure) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__retainAllEquivalent(set, cmp, onSuccess, onFailure);
 		return tmp.freeze();
 	}
 	
@@ -158,14 +142,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return tmp.freeze();
 	}
 	
-	@Override
-	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-			Consumer<K> onSuccess, Consumer<K> onFailure) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__removeAllEquivalent(set, cmp, onSuccess, onFailure);
-		return tmp.freeze();
-	}
-
 	@Override
 	public boolean contains(Object o) {
 		return rootNode.contains(o, o.hashCode(), 0, equivalenceComparator());
@@ -695,26 +671,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			return modified;
 		}
-
-		@Override
-		public boolean __insertAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-				Consumer<K> onSuccess, Consumer<K> onFailure) {
-			boolean modified = false;
-
-			for (K key : set) {
-				if (__insertEquivalent(key, cmp)) {
-					modified = true;
-					if (onSuccess != null)
-						onSuccess.accept(key);
-				} else {
-					if (onFailure != null)
-						onFailure.accept(key);
-				}				
-			}
-
-			return modified;
-		}
-		
+	
 		@Override
 		public boolean __retainAll(ImmutableSet<? extends K> set) {
 			return __retainAllEquivalent(set, equivalenceComparator());
@@ -735,28 +692,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return modified;
 		}
 		
-		@Override
-		public boolean __retainAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-				Consumer<K> onSuccess, Consumer<K> onFailure) {
-			boolean modified = false;
-
-			Iterator<K> thisIterator = iterator();
-			while (thisIterator.hasNext()) {
-				final K key = thisIterator.next();
-				if (!set.containsEquivalent(key, cmp)) {
-					thisIterator.remove();
-					modified = true;
-					if (onSuccess != null)
-						onSuccess.accept(key);
-				} else {
-					if (onFailure != null)
-						onFailure.accept(key);
-				}
-			}
-
-			return modified;
-		}	
-
 		@Override
 		public boolean __remove(K key) {
 			return __removeEquivalent(key, TrieSet.equivalenceComparator());
@@ -788,25 +723,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			for (K key : set) {
 				modified |= __removeEquivalent(key, cmp);
-			}
-
-			return modified;
-		}
-
-		@Override
-		public boolean __removeAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-				Consumer<K> onSuccess, Consumer<K> onFailure) {
-			boolean modified = false;
-
-			for (K key : set) {
-				if (__removeEquivalent(key, cmp)) {
-					modified = true;
-					if (onSuccess != null)
-						onSuccess.accept(key);
-				} else {
-					if (onFailure != null)
-						onFailure.accept(key);
-				}				
 			}
 
 			return modified;

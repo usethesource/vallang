@@ -373,27 +373,6 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 			// TODO Auto-generated method stub
 			return false;
 		}
-
-		@Override
-		public boolean __insertAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp,
-				Consumer<E> onSuccess, Consumer<E> onFailure) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean __retainAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp,
-				Consumer<E> onSuccess, Consumer<E> onFailure) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp,
-				Consumer<E> onSuccess, Consumer<E> onFailure) {
-			// TODO Auto-generated method stub
-			return false;
-		}		
 	}
 
 //	@Override
@@ -1176,27 +1155,6 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 	@Override
 	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set,
 			Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ImmutableSet<K> __insertAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-			Consumer<K> onSuccess, Consumer<K> onFailure) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ImmutableSet<K> __retainAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-			Consumer<K> onSuccess, Consumer<K> onFailure) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp,
-			Consumer<K> onSuccess, Consumer<K> onFailure) {
 		// TODO Auto-generated method stub
 		return null;
 	}

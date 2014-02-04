@@ -24,19 +24,13 @@ public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
 	
 	ImmutableSet<E> __insertAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
 	
-	ImmutableSet<E> __insertAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp, Consumer<E> onSuccess, Consumer<E> onFailure);
-
 	ImmutableSet<E> __retainAll(ImmutableSet<? extends E> set);
 	
 	ImmutableSet<E> __retainAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
 	
-	ImmutableSet<E> __retainAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp, Consumer<E> onSuccess, Consumer<E> onFailure);
-	
 	ImmutableSet<E> __removeAll(ImmutableSet<? extends E> set);
 	
 	ImmutableSet<E> __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
-	
-	ImmutableSet<E> __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp, Consumer<E> onSuccess, Consumer<E> onFailure);
 	
 	ImmutableSet<E> __remove(E e);
 

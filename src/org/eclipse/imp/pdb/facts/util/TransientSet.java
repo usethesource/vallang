@@ -26,14 +26,10 @@ public interface TransientSet<E> extends Iterable<E> { // extends ImmutableColle
 	boolean __insertAll(ImmutableSet<? extends E> set);	
 	
 	boolean __insertAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
-
-	boolean __insertAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp, Consumer<E> onSuccess, Consumer<E> onFailure);
 	
 	boolean __retainAll(ImmutableSet<? extends E> set);
 	
 	boolean __retainAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
-	
-	boolean __retainAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp, Consumer<E> onSuccess, Consumer<E> onFailure);
 	
 	boolean __remove(E e);
 	
@@ -42,8 +38,6 @@ public interface TransientSet<E> extends Iterable<E> { // extends ImmutableColle
 	boolean __removeAll(ImmutableSet<? extends E> set);
 	
 	boolean __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
-	
-	boolean __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp, Consumer<E> onSuccess, Consumer<E> onFailure);
 	
 	ImmutableSet<E> freeze();
 	
