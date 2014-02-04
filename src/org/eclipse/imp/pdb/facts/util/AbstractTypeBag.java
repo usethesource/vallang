@@ -17,6 +17,10 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
+/**
+ * Stores mapping (Type -> Integer) to keep track of a collection's element
+ * types. The least upper bound type of is calculated on basis of the map keys.
+ */
 public abstract class AbstractTypeBag implements Cloneable {
 		
 	public abstract void increase(Type t);
@@ -36,10 +40,14 @@ public abstract class AbstractTypeBag implements Cloneable {
 	public static AbstractTypeBag of(String label, Type... ts) {
 		return new TypeBag(label, ts);
 	}
-	
+
+	/**
+	 * Implementation of <@link AbstractTypeBag/> that cached the current least
+	 * upper bound.
+	 */
 	private static class TypeBag extends AbstractTypeBag {
 		private final String label;
-		private final Map<Type, Integer> countMap; 
+		private final Map<Type, Integer> countMap; // TODO: improve memory performance of internal map. 
 		
 		private Type cachedLub = null;
 
@@ -66,15 +74,14 @@ public abstract class AbstractTypeBag implements Cloneable {
 			final Integer oldCount = countMap.get(t);
 			if (oldCount == null) {
 				countMap.put(t, 1);
+				cachedLub = (cachedLub == null) ? null : cachedLub.lub(t); // update cached type
 			} else {
 				countMap.put(t, oldCount + 1);
 			}
 		}
 
 		@Override
-		public void decrease(Type t) {
-			cachedLub = null; // invalidate cached type
-			
+		public void decrease(Type t) {		
 			final Integer oldCount = countMap.remove(t);
 			if (oldCount == null) {
 				throw new IllegalStateException(String.format("Type '%s' was not present.", t));
@@ -82,6 +89,7 @@ public abstract class AbstractTypeBag implements Cloneable {
 				countMap.put(t, oldCount - 1);
 			} else {
 				// count was zero, thus do not reinsert
+				cachedLub = null; // invalidate cached type
 			}
 		}
 		
