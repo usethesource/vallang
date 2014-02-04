@@ -183,11 +183,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			valueNode = rootNode;
 
 			valueIndex = 0;
-			valueLength = (int) rootNode.valueSize();
+			valueLength = (int) rootNode.valueArity();
 			
 			nodes[0] = rootNode;
 			indexAndLength[0] = 0;
-			indexAndLength[1] = rootNode.nodeSize();
+			indexAndLength[1] = rootNode.nodeArity();
 		}
 
 		@Override
@@ -203,21 +203,21 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					final AbstractNode<K> nextNode = nodes[stackLevel].getNode(nodeIndex);
 					indexAndLength[2 * stackLevel] = (nodeIndex + 1);				
 									
-					final int nextNodeValueSize = nextNode.valueSize();
-					final int nextNodeNodeSize = nextNode.nodeSize();
+					final int nextNodeValueArity = nextNode.valueArity();
+					final int nextNodeNodeArity = nextNode.nodeArity();
 
-					if (nextNodeNodeSize != 0) {
+					if (nextNodeNodeArity != 0) {
 						stackLevel++;						
 	
 						nodes[stackLevel] = nextNode;
 						indexAndLength[2 * stackLevel] = 0;						
-						indexAndLength[2 * stackLevel + 1] = nextNode.nodeSize();
+						indexAndLength[2 * stackLevel + 1] = nextNode.nodeArity();
 					}
 					
-					if (nextNodeValueSize != 0) {
+					if (nextNodeValueArity != 0) {
 						valueNode = nextNode;						
 						valueIndex = 0;
-						valueLength = nextNodeValueSize;							
+						valueLength = nextNodeValueArity;							
 						return true;
 					}
 				} else {
@@ -294,11 +294,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			valueNode = rootNode;
 
 			valueIndex = 0;
-			valueLength = (byte) rootNode.valueSize();
+			valueLength = (byte) rootNode.valueArity();
 			
 			node0 = rootNode;
 			nodeIndex0 = 0;
-			nodeLength0 = (byte) rootNode.nodeSize();
+			nodeLength0 = (byte) rootNode.nodeArity();
 		}
 
 		@Override
@@ -314,14 +314,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case 6:
 					if (nodeIndex6 < nodeLength6) {
 						final AbstractNode<K> nextNode = node6.getNode(nodeIndex6++);
-						final byte nextNodeValueSize = (byte) nextNode.valueSize();
+						final byte nextNodeValueArity = (byte) nextNode.valueArity();
 						
-						if (nextNodeValueSize != 0) {
+						if (nextNodeValueArity != 0) {
 							hasFoundValueNode = true;
 							valueNode = nextNode;
 							
 							valueIndex = 0;
-							valueLength = nextNodeValueSize;
+							valueLength = nextNodeValueArity;
 						}							
 						
 						/*
@@ -339,23 +339,23 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case 5:
 					if (nodeIndex5 < nodeLength5) {						
 						final AbstractNode<K> nextNode = node5.getNode(nodeIndex5++);
-						final byte nextNodeValueSize = (byte) nextNode.valueSize();
-						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						final byte nextNodeValueArity = (byte) nextNode.valueArity();
+						final byte nextNodeNodeArity = (byte) nextNode.nodeArity();
 						
-						if (nextNodeValueSize != 0) {
+						if (nextNodeValueArity != 0) {
 							hasFoundValueNode = true;
 							valueNode = nextNode;
 							
 							valueIndex = 0;
-							valueLength = nextNodeValueSize;
+							valueLength = nextNodeValueArity;
 						}
 						
-						if (nextNodeNodeSize != 0) {
+						if (nextNodeNodeArity != 0) {
 							stackLevel++;
 							node6 = nextNode;
 							
 							nodeIndex6 = 0;
-							nodeLength6 = (byte) nextNode.nodeSize();
+							nodeLength6 = (byte) nextNode.nodeArity();
 						}
 
 						break;
@@ -367,23 +367,23 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case 4:
 					if (nodeIndex4 < nodeLength4) {								
 						final AbstractNode<K> nextNode = node4.getNode(nodeIndex4++);
-						final byte nextNodeValueSize = (byte) nextNode.valueSize();
-						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						final byte nextNodeValueArity = (byte) nextNode.valueArity();
+						final byte nextNodeNodeArity = (byte) nextNode.nodeArity();
 						
-						if (nextNodeValueSize != 0) {
+						if (nextNodeValueArity != 0) {
 							hasFoundValueNode = true;
 							valueNode = nextNode;
 							
 							valueIndex = 0;
-							valueLength = nextNodeValueSize;
+							valueLength = nextNodeValueArity;
 						}
 						
-						if (nextNodeNodeSize != 0) {
+						if (nextNodeNodeArity != 0) {
 							stackLevel++;
 							node5 = nextNode;
 							
 							nodeIndex5 = 0;
-							nodeLength5 = (byte) nextNode.nodeSize();
+							nodeLength5 = (byte) nextNode.nodeArity();
 						}
 						
 						break;
@@ -395,23 +395,23 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case 3:
 					if (nodeIndex3 < nodeLength3) {
 						final AbstractNode<K> nextNode = node3.getNode(nodeIndex3++);
-						final byte nextNodeValueSize = (byte) nextNode.valueSize();
-						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						final byte nextNodeValueArity = (byte) nextNode.valueArity();
+						final byte nextNodeNodeArity = (byte) nextNode.nodeArity();
 						
-						if (nextNodeValueSize != 0) {
+						if (nextNodeValueArity != 0) {
 							hasFoundValueNode = true;
 							valueNode = nextNode;
 							
 							valueIndex = 0;
-							valueLength = nextNodeValueSize;
+							valueLength = nextNodeValueArity;
 						}
 						
-						if (nextNodeNodeSize != 0) {
+						if (nextNodeNodeArity != 0) {
 							stackLevel++;								
 							node4 = nextNode;
 							
 							nodeIndex4 = 0;
-							nodeLength4 = (byte) nextNode.nodeSize();
+							nodeLength4 = (byte) nextNode.nodeArity();
 						}
 						
 						break;
@@ -423,23 +423,23 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case 2:
 					if (nodeIndex2 < nodeLength2) {							
 						final AbstractNode<K> nextNode = node2.getNode(nodeIndex2++);
-						final byte nextNodeValueSize = (byte) nextNode.valueSize();
-						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						final byte nextNodeValueArity = (byte) nextNode.valueArity();
+						final byte nextNodeNodeArity = (byte) nextNode.nodeArity();
 
-						if (nextNodeValueSize != 0) {
+						if (nextNodeValueArity != 0) {
 							hasFoundValueNode = true;
 							valueNode = nextNode;
 							
 							valueIndex = 0;
-							valueLength = nextNodeValueSize;
+							valueLength = nextNodeValueArity;
 						}
 						
-						if (nextNodeNodeSize != 0) {
+						if (nextNodeNodeArity != 0) {
 							stackLevel++;
 							node3 = nextNode;
 							
 							nodeIndex3 = 0;
-							nodeLength3 = (byte) nextNode.nodeSize();
+							nodeLength3 = (byte) nextNode.nodeArity();
 						}
 						
 						break;						
@@ -451,23 +451,23 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case 1:
 					if (nodeIndex1 < nodeLength1) {							
 						final AbstractNode<K> nextNode = node1.getNode(nodeIndex1++);
-						final byte nextNodeValueSize = (byte) nextNode.valueSize();
-						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						final byte nextNodeValueArity = (byte) nextNode.valueArity();
+						final byte nextNodeNodeArity = (byte) nextNode.nodeArity();
 						
-						if (nextNodeValueSize != 0) {
+						if (nextNodeValueArity != 0) {
 							hasFoundValueNode = true;
 							valueNode = nextNode;
 							
 							valueIndex = 0;
-							valueLength = nextNodeValueSize;
+							valueLength = nextNodeValueArity;
 						}
 						
-						if (nextNodeNodeSize != 0) {
+						if (nextNodeNodeArity != 0) {
 							stackLevel++;
 							node2 = nextNode;
 						
 							nodeIndex2 = 0;
-							nodeLength2 = (byte) nextNode.nodeSize();
+							nodeLength2 = (byte) nextNode.nodeArity();
 						}
 
 						break;
@@ -479,23 +479,23 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case 0:
 					if (nodeIndex0 < nodeLength0) {
 						final AbstractNode<K> nextNode = node0.getNode(nodeIndex0++);
-						final byte nextNodeValueSize = (byte) nextNode.valueSize();
-						final byte nextNodeNodeSize = (byte) nextNode.nodeSize();
+						final byte nextNodeValueArity = (byte) nextNode.valueArity();
+						final byte nextNodeNodeArity = (byte) nextNode.nodeArity();
 
-						if (nextNodeValueSize != 0) {
+						if (nextNodeValueArity != 0) {
 							hasFoundValueNode = true;
 							valueNode = nextNode;
 							
 							valueIndex = 0;
-							valueLength = nextNodeValueSize;
+							valueLength = nextNodeValueArity;
 						}
 						
-						if (nextNodeNodeSize != 0) {
+						if (nextNodeNodeArity != 0) {
 							stackLevel++;							
 							node1 = nextNode;
 							
 							nodeIndex1 = 0;
-							nodeLength1 = (byte) nextNode.nodeSize(); 
+							nodeLength1 = (byte) nextNode.nodeArity(); 
 						}
 						
 						break;
@@ -643,6 +643,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		
 		@Override
 		public boolean __insertEquivalent(K key, Comparator<Object> cmp) {
+			if (mutator.get() == null)
+				throw new IllegalStateException("Transient already frozen.");
+			
 			final int keyHash = key.hashCode();
 			final AbstractNode.Result<K> result = rootNode.updated(mutator, key, keyHash, 0, cmp);
 
@@ -699,6 +702,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public boolean __removeEquivalent(K key, Comparator<Object> cmp) {
+			if (mutator.get() == null)
+				throw new IllegalStateException("Transient already frozen.");
+			
 			final int keyHash = key.hashCode();
 			final AbstractNode.Result<K> result = rootNode.removed(mutator, (K) key, keyHash, 0, cmp);
 
@@ -817,9 +823,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return hashCode;
 		}
 
-		// TODO: ensure that only frozen once (like in IWriter implementations)
 		@Override
 		public ImmutableSet<K> freeze() {
+			if (mutator.get() == null)
+				throw new IllegalStateException("Transient already frozen.");
+			
 			mutator.set(null);
 			return new TrieSet<K>(rootNode, hashCode);
 		}
@@ -847,13 +855,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		abstract Iterator<K> valueIterator();
 
-		abstract int valueSize(); // TODO: rename to make clear: size within node, not deep size
+		abstract int valueArity();
 
 		abstract boolean hasNodes();
 
 		abstract Iterator<AbstractNode<K>> nodeIterator();
 
-		abstract int nodeSize(); // TODO: rename to make clear: size within node, not deep size
+		abstract int nodeArity();
 
 		abstract K getValue(int index);
 		
@@ -882,7 +890,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		abstract K head();
 		
 		void assertInvariant() {
-			assert (size() - valueSize() >= 2 * (arity() - valueSize()));
+			assert (size() - valueArity() >= 2 * (arity() - valueArity()));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1392,7 +1400,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		int valueSize() {
+		int valueArity() {
 			return cachedValmapBitCount;
 		}
 
@@ -1402,7 +1410,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		int nodeSize() {
+		int nodeArity() {
 			return nodes.length - cachedValmapBitCount;
 		}
 
@@ -1495,9 +1503,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public boolean contains(Object key, int hash, int shift, Comparator<Object> comparator) {
-			for (K k : keys) {
-				if (comparator.compare(k, key) == 0)
-					return true;
+			if (this.hash == hash) {
+				for (K k : keys) {
+					if (comparator.compare(k, key) == 0) {
+						return true;
+					}
+				}
 			}
 			return false;
 		}
@@ -1531,12 +1542,22 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Result<K> removed(K key, int hash, int shift, Comparator<Object> comparator) {
-			// TODO: optimize in general
-			// TODO: optimization if singleton element node is returned
-
 			for (int i = 0; i < keys.length; i++) {
-				if (comparator.compare(keys[i], key) == 0)
-					return Result.modified(new HashCollisionNode<>(hash, (K[]) copyAndRemove(keys, i)));
+				if (comparator.compare(keys[i], key) == 0) {
+					if (this.arity() == 1) {
+						return Result.modified(EMPTY_NODE);
+					} else if (this.arity() == 2) {
+						/*
+						 * Create root node with singleton element. This node will
+						 * be a) either be the new root returned, or b) unwrapped
+						 * and inlined.
+						 */
+						final K theOther = (i == 0) ? keys[1] : keys[0];
+						return EMPTY_NODE.updated(theOther, hash, 0, comparator);
+					} else {
+						return Result.modified(new HashCollisionNode<>(hash, (K[]) copyAndRemove(keys, i)));
+					}
+				}
 			}
 			return Result.unchanged(this);
 		}
@@ -1552,7 +1573,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		int valueSize() {
+		int valueArity() {
 			return keys.length;
 		}
 
@@ -1562,7 +1583,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		int nodeSize() {
+		int nodeArity() {
 			return 0;
 		}
 		
@@ -1602,18 +1623,24 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (hash != that.hash) {
 				return false;
 			}
+			
+			if (arity() != that.arity()) {
+				return false;
+			}
 		
-			// not possible due to arbitrary order
-			// if (!Arrays.equals(keys, other.keys)) {
-			// return false;
-			// }
-		
-			for (K key : keys) {
-				// TODO cleanup!
-				// NOTE: 0, 0 used because contains does not reference them.
-				if (!that.contains(key, 0, 0, TrieSet.equalityComparator())) {
-					return false;
+			/*
+			 * Linear scan for each key, because of arbitrary element order.
+			 */
+			final Comparator<Object> cmp = equalityComparator();
+			for (Iterator<?> it = that.valueIterator(); it.hasNext();) {
+				final Object otherKey = it.next();
+				
+				for (Object key : keys) {
+					if (cmp.compare(key, otherKey) == 0) {
+						continue;
+					}
 				}
+				return false;
 			}
 		
 			return true;
