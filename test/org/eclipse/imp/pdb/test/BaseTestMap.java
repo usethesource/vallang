@@ -415,4 +415,16 @@ public abstract class BaseTestMap extends TestCase {
 			this.b = b;
 		}
 	}
+	
+	public void testDynamicTypesAfterMappingUpdates() {
+		final IMap m1 = vf.mapWriter().done()
+				.put(vf.integer(1), vf.integer(1))
+				.put(vf.integer(1), vf.real(1))
+				.put(vf.integer(1), vf.integer(1));
+	
+		assertEquals(1, m1.size());
+		assertEquals(tf.integerType(), m1.getType().getKeyType());
+		assertEquals(tf.integerType(), m1.getType().getValueType());
+	}
+	
 }
