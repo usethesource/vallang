@@ -17,10 +17,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -414,6 +414,15 @@ public abstract class BaseTestMap extends TestCase {
 			this.a = a;
 			this.b = b;
 		}
+	}
+
+	public void testPutReplaceGet() {
+		final IMap m1 = vf.mapWriter().done()
+				.put(vf.integer(1), vf.integer(1))
+				.put(vf.integer(1), vf.integer(2));
+	
+		assertEquals(1, m1.size());
+		assertEquals(vf.integer(2), m1.get(vf.integer(1)));
 	}
 	
 	public void testDynamicTypesAfterMappingUpdates() {
