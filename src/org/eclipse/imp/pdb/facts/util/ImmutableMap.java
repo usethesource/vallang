@@ -33,7 +33,6 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
 //	
 //	boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp);
 	
-	// TODO: consider additionally returning replaced value in case key exists
 	ImmutableMap<K, V> __put(K key, V value);
 
 	ImmutableMap<K, V> __putEquivalent(K key, V value, Comparator<Object> cmp);

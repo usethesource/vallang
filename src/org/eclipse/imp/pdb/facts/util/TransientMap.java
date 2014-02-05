@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,9 +16,17 @@ import java.util.Map;
 
 public interface TransientMap<E,V> { // extends ImmutableCollection<E>, Set<E> {
 
-	boolean __put(E e, V v);
+    boolean containsKey(Object o);
+    
+	boolean containsKeyEquivalent(Object o, Comparator<Object> cmp);
+
+    V get(Object o);
+    
+    V getEquivalent(Object o, Comparator<Object> cmp);
 	
-	boolean __putEquivalent(E e, V v, Comparator<Object> cmp);
+	V __put(E e, V v);
+
+	V __putEquivalent(E e, V v, Comparator<Object> cmp);
 
 	boolean __putAll(Map<? extends E, ? extends V> map);	
 	
