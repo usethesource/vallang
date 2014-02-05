@@ -552,7 +552,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		private AtomicReference<Thread> mutator;
 
 		private int bitmap;
-		private AbstractNode<K,V>[] nodes;
+		private AbstractNode<K, V>[] nodes;
 		private int cachedSize;
 			
 		IndexNode(AtomicReference<Thread> mutator, int bitmap, AbstractNode<K, V>[] nodes, int cachedSize) {
@@ -615,11 +615,10 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int bitpos = (1 << mask);
 			final int index = index(bitpos);
 
-			if ((bitmap & bitpos) == 0) {
+			if ((bitmap & bitpos) == 0) { // no value
 				AbstractNode<K, V>[] nodesReplacement = arraycopyAndInsert(nodes, index, new LeafNode<K, V>(key, keyHash, val));
 				return Result.fromModified(new IndexNode<>(bitmap | bitpos, nodesReplacement, cachedSize + 1), 1);
-			} else {
-				// it's a TrieMap node, not a inplace value
+			} else { // nested node
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 
 				// immutable copy subNode
@@ -675,14 +674,14 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int index = index(bitpos);
 
 			if ((bitmap & bitpos) == 0) { // no value
-				IndexNode<K,V> editableNode = editAndInsert(mutator, index, new LeafNode(key, keyHash, val));
+				IndexNode<K,V> editableNode = editAndInsert(mutator, index, new LeafNode<K, V>(key, keyHash, val));
 				editableNode.updateMetadata(bitmap | bitpos, cachedSize + 1);			
 				return Result.fromModified(editableNode, 1);
-			} else { // node (not value)
-				@SuppressWarnings("unchecked")
+			} else { // nested node
 				AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 										
-				Result resultNode = subNode.updated(mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, comparator);
+				Result<K, V> resultNode = subNode.updated(mutator, key,
+						keyHash, val, shift + BIT_PARTITION_SIZE, comparator);
 				
 				if (resultNode.isModified()) {
 					IndexNode<K,V> editableNode = editAndSet(mutator, index, resultNode.getNode());
@@ -700,11 +699,9 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int bitpos = (1 << mask);
 			final int bitIndex = index(bitpos);
 
-			if ((bitmap & bitpos) == 0) {
+			if ((bitmap & bitpos) == 0) { // no value
 				return Result.fromUnchanged(this);
-			} else {
-				// it's a TrieMap node, not a inplace value
-				@SuppressWarnings("unchecked")
+			} else { // nested node
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[bitIndex];
 				
 				final Result<K,V> result = subNode.removed(key, hash, shift + BIT_PARTITION_SIZE, comparator);	
@@ -725,14 +722,13 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int bitpos = (1 << mask);
 			final int index = index(bitpos);
 
-			if ((bitmap & bitpos) == 0) {
+			if ((bitmap & bitpos) == 0) { // no value
 				return Result.fromUnchanged(this);
-			} else {
-				// it's a TrieMap node, not a inplace value
-				@SuppressWarnings("unchecked")
+			} else { // nested node
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 		
-				Result resultNode = subNode.removed(mutator, key, hash, shift + BIT_PARTITION_SIZE, comparator);
+				Result<K, V> resultNode = subNode.removed(mutator, key, hash,
+						shift + BIT_PARTITION_SIZE, comparator);
 				
 				if (resultNode.isModified()) {
 					IndexNode<K,V> editableNode = editAndSet(mutator, index, resultNode.getNode());
@@ -935,7 +931,6 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		}	
 	}	
 	
-	@SuppressWarnings("rawtypes")
 	private static final class HashCollisionNode<K,V> extends AbstractNode<K,V> {
 		private final AbstractNode<K,V>[] leafs;
 		private final int hash;
@@ -999,16 +994,21 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		 * Removes an object if present. Note, that this implementation always
 		 * returns a new immutable {@link TrieMap} instance.
 		 */
-		@SuppressWarnings("unchecked")
 		@Override
 		Result<K,V> removed(K key, int hash, int shift, Comparator comparator) {
-			// TODO: optimize in general
-			// TODO: optimization if singleton element node is returned
-
 			for (int i = 0; i < leafs.length; i++) {
-				if (comparator.compare(leafs[i], key) == 0)
-					return Result.fromModified(new HashCollisionNode<>(
-							hash, arraycopyAndRemove(leafs, i)), -1);
+				if (comparator.compare(leafs[i], key) == 0) {
+					if (this.arity() == 1) {
+						return Result.fromModified(EMPTY_NODE, -1);
+					} else if (this.arity() == 2) {
+						final AbstractNode<K, V> theOther = (i == 0) ? leafs[1]
+								: leafs[0];
+						return Result.fromModified(theOther, -1);
+					} else {
+						return Result.fromModified(new HashCollisionNode<>(
+								hash, arraycopyAndRemove(leafs, i)), -1);
+					}
+				}
 			}
 			return Result.fromUnchanged(this);
 		}
