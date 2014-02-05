@@ -55,6 +55,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 		
 		elementTypeBag = AbstractTypeBag.of();
 		setContent = TrieSet.transientOf();
+		constructedSet = null;
 	}
 
 	/* package */TemporarySetWriter1() {
@@ -65,6 +66,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 
 		elementTypeBag = AbstractTypeBag.of();
 		setContent = TrieSet.transientOf();
+		constructedSet = null;
 	}
 
 	private void put(IValue element) {

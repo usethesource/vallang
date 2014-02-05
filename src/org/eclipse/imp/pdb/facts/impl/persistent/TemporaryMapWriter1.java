@@ -18,8 +18,9 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
 import org.eclipse.imp.pdb.facts.util.TrieMap;
 
@@ -30,64 +31,79 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
  * @author Arnold Lankamp
  */
 /*package*/ class TemporaryMapWriter1 implements IMapWriter{
-	protected Type keyType;
-	protected Type valueType;
-	protected Type mapType;
-	
+	protected final AbstractTypeBag keyTypeBag;
+	protected final AbstractTypeBag valTypeBag;
 	protected final TransientMap<IValue,IValue> mapContent;
 	
+	protected final boolean checkUpperBound;
+	protected final Type upperBoundKeyType;
+	protected final Type upperBoundValType;
 	protected IMap constructedMap;
-	protected final boolean inferred;
 	
 	/*package*/ TemporaryMapWriter1() {
 		super();
-				
-		this.mapType = null;
-		this.keyType = TypeFactory.getInstance().voidType();
-		this.valueType =  TypeFactory.getInstance().voidType();
-		this.inferred = true;
 		
+		this.checkUpperBound = false;
+		this.upperBoundKeyType = null;
+		this.upperBoundValType = null;
+
+		keyTypeBag = AbstractTypeBag.of();
+		valTypeBag = AbstractTypeBag.of();
 		mapContent = TrieMap.transientOf();
-		
 		constructedMap = null;
 	}
 	
-	/*package*/ TemporaryMapWriter1(Type mapType) {
+	/*package*/ TemporaryMapWriter1(Type prototypeType) {
 		super();
 		
-		/*
-		 * TODO: msteindorfer: review this (legacy?) code snippet. I don't know
-		 * exactly about its semantics.
-		 */
-		if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
-			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
+//		/*
+//		 * TODO: msteindorfer: review this (legacy?) code snippet. I don't know
+//		 * exactly about its semantics.
+//		 */
+//		if(mapType.isFixedWidth() && mapType.getArity() >= 2) {
+//			mapType = TypeFactory.getInstance().mapTypeFromTuple(mapType);
+//		}
+		
+		this.checkUpperBound = false;
+		this.upperBoundKeyType = prototypeType.getKeyType();
+		this.upperBoundValType = prototypeType.getValueType();
+
+		if (prototypeType.hasFieldNames()) {
+			keyTypeBag = AbstractTypeBag.of(prototypeType.getKeyLabel());
+			valTypeBag = AbstractTypeBag.of(prototypeType.getValueLabel());			
+		} else {
+			keyTypeBag = AbstractTypeBag.of();
+			valTypeBag = AbstractTypeBag.of();
 		}
-		
-		this.mapType = mapType;
-		this.keyType = mapType.getKeyType();
-		this.valueType = mapType.getValueType();
-		this.inferred = false;
-		
+
 		mapContent = TrieMap.transientOf();
-		
-		constructedMap = null;
+		constructedMap = null;		
 	}
 	
 	@Override
 	public void put(IValue key, IValue value){
 		checkMutation();
-		updateTypes(key,value);
 		
+		final Type keyType = key.getType();
+		final Type valType = value.getType();
+
+		if (checkUpperBound) {
+			if (!keyType.isSubtypeOf(upperBoundKeyType))
+				throw new UnexpectedElementTypeException(upperBoundKeyType, keyType);
+			
+			if (!valType.isSubtypeOf(upperBoundValType))
+				throw new UnexpectedElementTypeException(upperBoundValType, valType);
+		}
+
+		// TODO: it is currently not possible to observe if a value was
+		// replaced, thus the least upper bound of the value type might be
+		// incorrect
 		mapContent.__put(key, value);
+		
+		keyTypeBag.increase(keyType);
+		valTypeBag.increase(valType);
 	}
 	
-	private void updateTypes(IValue key, IValue value) {
-		if (inferred) {
-			keyType = keyType.lub(key.getType());
-			valueType = valueType.lub(value.getType());
-		}
-	}
-
 	@Override
 	public void putAll(IMap map){
 		checkMutation();
@@ -98,7 +114,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 			IValue key = entry.getKey();
 			IValue value = entry.getValue();
 			
-			mapContent.__put(key, value);			
+			this.put(key, value);			
 		}
 	}
 	
@@ -112,7 +128,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 			IValue key = entry.getKey();
 			IValue value = entry.getValue();
 			
-			mapContent.__put(key, value);			
+			this.put(key, value);			
 		}
 	}
 	
@@ -131,8 +147,8 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 			
 			IValue key = tuple.get(0);
 			IValue value2 = tuple.get(1);
-			updateTypes(key,value2);
-			mapContent.__put(key, value2);
+			
+			this.put(key, value2);
 		}
 	}
 	
@@ -152,8 +168,8 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 			
 			IValue key = tuple.get(0);
 			IValue value2 = tuple.get(1);
-			updateTypes(key,value2);
-			mapContent.__put(key, value2);
+
+			this.put(key, value2);
 		}
 	}
 	
@@ -166,15 +182,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 	@Override
 	public IMap done(){
 		if (constructedMap == null) {
-			if (mapType == null) {
-				mapType = TypeFactory.getInstance().mapType(keyType, valueType);
-			}
-
-			if (mapType.hasFieldNames()) {
-				constructedMap = new PDBPersistentHashMap(keyType, mapType.getKeyLabel(), valueType, mapType.getValueLabel(), mapContent.freeze());
-			} else {
-				constructedMap = new PDBPersistentHashMap(keyType, valueType, mapContent.freeze());
-			}
+			constructedMap = new PDBPersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
 		}
 
 		return constructedMap;

@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractMap;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 
@@ -31,89 +31,43 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 	
 	private Type cachedMapType;
-	private final Type providedKeyType;
-	private final Type providedValType;
-	private final String keyLabel;
-	private final String valLabel;
-	private final ImmutableMap<IValue,IValue> content;
-
+	private final AbstractTypeBag keyTypeBag; 
+	private final AbstractTypeBag valTypeBag;
+	private final ImmutableMap<IValue,IValue> content; 
+	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
-	private PDBPersistentHashMap(Type mapType, ImmutableMap<IValue,IValue> content) {
+	protected PDBPersistentHashMap(AbstractTypeBag keyTypeBag,
+			AbstractTypeBag valTypeBag, ImmutableMap<IValue, IValue> content) {
 		Objects.requireNonNull(content);
-		this.cachedMapType = mapType;
-		this.providedKeyType = mapType.getKeyType();
-		this.providedValType = mapType.getValueType();
-		if (mapType.hasFieldNames()) {
-			this.keyLabel = mapType.getKeyLabel();
-			this.valLabel = mapType.getValueLabel();			
-		} else {
-			this.keyLabel = null;
-			this.valLabel = null;
-		}
+		this.cachedMapType = null;
+		this.keyTypeBag = keyTypeBag;
+		this.valTypeBag = valTypeBag;
 		this.content = content;
 	}
 	
-	public PDBPersistentHashMap(Type keyType, Type valType, ImmutableMap<IValue,IValue> content) {
-		Objects.requireNonNull(content);
-		this.providedKeyType = keyType;
-		this.providedValType = valType;
-		this.keyLabel = null;
-		this.valLabel = null;
-		this.content = content;
-	}
-	
-	public PDBPersistentHashMap(Type keyType, String keyLabel, Type valType, String valLabel, ImmutableMap<IValue,IValue> content) {
-		Objects.requireNonNull(content);
-		this.providedKeyType = keyType;
-		this.providedValType = valType;
-		this.keyLabel = keyLabel;
-		this.valLabel = valLabel;
-		this.content = content;
-	}
-
 	@Override
 	protected IValueFactory getValueFactory() {
 		return ValueFactory1.getInstance();
 	}
 
-	/*
-	 * TODO: incorporate inferMapType(..)
-	 */
 	@Override
-	public Type getType() {	
-		// calculate dynamic element type
+	public Type getType() {
 		if (cachedMapType == null) {
-			Type inferredKeyType;
-			Type inferredValType;
-			
-			if (providedKeyType == null || providedValType == null) {	
-				inferredKeyType = getTypeFactory().voidType();
-				inferredValType = getTypeFactory().voidType();
-				
-				for (Entry<IValue,IValue> entry : content.entrySet()) {
-					inferredKeyType = inferredKeyType.lub(entry.getKey().getType());
-					inferredValType = inferredValType.lub(entry.getValue().getType());				
-				}
-			} else {
-				if (isEmpty()) {
-					inferredKeyType = getTypeFactory().voidType();
-					inferredValType = getTypeFactory().voidType();
-				} else {
-					inferredKeyType = providedKeyType;
-					inferredValType = providedValType;
-				}
-			}
+			final Type keyType = keyTypeBag.lub();
+			final Type valType = valTypeBag.lub();
+	
+			final String keyLabel = keyTypeBag.getLabel();
+			final String valLabel = valTypeBag.getLabel();
 
 			if (keyLabel != null && valLabel != null) {
-				cachedMapType = getTypeFactory().mapType(inferredKeyType, keyLabel, inferredValType, valLabel);
+				cachedMapType = getTypeFactory().mapType(keyType, keyLabel, valType, valLabel);
 			} else { 
-				cachedMapType = getTypeFactory().mapType(inferredKeyType, inferredValType);
+				cachedMapType = getTypeFactory().mapType(keyType, valType);
 			}
 		}
-		
-		return cachedMapType;
+		return cachedMapType;		
 	}
 
 	@Override
@@ -125,25 +79,25 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	public IMap put(IValue key, IValue value) {
 		final ImmutableMap<IValue,IValue> contentNew = 
 				content.__putEquivalent(key, value, equivalenceComparator);
-
-		// TODO: clean-up quick-fix 
-		final Type currentMapType = getType();
-		final Type newKeyType = currentMapType.getKeyType().lub(key.getType());
-		// TODO: fix LUB of values; might not represent least upper bound
-		final Type newValType = currentMapType.getValueType().lub(value.getType());
-
-		Type newMapType = null;
-		if (newKeyType != currentMapType.getKeyType() || newValType != currentMapType.getValueType()) {
-			newMapType = TypeFactory.getInstance().mapType(newKeyType, currentMapType.getKeyLabel(), newValType,
-					currentMapType.getValueLabel());
-		} else {
-			newMapType = currentMapType;
-		}
 		
 		if (content == contentNew)
 			return this;
 
-		return new PDBPersistentHashMap(newMapType, contentNew);
+		final AbstractTypeBag keyBagNew = keyTypeBag.clone();
+		final AbstractTypeBag valBagNew = valTypeBag.clone();
+
+		if (content.size() == contentNew.size()) {
+			// value replaced
+			final IValue replaced = content.getEquivalent(key, equivalenceComparator);
+			valBagNew.decrease(replaced.getType());
+			valBagNew.increase(value.getType());
+		} else {
+			// pair added
+			keyBagNew.increase(key.getType());			
+			valBagNew.increase(value.getType());
+		}
+		
+		return new PDBPersistentHashMap(keyBagNew, valBagNew, contentNew);
 	}
 	
 	@Override
