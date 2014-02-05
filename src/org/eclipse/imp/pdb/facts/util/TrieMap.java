@@ -34,8 +34,8 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 	
 	TrieMap(AbstractNode<K,V> rootNode) {
 		this.rootNode = rootNode;
-	}
-
+	}	
+	
 	@SuppressWarnings("unchecked")
 	public static final <K,V> ImmutableMap<K,V> of() {
 		return TrieMap.EMPTY;
@@ -50,7 +50,16 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 	protected static final <K> Comparator<K> equalityComparator() {
 		return EqualityUtils.getDefaultEqualityComparator();
 	}
-		
+	
+	private boolean invarint() {		
+//		int _hash = 0; 
+//		for (K key : this) {
+//			_hash += key.hashCode();
+//		}
+//		return this.hashCode == _hash;
+		return false;
+	}
+	
 	@Override
 	public TrieMap<K,V> __put(K k, V v) {
 		return __putEquivalent(k, v, equalityComparator());
@@ -396,7 +405,9 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		protected static final int BIT_PARTITION_MASK = 0x1f;
 		
 		@SuppressWarnings("unchecked")
-		protected static final AbstractNode EMPTY_NODE = new IndexNode(0, new AbstractNode[0], 0);
+		
+		// TODO: ensure proper separation between index and inplaceIndex nodes		
+		protected static final AbstractNode EMPTY_NODE = null; // new IndexNode(0, new AbstractNode[0], 0);
 		
 		abstract boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> comparator);
 		
@@ -412,12 +423,22 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		
 		abstract boolean isLeaf();
 		
-//		abstract boolean hasValues();
-//		abstract Iterator<K> valueIterator();
+		abstract boolean hasValues();
+
+		abstract Iterator<K> valueIterator();
+
+		abstract int valueArity();
+
+		abstract boolean hasNodes();
+
+		abstract Iterator<AbstractNode<K, V>> nodeIterator();
+
+		abstract int nodeArity();
 		
-//		abstract boolean hasNodes();
-		abstract Iterator<AbstractNode<K,V>> nodeIterator();
+		abstract K getValue(int index);
 		
+		abstract public AbstractNode<K, V> getNode(int index);
+			
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored on this level).
 		 * @return sum of nodes and values stored within
@@ -430,6 +451,17 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		 */
 		abstract int size();
 
+		/**
+		 * Returns the first value stored within this node.
+		 * 
+		 * @return first value
+		 */
+		abstract K head(); // TODO: pair!
+		
+		boolean nodeInvariant() {
+			return (size() - valueArity() >= 2 * (arity() - valueArity()));
+		}
+		
 		static <K, V> AbstractNode<K, V>[] arraycopyAndSet(AbstractNode<K, V>[] array, int index, AbstractNode<K, V> elementNew) {
 			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length];
 			System.arraycopy(array, 0, arrayNew, 0, array.length);
@@ -485,17 +517,17 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			private final boolean isModified;
 
 			// update: inserted/removed single element, element count changed
-			public static <T1,T2> Result<T1, T2> fromModified(AbstractNode<T1,T2> node) {
+			public static <T1,T2> Result<T1, T2> modified(AbstractNode<T1,T2> node) {
 				return new Result<>(node, null, true);
 			}
 			
 			// update: replaced single mapping, but element count unchanged
-			public static <T1,T2> Result<T1, T2> fromUpdated(AbstractNode<T1,T2> node, T2 replacedValue) {
+			public static <T1,T2> Result<T1, T2> updated(AbstractNode<T1,T2> node, T2 replacedValue) {
 				return new Result<>(node, replacedValue, true);
 			}			
 			
 			// update: neither element, nor element count changed
-			public static <T1,T2> Result<T1, T2> fromUnchanged(AbstractNode<T1,T2> node) {
+			public static <T1,T2> Result<T1, T2> unchanged(AbstractNode<T1,T2> node) {
 				return new Result<>(node, null, false);
 			}
 			
@@ -567,7 +599,674 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 		}		
 	}
+	
+	private static final class InplaceIndexNode<K, V> extends AbstractNode<K, V> {
+		private AtomicReference<Thread> mutator;
 
+		private int bitmap;
+		private int valmap;
+		private Object[] nodes;
+		private int cachedSize;
+		private int cachedValmapBitCount;
+
+		InplaceIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes, int cachedSize) {
+			assert (Integer.bitCount(bitmap) == nodes.length);
+
+			this.mutator = mutator;
+
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.nodes = nodes;
+			this.cachedSize = cachedSize;
+
+			this.cachedValmapBitCount = Integer.bitCount(valmap);
+		
+			// assert invariant
+			assert nodeInvariant();
+		}
+
+		InplaceIndexNode(AtomicReference<Thread> mutator, Object[] nodes) {
+			this.mutator = mutator;
+			this.nodes = nodes;
+		}
+
+		InplaceIndexNode(int bitmap, int valmap, Object[] nodes, int cachedSize) {
+			this(null, bitmap, valmap, nodes, cachedSize);
+		}
+
+		InplaceIndexNode(int bitmap, int valmap, Object node, int cachedSize) {
+			this(bitmap, valmap, new Object[] { node }, cachedSize);
+		}
+		
+		final int bitIndex(int bitpos) {
+			return cachedValmapBitCount + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+		}
+
+		final int valIndex(int bitpos) {
+			return Integer.bitCount(valmap & (bitpos - 1));
+		}
+
+		private void updateMetadata(int bitmap, int valmap, int cachedSize, int cachedValmapBitCount) {
+			assert (Integer.bitCount(bitmap) == nodes.length);
+
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.cachedSize = cachedSize;
+			this.cachedValmapBitCount = cachedValmapBitCount;
+			
+			// assert invariant
+			assert nodeInvariant();
+		}
+
+		@Override
+		public boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
+			final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0)
+				return cmp.compare(nodes[valIndex(bitpos)], key) == 0;
+
+			if ((bitmap & bitpos) != 0)
+				return ((AbstractNode<K, V>) nodes[bitIndex(bitpos)]).containsKey(key, hash,
+						shift + BIT_PARTITION_SIZE, cmp);
+
+			return false;
+		}
+
+		@Override
+		public Result<K, V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (cmp.compare(nodes[valIndex], key) == 0)
+					return Result.unchanged(this);
+
+				final AbstractNode<K, V> nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, keyHash,
+						shift + BIT_PARTITION_SIZE);
+
+				final int offset = cachedValmapBitCount - 1;
+				final int index = Integer.bitCount((bitmap ^ (valmap & ~bitpos)) & (bitpos - 1));
+				final Object[] nodesNew = copyAndMoveToBack(nodes, valIndex, offset + index, nodeNew);
+
+				return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap & ~bitpos, nodesNew, cachedSize + 1));
+			}
+
+			if ((bitmap & bitpos) != 0) { // node (not value)
+				final int bitIndex = bitIndex(bitpos);
+
+				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
+				final Result<K, V> subNodeResult = subNode.updated(key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+
+				if (!subNodeResult.isModified())
+					return Result.unchanged(this);
+
+				final Object[] nodesNew = copyAndSet(nodes, bitIndex, subNodeResult.getNode());
+				return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap, nodesNew, cachedSize + 1));
+			}
+
+			// no value
+			Object[] nodesNew = copyAndInsert(nodes, valIndex(bitpos), key);
+			return Result.modified(new InplaceIndexNode<K, V>(bitmap | bitpos, valmap | bitpos, nodesNew, cachedSize + 1));
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+				Comparator<Object> cmp) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (cmp.compare(nodes[valIndex], key) == 0)
+					return Result.unchanged(this);
+
+				final AbstractNode<K, V> nodeNew = mergeNodes(nodes[valIndex], nodes[valIndex].hashCode(), key, keyHash,
+						shift + BIT_PARTITION_SIZE);
+
+				final int offset = cachedValmapBitCount - 1;
+				final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1));
+
+				InplaceIndexNode<K, V> editableNode = editAndMoveToBack(mutator, valIndex, offset + index, nodeNew);
+				editableNode
+						.updateMetadata(bitmap | bitpos, valmap & ~bitpos, cachedSize + 1, cachedValmapBitCount - 1);
+				return Result.modified(editableNode);
+			}
+
+			if ((bitmap & bitpos) != 0) { // node (not value)
+				final int bitIndex = bitIndex(bitpos);
+				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
+
+				final Result<K, V> subNodeResult = subNode.updated(mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE,
+						cmp);
+
+				if (!subNodeResult.isModified())
+					return Result.unchanged(this);
+
+				InplaceIndexNode<K, V> editableNode = editAndSet(mutator, bitIndex, subNodeResult.getNode());
+				editableNode.updateMetadata(bitmap, valmap, cachedSize + 1, cachedValmapBitCount);
+				return Result.modified(editableNode);
+			}
+
+			// no value
+			InplaceIndexNode<K, V> editableNode = editAndInsert(mutator, valIndex(bitpos), key);
+			editableNode.updateMetadata(bitmap | bitpos, valmap | bitpos, cachedSize + 1, cachedValmapBitCount + 1);
+			return Result.modified(editableNode);
+		}
+
+		InplaceIndexNode<K, V> editAndInsert(AtomicReference<Thread> mutator, int index, Object elementNew) {
+			Object[] editableNodes = copyAndInsert(this.nodes, index, elementNew);
+
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}
+
+		InplaceIndexNode<K, V> editAndRemove(AtomicReference<Thread> mutator, int index) {
+			Object[] editableNodes = copyAndRemove(this.nodes, index);
+
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}
+
+		InplaceIndexNode<K, V> editAndSet(AtomicReference<Thread> mutator, int index, Object elementNew) {
+			if (this.mutator == mutator) {
+				// no copying if already editable
+				this.nodes[index] = elementNew;
+				return this;
+			} else {
+				final Object[] editableNodes = copyAndSet(this.nodes, index, elementNew);
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}
+
+		InplaceIndexNode<K, V> editAndMoveToBack(AtomicReference<Thread> mutator, int indexOld, int indexNew,
+				Object elementNew) {
+			Object[] editableNodes = copyAndMoveToBack(this.nodes, indexOld, indexNew, elementNew);
+
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}
+
+		InplaceIndexNode<K, V> editAndMoveToFront(AtomicReference<Thread> mutator, int indexOld, int indexNew,
+				Object elementNew) {
+			Object[] editableNodes = copyAndMoveToFront(this.nodes, indexOld, indexNew, elementNew);
+
+			if (this.mutator == mutator) {
+				this.nodes = editableNodes;
+				return this;
+			} else {
+				return new InplaceIndexNode<>(mutator, editableNodes);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Result<K, V> removed(K key, int keyHash, int shift, Comparator<Object> cmp) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (cmp.compare(nodes[valIndex], key) != 0)
+					return Result.unchanged(this);
+
+				if (this.arity() == 1) {
+					return Result.modified(EMPTY_NODE);
+				} else if (this.arity() == 2 && valmap == bitmap) {
+					/*
+					 * Create root node with singleton element. This node will
+					 * be a) either be the new root returned, or b) unwrapped
+					 * and inlined.
+					 */
+					final K theOtherKey = (K) ((valIndex == 0) ? nodes[1] : nodes[0]);
+					final K theOtherVal = null;
+					return EMPTY_NODE.updated(theOtherKey, theOtherKey.hashCode(), theOtherVal, 0, cmp);
+				} else {
+					final Object[] nodesNew = copyAndRemove(nodes, valIndex);
+					return Result.modified(new InplaceIndexNode<K, V>(bitmap & ~bitpos, valmap & ~bitpos, nodesNew,
+							cachedSize - 1));
+				}
+			}
+
+			if ((bitmap & bitpos) != 0) { // node (not value)
+				final int bitIndex = bitIndex(bitpos);
+				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
+				final Result<K, V> subNodeResult = subNode.removed(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+
+				if (!subNodeResult.isModified())
+					return Result.unchanged(this);
+
+				final AbstractNode<K, V> subNodeNew = subNodeResult.getNode();
+
+				if (this.arity() == 1) {
+					switch (subNodeNew.size()) {
+					case 0:
+					case 1:
+						// escalate (singleton or empty) result
+						return subNodeResult;
+
+					default:
+						// modify current node (set replacement node)
+						final Object[] nodesNew = copyAndSet(nodes, bitIndex, subNodeNew);
+						return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap, nodesNew, cachedSize - 1));
+					}
+				} else {
+					assert this.arity() >= 2;
+
+					switch (subNodeNew.size()) {
+					case 0:
+						// remove node
+						final Object[] nodesNew0 = copyAndRemove(nodes, bitIndex);
+						return Result.modified(new InplaceIndexNode<K, V>(bitmap & ~bitpos, valmap, nodesNew0,
+								cachedSize - 1));
+
+					case 1:
+						// inline value (move to front)
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+
+						final Object[] nodesNew1 = copyAndMoveToFront(nodes, bitIndex, valIndexNew, subNodeNew.head());
+						return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap | bitpos, nodesNew1,
+								cachedSize - 1));
+
+					default:
+						// modify current node (set replacement node)
+						final Object[] nodesNew = copyAndSet(nodes, bitIndex, subNodeNew);
+						return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap, nodesNew, cachedSize - 1));
+					}
+				}
+			}
+
+			return Result.unchanged(this);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+				Comparator<Object> comparator) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (comparator.compare(nodes[valIndex], key) != 0)
+					return Result.unchanged(this);
+
+				if (this.arity() == 1) {
+					return Result.modified(EMPTY_NODE);
+				} else if (this.arity() == 2 && valmap == bitmap) {
+					/*
+					 * Create root node with singleton element. This node will
+					 * be a) either be the new root returned, or b) unwrapped
+					 * and inlined.
+					 */
+					final K theOtherKey = (K) ((valIndex == 0) ? nodes[1] : nodes[0]);
+					final K theOtherVal = null;
+					return EMPTY_NODE.updated(theOtherKey, theOtherKey.hashCode(), theOtherVal, 0, comparator);
+				} else {
+					InplaceIndexNode<K, V> editableNode = editAndRemove(mutator, valIndex);
+					editableNode.updateMetadata(this.bitmap & ~bitpos, this.valmap & ~bitpos, cachedSize - 1,
+							cachedValmapBitCount - 1);
+					return Result.modified(editableNode);
+				}
+			}
+
+			if ((bitmap & bitpos) != 0) { // node (not value)
+				final int bitIndex = bitIndex(bitpos);
+				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
+				final Result<K, V> subNodeResult = subNode.removed(key, keyHash, shift + BIT_PARTITION_SIZE, comparator);
+
+				if (!subNodeResult.isModified())
+					return Result.unchanged(this);
+
+				final AbstractNode<K, V> subNodeNew = subNodeResult.getNode();
+
+				if (this.arity() == 1) {
+					switch (subNodeNew.size()) {
+					case 0:
+					case 1:
+						// escalate (singleton or empty) result
+						return subNodeResult;
+
+					default:
+						// modify current node (set replacement node)
+						InplaceIndexNode<K, V> editableNode = editAndSet(mutator, bitIndex, subNodeNew);
+						editableNode.updateMetadata(bitmap, valmap, cachedSize - 1, cachedValmapBitCount);
+						return Result.modified(editableNode);
+					}
+				} else {
+					assert this.arity() >= 2;
+
+					switch (subNodeNew.size()) {
+					case 0:
+						// remove node
+						InplaceIndexNode<K, V> editableNode0 = editAndRemove(mutator, bitIndex);
+						editableNode0.updateMetadata(bitmap & ~bitpos, valmap, cachedSize - 1, cachedValmapBitCount);
+						return Result.modified(editableNode0);
+
+					case 1:
+						// inline value (move to front)
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+
+						InplaceIndexNode<K, V> editableNode1 = editAndMoveToFront(mutator, bitIndex, valIndexNew,
+								subNodeNew.head());
+						editableNode1.updateMetadata(bitmap, valmap | bitpos, cachedSize - 1, cachedValmapBitCount + 1);
+						return Result.modified(editableNode1);
+
+					default:
+						// modify current node (set replacement node)
+						InplaceIndexNode<K, V> editableNode2 = editAndSet(mutator, bitIndex, subNodeNew);
+						editableNode2.updateMetadata(bitmap, valmap, cachedSize - 1, cachedValmapBitCount);
+						return Result.modified(editableNode2);
+					}
+				}
+			}
+
+			return Result.unchanged(this);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<K> valueIterator() {
+			return (Iterator<K>) ArrayIterator.of(nodes, 0, cachedValmapBitCount);
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@Override
+		Iterator<AbstractNode<K, V>> nodeIterator() {
+			return (Iterator) ArrayIterator.of(nodes, cachedValmapBitCount, nodes.length - cachedValmapBitCount);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K head() {
+			assert hasValues();
+			return (K) nodes[0];
+		}
+
+		@Override
+		boolean hasValues() {
+			return cachedValmapBitCount != 0;
+		}
+
+		@Override
+		int valueArity() {
+			return cachedValmapBitCount;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return cachedValmapBitCount != nodes.length;
+		}
+
+		@Override
+		int nodeArity() {
+			return nodes.length - cachedValmapBitCount;
+		}
+
+//		@SuppressWarnings("unchecked")
+//		@Override
+//		K getValue(int index) {
+//			return (K) nodes[index];
+//		}
+//
+//		@SuppressWarnings("unchecked")
+//		@Override
+//		public AbstractNode<K, V> getNode(int index) {
+//			return (AbstractNode<K, V>) nodes[cachedValmapBitCount + index];
+//		}	
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 0;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+			result = prime * result + Arrays.hashCode(nodes);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			InplaceIndexNode<?,?> that = (InplaceIndexNode<?,?>) other;
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+			if (!Arrays.equals(nodes, that.nodes)) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return Arrays.toString(nodes);
+		}
+
+		@Override
+		int arity() {
+			return nodes.length;
+		}
+
+		@Override
+		int size() {
+			return cachedSize;
+		}
+	}	
+	
+	private static final class InplaceHashCollisionNode<K, V> extends AbstractNode<K, V> {
+		private final K[] keys;
+		private final int hash;
+
+		InplaceHashCollisionNode(int hash, K[] keys) {
+			this.keys = keys;
+			this.hash = hash;
+		}
+
+		@Override
+		Iterator<K> valueIterator() {
+			return ArrayIterator.of(keys);
+		}
+
+		@Override
+		Iterator<AbstractNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		K head() {
+			assert hasValues();
+			return keys[0];
+		}
+
+		@Override
+		public boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
+			if (this.hash == keyHash) {
+				for (K k : keys) {
+					if (cmp.compare(k, key) == 0) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * Inserts an object if not yet present. Note, that this implementation
+		 * always returns a new immutable {@link TrieSet} instance.
+		 */
+		@SuppressWarnings("unchecked")
+		@Override
+		Result<K, V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
+			if (this.hash != keyHash)
+				return Result.modified(mergeNodes((AbstractNode<K, V>) this, this.hash, key, keyHash, shift));
+
+			if (contains(key, keyHash, shift, cmp))
+				return Result.unchanged(this);
+
+			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
+			return Result.modified(new InplaceHashCollisionNode<>(keyHash, keysNew));
+		}
+
+		@Override
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
+			return updated(key, keyHash, val, shift, cmp);
+		}
+
+		/**
+		 * Removes an object if present. Note, that this implementation always
+		 * returns a new immutable {@link TrieSet} instance.
+		 */
+		@SuppressWarnings("unchecked")
+		@Override
+		Result<K, V> removed(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
+			for (int i = 0; i < keys.length; i++) {
+				if (cmp.compare(keys[i], key) == 0) {
+					if (this.arity() == 1) {
+						return Result.modified(EMPTY_NODE);
+					} else if (this.arity() == 2) {
+						/*
+						 * Create root node with singleton element. This node will
+						 * be a) either be the new root returned, or b) unwrapped
+						 * and inlined.
+						 */
+						final K theOther = (i == 0) ? keys[1] : keys[0];
+						return EMPTY_NODE.updated(theOther, keyHash, 0, cmp);
+					} else {
+						return Result.modified(new InplaceHashCollisionNode<>(keyHash, (K[]) copyAndRemove(keys, i)));
+					}
+				}
+			}
+			return Result.unchanged(this);
+		}
+
+		@Override
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int hash, int shift, Comparator<Object> cmp) {
+			return removed(key, hash, shift, cmp);
+		}
+
+		@Override
+		boolean hasValues() {
+			return true;
+		}
+
+		@Override
+		int valueArity() {
+			return keys.length;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+		
+		@Override
+		K getValue(int index) {
+			return keys[index];
+		}
+		
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Is leaf node.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 0;
+			result = prime * result + hash;
+			result = prime * result + Arrays.hashCode(keys);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			// TODO: steps by 2
+			throw new RuntimeException();
+			
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+		
+			InplaceHashCollisionNode<?,?> that = (InplaceHashCollisionNode<?,?>) other;
+		
+			if (hash != that.hash) {
+				return false;
+			}
+			
+			if (arity() != that.arity()) {
+				return false;
+			}
+		
+			/*
+			 * Linear scan for each key, because of arbitrary element order.
+			 */
+			final Comparator<Object> cmp = equalityComparator();
+			for (Iterator<?> it = that.valueIterator(); it.hasNext();) {
+				final Object otherKey = it.next();
+				
+				for (Object key : keys) {
+					if (cmp.compare(key, otherKey) == 0) {
+						continue;
+					}
+				}
+				return false;
+			}
+		
+			return true;
+		}
+
+		@Override
+		int arity() {
+			return keys.length;
+		}
+
+		@Override
+		int size() {
+			return keys.length;
+		}
+	}
+	
 	private static final class IndexNode<K,V> extends AbstractNode<K,V> {
 
 		private AtomicReference<Thread> mutator;
@@ -638,7 +1337,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 			if ((bitmap & bitpos) == 0) { // no value
 				AbstractNode<K, V>[] nodesReplacement = arraycopyAndInsert(nodes, index, new LeafNode<K, V>(key, keyHash, val));
-				return Result.fromModified(new IndexNode<>(bitmap | bitpos, nodesReplacement, cachedSize + 1));
+				return Result.modified(new IndexNode<>(bitmap | bitpos, nodesReplacement, cachedSize + 1));
 			} else { // nested node
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 
@@ -647,14 +1346,14 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				final AbstractNode<K,V> subNodeReplacement = subNodeResult.getNode();
 
 				if (subNode == subNodeReplacement)
-					return Result.fromUnchanged(this);
+					return Result.unchanged(this);
 
 				final AbstractNode<K, V>[] nodesReplacement = arraycopyAndSet(nodes, index, subNodeReplacement);
 				
 				if (subNodeResult.hasReplacedValue()) {
-					return Result.fromUpdated(new IndexNode<K, V>(bitmap, nodesReplacement, cachedSize), subNodeResult.getReplacedValue());					
+					return Result.updated(new IndexNode<K, V>(bitmap, nodesReplacement, cachedSize), subNodeResult.getReplacedValue());					
 				} else {
-					return Result.fromModified(new IndexNode<K, V>(bitmap, nodesReplacement, cachedSize + 1));
+					return Result.modified(new IndexNode<K, V>(bitmap, nodesReplacement, cachedSize + 1));
 				}
 			}
 		}
@@ -700,7 +1399,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			if ((bitmap & bitpos) == 0) { // no value
 				IndexNode<K,V> editableNode = editAndInsert(mutator, index, new LeafNode<K, V>(key, keyHash, val));
 				editableNode.updateMetadata(bitmap | bitpos, cachedSize + 1);			
-				return Result.fromModified(editableNode);
+				return Result.modified(editableNode);
 			} else { // nested node
 				AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 										
@@ -711,13 +1410,13 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 					IndexNode<K,V> editableNode = editAndSet(mutator, index, resultNode.getNode());
 					if (resultNode.hasReplacedValue()) {					
 						editableNode.updateMetadata(bitmap, cachedSize);
-						return Result.fromUpdated(editableNode, resultNode.getReplacedValue());
+						return Result.updated(editableNode, resultNode.getReplacedValue());
 					} else {
 						editableNode.updateMetadata(bitmap, cachedSize + 1);
-						return Result.fromModified(editableNode);
+						return Result.modified(editableNode);
 					}
 				} else {
-					return Result.fromUnchanged(subNode);
+					return Result.unchanged(subNode);
 				}
 			}
 		}
@@ -729,14 +1428,14 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int bitIndex = index(bitpos);
 
 			if ((bitmap & bitpos) == 0) { // no value
-				return Result.fromUnchanged(this);
+				return Result.unchanged(this);
 			} else { // nested node
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[bitIndex];
 				
 				final Result<K,V> result = subNode.removed(key, hash, shift + BIT_PARTITION_SIZE, comparator);	
 				
 				if (!result.isModified())
-					return Result.fromUnchanged(this);
+					return Result.unchanged(this);
 
 				// TODO: optimization if singleton element node is returned
 				final AbstractNode<K,V> subNodeReplacement = result.getNode();
@@ -747,7 +1446,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				} else {
 					// modify current node (set replacement node)
 					final AbstractNode<K,V>[] nodesReplacement = arraycopyAndSet(nodes, bitIndex, subNodeReplacement);
-					return Result.fromModified(new IndexNode<>(bitmap, nodesReplacement, cachedSize - 1));
+					return Result.modified(new IndexNode<>(bitmap, nodesReplacement, cachedSize - 1));
 				}		
 			}
 		}
@@ -759,7 +1458,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			final int index = index(bitpos);
 
 			if ((bitmap & bitpos) == 0) { // no value
-				return Result.fromUnchanged(this);
+				return Result.unchanged(this);
 			} else { // nested node
 				final AbstractNode<K,V> subNode = (AbstractNode<K,V>) nodes[index];
 		
@@ -769,9 +1468,9 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				if (resultNode.isModified()) {
 					IndexNode<K,V> editableNode = editAndSet(mutator, index, resultNode.getNode());
 					editableNode.updateMetadata(bitmap, cachedSize - 1);
-					return Result.fromModified(editableNode);
+					return Result.modified(editableNode);
 				} else {
-					return Result.fromUnchanged(subNode);
+					return Result.unchanged(subNode);
 				}
 			}
 		}
@@ -833,6 +1532,54 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		Iterator<AbstractNode<K,V>> nodeIterator() {
 			return ArrayIterator.of(nodes);
 		}
+
+		@Override
+		boolean hasValues() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		Iterator<K> valueIterator() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		int valueArity() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		boolean hasNodes() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		K getValue(int index) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		K head() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private static final class LeafNode<K, V> extends AbstractNode<K, V> implements Map.Entry<K, V> {
@@ -851,17 +1598,17 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		Result<K,V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			if (this.keyHash != keyHash)
 				// insert (no collision)
-				return Result.fromModified(mergeNodes(this, this.keyHash, new LeafNode<K, V>(key, keyHash, val), keyHash, shift));
+				return Result.modified(mergeNodes(this, this.keyHash, new LeafNode<K, V>(key, keyHash, val), keyHash, shift));
 
 			if (cmp.compare(this.key, key) != 0)
 				// insert (hash collision)
-				return Result.fromModified(new HashCollisionNode<K, V>(keyHash, new LeafNode[]{this, new LeafNode<K, V>(key, keyHash, val)}));
+				return Result.modified(new LeafHashCollisionNode<K, V>(keyHash, new LeafNode[]{this, new LeafNode<K, V>(key, keyHash, val)}));
 			
 			if (cmp.compare(this.val, val) != 0)
 				// value replaced
-				return Result.fromUpdated(new LeafNode<K, V>(key, keyHash, val), val);
+				return Result.updated(new LeafNode<K, V>(key, keyHash, val), val);
 			
-			return Result.fromUnchanged(this);
+			return Result.unchanged(this);
 		}
 
 		@Override
@@ -872,9 +1619,9 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		@Override
 		Result<K,V> removed(K key, int hash, int shift, Comparator<Object> cmp) {
 			if (cmp.compare(this.key, key) == 0) {
-				return Result.fromModified(EMPTY_NODE);
+				return Result.modified(EMPTY_NODE);
 			} else {
-				return Result.fromUnchanged(this);
+				return Result.unchanged(this);
 			}
 		}
 		
@@ -970,14 +1717,62 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		boolean hasValues() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		Iterator<K> valueIterator() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		int valueArity() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		boolean hasNodes() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		K getValue(int index) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		K head() {
+			// TODO Auto-generated method stub
+			return null;
 		}	
 	}	
 	
-	private static final class HashCollisionNode<K,V> extends AbstractNode<K,V> {
+	private static final class LeafHashCollisionNode<K, V> extends AbstractNode<K, V> {
 		private final AbstractNode<K,V>[] leafs;
 		private final int hash;
 
-		HashCollisionNode(int hash, AbstractNode<K, V>[] leafs) {
+		LeafHashCollisionNode(int hash, AbstractNode<K, V>[] leafs) {
 			this.leafs = leafs;
 			this.hash = hash;
 		}
@@ -1011,19 +1806,19 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		@Override
 		Result<K,V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			if (this.hash != keyHash)
-				return Result.fromModified(mergeNodes(
+				return Result.modified(mergeNodes(
 						this, this.hash, new LeafNode<K, V>(key, keyHash, val), keyHash, shift)); // add one
 
 			for (int i = 0; i < leafs.length; i++) {
 				AbstractNode<K,V> node = leafs[i];
 				if (node.containsKey(key, hash, shift + BIT_PARTITION_SIZE, cmp)) { // TODO: increase BIT_PARTITION_SIZE?
 					final AbstractNode<K, V>[] leafsNew = arraycopyAndSet(leafs, i, new LeafNode<K, V>(key, keyHash, val));
-					return Result.fromUpdated(new HashCollisionNode<K, V>(keyHash, leafsNew), ((LeafNode<K, V>) node).getValue()); // replace one
+					return Result.updated(new LeafHashCollisionNode<K, V>(keyHash, leafsNew), ((LeafNode<K, V>) node).getValue()); // replace one
 				}
 			}
 			
 			final AbstractNode<K, V>[] leafsNew = arraycopyAndInsert(leafs, leafs.length, new LeafNode<K, V>(key, keyHash, val));
-			return Result.fromModified(new HashCollisionNode<>(keyHash, leafsNew)); // add one			
+			return Result.modified(new LeafHashCollisionNode<>(keyHash, leafsNew)); // add one			
 		}
 
 		@Override
@@ -1041,16 +1836,16 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			for (int i = 0; i < leafs.length; i++) {
 				if (comparator.compare(leafs[i], key) == 0) {
 					if (this.arity() == 1) {
-						return Result.fromModified(EMPTY_NODE);
+						return Result.modified(EMPTY_NODE);
 					} else if (this.arity() == 2) {
 						final AbstractNode<K, V> theOther = (i == 0) ? leafs[1] : leafs[0];
-						return Result.fromModified(theOther);
+						return Result.modified(theOther);
 					} else {
-						return Result.fromModified(new HashCollisionNode<>(hash, arraycopyAndRemove(leafs, i)));
+						return Result.modified(new LeafHashCollisionNode<>(hash, arraycopyAndRemove(leafs, i)));
 					}
 				}
 			}
-			return Result.fromUnchanged(this);
+			return Result.unchanged(this);
 		}
 		
 		@Override
@@ -1080,7 +1875,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				return false;
 			}
 
-			HashCollisionNode that = (HashCollisionNode) other;
+			LeafHashCollisionNode that = (LeafHashCollisionNode) other;
 			
 			if (hash != that.hash) {
 				return false;
@@ -1122,6 +1917,54 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		@Override
 		Iterator<AbstractNode<K,V>> nodeIterator() {
 			return ArrayIterator.<AbstractNode<K,V>>of(leafs);
+		}
+
+		@Override
+		boolean hasValues() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		Iterator<K> valueIterator() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		int valueArity() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		boolean hasNodes() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		K getValue(int index) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		K head() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
