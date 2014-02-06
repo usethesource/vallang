@@ -414,6 +414,11 @@ public abstract class BaseTestMap extends TestCase {
 			this.a = a;
 			this.b = b;
 		}
+		
+		@Override 
+		public String toString() {
+			return String.format("(%s,%s)", a, b);
+		}
 	}
 
 	public void testPutReplaceGet() {

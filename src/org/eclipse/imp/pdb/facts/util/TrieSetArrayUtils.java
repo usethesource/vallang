@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-public class ArrayUtils {
+public class TrieSetArrayUtils {
 	static Object[] copy(Object[] array) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
@@ -67,4 +67,5 @@ public class ArrayUtils {
 		System.arraycopy(array, index + 1, arrayNew, index, array.length - index - 1);
 		return arrayNew;
 	}
+	
 }

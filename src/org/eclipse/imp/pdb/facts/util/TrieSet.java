@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.eclipse.imp.pdb.facts.util.ArrayUtils.*;
+import static org.eclipse.imp.pdb.facts.util.TrieSetArrayUtils.*;
 
 /*
  * Set as Hash Array Mapped Trie.
@@ -35,7 +35,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	private TrieSet(AbstractNode<K> rootNode, int hashCode) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
-		assert invarint();
+		assert invariant();
 	}
 
 	@SafeVarargs
@@ -61,7 +61,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return EqualityUtils.getDefaultEqualityComparator();
 	}
 
-	private boolean invarint() {		
+	private boolean invariant() {		
 		int _hash = 0; 
 		for (K key : this) {
 			_hash += key.hashCode();
