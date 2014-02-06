@@ -114,11 +114,6 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	public IValue get(IValue key) {
 		return content.getEquivalent(key, equivalenceComparator);
 	}
-	
-	@Override
-	public Iterator<IValue> iterator() {
-		return content.keyIterator();
-	}
 
 	@Override
 	public int hashCode() {
@@ -192,9 +187,13 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	}
 
 	@Override
+	public Iterator<IValue> iterator() {
+		return content.keyIterator();
+	}
+	
+	@Override
 	public Iterator<IValue> valueIterator() {
-		// TODO: create TrieMapvalueIterator().
-		return content.values().iterator();
+		return content.valueIterator();
 	}
 
 	@Override

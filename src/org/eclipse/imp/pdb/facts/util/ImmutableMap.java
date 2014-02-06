@@ -47,7 +47,7 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
 
 	Iterator<K> keyIterator();
 	
-//	Iterator<V> valueIterator();
+	Iterator<V> valueIterator();
 	
 	Iterator<Map.Entry<K, V>> entryIterator();
 	
