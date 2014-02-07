@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.eclipse.imp.pdb.facts.util.TrieMapArrayUtils.*;
+import static org.eclipse.imp.pdb.facts.util.ArrayUtils.*;
 
 @SuppressWarnings("rawtypes")
 public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
@@ -952,7 +952,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 				final int offset = 2 * (cachedValmapBitCount - 1);
 				final int index = Integer.bitCount((bitmap ^ (valmap & ~bitpos)) & (bitpos - 1));
-				final Object[] nodesNew = copyAndMoveToBack(nodes, valIndex, offset + index, nodeNew);
+				final Object[] nodesNew = copyAndMoveToBackPair(nodes, valIndex, offset + index, nodeNew);
 
 				return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap & ~bitpos, nodesNew, cachedSize + 1));
 			}
@@ -1001,7 +1001,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				final int offset = 2 * (cachedValmapBitCount - 1);
 				final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1));
 
-				InplaceIndexNode<K, V> editableNode = editAndMoveToBack(mutator, valIndex, offset + index, nodeNew);
+				InplaceIndexNode<K, V> editableNode = editAndMoveToBackPair(mutator, valIndex, offset + index, nodeNew);
 				editableNode
 						.updateMetadata(bitmap | bitpos, valmap & ~bitpos, cachedSize + 1, cachedValmapBitCount - 1);
 				return Result.modified(editableNode);
@@ -1023,12 +1023,12 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 
 			// no value
-			InplaceIndexNode<K, V> editableNode = editAndInsert(mutator, valIndex(bitpos), key, val);
+			InplaceIndexNode<K, V> editableNode = editAndInsertPair(mutator, valIndex(bitpos), key, val);
 			editableNode.updateMetadata(bitmap | bitpos, valmap | bitpos, cachedSize + 1, cachedValmapBitCount + 1);
 			return Result.modified(editableNode);
 		}
 
-		InplaceIndexNode<K, V> editAndInsert(AtomicReference<Thread> mutator, int index, Object keyNew, Object valNew) {
+		InplaceIndexNode<K, V> editAndInsertPair(AtomicReference<Thread> mutator, int index, Object keyNew, Object valNew) {
 			Object[] editableNodes = copyAndInsertPair(this.nodes, index, keyNew, valNew);
 
 			if (this.mutator == mutator) {
@@ -1039,7 +1039,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 		}
 
-		InplaceIndexNode<K, V> editAndRemove(AtomicReference<Thread> mutator, int index) {
+		InplaceIndexNode<K, V> editAndRemovePair(AtomicReference<Thread> mutator, int index) {
 			Object[] editableNodes = copyAndRemovePair(this.nodes, index);
 
 			if (this.mutator == mutator) {
@@ -1060,22 +1060,10 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				return new InplaceIndexNode<>(mutator, editableNodes);
 			}
 		}
-		
-		InplaceIndexNode<K, V> editAndSet(AtomicReference<Thread> mutator, int index, Object keyNew, Object valNew) {
-			if (this.mutator == mutator) {
-				// no copying if already editable
-				this.nodes[index] = keyNew;
-				this.nodes[index+1] = valNew;
-				return this;
-			} else {
-				final Object[] editableNodes = copyAndSetPair(this.nodes, index, keyNew, valNew);
-				return new InplaceIndexNode<>(mutator, editableNodes);
-			}
-		}
 
-		InplaceIndexNode<K, V> editAndMoveToBack(AtomicReference<Thread> mutator, int indexOld, int indexNew,
+		InplaceIndexNode<K, V> editAndMoveToBackPair(AtomicReference<Thread> mutator, int indexOld, int indexNew,
 				Object elementNew) {
-			Object[] editableNodes = copyAndMoveToBack(this.nodes, indexOld, indexNew, elementNew);
+			Object[] editableNodes = copyAndMoveToBackPair(this.nodes, indexOld, indexNew, elementNew);
 
 			if (this.mutator == mutator) {
 				this.nodes = editableNodes;
@@ -1085,9 +1073,9 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			}
 		}
 
-		InplaceIndexNode<K, V> editAndMoveToFront(AtomicReference<Thread> mutator, int indexOld, int indexNew,
+		InplaceIndexNode<K, V> editAndMoveToFrontPair(AtomicReference<Thread> mutator, int indexOld, int indexNew,
 				Object keyNew, Object valNew) {
-			Object[] editableNodes = copyAndMoveToFront(this.nodes, indexOld, indexNew, keyNew, valNew);
+			Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, indexOld, indexNew, keyNew, valNew);
 
 			if (this.mutator == mutator) {
 				this.nodes = editableNodes;
@@ -1164,7 +1152,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 						// inline value (move to front)
 						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
 
-						final Object[] nodesNew1 = copyAndMoveToFront(nodes, bitIndex, valIndexNew,
+						final Object[] nodesNew1 = copyAndMoveToFrontPair(nodes, bitIndex, valIndexNew,
 								subNodeNew.headKey(), subNodeNew.headVal());
 						return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap | bitpos, nodesNew1,
 								cachedSize - 1));
@@ -1205,7 +1193,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 					final V theOtherVal = (V) ((valIndex == 0) ? nodes[3] : nodes[1]);
 					return EMPTY_INPLACE_INDEX_NODE.updated(theOtherKey, theOtherKey.hashCode(), theOtherVal, 0, comparator);
 				} else {
-					InplaceIndexNode<K, V> editableNode = editAndRemove(mutator, valIndex);
+					InplaceIndexNode<K, V> editableNode = editAndRemovePair(mutator, valIndex);
 					editableNode.updateMetadata(this.bitmap & ~bitpos, this.valmap & ~bitpos, cachedSize - 1,
 							cachedValmapBitCount - 1);
 					return Result.modified(editableNode);
@@ -1242,7 +1230,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 					switch (subNodeNew.size()) {
 					case 0:
 						// remove node
-						InplaceIndexNode<K, V> editableNode0 = editAndRemove(mutator, bitIndex);
+						InplaceIndexNode<K, V> editableNode0 = editAndRemovePair(mutator, bitIndex);
 						editableNode0.updateMetadata(bitmap & ~bitpos, valmap, cachedSize - 1, cachedValmapBitCount);
 						return Result.modified(editableNode0);
 
@@ -1250,7 +1238,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 						// inline value (move to front)
 						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
 
-						InplaceIndexNode<K, V> editableNode1 = editAndMoveToFront(mutator, bitIndex, valIndexNew,
+						InplaceIndexNode<K, V> editableNode1 = editAndMoveToFrontPair(mutator, bitIndex, valIndexNew,
 								subNodeNew.headKey(), subNodeNew.headVal());
 						editableNode1.updateMetadata(bitmap, valmap | bitpos, cachedSize - 1, cachedValmapBitCount + 1);
 						return Result.modified(editableNode1);

@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-public class TrieSetArrayUtils {
+public class ArrayUtils {
 	static Object[] copy(Object[] array) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
@@ -24,7 +24,7 @@ public class TrieSetArrayUtils {
 		arrayNew[index] = elementNew;
 		return arrayNew;
 	}
-
+	
 	static Object[] copyAndMoveToBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		assert indexOld <= indexNew;		
 		if (indexNew == indexOld) {
@@ -39,6 +39,20 @@ public class TrieSetArrayUtils {
 		}
 	}	
 
+	/**
+	 * Shrinks the array by 1 (key, val pair becomes a node) and moves...
+	 */
+	static Object[] copyAndMoveToBackPair(Object[] array, int indexOld, int indexNew, Object nodeNew) {
+		assert indexOld <= indexNew;		
+
+		final Object[] arrayNew = new Object[array.length - 1];
+		System.arraycopy(array, 0, arrayNew, 0, indexOld);
+		System.arraycopy(array, indexOld + 2, arrayNew, indexOld, indexNew - indexOld);
+		arrayNew[indexNew] = nodeNew;
+		System.arraycopy(array, indexNew + 2, arrayNew, indexNew + 1, array.length - indexNew - 2);
+		return arrayNew;
+	}	
+	
 	static Object[] copyAndMoveToFront(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		assert indexOld >= indexNew;
 		if (indexNew == indexOld ) {
@@ -53,6 +67,21 @@ public class TrieSetArrayUtils {
 		}
 	}	
 	
+	/**
+	 * Enlarges the array by 1 (a node becomes a key, val pair) and moves...
+	 */
+	static Object[] copyAndMoveToFrontPair(Object[] array, int indexOld, int indexNew, Object keyNew, Object valNew) {
+		assert indexOld >= indexNew;
+
+		final Object[] arrayNew = new Object[array.length+1];
+		System.arraycopy(array, 0, arrayNew, 0, indexNew);
+		arrayNew[indexNew] = keyNew;
+		arrayNew[indexNew+1] = valNew;
+		System.arraycopy(array, indexNew, arrayNew, indexNew + 2, indexOld - indexNew); // TODO: test
+		System.arraycopy(array, indexOld + 1, arrayNew, indexOld + 1, array.length - indexOld - 1); // TODO: test
+		return arrayNew;
+	}	
+	
 	static Object[] copyAndInsert(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length + 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
@@ -60,11 +89,27 @@ public class TrieSetArrayUtils {
 		System.arraycopy(array, index, arrayNew, index + 1, array.length - index);
 		return arrayNew;
 	}
+	
+	static Object[] copyAndInsertPair(Object[] array, int index, Object keyNew, Object valNew) {
+		final Object[] arrayNew = new Object[array.length + 2];
+		System.arraycopy(array, 0, arrayNew, 0, index);
+		arrayNew[index] = keyNew;
+		arrayNew[index+1] = valNew;
+		System.arraycopy(array, index, arrayNew, index + 2, array.length - index);
+		return arrayNew;
+	}	
 
 	static Object[] copyAndRemove(Object[] array, int index) {
 		final Object[] arrayNew = new Object[array.length - 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		System.arraycopy(array, index + 1, arrayNew, index, array.length - index - 1);
+		return arrayNew;
+	}
+	
+	static Object[] copyAndRemovePair(Object[] array, int index) {
+		final Object[] arrayNew = new Object[array.length - 2];
+		System.arraycopy(array, 0, arrayNew, 0, index);
+		System.arraycopy(array, index + 2, arrayNew, index, array.length - index - 2);
 		return arrayNew;
 	}
 	

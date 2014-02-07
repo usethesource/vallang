@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.eclipse.imp.pdb.facts.util.TrieSetArrayUtils.*;
+import static org.eclipse.imp.pdb.facts.util.ArrayUtils.*;
 
 /*
  * Set as Hash Array Mapped Trie.

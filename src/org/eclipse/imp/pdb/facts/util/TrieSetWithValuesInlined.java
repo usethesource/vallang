@@ -637,7 +637,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 			final int index = index(bitpos);
 
 			if ((bitmap & bitpos) == 0) {
-				Object[] nodesReplacement = TrieSetArrayUtils.copyAndInsert(nodes, index, key);
+				Object[] nodesReplacement = ArrayUtils.copyAndInsert(nodes, index, key);
 				return Result.fromModified(new InplaceIndexNode<>(
 						bitmap | bitpos, valmap | bitpos, nodesReplacement, cachedSize + 1));
 			}
@@ -653,7 +653,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 				/** CODE DUPLCIATION **/
 				final int bitIndexNewOffset = Integer.bitCount(valmap & ~bitpos);
 				final int bitIndexNew = bitIndexNewOffset + Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1)); 
-				final Object[] nodesReplacement = TrieSetArrayUtils.copyAndSet(nodes, index, nodeNew);
+				final Object[] nodesReplacement = ArrayUtils.copyAndSet(nodes, index, nodeNew);
 				
 				return Result.fromModified(new InplaceIndexNode<>(
 						bitmap | bitpos, valmap & ~bitpos, nodesReplacement, cachedSize + 1));				
@@ -668,7 +668,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 				if (subNode == subNodeReplacement)
 					return Result.fromUnchanged(this);
 
-				final Object[] nodesReplacement = TrieSetArrayUtils.copyAndSet(nodes, index, subNodeReplacement);
+				final Object[] nodesReplacement = ArrayUtils.copyAndSet(nodes, index, subNodeReplacement);
 
 				return Result.fromModified(new InplaceIndexNode<>(
 						bitmap, valmap, nodesReplacement, cachedSize + 1));		
@@ -676,7 +676,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		}
 		
 		InplaceIndexNode<K> editAndInsert(AtomicReference<Thread> mutator, int index, Object elementNew) {		
-			Object[] editableNodes = TrieSetArrayUtils.copyAndInsert(this.nodes, index, elementNew);
+			Object[] editableNodes = ArrayUtils.copyAndInsert(this.nodes, index, elementNew);
 			
 			if (this.mutator == mutator) {
 				this.nodes = editableNodes;
@@ -688,7 +688,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		
 		// TODO: only copy when not yet editable
 		InplaceIndexNode<K> editAndSet(AtomicReference<Thread> mutator, int index, Object elementNew) {
-			Object[] editableNodes = TrieSetArrayUtils.copyAndSet(this.nodes, index, elementNew);
+			Object[] editableNodes = ArrayUtils.copyAndSet(this.nodes, index, elementNew);
 			
 			if (this.mutator == mutator) {
 				this.nodes = editableNodes;
@@ -699,7 +699,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		}
 		
 		InplaceIndexNode<K> editAndRemove(AtomicReference<Thread> mutator, int index) {
-			Object[] editableNodes = TrieSetArrayUtils.copyAndRemove(this.nodes, index);
+			Object[] editableNodes = ArrayUtils.copyAndRemove(this.nodes, index);
 			
 			if (this.mutator == mutator) {
 				this.nodes = editableNodes;
@@ -773,7 +773,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 
 				// TODO: optimization if singleton element node is returned
 				final AbstractNode<K> subNodeReplacement = result.getNode();
-				final Object[] nodesReplacement = TrieSetArrayUtils.copyAndSet(nodes, index, subNodeReplacement);
+				final Object[] nodesReplacement = ArrayUtils.copyAndSet(nodes, index, subNodeReplacement);
 				return Result.fromModified(new InplaceIndexNode<>(bitmap, valmap, nodesReplacement, cachedSize - 1));
 			} else {
 				// it's an inplace value
@@ -785,7 +785,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 //				} else if (arity() == 2 && bitmap == valmap) { // two values
 //					return (valIndex == 0) ? ModificationResult.fromValue(nodes[1]) : ModificationResult.fromValue(nodes[0]);
 				} else {
-					final Object[] nodesReplacement = TrieSetArrayUtils.copyAndRemove(nodes, index);
+					final Object[] nodesReplacement = ArrayUtils.copyAndRemove(nodes, index);
 					return Result.fromModified(new InplaceIndexNode<>(bitmap & ~bitpos, valmap & ~bitpos, nodesReplacement, cachedSize - 1));
 				}
 			}
@@ -1034,7 +1034,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 			if (contains(key, hash, shift, comparator))
 				return Result.fromUnchanged(this);
 
-			final K[] keysNew = (K[]) TrieSetArrayUtils.copyAndInsert(keys, keys.length, key);
+			final K[] keysNew = (K[]) ArrayUtils.copyAndInsert(keys, keys.length, key);
 			return Result.fromModified(new HashCollisionNode<>(hash,
 					keysNew));
 		}
@@ -1058,7 +1058,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 			for (int i = 0; i < keys.length; i++) {
 				if (comparator.compare(keys[i], key) == 0)
 					return Result.fromModified(new HashCollisionNode<>(
-							hash, (K[]) TrieSetArrayUtils.copyAndRemove(keys, i)));
+							hash, (K[]) ArrayUtils.copyAndRemove(keys, i)));
 			}
 			return Result.fromUnchanged(this);
 		}
