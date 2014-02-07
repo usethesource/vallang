@@ -1060,6 +1060,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				InplaceIndexNode<K, V> editableNode = editAndSet(mutator, bitIndex,
 								subNodeResult.getNode());
 				editableNode.updateMetadata(bitmap, valmap, cachedSize + 1, cachedValmapBitCount);
+				
+				if (subNodeResult.hasReplacedValue())
+					return Result.updated(editableNode, subNodeResult.getReplacedValue());
+					
 				return Result.modified(editableNode);
 			}
 
@@ -1092,7 +1096,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					 * be a) either be the new root returned, or b) unwrapped
 					 * and inlined.
 					 */
-					final K theOtherKey = (K) ((valIndex == 0) ? nodes[1] : nodes[0]);
+					final K theOtherKey = (K) ((valIndex == 0) ? nodes[2] : nodes[0]);
 					final V theOtherVal = (V) ((valIndex == 0) ? nodes[3] : nodes[1]);
 					return EMPTY_INPLACE_INDEX_NODE.updated(mutator, theOtherKey,
 									theOtherKey.hashCode(), theOtherVal, 0, comparator);
