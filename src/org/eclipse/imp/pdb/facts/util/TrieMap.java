@@ -35,13 +35,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> ImmutableMap<K, V> of() {
-		// return TrieMap.EMPTY_INDEX_MAP;
+//		return TrieMap.EMPTY_INDEX_MAP;
 		return TrieMap.EMPTY_INPLACE_INDEX_MAP;
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> TransientMap<K, V> transientOf() {
-		// return TrieMap.EMPTY_INDEX_MAP.asTransient();
+//		return TrieMap.EMPTY_INDEX_MAP.asTransient();
 		return TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
 	}
 
@@ -146,17 +146,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public Iterator<K> keyIterator() {
-		return new TrieMapIterator<>((CompactNode<K, V>) rootNode);
+		return new TrieMapIterator<>(rootNode);
 	}
 
 	@Override
 	public Iterator<V> valueIterator() {
-		return new TrieMapValueIterator<>(new TrieMapIterator<>((CompactNode<K, V>) rootNode));
+		return new TrieMapValueIterator<>(new TrieMapIterator<>(rootNode));
 	}
 
 	@Override
 	public Iterator<Map.Entry<K, V>> entryIterator() {
-		return new TrieMapEntryIterator<>(new TrieMapIterator<>((CompactNode<K, V>) rootNode));
+		return new TrieMapEntryIterator<>(new TrieMapIterator<>(rootNode));
 	}
 
 	@Override
@@ -275,7 +275,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		final Deque<Iterator<AbstractNode<K, V>>> nodeIteratorStack;
 		SupplierIterator<K, V> valueIterator;
 
-		TrieMapIterator(CompactNode<K, V> rootNode) {
+		TrieMapIterator(AbstractNode<K, V> rootNode) {
 			if (rootNode.hasValues()) {
 				valueIterator = rootNode.valueIterator();
 			} else {
@@ -298,8 +298,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						return false;
 					} else {
 						if (nodeIteratorStack.peek().hasNext()) {
-							CompactNode<K, V> innerNode = (CompactNode<K, V>) nodeIteratorStack
-											.peek().next();
+							AbstractNode<K, V> innerNode = nodeIteratorStack.peek().next();
 
 							if (innerNode.hasValues())
 								valueIterator = innerNode.valueIterator();
@@ -574,15 +573,21 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
-		// TODO: is also in CompactNode
+		abstract boolean hasNodes();
+
 		abstract Iterator<AbstractNode<K, V>> nodeIterator();
 
+		abstract int nodeArity();
+
+		abstract boolean hasValues();
+
+		abstract SupplierIterator<K, V> valueIterator();
+
+		abstract int valueArity();
+		
 		// abstract K getValue(int index);
 		//
 		// abstract public AbstractNode<K, V> getNode(int index);
-
-		// TODO: replaces calls by hasNodes()
-		abstract boolean isLeaf();
 
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
@@ -590,7 +595,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		 * 
 		 * @return sum of nodes and values stored within
 		 */
-		abstract int arity();
+		int arity() {
+			return valueArity() + nodeArity();
+		}
 
 		/**
 		 * The total number of elements contained by this (sub)tree.
@@ -718,18 +725,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	private static abstract class CompactNode<K, V> extends AbstractNode<K, V> {
-		abstract boolean hasNodes();
-
-		abstract Iterator<AbstractNode<K, V>> nodeIterator();
-
-		abstract int nodeArity();
-
-		abstract boolean hasValues();
-
-		abstract SupplierIterator<K, V> valueIterator();
-
-		abstract int valueArity();
-
 		/**
 		 * Returns the first key stored within this node.
 		 * 
@@ -820,11 +815,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return new InplaceIndexNode<>(bitmap, valmap, node, node.size());
 			}
 		}
-
-		@Override
-		boolean isLeaf() {
-			return false;
-		};
 	}
 
 	private static abstract class VerboseNode<K, V> extends AbstractNode<K, V> {
@@ -1285,11 +1275,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int arity() {
-			return valueArity() + nodeArity();
-		}
-
-		@Override
 		int size() {
 			return cachedSize;
 		}
@@ -1734,13 +1719,33 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean isLeaf() {
-			return false;
+		boolean hasNodes() {
+			return nodes.length != 0;
 		}
 
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return ArrayIterator.of(nodes);
+		}
+		
+		@Override
+		int nodeArity() {
+			return nodes.length;
+		}
+
+		@Override
+		boolean hasValues() {
+			return false;
+		}
+
+		@Override
+		SupplierIterator<K, V> valueIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		int valueArity() {
+			return 0;
 		}
 	}
 
@@ -1826,15 +1831,35 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean isLeaf() {
-			return true;
+		boolean hasNodes() {
+			return false;
 		}
 
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
+		
+		@Override
+		int nodeArity() {
+			return 0;
+		}
 
+		@Override
+		boolean hasValues() {
+			return true;
+		}
+
+		@Override
+		SupplierIterator<K, V> valueIterator() {
+			return ArrayKeyValueIterator.of(new Object[] {key, val} , 0, 2);
+		}
+
+		@Override
+		int valueArity() {
+			return 1;
+		}		
+		
 		@Override
 		public String toString() {
 			return key + "=" + val;
@@ -2021,14 +2046,35 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return leafs.length;
 		}
 
+
 		@Override
-		boolean isLeaf() {
-			return false;
+		boolean hasNodes() {
+			return leafs.length != 0;
 		}
 
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return ArrayIterator.<AbstractNode<K, V>> of(leafs);
+		}
+
+		@Override
+		int nodeArity() {
+			return leafs.length;
+		}
+
+		@Override
+		boolean hasValues() {
+			return false;
+		}
+
+		@Override
+		SupplierIterator<K, V> valueIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		int valueArity() {
+			return 0;
 		}
 	}
 
