@@ -1389,6 +1389,16 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		}
 
 		@Override
+		public String toString() {
+			final Object[] keysAndVals = new Object[keys.length + vals.length];
+			for (int i = 0; i < keys.length; i++) {
+				keysAndVals[2*i] = keys[i];
+				keysAndVals[2*i+1] = vals[i];
+			}
+			return Arrays.toString(keysAndVals);
+		}		
+		
+		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
@@ -1994,6 +2004,11 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		LeafHashCollisionNode(int hash, AbstractNode<K, V>[] leafs) {
 			this.leafs = leafs;
 			this.hash = hash;
+		}
+		
+		@Override
+		public String toString() {
+			return Arrays.toString(leafs);
 		}
 		
 		@Override
