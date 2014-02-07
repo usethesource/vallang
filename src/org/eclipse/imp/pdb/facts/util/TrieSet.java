@@ -606,9 +606,18 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieSet.rootNode;
 			this.hashCode = trieSet.hashCode;
-			assert invarint();
+			assert invariant();
 		}
 
+		// TODO: merge with TrieSet invariant (as function)
+		private boolean invariant() {		
+			int _hash = 0; 
+			for (K key : this) {
+				_hash += key.hashCode();
+			}
+			return this.hashCode == _hash;
+		}
+		
 		@Override
 		public boolean contains(Object o) {
 			return rootNode.contains(o, o.hashCode(), 0, equalityComparator());
@@ -624,14 +633,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return __insertEquivalent(key, equalityComparator());
 		}
 
-		private boolean invarint() {		
-			int _hash = 0; 
-			for (K key : this) {
-				_hash += key.hashCode();
-			}
-			return this.hashCode == _hash;
-		}
-		
 		@Override
 		public boolean __insertEquivalent(K key, Comparator<Object> cmp) {
 			if (mutator.get() == null)
@@ -643,7 +644,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (result.isModified()) {
 				rootNode = result.getNode();
 				hashCode += keyHash;
-				assert invarint();
+				assert invariant();
 				return true;
 			}
 
@@ -697,12 +698,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				throw new IllegalStateException("Transient already frozen.");
 			
 			final int keyHash = key.hashCode();
-			final AbstractNode.Result<K> result = rootNode.removed(mutator, (K) key, keyHash, 0, cmp);
+			final AbstractNode.Result<K> result = rootNode.removed(mutator, key, keyHash, 0, cmp);
 
 			if (result.isModified()) {
 				rootNode = result.getNode();
 				hashCode -= keyHash;
-				assert invarint();
+				assert invariant();
 				return true;
 			}
 

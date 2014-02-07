@@ -21,27 +21,30 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.*;
 public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieMap EMPTY_INDEX_MAP = new TrieMap(VerboseNode.EMPTY_INDEX_NODE);
+	private static final TrieMap EMPTY_INDEX_MAP = new TrieMap(VerboseNode.EMPTY_INDEX_NODE, 0);
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
-					CompactNode.EMPTY_INPLACE_INDEX_NODE);
+					CompactNode.EMPTY_INPLACE_INDEX_NODE, 0);
 
 	final private AbstractNode<K, V> rootNode;
+	private final int hashCode;
 
-	TrieMap(AbstractNode<K, V> rootNode) {
+	TrieMap(AbstractNode<K, V> rootNode, int hashCode) {
 		this.rootNode = rootNode;
+		this.hashCode = hashCode;
+		assert invariant();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> ImmutableMap<K, V> of() {
-//		return TrieMap.EMPTY_INDEX_MAP;
+		// return TrieMap.EMPTY_INDEX_MAP;
 		return TrieMap.EMPTY_INPLACE_INDEX_MAP;
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> TransientMap<K, V> transientOf() {
-//		return TrieMap.EMPTY_INDEX_MAP.asTransient();
+		// return TrieMap.EMPTY_INDEX_MAP.asTransient();
 		return TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
 	}
 
@@ -51,12 +54,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	private boolean invariant() {
-		// int _hash = 0;
-		// for (K key : this) {
-		// _hash += key.hashCode();
-		// }
-		// return this.hashCode == _hash;
-		return false;
+		int _hash = 0;
+
+		for (SupplierIterator<K, V> it = keyIterator(); it.hasNext();) {
+			final K key = it.next();
+			final V val = it.get();
+
+			_hash += key.hashCode() ^ val.hashCode();
+		}
+
+		return this.hashCode == _hash;
 	}
 
 	@Override
@@ -65,11 +72,22 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMap<K, V> __putEquivalent(K k, V v, Comparator<Object> cmp) {
-		final AbstractNode.Result<K, V> result = rootNode.updated(null, k, k.hashCode(), v, 0, cmp);
+	public TrieMap<K, V> __putEquivalent(K key, V val, Comparator<Object> cmp) {
+		final int keyHash = key.hashCode();
+		final AbstractNode.Result<K, V> result = rootNode.updated(null, key, keyHash, val, 0, cmp);
 
-		if (result.isModified())
-			return new TrieMap<K, V>(result.getNode());
+		if (result.isModified()) {
+			if (result.hasReplacedValue()) {
+				final int valHashOld = result.getReplacedValue().hashCode();
+				final int valHashNew = val.hashCode();
+
+				return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHashNew)
+								- (keyHash ^ valHashOld));
+			}
+
+			final int valHash = val.hashCode();
+			return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHash));
+		}
 
 		return this;
 	}
@@ -93,11 +111,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMap<K, V> __removeEquivalent(K k, Comparator<Object> cmp) {
-		final AbstractNode.Result<K, V> result = rootNode.removed(null, k, k.hashCode(), 0, cmp);
+	public TrieMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
+		final int keyHash = key.hashCode();
+		final AbstractNode.Result<K, V> result = rootNode.removed(null, key, keyHash, 0, cmp);
 
-		if (result.isModified())
-			return new TrieMap<K, V>(result.getNode());
+		if (result.isModified()) {
+			// TODO: carry deleted value in result
+			// assert result.hasReplacedValue();
+			// final int valHash = result.getReplacedValue().hashCode();
+
+			final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
+							.hashCode();
+
+			return new TrieMap<K, V>(result.getNode(), hashCode - (keyHash ^ valHash));
+		}
 
 		return this;
 	}
@@ -145,7 +172,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public Iterator<K> keyIterator() {
+	public SupplierIterator<K, V> keyIterator() {
 		return new TrieMapIterator<>(rootNode);
 	}
 
@@ -202,69 +229,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 		return entrySet;
 	}
-
-	// /**
-	// * Iterator that first iterates over inlined-values and then
-	// * continues depth first recursively.
-	// */
-	// private static class TrieMapEntryIterator implements Iterator {
-	//
-	// final Deque<Iterator<AbstractNode>> nodeIterationStack;
-	// AbstractNode next;
-	//
-	// TrieMapEntryIterator(AbstractNode rootNode) {
-	// next = null;
-	// nodeIterationStack = new ArrayDeque<>();
-	//
-	// if (rootNode.isLeaf()) {
-	// next = rootNode;
-	// } else if (rootNode.size() > 0) {
-	// nodeIterationStack.push(rootNode.nodeIterator());
-	// }
-	// }
-	//
-	// @Override
-	// public boolean hasNext() {
-	// while (true) {
-	// if (next != null) {
-	// return true;
-	// } else {
-	// if (nodeIterationStack.isEmpty()) {
-	// return false;
-	// } else {
-	// if (nodeIterationStack.peek().hasNext()) {
-	// AbstractNode innerNode = nodeIterationStack.peek().next();
-	//
-	// if (innerNode.isLeaf())
-	// next = innerNode;
-	// else if (innerNode.size() > 0) {
-	// nodeIterationStack.push(innerNode.nodeIterator());
-	// }
-	// continue;
-	// } else {
-	// nodeIterationStack.pop();
-	// continue;
-	// }
-	// }
-	// }
-	// }
-	// }
-	//
-	// @Override
-	// public Object next() {
-	// if (!hasNext()) throw new NoSuchElementException();
-	//
-	// Object result = next;
-	// next = null;
-	//
-	// return result;
-	// }
-	//
-	// @Override
-	// public void remove() {
-	// throw new UnsupportedOperationException();
-	// }
-	// }
 
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
@@ -425,15 +389,32 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return new TransientTrieMap<K, V>(this);
 	}
 
-	static final class TransientTrieMap<E, V> implements TransientMap<E, V> {
+	static final class TransientTrieMap<K, V> implements TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
-		private AbstractNode<E, V> rootNode;
+		private AbstractNode<K, V> rootNode;
+		private int hashCode;
 
-		TransientTrieMap(TrieMap<E, V> trieMap) {
+		TransientTrieMap(TrieMap<K, V> trieMap) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap.rootNode;
+			this.hashCode = trieMap.hashCode;
+			assert invariant();
 		}
 
+		// TODO: merge with TrieMap invariant (as function)
+		private boolean invariant() {
+			int _hash = 0;
+
+			for (SupplierIterator<K, V> it = keyIterator(); it.hasNext();) {
+				final K key = it.next();
+				final V val = it.get();
+
+				_hash += key.hashCode() ^ val.hashCode();
+			}
+
+			return this.hashCode == _hash;
+		}
+		
 		@Override
 		public boolean containsKey(Object o) {
 			return rootNode.containsKey(o, o.hashCode(), 0, equalityComparator());
@@ -451,7 +432,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public V getEquivalent(Object key, Comparator<Object> cmp) {
-			AbstractNode.Optional<Map.Entry<E, V>> result = rootNode.findByKey(key, key.hashCode(),
+			AbstractNode.Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(),
 							0, cmp);
 
 			if (result.isPresent()) {
@@ -462,60 +443,88 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public V __put(E e, V v) {
-			return __putEquivalent(e, v, equalityComparator());
+		public V __put(K k, V v) {
+			return __putEquivalent(k, v, equalityComparator());
 		}
 
 		@Override
-		public V __putEquivalent(E e, V v, Comparator<Object> cmp) {
+		public V __putEquivalent(K key, V val, Comparator<Object> cmp) {
 			if (mutator.get() == null)
 				throw new IllegalStateException("Transient already frozen.");
 
-			AbstractNode.Result<E, V> result = rootNode
-							.updated(mutator, e, e.hashCode(), v, 0, cmp);
+			final int keyHash = key.hashCode();
+			final AbstractNode.Result<K, V> result = rootNode.updated(mutator, key, keyHash, val, 0, cmp);
 
 			if (result.isModified()) {
 				rootNode = result.getNode();
-
+				
 				if (result.hasReplacedValue()) {
-					return result.getReplacedValue();
+					final V old = result.getReplacedValue();
+					
+					final int valHashOld = old.hashCode();
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+					hashCode -= keyHash ^ valHashOld;
+					
+					assert invariant();
+					return old;
+				} else {
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+
+					assert invariant();
+					return null;
 				}
 			}
 
-			return null; // either not modified or key-value pair inserted
+			assert invariant();
+			return null;
 		}
 
 		@Override
-		public boolean __remove(E e) {
-			return __removeEquivalent(e, equalityComparator());
+		public boolean __remove(K k) {
+			return __removeEquivalent(k, equalityComparator());
 		}
 
 		@Override
-		public boolean __removeEquivalent(E e, Comparator<Object> cmp) {
+		public boolean __removeEquivalent(K key, Comparator<Object> cmp) {
 			if (mutator.get() == null)
 				throw new IllegalStateException("Transient already frozen.");
 
-			AbstractNode.Result<E, V> result = rootNode.removed(mutator, (E) e, e.hashCode(), 0,
-							cmp);
+			final int keyHash = key.hashCode();
+			final AbstractNode.Result<K, V> result = rootNode.removed(mutator, key, keyHash, 0, cmp);
 
 			if (result.isModified()) {
+				// TODO: carry deleted value in result
+				// assert result.hasReplacedValue();
+				// final int valHash = result.getReplacedValue().hashCode();
+
+				final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
+								.hashCode();
+				
 				rootNode = result.getNode();
+				hashCode -= keyHash ^ valHash;
+			
+				assert invariant();
 				return true;
-			} else {
-				return false;
 			}
+
+			assert invariant();
+			return false;
 		}
 
 		@Override
-		public boolean __putAll(Map<? extends E, ? extends V> map) {
+		public boolean __putAll(Map<? extends K, ? extends V> map) {
 			return __putAllEquivalent(map, equalityComparator());
 		}
 
 		@Override
-		public boolean __putAllEquivalent(Map<? extends E, ? extends V> map, Comparator<Object> cmp) {
+		public boolean __putAllEquivalent(Map<? extends K, ? extends V> map, Comparator<Object> cmp) {
 			boolean modified = false;
 
-			for (Entry<? extends E, ? extends V> entry : map.entrySet()) {
+			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
 				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
 				final V replaced = __putEquivalent(entry.getKey(), entry.getValue(), cmp);
 
@@ -527,6 +536,39 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return modified;
 		}
 
+		// TODO: test; declare in transient interface
+//		@Override
+		public SupplierIterator<K, V> keyIterator() {
+			return new TransientTrieMapIterator<K, V>(this);
+		}	
+		
+		/**
+		 * Iterator that first iterates over inlined-values and then continues
+		 * depth first recursively.
+		 */
+		// TODO: test
+		private static class TransientTrieMapIterator<K, V> extends TrieMapIterator<K, V> {
+
+			final TransientTrieMap<K, V> transientTrieMap;
+			K lastKey;
+			
+			TransientTrieMapIterator(TransientTrieMap<K, V> transientTrieMap) {
+				super(transientTrieMap.rootNode);
+				this.transientTrieMap = transientTrieMap;
+			}
+			
+			@Override
+			public K next() {
+				lastKey = super.next();
+				return lastKey;
+			}
+
+			@Override
+			public void remove() {
+				transientTrieMap.__remove(lastKey);
+			}
+		}
+		
 		@Override
 		public boolean equals(Object o) {
 			return rootNode.equals(o);
@@ -543,12 +585,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public ImmutableMap<E, V> freeze() {
+		public ImmutableMap<K, V> freeze() {
 			if (mutator.get() == null)
 				throw new IllegalStateException("Transient already frozen.");
 
 			mutator.set(null);
-			return new TrieMap<E, V>(rootNode);
+			return new TrieMap<K, V>(rootNode, hashCode);
 		}
 	}
 
@@ -584,7 +626,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		abstract SupplierIterator<K, V> valueIterator();
 
 		abstract int valueArity();
-		
+
 		// abstract K getValue(int index);
 		//
 		// abstract public AbstractNode<K, V> getNode(int index);
@@ -986,8 +1028,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					final Object[] nodesNew = copyAndSet(nodes, valIndex + 1, val);
-					return Result.modified(new InplaceIndexNode<K, V>(bitmap, valmap, nodesNew,
-									cachedSize));
+					return Result.updated(new InplaceIndexNode<K, V>(bitmap, valmap, nodesNew,
+									cachedSize), (V) nodes[valIndex + 1]);
 				}
 
 				final AbstractNode<K, V> nodeNew = mergeNodes((K) nodes[valIndex],
@@ -1727,7 +1769,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return ArrayIterator.of(nodes);
 		}
-		
+
 		@Override
 		int nodeArity() {
 			return nodes.length;
@@ -1839,7 +1881,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
-		
+
 		@Override
 		int nodeArity() {
 			return 0;
@@ -1852,14 +1894,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(new Object[] {key, val} , 0, 2);
+			return ArrayKeyValueIterator.of(new Object[] { key, val }, 0, 2);
 		}
 
 		@Override
 		int valueArity() {
 			return 1;
-		}		
-		
+		}
+
 		@Override
 		public String toString() {
 			return key + "=" + val;
@@ -2045,7 +2087,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		int size() {
 			return leafs.length;
 		}
-
 
 		@Override
 		boolean hasNodes() {
