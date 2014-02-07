@@ -114,6 +114,11 @@ public abstract class AbstractTypeBag implements Cloneable {
 		public AbstractTypeBag clone() {
 			return new TypeBag(label, countMap);
 		}
+		
+		@Override
+		public String toString() {
+			return countMap.toString();
+		}
 	}
 	
 }
