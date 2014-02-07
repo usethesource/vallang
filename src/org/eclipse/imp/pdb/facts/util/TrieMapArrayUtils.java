@@ -43,7 +43,7 @@ public class TrieMapArrayUtils {
 		System.arraycopy(array, 0, arrayNew, 0, indexOld);
 		System.arraycopy(array, indexOld + 2, arrayNew, indexOld, indexNew - indexOld);
 		arrayNew[indexNew] = nodeNew;
-		System.arraycopy(array, indexNew, arrayNew, indexNew + 1, array.length - indexNew - 2);
+		System.arraycopy(array, indexNew + 2, arrayNew, indexNew + 1, array.length - indexNew - 2);
 		return arrayNew;
 	}	
 
