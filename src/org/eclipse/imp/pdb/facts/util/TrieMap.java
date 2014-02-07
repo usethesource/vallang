@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableJdkMap.mapOf;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.*;
 
 @SuppressWarnings("rawtypes")
@@ -368,12 +369,12 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			return iterator.hasNext();
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public Map.Entry<K, V> next() {
 			final K key = iterator.next();
 			final V val = iterator.get();
-			return (java.util.Map.Entry<K, V>) AbstractSpecialisedImmutableJdkMap
-					.mapOf(key, val);
+			return (java.util.Map.Entry<K, V>) mapOf(key, val);
 		}
 
 		@Override
@@ -581,6 +582,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		abstract int size();
 		
 		static <K, V> AbstractNode<K, V>[] arraycopyAndSet(AbstractNode<K, V>[] array, int index, AbstractNode<K, V> elementNew) {
+			@SuppressWarnings("unchecked")
 			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length];
 			System.arraycopy(array, 0, arrayNew, 0, array.length);
 			arrayNew[index] = elementNew;
@@ -588,6 +590,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		}
 
 		static <K, V> AbstractNode<K, V>[] arraycopyAndInsert(AbstractNode<K, V>[] array, int index, AbstractNode<K, V> elementNew) {
+			@SuppressWarnings("unchecked")
 			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length + 1];
 			System.arraycopy(array, 0, arrayNew, 0, index);
 			arrayNew[index] = elementNew;
@@ -596,6 +599,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		}
 
 		static <K, V> AbstractNode<K, V>[] arraycopyAndRemove(AbstractNode<K, V>[] array, int index) {
+			@SuppressWarnings("unchecked")
 			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length - 1];
 			System.arraycopy(array, 0, arrayNew, 0, index);
 			System.arraycopy(array, index + 1, arrayNew, index, array.length - index - 1);
@@ -706,12 +710,17 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 		abstract int valueArity();
 		
 		/**
+		 * Returns the first key stored within this node.
+		 * 
+		 * @return first key
+		 */
+		abstract K headKey();
+
+		/**
 		 * Returns the first value stored within this node.
-		 * TODO: make pair out of it.
 		 * 
 		 * @return first value
 		 */
-		abstract K headKey();
 		abstract V headVal();		
 		
 		boolean nodeInvariant() {
@@ -722,10 +731,11 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@SuppressWarnings("unchecked")
 		static <K, V> CompactNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1, int keyHash1, V val1, int shift) {
-			// assert key0 =/= key1
+			assert key0.equals(key1) == false;
 			
 			if (keyHash0 == keyHash1)
-				return new InplaceHashCollisionNode<>(keyHash0, (K[]) new Object[] { key0, key1 }, (V[]) new Object[] { val0, val1 });
+				return new InplaceHashCollisionNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
+								(V[]) new Object[] { val0, val1 });
 
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
@@ -793,8 +803,10 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 	private static abstract class VerboseNode<K, V> extends AbstractNode<K, V> {
 		
+		@SuppressWarnings("unchecked")
 		static final AbstractNode EMPTY_INDEX_NODE = new IndexNode(0, new AbstractNode[0], 0);
 		
+		@SuppressWarnings("unchecked")
 		static <K, V> VerboseNode<K, V> mergeNodes(VerboseNode<K, V> node0, int hash0, VerboseNode<K, V> node1,
 				int hash1, int shift) {
 			final int mask0 = (hash0 >>> shift) & BIT_PARTITION_MASK;
@@ -894,8 +906,9 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			assert nodeInvariant();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		public boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
+		boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
 			final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -903,34 +916,43 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				return cmp.compare(nodes[valIndex(bitpos)], key) == 0;
 
 			if ((bitmap & bitpos) != 0)
-				return ((AbstractNode<K, V>) nodes[bitIndex(bitpos)]).containsKey(key, hash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return ((AbstractNode<K, V>) nodes[bitIndex(bitpos)]).containsKey(key, hash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 			return false;
 		}
 
-		Optional<Map.Entry<K,V>> findByKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
+		@SuppressWarnings("unchecked")
+		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			// TODO: find nicer flow representation
-			if ((valmap & bitpos) != 0) {
-				if (cmp.compare(nodes[valIndex(bitpos)], key) == 0) {
-					Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) AbstractSpecialisedImmutableJdkMap.mapOf(nodes[valIndex(bitpos)], nodes[valIndex(bitpos)+1]);					
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (cmp.compare(nodes[valIndex], key) == 0) {
+					final K _key = (K) nodes[valIndex];
+					final V _val = (V) nodes[valIndex + 1];
+
+					final Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) mapOf(_key, _val);
 					return Optional.of(entry);
-				} else {
-					return Optional.empty(); 
-				}					
-			} else if ((bitmap & bitpos) != 0) {
-				return ((AbstractNode<K, V>) nodes[bitIndex(bitpos)]).findByKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				}
+
+				return Optional.empty();
 			}
-				
+
+			if ((bitmap & bitpos) != 0) { // node (not value)
+				final AbstractNode<K, V> subNode = ((AbstractNode<K, V>) nodes[bitIndex(bitpos)]);
+
+				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			}
+
 			return Optional.empty();
-		}	
+		}
 		
 		@Override
-		public Result<K, V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -977,7 +999,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
 				Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
@@ -1087,7 +1109,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Result<K, V> removed(K key, int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1170,7 +1192,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
 				Comparator<Object> comparator) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
@@ -1257,13 +1279,15 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(nodes, 0, 2 * cachedValmapBitCount);
+			final int offset = 2 * cachedValmapBitCount; 
+			return ArrayKeyValueIterator.of(nodes, 0, offset);
 		}
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(nodes, 2 * cachedValmapBitCount, nodes.length - 2 * cachedValmapBitCount);
+			final int offset = 2 * cachedValmapBitCount; 
+			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1297,7 +1321,8 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		int nodeArity() {
-			return nodes.length - 2 * cachedValmapBitCount;
+			final int offset = 2 * cachedValmapBitCount;
+			return nodes.length - offset;
 		}
 		
 		@Override
@@ -1341,7 +1366,7 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		int arity() {
-			return nodes.length - cachedValmapBitCount; // because for each valmap entry two cells are occupied
+			return valueArity() + nodeArity();
 		}
 
 		@Override
@@ -1492,6 +1517,16 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 			return 0;
 		}
 		
+		@Override
+		int arity() {
+			return valueArity();
+		}
+
+		@Override
+		int size() {
+			return valueArity();
+		}		
+		
 //		@Override
 //		K getValue(int index) {
 //			return keys[index];
@@ -1513,66 +1548,54 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 
 		@Override
 		public boolean equals(Object other) {
-			// TODO: steps by 2
-			throw new RuntimeException();
-			
-//			if (null == other) {
-//				return false;
-//			}
-//			if (this == other) {
-//				return true;
-//			}
-//			if (getClass() != other.getClass()) {
-//				return false;
-//			}
-//		
-//			InplaceHashCollisionNode<?,?> that = (InplaceHashCollisionNode<?,?>) other;
-//		
-//			if (hash != that.hash) {
-//				return false;
-//			}
-//			
-//			if (arity() != that.arity()) {
-//				return false;
-//			}
-//		
-//			/*
-//			 * Linear scan for each key, because of arbitrary element order.
-//			 */
-//			final Comparator<Object> cmp = equalityComparator();
-//			for (Iterator<?> it = that.valueIterator(); it.hasNext();) {
-//				final Object otherKey = it.next();
-//				
-//				for (int i = 0; i < keys.length; i++) {
-//					Object key = keys[i];
-//					if (cmp.compare(key, otherKey) == 0) {
-//						continue;
-//					}
-//				}
-//				return false;
-//			}
-//		
-//			return true;
-		}
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
 
-		@Override
-		int arity() {
-			return keys.length;
-		}
+			InplaceHashCollisionNode<?, ?> that = (InplaceHashCollisionNode<?, ?>) other;
 
-		@Override
-		int size() {
-			return keys.length;
+			if (hash != that.hash) {
+				return false;
+			}
+
+			if (arity() != that.arity()) {
+				return false;
+			}
+
+			/*
+			 * Linear scan for each key, because of arbitrary element order.
+			 */
+			outerLoop: for (SupplierIterator<?, ?> it = that.valueIterator(); it.hasNext();) {
+				final Object otherKey = it.next();
+				final Object otherVal = it.next();
+
+				for (int i = 0; i < keys.length; i++) {
+					final K key = keys[i];
+					final V val = vals[i];
+
+					if (key.equals(otherKey) && val.equals(otherVal)) {
+						continue outerLoop;
+					}
+				}
+				return false;
+			}
+
+			return true;
 		}
 
 		@Override
 		Optional<Map.Entry<K,V>> findByKey(Object key, int hash, int shift, Comparator<Object> cmp) {			
 			for (int i = 0; i < keys.length; i++) {
-				final K __key = keys[i];
-				if (cmp.compare(key, __key) == 0) {
-					final V __val = vals[i];
-					return Optional.of((java.util.Map.Entry<K, V>) AbstractSpecialisedImmutableJdkMap
-							.mapOf(__key, __val));					
+				final K _key = keys[i];
+				if (cmp.compare(key, _key) == 0) {
+					final V _val = vals[i];
+					return Optional.of((java.util.Map.Entry<K, V>) mapOf(_key, _val));					
 				}				
 			}
 			return Optional.empty();
@@ -2106,11 +2129,11 @@ public class TrieMap<K,V> extends AbstractImmutableMap<K,V> {
 				return false;
 			}
 			
-			outer:
+			outerLoop:
 			for (AbstractNode thisLeaf : this.leafs) {
 				for (AbstractNode thatLeaf : that.leafs) {				
 					if (thisLeaf.equals(thatLeaf)) {
-						continue outer; 
+						continue outerLoop; 
 					} else {
 						return false;
 					}		
