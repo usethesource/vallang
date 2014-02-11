@@ -21,18 +21,20 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.*;
 public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieMap EMPTY_INDEX_MAP = new TrieMap(VerboseNode.EMPTY_INDEX_NODE, 0);
+	private static final TrieMap EMPTY_INDEX_MAP = new TrieMap(VerboseNode.EMPTY_INDEX_NODE, 0, 0);
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
-					CompactNode.EMPTY_INPLACE_INDEX_NODE, 0);
+					CompactNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
 	final private AbstractNode<K, V> rootNode;
 	private final int hashCode;
+	private final int cachedSize;
 
-	TrieMap(AbstractNode<K, V> rootNode, int hashCode) {
+	TrieMap(AbstractNode<K, V> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
+		this.cachedSize = cachedSize;
 		assert invariant();
 	}
 
@@ -55,15 +57,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	private boolean invariant() {
 		int _hash = 0;
-
+		int _count = 0;
+		
 		for (SupplierIterator<K, V> it = keyIterator(); it.hasNext();) {
 			final K key = it.next();
 			final V val = it.get();
 
 			_hash += key.hashCode() ^ val.hashCode();
+			_count += 1;
 		}
 
-		return this.hashCode == _hash;
+		return this.hashCode == _hash && this.cachedSize == _count;
 	}
 
 	@Override
@@ -82,11 +86,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final int valHashNew = val.hashCode();
 
 				return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHashNew)
-								- (keyHash ^ valHashOld));
+								- (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHash));
+			return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHash),
+							cachedSize + 1);
 		}
 
 		return this;
@@ -123,7 +128,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
 							.hashCode();
 
-			return new TrieMap<K, V>(result.getNode(), hashCode - (keyHash ^ valHash));
+			return new TrieMap<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
+							cachedSize - 1);
 		}
 
 		return this;
@@ -168,7 +174,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public int size() {
-		return rootNode.size();
+		return cachedSize;
 	}
 
 	@Override
@@ -393,11 +399,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractNode<K, V> rootNode;
 		private int hashCode;
+		private int cachedSize;
 
 		TransientTrieMap(TrieMap<K, V> trieMap) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap.rootNode;
 			this.hashCode = trieMap.hashCode;
+			this.cachedSize = cachedSize;
 			assert invariant();
 		}
 
@@ -453,7 +461,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				throw new IllegalStateException("Transient already frozen.");
 
 			final int keyHash = key.hashCode();
-			final AbstractNode.Result<K, V> result = rootNode.updated(mutator, key, keyHash, val, 0, cmp);
+			final AbstractNode.Result<K, V> result = rootNode.updated(mutator, key, keyHash, val,
+							0, cmp);
 
 			if (result.isModified()) {
 				rootNode = result.getNode();
@@ -466,6 +475,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 					hashCode += keyHash ^ valHashNew;
 					hashCode -= keyHash ^ valHashOld;
+					// cachedSize remains same
 					
 					assert invariant();
 					return old;
@@ -473,6 +483,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					final int valHashNew = val.hashCode();
 
 					hashCode += keyHash ^ valHashNew;
+					cachedSize += 1;
 
 					assert invariant();
 					return null;
@@ -494,7 +505,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				throw new IllegalStateException("Transient already frozen.");
 
 			final int keyHash = key.hashCode();
-			final AbstractNode.Result<K, V> result = rootNode.removed(mutator, key, keyHash, 0, cmp);
+			final AbstractNode.Result<K, V> result = rootNode
+							.removed(mutator, key, keyHash, 0, cmp);
 
 			if (result.isModified()) {
 				// TODO: carry deleted value in result
@@ -506,6 +518,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				
 				rootNode = result.getNode();
 				hashCode -= keyHash ^ valHash;
+				cachedSize -= 1;
 			
 				assert invariant();
 				return true;
@@ -590,7 +603,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				throw new IllegalStateException("Transient already frozen.");
 
 			mutator.set(null);
-			return new TrieMap<K, V>(rootNode, hashCode);
+			return new TrieMap<K, V>(rootNode, hashCode, cachedSize);
 		}
 	}
 
