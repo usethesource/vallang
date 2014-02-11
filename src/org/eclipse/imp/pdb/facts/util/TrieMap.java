@@ -780,9 +780,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	private static abstract class CompactNode<K, V> extends AbstractNode<K, V> {
-		static final int SIZE_EMPTY = 0b00;
-		static final int SIZE_ONE = 0b01;		
-		static final int SIZE_MORE_THAN_ONE = 0b10;
+		static final byte SIZE_EMPTY = 0b00;
+		static final byte SIZE_ONE = 0b01;		
+		static final byte SIZE_MORE_THAN_ONE = 0b10;
 		
 		/**
 		 * Returns the first key stored within this node.
@@ -808,7 +808,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		static final CompactNode EMPTY_INPLACE_INDEX_NODE = new InplaceIndexNode(0, 0,
-						new CompactNode[0], 0);
+						new CompactNode[0], SIZE_EMPTY);
 
 		@SuppressWarnings("unchecked")
 		static <K, V> CompactNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
@@ -840,7 +840,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					nodes[3] = val0;
 				}
 
-				return new InplaceIndexNode<>(bitmap, valmap, nodes, 2);
+				return new InplaceIndexNode<>(bitmap, valmap, nodes, SIZE_MORE_THAN_ONE);
 			} else {
 				// values fit on next level
 				final int bitmap = (1 << mask0);
@@ -848,7 +848,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final CompactNode<K, V> node = mergeNodes(key0, keyHash0, val0, key1, keyHash1,
 								val1, shift + BIT_PARTITION_SIZE);
 
-				return new InplaceIndexNode<>(bitmap, valmap, node, 2);
+				return new InplaceIndexNode<>(bitmap, valmap, node, SIZE_MORE_THAN_ONE);
 			}
 		}
 
@@ -868,7 +868,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				nodes[1] = val1;
 				nodes[2] = node0;
 
-				return new InplaceIndexNode<>(bitmap, valmap, nodes, node0.size() + 1);
+				return new InplaceIndexNode<>(bitmap, valmap, nodes, SIZE_MORE_THAN_ONE);
 			} else {
 				// values fit on next level
 				final int bitmap = (1 << mask0);
@@ -876,7 +876,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final CompactNode<K, V> node = mergeNodes(node0, keyHash0, key1, keyHash1, val1,
 								shift + BIT_PARTITION_SIZE);
 
-				return new InplaceIndexNode<>(bitmap, valmap, node, node.size());
+				return new InplaceIndexNode<>(bitmap, valmap, node, SIZE_MORE_THAN_ONE);
 			}
 		}
 	}
@@ -923,11 +923,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		private int bitmap;
 		private int valmap;
 		private Object[] nodes;
-		private int sizeState;
-		private int cachedValmapBitCount;
+		private byte sizeState;
+		private byte cachedValmapBitCount;
 
 		InplaceIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
-						int sizeState) {
+						byte sizeState) {
 			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
 			this.mutator = mutator;
@@ -937,7 +937,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.nodes = nodes;
 			this.sizeState = sizeState;
 
-			this.cachedValmapBitCount = Integer.bitCount(valmap);
+			this.cachedValmapBitCount = (byte) Integer.bitCount(valmap);
 
 			for (int i = 0; i < 2 * cachedValmapBitCount; i++)
 				assert ((nodes[i] instanceof AbstractNode) == false);
@@ -954,11 +954,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.nodes = nodes;
 		}
 
-		InplaceIndexNode(int bitmap, int valmap, Object[] nodes, int sizeState) {
+		InplaceIndexNode(int bitmap, int valmap, Object[] nodes, byte sizeState) {
 			this(null, bitmap, valmap, nodes, sizeState);
 		}
 
-		InplaceIndexNode(int bitmap, int valmap, Object node, int sizeState) {
+		InplaceIndexNode(int bitmap, int valmap, Object node, byte sizeState) {
 			this(bitmap, valmap, new Object[] { node }, sizeState);
 		}
 
@@ -970,7 +970,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return 2 * Integer.bitCount(valmap & (bitpos - 1));
 		}
 
-		private void updateMetadata(int bitmap, int valmap, int sizeState, int cachedValmapBitCount) {
+		private void updateMetadata(int bitmap, int valmap, byte sizeState, byte cachedValmapBitCount) {
 			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
 			this.bitmap = bitmap;
@@ -1061,13 +1061,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final int offset = 2 * (cachedValmapBitCount - 1);
 				final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
 								& (bitpos - 1));
-				final int updatedCachedSize = (sizeState == SIZE_EMPTY) ? SIZE_ONE
+				final byte updatedCachedSize = (sizeState == SIZE_EMPTY) ? SIZE_ONE
 								: SIZE_MORE_THAN_ONE;
 				
 				InplaceIndexNode<K, V> editableNode = editAndMoveToBackPair(mutator, valIndex,
 								offset + index, nodeNew);
 				editableNode.updateMetadata(bitmap | bitpos, valmap & ~bitpos, updatedCachedSize,
-								cachedValmapBitCount - 1);
+								(byte) (cachedValmapBitCount - 1));
 				return Result.modified(editableNode);
 			}
 
@@ -1093,13 +1093,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			// no value
-			final int updatedCachedSize = (sizeState == SIZE_EMPTY) ? SIZE_ONE
+			final byte updatedCachedSize = (sizeState == SIZE_EMPTY) ? SIZE_ONE
 							: SIZE_MORE_THAN_ONE;
 			
 			InplaceIndexNode<K, V> editableNode = editAndInsertPair(mutator, valIndex(bitpos), key,
 							val);
 			editableNode.updateMetadata(bitmap | bitpos, valmap | bitpos, updatedCachedSize,
-							cachedValmapBitCount + 1);
+							(byte) (cachedValmapBitCount + 1));
 			return Result.modified(editableNode);
 		}
 
@@ -1131,7 +1131,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				} else {
 					InplaceIndexNode<K, V> editableNode = editAndRemovePair(mutator, valIndex);
 					editableNode.updateMetadata(this.bitmap & ~bitpos, this.valmap & ~bitpos,
-									sizeState, cachedValmapBitCount - 1);
+									sizeState, (byte) (cachedValmapBitCount - 1));
 					return Result.modified(editableNode);
 				}
 			}
@@ -1187,7 +1187,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 										bitIndex, valIndexNew, subNodeNew.headKey(),
 										subNodeNew.headVal());
 						editableNode1.updateMetadata(bitmap, valmap | bitpos, sizeState,
-										cachedValmapBitCount + 1);
+										(byte) (cachedValmapBitCount + 1));
 						return Result.modified(editableNode1);
 
 					default:
