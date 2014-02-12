@@ -160,6 +160,55 @@ import java.util.regex.Pattern;
 
 	}
 	
+	private static final Pattern squareBrackets = Pattern.compile("(\\[|\\])");
+
+	private static URI buildURIWithAuthority(String scheme, String authority,
+			String path, String query, String fragment) {
+		try {
+				return new URI(scheme, authority, path, query, fragment);
+		} catch (URISyntaxException e) {
+			if (authority != null && squareBrackets.matcher(authority).find()) {
+				// Java URI do not correctly quote the brackets inside the authority 
+				// even though RFC2732 specifies this.
+				// it has to do with the fact that the encoding/quotation is a single pass
+				// and that authority is actually ambigious, so it requires backtracking to
+				// decide which alternative of the authority part is used, and the quoting rules are
+				// slightly different.
+				// so if it fails to parse, we put some placeholder chars, which get encoded, 
+				// we then replace the encoded values with the correct encoded values
+				// and create a new URI out of this. (to avoid double encoding)
+				authority = hideBrackets(authority);
+				URI temp = buildURIWithAuthority(scheme, authority, path, query, fragment);
+				return unhideBrackets(temp);
+			}
+			throw new RuntimeException("Internal state corrupted?", e);
+		}
+		
+	}
+
+	private static final Pattern squareBracketOpenPlaceholder = Pattern.compile("%00%00%EF%BF%B0%00%00");
+	private static final Pattern squareBracketClosePlaceholder = Pattern.compile("%00%00%EF%BF%B1%00%00");
+	private static URI unhideBrackets(URI temp) {
+		String newURI = temp.toASCIIString();
+		newURI = squareBracketOpenPlaceholder.matcher(newURI).replaceAll("%5B");
+		newURI = squareBracketClosePlaceholder.matcher(newURI).replaceAll("%5D");
+		try {
+			return new URI(newURI);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("Internal state corrupted?", e);
+		}
+	}
+
+	private static final Pattern squareBracketOpen = Pattern.compile("\\[");
+	private static final Pattern squareBracketClose = Pattern.compile("\\]");
+	private static String hideBrackets(String authority) {
+		authority = squareBracketOpen.matcher(authority).replaceAll("\0\0\uFFF0\0\0");
+		return squareBracketClose.matcher(authority).replaceAll("\0\0\uFFF1\0\0");
+	}
+
+
+
+
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
@@ -170,13 +219,10 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, null, null, null);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, null,null,null);
 		}
 		
+
 		@Override
 		public Boolean hasPath() {
 			return false;
@@ -263,11 +309,7 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, path, null, null);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, path,null,null);
 		}
 		
 		@Override
@@ -349,11 +391,7 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, null, query, null);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, null, query, null);
 		}
 		
 		@Override
@@ -437,11 +475,7 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, path, query, null);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, path,query,null);
 		}
 		
 		@Override
@@ -525,11 +559,7 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, null, null, fragment);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, null, null, fragment);
 		}
 		
 		@Override
@@ -613,11 +643,7 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, path, null, fragment);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, path, null, fragment);
 		}
 		
 		@Override
@@ -701,11 +727,7 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, null, query, fragment);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, null, query, fragment);
 		}
 		
 		@Override
@@ -791,11 +813,7 @@ import java.util.regex.Pattern;
 		
 		@Override
 		public URI getURI() {
-			try {
-				return new URI(scheme, authority, path, query, fragment);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Internal state corrupted?", e);
-			}
+			return buildURIWithAuthority(scheme, authority, path, query, fragment);
 		}
 		
 		@Override
