@@ -20,7 +20,7 @@ public class TrieMapTests {
 	
 	@Test
 	public void testPrintStatsSequential() {
-		int size = 16;
+		int size = 64;
 
 		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
 		
@@ -33,7 +33,7 @@ public class TrieMapTests {
 	
 	@Test
 	public void testPrintStatsRandom() {
-		int size = 16;
+		int size = 64;
 
 		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
 		

@@ -852,6 +852,33 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return new Value2Node<>(mutator, pos1, key1, val1, pos2, key2, val2);
 		}		
 		
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3) {
+			return new Value3Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3);
+		}
+		
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4) {
+			return new Value4Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
+							pos4, key4, val4);
+		}
+		
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
+
+			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
+			final Object[] pairsAndNodes = { key1, val1, key2, val2, key3, val3, key4, val4, key5,
+							val5 };
+
+			final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(valmap, valmap,
+							pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+			return thisNew;
+		}
+
+		
 		@SuppressWarnings("unchecked")
 		static <K, V> CompactNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
 						int keyHash1, V val1, int shift) {
@@ -1161,6 +1188,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return Result.modified(editableNode);
 		}
 
+		/*
+		 * TODO: If it becomes smaller than 5 inline elements, convert to
+		 * special class instance.
+		 */
 		@SuppressWarnings("unchecked")
 		@Override
 		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
@@ -1831,28 +1862,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			
 			// no value
 			if (mask < pos1) {	
-				final int valmap = (1 << mask) | (1 << pos1) | (1 << pos2);
-				final Object[] pairsAndNodes = { key, val, key1, val1, key2, val2 };
-	
-				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(valmap, valmap,
-								pairsAndNodes, SIZE_MORE_THAN_ONE);
-
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2);
 				return Result.modified(thisNew);
 			} else if (mask < pos2) {			
-				final int valmap = (1 << pos1) | (1 << mask) | (1 << pos2);
-				final Object[] pairsAndNodes = { key1, val1, key, val, key2, val2 };
-	
-				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(valmap, valmap,
-								pairsAndNodes, SIZE_MORE_THAN_ONE);
-
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2);
 				return Result.modified(thisNew);
 			} else {	
-				final int valmap = (1 << pos1) | (1 << pos2) | (1 << mask);
-				final Object[] pairsAndNodes = { key1, val1, key2, val2, key, val};
-	
-				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(valmap, valmap,
-								pairsAndNodes, SIZE_MORE_THAN_ONE);
-
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val);
 				return Result.modified(thisNew);
 			}
 		}
@@ -1869,15 +1888,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 				// remove pair
 				return Result.modified(valNodeOf(mutator, pos2, key2, val2));
-					
-//				final int valmap = (1 << pos2);
-//				final Object[] pairsAndNodes = { key2, val2 };
-//	
-//				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(valmap, valmap,
-//								pairsAndNodes, SIZE_ONE);
-//
-//				return Result.modified(thisNew);
-				
+								
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) != 0) { 
 					return Result.unchanged(this);
@@ -1885,14 +1896,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				
 				// remove pair
 				return Result.modified(valNodeOf(mutator, pos1, key1, val1));
-
-//				final int valmap = (1 << pos1);
-//				final Object[] pairsAndNodes = { key1, val1 };
-//	
-//				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(valmap, valmap,
-//								pairsAndNodes, SIZE_ONE);
-//
-//				return Result.modified(thisNew);			
 			}
 			
 			return Result.unchanged(this);
@@ -1984,7 +1987,643 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		int size() {
 			return SIZE_MORE_THAN_ONE;
 		}
+	}
+	
+	private static final class Value3Node<K, V> extends CompactNode<K, V> {
+//		private AtomicReference<Thread> mutator;
+		
+		private byte pos1;
+		private K key1;
+		private V val1;
+
+		private byte pos2;
+		private K key2;		
+		private V val2;
+		
+		private byte pos3;
+		private K key3;		
+		private V val3;
+		
+		Value3Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2, K key2,
+						V val2, byte pos3, K key3, V val3) {
+
+			assert pos1 < pos2;
+			assert pos2 < pos3;
+			
+			// this.mutator = mutator;
+			
+			this.pos1 = pos1;
+			this.key1 = key1;
+			this.val1 = val1;
+
+			this.pos2 = pos2;
+			this.key2 = key2;
+			this.val2 = val2;
+			
+			this.pos3 = pos3;
+			this.key3 = key3;
+			this.val3 = val3;
+			
+			// assert invariant
+			assert nodeInvariant();
+		}
+		
+		@Override
+		boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
+			final byte mask = (byte) ((hash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == pos1 && cmp.compare(key, key1) == 0)
+				return true;
+			else if (mask == pos2 && cmp.compare(key, key2) == 0)
+				return true;
+			else if (mask == pos3 && cmp.compare(key, key3) == 0)
+				return true;
+			else
+				return false;
+		}
+		
+		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == pos1 && cmp.compare(key, key1) == 0)
+				return Optional.of(entryOf(key1, val1));
+			else if (mask == pos2 && cmp.compare(key, key2) == 0)
+				return Optional.of(entryOf(key2, val2));
+			else if (mask == pos3 && cmp.compare(key, key3) == 0)
+				return Optional.of(entryOf(key3, val3));
+			else
+				return Optional.empty();
+		}
+
+		@Override
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+		
+			if (mask == pos1) {
+				if (cmp.compare(key, key1) == 0) { 
+					if (cmp.compare(val, val1) == 0) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					return Result.updated(valNodeOf(mutator, mask, key, val, pos2, key2, val2, pos3, key3, val3),
+									val1);					
+				}
+				
+				// merge into node
+				final AbstractNode<K, V> node1 = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
+			
+				final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
+				final int valmap = (1 << pos2) | (1 << pos3);
+				final Object[] pairsAndNodes = { key2, val2, key3, val3, node1 };
+
+				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(bitmap, valmap,
+								pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+				return Result.modified(thisNew);
+			} else if (mask == pos2) {
+				if (cmp.compare(key, key2) == 0) {
+					if (cmp.compare(val, val2) == 0) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					return Result.updated(valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos3, key3, val3),
+									val2);
+				}
+
+				// merge into node
+				final AbstractNode<K, V> node2 = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
+				final int valmap = (1 << pos1) | (1 << pos3);
+				final Object[] pairsAndNodes = { key1, val1, key3, val3, node2 };
+
+				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(bitmap, valmap,
+								pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+				return Result.modified(thisNew);
+			} else if (mask == pos3) {
+				if (cmp.compare(key, key3) == 0) {
+					if (cmp.compare(val, val3) == 0) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					return Result.updated(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val),
+									val3);
+				}
+
+				// merge into node
+				final AbstractNode<K, V> node3 = mergeNodes(key3, key3.hashCode(), val3, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
+				final int valmap = (1 << pos1) | (1 << pos2);
+				final Object[] pairsAndNodes = { key1, val1, key2, val2, node3 };
+
+				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(bitmap, valmap,
+								pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+				return Result.modified(thisNew);
+			} 
+			
+			// no value
+			if (mask < pos1) {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2, pos3, key3, val3);
+				return Result.modified(thisNew);
+			} else if (mask < pos2) {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2, pos3, key3, val3);
+				return Result.modified(thisNew);
+			} else if (mask < pos3) {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val, pos3, key3, val3);
+				return Result.modified(thisNew);
+			} else {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, mask, key, val);
+				return Result.modified(thisNew);
+			}
+		}
+
+		@Override
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+			
+			if (mask == pos1) {
+				if (cmp.compare(key, key1) != 0) { 
+					return Result.unchanged(this);
+				}
+
+				// remove pair
+				return Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3));
+									
+			} else if (mask == pos2) {
+				if (cmp.compare(key, key2) != 0) { 
+					return Result.unchanged(this);
+				}
+				
+				// remove pair
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3));		
+
+			} else if (mask == pos3) {
+				if (cmp.compare(key, key3) != 0) { 
+					return Result.unchanged(this);
+				}
+				
+				// remove pair
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2));		
+			}
+			
+			return Result.unchanged(this);
+		}
+
+		@Override
+		SupplierIterator<K, V> valueIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });		
+		}
+
+		@Override
+		Iterator<AbstractNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		boolean hasValues() {
+			return true;
+		}
+
+		@Override
+		int valueArity() {
+			return 3;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + pos1;
+			result = prime * result + pos2;
+			result = prime * result + pos3;
+			result = prime * result + key1.hashCode();
+			result = prime * result + key2.hashCode();
+			result = prime * result + key3.hashCode();
+			result = prime * result + val1.hashCode();
+			result = prime * result + val2.hashCode();
+			result = prime * result + val3.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Value3Node<?, ?> that = (Value3Node<?, ?>) other;
+			if (pos1 != that.pos1 || pos2 != that.pos2 || pos3 != that.pos3) {
+				return false;
+			}
+			if (!key1.equals(that.key1) || !key2.equals(that.key2) || !key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val1.equals(that.val1) || !val2.equals(that.val2) || !val3.equals(that.val3)) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[%s=%s, %s=%s, %s=%s]", key1, val1, key2, val2, key3, val3);
+		}
+
+		@Override
+		int size() {
+			return SIZE_MORE_THAN_ONE;
+		}
 	}	
+	
+	private static final class Value4Node<K, V> extends CompactNode<K, V> {
+		// private AtomicReference<Thread> mutator;
+
+		private byte pos1;
+		private K key1;
+		private V val1;
+
+		private byte pos2;
+		private K key2;
+		private V val2;
+
+		private byte pos3;
+		private K key3;
+		private V val3;
+
+		private byte pos4;
+		private K key4;
+		private V val4;
+
+		Value4Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2, K key2,
+						V val2, byte pos3, K key3, V val3, byte pos4, K key4, V val4) {
+
+			assert pos1 < pos2;
+			assert pos2 < pos3;
+			assert pos3 < pos4;
+
+			// this.mutator = mutator;
+
+			this.pos1 = pos1;
+			this.key1 = key1;
+			this.val1 = val1;
+
+			this.pos2 = pos2;
+			this.key2 = key2;
+			this.val2 = val2;
+
+			this.pos3 = pos3;
+			this.key3 = key3;
+			this.val3 = val3;
+
+			this.pos4 = pos4;
+			this.key4 = key4;
+			this.val4 = val4;
+
+			// assert invariant
+			assert nodeInvariant();
+		}
+
+		@Override
+		boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
+			final byte mask = (byte) ((hash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == pos1 && cmp.compare(key, key1) == 0)
+				return true;
+			else if (mask == pos2 && cmp.compare(key, key2) == 0)
+				return true;
+			else if (mask == pos3 && cmp.compare(key, key3) == 0)
+				return true;
+			else if (mask == pos4 && cmp.compare(key, key4) == 0)
+				return true;
+			else
+				return false;
+		}
+
+		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == pos1 && cmp.compare(key, key1) == 0)
+				return Optional.of(entryOf(key1, val1));
+			else if (mask == pos2 && cmp.compare(key, key2) == 0)
+				return Optional.of(entryOf(key2, val2));
+			else if (mask == pos3 && cmp.compare(key, key3) == 0)
+				return Optional.of(entryOf(key3, val3));
+			else if (mask == pos4 && cmp.compare(key, key4) == 0)
+				return Optional.of(entryOf(key4, val4));
+			else
+				return Optional.empty();
+		}
+
+		@Override
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == pos1) {
+				if (cmp.compare(key, key1) == 0) {
+					if (cmp.compare(val, val1) == 0) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					return Result.updated(
+									valNodeOf(mutator, mask, key, val, pos2, key2, val2, pos3,
+													key3, val3, pos4, key4, val4), val1);
+				}
+
+				// merge into node
+				final AbstractNode<K, V> node1 = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
+				final int valmap = (1 << pos2) | (1 << pos3) | (1 << pos4);
+				final Object[] pairsAndNodes = { key2, val2, key3, val3, key4, val4, node1 };
+
+				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(bitmap, valmap,
+								pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+				return Result.modified(thisNew);
+			} else if (mask == pos2) {
+				if (cmp.compare(key, key2) == 0) {
+					if (cmp.compare(val, val2) == 0) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					return Result.updated(
+									valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos3,
+													key3, val3, pos4, key4, val4), val2);
+				}
+
+				// merge into node
+				final AbstractNode<K, V> node2 = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
+				final int valmap = (1 << pos1) | (1 << pos3) | (1 << pos4);
+				final Object[] pairsAndNodes = { key1, val1, key3, val3, key4, val4, node2 };
+
+				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(bitmap, valmap,
+								pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+				return Result.modified(thisNew);
+			} else if (mask == pos3) {
+				if (cmp.compare(key, key3) == 0) {
+					if (cmp.compare(val, val3) == 0) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					return Result.updated(
+									valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask,
+													key, val, pos4, key4, val4), val3);
+				}
+
+				// merge into node
+				final AbstractNode<K, V> node3 = mergeNodes(key3, key3.hashCode(), val3, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
+				final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos4);
+				final Object[] pairsAndNodes = { key1, val1, key2, val2, key4, val4, node3 };
+
+				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(bitmap, valmap,
+								pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+				return Result.modified(thisNew);
+			} else if (mask == pos4) {
+				if (cmp.compare(key, key4) == 0) {
+					if (cmp.compare(val, val4) == 0) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					return Result.updated(
+									valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
+													key3, val3, mask, key, val), val4);
+				}
+
+				// merge into node
+				final AbstractNode<K, V> node4 = mergeNodes(key4, key4.hashCode(), val4, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
+				final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
+				final Object[] pairsAndNodes = { key1, val1, key2, val2, node4 };
+
+				final AbstractNode<K, V> thisNew = new InplaceIndexNode<>(bitmap, valmap,
+								pairsAndNodes, SIZE_MORE_THAN_ONE);
+
+				return Result.modified(thisNew);
+			}
+
+			// no value
+			if (mask < pos1) {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
+				return Result.modified(thisNew);
+			} else if (mask < pos2) {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
+				return Result.modified(thisNew);
+			} else if (mask < pos3) {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val, pos3, key3, val3, pos4, key4, val4);
+				return Result.modified(thisNew);
+			} else if (mask < pos4) {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, mask, key, val, pos4, key4, val4);
+				return Result.modified(thisNew);
+			} else {
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, pos4, key4, val4, mask, key, val);
+				return Result.modified(thisNew);
+			}
+		}
+
+		@Override
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == pos1) {
+				if (cmp.compare(key, key1) != 0) {
+					return Result.unchanged(this);
+				}
+
+				// remove pair
+				return Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3, pos4,
+								key4, val4));
+
+			} else if (mask == pos2) {
+				if (cmp.compare(key, key2) != 0) {
+					return Result.unchanged(this);
+				}
+
+				// remove pair
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3, pos4,
+								key4, val4));
+
+			} else if (mask == pos3) {
+				if (cmp.compare(key, key3) != 0) {
+					return Result.unchanged(this);
+				}
+
+				// remove pair
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos4,
+								key4, val4));
+			} else if (mask == pos4) {
+				if (cmp.compare(key, key4) != 0) {
+					return Result.unchanged(this);
+				}
+
+				// remove pair
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
+								key3, val3));
+			}
+
+			return Result.unchanged(this);
+		}
+
+		@Override
+		SupplierIterator<K, V> valueIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 });
+		}
+
+		@Override
+		Iterator<AbstractNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		boolean hasValues() {
+			return true;
+		}
+
+		@Override
+		int valueArity() {
+			return 4;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + pos1;
+			result = prime * result + pos2;
+			result = prime * result + pos3;
+			result = prime * result + pos4;
+			result = prime * result + key1.hashCode();
+			result = prime * result + key2.hashCode();
+			result = prime * result + key3.hashCode();
+			result = prime * result + key4.hashCode();
+			result = prime * result + val1.hashCode();
+			result = prime * result + val2.hashCode();
+			result = prime * result + val3.hashCode();
+			result = prime * result + val4.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Value4Node<?, ?> that = (Value4Node<?, ?>) other;
+			if (pos1 != that.pos1 || pos2 != that.pos2 || pos3 != that.pos3 || pos4 != that.pos4) {
+				return false;
+			}
+			if (!key1.equals(that.key1) || !key2.equals(that.key2) || !key3.equals(that.key3)
+							|| !key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val1.equals(that.val1) || !val2.equals(that.val2) || !val3.equals(that.val3)
+							|| !val4.equals(that.val4)) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[%s=%s, %s=%s, %s=%s, %s=%s]", key1, val1, key2, val2, key3,
+							val3, key4, val4);
+		}
+
+		@Override
+		int size() {
+			return SIZE_MORE_THAN_ONE;
+		}
+	}
 	
 	private static final class InplaceIndexNode32<K, V> extends CompactNode<K, V> {
 		private AtomicReference<Thread> mutator;
