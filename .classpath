@@ -6,6 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/memory-measurer-1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava-16.0.1.jar" sourcepath="/Users/Michael/.m2/repository/com/google/guava/guava/16.0.1/guava-16.0.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
