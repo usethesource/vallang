@@ -18,9 +18,11 @@ import org.junit.Test;
 
 public class TrieMapTests {
 	
+	final static int size = 64;
+	
 	@Test
 	public void testPrintStatsSequential() {
-		int size = 64;
+//		int size = 128;
 
 		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
 		
@@ -33,7 +35,7 @@ public class TrieMapTests {
 	
 	@Test
 	public void testPrintStatsRandom() {
-		int size = 64;
+//		int size = 128;
 
 		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
 		
