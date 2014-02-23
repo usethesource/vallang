@@ -428,7 +428,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap.rootNode;
 			this.hashCode = trieMap.hashCode;
-			this.cachedSize = cachedSize;
+			this.cachedSize = trieMap.cachedSize;
 			assert invariant();
 		}
 
