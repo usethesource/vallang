@@ -37,7 +37,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMapGenerated EMPTY_INPLACE_INDEX_MAP = new TrieMapGenerated(
-			CompactNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
+					CompactNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
 	final private AbstractNode<K, V> rootNode;
 	private final int hashCode;
@@ -88,11 +88,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMapGenerated<K, V> __putEquivalent(K key, V val,
-			Comparator<Object> cmp) {
+	public TrieMapGenerated<K, V> __putEquivalent(K key, V val, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final AbstractNode.Result<K, V> result = rootNode.updated(null, key,
-				keyHash, val, 0, cmp);
+		final AbstractNode.Result<K, V> result = rootNode.updated(null, key, keyHash, val, 0, cmp);
 
 		if (result.isModified()) {
 			if (result.hasReplacedValue()) {
@@ -100,13 +98,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				final int valHashNew = val.hashCode();
 
 				return new TrieMapGenerated<K, V>(result.getNode(), hashCode
-						+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld),
-						cachedSize);
+								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMapGenerated<K, V>(result.getNode(), hashCode
-					+ (keyHash ^ valHash), cachedSize + 1);
+			return new TrieMapGenerated<K, V>(result.getNode(), hashCode + (keyHash ^ valHash),
+							cachedSize + 1);
 		}
 
 		return this;
@@ -118,8 +115,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public ImmutableMap<K, V> __putAllEquivalent(
-			Map<? extends K, ? extends V> map, Comparator<Object> cmp) {
+	public ImmutableMap<K, V> __putAllEquivalent(Map<? extends K, ? extends V> map,
+					Comparator<Object> cmp) {
 		TransientMap<K, V> tmp = asTransient();
 		tmp.__putAllEquivalent(map, cmp);
 		return tmp.freeze();
@@ -131,22 +128,20 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMapGenerated<K, V> __removeEquivalent(K key,
-			Comparator<Object> cmp) {
+	public TrieMapGenerated<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final AbstractNode.Result<K, V> result = rootNode.removed(null, key,
-				keyHash, 0, cmp);
+		final AbstractNode.Result<K, V> result = rootNode.removed(null, key, keyHash, 0, cmp);
 
 		if (result.isModified()) {
 			// TODO: carry deleted value in result
 			// assert result.hasReplacedValue();
 			// final int valHash = result.getReplacedValue().hashCode();
 
-			final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get()
-					.getValue().hashCode();
+			final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
+							.hashCode();
 
-			return new TrieMapGenerated<K, V>(result.getNode(), hashCode
-					- (keyHash ^ valHash), cachedSize - 1);
+			return new TrieMapGenerated<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
+							cachedSize - 1);
 		}
 
 		return this;
@@ -179,8 +174,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public V getEquivalent(Object key, Comparator<Object> cmp) {
-		final AbstractNode.Optional<Map.Entry<K, V>> result = rootNode
-				.findByKey(key, key.hashCode(), 0, cmp);
+		final AbstractNode.Optional<Map.Entry<K, V>> result = rootNode.findByKey(key,
+						key.hashCode(), 0, cmp);
 
 		if (result.isPresent()) {
 			return result.get().getValue();
@@ -257,8 +252,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieMapIterator<K, V> implements
-			SupplierIterator<K, V> {
+	private static class TrieMapIterator<K, V> implements SupplierIterator<K, V> {
 
 		final Deque<Iterator<AbstractNode<K, V>>> nodeIteratorStack;
 		SupplierIterator<K, V> valueIterator;
@@ -286,15 +280,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return false;
 					} else {
 						if (nodeIteratorStack.peek().hasNext()) {
-							AbstractNode<K, V> innerNode = nodeIteratorStack
-									.peek().next();
+							AbstractNode<K, V> innerNode = nodeIteratorStack.peek().next();
 
 							if (innerNode.hasValues())
 								valueIterator = innerNode.valueIterator();
 
 							if (innerNode.hasNodes()) {
-								nodeIteratorStack
-										.push(innerNode.nodeIterator());
+								nodeIteratorStack.push(innerNode.nodeIterator());
 							}
 							continue;
 						} else {
@@ -325,8 +317,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static class EmptySupplierIterator<K, V> implements
-			SupplierIterator<K, V> {
+	private static class EmptySupplierIterator<K, V> implements SupplierIterator<K, V> {
 
 		private static final SupplierIterator EMPTY_ITERATOR = new EmptySupplierIterator();
 
@@ -356,8 +347,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static class TrieMapEntryIterator<K, V> implements
-			Iterator<Map.Entry<K, V>> {
+	private static class TrieMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 		private final SupplierIterator<K, V> iterator;
 
 		TrieMapEntryIterator(SupplierIterator<K, V> iterator) {
@@ -447,8 +437,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public boolean containsKey(Object o) {
-			return rootNode.containsKey(o, o.hashCode(), 0,
-					equalityComparator());
+			return rootNode.containsKey(o, o.hashCode(), 0, equalityComparator());
 		}
 
 		@Override
@@ -463,8 +452,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public V getEquivalent(Object key, Comparator<Object> cmp) {
-			AbstractNode.Optional<Map.Entry<K, V>> result = rootNode.findByKey(
-					key, key.hashCode(), 0, cmp);
+			AbstractNode.Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(),
+							0, cmp);
 
 			if (result.isPresent()) {
 				return result.get().getValue();
@@ -484,8 +473,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				throw new IllegalStateException("Transient already frozen.");
 
 			final int keyHash = key.hashCode();
-			final AbstractNode.Result<K, V> result = rootNode.updated(mutator,
-					key, keyHash, val, 0, cmp);
+			final AbstractNode.Result<K, V> result = rootNode.updated(mutator, key, keyHash, val,
+							0, cmp);
 
 			if (result.isModified()) {
 				rootNode = result.getNode();
@@ -528,16 +517,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				throw new IllegalStateException("Transient already frozen.");
 
 			final int keyHash = key.hashCode();
-			final AbstractNode.Result<K, V> result = rootNode.removed(mutator,
-					key, keyHash, 0, cmp);
+			final AbstractNode.Result<K, V> result = rootNode
+							.removed(mutator, key, keyHash, 0, cmp);
 
 			if (result.isModified()) {
 				// TODO: carry deleted value in result
 				// assert result.hasReplacedValue();
 				// final int valHash = result.getReplacedValue().hashCode();
 
-				final int valHash = rootNode.findByKey(key, keyHash, 0, cmp)
-						.get().getValue().hashCode();
+				final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
+								.hashCode();
 
 				rootNode = result.getNode();
 				hashCode -= keyHash ^ valHash;
@@ -557,15 +546,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public boolean __putAllEquivalent(Map<? extends K, ? extends V> map,
-				Comparator<Object> cmp) {
+		public boolean __putAllEquivalent(Map<? extends K, ? extends V> map, Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
-				final boolean isPresent = containsKeyEquivalent(entry.getKey(),
-						cmp);
-				final V replaced = __putEquivalent(entry.getKey(),
-						entry.getValue(), cmp);
+				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
+				final V replaced = __putEquivalent(entry.getKey(), entry.getValue(), cmp);
 
 				if (!isPresent || replaced != null) {
 					modified = true;
@@ -586,8 +572,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 * depth first recursively.
 		 */
 		// TODO: test
-		private static class TransientTrieMapIterator<K, V> extends
-				TrieMapIterator<K, V> {
+		private static class TransientTrieMapIterator<K, V> extends TrieMapIterator<K, V> {
 
 			final TransientTrieMap<K, V> transientTrieMap;
 			K lastKey;
@@ -640,19 +625,18 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		protected static final int BIT_PARTITION_MASK = 0x1f;
 
 		abstract boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> comparator);
+						Comparator<Object> comparator);
 
-		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int hash,
-				int shift, Comparator<Object> cmp);
+		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift,
+						Comparator<Object> cmp);
 
-		abstract Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp);
+		abstract Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val,
+						int shift, Comparator<Object> cmp);
 
-		abstract Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int hash, int shift, Comparator<Object> cmp);
+		abstract Result<K, V> removed(AtomicReference<Thread> mutator, K key, int hash, int shift,
+						Comparator<Object> cmp);
 
-		static boolean isAllowedToEdit(AtomicReference<Thread> x,
-				AtomicReference<Thread> y) {
+		static boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
@@ -694,63 +678,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		abstract int size();
 
-		static <K, V> AbstractNode<K, V>[] arraycopyAndSet(
-				AbstractNode<K, V>[] array, int index,
-				AbstractNode<K, V> elementNew) {
-			@SuppressWarnings("unchecked")
-			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length];
-			System.arraycopy(array, 0, arrayNew, 0, array.length);
-			arrayNew[index] = elementNew;
-			return arrayNew;
-		}
-
-		static <K, V> AbstractNode<K, V>[] arraycopyAndInsert(
-				AbstractNode<K, V>[] array, int index,
-				AbstractNode<K, V> elementNew) {
-			@SuppressWarnings("unchecked")
-			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length + 1];
-			System.arraycopy(array, 0, arrayNew, 0, index);
-			arrayNew[index] = elementNew;
-			System.arraycopy(array, index, arrayNew, index + 1, array.length
-					- index);
-			return arrayNew;
-		}
-
-		static <K, V> AbstractNode<K, V>[] arraycopyAndRemove(
-				AbstractNode<K, V>[] array, int index) {
-			@SuppressWarnings("unchecked")
-			final AbstractNode<K, V>[] arrayNew = new AbstractNode[array.length - 1];
-			System.arraycopy(array, 0, arrayNew, 0, index);
-			System.arraycopy(array, index + 1, arrayNew, index, array.length
-					- index - 1);
-			return arrayNew;
-		}
-
 		static class Result<T1, T2> {
 			private final Object result;
 			private final T2 replacedValue;
 			private final boolean isModified;
 
 			// update: inserted/removed single element, element count changed
-			public static <T1, T2> Result<T1, T2> modified(
-					AbstractNode<T1, T2> node) {
+			public static <T1, T2> Result<T1, T2> modified(AbstractNode<T1, T2> node) {
 				return new Result<>(node, null, true);
 			}
 
 			// update: replaced single mapping, but element count unchanged
-			public static <T1, T2> Result<T1, T2> updated(
-					AbstractNode<T1, T2> node, T2 replacedValue) {
+			public static <T1, T2> Result<T1, T2> updated(AbstractNode<T1, T2> node,
+							T2 replacedValue) {
 				return new Result<>(node, replacedValue, true);
 			}
 
 			// update: neither element, nor element count changed
-			public static <T1, T2> Result<T1, T2> unchanged(
-					AbstractNode<T1, T2> node) {
+			public static <T1, T2> Result<T1, T2> unchanged(AbstractNode<T1, T2> node) {
 				return new Result<>(node, null, false);
 			}
 
-			private Result(AbstractNode<T1, T2> node, T2 replacedValue,
-					boolean isMutated) {
+			private Result(AbstractNode<T1, T2> node, T2 replacedValue, boolean isMutated) {
 				this.result = node;
 				this.replacedValue = replacedValue;
 				this.isModified = isMutated;
@@ -843,13 +792,11 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// boolean inv1 = (size() - valueArity() >= 2 * (arity() -
 			// valueArity()));
 			boolean inv2 = (this.arity() == 0) ? size() == SIZE_EMPTY : true;
-			boolean inv3 = (this.arity() == 1 && valueArity() == 1) ? size() == SIZE_ONE
-					: true;
-			boolean inv4 = (this.arity() >= 2) ? size() == SIZE_MORE_THAN_ONE
-					: true;
+			boolean inv3 = (this.arity() == 1 && valueArity() == 1) ? size() == SIZE_ONE : true;
+			boolean inv4 = (this.arity() >= 2) ? size() == SIZE_MORE_THAN_ONE : true;
 
 			boolean inv5 = (this.nodeArity() >= 0) && (this.valueArity() >= 0)
-					&& ((this.valueArity() + this.nodeArity()) == this.arity());
+							&& ((this.valueArity() + this.nodeArity()) == this.arity());
 
 			return inv2 && inv3 && inv4 && inv5;
 		}
@@ -860,9 +807,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		static final CompactNode EMPTY_INPLACE_INDEX_NODE = new Value0Index0Node();
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos,
-				AbstractNode<K, V> node) {
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
+						AbstractNode<K, V> node) {
 			switch (pos) {
 			case 0:
 				return new SingletonNodeAtMask0Node<>(node);
@@ -934,196 +880,164 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator) {
+		@SuppressWarnings("unchecked")
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
 			return (AbstractNode<K, V>) EMPTY_INPLACE_INDEX_NODE;
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte npos1, AbstractNode<K, V> node1, byte npos2,
-				AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3,
-				byte npos4, AbstractNode<K, V> node4) {
-			final int bitmap = (1 << pos1) | (1 << npos1) | (1 << npos2)
-					| (1 << npos3) | (1 << npos4); 
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
+						AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3, byte npos4,
+						AbstractNode<K, V> node4) {
+			final int bitmap = (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3)
+							| (1 << npos4);
 			final int valmap = (1 << pos1);
-			
-			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1,
-					val1, node1, node2, node3, node4 }, SIZE_MORE_THAN_ONE);
+
+			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1, val1, node1, node2,
+							node3, node4 }, SIZE_MORE_THAN_ONE);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-				byte npos1, AbstractNode<K, V> node1, byte npos2,
-				AbstractNode<K, V> node2) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3)
-					| (1 << npos1) | (1 << npos2);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte npos1, AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
+							| (1 << npos2);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
-			
-			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1,
-					val1, key2, val2, key3, val3, node1, node2 },
-					SIZE_MORE_THAN_ONE);
+
+			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1, val1, key2, val2,
+							key3, val3, node1, node2 }, SIZE_MORE_THAN_ONE);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2,
-				byte npos3, AbstractNode<K, V> node3) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << npos1)
-					| (1 << npos2) | (1 << npos3);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
+						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
+						AbstractNode<K, V> node3) {
+			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2)
+							| (1 << npos3);
 			final int valmap = (1 << pos1) | (1 << pos2);
-			
-			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1,
-					val1, key2, val2, node1, node2, node3 }, SIZE_MORE_THAN_ONE);
+
+			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1, val1, key2, val2,
+							node1, node2, node3 }, SIZE_MORE_THAN_ONE);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-				byte pos4, K key4, V val4, byte npos1, AbstractNode<K, V> node1) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3)
-					| (1 << pos4) | (1 << npos1);
-			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3)
-					| (1 << pos4);
-			
-			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1,
-					val1, key2, val2, key3, val3, key4, val4, node1 },
-					SIZE_MORE_THAN_ONE);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4, byte npos1, AbstractNode<K, V> node1) {
+			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
+			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
+
+			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1, val1, key2, val2,
+							key3, val3, key4, val4, node1 }, SIZE_MORE_THAN_ONE);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-				byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3)
-					| (1 << pos4) | (1 << pos5);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
+			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
 			final int valmap = bitmap;
-			
-			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1,
-					val1, key2, val2, key3, val3, key4, val4, key5, val5 },
-					SIZE_MORE_THAN_ONE);
+
+			return new InplaceIndexNode<>(bitmap, valmap, new Object[] { key1, val1, key2, val2,
+							key3, val3, key4, val4, key5, val5 }, SIZE_MORE_THAN_ONE);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
 			return new Value0Index2Node<>(mutator, npos1, node1, npos2, node2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2,
-				byte npos3, AbstractNode<K, V> node3) {
-			return new Value0Index3Node<>(mutator, npos1, node1, npos2, node2,
-					npos3, node3);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
+						AbstractNode<K, V> node3) {
+			return new Value0Index3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2,
-				byte npos3, AbstractNode<K, V> node3, byte npos4,
-				AbstractNode<K, V> node4) {
-			return new Value0Index4Node<>(mutator, npos1, node1, npos2, node2,
-					npos3, node3, npos4, node4);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
+						AbstractNode<K, V> node3, byte npos4, AbstractNode<K, V> node4) {
+			return new Value0Index4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
+							node4);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1) {
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1) {
 			return new Value1Index0Node<>(mutator, pos1, key1, val1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte npos1, AbstractNode<K, V> node1) {
-			return new Value1Index1Node<>(mutator, pos1, key1, val1, npos1,
-					node1);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, AbstractNode<K, V> node1) {
+			return new Value1Index1Node<>(mutator, pos1, key1, val1, npos1, node1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte npos1, AbstractNode<K, V> node1, byte npos2,
-				AbstractNode<K, V> node2) {
-			return new Value1Index2Node<>(mutator, pos1, key1, val1, npos1,
-					node1, npos2, node2);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
+						AbstractNode<K, V> node2) {
+			return new Value1Index2Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte npos1, AbstractNode<K, V> node1, byte npos2,
-				AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3) {
-			return new Value1Index3Node<>(mutator, pos1, key1, val1, npos1,
-					node1, npos2, node2, npos3, node3);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
+						AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3) {
+			return new Value1Index3Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2,
+							npos3, node3);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2) {
-			return new Value2Index0Node<>(mutator, pos1, key1, val1, pos2,
-					key2, val2);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2) {
+			return new Value2Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte npos1, AbstractNode<K, V> node1) {
-			return new Value2Index1Node<>(mutator, pos1, key1, val1, pos2,
-					key2, val2, npos1, node1);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
+						AbstractNode<K, V> node1) {
+			return new Value2Index1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
-			return new Value2Index2Node<>(mutator, pos1, key1, val1, pos2,
-					key2, val2, npos1, node1, npos2, node2);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
+						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+			return new Value2Index2Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1,
+							node1, npos2, node2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte pos3, K key3, V val3) {
-			return new Value3Index0Node<>(mutator, pos1, key1, val1, pos2,
-					key2, val2, pos3, key3, val3);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3) {
+			return new Value3Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
+							val3);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-				byte npos1, AbstractNode<K, V> node1) {
-			return new Value3Index1Node<>(mutator, pos1, key1, val1, pos2,
-					key2, val2, pos3, key3, val3, npos1, node1);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte npos1, AbstractNode<K, V> node1) {
+			return new Value3Index1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
+							val3, npos1, node1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(
-				AtomicReference<Thread> mutator, byte pos1, K key1, V val1,
-				byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-				byte pos4, K key4, V val4) {
-			return new Value4Index0Node<>(mutator, pos1, key1, val1, pos2,
-					key2, val2, pos3, key3, val3, pos4, key4, val4);
+		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4) {
+			return new Value4Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
+							val3, pos4, key4, val4);
 		}
 
 		@SuppressWarnings("unchecked")
-		static <K, V> CompactNode<K, V> mergeNodes(K key0, int keyHash0,
-				V val0, K key1, int keyHash1, V val1, int shift) {
+		static <K, V> CompactNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
+						int keyHash1, V val1, int shift) {
 			assert key0.equals(key1) == false;
 
 			if (keyHash0 == keyHash1)
-				return new InplaceHashCollisionNode<>(keyHash0,
-						(K[]) new Object[] { key0, key1 }, (V[]) new Object[] {
-								val0, val1 });
+				return new InplaceHashCollisionNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
+								(V[]) new Object[] { val0, val1 });
 
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int bitmap = (1 << mask0) | (1 << mask1);
-				final int valmap = (1 << mask0) | (1 << mask1);
 				final Object[] nodes = new Object[4];
 
 				if (mask0 < mask1) {
@@ -1132,43 +1046,34 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					nodes[2] = key1;
 					nodes[3] = val1;
 
-					return (CompactNode) valNodeOf(null, (byte) mask0, key0,
-							val0, (byte) mask1, key1, val1);
+					return (CompactNode) valNodeOf(null, (byte) mask0, key0, val0, (byte) mask1,
+									key1, val1);
 				} else {
 					nodes[0] = key1;
 					nodes[1] = val1;
 					nodes[2] = key0;
 					nodes[3] = val0;
 
-					return (CompactNode) valNodeOf(null, (byte) mask1, key1,
-							val1, (byte) mask0, key0, val0);
+					return (CompactNode) valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0,
+									key0, val0);
 				}
-
-				// return new InplaceIndexNode<>(bitmap, valmap, nodes,
-				// SIZE_MORE_THAN_ONE);
 			} else {
 				// values fit on next level
-				// final int bitmap = (1 << mask0);
-				// final int valmap = 0;
-				final CompactNode<K, V> node = mergeNodes(key0, keyHash0, val0,
-						key1, keyHash1, val1, shift + BIT_PARTITION_SIZE);
+				final CompactNode<K, V> node = mergeNodes(key0, keyHash0, val0, key1, keyHash1,
+								val1, shift + BIT_PARTITION_SIZE);
 
 				return (CompactNode) valNodeOf(null, (byte) mask0, node);
-
-				// return new InplaceIndexNode<>(bitmap, valmap, node,
-				// SIZE_MORE_THAN_ONE);
 			}
 		}
 
-		static <K, V> CompactNode<K, V> mergeNodes(CompactNode<K, V> node0,
-				int keyHash0, K key1, int keyHash1, V val1, int shift) {
+		@SuppressWarnings("unchecked")
+		static <K, V> CompactNode<K, V> mergeNodes(CompactNode<K, V> node0, int keyHash0, K key1,
+						int keyHash1, V val1, int shift) {
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int bitmap = (1 << mask0) | (1 << mask1);
-				final int valmap = (1 << mask1);
 				final Object[] nodes = new Object[3];
 
 				// store values before node
@@ -1176,22 +1081,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				nodes[1] = val1;
 				nodes[2] = node0;
 
-				return (CompactNode) valNodeOf(null, (byte) mask1, key1, val1,
-						(byte) mask0, node0);
-
-				// return new InplaceIndexNode<>(bitmap, valmap, nodes,
-				// SIZE_MORE_THAN_ONE);
+				return (CompactNode) valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, node0);
 			} else {
 				// values fit on next level
-				// final int bitmap = (1 << mask0);
-				// final int valmap = 0;
-				final CompactNode<K, V> node = mergeNodes(node0, keyHash0,
-						key1, keyHash1, val1, shift + BIT_PARTITION_SIZE);
+				final CompactNode<K, V> node = mergeNodes(node0, keyHash0, key1, keyHash1, val1,
+								shift + BIT_PARTITION_SIZE);
 
 				return (CompactNode) valNodeOf(null, (byte) mask0, node);
-
-				// return new InplaceIndexNode<>(bitmap, valmap, node,
-				// SIZE_MORE_THAN_ONE);
 			}
 		}
 	}
@@ -1205,10 +1101,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private byte sizeState;
 		private byte cachedValmapBitCount;
 
-		InplaceIndexNode(AtomicReference<Thread> mutator, int bitmap,
-				int valmap, Object[] nodes, byte sizeState) {
-			assert (2 * Integer.bitCount(valmap)
-					+ Integer.bitCount(bitmap ^ valmap) == nodes.length);
+		InplaceIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
+						byte sizeState) {
+			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
 			this.mutator = mutator;
 
@@ -1238,13 +1133,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this(null, bitmap, valmap, nodes, sizeState);
 		}
 
-		InplaceIndexNode(int bitmap, int valmap, Object node, byte sizeState) {
-			this(bitmap, valmap, new Object[] { node }, sizeState);
-		}
-
 		final int bitIndex(int bitpos) {
-			return 2 * cachedValmapBitCount
-					+ Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			return 2 * cachedValmapBitCount + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
 		}
 
 		final int valIndex(int bitpos) {
@@ -1252,9 +1142,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		private void updateMetadata(int bitmap, int valmap, byte sizeState,
-				byte cachedValmapBitCount) {
-			assert (2 * Integer.bitCount(valmap)
-					+ Integer.bitCount(bitmap ^ valmap) == nodes.length);
+						byte cachedValmapBitCount) {
+			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
 			this.bitmap = bitmap;
 			this.valmap = valmap;
@@ -1273,8 +1162,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		boolean containsKey(Object key, int hash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
 			final int mask = (hash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1282,15 +1170,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				return cmp.compare(nodes[valIndex(bitpos)], key) == 0;
 
 			if ((bitmap & bitpos) != 0)
-				return ((AbstractNode<K, V>) nodes[bitIndex(bitpos)])
-						.containsKey(key, hash, shift + BIT_PARTITION_SIZE, cmp);
+				return ((AbstractNode<K, V>) nodes[bitIndex(bitpos)]).containsKey(key, hash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 			return false;
 		}
 
 		@SuppressWarnings("unchecked")
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1301,8 +1189,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					final K _key = (K) nodes[valIndex];
 					final V _val = (V) nodes[valIndex + 1];
 
-					final Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) mapOf(
-							_key, _val);
+					final Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) mapOf(_key, _val);
 					return Optional.of(entry);
 				}
 
@@ -1312,8 +1199,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if ((bitmap & bitpos) != 0) { // node (not value)
 				final AbstractNode<K, V> subNode = ((AbstractNode<K, V>) nodes[bitIndex(bitpos)]);
 
-				return subNode.findByKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
@@ -1321,8 +1207,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1335,29 +1221,25 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.unchanged(this);
 
 					// update mapping
-					final Object[] nodesNew = copyAndSet(nodes, valIndex + 1,
-							val);
-					return Result.updated(new InplaceIndexNode<K, V>(bitmap,
-							valmap, nodesNew, sizeState),
-							(V) nodes[valIndex + 1]);
+					final Object[] nodesNew = copyAndSet(nodes, valIndex + 1, val);
+					return Result.updated(new InplaceIndexNode<K, V>(bitmap, valmap, nodesNew,
+									sizeState), (V) nodes[valIndex + 1]);
 				}
 
-				final AbstractNode<K, V> nodeNew = mergeNodes(
-						(K) nodes[valIndex], nodes[valIndex].hashCode(),
-						(V) nodes[valIndex + 1], key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> nodeNew = mergeNodes((K) nodes[valIndex],
+								nodes[valIndex].hashCode(), (V) nodes[valIndex + 1], key, keyHash,
+								val, shift + BIT_PARTITION_SIZE);
 
 				final int offset = 2 * (cachedValmapBitCount - 1);
-				final int index = Integer
-						.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+				final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
 								& (bitpos - 1));
 				final byte updatedCachedSize = (sizeState == SIZE_EMPTY) ? SIZE_ONE
-						: SIZE_MORE_THAN_ONE;
+								: SIZE_MORE_THAN_ONE;
 
-				InplaceIndexNode<K, V> editableNode = editAndMoveToBackPair(
-						mutator, valIndex, offset + index, nodeNew);
-				editableNode.updateMetadata(bitmap | bitpos, valmap & ~bitpos,
-						updatedCachedSize, (byte) (cachedValmapBitCount - 1));
+				InplaceIndexNode<K, V> editableNode = editAndMoveToBackPair(mutator, valIndex,
+								offset + index, nodeNew);
+				editableNode.updateMetadata(bitmap | bitpos, valmap & ~bitpos, updatedCachedSize,
+								(byte) (cachedValmapBitCount - 1));
 				return Result.modified(editableNode);
 			}
 
@@ -1365,27 +1247,26 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				final int bitIndex = bitIndex(bitpos);
 				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
 
-				final Result<K, V> subNodeResult = subNode.updated(mutator,
-						key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = subNode.updated(mutator, key, keyHash, val,
+								shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				InplaceIndexNode<K, V> editableNode = editAndSet(mutator,
-						bitIndex, subNodeResult.getNode());
+				InplaceIndexNode<K, V> editableNode = editAndSet(mutator, bitIndex,
+								subNodeResult.getNode());
 				editableNode.updateMetadata(bitmap, valmap, SIZE_MORE_THAN_ONE,
-						cachedValmapBitCount);
+								cachedValmapBitCount);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(editableNode,
-							subNodeResult.getReplacedValue());
+					return Result.updated(editableNode, subNodeResult.getReplacedValue());
 
 				return Result.modified(editableNode);
 			}
 
 			// no value
 			final byte updatedCachedSize = (sizeState == SIZE_EMPTY) ? SIZE_ONE
-					: SIZE_MORE_THAN_ONE;
+							: SIZE_MORE_THAN_ONE;
 
 			// if (arity() == 1 && valueArity() == 1) {
 			// Result.modified(new Value2Node<K, V>(mutator, (byte) -1, (K)
@@ -1400,10 +1281,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// return Result.modified(editableNode);
 			// }
 
-			InplaceIndexNode<K, V> editableNode = editAndInsertPair(mutator,
-					valIndex(bitpos), key, val);
-			editableNode.updateMetadata(bitmap | bitpos, valmap | bitpos,
-					updatedCachedSize, (byte) (cachedValmapBitCount + 1));
+			InplaceIndexNode<K, V> editableNode = editAndInsertPair(mutator, valIndex(bitpos), key,
+							val);
+			editableNode.updateMetadata(bitmap | bitpos, valmap | bitpos, updatedCachedSize,
+							(byte) (cachedValmapBitCount + 1));
 			return Result.modified(editableNode);
 		}
 
@@ -1413,8 +1294,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> comparator) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> comparator) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1424,32 +1305,32 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				if (comparator.compare(nodes[valIndex], key) != 0)
 					return Result.unchanged(this);
 
-//				if (this.arity() == 1) {
-//					return Result.modified(EMPTY_INPLACE_INDEX_NODE);
-//				} else if (this.arity() == 2 && valmap == bitmap) { // two
-//																	// inplace
-//																	// values
-//					/*
-//					 * Create root node with singleton element. This node will
-//					 * be a) either be the new root returned, or b) unwrapped
-//					 * and inlined.
-//					 */
-//					final K theOtherKey = (K) ((valIndex == 0) ? nodes[2]
-//							: nodes[0]);
-//					final V theOtherVal = (V) ((valIndex == 0) ? nodes[3]
-//							: nodes[1]);
-//					return EMPTY_INPLACE_INDEX_NODE.updated(mutator,
-//							theOtherKey, theOtherKey.hashCode(), theOtherVal,
-//							0, comparator);
-//				} else {
-//					InplaceIndexNode<K, V> editableNode = editAndRemovePair(
-//							mutator, valIndex);
-//					editableNode.updateMetadata(this.bitmap & ~bitpos,
-//							this.valmap & ~bitpos, sizeState,
-//							(byte) (cachedValmapBitCount - 1));
-//					return Result.modified(editableNode);
-//				}
-				
+				// if (this.arity() == 1) {
+				// return Result.modified(EMPTY_INPLACE_INDEX_NODE);
+				// } else if (this.arity() == 2 && valmap == bitmap) { // two
+				// // inplace
+				// // values
+				// /*
+				// * Create root node with singleton element. This node will
+				// * be a) either be the new root returned, or b) unwrapped
+				// * and inlined.
+				// */
+				// final K theOtherKey = (K) ((valIndex == 0) ? nodes[2]
+				// : nodes[0]);
+				// final V theOtherVal = (V) ((valIndex == 0) ? nodes[3]
+				// : nodes[1]);
+				// return EMPTY_INPLACE_INDEX_NODE.updated(mutator,
+				// theOtherKey, theOtherKey.hashCode(), theOtherVal,
+				// 0, comparator);
+				// } else {
+				// InplaceIndexNode<K, V> editableNode = editAndRemovePair(
+				// mutator, valIndex);
+				// editableNode.updateMetadata(this.bitmap & ~bitpos,
+				// this.valmap & ~bitpos, sizeState,
+				// (byte) (cachedValmapBitCount - 1));
+				// return Result.modified(editableNode);
+				// }
+
 				if (this.arity() == 5) {
 					switch (cachedValmapBitCount) { // 0 <= valueArity <= 5
 					case 1: {
@@ -1461,10 +1342,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 0];
 						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 2];
-						final AbstractNode<K, V> node4 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 3];						
-						
-						return Result.modified(valNodeOf(mutator, npos1, node1,
-								npos2, node2, npos3, node3, npos4, node4));
+						final AbstractNode<K, V> node4 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 3];
+
+						return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+										npos3, node3, npos4, node4));
 					}
 					case 2: {
 						final int map = (valmap & ~bitpos);
@@ -1475,11 +1356,11 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
-						final byte npos3 = recoverMask(nmap, (byte) 3);						
+						final byte npos3 = recoverMask(nmap, (byte) 3);
 						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 0];
 						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 2];
-						
+
 						if (mask < pos1) {
 							key1 = (K) nodes[2];
 							val1 = (V) nodes[3];
@@ -1488,11 +1369,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							val1 = (V) nodes[1];
 						}
 
-						return Result
-								.modified(valNodeOf(mutator, pos1, key1, val1,
-										npos1, node1, npos2, node2, npos3,
-										node3));
-					}					
+						return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
+										npos2, node2, npos3, node3));
+					}
 					case 3: {
 						final int map = (valmap & ~bitpos);
 						final byte pos1 = recoverMask(map, (byte) 1);
@@ -1525,9 +1404,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							val2 = (V) nodes[3];
 						}
 
-						return Result.modified(valNodeOf(mutator, pos1, key1,
-								val1, pos2, key2, val2, npos1, node1, npos2,
-								node2));
+						return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+										val2, npos1, node1, npos2, node2));
 					}
 					case 4: {
 						final int map = (valmap & ~bitpos);
@@ -1551,40 +1429,39 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							key2 = (K) nodes[4];
 							val2 = (V) nodes[5];
 							key3 = (K) nodes[6];
-							val3 = (V) nodes[7]; 
+							val3 = (V) nodes[7];
 						} else if (mask < pos2) {
 							key1 = (K) nodes[0];
 							val1 = (V) nodes[1];
 							key2 = (K) nodes[4];
 							val2 = (V) nodes[5];
 							key3 = (K) nodes[6];
-							val3 = (V) nodes[7]; 							
+							val3 = (V) nodes[7];
 						} else if (mask < pos3) {
 							key1 = (K) nodes[0];
 							val1 = (V) nodes[1];
 							key2 = (K) nodes[2];
 							val2 = (V) nodes[3];
 							key3 = (K) nodes[6];
-							val3 = (V) nodes[7]; 							
+							val3 = (V) nodes[7];
 						} else {
 							key1 = (K) nodes[0];
 							val1 = (V) nodes[1];
 							key2 = (K) nodes[2];
 							val2 = (V) nodes[3];
 							key3 = (K) nodes[4];
-							val3 = (V) nodes[5]; 							
+							val3 = (V) nodes[5];
 						}
 
-						return Result.modified(valNodeOf(mutator, pos1, key1,
-								val1, pos2, key2, val2, pos3, key3, val3,
-								npos1, node1));
+						return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+										val2, pos3, key3, val3, npos1, node1));
 					}
 					case 5: {
 						final int map = (valmap & ~bitpos);
 						final byte pos1 = recoverMask(map, (byte) 1);
 						final byte pos2 = recoverMask(map, (byte) 2);
 						final byte pos3 = recoverMask(map, (byte) 3);
-						final byte pos4 = recoverMask(map, (byte) 4);						
+						final byte pos4 = recoverMask(map, (byte) 4);
 						final K key1;
 						final K key2;
 						final K key3;
@@ -1602,7 +1479,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							key3 = (K) nodes[6];
 							val3 = (V) nodes[7];
 							key4 = (K) nodes[8];
-							val4 = (V) nodes[9]; 							
+							val4 = (V) nodes[9];
 						} else if (mask < pos2) {
 							key1 = (K) nodes[0];
 							val1 = (V) nodes[1];
@@ -1620,7 +1497,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							key3 = (K) nodes[6];
 							val3 = (V) nodes[7];
 							key4 = (K) nodes[8];
-							val4 = (V) nodes[9]; 							
+							val4 = (V) nodes[9];
 						} else if (mask < pos4) {
 							key1 = (K) nodes[0];
 							val1 = (V) nodes[1];
@@ -1629,7 +1506,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							key3 = (K) nodes[4];
 							val3 = (V) nodes[5];
 							key4 = (K) nodes[8];
-							val4 = (V) nodes[9]; 							
+							val4 = (V) nodes[9];
 						} else {
 							key1 = (K) nodes[0];
 							val1 = (V) nodes[1];
@@ -1638,12 +1515,11 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							key3 = (K) nodes[4];
 							val3 = (V) nodes[5];
 							key4 = (K) nodes[6];
-							val4 = (V) nodes[7]; 														
+							val4 = (V) nodes[7];
 						}
 
-						return Result.modified(valNodeOf(mutator, pos1, key1,
-								val1, pos2, key2, val2, pos3, key3, val3, pos4,
-								key4, val4));
+						return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+										val2, pos3, key3, val3, pos4, key4, val4));
 					}
 					}
 				} else {
@@ -1651,42 +1527,41 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					editableNode.updateMetadata(this.bitmap & ~bitpos, this.valmap & ~bitpos,
 									sizeState, (byte) (cachedValmapBitCount - 1));
 					return Result.modified(editableNode);
-				}							
+				}
 			}
 
 			if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
 				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
-				final Result<K, V> subNodeResult = subNode.removed(mutator,
-						key, keyHash, shift + BIT_PARTITION_SIZE, comparator);
+				final Result<K, V> subNodeResult = subNode.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, comparator);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
 				// TODO: rework result that it can take CompactNode instead of
 				// AbstractNode
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-//				if (this.arity() == 1) {
-//					switch (subNodeNew.size()) {
-//					case SIZE_EMPTY:
-//					case SIZE_ONE:
-//						// escalate (singleton or empty) result
-//						return subNodeResult;
-//
-//					case SIZE_MORE_THAN_ONE:
-//						// modify current node (set replacement node)
-//						InplaceIndexNode<K, V> editableNode = editAndSet(
-//								mutator, bitIndex, subNodeNew);
-//						editableNode.updateMetadata(bitmap, valmap, sizeState,
-//								cachedValmapBitCount);
-//						return Result.modified(editableNode);
-//
-//					default:
-//						throw new IllegalStateException("Invalid size state.");
-//					}
-//				} else {
+				// if (this.arity() == 1) {
+				// switch (subNodeNew.size()) {
+				// case SIZE_EMPTY:
+				// case SIZE_ONE:
+				// // escalate (singleton or empty) result
+				// return subNodeResult;
+				//
+				// case SIZE_MORE_THAN_ONE:
+				// // modify current node (set replacement node)
+				// InplaceIndexNode<K, V> editableNode = editAndSet(
+				// mutator, bitIndex, subNodeNew);
+				// editableNode.updateMetadata(bitmap, valmap, sizeState,
+				// cachedValmapBitCount);
+				// return Result.modified(editableNode);
+				//
+				// default:
+				// throw new IllegalStateException("Invalid size state.");
+				// }
+				// } else {
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
 
@@ -1694,7 +1569,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case 0:
 					// remove node
 					if (this.arity() == 5) {
-						switch(this.nodeArity()) {											
+						switch (this.nodeArity()) {
 						case 1: {
 							final int map = valmap;
 							final byte pos1 = recoverMask(map, (byte) 1);
@@ -1710,10 +1585,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final V val3 = (V) nodes[5];
 							final V val4 = (V) nodes[7];
 
-							return Result.modified(valNodeOf(mutator, pos1,
-									key1, val1, pos2, key2, val2, pos3, key3,
-									val3, pos4, key4, val4));
-						}							
+							return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+											val2, pos3, key3, val3, pos4, key4, val4));
+						}
 						case 2: {
 							final int map = valmap;
 							final byte pos1 = recoverMask(map, (byte) 1);
@@ -1725,7 +1599,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final V val1 = (V) nodes[1];
 							final V val2 = (V) nodes[3];
 							final V val3 = (V) nodes[5];
-							
+
 							final int nmap = ((bitmap & ~bitpos) ^ valmap);
 							final byte npos1 = recoverMask(nmap, (byte) 1);
 							final AbstractNode<K, V> node1;
@@ -1736,9 +1610,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 								node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 0];
 							}
 
-							return Result.modified(valNodeOf(mutator, pos1,
-									key1, val1, pos2, key2, val2, pos3, key3,
-									val3, npos1, node1));
+							return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+											val2, pos3, key3, val3, npos1, node1));
 						}
 						case 3: {
 							final int map = valmap;
@@ -1766,16 +1639,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 								node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 							}
 
-							return Result.modified(valNodeOf(mutator, pos1,
-									key1, val1, pos2, key2, val2, npos1, node1,
-									npos2, node2));
-						}		
+							return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+											val2, npos1, node1, npos2, node2));
+						}
 						case 4: {
 							final int map = valmap;
 							final byte pos1 = recoverMask(map, (byte) 1);
-							final K key1 = (K) nodes[0];						
+							final K key1 = (K) nodes[0];
 							final V val1 = (V) nodes[1];
-							
+
 							final int nmap = ((bitmap & ~bitpos) ^ valmap);
 							final byte npos1 = recoverMask(nmap, (byte) 1);
 							final byte npos2 = recoverMask(nmap, (byte) 2);
@@ -1783,7 +1655,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final AbstractNode<K, V> node1;
 							final AbstractNode<K, V> node2;
 							final AbstractNode<K, V> node3;
-							
+
 							if (mask < npos1) {
 								node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 								node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 2];
@@ -1796,16 +1668,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 								node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 0];
 								node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 								node3 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 3];
-							} else {								
+							} else {
 								node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 0];
 								node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 								node3 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 2];
 							}
 
-							return Result.modified(valNodeOf(mutator, pos1,
-									key1, val1, npos1, node1, npos2, node2,
-									npos3, node3));
-						}						
+							return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1,
+											node1, npos2, node2, npos3, node3));
+						}
 						case 5: {
 							final int nmap = ((bitmap & ~bitpos) ^ valmap);
 							final byte npos1 = recoverMask(nmap, (byte) 1);
@@ -1816,7 +1687,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final AbstractNode<K, V> node2;
 							final AbstractNode<K, V> node3;
 							final AbstractNode<K, V> node4;
-							
+
 							if (mask < npos1) {
 								node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 								node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 2];
@@ -1837,80 +1708,75 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 								node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 								node3 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 2];
 								node4 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 4];
-							} else {								
+							} else {
 								node1 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 0];
 								node2 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 1];
 								node3 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 2];
 								node4 = (AbstractNode<K, V>) nodes[cachedValmapBitCount + 3];
 							}
-							
-							return Result.modified(valNodeOf(mutator, npos1,
-									node1, npos2, node2, npos3, node3, npos4,
-									node4));
+
+							return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+											npos3, node3, npos4, node4));
 						}
 						}
 					} else {
-						InplaceIndexNode<K, V> editableNode0 = editAndRemovePair(
-								mutator, bitIndex);
-						editableNode0.updateMetadata(bitmap & ~bitpos, valmap,
-								sizeState, cachedValmapBitCount);
+						InplaceIndexNode<K, V> editableNode0 = editAndRemovePair(mutator, bitIndex);
+						editableNode0.updateMetadata(bitmap & ~bitpos, valmap, sizeState,
+										cachedValmapBitCount);
 						return Result.modified(editableNode0);
 					}
 
-					case 1:
-						// inline value (move to front)
-						final int valIndexNew = Integer
-								.bitCount((valmap | bitpos) & (bitpos - 1));
+				case 1:
+					// inline value (move to front)
+					final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
 
-						InplaceIndexNode<K, V> editableNode1 = editAndMoveToFrontPair(
-								mutator, bitIndex, valIndexNew,
-								subNodeNew.headKey(), subNodeNew.headVal());
-						editableNode1.updateMetadata(bitmap, valmap | bitpos,
-								sizeState, (byte) (cachedValmapBitCount + 1));
-						return Result.modified(editableNode1);
+					InplaceIndexNode<K, V> editableNode1 = editAndMoveToFrontPair(mutator,
+									bitIndex, valIndexNew, subNodeNew.headKey(),
+									subNodeNew.headVal());
+					editableNode1.updateMetadata(bitmap, valmap | bitpos, sizeState,
+									(byte) (cachedValmapBitCount + 1));
+					return Result.modified(editableNode1);
 
-					default:
-						// modify current node (set replacement node)
-						InplaceIndexNode<K, V> editableNode2 = editAndSet(
-								mutator, bitIndex, subNodeNew);
-						editableNode2.updateMetadata(bitmap, valmap, sizeState,
-								cachedValmapBitCount);
-						return Result.modified(editableNode2);
-					}
-//				}
+				default:
+					// modify current node (set replacement node)
+					InplaceIndexNode<K, V> editableNode2 = editAndSet(mutator, bitIndex, subNodeNew);
+					editableNode2.updateMetadata(bitmap, valmap, sizeState, cachedValmapBitCount);
+					return Result.modified(editableNode2);
+				}
+				// }
 			}
 
 			return Result.unchanged(this);
 		}
-		
+
 		// returns 0 <= mask <= 31
 		static byte recoverMask(int map, byte i_th) {
 			assert 1 <= i_th && i_th <= 32;
-			
+
 			byte cnt1 = 0;
 			byte mask = 0;
-			
-			while(mask < 32) {
+
+			while (mask < 32) {
 				if ((map & 0x01) == 0x01) {
 					cnt1 += 1;
-					
+
 					if (cnt1 == i_th) {
 						return mask;
 					}
 				}
-				
+
 				map = map >> 1;
 				mask += 1;
 			}
-			
-			throw new RuntimeException("Called with invalid arguments."); // cnt1 != i_th
+
+			throw new RuntimeException("Called with invalid arguments."); // cnt1
+																			// !=
+																			// i_th
 		}
 
-		InplaceIndexNode<K, V> editAndInsertPair(
-				AtomicReference<Thread> mutator, int index, Object keyNew,
-				Object valNew) {
-			final Object[] editableNodes = copyAndInsertPair(this.nodes, index,
-					keyNew, valNew);
+		InplaceIndexNode<K, V> editAndInsertPair(AtomicReference<Thread> mutator, int index,
+						Object keyNew, Object valNew) {
+			final Object[] editableNodes = copyAndInsertPair(this.nodes, index, keyNew, valNew);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				this.nodes = editableNodes;
@@ -1920,8 +1786,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return new InplaceIndexNode<>(mutator, editableNodes);
 		}
 
-		InplaceIndexNode<K, V> editAndRemovePair(
-				AtomicReference<Thread> mutator, int index) {
+		InplaceIndexNode<K, V> editAndRemovePair(AtomicReference<Thread> mutator, int index) {
 			final Object[] editableNodes = copyAndRemovePair(this.nodes, index);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1932,24 +1797,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return new InplaceIndexNode<>(mutator, editableNodes);
 		}
 
-		InplaceIndexNode<K, V> editAndSet(AtomicReference<Thread> mutator,
-				int index, Object elementNew) {
+		InplaceIndexNode<K, V> editAndSet(AtomicReference<Thread> mutator, int index,
+						Object elementNew) {
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				// no copying if already editable
 				this.nodes[index] = elementNew;
 				return this;
 			} else {
-				final Object[] editableNodes = copyAndSet(this.nodes, index,
-						elementNew);
+				final Object[] editableNodes = copyAndSet(this.nodes, index, elementNew);
 				return new InplaceIndexNode<>(mutator, editableNodes);
 			}
 		}
 
-		InplaceIndexNode<K, V> editAndMoveToBackPair(
-				AtomicReference<Thread> mutator, int indexOld, int indexNew,
-				Object elementNew) {
-			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes,
-					indexOld, indexNew, elementNew);
+		InplaceIndexNode<K, V> editAndMoveToBackPair(AtomicReference<Thread> mutator, int indexOld,
+						int indexNew, Object elementNew) {
+			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, indexOld, indexNew,
+							elementNew);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				this.nodes = editableNodes;
@@ -1959,11 +1822,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return new InplaceIndexNode<>(mutator, editableNodes);
 		}
 
-		InplaceIndexNode<K, V> editAndMoveToFrontPair(
-				AtomicReference<Thread> mutator, int indexOld, int indexNew,
-				Object keyNew, Object valNew) {
-			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes,
-					indexOld, indexNew, keyNew, valNew);
+		InplaceIndexNode<K, V> editAndMoveToFrontPair(AtomicReference<Thread> mutator,
+						int indexOld, int indexNew, Object keyNew, Object valNew) {
+			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, indexOld, indexNew,
+							keyNew, valNew);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				this.nodes = editableNodes;
@@ -1987,8 +1849,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			for (int i = offset; i < nodes.length - offset; i++)
 				assert ((nodes[i] instanceof AbstractNode) == true);
 
-			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length
-					- offset);
+			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -2072,8 +1933,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	// TODO: replace by immutable cons list
-	private static final class InplaceHashCollisionNode<K, V> extends
-			CompactNode<K, V> {
+	private static final class InplaceHashCollisionNode<K, V> extends CompactNode<K, V> {
 		private final K[] keys;
 		private final V[] vals;
 		private final int hash;
@@ -2126,8 +1986,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		public boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			if (this.hash == keyHash) {
 				for (K k : keys) {
 					if (cmp.compare(k, key) == 0) {
@@ -2144,19 +2003,18 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			if (this.hash != keyHash)
-				return Result.modified(mergeNodes((CompactNode<K, V>) this,
-						this.hash, key, keyHash, val, shift));
+				return Result.modified(mergeNodes((CompactNode<K, V>) this, this.hash, key,
+								keyHash, val, shift));
 
 			if (containsKey(key, keyHash, shift, cmp))
 				return Result.unchanged(this);
 
 			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
 			final V[] valsNew = (V[]) copyAndInsert(vals, vals.length, val);
-			return Result.modified(new InplaceHashCollisionNode<>(keyHash,
-					keysNew, valsNew));
+			return Result.modified(new InplaceHashCollisionNode<>(keyHash, keysNew, valsNew));
 		}
 
 		/**
@@ -2165,8 +2023,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
 				if (cmp.compare(keys[i], key) == 0) {
 					if (this.arity() == 1) {
@@ -2179,12 +2037,11 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						 */
 						final K theOtherKey = (i == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (i == 0) ? vals[1] : vals[0];
-						return EMPTY_INPLACE_INDEX_NODE.updated(mutator,
-								theOtherKey, keyHash, theOtherVal, 0, cmp);
+						return EMPTY_INPLACE_INDEX_NODE.updated(mutator, theOtherKey, keyHash,
+										theOtherVal, 0, cmp);
 					} else {
-						return Result.modified(new InplaceHashCollisionNode<>(
-								keyHash, (K[]) copyAndRemove(keys, i),
-								(V[]) copyAndRemove(vals, i)));
+						return Result.modified(new InplaceHashCollisionNode<>(keyHash,
+										(K[]) copyAndRemove(keys, i), (V[]) copyAndRemove(vals, i)));
 					}
 				}
 			}
@@ -2265,8 +2122,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			/*
 			 * Linear scan for each key, because of arbitrary element order.
 			 */
-			outerLoop: for (SupplierIterator<?, ?> it = that.valueIterator(); it
-					.hasNext();) {
+			outerLoop: for (SupplierIterator<?, ?> it = that.valueIterator(); it.hasNext();) {
 				final Object otherKey = it.next();
 				final Object otherVal = it.next();
 
@@ -2285,14 +2141,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift,
-				Comparator<Object> cmp) {
+		Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift, Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
 				if (cmp.compare(key, _key) == 0) {
 					final V _val = vals[i];
-					return Optional.of((java.util.Map.Entry<K, V>) mapOf(_key,
-							_val));
+					return Optional.of(entryOf(_key, _val));
 				}
 			}
 			return Optional.empty();
@@ -2303,8 +2157,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result
-				+ ((rootNode == null) ? 0 : rootNode.hashCode());
+		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
 		return result;
 	}
 
@@ -2328,85 +2181,84 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	public void printStats() {
-//		final Iterator<AbstractNode<K, V>> it = new TrieMapNodeIterator<>(
-//				rootNode);
-//
-//		final Path file = Paths.get("tree-node-stats.csv");
-//		final List<String> lines = new ArrayList<>();
-//		lines.add("arity,valueArity,nodeArity,size");
-//
-//		while (it.hasNext()) {
-//			final AbstractNode<K, V> node = it.next();
-//
-//			// it.next();
-//			// final AbstractNode<K, V> node =
-//			// CompactNode.EMPTY_INPLACE_INDEX_NODE;
-//
-//			Predicate<Object> isRoot = new Predicate<Object>() {
-//				@Override
-//				public boolean apply(Object arg0) {
-//					return arg0 == node;
-//				}
-//			};
-//
-//			Predicate<Object> jointPredicate = Predicates.or(isRoot, Predicates
-//					.not(Predicates.or(
-//							Predicates.instanceOf(AbstractNode.class),
-//							Predicates.instanceOf(Integer.class))));
-//
-//			long memoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(
-//					node, jointPredicate);
-//			Footprint memoryFootprint = objectexplorer.ObjectGraphMeasurer
-//					.measure(node, jointPredicate);
-//
-//			// if (node.arity() == 32) {
-//			final int pointers = 2 * node.valueArity() + node.nodeArity();
-//
-//			final String statString = String
-//					.format("arity=%d [values=%d, nodes=%d]\n%d bytes [%1.1f bytes per pointer]\n%s\n",
-//							node.arity(), node.valueArity(), node.nodeArity(),
-//							memoryInBytes, (float) memoryInBytes / pointers,
-//							memoryFootprint);
-//
-//			System.out.println(statString);
-//
-//			final String statFileString = String.format("%d,%d,%d,%d",
-//					node.arity(), node.valueArity(), node.nodeArity(),
-//					memoryInBytes);
-//			lines.add(statFileString);
-//			// }
-//		}
-//
-//		Predicate<Object> totalPredicate = Predicates.not(Predicates
-//				.instanceOf(Integer.class));
-//
-//		long totalMemoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(
-//				rootNode, totalPredicate);
-//		Footprint totalMemoryFootprint = objectexplorer.ObjectGraphMeasurer
-//				.measure(rootNode, totalPredicate);
-//
-//		final String totalStatString = String
-//				.format("size=%d\n%d bytes [%1.1f bytes per key-value-pair; min 8.0 bytes]\n%s\n",
-//						cachedSize, totalMemoryInBytes,
-//						(float) totalMemoryInBytes / cachedSize,
-//						totalMemoryFootprint);
-//
-//		System.out.println(totalStatString);
-//
-//		// write stats to file
-//		try {
-//			Files.write(file, lines, StandardCharsets.UTF_8);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		// final Iterator<AbstractNode<K, V>> it = new TrieMapNodeIterator<>(
+		// rootNode);
+		//
+		// final Path file = Paths.get("tree-node-stats.csv");
+		// final List<String> lines = new ArrayList<>();
+		// lines.add("arity,valueArity,nodeArity,size");
+		//
+		// while (it.hasNext()) {
+		// final AbstractNode<K, V> node = it.next();
+		//
+		// // it.next();
+		// // final AbstractNode<K, V> node =
+		// // CompactNode.EMPTY_INPLACE_INDEX_NODE;
+		//
+		// Predicate<Object> isRoot = new Predicate<Object>() {
+		// @Override
+		// public boolean apply(Object arg0) {
+		// return arg0 == node;
+		// }
+		// };
+		//
+		// Predicate<Object> jointPredicate = Predicates.or(isRoot, Predicates
+		// .not(Predicates.or(
+		// Predicates.instanceOf(AbstractNode.class),
+		// Predicates.instanceOf(Integer.class))));
+		//
+		// long memoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(
+		// node, jointPredicate);
+		// Footprint memoryFootprint = objectexplorer.ObjectGraphMeasurer
+		// .measure(node, jointPredicate);
+		//
+		// // if (node.arity() == 32) {
+		// final int pointers = 2 * node.valueArity() + node.nodeArity();
+		//
+		// final String statString = String
+		// .format("arity=%d [values=%d, nodes=%d]\n%d bytes [%1.1f bytes per pointer]\n%s\n",
+		// node.arity(), node.valueArity(), node.nodeArity(),
+		// memoryInBytes, (float) memoryInBytes / pointers,
+		// memoryFootprint);
+		//
+		// System.out.println(statString);
+		//
+		// final String statFileString = String.format("%d,%d,%d,%d",
+		// node.arity(), node.valueArity(), node.nodeArity(),
+		// memoryInBytes);
+		// lines.add(statFileString);
+		// // }
+		// }
+		//
+		// Predicate<Object> totalPredicate = Predicates.not(Predicates
+		// .instanceOf(Integer.class));
+		//
+		// long totalMemoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(
+		// rootNode, totalPredicate);
+		// Footprint totalMemoryFootprint = objectexplorer.ObjectGraphMeasurer
+		// .measure(rootNode, totalPredicate);
+		//
+		// final String totalStatString = String
+		// .format("size=%d\n%d bytes [%1.1f bytes per key-value-pair; min 8.0 bytes]\n%s\n",
+		// cachedSize, totalMemoryInBytes,
+		// (float) totalMemoryInBytes / cachedSize,
+		// totalMemoryFootprint);
+		//
+		// System.out.println(totalStatString);
+		//
+		// // write stats to file
+		// try {
+		// Files.write(file, lines, StandardCharsets.UTF_8);
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
 	}
 
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieMapNodeIterator<K, V> implements
-			Iterator<AbstractNode<K, V>> {
+	private static class TrieMapNodeIterator<K, V> implements Iterator<AbstractNode<K, V>> {
 
 		final Deque<Iterator<AbstractNode<K, V>>> nodeIteratorStack;
 
@@ -2451,6306 +2303,605 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static final class SingletonNodeAtMask0Node<K, V> extends
-			CompactNode<K, V> {
+	private abstract static class AbstractSingletonNode<K, V> extends CompactNode<K, V> {
 
-		private static final byte npos1 = 0;
-		private final AbstractNode<K, V> node1;
+		protected abstract byte npos1();
+
+		protected final AbstractNode<K, V> node1;
+
+		AbstractSingletonNode(AbstractNode<K, V> node1) {
+			this.node1 = node1;
+		}
+
+		@Override
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == npos1()) {
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
+
+				if (!subNodeResult.isModified())
+					return Result.unchanged(this);
+
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode());
+
+				if (subNodeResult.hasReplacedValue())
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
+
+				return Result.modified(thisNew);
+			}
+
+			// no value
+
+			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1(), node1);
+			return Result.modified(thisNew);
+
+		}
+
+		@Override
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == npos1()) {
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
+
+				if (!subNodeResult.isModified())
+					return Result.unchanged(this);
+
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+
+				assert this.arity() >= 2;
+				assert subNodeNew.size() >= 1;
+
+				switch (subNodeNew.size()) {
+				// case 0:
+				// // remove node
+				// return Result.modified(valNodeOf(mutator, ));
+
+				case 1:
+					// inline value
+
+					if (mask < npos1()) {
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal());
+						return Result.modified(thisNew);
+					}
+
+				default:
+					// modify current node (set replacement node)
+
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew);
+
+					return Result.modified(thisNew);
+				}
+			}
+
+			return Result.unchanged(this);
+		}
+
+		@Override
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == npos1()) {
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			}
+
+			return false;
+		}
+
+		@Override
+		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
+						Comparator<Object> cmp) {
+			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+
+			if (mask == npos1()) {
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			}
+
+			return Optional.empty();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<AbstractNode<K, V>> nodeIterator() {
+			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		SupplierIterator<K, V> valueIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		boolean hasValues() {
+			return false;
+		}
+
+		@Override
+		int valueArity() {
+			return 0;
+		}
+
+		@Override
+		int size() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + npos1();
+			result = prime * result + node1.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			AbstractSingletonNode<?, ?> that = (AbstractSingletonNode<?, ?>) other;
+
+			// if (npos1() != that.npos1()) {
+			// return false;
+			// }
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[%s]", node1);
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("No key in this kind of node.");
+		}
+
+		@Override
+		V headVal() {
+			throw new UnsupportedOperationException("No value in this kind of node.");
+		}
+
+	}
+
+	private static final class SingletonNodeAtMask0Node<K, V> extends AbstractSingletonNode<K, V> {
+
+		@Override
+		protected byte npos1() {
+			return 0;
+		}
 
 		SingletonNodeAtMask0Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask0Node<?, ?> that = (SingletonNodeAtMask0Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask1Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask1Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 1;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 1;
+		}
 
 		SingletonNodeAtMask1Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask1Node<?, ?> that = (SingletonNodeAtMask1Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask2Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask2Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 2;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 2;
+		}
 
 		SingletonNodeAtMask2Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask2Node<?, ?> that = (SingletonNodeAtMask2Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask3Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask3Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 3;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 3;
+		}
 
 		SingletonNodeAtMask3Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask3Node<?, ?> that = (SingletonNodeAtMask3Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask4Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask4Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 4;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 4;
+		}
 
 		SingletonNodeAtMask4Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask4Node<?, ?> that = (SingletonNodeAtMask4Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask5Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask5Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 5;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 5;
+		}
 
 		SingletonNodeAtMask5Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask5Node<?, ?> that = (SingletonNodeAtMask5Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask6Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask6Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 6;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 6;
+		}
 
 		SingletonNodeAtMask6Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask6Node<?, ?> that = (SingletonNodeAtMask6Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask7Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask7Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 7;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 7;
+		}
 
 		SingletonNodeAtMask7Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask7Node<?, ?> that = (SingletonNodeAtMask7Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask8Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask8Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 8;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 8;
+		}
 
 		SingletonNodeAtMask8Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask8Node<?, ?> that = (SingletonNodeAtMask8Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask9Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask9Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 9;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 9;
+		}
 
 		SingletonNodeAtMask9Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask9Node<?, ?> that = (SingletonNodeAtMask9Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask10Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask10Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 10;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 10;
+		}
 
 		SingletonNodeAtMask10Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask10Node<?, ?> that = (SingletonNodeAtMask10Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask11Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask11Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 11;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 11;
+		}
 
 		SingletonNodeAtMask11Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask11Node<?, ?> that = (SingletonNodeAtMask11Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask12Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask12Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 12;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 12;
+		}
 
 		SingletonNodeAtMask12Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask12Node<?, ?> that = (SingletonNodeAtMask12Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask13Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask13Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 13;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 13;
+		}
 
 		SingletonNodeAtMask13Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask13Node<?, ?> that = (SingletonNodeAtMask13Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask14Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask14Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 14;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 14;
+		}
 
 		SingletonNodeAtMask14Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask14Node<?, ?> that = (SingletonNodeAtMask14Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask15Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask15Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 15;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 15;
+		}
 
 		SingletonNodeAtMask15Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask15Node<?, ?> that = (SingletonNodeAtMask15Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask16Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask16Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 16;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 16;
+		}
 
 		SingletonNodeAtMask16Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask16Node<?, ?> that = (SingletonNodeAtMask16Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask17Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask17Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 17;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 17;
+		}
 
 		SingletonNodeAtMask17Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask17Node<?, ?> that = (SingletonNodeAtMask17Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask18Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask18Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 18;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 18;
+		}
 
 		SingletonNodeAtMask18Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask18Node<?, ?> that = (SingletonNodeAtMask18Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask19Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask19Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 19;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 19;
+		}
 
 		SingletonNodeAtMask19Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask19Node<?, ?> that = (SingletonNodeAtMask19Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask20Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask20Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 20;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 20;
+		}
 
 		SingletonNodeAtMask20Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask20Node<?, ?> that = (SingletonNodeAtMask20Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask21Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask21Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 21;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 21;
+		}
 
 		SingletonNodeAtMask21Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask21Node<?, ?> that = (SingletonNodeAtMask21Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask22Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask22Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 22;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 22;
+		}
 
 		SingletonNodeAtMask22Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask22Node<?, ?> that = (SingletonNodeAtMask22Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask23Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask23Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 23;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 23;
+		}
 
 		SingletonNodeAtMask23Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask23Node<?, ?> that = (SingletonNodeAtMask23Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask24Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask24Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 24;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 24;
+		}
 
 		SingletonNodeAtMask24Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask24Node<?, ?> that = (SingletonNodeAtMask24Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask25Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask25Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 25;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 25;
+		}
 
 		SingletonNodeAtMask25Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask25Node<?, ?> that = (SingletonNodeAtMask25Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask26Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask26Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 26;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 26;
+		}
 
 		SingletonNodeAtMask26Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask26Node<?, ?> that = (SingletonNodeAtMask26Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask27Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask27Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 27;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 27;
+		}
 
 		SingletonNodeAtMask27Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask27Node<?, ?> that = (SingletonNodeAtMask27Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask28Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask28Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 28;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 28;
+		}
 
 		SingletonNodeAtMask28Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask28Node<?, ?> that = (SingletonNodeAtMask28Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask29Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask29Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 29;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 29;
+		}
 
 		SingletonNodeAtMask29Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask29Node<?, ?> that = (SingletonNodeAtMask29Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask30Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask30Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 30;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 30;
+		}
 
 		SingletonNodeAtMask30Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask30Node<?, ?> that = (SingletonNodeAtMask30Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask31Node<K, V> extends
-			CompactNode<K, V> {
+	private static final class SingletonNodeAtMask31Node<K, V> extends AbstractSingletonNode<K, V> {
 
-		private static final byte npos1 = 31;
-		private final AbstractNode<K, V> node1;
+		@Override
+		protected byte npos1() {
+			return 31;
+		}
 
 		SingletonNodeAtMask31Node(AbstractNode<K, V> node1) {
-			this.node1 = node1;
-		}
-
-		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode());
-
-				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
-
-				return Result.modified(thisNew);
-			}
-
-			// no value
-
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1);
-			return Result.modified(thisNew);
-
-		}
-
-		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified())
-					return Result.unchanged(this);
-
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
-
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
-
-				case 1:
-					// inline value
-
-					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
-
-				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew);
-
-					return Result.modified(thisNew);
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, V> valueIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
-
-		@Override
-		boolean hasValues() {
-			return false;
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-		@Override
-		int size() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1;
-			result = prime * result + node1.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			SingletonNodeAtMask31Node<?, ?> that = (SingletonNodeAtMask31Node<?, ?>) other;
-
-			if (npos1 != that.npos1) {
-				return false;
-			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			super(node1);
 		}
 
 	}
@@ -8761,35 +2912,33 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val);
+			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 
 			return Result.unchanged(this);
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 
 			return false;
 		}
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 
 			return Optional.empty();
 		}
@@ -8856,14 +3005,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
+			throw new UnsupportedOperationException("No key in this kind of node.");
 		}
 
 		@Override
 		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			throw new UnsupportedOperationException("No value in this kind of node.");
 		}
 
 	}
@@ -8874,8 +3021,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos2;
 		private final AbstractNode<K, V> node2;
 
-		Value0Index2Node(AtomicReference<Thread> mutator, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+		Value0Index2Node(AtomicReference<Thread> mutator, byte npos1, AbstractNode<K, V> node1,
+						byte npos2, AbstractNode<K, V> node2) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -8883,64 +3030,61 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
 				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode(), npos2, node2);
+								subNodeResult.getNode(), npos2, node2);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1,
-						node1, mask, subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1, npos2, node2);
+			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
+							npos2, node2);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -8954,29 +3098,27 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos2, node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+									node2);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -8990,17 +3132,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, mask, subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+									subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -9010,16 +3151,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -9027,24 +3165,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1,
-					node2 });
+			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2 });
 		}
 
 		@Override
@@ -9123,14 +3259,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
+			throw new UnsupportedOperationException("No key in this kind of node.");
 		}
 
 		@Override
 		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			throw new UnsupportedOperationException("No value in this kind of node.");
 		}
 
 	}
@@ -9143,9 +3277,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos3;
 		private final AbstractNode<K, V> node3;
 
-		Value0Index3Node(AtomicReference<Thread> mutator, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2,
-				byte npos3, AbstractNode<K, V> node3) {
+		Value0Index3Node(AtomicReference<Thread> mutator, byte npos1, AbstractNode<K, V> node1,
+						byte npos2, AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -9155,79 +3288,75 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
 				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode(), npos2, node2, npos3, node3);
+								subNodeResult.getNode(), npos2, node2, npos3, node3);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1,
-						node1, mask, subNodeResult.getNode(), npos3, node3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+								subNodeResult.getNode(), npos3, node3);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node3.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1,
-						node1, npos2, node2, mask, subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+								mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1, npos2, node2, npos3, node3);
+			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
+							npos2, node2, npos3, node3);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -9242,30 +3371,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos2, node2, npos3,
-								node3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos2, node2,
+										npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew, npos2, node2, npos3, node3);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+									node2, npos3, node3);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -9280,30 +3407,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1, npos3,
-								node3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
+										npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, mask, subNodeNew, npos3, node3);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+									subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -9318,18 +3443,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1, npos2,
-								node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
+										npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, npos2, node2, mask, subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -9339,19 +3463,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -9359,27 +3479,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1,
-					node2, node3 });
+			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -9466,14 +3583,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
+			throw new UnsupportedOperationException("No key in this kind of node.");
 		}
 
 		@Override
 		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			throw new UnsupportedOperationException("No value in this kind of node.");
 		}
 
 	}
@@ -9488,10 +3603,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos4;
 		private final AbstractNode<K, V> node4;
 
-		Value0Index4Node(AtomicReference<Thread> mutator, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2,
-				byte npos3, AbstractNode<K, V> node3, byte npos4,
-				AbstractNode<K, V> node4) {
+		Value0Index4Node(AtomicReference<Thread> mutator, byte npos1, AbstractNode<K, V> node1,
+						byte npos2, AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3,
+						byte npos4, AbstractNode<K, V> node4) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -9503,98 +3617,89 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
 				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						subNodeResult.getNode(), npos2, node2, npos3, node3,
-						npos4, node4);
+								subNodeResult.getNode(), npos2, node2, npos3, node3, npos4, node4);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1,
-						node1, mask, subNodeResult.getNode(), npos3, node3,
-						npos4, node4);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+								subNodeResult.getNode(), npos3, node3, npos4, node4);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node3.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1,
-						node1, npos2, node2, mask, subNodeResult.getNode(),
-						npos4, node4);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+								mask, subNodeResult.getNode(), npos4, node4);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos4) {
-				final Result<K, V> subNodeResult = node4.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node4.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1,
-						node1, npos2, node2, npos3, node3, mask,
-						subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+								npos3, node3, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key,
-					val, npos1, node1, npos2, node2, npos3, node3, npos4, node4);
+			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
+							npos2, node2, npos3, node3, npos4, node4);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -9609,31 +3714,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos2, node2, npos3,
-								node3, npos4, node4);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos2, node2,
+										npos3, node3, npos4, node4);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							subNodeNew, npos2, node2, npos3, node3, npos4,
-							node4);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+									node2, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -9648,31 +3750,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1, npos3,
-								node3, npos4, node4);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
+										npos3, node3, npos4, node4);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, mask, subNodeNew, npos3, node3,
-							npos4, node4);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+									subNodeNew, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -9687,31 +3786,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1, npos2,
-								node2, npos4, node4);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
+										npos2, node2, npos4, node4);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, npos2, node2, mask, subNodeNew,
-							npos4, node4);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, mask, subNodeNew, npos4, node4);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos4) {
-				final Result<K, V> subNodeResult = node4.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node4.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -9726,19 +3822,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1, npos2,
-								node2, npos3, node3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
+										npos2, node2, npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, npos2, node2, npos3, node3, mask,
-							subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, npos3, node3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -9748,22 +3842,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos4) {
-				return node4.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node4.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -9771,30 +3860,26 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos4) {
-				return node4.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node4.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1,
-					node2, node3, node4 });
+			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2, node3, node4 });
 		}
 
 		@Override
@@ -9884,20 +3969,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String
-					.format("[%s, %s, %s, %s]", node1, node2, node3, node4);
+			return String.format("[%s, %s, %s, %s]", node1, node2, node3, node4);
 		}
 
 		@Override
 		K headKey() {
-			throw new UnsupportedOperationException(
-					"No key in this kind of node.");
+			throw new UnsupportedOperationException("No key in this kind of node.");
 		}
 
 		@Override
 		V headVal() {
-			throw new UnsupportedOperationException(
-					"No value in this kind of node.");
+			throw new UnsupportedOperationException("No value in this kind of node.");
 		}
 
 	}
@@ -9907,16 +3989,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key1;
 		private final V val1;
 
-		Value1Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1) {
+		Value1Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -9926,17 +4007,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					return Result.updated(valNodeOf(mutator, mask, key, val),
-							val1);
+					return Result.updated(valNodeOf(mutator, mask, key, val), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -9944,22 +4022,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -9968,16 +4046,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return (AbstractNode.Result<K, V>) Result
-						.modified(valNodeOf(mutator));
+				return Result.modified(CompactNode.<K, V>valNodeOf(mutator));
 			}
 
 			return Result.unchanged(this);
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -9989,7 +4065,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -10093,8 +4169,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos1;
 		private final AbstractNode<K, V> node1;
 
-		Value1Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte npos1, AbstractNode<K, V> node1) {
+		Value1Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte npos1,
+						AbstractNode<K, V> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10103,8 +4179,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -10114,41 +4190,35 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					return Result.updated(
-							valNodeOf(mutator, mask, key, val, npos1, node1),
-							val1);
+					return Result.updated(valNodeOf(mutator, mask, key, val, npos1, node1), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							node, npos1, node1);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, mask, node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
@@ -10156,22 +4226,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, npos1, node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, npos1, node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -10182,14 +4252,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -10203,24 +4272,23 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal());
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, mask, subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+									subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -10230,15 +4298,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
 				return true;
 			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -10246,19 +4312,19 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
 				return Optional.of(entryOf(key1, val1));
 			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
@@ -10363,9 +4429,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos2;
 		private final AbstractNode<K, V> node2;
 
-		Value1Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
-				AbstractNode<K, V> node2) {
+		Value1Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte npos1,
+						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10376,8 +4441,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -10388,61 +4453,58 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, mask, key, val, npos1, node1,
-									npos2, node2), val1);
+									valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2),
+									val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							node, npos1, node1, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
+									npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, mask, node, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
+									npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, npos2, node2, mask, node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, subNodeResult.getNode(), npos2, node2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+								subNodeResult.getNode(), npos2, node2);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, npos1, node1, mask, subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+								node1, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
@@ -10450,22 +4512,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, npos1, node1, npos2, node2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, npos1, node1, npos2, node2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -10474,17 +4536,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, npos1, node1, npos2,
-						node2));
+				return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -10499,37 +4559,35 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, npos2,
-								node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos2, node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos2,
+										node2);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, mask, subNodeNew, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+									subNodeNew, npos2, node2);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -10544,25 +4602,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, npos1,
-								node1);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos1,
+										node1);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, npos1, node1, mask, subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+									node1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -10572,18 +4629,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
 				return true;
 			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -10591,26 +4645,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
 				return Optional.of(entryOf(key1, val1));
 			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1,
-					node2 });
+			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2 });
 		}
 
 		@Override
@@ -10722,9 +4774,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos3;
 		private final AbstractNode<K, V> node3;
 
-		Value1Index3Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
-				AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3) {
+		Value1Index3Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte npos1,
+						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
+						AbstractNode<K, V> node3) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10737,8 +4789,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -10749,88 +4801,78 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, mask, key, val, npos1, node1,
-									npos2, node2, npos3, node3), val1);
+									valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2,
+													npos3, node3), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-							node, npos1, node1, npos2, node2, npos3, node3);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
+									npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, mask, node, npos2, node2, npos3,
-							node3);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
+									npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos3) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, npos2, node2, mask, node, npos3,
-							node3);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, mask, node, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-							npos1, node1, npos2, node2, npos3, node3, mask,
-							node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, npos3, node3, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, subNodeResult.getNode(), npos2,
-						node2, npos3, node3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+								subNodeResult.getNode(), npos2, node2, npos3, node3);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, npos1, node1, mask,
-						subNodeResult.getNode(), npos3, node3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+								node1, mask, subNodeResult.getNode(), npos3, node3);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node3.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, npos1, node1, npos2, node2, mask,
-						subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+								node1, npos2, node2, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
@@ -10838,24 +4880,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, npos1, node1, npos2, node2,
-						npos3, node3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, npos1, node1, npos2, node2, npos3, node3);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, npos1, node1, npos2, node2,
-						npos3, node3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, npos1, node1, npos2, node2, npos3, node3);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -10864,17 +4904,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, npos1, node1, npos2,
-						node2, npos3, node3));
+				return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3, node3));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -10889,39 +4927,35 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, npos2,
-								node2, npos3, node3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, npos2, node2, npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos2, node2, npos3,
-								node3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos2,
+										node2, npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, mask, subNodeNew, npos2, node2, npos3,
-							node3);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+									subNodeNew, npos2, node2, npos3, node3);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -10936,39 +4970,35 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, npos1,
-								node1, npos3, node3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, npos1, node1, npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1, npos3,
-								node3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos1,
+										node1, npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, npos1, node1, mask, subNodeNew, npos3,
-							node3);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+									node1, mask, subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -10983,27 +5013,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, npos1,
-								node1, npos2, node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, npos1, node1, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), npos1, node1, npos2,
-								node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos1,
+										node1, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, npos1, node1, npos2, node2, mask,
-							subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+									node1, npos2, node2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -11013,21 +5040,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
 				return true;
 			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -11035,29 +5058,26 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
 				return Optional.of(entryOf(key1, val1));
 			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1,
-					node2, node3 });
+			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -11151,8 +5171,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[%s=%s, %s, %s, %s]", key1, val1, node1,
-					node2, node3);
+			return String.format("[%s=%s, %s, %s, %s]", key1, val1, node1, node2, node3);
 		}
 
 		@Override
@@ -11175,8 +5194,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key2;
 		private final V val2;
 
-		Value2Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte pos2, K key2, V val2) {
+		Value2Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
+						K key2, V val2) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -11186,8 +5205,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -11197,19 +5216,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					return Result
-							.updated(
-									valNodeOf(mutator, mask, key, val, pos2,
-											key2, val2), val1);
+					return Result.updated(valNodeOf(mutator, mask, key, val, pos2, key2, val2),
+									val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-						key2, val2, mask, node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos2) {
@@ -11219,19 +5234,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					return Result
-							.updated(
-									valNodeOf(mutator, pos1, key1, val1, mask,
-											key, val), val2);
+					return Result.updated(valNodeOf(mutator, pos1, key1, val1, mask, key, val),
+									val2);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2,
-						key2.hashCode(), val2, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -11239,28 +5250,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, pos2, key2, val2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, pos2, key2, val2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask, key, val);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -11283,8 +5294,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -11298,7 +5308,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -11327,8 +5337,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2,
-					val2 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
 		}
 
 		@Override
@@ -11420,9 +5429,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos1;
 		private final AbstractNode<K, V> node1;
 
-		Value2Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte pos2, K key2, V val2, byte npos1,
-				AbstractNode<K, V> node1) {
+		Value2Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
+						K key2, V val2, byte npos1, AbstractNode<K, V> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -11434,8 +5442,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -11446,24 +5454,23 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, mask, key, val, pos2, key2,
-									val2, npos1, node1), val1);
+									valNodeOf(mutator, mask, key, val, pos2, key2, val2, npos1,
+													node1), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-							key2, val2, mask, node, npos1, node1);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask,
+									node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-							key2, val2, npos1, node1, mask, node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
+									node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
@@ -11475,41 +5482,38 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, mask, key,
-									val, npos1, node1), val2);
+									valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1,
+													node1), val2);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2,
-						key2.hashCode(), val2, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, mask, node, npos1, node1);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+									node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, npos1, node1, mask, node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+									node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask,
-						subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
@@ -11517,31 +5521,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, pos2, key2, val2, npos1,
-						node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, pos2, key2, val2, npos1,
-						node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask, key, val, npos1,
-						node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -11550,25 +5551,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos2, key2, val2,
-						npos1, node1));
+				return Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1));
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						npos1, node1));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -11583,32 +5581,31 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, pos2,
-								key2, val2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, pos2, key2, val2);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos2, key2, val2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
+										key2, val2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, pos2, key2, val2, mask,
-								subNodeNew.headKey(), subNodeNew.headVal());
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										pos2, key2, val2, mask, subNodeNew.headKey(),
+										subNodeNew.headVal());
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos2, key2, val2, mask, subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+									key2, val2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -11618,8 +5615,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -11627,8 +5623,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
 				return true;
 			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -11636,7 +5631,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -11644,13 +5639,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
 				return Optional.of(entryOf(key2, val2));
 			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
@@ -11668,8 +5663,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2,
-					val2 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
 		}
 
 		@Override
@@ -11744,8 +5738,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[%s=%s, %s=%s, %s]", key1, val1, key2, val2,
-					node1);
+			return String.format("[%s=%s, %s=%s, %s]", key1, val1, key2, val2, node1);
 		}
 
 		@Override
@@ -11772,9 +5765,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos2;
 		private final AbstractNode<K, V> node2;
 
-		Value2Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte pos2, K key2, V val2, byte npos1,
-				AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+		Value2Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
+						K key2, V val2, byte npos1, AbstractNode<K, V> node1, byte npos2,
+						AbstractNode<K, V> node2) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -11788,8 +5781,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -11800,30 +5793,29 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, mask, key, val, pos2, key2,
-									val2, npos1, node1, npos2, node2), val1);
+									valNodeOf(mutator, mask, key, val, pos2, key2, val2, npos1,
+													node1, npos2, node2), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-							key2, val2, mask, node, npos1, node1, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask,
+									node, npos1, node1, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-							key2, val2, npos1, node1, mask, node, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
+									node1, mask, node, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-							key2, val2, npos1, node1, npos2, node2, mask, node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
+									node1, npos2, node2, mask, node);
 					return Result.modified(thisNew);
 				}
 
@@ -11835,63 +5827,58 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, mask, key,
-									val, npos1, node1, npos2, node2), val2);
+									valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1,
+													node1, npos2, node2), val2);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2,
-						key2.hashCode(), val2, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, mask, node, npos1, node1, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+									node, npos1, node1, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, npos1, node1, mask, node, npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+									node1, mask, node, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, npos1, node1, npos2, node2, mask, node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+									node1, npos2, node2, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask,
-						subNodeResult.getNode(), npos2, node2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, subNodeResult.getNode(), npos2, node2);
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, npos1, node1, mask,
-						subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, npos1, node1, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
@@ -11899,31 +5886,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, pos2, key2, val2, npos1,
-						node1, npos2, node2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, pos2, key2, val2, npos1,
-						node1, npos2, node2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask, key, val, npos1,
-						node1, npos2, node2);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -11932,25 +5916,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos2, key2, val2,
-						npos1, node1, npos2, node2));
+				return Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1, npos2,
+								node2));
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						npos1, node1, npos2, node2));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1, npos2,
+								node2));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -11965,47 +5948,42 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, pos2,
-								key2, val2, npos2, node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, pos2, key2, val2, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos2, key2, val2, npos2,
-								node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
+										key2, val2, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, pos2, key2, val2, mask,
-								subNodeNew.headKey(), subNodeNew.headVal(),
-								npos2, node2);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										pos2, key2, val2, mask, subNodeNew.headKey(),
+										subNodeNew.headVal(), npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos2, key2, val2, mask, subNodeNew,
-							npos2, node2);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+									key2, val2, mask, subNodeNew, npos2, node2);
 
 					return Result.modified(thisNew);
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -12020,35 +5998,31 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, pos2,
-								key2, val2, npos1, node1);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, pos2, key2, val2, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos2, key2, val2, npos1,
-								node1);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
+										key2, val2, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, pos2, key2, val2, mask,
-								subNodeNew.headKey(), subNodeNew.headVal(),
-								npos1, node1);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										pos2, key2, val2, mask, subNodeNew.headKey(),
+										subNodeNew.headVal(), npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos2, key2, val2, npos1, node1, mask,
-							subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+									key2, val2, npos1, node1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -12058,8 +6032,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -12067,11 +6040,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
 				return true;
 			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -12079,7 +6050,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -12087,20 +6058,18 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
 				return Optional.of(entryOf(key2, val2));
 			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1,
-					node2 });
+			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2 });
 		}
 
 		@Override
@@ -12115,8 +6084,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2,
-					val2 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
 		}
 
 		@Override
@@ -12199,8 +6167,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[%s=%s, %s=%s, %s, %s]", key1, val1, key2,
-					val2, node1, node2);
+			return String.format("[%s=%s, %s=%s, %s, %s]", key1, val1, key2, val2, node1, node2);
 		}
 
 		@Override
@@ -12226,8 +6193,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key3;
 		private final V val3;
 
-		Value3Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3) {
+		Value3Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
+						K key2, V val2, byte pos3, K key3, V val3) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12240,8 +6207,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -12252,17 +6219,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, mask, key, val, pos2, key2,
-									val2, pos3, key3, val3), val1);
+									valNodeOf(mutator, mask, key, val, pos2, key2, val2, pos3,
+													key3, val3), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-						key2, val2, pos3, key3, val3, mask, node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3, key3,
+								val3, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos2) {
@@ -12273,17 +6239,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, mask, key,
-									val, pos3, key3, val3), val2);
+									valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos3,
+													key3, val3), val2);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2,
-						key2.hashCode(), val2, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos3, key3, val3, mask, node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3, key3,
+								val3, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos3) {
@@ -12294,17 +6259,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, pos2, key2,
-									val2, mask, key, val), val3);
+									valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask,
+													key, val), val3);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key3,
-						key3.hashCode(), val3, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask, node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -12312,38 +6276,34 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, pos2, key2, val2, pos3,
-						key3, val3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2, pos3, key3, val3);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, pos2, key2, val2, pos3,
-						key3, val3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2, pos3, key3, val3);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask, key, val, pos3,
-						key3, val3);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val, pos3, key3, val3);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-						key, val);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, mask, key, val);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -12352,32 +6312,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos2, key2, val2,
-						pos3, key3, val3));
+				return Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3));
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						pos3, key3, val3));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3));
 			} else if (mask == pos3) {
 				if (cmp.compare(key, key3) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						pos2, key2, val2));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2));
 			}
 
 			return Result.unchanged(this);
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -12393,7 +6349,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -12424,8 +6380,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2,
-					val2, key3, val3 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
 		}
 
 		@Override
@@ -12504,8 +6459,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[%s=%s, %s=%s, %s=%s]", key1, val1, key2,
-					val2, key3, val3);
+			return String.format("[%s=%s, %s=%s, %s=%s]", key1, val1, key2, val2, key3, val3);
 		}
 
 		@Override
@@ -12533,9 +6487,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final byte npos1;
 		private final AbstractNode<K, V> node1;
 
-		Value3Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-				byte npos1, AbstractNode<K, V> node1) {
+		Value3Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
+						K key2, V val2, byte pos3, K key3, V val3, byte npos1,
+						AbstractNode<K, V> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12550,8 +6504,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -12561,29 +6515,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					return Result
-							.updated(
-									valNodeOf(mutator, mask, key, val, pos2,
-											key2, val2, pos3, key3, val3,
-											npos1, node1), val1);
+					return Result.updated(
+									valNodeOf(mutator, mask, key, val, pos2, key2, val2, pos3,
+													key3, val3, npos1, node1), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-							key2, val2, pos3, key3, val3, mask, node, npos1,
-							node1);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3,
+									key3, val3, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-							key2, val2, pos3, key3, val3, npos1, node1, mask,
-							node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3,
+									key3, val3, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
@@ -12595,26 +6544,23 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, mask, key,
-									val, pos3, key3, val3, npos1, node1), val2);
+									valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos3,
+													key3, val3, npos1, node1), val2);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2,
-						key2.hashCode(), val2, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos3, key3, val3, mask, node, npos1,
-							node1);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3,
+									key3, val3, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos3, key3, val3, npos1, node1, mask,
-							node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3,
+									key3, val3, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
@@ -12626,43 +6572,38 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, pos2, key2,
-									val2, mask, key, val, npos1, node1), val3);
+									valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask,
+													key, val, npos1, node1), val3);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key3,
-						key3.hashCode(), val3, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos2, key2, val2, mask, node, npos1,
-							node1);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+									key2, val2, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos2, key2, val2, npos1, node1, mask,
-							node);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+									key2, val2, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key,
-						keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-						subNodeResult.getNode());
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue())
-					return Result.updated(thisNew,
-							subNodeResult.getReplacedValue());
+					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
 			}
@@ -12670,38 +6611,34 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, pos2, key2, val2, pos3,
-						key3, val3, npos1, node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2, pos3, key3, val3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, pos2, key2, val2, pos3,
-						key3, val3, npos1, node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2, pos3, key3, val3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask, key, val, pos3,
-						key3, val3, npos1, node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val, pos3, key3, val3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-						key, val, npos1, node1);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, mask, key, val, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -12710,33 +6647,32 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos2, key2, val2,
-						pos3, key3, val3, npos1, node1));
+				return Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
+								npos1, node1));
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						pos3, key3, val3, npos1, node1));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
+								npos1, node1));
 			} else if (mask == pos3) {
 				if (cmp.compare(key, key3) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						pos2, key2, val2, npos1, node1));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
+								npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key,
-						keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified())
 					return Result.unchanged(this);
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult
-						.getNode();
+				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
 				assert this.arity() >= 2;
 				assert subNodeNew.size() >= 1;
@@ -12751,43 +6687,38 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos1, key1, val1, pos2,
-								key2, val2, pos3, key3, val3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
+										val1, pos2, key2, val2, pos3, key3, val3);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, mask, subNodeNew.headKey(),
-								subNodeNew.headVal(), pos2, key2, val2, pos3,
-								key3, val3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
+										key2, val2, pos3, key3, val3);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos3) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, pos2, key2, val2, mask,
-								subNodeNew.headKey(), subNodeNew.headVal(),
-								pos3, key3, val3);
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										pos2, key2, val2, mask, subNodeNew.headKey(),
+										subNodeNew.headVal(), pos3, key3, val3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator,
-								pos1, key1, val1, pos2, key2, val2, pos3, key3,
-								val3, mask, subNodeNew.headKey(),
-								subNodeNew.headVal());
+						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+										pos2, key2, val2, pos3, key3, val3, mask,
+										subNodeNew.headKey(), subNodeNew.headVal());
 						return Result.modified(thisNew);
 					}
 
 				default:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-							key1, val1, pos2, key2, val2, pos3, key3, val3,
-							mask, subNodeNew);
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+									key2, val2, pos3, key3, val3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -12797,8 +6728,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -12808,8 +6738,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
 				return true;
 			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift
-						+ BIT_PARTITION_SIZE, cmp);
+				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -12817,7 +6746,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -12827,13 +6756,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
 				return Optional.of(entryOf(key3, val3));
 			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash,
-						shift + BIT_PARTITION_SIZE, cmp);
+				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return Optional.empty();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
 			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
@@ -12851,8 +6780,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2,
-					val2, key3, val3 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
 		}
 
 		@Override
@@ -12939,8 +6867,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[%s=%s, %s=%s, %s=%s, %s]", key1, val1, key2,
-					val2, key3, val3, node1);
+			return String.format("[%s=%s, %s=%s, %s=%s, %s]", key1, val1, key2, val2, key3, val3,
+							node1);
 		}
 
 		@Override
@@ -12969,9 +6897,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key4;
 		private final V val4;
 
-		Value4Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1,
-				V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-				byte pos4, K key4, V val4) {
+		Value4Index0Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
+						K key2, V val2, byte pos3, K key3, V val3, byte pos4, K key4, V val4) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12987,8 +6914,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key,
-				int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -12999,19 +6926,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, mask, key, val, pos2, key2,
-									val2, pos3, key3, val3, pos4, key4, val4),
-							val1);
+									valNodeOf(mutator, mask, key, val, pos2, key2, val2, pos3,
+													key3, val3, pos4, key4, val4), val1);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1,
-						key1.hashCode(), val1, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2,
-						key2, val2, pos3, key3, val3, pos4, key4, val4, mask,
-						node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3, key3,
+								val3, pos4, key4, val4, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos2) {
@@ -13022,19 +6946,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, mask, key,
-									val, pos3, key3, val3, pos4, key4, val4),
-							val2);
+									valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos3,
+													key3, val3, pos4, key4, val4), val2);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2,
-						key2.hashCode(), val2, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos3, key3, val3, pos4, key4, val4, mask,
-						node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3, key3,
+								val3, pos4, key4, val4, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos3) {
@@ -13045,19 +6966,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, pos2, key2,
-									val2, mask, key, val, pos4, key4, val4),
-							val3);
+									valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask,
+													key, val, pos4, key4, val4), val3);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key3,
-						key3.hashCode(), val3, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, pos4, key4, val4, mask,
-						node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos4, key4, val4, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos4) {
@@ -13068,19 +6986,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					// update mapping
 					return Result.updated(
-							valNodeOf(mutator, pos1, key1, val1, pos2, key2,
-									val2, pos3, key3, val3, mask, key, val),
-							val4);
+									valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
+													key3, val3, mask, key, val), val4);
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key4,
-						key4.hashCode(), val4, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE);
+				final AbstractNode<K, V> node = mergeNodes(key4, key4.hashCode(), val4, key,
+								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-						node);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -13088,45 +7003,40 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-						key, val, pos1, key1, val1, pos2, key2, val2, pos3,
-						key3, val3, pos4, key4, val4);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+								val1, pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, mask, key, val, pos2, key2, val2, pos3,
-						key3, val3, pos4, key4, val4);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+								val, pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, mask, key, val, pos3,
-						key3, val3, pos4, key4, val4);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, mask, key, val, pos3, key3, val3, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos4) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-						key, val, pos4, key4, val4);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, mask, key, val, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1,
-						key1, val1, pos2, key2, val2, pos3, key3, val3, pos4,
-						key4, val4, mask, key, val);
+				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+								val2, pos3, key3, val3, pos4, key4, val4, mask, key, val);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key,
-				int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -13135,40 +7045,39 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos2, key2, val2,
-						pos3, key3, val3, pos4, key4, val4));
+				return Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3, pos4,
+								key4, val4));
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						pos3, key3, val3, pos4, key4, val4));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3, pos4,
+								key4, val4));
 			} else if (mask == pos3) {
 				if (cmp.compare(key, key3) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						pos2, key2, val2, pos4, key4, val4));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos4,
+								key4, val4));
 			} else if (mask == pos4) {
 				if (cmp.compare(key, key4) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-						pos2, key2, val2, pos3, key3, val3));
+				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
+								key3, val3));
 			}
 
 			return Result.unchanged(this);
 		}
 
 		@Override
-		boolean containsKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -13186,7 +7095,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-				Comparator<Object> cmp) {
+						Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1 && cmp.compare(key, key1) == 0) {
@@ -13219,8 +7128,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2,
-					val2, key3, val3, key4, val4 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 });
 		}
 
 		@Override
@@ -13311,8 +7220,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[%s=%s, %s=%s, %s=%s, %s=%s]", key1, val1,
-					key2, val2, key3, val3, key4, val4);
+			return String.format("[%s=%s, %s=%s, %s=%s, %s=%s]", key1, val1, key2, val2, key3,
+							val3, key4, val4);
 		}
 
 		@Override
