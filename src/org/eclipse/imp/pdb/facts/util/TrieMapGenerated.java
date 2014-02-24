@@ -2334,7 +2334,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			// no value
-
 			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1(), node1);
 			return Result.modified(thisNew);
 
@@ -2354,29 +2353,19 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
 				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, ));
+				case SIZE_EMPTY:
+				case SIZE_ONE:
+					// escalate (singleton or empty) result
+					return subNodeResult;
 
-				case 1:
-					// inline value
-
-					if (mask < npos1()) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-										subNodeNew.headKey(), subNodeNew.headVal());
-						return Result.modified(thisNew);
-					}
+				case SIZE_MORE_THAN_ONE:
+					// modify current node (set replacement node)
+					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew);
+					return Result.modified(thisNew);
 
 				default:
-					// modify current node (set replacement node)
-
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew);
-
-					return Result.modified(thisNew);
+					throw new IllegalStateException("Invalid size state.");
 				}
 			}
 
@@ -2409,7 +2398,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1 });
 		}
 
 		@Override
@@ -2464,9 +2453,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			AbstractSingletonNode<?, ?> that = (AbstractSingletonNode<?, ?>) other;
 
-			// if (npos1() != that.npos1()) {
-			// return false;
-			// }
 			if (!node1.equals(that.node1)) {
 				return false;
 			}
@@ -3180,7 +3166,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2 });
 		}
 
 		@Override
@@ -3496,7 +3482,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2, node3 });
+			return ArrayIterator
+							.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -3879,7 +3866,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2, node3, node4 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2, node3,
+							node4 });
 		}
 
 		@Override
@@ -4046,7 +4034,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(CompactNode.<K, V>valNodeOf(mutator));
+				return Result.modified(CompactNode.<K, V> valNodeOf(mutator));
 			}
 
 			return Result.unchanged(this);
@@ -4327,7 +4315,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1 });
 		}
 
 		@Override
@@ -4662,7 +4650,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2 });
 		}
 
 		@Override
@@ -5077,7 +5065,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2, node3 });
+			return ArrayIterator
+							.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -5648,7 +5637,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1 });
 		}
 
 		@Override
@@ -6069,7 +6058,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1, node2 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2 });
 		}
 
 		@Override
@@ -6765,7 +6754,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return (Iterator) ArrayIterator.of(new AbstractNode[] { node1 });
+			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1 });
 		}
 
 		@Override
