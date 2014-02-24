@@ -37,14 +37,14 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
-	private int postionalArity;
+	private int positionalArity;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 	  super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
-		this.postionalArity = childrenTypes.getArity();
+		this.positionalArity = childrenTypes.getArity();
 	}
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, int positionalArity) {
@@ -52,7 +52,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		if(positionalArity > childrenTypes.getArity()){
 			throw new UnsupportedOperationException("postional arity exceeds number of fields for constructor " + getName());
 		}
-		this.postionalArity = positionalArity;
+		this.positionalArity = positionalArity;
 	}
 
 	@Override
@@ -147,6 +147,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	@Override
 	public String getFieldName(int i) {
 		return fChildrenTypes.getFieldName(i);
+	}
+	
+	@Override
+	public String[] getFieldNames() {
+	  return fChildrenTypes.getFieldNames();
 	}
 	
 	@Override
@@ -271,12 +276,12 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	public boolean hasKeywordArguments(){
-		return postionalArity < fChildrenTypes.getArity();
+		return positionalArity < fChildrenTypes.getArity();
 	}
 	
 	@Override
 	public int getPositionalArity(){
-		return postionalArity;
+		return positionalArity;
 	}
 	
 }

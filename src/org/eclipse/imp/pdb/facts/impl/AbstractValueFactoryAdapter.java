@@ -339,5 +339,11 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
       throws FactTypeUseException {
    return adapted.constructor(constructor, annotations, children);
   }
+  
+  @Override
+  public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams)
+      throws FactTypeUseException {
+   return adapted.constructor(constructor, children, kwParams);
+  }
 
 }

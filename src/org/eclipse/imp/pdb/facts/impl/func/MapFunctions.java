@@ -154,20 +154,20 @@ public final class MapFunctions {
         if (other == null) return false;
 
         if (other instanceof IMap) {
-            IMap map2 = (IMap) other;
+          IMap map2 = (IMap) other;
 
-            if (map1.size() == map2.size()) {
+          if (map1.size() == map2.size()) {
 
-				for (IValue k1 : map1) {
-					if (containsKey(vf, map2, k1) == false) { // call to IValue.isEqual(IValue)
-						return false;
-					} else if (map2.get(k1).isEqual(map1.get(k1)) == false) { // call to IValue.isEqual(IValue)
-						return false;
-					}
-				}
-
-                return true;
+            for (IValue k1 : map1) {
+              if (containsKey(vf, map2, k1) == false) { // call to IValue.isEqual(IValue)
+                return false;
+              } else if (map2.get(k1).isEqual(map1.get(k1)) == false) { // call to IValue.isEqual(IValue)
+                return false;
+              }
             }
+
+            return true;
+          }
         }
 
         return false;
@@ -184,17 +184,27 @@ public final class MapFunctions {
 		}
         return false;
 	}
+
+  public static IValue get(IValueFactory valueFactory,
+      IMap map1, IValue key) {
+    for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
+      Entry<IValue, IValue> entry = iterator.next();
+      if (entry.getKey().isEqual(key)) {
+        return entry.getValue();
+      }
+    }
+        return null;
+  }	
 	
-	public static boolean containsKey(IValueFactory valueFactory,
-			IMap map1, IValue key) {
-		for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
-			Entry<IValue, IValue> entry = iterator.next();
-			if (entry.getKey().isEqual(key)) {
-				return true;
-			}
-		}
-        return false;
-	}
+  public static boolean containsKey(IValueFactory valueFactory, IMap map1, IValue key) {
+    for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
+      Entry<IValue, IValue> entry = iterator.next();
+      if (entry.getKey().isEqual(key)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 	public static boolean containsValueWithEquals(IValueFactory valueFactory,
 			IMap map1, IValue value) {

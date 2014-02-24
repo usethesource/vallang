@@ -17,14 +17,17 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -77,7 +80,8 @@ public class StandardTextReader extends AbstractTextReader {
 	private int current;
 	private LinkedHashMap<String, ISourceLocation> sourceLocationCache;
 
-	public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
+	@SuppressWarnings("serial")
+  public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
 		this.store = store;
 		this.stream = new NoWhiteSpaceReader(stream);
 		this.factory = factory;
@@ -107,7 +111,20 @@ public class StandardTextReader extends AbstractTextReader {
 		} 
 		else if ((Character.isJavaIdentifierStart(current) && '$' != current)
 				|| current == '\\') {
-			result = readConstructor(expected);
+		  String id = readIdentifier();
+		  
+		  if (id.equals("true")) {
+	      return factory.bool(true);
+	    }
+	    else if (id.equals("false")) {
+	      return factory.bool(false);
+	    }
+	    else if (current == '=') {
+	      return factory.string(id);
+	    } 
+	    else if (current == START_OF_ARGUMENTS) {
+	      result = readConstructor(id, expected);
+	    }
 		}
 		else {
 			switch (current) {
@@ -165,7 +182,7 @@ public class StandardTextReader extends AbstractTextReader {
 			}
 			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> args = new ArrayList<>(4);
-				readFixed(types.valueType(), ')', args);
+				readFixed(types.valueType(), ')', args, null);
 
 				if (args.size() >= 2) {
 					if (!args.get(0).getType().isSubtypeOf(types.integerType())) {
@@ -236,7 +253,7 @@ public class StandardTextReader extends AbstractTextReader {
 	private IValue readMap(Type expected) throws IOException {
 		Type keyType = expected.isSubtypeOf(generalMapType) ? expected.getKeyType() : types.valueType();
 		Type valueType = expected.isSubtypeOf(generalMapType) ? expected.getValueType() : types.valueType();
-		IMapWriter w = expected.isSubtypeOf(generalMapType) ? factory.mapWriter(keyType, valueType) : factory.mapWriter();
+		IMapWriter w = factory.mapWriter();
 
 		checkAndRead(START_OF_MAP);
 
@@ -261,7 +278,7 @@ public class StandardTextReader extends AbstractTextReader {
 
 	private IValue readTuple(Type expected) throws IOException {
 		ArrayList<IValue> arr = new ArrayList<>();
-		readFixed(expected, END_OF_TUPLE, arr);
+		readFixed(expected, END_OF_TUPLE, arr, null);
 		IValue[] result = new IValue[arr.size()];
 		return factory.tuple(arr.toArray(result));
 	}
@@ -270,14 +287,14 @@ public class StandardTextReader extends AbstractTextReader {
 	
 	private IValue readSet(Type expected) throws FactTypeUseException, IOException {
 		Type elemType = expected.isSubtypeOf(genericSetType) ? expected.getElementType() : types.valueType();
-		return readContainer(elemType, expected.isSubtypeOf(genericSetType) ? factory.setWriter(elemType) : factory.setWriter(), END_OF_SET);
+		return readContainer(elemType, factory.setWriter(), END_OF_SET);
 	}
 		
 	private static final Type genericListType = TF.listType(TF.valueType());
 	
 	private IValue readList(Type expected) throws FactTypeUseException, IOException {
 		Type elemType = expected.isSubtypeOf(genericListType) ? expected.getElementType() : types.valueType();
-		return readList(elemType, expected.isSubtypeOf(genericListType) ? factory.listWriter(expected.getElementType()) : factory.listWriter(), END_OF_LIST);
+		return readList(elemType, factory.listWriter(), END_OF_LIST);
 	}
 
 	private IValue readNumber(Type expected) throws IOException {
@@ -319,65 +336,39 @@ public class StandardTextReader extends AbstractTextReader {
 		return null;
 	}
 
-	private IValue readConstructor(Type expected) throws IOException {
-		String id = readIdentifier();
-		
-		if (id.equals("true")) {
-			return factory.bool(true);
-		}
-		else if (id.equals("false")) {
-			return factory.bool(false);
-		}
-		else {
-			if (current == START_OF_ARGUMENTS) {
-				ArrayList<IValue> arr = new ArrayList<IValue>();
-				Type args = expected;
-				Type constr = null;
-				if (expected.isAbstractData() ) {
-					Set<Type> alternatives = store.lookupConstructor(expected, id);
-					if (alternatives.size() > 1) {
-						throw new OverloadingNotSupportedException(expected, id);
-					}
-					else if (alternatives.size() == 0) {
-						args = types.valueType(); 
-						// TODO: Should not it be an undeclared abstract data/constructor exception?!
-					}
-					else {
-						constr = alternatives.iterator().next();
-						args = constr.getFieldTypes();
-					}
-				}
-				readFixed(args, END_OF_ARGUMENTS, arr);
-				IValue[] result = new IValue[arr.size()];
-				result = arr.toArray(result);
-				
-				// return expected.make(factory, store, id, result);
-				if(expected.isTop())
-					constr = store.lookupFirstConstructor(id, TF.tupleType(result));
-				
-				if(constr != null)
-					return factory.constructor(constr, result);
-				else
-					return factory.node(id, result);
-				
-			}
-			
-			Type args = types.tupleType(new Type[0]);
-			
-			Type cons;
-			if (expected.isAbstractData()) {
-				cons = store.lookupConstructor(expected, id, args);
-			}
-			else {
-				cons = store.lookupFirstConstructor(id, args);
-			}
-			
-			if (cons != null) {
-				return factory.constructor(cons);
-			}
-			
-			return factory.node(id);
-		}
+	private IValue readConstructor(String id, Type expected) throws IOException {
+	  ArrayList<IValue> arr = new ArrayList<IValue>();
+	  Type args = expected;
+	  Type constr = null;
+	  if (expected.isAbstractData() ) {
+	    Set<Type> alternatives = store.lookupConstructor(expected, id);
+	    if (alternatives.size() > 1) {
+	      throw new OverloadingNotSupportedException(expected, id);
+	    }
+	    else if (alternatives.size() == 0) {
+	      args = types.valueType(); 
+	      // TODO: Should not it be an undeclared abstract data/constructor exception?!
+	    }
+	    else {
+	      constr = alternatives.iterator().next();
+	      args = constr.getFieldTypes();
+	    }
+	  }
+
+	  Map<String, IValue> kwParams = new HashMap<>();
+	  readFixed(args, END_OF_ARGUMENTS, arr, kwParams);
+	  IValue[] result = new IValue[arr.size()];
+	  result = arr.toArray(result);
+
+	  if (expected.isTop()) {
+	    constr = store.lookupFirstConstructor(id, TF.tupleType(result));
+	  }
+
+	  if (constr != null) {
+	    return factory.constructor(constr, result, kwParams);
+	  } else {
+	    return factory.node(id, result, kwParams);
+	  }
 	}
 
 	/**
@@ -702,11 +693,12 @@ public class StandardTextReader extends AbstractTextReader {
 		
 		if (current == START_OF_ARGUMENTS) {
 			ArrayList<IValue> arr = new ArrayList<>();
-			readFixed(expected, END_OF_ARGUMENTS, arr);
+			Map<String,IValue> kwParams = new HashMap<>();
+			readFixed(expected, END_OF_ARGUMENTS, arr, kwParams);
 			IValue[] result = new IValue[arr.size()];
 			result = arr.toArray(result);
 			
-			return factory.node(str, result);
+			return factory.node(str, result, kwParams);
 		}
 		
 		return factory.string(str);
@@ -750,26 +742,34 @@ public class StandardTextReader extends AbstractTextReader {
 		return annoType;
 	}
 
-	private void readFixed(Type expected, char end, List<IValue> arr) throws IOException {
+	private void readFixed(Type expected, char end, List<IValue> arr, Map<String,IValue> kwParams) throws IOException {
 		current = stream.read();
 		
-//		if (current == end) {
-//		  // empty tuple
-//		  current = stream.read();
-//		  return;
-//		}
+		for (int i = 0; current != end; i++) {
+		  Type exp = expected.isFixedWidth() ? expected.getFieldType(i) : types.valueType();
+		  IValue elem = readValue(exp);
+
+		  if (current == '=') {
+		    String label = ((IString) elem).getValue();
+		    current = stream.read();
+		    if (expected.isConstructor() && expected.hasField(label)) {
+		      kwParams.put(label, readValue(expected.getFieldType(label)));
+		    }
+		    else {
+		      kwParams.put(label, readValue(types.valueType()));
+		    }
+		  }
+		  else {
+		    arr.add(elem);
+		  }
+
+		  if (current != ',' || current == end) {
+		    break; // no more elements, so expecting a 'end', or '='
+		  }
+		  current = stream.read();
+		}
 		
-	   for (int i = 0; current != end; i++) {
-		   Type exp = expected.isFixedWidth() ? expected.getFieldType(i) : types.valueType();
-		   arr.add(readValue(exp));
-		   
-		   if (current != ',' || current == end) {
-			   break; // no more elements, so expecting a '>'
-		   }
-		   current = stream.read();
-	   }
-	
-	   checkAndRead(end);
+		checkAndRead(end);
 	}
 
 	private IValue readContainer(Type elemType, IWriter w, char end) throws FactTypeUseException, IOException {

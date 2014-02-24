@@ -105,8 +105,8 @@ public abstract class BaseTestEquality extends TestCase {
 		 */
 		assertFalse(n.hashCode() == c.hashCode());
 		
-		// unidirectional: n -> c = true
-		assertTrue(n.isEqual(c));		
+		// unidirectional: n -> c = false
+		assertFalse(n.isEqual(c));		
 		
 		// unidirectional: c -> n = false
 		assertFalse(c.isEqual(n));	

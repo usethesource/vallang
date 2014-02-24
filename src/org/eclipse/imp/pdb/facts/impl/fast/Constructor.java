@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -42,6 +43,17 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
 		return new Constructor(constructorType, children); 
+	}
+	
+	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
+	  IValue[] allChildren = new IValue[children.length + kwParams.size()];
+	  System.arraycopy(children, 0, allChildren, 0, children.length);
+	  
+	  for (Entry<String,IValue> entry : kwParams.entrySet()) {
+	    allChildren[constructorType.getFieldIndex(entry.getKey())] = entry.getValue();
+	  }
+
+	  return new Constructor(constructorType, allChildren);
 	}
 	
 	private Constructor(Type constructorType, IValue[] children){
@@ -189,19 +201,23 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		if(value instanceof IConstructor){
 			IConstructor otherTree = (IConstructor) value;
 			
-			if(!constructorType.comparable(otherTree.getConstructorType())) return false;
+			if(!constructorType.comparable(otherTree.getConstructorType())) {
+			  return false;
+			}
 			
 			final Iterator<IValue> it1 = this.iterator();
 			final Iterator<IValue> it2 = otherTree.iterator();
 
 			while (it1.hasNext() && it2.hasNext()) {
 				// call to IValue.isEqual(IValue)
-				if (it1.next().isEqual(it2.next()) == false)
+				if (it1.next().isEqual(it2.next()) == false) {
 					return false;
+				}
 			}
 
-			assert (!it1.hasNext() && !it2.hasNext());
-			return true;
+			// TODO: if keyword parameters are better supported with default values, 
+			// this can become 'true' again.
+			return (!it1.hasNext() && !it2.hasNext());
 		}
 		
 		return false;
@@ -226,7 +242,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public boolean hasKeywordArguments() {
-		return false;
+		return constructorType.hasKeywordArguments();
 	}
 
 	@Override
