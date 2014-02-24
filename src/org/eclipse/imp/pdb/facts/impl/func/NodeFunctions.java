@@ -132,6 +132,10 @@ public class NodeFunctions {
 		if(value == node1) return true;
 		if(value == null) return false;
 		
+		if (node1.getType() != value.getType()) {
+		  return false;
+		}
+		
 		if (value instanceof INode) {
 			INode node2 = (INode) value;
 			
@@ -141,25 +145,6 @@ public class NodeFunctions {
 				return false;
 			}
 
-//			if (node1.arity() == other.arity()) {
-//				if (node1.positionalArity() != other.positionalArity()) {
-//					return false;
-//				}
-//				
-//				final Iterator<IValue> it1 = node1.iterator();
-//				final Iterator<IValue> it2 = other.iterator();
-//				
-//				while (it1.hasNext() && it2.hasNext()) {
-//					// call to IValue.isEqual(IValue)
-//					if (it1.next().isEqual(it2.next()) == false)
-//						return false;
-//				}
-//
-//				assert (!it1.hasNext() && !it2.hasNext());
-//				return true;
-//				...
-
-			
 			int nrOfChildren = node1.arity();
 			if (nrOfChildren == node2.arity()) {
 				int nrOfPosChildren = node1.positionalArity();

@@ -2,6 +2,7 @@ package org.eclipse.imp.pdb.facts.impl.reference;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -10,6 +11,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
+import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -28,8 +30,23 @@ public class Constructor extends Node implements IConstructor {
 	/*package*/ Constructor(Type type) {
 		this(type, new IValue[0]);
 	}
+	
+	/*package*/ Constructor(Type type, IValue[] children, Map<String,IValue> kwParams) {
+    this(type, getAllChildren(type, children, kwParams));
+  }
 
-	private Constructor(Constructor other, int childIndex, IValue newChild) {
+	private static IValue[] getAllChildren(Type type, IValue[] children, Map<String, IValue> kwParams) {
+	  IValue[] allChildren = new IValue[children.length + kwParams.size()];
+    System.arraycopy(children, 0, allChildren, 0, children.length);
+    
+    for (Entry<String,IValue> entry : kwParams.entrySet()) {
+      allChildren[type.getFieldIndex(entry.getKey())] = entry.getValue();
+    }
+    
+    return allChildren;
+  }
+
+  private Constructor(Constructor other, int childIndex, IValue newChild) {
 		super(other, childIndex, newChild);
 	}
 
@@ -110,6 +127,11 @@ public class Constructor extends Node implements IConstructor {
 			return fType.comparable(other.fType) && super.equals(obj);
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean isEqual(IValue value) {
+	  return NodeFunctions.isEqual(getValueFactory(), this, value);
 	}
 
 	@Override

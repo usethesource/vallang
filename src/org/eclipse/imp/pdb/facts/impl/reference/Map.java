@@ -59,7 +59,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 
 	@Override
 	public IValue get(IValue key) {
-		return content.get(key);
+		return MapFunctions.get(getValueFactory(), this, key);
 	}
 
 	@Override

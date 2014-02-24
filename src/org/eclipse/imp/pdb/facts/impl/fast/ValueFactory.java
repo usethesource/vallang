@@ -182,9 +182,13 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	
 	@Override
 	public IConstructor constructor(Type constructorType, IValue... children){
-//		Type instantiatedType = inferInstantiatedTypeOfConstructor(constructorType, children);		
 		return Constructor.newConstructor(constructorType, children.clone());
 	}
+	
+	@Override
+  public IConstructor constructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams){
+    return Constructor.newConstructor(constructorType, children.clone(), kwParams);
+  }
 	
 	@Override
 	public IConstructor constructor(Type constructorType,

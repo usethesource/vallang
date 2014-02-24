@@ -475,10 +475,28 @@ public interface IValueFactory {
 	 * @throws FactTypeUseException
 	 *             if the children are not of the expected types for this node
 	 *             type
+	 * @deprecated annotations will be replaced by keyword parameters
 	 */
+	@Deprecated
 	public IConstructor constructor(Type constructor,
 			Map<String, IValue> annotations, IValue... children)
 			throws FactTypeUseException;
+	
+	 /**
+   * Make a constructor value with keyword parameters
+   * 
+   * @param constructor
+   *            the constructor to use
+   * @param children
+   *            an array or variable length argument list of children
+   * @param kwParams keyword parameters
+   * @return a new tree value
+   * @throws FactTypeUseException
+   *             if the children are not of the expected types for this node
+   *             type
+   */
+  public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams)
+      throws FactTypeUseException;
 
 	/**
 	 * Construct an empty unmodifiable set. If the element type is a tuple type,
