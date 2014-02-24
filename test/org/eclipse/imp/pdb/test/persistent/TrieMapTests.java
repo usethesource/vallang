@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.test.persistent;
 
+import static org.junit.Assert.*;
+
 import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.util.TrieMap;
@@ -49,5 +51,34 @@ public class TrieMapTests {
 		
 		map.printStats();
 	}
+	
+	
+	@Test
+	public void testRecoverMask() {
+		byte mask = recoverMask(-2147483648, (byte) 1);
+		assertTrue(mask == 31);
+	}
+	
+	static byte recoverMask(int map, byte i_th) {
+		assert 1 <= i_th && i_th <= 32;
+		
+		byte cnt1 = 0;
+		byte mask = 0;
+		
+		while(mask < 32) {
+			if ((map & 0x01) == 0x01) {
+				cnt1 += 1;
+				
+				if (cnt1 == i_th) {
+					return mask;
+				}
+			}
+			
+			map = map >> 1;
+			mask += 1;
+		}
+		
+		throw new RuntimeException("Called with invalid arguments."); // cnt1 != i_th
+	}	
 	
 }
