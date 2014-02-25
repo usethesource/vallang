@@ -51,18 +51,22 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 	public IAnnotatable<? extends INode> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<INode>(this) {
 			@Override
-			protected INode wrap(INode content,
-					ImmutableMap<String, IValue> annotations) {
+			protected INode wrap(INode content, ImmutableMap<String, IValue> annotations) {
 				return new AnnotatedNodeFacade(content, annotations);
 			}
 		};
 	}
 	
 	@Override
-	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-	  return new AbstractDefaultWithKeywordParameters<IValue>() {
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<INode>(this) {
 	    @Override
-	    protected IValue wrap(IValue content, ImmutableMap<String, IValue> parameters) {
+	    protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
 	      return new NodeWithKeywordParametersFacade(content, parameters);
 	    }
     };

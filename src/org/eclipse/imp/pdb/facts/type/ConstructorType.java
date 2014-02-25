@@ -80,7 +80,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	public int hashCode() {
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
-		19 * fKeywordParameters.hashCode() +
+		(fKeywordParameters == null ? 0 : 19 * fKeywordParameters.hashCode()) +
 		354767453 * fADT.hashCode();
 	}
 	

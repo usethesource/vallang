@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -24,7 +28,6 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
  * @param <T> the interface over which this parameter wrapper closes
  */
 public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> implements IWithKeywordParameters<T> {
-
   protected final T content;
 	protected final ImmutableMap<String, IValue> parameters;
 		
@@ -55,8 +58,8 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 	
 	/**
-	 * Wraps {@link #content} with other annotations. This methods is mandatory
-	 * because of PDB's immutable value nature: Once annotations are modified, a
+	 * Wraps {@link #content} with other parameters. This methods is mandatory
+	 * because of PDB's immutable value nature: Once parameters are modified, a
 	 * new immutable view is returned.
 	 * 
 	 * @param content
@@ -91,5 +94,45 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
   @Override
   public boolean hasParameters() {
     return parameters.size() > 0;
+  }
+  
+  @Override
+  public Set<String> getParameterNames() {
+    return Collections.unmodifiableSet(parameters.keySet()); 
+  }
+  
+  @Override
+  public Map<String,IValue> getParameters() {
+    return parameters;
+  }
+  
+  @Override
+  public boolean isEqual(IWithKeywordParameters<T> other) {
+    if (!getClass().equals(other.getClass())) {
+      return false;
+    }
+    
+    AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
+    
+    if (!content.isEqual(o.content)) {
+      return false;
+    }
+    
+    if (!parameters.keySet().equals(o.parameters.keySet())) {
+      return false;
+    }
+    
+    for (String key : parameters.keySet()) {
+      if (!parameters.get(key).isEqual(o.parameters.get(key))) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  @Override
+  public T setParameters(Map<String, IValue> params) {
+    return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
   }
 }

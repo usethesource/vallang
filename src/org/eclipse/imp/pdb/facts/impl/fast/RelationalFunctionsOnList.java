@@ -152,8 +152,7 @@ public class RelationalFunctionsOnList {
 	}
 	
 	public static IList project(IList rel1, int... fields) {
-		Type eltType = rel1.getType().getFieldTypes().select(fields);
-		IListWriter w = ValueFactory.getInstance().listWriter(eltType);
+		IListWriter w = ValueFactory.getInstance().listWriter();
 		
 		for (IValue v : rel1) {
 			w.append(((ITuple) v).select(fields));

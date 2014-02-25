@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
@@ -49,32 +50,12 @@ public class AnnotatedNodeFacade implements INode {
 		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
 	}
 
-	public boolean hasKeywordArguments() {
-		return content.hasKeywordArguments();
-	}
-
-	public String[] getKeywordArgumentNames() {
-		return content.getKeywordArgumentNames();
-	}
-
-	public int getKeywordIndex(String name) {
-		return content.getKeywordIndex(name);
-	}
-
-	public IValue getKeywordArgumentValue(String name) {
-		return content.getKeywordArgumentValue(name);
-	}
-
 	public int arity() {
 		return content.arity();
 	}
 
 	public String toString() {
 		return content.toString();
-	}
-
-	public int positionalArity() {
-		return content.positionalArity();
 	}
 
 	public String getName() {
@@ -134,5 +115,14 @@ public class AnnotatedNodeFacade implements INode {
 			}
 		};
 	}
-	
+
+  @Override
+  public boolean mayHaveKeywordParameters() {
+    return false;
+  }
+
+  @Override
+  public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+    throw new UnsupportedOperationException();
+  }
 }

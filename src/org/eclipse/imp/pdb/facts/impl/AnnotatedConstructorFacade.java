@@ -150,12 +150,11 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	
 	@Override
 	public boolean mayHaveKeywordParameters() {
-	  return true;
+	  return false;
 	}
-	
+
 	@Override
-	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-	  
+	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
+	  throw new UnsupportedOperationException();
 	}
-	
 }

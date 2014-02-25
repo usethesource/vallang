@@ -19,10 +19,13 @@ import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
+import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -235,21 +238,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		throw new UnsupportedOperationException("Replace not supported on constructor.");
 	}
 	
-	@Override
-	public IValue getKeywordArgumentValue(String name) {
-		
-	}
-
-	@Override
-	public boolean hasKeywordArguments() {
-		return constructorType.hasKeywordParameters();
-	}
-
-	@Override
-	public String[] getKeywordArgumentNames() {
-		return constructorType.getKeywordParameters();
-	}
-
 	/**
 	 * TODO: Create and move to {@link AbstractConstructor}.
 	 */
@@ -264,13 +252,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<IConstructor>(this) {
-
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
 				return new AnnotatedConstructorFacade(content, annotations);
 			}
 		};
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this) {
+	    @Override
+	    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+	      return new ConstructorWithKeywordParametersFacade(content, parameters);
+	    }
+    }; 
 	}
 	
 }

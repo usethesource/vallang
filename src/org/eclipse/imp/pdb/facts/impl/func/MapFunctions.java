@@ -25,7 +25,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public final class MapFunctions {
@@ -34,19 +33,7 @@ public final class MapFunctions {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 
 	public static IMap compose(IValueFactory vf, IMap map1, IMap map2) {
-		Type newMapType;
-
-		if (map1.getType().hasFieldNames() && map2.getType().hasFieldNames()) {
-			newMapType = TypeFactory.getInstance().mapType(
-					map1.getType().getKeyType(), map1.getType().getKeyLabel(),
-					map2.getType().getValueType(),
-					map2.getType().getValueLabel());
-		} else {
-			newMapType = TypeFactory.getInstance().mapType(map1.getKeyType(),
-					map2.getValueType());
-		}
-
-		IMapWriter w = vf.mapWriter(newMapType);
+		IMapWriter w = vf.mapWriter();
 
 		Iterator<Entry<IValue, IValue>> iter = map1.entryIterator();
 		while (iter.hasNext()) {
@@ -61,21 +48,21 @@ public final class MapFunctions {
 	}
    
 	public static IMap put(IValueFactory vf, IMap map1, IValue key, IValue value) {
-		IMapWriter sw = vf.mapWriter(map1.getType());
+		IMapWriter sw = vf.mapWriter();
 		sw.putAll(map1);
 		sw.put(key, value);
 		return sw.done();
 	}
 
 	public static IMap join(IValueFactory vf, IMap map1, IMap map2) {
-		IMapWriter sw = vf.mapWriter(map1.getType().lub(map2.getType()));
+		IMapWriter sw = vf.mapWriter();
 		sw.putAll(map1);
 		sw.putAll(map2);
 		return sw.done();
 	}
 
 	public static IMap common(IValueFactory vf, IMap map1, IMap map2) {
-		IMapWriter sw = vf.mapWriter(map1.getType().lub(map2.getType()));
+		IMapWriter sw = vf.mapWriter();
 
 		for (IValue key : map1) {
 			IValue thisValue = map1.get(key);
@@ -88,7 +75,7 @@ public final class MapFunctions {
 	}
 
 	public static IMap remove(IValueFactory vf, IMap map1, IMap map2) {
-		IMapWriter sw = vf.mapWriter(map1.getType());
+		IMapWriter sw = vf.mapWriter();
 		for (IValue key : map1) {
 			if (!map2.containsKey(key)) {
 				sw.put(key, map1.get(key));
@@ -185,17 +172,16 @@ public final class MapFunctions {
         return false;
 	}
 
-  public static IValue get(IValueFactory valueFactory,
-      IMap map1, IValue key) {
-    for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
-      Entry<IValue, IValue> entry = iterator.next();
-      if (entry.getKey().isEqual(key)) {
-        return entry.getValue();
-      }
-    }
-        return null;
-  }	
-	
+	public static IValue get(IValueFactory valueFactory, IMap map1, IValue key) {
+	  for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
+	    Entry<IValue, IValue> entry = iterator.next();
+	    if (entry.getKey().isEqual(key)) {
+	      return entry.getValue();
+	    }
+	  }
+	  return null;
+	}	
+
   public static boolean containsKey(IValueFactory valueFactory, IMap map1, IValue key) {
     for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
       Entry<IValue, IValue> entry = iterator.next();

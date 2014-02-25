@@ -513,7 +513,7 @@ public class ATermReader extends AbstractBinaryReader {
 		IValue[] terms = parseATermsArray(reader, elementType);
 
 		if (base.isList() || base.equivalent(tf.valueType())) {
-			IListWriter w = vf.listWriter(base.equivalent(tf.valueType()) ? tf.valueType() : expected.getElementType());
+			IListWriter w = vf.listWriter();
 
 			for (int i = terms.length - 1; i >= 0; i--) {
 				w.insert(terms[i]);
@@ -521,11 +521,11 @@ public class ATermReader extends AbstractBinaryReader {
 
 			return w.done();
 		} else if (base.isSet()) {
-			ISetWriter w = vf.setWriter(expected.getElementType());
+			ISetWriter w = vf.setWriter();
 			w.insert(terms);
 			return w.done();
 		} else if (base.isMap()) {
-			IMapWriter w = vf.mapWriter(expected);
+			IMapWriter w = vf.mapWriter();
 			
 			for (IValue elem : terms) {
 				ITuple tuple = (ITuple) elem;
@@ -534,7 +534,7 @@ public class ATermReader extends AbstractBinaryReader {
 			
 			return w.done();
 		} else if (base.isRelation()) {
-			ISetWriter w = vf.setWriter(expected.getElementType());
+			ISetWriter w = vf.setWriter();
 			w.insert(terms);
 			return w.done();
 		}

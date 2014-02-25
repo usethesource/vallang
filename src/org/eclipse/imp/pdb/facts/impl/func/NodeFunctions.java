@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.impl.func;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
@@ -96,38 +97,6 @@ public class NodeFunctions {
 		return vf.node(node1.getName(), childArray);
 	}
 
-	public static IValue getKeywordArgumentValue(IValueFactory vf, INode node1, String name) {
-		if (node1.hasKeywordArguments()) {
-			int k = node1.getKeywordIndex(name);
-			if (k >= 0)
-				return node1.get(k);
-		}
-		return null;
-	}
-
-	public static boolean hasKeywordArguments(IValueFactory vf, INode node1) {
-		return node1.getKeywordArgumentNames() != null;
-	}
-
-	public static int getKeywordIndex(IValueFactory vf, INode node1, String name) {
-		if (node1.hasKeywordArguments()) {
-			String[] keyArgNames = node1.getKeywordArgumentNames();
-			for (int i = 0; i < keyArgNames.length; i++) {
-				if (name.equals(keyArgNames[i])) {
-					return node1.positionalArity() + i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	public static int positionalArity(IValueFactory vf, INode node1) {
-		if (node1.hasKeywordArguments())
-			return node1.arity() - node1.getKeywordArgumentNames().length;
-		else
-			return node1.arity();
-	}
-	
 	public static boolean isEqual(IValueFactory vf, INode node1, IValue value) {
 		if(value == node1) return true;
 		if(value == null) return false;
@@ -145,35 +114,22 @@ public class NodeFunctions {
 				return false;
 			}
 
-			int nrOfChildren = node1.arity();
-			if (nrOfChildren == node2.arity()) {
-				int nrOfPosChildren = node1.positionalArity();
-				if (nrOfPosChildren != node2.positionalArity()) {
-					return false;
-				}
-				for (int i = nrOfPosChildren - 1; i >= 0; i--) {
-					if (!node2.get(i).isEqual(node1.get(i)))
-						return false;
-				}
-
-				if (nrOfPosChildren < nrOfChildren) {
-					if (!node1.hasKeywordArguments())
-						return false;
-
-					final String[] keyArgNames = node1
-							.getKeywordArgumentNames();
-
-					for (int i = 0; i < keyArgNames.length; i++) {
-						String kw = keyArgNames[i];
-						int k = node2.getKeywordIndex(kw);
-						if (k < 0 || !node1.get(nrOfPosChildren + i).isEqual(node2.get(k))) {
-							return false;
-						}
-					}
-				}
-				return true;
+			if (node1.arity() != node2.arity()) {
+			  return false;
 			}
+			
+			Iterator<IValue> it1 = node1.iterator();
+			Iterator<IValue> it2 = node2.iterator();
+			
+			while (it1.hasNext()) {
+			  if (!it1.next().isEqual(it2.next())) {
+			    return false;
+			  }
+			}
+			
+			return true;
 		}
+		
 		return false;
 	}
 

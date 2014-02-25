@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 public interface IWithKeywordParameters<T extends IValue> {
@@ -47,4 +50,24 @@ public interface IWithKeywordParameters<T extends IValue> {
 	 * Check whether any parameters are present.
 	 */
 	public boolean hasParameters();
+	
+	/**
+	 * @return an array of parameter names
+	 */
+	public Set<String> getParameterNames();
+
+	/**
+	 * @return an unmodifiable map for the keyword parameters
+	 */
+  Map<String, IValue> getParameters();
+  
+  /**
+   * 
+   * @param params
+   * @return
+   */
+  T setParameters(Map<String, IValue> params);
+  
+  @Deprecated
+  boolean isEqual(IWithKeywordParameters<T> other);
 }

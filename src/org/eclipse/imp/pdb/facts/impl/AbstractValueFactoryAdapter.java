@@ -98,7 +98,7 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	}
 
 	public IListWriter listWriter(Type eltType) {
-		return adapted.listWriter(eltType);
+		return adapted.listWriter();
 	}
 
 	public IListWriter listWriter() {
@@ -106,11 +106,11 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	}
 
 	public IMap map(Type key, Type value) {
-		return adapted.map(key, value);
+		return adapted.mapWriter().done();
 	}
 
 	public IMapWriter mapWriter(Type key, Type value) {
-		return adapted.mapWriter(key, value);
+		return adapted.mapWriter();
 	}
 
 	public IMapWriter mapWriter() {
@@ -134,19 +134,19 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	}
 
 	public ISet relation(Type tupleType) {
-		return adapted.relation(tupleType);
+		return adapted.setWriter().done();
 	}
 
 	public ISet relation(IValue... elems) {
-		return adapted.relation(elems);
+		return adapted.set(elems);
 	}
 
 	public ISetWriter relationWriter(Type type) {
-		return adapted.relationWriter(type);
+		return adapted.setWriter();
 	}
 
 	public ISetWriter relationWriter() {
-		return adapted.relationWriter();
+		return adapted.setWriter();
 	}
 
 	public ISet set(Type eltType) {
@@ -158,7 +158,7 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	}
 
 	public ISetWriter setWriter(Type eltType) {
-		return adapted.setWriter(eltType);
+		return adapted.setWriter();
 	}
 
 	public ISetWriter setWriter() {
@@ -167,7 +167,7 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 
 	public ISourceLocation sourceLocation(URI uri, int offset, int length,
 			int beginLine, int endLine, int beginCol, int endCol) {
-		return adapted.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return adapted.sourceLocation(adapted.sourceLocation(uri), offset, length, beginLine, endLine, beginCol, endCol);
 	}
 
 	public ISourceLocation sourceLocation(String path, int offset, int length,
@@ -286,12 +286,12 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length) {
-	  return adapted.sourceLocation(uri, offset, length);
+	  return adapted.sourceLocation(adapted.sourceLocation(uri), offset, length);
 	}
 
 	@Override
 	public ITuple tuple(Type type, IValue... args) {
-	  return adapted.tuple(type, args);
+	  return adapted.tuple(args);
 	}
 
 	@Override
@@ -306,32 +306,32 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 
 	@Override
 	public IList listRelation(Type tupleType) {
-	  return adapted.listRelation(tupleType);
+	  return adapted.listWriter().done();
 	}
 
 	@Override
 	public IList listRelation(IValue... elems) {
-	  return adapted.listRelation(elems);
+	  return adapted.list(elems);
 	}
 
 	@Override
 	public IListWriter listRelationWriter(Type type) {
-	  return adapted.listRelationWriter(type);
+	  return adapted.listWriter();
 	}
 
 	@Override
 	public IListWriter listRelationWriter() {
-	  return adapted.listRelationWriter();
+	  return adapted.listWriter();
 	}
 
 	@Override
 	public IMap map(Type mapType) {
-	  return adapted.map(mapType);
+	  return adapted.mapWriter().done();
 	}
 
 	@Override
 	public IMapWriter mapWriter(Type mapType) {
-	 return adapted.mapWriter(mapType);
+	 return adapted.mapWriter();
 	}
 
   @Override

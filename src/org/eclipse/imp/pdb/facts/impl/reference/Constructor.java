@@ -7,10 +7,13 @@ import java.util.Map.Entry;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
+import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -166,7 +169,6 @@ public class Constructor extends Node implements IConstructor {
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<IConstructor>(this) {
-
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
@@ -175,4 +177,18 @@ public class Constructor extends Node implements IConstructor {
 		};
 	}
 	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this) {
+      @Override
+      protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+        return new ConstructorWithKeywordParametersFacade(content, parameters);
+      }
+    };
+	}
 }

@@ -42,7 +42,7 @@ public interface INode extends IValue, Iterable<IValue> {
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException;
 	
 	/**
-	 * @return the (fixed) number of children of this node (including keyword arguments)
+	 * @return the (fixed) number of children of this node (excluding keyword arguments)
 	 */
 
 	public int arity();
@@ -82,5 +82,11 @@ public interface INode extends IValue, Iterable<IValue> {
      * @see org.eclipse.imp.pdb.facts.IValue#asAnnotatable()
      */
     public IAnnotatable<? extends INode> asAnnotatable();
+    
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.imp.pdb.facts.IValue#asWithKeywordParameters()
+     */
+    public IWithKeywordParameters<? extends INode> asWithKeywordParameters();
 
 }

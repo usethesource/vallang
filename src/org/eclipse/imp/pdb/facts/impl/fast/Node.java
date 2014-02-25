@@ -123,11 +123,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public String[] getKeywordArgumentNames() {
-		return keyArgNames;
-	}
-	
-	@Override
 	public Iterator<IValue> iterator(){
 		return ArrayIterator.of(children);
 	}
@@ -163,40 +158,38 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public boolean equals(Object o){
-		if(o == this) return true;
-		if(o == null) return false;
-		
-		if(o.getClass() == getClass()){
-			Node other = (Node) o;
-			
-			if(name != other.name) return false; // Yes '==' works here, since it has been interned.
-			
-			IValue[] otherChildren = other.children;
-			int nrOfChildren = children.length;
-			if(otherChildren.length == nrOfChildren){
-				int nrOfPosChildren = positionalArity();
-				if(other.positionalArity() != nrOfPosChildren){
-					return false;
-				}
-				for(int i = nrOfPosChildren - 1; i >= 0; i--){
-					if(!otherChildren[i].equals(children[i])) return false;
-				}
-				if(nrOfPosChildren < nrOfChildren){
-					if(keyArgNames == null)
-						return false;
-					for(int i = 0; i < keyArgNames.length; i++){
-						String kw = keyArgNames[i];
-						int k = other.getKeywordIndex(kw);
-						if(k < 0 || !children[i].equals(otherChildren[k])){
-							return false;
-						}
-					}
-				}
-				return true;
-			}
+		if (o == this) {
+		  return true;
+		}
+		if (o == null) {
+		  return false;
 		}
 		
-		return false;
+		if (o.getClass() != getClass()) {
+		  return false;
+		}
+		
+		Node other = (Node) o;
+
+		// Yes '!=' works here, since it has been interned.
+		if (name != other.name) {
+		  return false; 
+		}
+
+		IValue[] otherChildren = other.children;
+		int nrOfChildren = children.length;
+
+		if (otherChildren.length != nrOfChildren) {
+		  return false;
+		}
+
+		for (int i = nrOfChildren - 1; i >= 0; i--) {
+		  if (!otherChildren[i].equals(children[i])) {
+		    return false;
+		  }
+		}
+
+		return true;
 	}
 	
 	/**
@@ -207,5 +200,4 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	public boolean isEqual(IValue value){
 		return NodeFunctions.isEqual(getValueFactory(), this, value);
 	}
-	
 }

@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -187,13 +188,8 @@ public class StandardTextWriter implements IValueTextWriter {
 			tab();
 			indent(indent);
 			Iterator<IValue> it = o.iterator();
-			int posArity = o.positionalArity();
-			String[] keyArgNames = o.getKeywordArgumentNames();
 			int k = 0;
 			while (it.hasNext()) {
-			  if(k >= posArity && keyArgNames != null){
-          append(keyArgNames[k - posArity] + "=");
-        }
 				it.next().accept(this);
 				if (it.hasNext()) {
 					append(',');
@@ -201,6 +197,20 @@ public class StandardTextWriter implements IValueTextWriter {
 				}
 				k++;
 			}
+			
+			IWithKeywordParameters<? extends IConstructor> wkw = o.asWithKeywordParameters();
+			if (wkw.hasParameters()) {
+			  if (k > 0) {
+			    append(',');
+			  }
+
+			  for (Entry<String,IValue> e : wkw.getParameters().entrySet()) {
+			    append(e.getKey());
+			    append('=');
+			    e.getValue().accept(this);
+			  }
+			}
+	      
 			append(')');
 			untab();
 			if (o.asAnnotatable().hasAnnotations()) {
@@ -621,19 +631,28 @@ public class StandardTextWriter implements IValueTextWriter {
     	tab();
     	indent(indent);
     	Iterator<IValue> it = o.iterator();
-    	int posArity = o.positionalArity();
-    	String[] keyArgNames = o.getKeywordArgumentNames();
     	int k = 0;
     	while (it.hasNext()) {
-    		if(k >= posArity && keyArgNames != null){
-    			append(keyArgNames[k - posArity] + "=");
-    		}
     		it.next().accept(this);
     		if (it.hasNext()) {
     			append(',');
     			indent(indent);
     		}
     		k++;
+    	}
+    
+    	
+    	IWithKeywordParameters<? extends INode> wkw = o.asWithKeywordParameters();
+    	if (wkw.hasParameters()) {
+    	  if (k > 0) {
+    	    append(',');
+    	  }
+    	    
+    	  for (Entry<String,IValue> e : wkw.getParameters().entrySet()) {
+    	    append(e.getKey());
+    	    append('=');
+    	    e.getValue().accept(this);
+    	  }
     	}
     	append(')');
     	untab();

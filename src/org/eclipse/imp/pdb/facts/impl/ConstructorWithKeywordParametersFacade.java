@@ -14,20 +14,21 @@ package org.eclipse.imp.pdb.facts.impl;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
-public class NodeWithKeywordParametersFacade implements INode {
-	protected final INode content;
+public class ConstructorWithKeywordParametersFacade implements IConstructor {
+	protected final IConstructor content;
 	protected final ImmutableMap<String, IValue> parameters;
 	
-	public NodeWithKeywordParametersFacade(final INode content, final ImmutableMap<String, IValue> parameters) {
+	public ConstructorWithKeywordParametersFacade(final IConstructor content, final ImmutableMap<String, IValue> parameters) {
 		this.content = content;
 		this.parameters = parameters;
 	}
@@ -44,9 +45,9 @@ public class NodeWithKeywordParametersFacade implements INode {
 		return content.get(i);
 	}
 	
-	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
-		INode newContent = content.set(i, newChild);
-		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
+	public IConstructor set(int i, IValue newChild) throws IndexOutOfBoundsException {
+	  IConstructor newContent = content.set(i, newChild);
+		return new ConstructorWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
 	public int arity() {
@@ -69,10 +70,9 @@ public class NodeWithKeywordParametersFacade implements INode {
 		return content.iterator();
 	}
 	
-	public INode replace(int first, int second, int end, IList repl)
+	public IConstructor replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
-		INode newContent = content.replace(first, second, end, repl);
-		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
+	  throw new UnsupportedOperationException("Replace not supported on constructor.");
 	}
 
 	public boolean equals(Object o) {
@@ -80,7 +80,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
-			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
+			ConstructorWithKeywordParametersFacade other = (ConstructorWithKeywordParametersFacade) o;
 		
 			return content.equals(other.content) &&
 					parameters.equals(other.parameters);
@@ -112,7 +112,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 	}
 	
 	@Override
-	public IAnnotatable<? extends INode> asAnnotatable() {
+	public IAnnotatable<? extends IConstructor> asAnnotatable() {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -122,13 +122,47 @@ public class NodeWithKeywordParametersFacade implements INode {
 	}
 	
 	@Override
-	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-	  return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
+	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
       @Override
-      protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
-        return new NodeWithKeywordParametersFacade(content, parameters);
+      protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+        return new ConstructorWithKeywordParametersFacade(content, parameters);
       }
     };
 	}
-	
+
+  @Override
+  public Type getConstructorType() {
+    return content.getConstructorType();
+  }
+
+  @Override
+  public Type getUninstantiatedConstructorType() {
+    return content.getUninstantiatedConstructorType();
+  }
+
+  @Override
+  public IValue get(String label) {
+    return content.get(label);
+  }
+
+  @Override
+  public IConstructor set(String label, IValue newChild) throws FactTypeUseException {
+    return new ConstructorWithKeywordParametersFacade(content.set(label, newChild), parameters);
+  }
+
+  @Override
+  public boolean has(String label) {
+    return content.has(label);
+  }
+
+  @Override
+  public Type getChildrenTypes() {
+    return content.getChildrenTypes();
+  }
+
+  @Override
+  public boolean declaresAnnotation(TypeStore store, String label) {
+    return content.declaresAnnotation(store, label);
+  }
 }

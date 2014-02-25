@@ -55,7 +55,7 @@ public class BottomUpTransformer<E extends Throwable> extends VisitorAdapter<IVa
 	
 	@Override
 	public IValue visitList(IList o) throws E {
-		IListWriter w = fFactory.listWriter(o.getElementType());
+		IListWriter w = fFactory.listWriter();
 		for (IValue elem : o) {
 			w.append(elem.accept(this));
 		}
@@ -65,7 +65,7 @@ public class BottomUpTransformer<E extends Throwable> extends VisitorAdapter<IVa
 	
 	@Override
 	public IValue visitSet(ISet o) throws E {
-		ISetWriter w = fFactory.setWriter(o.getElementType());
+		ISetWriter w = fFactory.setWriter();
 		for (IValue elem : o) {
 			w.insert(elem.accept(this));
 		}
@@ -75,7 +75,7 @@ public class BottomUpTransformer<E extends Throwable> extends VisitorAdapter<IVa
 	
 	@Override
 	public IValue visitMap(IMap o) throws E {
-		IMapWriter w = fFactory.mapWriter(o.getKeyType(), o.getValueType());
+		IMapWriter w = fFactory.mapWriter();
 		for (IValue elem : o) {
 			w.put(elem.accept(this), o.get(elem).accept(this));
 		}
@@ -85,7 +85,7 @@ public class BottomUpTransformer<E extends Throwable> extends VisitorAdapter<IVa
 
 	@Override
 	public IValue visitRelation(ISet o) throws E {
-		ISetWriter w = fFactory.relationWriter(o.getType().getFieldTypes());
+		ISetWriter w = fFactory.setWriter();
 		
 		for (IValue tuple : o) {
 			w.insert((ITuple) tuple.accept(this));
@@ -108,7 +108,7 @@ public class BottomUpTransformer<E extends Throwable> extends VisitorAdapter<IVa
 	}
 
 	public IValue visitListRelation(IList o) throws E {
-		IListWriter w = fFactory.listWriter(o.getType().getFieldTypes());
+		IListWriter w = fFactory.listWriter();
 		
 		for (IValue tuple : o) {
 			w.insert((ITuple) tuple.accept(this));

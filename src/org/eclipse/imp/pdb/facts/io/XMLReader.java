@@ -209,7 +209,7 @@ public class XMLReader extends AbstractTextReader {
 		Type keyType = mapType.getKeyType();
 		Type valueType = mapType.getValueType();
 		NodeList children = node.getChildNodes();
-		IMapWriter writer = vf.mapWriter(mapType);
+		IMapWriter writer = vf.mapWriter();
 		
 		for (int i = 0; i + 1 < children.getLength(); ) {
 			IValue key, value;
@@ -254,7 +254,7 @@ public class XMLReader extends AbstractTextReader {
 		Type relType = nodeType.getFieldType(0);
 		Type fields = relType.getFieldTypes();
 		NodeList children = node.getChildNodes();
-		ISetWriter writer = vf.setWriter(relType.getElementType());
+		ISetWriter writer = vf.setWriter();
 		
 		for (int i = 0; i < children.getLength(); ) {
 			IValue[] elements = new IValue[fields.getArity()];
@@ -276,7 +276,7 @@ public class XMLReader extends AbstractTextReader {
 		Type setType = nodeType.getFieldType(0);
 		Type elementType = setType.getElementType();
 		NodeList children = node.getChildNodes();
-		ISetWriter writer = vf.setWriter(elementType);
+		ISetWriter writer = vf.setWriter();
 		
 		if (!elementType.isFixedWidth()) {
 			for (int i = 0; i < children.getLength(); i++) {
@@ -305,7 +305,7 @@ public class XMLReader extends AbstractTextReader {
 		Type listType = nodeType.getFieldType(0);
 		Type elementType = listType.getElementType();
 		NodeList children = node.getChildNodes();
-		IListWriter writer = vf.listWriter(elementType);
+		IListWriter writer = vf.listWriter();
 		
 		if (!elementType.isFixedWidth()) {
 			for (int i = 0; i < children.getLength(); i++) {

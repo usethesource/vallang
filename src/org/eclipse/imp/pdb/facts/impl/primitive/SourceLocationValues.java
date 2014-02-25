@@ -90,7 +90,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}	
 	
-
+  @SuppressWarnings("serial")
 	private final static LinkedHashMap<URI,ISourceLocation>  locationCache = new LinkedHashMap<URI,ISourceLocation>(400*4/3, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<URI,ISourceLocation> eldest) {
@@ -98,7 +98,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
             }
         };
         
-	private final static LinkedHashMap<IURI,URI>  reverseLocationCache = new LinkedHashMap<IURI,URI>(400*4/3, 0.75f, true) {
+	@SuppressWarnings("serial")
+  private final static LinkedHashMap<IURI,URI>  reverseLocationCache = new LinkedHashMap<IURI,URI>(400*4/3, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<IURI, URI> eldest) {
                 return size() > 400;
