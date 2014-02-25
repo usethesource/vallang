@@ -125,6 +125,9 @@ public class StandardTextReader extends AbstractTextReader {
 	    else if (current == START_OF_ARGUMENTS) {
 	      result = readConstructor(id, expected);
 	    }
+	    else {
+	      throw new FactParseError("expected = or (", stream.offset);
+	    }
 		}
 		else {
 			switch (current) {
