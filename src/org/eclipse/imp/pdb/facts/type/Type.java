@@ -99,12 +99,38 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return type of the field at index i
    * @throws FactTypeUseException
    *           when the type has no field labels (tuples and relations
-   *           optionally have field labels).
+   *           optionally have field labels).          
    */
   public Type getFieldType(String fieldName) throws FactTypeUseException {
     throw new IllegalOperationException("getFieldType", this);
   }
 
+  /**
+   * Retrieve the default value of a keyword parameter
+   * @param parameter label
+   * @return the associated default value
+   */
+  public IValue getKeywordParameterDefault(String label) {
+    throw new IllegalOperationException("getDefaultValue", this);
+  }
+  
+  /**
+   * Retrieve the type of a keyword parameter
+   * @param parameter label
+   * @return the associated type
+   */
+  public Type getKeywordParameterType(String label) {
+    throw new IllegalOperationException("getDefaultValue", this);
+  }
+  
+  /**
+   * Return an array with the names of the keyword parameters
+   * @return array of strings
+   */
+  public String[] getKeywordParameters() {
+    throw new IllegalOperationException("getKeywordParameters", this);
+  }
+  
   /**
    * Retrieve the field types of a tree node type or a relation, represented as
    * a tuple type.
@@ -526,12 +552,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return 0;
   }
 
-  public boolean hasKeywordArguments() {
+  public boolean hasKeywordParameters() {
     return false;
-  }
-
-  public int getPositionalArity() {
-    throw new IllegalOperationException("getIndexOfFirstDefault", this);
   }
 
   protected boolean isSubtypeOfParameter(Type type) {

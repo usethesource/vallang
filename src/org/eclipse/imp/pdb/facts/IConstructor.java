@@ -96,10 +96,10 @@ public interface IConstructor extends INode {
 	 */
 	public boolean declaresAnnotation(TypeStore store, String label);
 	
-    /*
-     * (non-Javadoc)
-     * @see org.eclipse.imp.pdb.facts.IValue#asAnnotatable()
-     */
-    public IAnnotatable<? extends IConstructor> asAnnotatable();
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.imp.pdb.facts.IValue#asAnnotatable()
+	 */
+	public IAnnotatable<? extends IConstructor> asAnnotatable();
 	
 }

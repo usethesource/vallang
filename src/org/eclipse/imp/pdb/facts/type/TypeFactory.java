@@ -506,7 +506,7 @@ public class TypeFactory {
    *           , UndeclaredAbstractDataTypeException,
    *           RedeclaredFieldNameException, RedeclaredConstructorException
    */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, int positionalArity)
+  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Map<String, Type> keywordParameters, Map<String,IValue> keywordParameterDefaults)
       throws FactTypeDeclarationException {
     checkNull(store, adt, name, tupleType);
 
@@ -514,7 +514,11 @@ public class TypeFactory {
       throw new IllegalIdentifierException(name);
     }
 
-    Type result = getFromCache(new ConstructorType(name, tupleType, adt, positionalArity));
+    if (!keywordParameters.keySet().equals(keywordParameterDefaults.keySet())) {
+      throw new IllegalArgumentException("keyword parameter types and default values are not aligned.");
+    }
+    
+    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters, keywordParameterDefaults));
 
     Type params = adt.getTypeParameters();
 

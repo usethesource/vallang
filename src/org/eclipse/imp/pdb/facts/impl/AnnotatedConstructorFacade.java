@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -64,22 +65,6 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well			
 	}
 
-	public boolean hasKeywordArguments() {
-		return content.hasKeywordArguments();
-	}
-
-	public String[] getKeywordArgumentNames() {
-		return content.getKeywordArgumentNames();
-	}
-
-	public int getKeywordIndex(String name) {
-		return content.getKeywordIndex(name);
-	}
-
-	public IValue getKeywordArgumentValue(String name) {
-		return content.getKeywordArgumentValue(name);
-	}
-
 	public int arity() {
 		return content.arity();
 	}
@@ -90,10 +75,6 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 	public String toString() {
 		return content.toString();
-	}
-
-	public int positionalArity() {
-		return content.positionalArity();
 	}
 
 	public IConstructor set(int index, IValue newChild)
@@ -165,6 +146,16 @@ public class AnnotatedConstructorFacade implements IConstructor {
 				return new AnnotatedConstructorFacade(content, annotations);
 			}
 		};
+	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	  
 	}
 	
 }

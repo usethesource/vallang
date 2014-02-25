@@ -37,7 +37,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Constructor extends AbstractValue implements IConstructor{
+/*package*/ class Constructor extends AbstractValue implements IConstructor {
 	protected final Type constructorType;
 	protected final IValue[] children;
 
@@ -237,29 +237,19 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IValue getKeywordArgumentValue(String name) {
-		throw new UnsupportedOperationException("getKeyArgValue not supported on constructor.");
+		
 	}
 
 	@Override
 	public boolean hasKeywordArguments() {
-		return constructorType.hasKeywordArguments();
+		return constructorType.hasKeywordParameters();
 	}
 
 	@Override
 	public String[] getKeywordArgumentNames() {
-		return constructorType.getFieldNames();
+		return constructorType.getKeywordParameters();
 	}
 
-	@Override
-	public int getKeywordIndex(String name) {
-		return constructorType.getFieldIndex(name);
-	}
-
-	@Override
-	public int positionalArity() {
-		return constructorType.getPositionalArity();
-	}
-	
 	/**
 	 * TODO: Create and move to {@link AbstractConstructor}.
 	 */

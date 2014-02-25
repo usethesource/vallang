@@ -13,7 +13,9 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 
@@ -35,27 +37,41 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
  */
 /*package*/ final class ConstructorType extends AbstractDataType {
 	private final Type fChildrenTypes;
+	private final Type fKeywordParameters;
 	private final Type fADT;
 	private final String fName;
-	private int positionalArity;
+  private final IValue[] fKeywordParameterDefaults;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 	  super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
-		this.positionalArity = childrenTypes.getArity();
+		fKeywordParameterDefaults = null;
+		fKeywordParameters = null;
 	}
 	
-	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, int positionalArity) {
-		this(name,childrenTypes,adt);
-		if(positionalArity > childrenTypes.getArity()){
-			throw new UnsupportedOperationException("postional arity exceeds number of fields for constructor " + getName());
-		}
-		this.positionalArity = positionalArity;
+	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Map<String,Type> keywordParameters, Map<String,IValue> defaults) {
+	  super(adt.getName(), adt.getTypeParameters());
+    fName = name.intern();
+    fChildrenTypes = childrenTypes;
+    fADT = adt;
+    
+    Object[] fields = new Object[keywordParameters.size() * 2];
+    fKeywordParameterDefaults = new IValue[keywordParameters.size()];
+    
+    int f = 0;
+    int d = 0;
+    for (Entry<String,Type> entry : keywordParameters.entrySet()) {
+      fields[f++] = entry.getKey();
+      fields[f++] = entry.getValue();
+      fKeywordParameterDefaults[d++] = defaults.get(entry.getKey());
+    }
+    
+    fKeywordParameters = TypeFactory.getInstance().tupleType(fields);
 	}
 
-	@Override
+  @Override
 	public Type carrier() {
 		return fChildrenTypes.carrier();
 	}
@@ -64,15 +80,18 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	public int hashCode() {
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
+		19 * fKeywordParameters.hashCode() +
 		354767453 * fADT.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof ConstructorType) {
-			return ((fName == null) ? ((ConstructorType) o).fName == null : fName == (((ConstructorType) o).fName)) // fName is interned.
-					&& fChildrenTypes == ((ConstructorType) o).fChildrenTypes
-					&& fADT == ((ConstructorType) o).fADT;
+			ConstructorType other = (ConstructorType) o;
+      return ((fName == null) ? other.fName == null : fName == (other.fName)) // fName is interned.
+					&& fChildrenTypes == other.fChildrenTypes
+					&& fKeywordParameterDefaults == other.fKeywordParameterDefaults
+					&& fADT == other.fADT;
 		}
 		return false;
 	}
@@ -275,13 +294,17 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	public boolean hasKeywordArguments(){
-		return positionalArity < fChildrenTypes.getArity();
+	public boolean hasKeywordParameters(){
+		return fKeywordParameters != null;
 	}
 	
 	@Override
-	public int getPositionalArity(){
-		return positionalArity;
+	public IValue getKeywordParameterDefault(String label) {
+	  return fKeywordParameterDefaults[fKeywordParameters.getFieldIndex(label)];
 	}
 	
+	@Override
+	public Type getKeywordParameterType(String label) {
+	  return fKeywordParameters.getFieldType(label);
+	}
 }

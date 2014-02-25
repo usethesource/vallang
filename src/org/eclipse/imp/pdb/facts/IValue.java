@@ -65,6 +65,7 @@ public interface IValue  {
     /**
      * @return if this {@link IValue} object can be annotated
      */
+    @Deprecated
     public boolean isAnnotatable();
     
     /**
@@ -72,6 +73,18 @@ public interface IValue  {
      * 
      * @return an {@link IAnnotatable} view on this {@link IValue} object 
      */
+    @Deprecated
     public IAnnotatable<? extends IValue> asAnnotatable();
-        
+    
+    /**
+     * @return if this {@link IValue} object may have keyword parameters
+     */
+    public boolean mayHaveKeywordParameters();    
+    
+    /**
+     * Creates a view that exposes the {@link IWithKeywordParameters} annotation API. 
+     * 
+     * @return an {@link IAnnotatable} view on this {@link IValue} object 
+     */
+    public IWithKeywordParameters<? extends IValue> asWithKeywordParameters();
 }
