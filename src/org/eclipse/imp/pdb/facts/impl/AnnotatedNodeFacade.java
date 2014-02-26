@@ -123,6 +123,6 @@ public class AnnotatedNodeFacade implements INode {
 
   @Override
   public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("can not add keyword parameters to a node which already has annotations");
   }
 }

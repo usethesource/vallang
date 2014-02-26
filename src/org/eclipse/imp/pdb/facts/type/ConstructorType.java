@@ -63,8 +63,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
     int f = 0;
     int d = 0;
     for (Entry<String,Type> entry : keywordParameters.entrySet()) {
-      fields[f++] = entry.getKey();
       fields[f++] = entry.getValue();
+      fields[f++] = entry.getKey();
       fKeywordParameterDefaults[d++] = defaults.get(entry.getKey());
     }
     

@@ -12,6 +12,8 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,7 +80,17 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
   @Override
   public IValue getParameter(String label) throws FactTypeUseException {
-    return parameters.get(label);
+    IValue res = parameters.get(label);
+    
+    if (res != null) {
+      return res;
+    }
+     
+    if (content.getType().hasKeywordParameters()) {
+      return content.getType().getKeywordParameterDefault(label);
+    }
+    
+    return null;
   }
 
   @Override
@@ -88,22 +100,32 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
   @Override
   public boolean hasParameter(String label) throws FactTypeUseException {
-    return parameters.containsKey(label);
+    return parameters.containsKey(label) 
+        || (content.getType().hasKeywordParameters() && content.getType().hasKeywordParameter(label));
   }
 
   @Override
   public boolean hasParameters() {
-    return parameters.size() > 0;
+    return parameters.size() > 0 || content.getType().hasKeywordParameters();
   }
   
   @Override
   public Set<String> getParameterNames() {
+    Set<String> names = new HashSet<>();
+    if (content.getType().hasKeywordParameters()) {
+      names.addAll(content.getType().getKeywordParameters());
+    }
     return Collections.unmodifiableSet(parameters.keySet()); 
   }
   
   @Override
   public Map<String,IValue> getParameters() {
-    return parameters;
+    Map<String,IValue> params = new HashMap<>();
+    if (content.getType().hasKeywordParameters()) {
+      params.putAll(content.getType().getKeywordParameterDefaults());
+    }
+    params.putAll(parameters);
+    return Collections.unmodifiableMap(params);
   }
   
   @Override
@@ -118,12 +140,14 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
       return false;
     }
     
-    if (!parameters.keySet().equals(o.parameters.keySet())) {
+    Set<String> a = getParameterNames();
+    Set<String> b = o.getParameterNames();
+    if (!a.equals(b)) {
       return false;
     }
     
-    for (String key : parameters.keySet()) {
-      if (!parameters.get(key).isEqual(o.parameters.get(key))) {
+    for (String key : a) {
+      if (!getParameter(key).isEqual(o.getParameter(key))) {
         return false;
       }
     }

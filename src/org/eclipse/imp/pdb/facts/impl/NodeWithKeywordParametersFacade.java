@@ -113,7 +113,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 	
 	@Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("can not annotate a constructor which already has keyword parameters");
 	}
 	
 	@Override

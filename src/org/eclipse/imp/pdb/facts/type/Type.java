@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -114,6 +115,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     throw new IllegalOperationException("getDefaultValue", this);
   }
   
+  public boolean hasKeywordParameter(String label) {
+    throw new IllegalOperationException("hasKeywordParameter", this);
+  }
+  
   /**
    * Retrieve the type of a keyword parameter
    * @param parameter label
@@ -124,11 +129,18 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   /**
-   * Return an array with the names of the keyword parameters
+   * Return a set with the names of the keyword parameters
    * @return array of strings
    */
-  public String[] getKeywordParameters() {
+  public Set<String> getKeywordParameters() {
     throw new IllegalOperationException("getKeywordParameters", this);
+  }
+  
+  /**
+   * @return the defaults for the keyword parameters
+   */
+  public Map<String,IValue> getKeywordParameterDefaults() {
+    throw new IllegalOperationException("getKeywordParameterDefaults", this);
   }
   
   /**
