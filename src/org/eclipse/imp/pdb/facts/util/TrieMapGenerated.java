@@ -1178,7 +1178,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	private abstract static class AbstractInplaceIndexNode<K, V> extends CompactNode<K, V> {
-		// private AtomicReference<Thread> mutator;
+		private AtomicReference<Thread> mutator;
 
 		private int bitmap;
 		private int valmap;
@@ -1188,7 +1188,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						Object[] nodes) {
 			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
-			// this.mutator = mutator;
+			this.mutator = mutator;
 
 			this.bitmap = bitmap;
 			this.valmap = valmap;
@@ -1312,18 +1312,18 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final AbstractNode<K, V> thisNew;
 
-				// // modify current node (set replacement node)
-				// if (isAllowedToEdit(this.mutator, mutator)) {
-				// // no copying if already editable
-				// this.nodes[bitIndex] = subNodeResult.getNode();
-				// thisNew = this;
-				// } else {
-				final Object[] editableNodes = copyAndSet(this.nodes, bitIndex,
-								subNodeResult.getNode());
+				// modify current node (set replacement node)
+				if (isAllowedToEdit(this.mutator, mutator)) {
+					// no copying if already editable
+					this.nodes[bitIndex] = subNodeResult.getNode();
+					thisNew = this;
+				} else {
+					final Object[] editableNodes = copyAndSet(this.nodes, bitIndex,
+									subNodeResult.getNode());
 
-				thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-								(byte) valueArity());
-				// }
+					thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
+									(byte) valueArity());
+				}
 
 				if (subNodeResult.hasReplacedValue())
 					return Result.updated(thisNew, subNodeResult.getReplacedValue());
@@ -1746,19 +1746,19 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					return Result.modified(thisNew);
 				}
 				default: {
-					// // modify current node (set replacement node)
-					// if (isAllowedToEdit(this.mutator, mutator)) {
-					// // no copying if already editable
-					// this.nodes[bitIndex] = subNodeNew;
-					// return Result.modified(this);
-					// } else {
-					final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
+					// modify current node (set replacement node)
+					if (isAllowedToEdit(this.mutator, mutator)) {
+						// no copying if already editable
+						this.nodes[bitIndex] = subNodeNew;
+						return Result.modified(this);
+					} else {
+						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
 
-					final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
-									bitmap, valmap, editableNodes, (byte) valueArity());
+						final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
+										bitmap, valmap, editableNodes, (byte) valueArity());
 
-					return Result.modified(thisNew);
-					// }
+						return Result.modified(thisNew);
+					}
 				}
 				}
 			}
@@ -1790,76 +1790,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 																			// !=
 																			// i_th
 		}
-
-		// InplaceIndexNode<K, V> editAndInsertPair(AtomicReference<Thread>
-		// mutator, int index,
-		// Object keyNew, Object valNew) {
-		// final Object[] editableNodes = copyAndInsertPair(this.nodes, index,
-		// keyNew, valNew);
-		//
-		// if (isAllowedToEdit(this.mutator, mutator)) {
-		// this.nodes = editableNodes;
-		// return this;
-		// }
-		//
-		// return new InplaceIndexNode<>(mutator, editableNodes);
-		// }
-		//
-		// InplaceIndexNode<K, V> editAndRemovePair(AtomicReference<Thread>
-		// mutator, int index) {
-		// final Object[] editableNodes = copyAndRemovePair(this.nodes, index);
-		//
-		// if (isAllowedToEdit(this.mutator, mutator)) {
-		// this.nodes = editableNodes;
-		// return this;
-		// }
-		//
-		// return new InplaceIndexNode<>(mutator, editableNodes);
-		// }
-		//
-		// InplaceIndexNode<K, V> editAndSet(AtomicReference<Thread> mutator,
-		// int index,
-		// Object elementNew) {
-		// if (isAllowedToEdit(this.mutator, mutator)) {
-		// // no copying if already editable
-		// this.nodes[index] = elementNew;
-		// return this;
-		// } else {
-		// final Object[] editableNodes = copyAndSet(this.nodes, index,
-		// elementNew);
-		// return new InplaceIndexNode<>(mutator, editableNodes);
-		// }
-		// }
-		//
-		// InplaceIndexNode<K, V> editAndMoveToBackPair(AtomicReference<Thread>
-		// mutator, int indexOld,
-		// int indexNew, Object elementNew) {
-		// final Object[] editableNodes = copyAndMoveToBackPair(this.nodes,
-		// indexOld, indexNew,
-		// elementNew);
-		//
-		// if (isAllowedToEdit(this.mutator, mutator)) {
-		// this.nodes = editableNodes;
-		// return this;
-		// }
-		//
-		// return new InplaceIndexNode<>(mutator, editableNodes);
-		// }
-		//
-		// InplaceIndexNode<K, V> editAndMoveToFrontPair(AtomicReference<Thread>
-		// mutator,
-		// int indexOld, int indexNew, Object keyNew, Object valNew) {
-		// final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes,
-		// indexOld, indexNew,
-		// keyNew, valNew);
-		//
-		// if (isAllowedToEdit(this.mutator, mutator)) {
-		// this.nodes = editableNodes;
-		// return this;
-		// }
-		//
-		// return new InplaceIndexNode<>(mutator, editableNodes);
-		// }
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
