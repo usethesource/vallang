@@ -33,39 +33,39 @@ public class ValueFactory1 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 		return InstanceKeeper.instance;
 	}
 
-	public ISetWriter setWriter(Type elementType) {
-		return new TemporarySetWriter1(elementType);
-	}
-
-	public ISetWriter setWriter() {
-		return new TemporarySetWriter1();
-	}
-
-	public ISetWriter relationWriter(Type tupleType) {
-		return new TemporarySetWriter1(tupleType);
-	}
-
-	public ISetWriter relationWriter() {
-		return new TemporarySetWriter1();
-	}
-
-	public ISet set(Type elementType) {
-		return setWriter().done();
-	}
-
-	public ISet set(IValue... elements) {
-		ISetWriter setWriter = setWriter();
-		setWriter.insert(elements);
-		return setWriter.done();
-	}
-
-	public ISet relation(Type tupleType) {
-		return relationWriter(tupleType).done();
-	}
-
-	public ISet relation(IValue... elements) {
-		return set(elements);
-	}
+//	public ISetWriter setWriter(Type elementType) {
+//		return new TemporarySetWriter1(elementType);
+//	}
+//
+//	public ISetWriter setWriter() {
+//		return new TemporarySetWriter1();
+//	}
+//
+//	public ISetWriter relationWriter(Type tupleType) {
+//		return new TemporarySetWriter1(tupleType);
+//	}
+//
+//	public ISetWriter relationWriter() {
+//		return new TemporarySetWriter1();
+//	}
+//
+//	public ISet set(Type elementType) {
+//		return setWriter().done();
+//	}
+//
+//	public ISet set(IValue... elements) {
+//		ISetWriter setWriter = setWriter();
+//		setWriter.insert(elements);
+//		return setWriter.done();
+//	}
+//
+//	public ISet relation(Type tupleType) {
+//		return relationWriter(tupleType).done();
+//	}
+//
+//	public ISet relation(IValue... elements) {
+//		return set(elements);
+//	}
 
 	@Override
 	public IMapWriter mapWriter(Type keyType, Type valueType) {

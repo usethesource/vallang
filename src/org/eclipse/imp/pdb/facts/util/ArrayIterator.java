@@ -44,11 +44,11 @@ public class ArrayIterator<E> implements Iterator<E> {
 		throw new UnsupportedOperationException();
 	}
 
-	public static <E> ArrayIterator<E> of(E[] array) {
+	public static <E> Iterator<E> of(E[] array) {
 		return new ArrayIterator<>(array, 0, array.length);
 	}
 	
-	public static <E> ArrayIterator<E> of(E[] array, int start, int length) {
+	public static <E> Iterator<E> of(E[] array, int start, int length) {
 		return new ArrayIterator<>(array, start, start + length);
 	}
 
