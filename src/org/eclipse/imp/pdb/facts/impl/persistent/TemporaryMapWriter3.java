@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
 import org.eclipse.imp.pdb.facts.util.TrieMap;
-import org.eclipse.imp.pdb.facts.util.TrieMapGeneratedAgain;
 
 // TODO Add checking.
 /**
@@ -50,7 +49,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMapGeneratedAgain;
 
 		keyTypeBag = AbstractTypeBag.of();
 		valTypeBag = AbstractTypeBag.of();
-		mapContent = TrieMapGeneratedAgain.transientOf();
+		mapContent = TrieMap.transientOf();
 		constructedMap = null;
 	}
 	
