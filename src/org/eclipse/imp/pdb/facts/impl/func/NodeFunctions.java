@@ -131,11 +131,11 @@ public class NodeFunctions {
         return node1.asWithKeywordParameters().equalParameters(node2.asWithKeywordParameters());
       }
       
-      if (node1.mayHaveKeywordParameters()) {
+      if (node1.mayHaveKeywordParameters() && node1.asWithKeywordParameters().hasParameters()) {
         return false;
       }
       
-      if (node2.mayHaveKeywordParameters()) {
+      if (node2.mayHaveKeywordParameters() && node2.asWithKeywordParameters().hasParameters()) {
         return false;
       }
 			

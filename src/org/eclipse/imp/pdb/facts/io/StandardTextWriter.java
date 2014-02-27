@@ -198,22 +198,24 @@ public class StandardTextWriter implements IValueTextWriter {
 				k++;
 			}
 			
-			IWithKeywordParameters<? extends IConstructor> wkw = o.asWithKeywordParameters();
-			if (wkw.hasParameters()) {
-			  if (k > 0) {
-			    append(',');
-			  }
+			if (o.mayHaveKeywordParameters()) {
+			  IWithKeywordParameters<? extends IConstructor> wkw = o.asWithKeywordParameters();
+			  if (wkw.hasParameters()) {
+			    if (k > 0) {
+			      append(',');
+			    }
 
-			  for (Entry<String,IValue> e : wkw.getParameters().entrySet()) {
-			    append(e.getKey());
-			    append('=');
-			    e.getValue().accept(this);
+			    for (Entry<String,IValue> e : wkw.getParameters().entrySet()) {
+			      append(e.getKey());
+			      append('=');
+			      e.getValue().accept(this);
+			    }
 			  }
 			}
 	      
 			append(')');
 			untab();
-			if (o.asAnnotatable().hasAnnotations()) {
+			if (o.isAnnotatable() && o.asAnnotatable().hasAnnotations()) {
 				append('[');
 				tab();
 				indent();
