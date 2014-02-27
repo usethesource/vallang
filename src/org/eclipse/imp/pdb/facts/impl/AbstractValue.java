@@ -32,9 +32,8 @@ public abstract class AbstractValue implements IValue {
 			new StandardTextWriter().write(this, stream);
 			return stream.toString();
 		} catch (IOException ioex) {
-			// this never happens
+			throw new RuntimeException("Should have never happened.", ioex);
 		}
-		return "";
 	}
 
 	@Override
