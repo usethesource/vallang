@@ -645,12 +645,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		abstract Result<K, V> removed(AtomicReference<Thread> mutator, K key, int hash, int shift,
 						Comparator<Object> cmp);
 
-		static boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
+		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
 		@SuppressWarnings("unchecked")
-		static <K, V> Map.Entry<K, V> entryOf(final K key, final V val) {
+		static final <K, V> Map.Entry<K, V> entryOf(final K key, final V val) {
 			return (java.util.Map.Entry<K, V>) mapOf(key, val);
 		}
 
@@ -816,7 +816,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		static final CompactNode EMPTY_INPLACE_INDEX_NODE = new Value0Index0Node();
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
 						AbstractNode<K, V> node) {
 			switch (pos) {
 			case 0:
@@ -890,12 +890,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@SuppressWarnings("unchecked")
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
 			return (AbstractNode<K, V>) EMPTY_INPLACE_INDEX_NODE;
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
 						AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3, byte npos4,
 						AbstractNode<K, V> node4) {
@@ -903,24 +903,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos4);
 			final int valmap = (1 << pos1);
 
-			return new InplaceIndexNodeWith1Value<>(mutator, bitmap, valmap, new Object[] { key1,
-							val1, node1, node2, node3, node4 });
+			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, node1,
+							node2, node3, node4 }, (byte) 1);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
 						byte npos1, AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
 							| (1 << npos2);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
 
-			return new InplaceIndexNodeWith3Values<>(mutator, bitmap, valmap, new Object[] { key1,
-							val1, key2, val2, key3, val3, node1, node2 });
+			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
+							val2, key3, val3, node1, node2 }, (byte) 3);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
 						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
 						AbstractNode<K, V> node3) {
@@ -928,189 +928,117 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos3);
 			final int valmap = (1 << pos1) | (1 << pos2);
 
-			return new InplaceIndexNodeWith2Values<>(mutator, bitmap, valmap, new Object[] { key1,
-							val1, key2, val2, node1, node2, node3 });
+			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
+							val2, node1, node2, node3 }, (byte) 2);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
 						byte pos4, K key4, V val4, byte npos1, AbstractNode<K, V> node1) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
 
-			return new InplaceIndexNodeWith4Values<>(mutator, bitmap, valmap, new Object[] { key1,
-							val1, key2, val2, key3, val3, key4, val4, node1 });
+			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
+							val2, key3, val3, key4, val4, node1 }, (byte) 4);
 		}
 
 		// manually added
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
 						byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
-			final int valmap = bitmap;
+			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
 
-			// TODO: separate between pure value and pure node nodes
-			return new InplaceIndexNodeWith5Values<>(mutator, bitmap, valmap, new Object[] { key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5 });
+			return new MixedIndexNode<>(mutator, valmap, valmap, new Object[] { key1, val1, key2,
+							val2, key3, val3, key4, val4, key5, val5 }, (byte) 5);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
 						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
 			return new Value0Index2Node<>(mutator, npos1, node1, npos2, node2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
 						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
 						AbstractNode<K, V> node3) {
 			return new Value0Index3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
 						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
 						AbstractNode<K, V> node3, byte npos4, AbstractNode<K, V> node4) {
 			return new Value0Index4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
 							node4);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1) {
 			return new Value1Index0Node<>(mutator, pos1, key1, val1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte npos1, AbstractNode<K, V> node1) {
 			return new Value1Index1Node<>(mutator, pos1, key1, val1, npos1, node1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
 						AbstractNode<K, V> node2) {
 			return new Value1Index2Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte npos1, AbstractNode<K, V> node1, byte npos2,
 						AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3) {
 			return new Value1Index3Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2,
 							npos3, node3);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2) {
 			return new Value2Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
 						AbstractNode<K, V> node1) {
 			return new Value2Index1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
 						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
 			return new Value2Index2Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1,
 							node1, npos2, node2);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3) {
 			return new Value3Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
 							val3);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
 						byte npos1, AbstractNode<K, V> node1) {
 			return new Value3Index1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
 							val3, npos1, node1);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
 						byte pos4, K key4, V val4) {
 			return new Value4Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
 							val3, pos4, key4, val4);
 		}
 
-		static <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
+		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
 						int valmap, Object[] nodes, byte valueArity) {
-			switch (valueArity) {
-			case 0:
-				return new InplaceIndexNodeWith0Values<>(mutator, bitmap, valmap, nodes);
-			case 1:
-				return new InplaceIndexNodeWith1Value<>(mutator, bitmap, valmap, nodes);
-			case 2:
-				return new InplaceIndexNodeWith2Values<>(mutator, bitmap, valmap, nodes);
-			case 3:
-				return new InplaceIndexNodeWith3Values<>(mutator, bitmap, valmap, nodes);
-			case 4:
-				return new InplaceIndexNodeWith4Values<>(mutator, bitmap, valmap, nodes);
-			case 5:
-				return new InplaceIndexNodeWith5Values<>(mutator, bitmap, valmap, nodes);
-			case 6:
-				return new InplaceIndexNodeWith6Values<>(mutator, bitmap, valmap, nodes);
-			case 7:
-				return new InplaceIndexNodeWith7Values<>(mutator, bitmap, valmap, nodes);
-			case 8:
-				return new InplaceIndexNodeWith8Values<>(mutator, bitmap, valmap, nodes);
-			case 9:
-				return new InplaceIndexNodeWith9Values<>(mutator, bitmap, valmap, nodes);
-			case 10:
-				return new InplaceIndexNodeWith10Values<>(mutator, bitmap, valmap, nodes);
-			case 11:
-				return new InplaceIndexNodeWith11Values<>(mutator, bitmap, valmap, nodes);
-			case 12:
-				return new InplaceIndexNodeWith12Values<>(mutator, bitmap, valmap, nodes);
-			case 13:
-				return new InplaceIndexNodeWith13Values<>(mutator, bitmap, valmap, nodes);
-			case 14:
-				return new InplaceIndexNodeWith14Values<>(mutator, bitmap, valmap, nodes);
-			case 15:
-				return new InplaceIndexNodeWith15Values<>(mutator, bitmap, valmap, nodes);
-			case 16:
-				return new InplaceIndexNodeWith16Values<>(mutator, bitmap, valmap, nodes);
-			case 17:
-				return new InplaceIndexNodeWith17Values<>(mutator, bitmap, valmap, nodes);
-			case 18:
-				return new InplaceIndexNodeWith18Values<>(mutator, bitmap, valmap, nodes);
-			case 19:
-				return new InplaceIndexNodeWith19Values<>(mutator, bitmap, valmap, nodes);
-			case 20:
-				return new InplaceIndexNodeWith20Values<>(mutator, bitmap, valmap, nodes);
-			case 21:
-				return new InplaceIndexNodeWith21Values<>(mutator, bitmap, valmap, nodes);
-			case 22:
-				return new InplaceIndexNodeWith22Values<>(mutator, bitmap, valmap, nodes);
-			case 23:
-				return new InplaceIndexNodeWith23Values<>(mutator, bitmap, valmap, nodes);
-			case 24:
-				return new InplaceIndexNodeWith24Values<>(mutator, bitmap, valmap, nodes);
-			case 25:
-				return new InplaceIndexNodeWith25Values<>(mutator, bitmap, valmap, nodes);
-			case 26:
-				return new InplaceIndexNodeWith26Values<>(mutator, bitmap, valmap, nodes);
-			case 27:
-				return new InplaceIndexNodeWith27Values<>(mutator, bitmap, valmap, nodes);
-			case 28:
-				return new InplaceIndexNodeWith28Values<>(mutator, bitmap, valmap, nodes);
-			case 29:
-				return new InplaceIndexNodeWith29Values<>(mutator, bitmap, valmap, nodes);
-			case 30:
-				return new InplaceIndexNodeWith30Values<>(mutator, bitmap, valmap, nodes);
-			case 31:
-				return new InplaceIndexNodeWith31Values<>(mutator, bitmap, valmap, nodes);
-			case 32:
-				return new InplaceIndexNodeWith32Values<>(mutator, bitmap, valmap, nodes);
-
-			default:
-				throw new IllegalStateException("Value arity out of range.");
-			}
+			return new MixedIndexNode<>(mutator, bitmap, valmap, nodes, valueArity);
 		}
-
+		
 		@SuppressWarnings("unchecked")
-		static <K, V> CompactNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
+		static final <K, V> CompactNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
 						int keyHash1, V val1, int shift) {
 			assert key0.equals(key1) == false;
 
@@ -1152,7 +1080,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@SuppressWarnings("unchecked")
-		static <K, V> CompactNode<K, V> mergeNodes(CompactNode<K, V> node0, int keyHash0, K key1,
+		static final <K, V> CompactNode<K, V> mergeNodes(CompactNode<K, V> node0, int keyHash0, K key1,
 						int keyHash1, V val1, int shift) {
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
@@ -1177,39 +1105,43 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private abstract static class AbstractInplaceIndexNode<K, V> extends CompactNode<K, V> {
+	private static final class MixedIndexNode<K, V> extends CompactNode<K, V> {
 		private AtomicReference<Thread> mutator;
-
-		private int bitmap;
-		private int valmap;
+		
 		private Object[] nodes;
-
-		AbstractInplaceIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
+		final private int bitmap;
+		final private int valmap;
+	
+		final private byte valueArity;
+		
+		MixedIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
+						byte valueArity) {
 			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
 			this.mutator = mutator;
-
+						
+			this.nodes = nodes;
 			this.bitmap = bitmap;
 			this.valmap = valmap;
-			this.nodes = nodes;
 
-			assert (valueArity() == Integer.bitCount(valmap));
+			this.valueArity = valueArity;
+			assert (valueArity == Integer.bitCount(valmap));
+			
 			assert (valueArity() >= 2 || nodeArity() >= 1); // =
 															// SIZE_MORE_THAN_ONE
 
-			for (int i = 0; i < 2 * valueArity(); i++)
-				assert ((nodes[i] instanceof AbstractNode) == false);
-
-			for (int i = 2 * valueArity(); i < nodes.length; i++)
-				assert ((nodes[i] instanceof AbstractNode) == true);
+//			for (int i = 0; i < 2 * valueArity; i++)
+//				assert ((nodes[i] instanceof AbstractNode) == false);
+//
+//			for (int i = 2 * valueArity; i < nodes.length; i++)
+//				assert ((nodes[i] instanceof AbstractNode) == true);
 
 			// assert invariant
 			assert nodeInvariant();
 		}
 
 		final int bitIndex(int bitpos) {
-			return 2 * valueArity() + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			return 2 * valueArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
 		}
 
 		final int valIndex(int bitpos) {
@@ -1271,22 +1203,37 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if ((valmap & bitpos) != 0) { // inplace value
 				final int valIndex = valIndex(bitpos);
 
-				if (cmp.compare(nodes[valIndex], key) == 0) {
+				final Object currentKey = nodes[valIndex];
 
-					if (cmp.compare(nodes[valIndex + 1], val) == 0)
+				if (cmp.compare(currentKey, key) == 0) {
+
+					final Object currentVal = nodes[valIndex + 1];
+
+					if (cmp.compare(currentVal, val) == 0)
 						return Result.unchanged(this);
 
-					// update mapping (TODO: inline update if mutator is set)
-					final Object[] nodesNew = copyAndSet(nodes, valIndex + 1, val);
-					return Result.updated(CompactNode.<K, V> valNodeOf(mutator, bitmap, valmap,
-									nodesNew, (byte) valueArity()), (V) nodes[valIndex + 1]);
+					// update mapping
+					final AbstractNode<K, V> thisNew;
+
+					if (isAllowedToEdit(this.mutator, mutator)) {
+						// no copying if already editable
+						this.nodes[valIndex + 1] = val;
+						thisNew = this;
+					} else {
+						final Object[] editableNodes = copyAndSet(this.nodes, valIndex + 1, val);
+
+						thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap, valmap,
+										editableNodes, (byte) valueArity);
+					}
+
+					return Result.updated(thisNew, (V) currentVal);
 				}
 
 				final AbstractNode<K, V> nodeNew = mergeNodes((K) nodes[valIndex],
 								nodes[valIndex].hashCode(), (V) nodes[valIndex + 1], key, keyHash,
 								val, shift + BIT_PARTITION_SIZE);
 
-				final int offset = 2 * (valueArity() - 1);
+				final int offset = 2 * (valueArity - 1);
 				final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
 								& (bitpos - 1));
 
@@ -1294,13 +1241,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 								+ index, nodeNew);
 
 				final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap
-								| bitpos, valmap & ~bitpos, editableNodes,
-								(byte) (valueArity() - 1));
+								| bitpos, valmap & ~bitpos, editableNodes, (byte) (valueArity - 1));
 
 				return Result.modified(thisNew);
-			}
-
-			if ((bitmap & bitpos) != 0) { // node (not value)
+			} else if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
 				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
 
@@ -1322,22 +1266,23 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 									subNodeResult.getNode());
 
 					thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-									(byte) valueArity());
+									(byte) valueArity);
 				}
 
 				if (subNodeResult.hasReplacedValue())
 					return Result.updated(thisNew, subNodeResult.getReplacedValue());
 
 				return Result.modified(thisNew);
+			} else {
+				// no value
+				final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex(bitpos), key,
+								val);
+
+				final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap
+								| bitpos, valmap | bitpos, editableNodes, (byte) (valueArity + 1));
+
+				return Result.modified(thisNew);
 			}
-
-			// no value
-			final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex(bitpos), key, val);
-
-			final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap
-							| bitpos, valmap | bitpos, editableNodes, (byte) (valueArity() + 1));
-
-			return Result.modified(thisNew);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1354,17 +1299,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					return Result.unchanged(this);
 
 				if (this.arity() == 5) {
-					switch (this.valueArity()) { // 0 <= valueArity <= 5
+					switch (this.valueArity) { // 0 <= valueArity <= 5
 					case 1: {
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
 						final byte npos3 = recoverMask(nmap, (byte) 3);
 						final byte npos4 = recoverMask(nmap, (byte) 4);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[valueArity() + 2];
-						final AbstractNode<K, V> node4 = (AbstractNode<K, V>) nodes[valueArity() + 3];
+						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
+						final AbstractNode<K, V> node4 = (AbstractNode<K, V>) nodes[valueArity + 3];
 
 						return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
 										npos3, node3, npos4, node4));
@@ -1379,9 +1324,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
 						final byte npos3 = recoverMask(nmap, (byte) 3);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[valueArity() + 2];
+						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[2];
@@ -1406,8 +1351,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
+						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[2];
@@ -1443,7 +1388,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
+						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[2];
@@ -1549,7 +1494,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
 									this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
-									(byte) (valueArity() - 1));
+									(byte) (valueArity - 1));
 
 					return Result.modified(thisNew);
 				}
@@ -1608,9 +1553,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final AbstractNode<K, V> node1;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 1];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -1632,14 +1577,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final AbstractNode<K, V> node2;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 2];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
 							} else if (mask < npos2) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 2];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -1660,21 +1605,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final AbstractNode<K, V> node3;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 3];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
 							} else if (mask < npos2) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 3];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
 							} else if (mask < npos3) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 3];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 2];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -1692,30 +1637,30 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final AbstractNode<K, V> node4;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 3];
-								node4 = (AbstractNode<K, V>) nodes[valueArity() + 4];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
+								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
 							} else if (mask < npos2) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 3];
-								node4 = (AbstractNode<K, V>) nodes[valueArity() + 4];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
+								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
 							} else if (mask < npos3) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 3];
-								node4 = (AbstractNode<K, V>) nodes[valueArity() + 4];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
+								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
 							} else if (mask < npos4) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 2];
-								node4 = (AbstractNode<K, V>) nodes[valueArity() + 4];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity() + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity() + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity() + 2];
-								node4 = (AbstractNode<K, V>) nodes[valueArity() + 3];
+								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node4 = (AbstractNode<K, V>) nodes[valueArity + 3];
 							}
 
 							return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -1727,7 +1672,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 						final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
 										bitmap & ~bitpos, valmap, editableNodes,
-										(byte) valueArity());
+										(byte) valueArity);
 
 						return Result.modified(thisNew);
 					}
@@ -1741,7 +1686,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
 									bitmap, valmap | bitpos, editableNodes,
-									(byte) (valueArity() + 1));
+									(byte) (valueArity + 1));
 
 					return Result.modified(thisNew);
 				}
@@ -1755,7 +1700,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
 
 						final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
-										bitmap, valmap, editableNodes, (byte) valueArity());
+										bitmap, valmap, editableNodes, (byte) valueArity);
 
 						return Result.modified(thisNew);
 					}
@@ -1793,13 +1738,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> valueIterator() {
-			return ArrayKeyValueIterator.of(nodes, 0, 2 * valueArity());
+			return ArrayKeyValueIterator.of(nodes, 0, 2 * valueArity);
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<AbstractNode<K, V>> nodeIterator() {
-			final int offset = 2 * valueArity();
+			final int offset = 2 * valueArity;
 
 			for (int i = offset; i < nodes.length - offset; i++)
 				assert ((nodes[i] instanceof AbstractNode) == true);
@@ -1823,20 +1768,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		boolean hasValues() {
-			return valueArity() != 0;
+			return valueArity != 0;
 		}
 
 		@Override
-		abstract int valueArity();
+		int valueArity() {
+			return valueArity;
+		}
 
 		@Override
 		boolean hasNodes() {
-			return 2 * valueArity() != nodes.length;
+			return 2 * valueArity != nodes.length;
 		}
 
 		@Override
 		int nodeArity() {
-			return nodes.length - 2 * valueArity();
+			return nodes.length - 2 * valueArity;
 		}
 
 		@Override
@@ -1860,7 +1807,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			AbstractInplaceIndexNode<?, ?> that = (AbstractInplaceIndexNode<?, ?>) other;
+			MixedIndexNode<?, ?> that = (MixedIndexNode<?, ?>) other;
 			if (bitmap != that.bitmap) {
 				return false;
 			}
@@ -1883,502 +1830,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return SIZE_MORE_THAN_ONE;
 		}
 	}
-
-	private static final class InplaceIndexNodeWith0Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith0Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 0;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith1Value<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith1Value(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 1;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith2Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith2Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 2;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith3Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith3Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 3;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith4Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith4Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 4;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith5Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith5Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 5;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith6Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith6Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 6;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith7Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith7Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 7;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith8Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith8Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 8;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith9Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith9Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 9;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith10Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith10Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 10;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith11Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith11Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 11;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith12Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith12Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 12;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith13Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith13Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 13;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith14Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith14Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 14;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith15Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith15Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 15;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith16Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith16Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 16;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith17Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith17Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 17;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith18Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith18Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 18;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith19Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith19Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 19;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith20Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith20Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 20;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith21Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith21Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 21;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith22Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith22Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 22;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith23Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith23Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 23;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith24Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith24Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 24;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith25Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith25Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 25;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith26Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith26Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 26;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith27Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith27Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 27;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith28Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith28Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 28;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith29Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith29Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 29;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith30Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith30Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 30;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith31Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith31Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 31;
-		}
-
-	}
-
-	private static final class InplaceIndexNodeWith32Values<K, V> extends
-					AbstractInplaceIndexNode<K, V> {
-
-		InplaceIndexNodeWith32Values(AtomicReference<Thread> mutator, int bitmap, int valmap,
-						Object[] nodes) {
-			super(mutator, bitmap, valmap, nodes);
-		}
-
-		@Override
-		int valueArity() {
-			return 32;
-		}
-
-	}
-
+	
 	// TODO: replace by immutable cons list
 	private static final class InplaceHashCollisionNode<K, V> extends CompactNode<K, V> {
 		private final K[] keys;
