@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  * Writer for PDB Binary Files (PBF).
  * 
  * @author Arnold Lankamp
+ * @deprecated binary writer currently does not support keyword parameters.
  */
 public class BinaryValueWriter implements IValueBinaryWriter{
 	
@@ -81,7 +82,9 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 	 *            The type store to use.
 	 * @throws IOException
 	 *            Thrown when something goes wrong.
+	           
 	 */
+	@Deprecated
 	public static void writeValueToFile(IValue value, File file, TypeStore typeStore) throws IOException{
 		OutputStream fos = null;
 		try{
