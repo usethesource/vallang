@@ -12,20 +12,20 @@
 package org.eclipse.imp.pdb.facts.util;
 
 public class ArrayUtils {
-	static Object[] copy(Object[] array) {
+	public static Object[] copy(Object[] array) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
 		return arrayNew;
 	}
 	
-	static Object[] copyAndSet(Object[] array, int index, Object elementNew) {
+	public static Object[] copyAndSet(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
 		arrayNew[index] = elementNew;
 		return arrayNew;
 	}
 	
-	static Object[] copyAndMoveToBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
+	public static Object[] copyAndMoveToBack(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		assert indexOld <= indexNew;		
 		if (indexNew == indexOld) {
 			return copyAndSet(array, indexNew, elementNew);
@@ -42,7 +42,7 @@ public class ArrayUtils {
 	/**
 	 * Shrinks the array by 1 (key, val pair becomes a node) and moves...
 	 */
-	static Object[] copyAndMoveToBackPair(Object[] array, int indexOld, int indexNew, Object nodeNew) {
+	public static Object[] copyAndMoveToBackPair(Object[] array, int indexOld, int indexNew, Object nodeNew) {
 		assert indexOld <= indexNew;		
 
 		final Object[] arrayNew = new Object[array.length - 1];
@@ -53,7 +53,7 @@ public class ArrayUtils {
 		return arrayNew;
 	}	
 	
-	static Object[] copyAndMoveToFront(Object[] array, int indexOld, int indexNew, Object elementNew) {
+	public static Object[] copyAndMoveToFront(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		assert indexOld >= indexNew;
 		if (indexNew == indexOld ) {
 			return copyAndSet(array, indexOld, elementNew);
@@ -70,7 +70,7 @@ public class ArrayUtils {
 	/**
 	 * Enlarges the array by 1 (a node becomes a key, val pair) and moves...
 	 */
-	static Object[] copyAndMoveToFrontPair(Object[] array, int indexOld, int indexNew, Object keyNew, Object valNew) {
+	public static Object[] copyAndMoveToFrontPair(Object[] array, int indexOld, int indexNew, Object keyNew, Object valNew) {
 		assert indexOld >= indexNew;
 
 		final Object[] arrayNew = new Object[array.length+1];
@@ -82,7 +82,7 @@ public class ArrayUtils {
 		return arrayNew;
 	}	
 	
-	static Object[] copyAndInsert(Object[] array, int index, Object elementNew) {
+	public static Object[] copyAndInsert(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length + 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		arrayNew[index] = elementNew;
@@ -90,7 +90,7 @@ public class ArrayUtils {
 		return arrayNew;
 	}
 	
-	static Object[] copyAndInsertPair(Object[] array, int index, Object keyNew, Object valNew) {
+	public static Object[] copyAndInsertPair(Object[] array, int index, Object keyNew, Object valNew) {
 		final Object[] arrayNew = new Object[array.length + 2];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		arrayNew[index] = keyNew;
@@ -99,14 +99,14 @@ public class ArrayUtils {
 		return arrayNew;
 	}	
 
-	static Object[] copyAndRemove(Object[] array, int index) {
+	public static Object[] copyAndRemove(Object[] array, int index) {
 		final Object[] arrayNew = new Object[array.length - 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		System.arraycopy(array, index + 1, arrayNew, index, array.length - index - 1);
 		return arrayNew;
 	}
 	
-	static Object[] copyAndRemovePair(Object[] array, int index) {
+	public static Object[] copyAndRemovePair(Object[] array, int index) {
 		final Object[] arrayNew = new Object[array.length - 2];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		System.arraycopy(array, index + 2, arrayNew, index, array.length - index - 2);

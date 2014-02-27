@@ -63,7 +63,7 @@ public class ValueFactory2 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 	public ISet relation(IValue... elements) {
 		return set(elements);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "VF_PDB_PERSISTENT_2";

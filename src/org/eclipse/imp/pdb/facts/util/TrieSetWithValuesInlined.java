@@ -1026,7 +1026,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		public Result<K> updated(K key, int hash, int shift, Comparator comparator) {
+		public Result<K> updated(K key, int hash, int shift, Comparator<Object> comparator) {
 			if (this.hash != hash)
 				return Result.fromModified(mergeNodes(
 						(AbstractNode) this, this.hash, key, hash, shift));
@@ -1051,7 +1051,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		public Result<K> removed(K key, int hash, int shift, Comparator comparator) {
+		public Result<K> removed(K key, int hash, int shift, Comparator<Object> comparator) {
 			// TODO: optimize in general
 			// TODO: optimization if singleton element node is returned
 
