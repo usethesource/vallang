@@ -693,12 +693,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return valueArity() + nodeArity();
 		}
 
-		/**
-		 * The total number of elements contained by this (sub)tree.
-		 * 
-		 * @return element count
-		 */
-		abstract int size();
+		int size() {
+			final TrieMapIterator<K, V> it = new TrieMapIterator<>(this);
+
+			int size = 0;
+			while (it.hasNext()) {
+				size += 1;
+				it.next();
+			}
+
+			return size;
+		}
 
 		static class Result<T1, T2> {
 			private final Object result;
@@ -797,6 +802,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		static final byte SIZE_MORE_THAN_ONE = 0b10;
 
 		/**
+		 * Abstract predicate over a node's size. Value can be either
+		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or
+		 * {@value #SIZE_MORE_THAN_ONE}.
+		 * 
+		 * @return size predicate
+		 */
+		abstract byte sizePredicate();
+
+		/**
 		 * Returns the first key stored within this node.
 		 * 
 		 * @return first key
@@ -811,21 +825,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		abstract V headVal();
 
 		boolean nodeInvariant() {
-			// boolean inv1 = (size() - valueArity() >= 2 * (arity() -
-			// valueArity()));
-			boolean inv2 = (this.arity() == 0) ? size() == SIZE_EMPTY : true;
-			boolean inv3 = (this.arity() == 1 && valueArity() == 1) ? size() == SIZE_ONE : true;
-			boolean inv4 = (this.arity() >= 2) ? size() == SIZE_MORE_THAN_ONE : true;
+			boolean inv1 = (size() - valueArity() >= 2 * (arity() - valueArity()));
+			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
+			boolean inv3 = (this.arity() == 1 && valueArity() == 1) ? sizePredicate() == SIZE_ONE
+							: true;
+			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
 			boolean inv5 = (this.nodeArity() >= 0) && (this.valueArity() >= 0)
 							&& ((this.valueArity() + this.nodeArity()) == this.arity());
 
-			return inv2 && inv3 && inv4 && inv5;
+			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
-
-		// static final CompactNode EMPTY_INPLACE_INDEX_NODE = new
-		// InplaceIndexNode(0, 0,
-		// new CompactNode[0], SIZE_EMPTY);
 
 		static final CompactNode EMPTY_INPLACE_INDEX_NODE = new Value0Index0Node();
 
@@ -1536,7 +1546,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				// AbstractNode
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				switch (subNodeNew.size()) {
+				switch (subNodeNew.sizePredicate()) {
 				case 0: {
 					// remove node
 					if (this.arity() == 5) {
@@ -1848,7 +1858,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 	}
@@ -1863,6 +1873,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
+
+			assert valueArity() >= 2;
 		}
 
 		@Override
@@ -1996,8 +2008,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
-			return valueArity();
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
 		}
 
 		// @Override
@@ -2276,7 +2288,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				switch (subNodeNew.size()) {
+				switch (subNodeNew.sizePredicate()) {
 				case SIZE_EMPTY:
 				case SIZE_ONE:
 					// escalate (singleton or empty) result
@@ -2350,7 +2362,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -2883,7 +2895,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_EMPTY;
 		}
 
@@ -2936,6 +2948,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.node1 = node1;
 			this.npos2 = npos2;
 			this.node2 = node2;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -3000,15 +3013,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos2, node2));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3017,13 +3023,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
 				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
@@ -3035,15 +3044,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos1, node1));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3052,13 +3054,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -3124,7 +3129,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -3155,10 +3160,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (npos1 != that.npos1) {
 				return false;
 			}
-			if (!node1.equals(that.node1)) {
+			if (npos2 != that.npos2) {
 				return false;
 			}
-			if (npos2 != that.npos2) {
+			if (!node1.equals(that.node1)) {
 				return false;
 			}
 			if (!node2.equals(that.node2)) {
@@ -3200,6 +3205,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.node2 = node2;
 			this.npos3 = npos3;
 			this.node3 = node3;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -3280,16 +3286,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos2, node2,
-				// npos3, node3));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3299,13 +3297,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2, npos3, node3);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
 				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
@@ -3317,16 +3318,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos1, node1,
-				// npos3, node3));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3336,13 +3329,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos3) {
 				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
@@ -3354,16 +3350,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos1, node1,
-				// npos2, node2));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3373,13 +3361,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -3450,7 +3441,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -3483,16 +3474,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (npos1 != that.npos1) {
 				return false;
 			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
 			if (npos2 != that.npos2) {
 				return false;
 			}
-			if (!node2.equals(that.node2)) {
+			if (npos3 != that.npos3) {
 				return false;
 			}
-			if (npos3 != that.npos3) {
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
 				return false;
 			}
 			if (!node3.equals(that.node3)) {
@@ -3539,6 +3530,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.node3 = node3;
 			this.npos4 = npos4;
 			this.node4 = node4;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -3635,16 +3627,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos2, node2,
-				// npos3, node3, npos4, node4));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3654,13 +3638,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
 				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
@@ -3672,16 +3659,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos1, node1,
-				// npos3, node3, npos4, node4));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3691,13 +3670,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos3) {
 				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
@@ -3709,16 +3691,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos1, node1,
-				// npos2, node2, npos4, node4));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3728,13 +3702,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, mask, subNodeNew, npos4, node4);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos4) {
 				final Result<K, V> subNodeResult = node4.removed(mutator, key, keyHash, shift
@@ -3746,16 +3723,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, npos1, node1,
-				// npos2, node2, npos3, node3));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -3765,13 +3734,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, npos3, node3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -3846,7 +3818,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -3881,22 +3853,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (npos1 != that.npos1) {
 				return false;
 			}
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
 			if (npos2 != that.npos2) {
-				return false;
-			}
-			if (!node2.equals(that.node2)) {
 				return false;
 			}
 			if (npos3 != that.npos3) {
 				return false;
 			}
-			if (!node3.equals(that.node3)) {
+			if (npos4 != that.npos4) {
 				return false;
 			}
-			if (npos4 != that.npos4) {
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
 				return false;
 			}
 			if (!node4.equals(that.node4)) {
@@ -3931,6 +3903,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -4044,7 +4017,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_ONE;
 		}
 
@@ -4114,6 +4087,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.val1 = val1;
 			this.npos1 = npos1;
 			this.node1 = node1;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -4201,15 +4175,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -4225,13 +4192,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -4297,7 +4267,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -4329,13 +4299,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
+			if (npos1 != that.npos1) {
+				return false;
+			}
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
-				return false;
-			}
-			if (npos1 != that.npos1) {
 				return false;
 			}
 			if (!node1.equals(that.node1)) {
@@ -4379,6 +4349,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.node1 = node1;
 			this.npos2 = npos2;
 			this.node2 = node2;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -4492,16 +4463,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// npos2, node2));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -4518,13 +4481,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									subNodeNew, npos2, node2);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
 				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
@@ -4536,16 +4502,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// npos1, node1));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -4562,13 +4520,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -4638,7 +4599,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -4672,19 +4633,19 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
+			if (npos1 != that.npos1) {
+				return false;
+			}
+			if (npos2 != that.npos2) {
+				return false;
+			}
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (npos1 != that.npos1) {
-				return false;
-			}
 			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			if (npos2 != that.npos2) {
 				return false;
 			}
 			if (!node2.equals(that.node2)) {
@@ -4733,6 +4694,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.node2 = node2;
 			this.npos3 = npos3;
 			this.node3 = node3;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -4868,16 +4830,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// npos2, node2, npos3, node3));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -4894,13 +4848,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									subNodeNew, npos2, node2, npos3, node3);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
 				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
@@ -4912,16 +4869,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// npos1, node1, npos3, node3));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -4938,13 +4887,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, mask, subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos3) {
 				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
@@ -4956,16 +4908,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// npos1, node1, npos2, node2));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -4982,13 +4926,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, npos2, node2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -5063,7 +5010,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -5099,25 +5046,25 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
+			if (npos1 != that.npos1) {
+				return false;
+			}
+			if (npos2 != that.npos2) {
+				return false;
+			}
+			if (npos3 != that.npos3) {
+				return false;
+			}
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (npos1 != that.npos1) {
-				return false;
-			}
 			if (!node1.equals(that.node1)) {
 				return false;
 			}
-			if (npos2 != that.npos2) {
-				return false;
-			}
 			if (!node2.equals(that.node2)) {
-				return false;
-			}
-			if (npos3 != that.npos3) {
 				return false;
 			}
 			if (!node3.equals(that.node3)) {
@@ -5159,6 +5106,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.pos2 = pos2;
 			this.key2 = key2;
 			this.val2 = val2;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -5308,7 +5256,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -5341,16 +5289,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
-			if (!key1.equals(that.key1)) {
-				return false;
-			}
-			if (!val1.equals(that.val1)) {
-				return false;
-			}
 			if (pos2 != that.pos2) {
 				return false;
 			}
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
 			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
 				return false;
 			}
 			if (!val2.equals(that.val2)) {
@@ -5396,6 +5344,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.val2 = val2;
 			this.npos1 = npos1;
 			this.node1 = node1;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -5528,16 +5477,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// pos2, key2, val2));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -5561,13 +5502,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -5637,7 +5581,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -5672,22 +5616,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
-			if (!key1.equals(that.key1)) {
-				return false;
-			}
-			if (!val1.equals(that.val1)) {
-				return false;
-			}
 			if (pos2 != that.pos2) {
+				return false;
+			}
+			if (npos1 != that.npos1) {
+				return false;
+			}
+			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!key2.equals(that.key2)) {
 				return false;
 			}
-			if (!val2.equals(that.val2)) {
+			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (npos1 != that.npos1) {
+			if (!val2.equals(that.val2)) {
 				return false;
 			}
 			if (!node1.equals(that.node1)) {
@@ -5738,6 +5682,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.node1 = node1;
 			this.npos2 = npos2;
 			this.node2 = node2;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -5900,16 +5845,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// pos2, key2, val2, npos2, node2));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -5933,13 +5870,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, mask, subNodeNew, npos2, node2);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
 				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
@@ -5951,16 +5891,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// pos2, key2, val2, npos1, node1));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -5984,13 +5916,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, npos1, node1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -6064,7 +5999,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -6101,28 +6036,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
-			if (!key1.equals(that.key1)) {
-				return false;
-			}
-			if (!val1.equals(that.val1)) {
-				return false;
-			}
 			if (pos2 != that.pos2) {
-				return false;
-			}
-			if (!key2.equals(that.key2)) {
-				return false;
-			}
-			if (!val2.equals(that.val2)) {
 				return false;
 			}
 			if (npos1 != that.npos1) {
 				return false;
 			}
-			if (!node1.equals(that.node1)) {
+			if (npos2 != that.npos2) {
 				return false;
 			}
-			if (npos2 != that.npos2) {
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
 				return false;
 			}
 			if (!node2.equals(that.node2)) {
@@ -6170,6 +6105,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.pos3 = pos3;
 			this.key3 = key3;
 			this.val3 = val3;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -6360,7 +6296,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -6396,25 +6332,25 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
-			if (!key1.equals(that.key1)) {
-				return false;
-			}
-			if (!val1.equals(that.val1)) {
-				return false;
-			}
 			if (pos2 != that.pos2) {
-				return false;
-			}
-			if (!key2.equals(that.key2)) {
-				return false;
-			}
-			if (!val2.equals(that.val2)) {
 				return false;
 			}
 			if (pos3 != that.pos3) {
 				return false;
 			}
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
 			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
 				return false;
 			}
 			if (!val3.equals(that.val3)) {
@@ -6467,6 +6403,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.val3 = val3;
 			this.npos1 = npos1;
 			this.node1 = node1;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -6643,16 +6580,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
 
-				assert this.arity() >= 2;
-				assert subNodeNew.size() >= 1;
-
-				switch (subNodeNew.size()) {
-				// case 0:
-				// // remove node
-				// return Result.modified(valNodeOf(mutator, pos1, key1, val1,
-				// pos2, key2, val2, pos3, key3, val3));
-
-				case 1:
+				switch (subNodeNew.sizePredicate()) {
+				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
@@ -6683,13 +6612,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return Result.modified(thisNew);
 					}
 
-				default:
+				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
 					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, pos3, key3, val3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
+
+				default:
+					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			}
 
@@ -6763,7 +6695,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -6801,31 +6733,31 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
-			if (!key1.equals(that.key1)) {
-				return false;
-			}
-			if (!val1.equals(that.val1)) {
-				return false;
-			}
 			if (pos2 != that.pos2) {
-				return false;
-			}
-			if (!key2.equals(that.key2)) {
-				return false;
-			}
-			if (!val2.equals(that.val2)) {
 				return false;
 			}
 			if (pos3 != that.pos3) {
 				return false;
 			}
+			if (npos1 != that.npos1) {
+				return false;
+			}
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
 			if (!key3.equals(that.key3)) {
 				return false;
 			}
-			if (!val3.equals(that.val3)) {
+			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (npos1 != that.npos1) {
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
 				return false;
 			}
 			if (!node1.equals(that.node1)) {
@@ -6880,6 +6812,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.pos4 = pos4;
 			this.key4 = key4;
 			this.val4 = val4;
+			assert nodeInvariant();
 		}
 
 		@Override
@@ -7112,7 +7045,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		int size() {
+		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
 
@@ -7151,34 +7084,34 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			if (pos1 != that.pos1) {
 				return false;
 			}
-			if (!key1.equals(that.key1)) {
-				return false;
-			}
-			if (!val1.equals(that.val1)) {
-				return false;
-			}
 			if (pos2 != that.pos2) {
-				return false;
-			}
-			if (!key2.equals(that.key2)) {
-				return false;
-			}
-			if (!val2.equals(that.val2)) {
 				return false;
 			}
 			if (pos3 != that.pos3) {
 				return false;
 			}
-			if (!key3.equals(that.key3)) {
-				return false;
-			}
-			if (!val3.equals(that.val3)) {
-				return false;
-			}
 			if (pos4 != that.pos4) {
 				return false;
 			}
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
 			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
 				return false;
 			}
 			if (!val4.equals(that.val4)) {
