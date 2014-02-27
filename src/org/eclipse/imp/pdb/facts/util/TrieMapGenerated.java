@@ -50,7 +50,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	private static final TrieMapGenerated EMPTY_INPLACE_INDEX_MAP = new TrieMapGenerated(
 					CompactNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
-	final private AbstractNode<K, V> rootNode;
+	private final AbstractNode<K, V> rootNode;
 	private final int hashCode;
 	private final int cachedSize;
 
@@ -99,7 +99,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public TrieMapGenerated<K, V> __putEquivalent(K key, V val, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final AbstractNode.Result<K, V> result = rootNode.updated(null, key, keyHash, val, 0, cmp);
+		final Result<K, V, ? extends AbstractNode<K, V>> result = rootNode.updated(null, key,
+						keyHash, val, 0, cmp);
 
 		if (result.isModified()) {
 			if (result.hasReplacedValue()) {
@@ -139,7 +140,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public TrieMapGenerated<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final AbstractNode.Result<K, V> result = rootNode.removed(null, key, keyHash, 0, cmp);
+		final Result<K, V, ? extends AbstractNode<K, V>> result = rootNode.removed(null, key,
+						keyHash, 0, cmp);
 
 		if (result.isModified()) {
 			// TODO: carry deleted value in result
@@ -183,8 +185,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public V getEquivalent(Object key, Comparator<Object> cmp) {
-		final AbstractNode.Optional<Map.Entry<K, V>> result = rootNode.findByKey(key,
-						key.hashCode(), 0, cmp);
+		final Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
 		if (result.isPresent()) {
 			return result.get().getValue();
@@ -263,78 +264,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			};
 		}
 		return entrySet;
-	}
-
-	/**
-	 * Iterator that first iterates over inlined-values and then continues depth
-	 * first recursively.
-	 */
-	@SuppressWarnings("unused")
-	private static class TrieMapIterator<K, V> implements SupplierIterator<K, V> {
-
-		final Deque<Iterator<AbstractNode<K, V>>> nodeIteratorStack;
-		SupplierIterator<K, V> valueIterator;
-
-		TrieMapIterator(AbstractNode<K, V> rootNode) {
-			if (rootNode.hasValues()) {
-				valueIterator = rootNode.valueIterator();
-			} else {
-				valueIterator = EmptySupplierIterator.emptyIterator();
-			}
-
-			nodeIteratorStack = new ArrayDeque<>();
-			if (rootNode.hasNodes()) {
-				nodeIteratorStack.push(rootNode.nodeIterator());
-			}
-		}
-
-		@Override
-		public boolean hasNext() {
-			while (true) {
-				if (valueIterator.hasNext()) {
-					return true;
-				} else {
-					if (nodeIteratorStack.isEmpty()) {
-						return false;
-					} else {
-						if (nodeIteratorStack.peek().hasNext()) {
-							AbstractNode<K, V> innerNode = nodeIteratorStack.peek().next();
-
-							if (innerNode.hasValues()) {
-								valueIterator = innerNode.valueIterator();
-							}
-
-							if (innerNode.hasNodes()) {
-								nodeIteratorStack.push(innerNode.nodeIterator());
-							}
-							continue;
-						} else {
-							nodeIteratorStack.pop();
-							continue;
-						}
-					}
-				}
-			}
-		}
-
-		@Override
-		public K next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			}
-
-			return valueIterator.next();
-		}
-
-		@Override
-		public V get() {
-			return valueIterator.get();
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	private static class TrieMapIteratorWithFixedWidthStack<K, V> implements SupplierIterator<K, V> {
@@ -572,8 +501,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public V getEquivalent(Object key, Comparator<Object> cmp) {
-			AbstractNode.Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(),
-							0, cmp);
+			final Optional<Map.Entry<K, V>> result = rootNode
+							.findByKey(key, key.hashCode(), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get().getValue();
@@ -594,8 +523,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			final int keyHash = key.hashCode();
-			final AbstractNode.Result<K, V> result = rootNode.updated(mutator, key, keyHash, val,
-							0, cmp);
+			final Result<K, V, ? extends AbstractNode<K, V>> result = rootNode.updated(mutator,
+							key, keyHash, val, 0, cmp);
 
 			if (result.isModified()) {
 				rootNode = result.getNode();
@@ -639,8 +568,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			final int keyHash = key.hashCode();
-			final AbstractNode.Result<K, V> result = rootNode
-							.removed(mutator, key, keyHash, 0, cmp);
+			final Result<K, V, ? extends AbstractNode<K, V>> result = rootNode.removed(mutator,
+							key, keyHash, 0, cmp);
 
 			if (result.isModified()) {
 				// TODO: carry deleted value in result
@@ -694,7 +623,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 * depth first recursively.
 		 */
 		// TODO: test
-		private static class TransientTrieMapIterator<K, V> extends TrieMapIteratorWithFixedWidthStack<K, V> {
+		private static class TransientTrieMapIterator<K, V> extends
+						TrieMapIteratorWithFixedWidthStack<K, V> {
 
 			final TransientTrieMap<K, V> transientTrieMap;
 			K lastKey;
@@ -742,6 +672,95 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
+	static final class Result<T1, T2, N extends AbstractNode<T1, T2>> {
+		private final N result;
+		private final T2 replacedValue;
+		private final boolean isModified;
+
+		// update: inserted/removed single element, element count changed
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> modified(N node) {
+			return new Result<>(node, null, true);
+		}
+
+		// update: replaced single mapping, but element count unchanged
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> updated(N node,
+						T2 replacedValue) {
+			return new Result<>(node, replacedValue, true);
+		}
+
+		// update: neither element, nor element count changed
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> unchanged(N node) {
+			return new Result<>(node, null, false);
+		}
+
+		private Result(N node, T2 replacedValue, boolean isMutated) {
+			this.result = node;
+			this.replacedValue = replacedValue;
+			this.isModified = isMutated;
+		}
+
+		public N getNode() {
+			return result;
+		}
+
+		public boolean isModified() {
+			return isModified;
+		}
+
+		public boolean hasReplacedValue() {
+			return replacedValue != null;
+		}
+
+		public T2 getReplacedValue() {
+			return replacedValue;
+		}
+	}
+
+	abstract static class Optional<T> {
+		private static final Optional EMPTY = new Optional() {
+			@Override
+			boolean isPresent() {
+				return false;
+			}
+
+			@Override
+			Object get() {
+				return null;
+			}
+		};
+
+		@SuppressWarnings("unchecked")
+		static <T> Optional<T> empty() {
+			return EMPTY;
+		}
+
+		static <T> Optional<T> of(T value) {
+			return new Value<T>(value);
+		}
+
+		abstract boolean isPresent();
+
+		abstract T get();
+
+		private static final class Value<T> extends Optional<T> {
+			private final T value;
+
+			private Value(T value) {
+				this.value = value;
+			}
+
+			@Override
+			boolean isPresent() {
+				return true;
+			}
+
+			@Override
+			T get() {
+				return value;
+			}
+		}
+	}
+
 	private static abstract class AbstractNode<K, V> {
 
 		protected static final int BIT_PARTITION_SIZE = 5;
@@ -753,10 +772,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift,
 						Comparator<Object> cmp);
 
-		abstract Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val,
-						int shift, Comparator<Object> cmp);
+		abstract Result<K, V, ? extends AbstractNode<K, V>> updated(
+						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp);
 
-		abstract Result<K, V> removed(AtomicReference<Thread> mutator, K key, int hash, int shift,
+		abstract Result<K, V, ? extends AbstractNode<K, V>> removed(
+						AtomicReference<Thread> mutator, K key, int hash, int shift,
 						Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
@@ -772,11 +793,11 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		abstract V getValue(int index);
 
-		abstract public AbstractNode<K, V> getNode(int index);
+		abstract AbstractNode<K, V> getNode(int index);
 
 		abstract boolean hasNodes();
 
-		abstract Iterator<AbstractNode<K, V>> nodeIterator();
+		abstract Iterator<? extends AbstractNode<K, V>> nodeIterator();
 
 		abstract int nodeArity();
 
@@ -807,102 +828,20 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 			return size;
 		}
-
-		static class Result<T1, T2> {
-			private final Object result;
-			private final T2 replacedValue;
-			private final boolean isModified;
-
-			// update: inserted/removed single element, element count changed
-			public static <T1, T2> Result<T1, T2> modified(AbstractNode<T1, T2> node) {
-				return new Result<>(node, null, true);
-			}
-
-			// update: replaced single mapping, but element count unchanged
-			public static <T1, T2> Result<T1, T2> updated(AbstractNode<T1, T2> node,
-							T2 replacedValue) {
-				return new Result<>(node, replacedValue, true);
-			}
-
-			// update: neither element, nor element count changed
-			public static <T1, T2> Result<T1, T2> unchanged(AbstractNode<T1, T2> node) {
-				return new Result<>(node, null, false);
-			}
-
-			private Result(AbstractNode<T1, T2> node, T2 replacedValue, boolean isMutated) {
-				this.result = node;
-				this.replacedValue = replacedValue;
-				this.isModified = isMutated;
-			}
-
-			@SuppressWarnings("unchecked")
-			public AbstractNode<T1, T2> getNode() {
-				return (AbstractNode<T1, T2>) result;
-			}
-
-			public boolean isModified() {
-				return isModified;
-			}
-
-			public boolean hasReplacedValue() {
-				return replacedValue != null;
-			}
-
-			public T2 getReplacedValue() {
-				return replacedValue;
-			}
-		}
-
-		abstract static class Optional<T> {
-			private final static Optional EMPTY = new Optional() {
-				@Override
-				boolean isPresent() {
-					return false;
-				}
-
-				@Override
-				Object get() {
-					return null;
-				}
-			};
-
-			@SuppressWarnings("unchecked")
-			static <T> Optional<T> empty() {
-				return EMPTY;
-			}
-
-			static <T> Optional<T> of(T value) {
-				return new Value<T>(value);
-			}
-
-			abstract boolean isPresent();
-
-			abstract T get();
-
-			private static class Value<T> extends Optional<T> {
-				private final T value;
-
-				private Value(T value) {
-					this.value = value;
-				}
-
-				@Override
-				boolean isPresent() {
-					return true;
-				}
-
-				@Override
-				T get() {
-					return value;
-				}
-			}
-		}
 	}
 
 	private static abstract class CompactNode<K, V> extends AbstractNode<K, V> {
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
 		static final byte SIZE_MORE_THAN_ONE = 0b10;
+
+		@Override
+		abstract Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift, Comparator<Object> cmp);
+
+		@Override
+		abstract Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int hash, int shift, Comparator<Object> cmp);
 
 		/**
 		 * Abstract predicate over a node's size. Value can be either
@@ -942,8 +881,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		static final CompactNode EMPTY_INPLACE_INDEX_NODE = new Value0Index0Node();
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
-						AbstractNode<K, V> node) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
+						CompactNode<K, V> node) {
 			switch (pos) {
 			case 0:
 				return new SingletonNodeAtMask0Node<>(node);
@@ -1016,15 +955,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@SuppressWarnings("unchecked")
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
 			return EMPTY_INPLACE_INDEX_NODE;
 		}
 
 		// manually added
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte npos1, AbstractNode<K, V> node1,
-						byte npos2, AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3,
-						byte npos4, AbstractNode<K, V> node4) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, CompactNode<K, V> node1, byte npos2,
+						CompactNode<K, V> node2, byte npos3, CompactNode<K, V> node3, byte npos4,
+						CompactNode<K, V> node4) {
 			final int bitmap = (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3)
 							| (1 << npos4);
 			final int valmap = (1 << pos1);
@@ -1034,10 +973,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		// manually added
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3,
-						V val3, byte npos1, AbstractNode<K, V> node1, byte npos2,
-						AbstractNode<K, V> node2) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte npos1, CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
 							| (1 << npos2);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
@@ -1047,10 +985,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		// manually added
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte npos1,
-						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
-						AbstractNode<K, V> node3) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
+						CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2, byte npos3,
+						CompactNode<K, V> node3) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2)
 							| (1 << npos3);
 			final int valmap = (1 << pos1) | (1 << pos2);
@@ -1060,9 +998,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		// manually added
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3,
-						V val3, byte pos4, K key4, V val4, byte npos1, AbstractNode<K, V> node1) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4, byte npos1, CompactNode<K, V> node1) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
 
@@ -1071,96 +1009,95 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		// manually added
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3,
-						V val3, byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
 
 			return new MixedIndexNode<>(mutator, valmap, valmap, new Object[] { key1, val1, key2,
 							val2, key3, val3, key4, val4, key5, val5 }, (byte) 5);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte npos1, AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
+						byte npos1, CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2) {
 			return new Value0Index2Node<>(mutator, npos1, node1, npos2, node2);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte npos1, AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2,
-						byte npos3, AbstractNode<K, V> node3) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
+						byte npos1, CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2,
+						byte npos3, CompactNode<K, V> node3) {
 			return new Value0Index3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte npos1, AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2,
-						byte npos3, AbstractNode<K, V> node3, byte npos4, AbstractNode<K, V> node4) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
+						byte npos1, CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2,
+						byte npos3, CompactNode<K, V> node3, byte npos4, CompactNode<K, V> node4) {
 			return new Value0Index4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
 							node4);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1) {
 			return new Value1Index0Node<>(mutator, pos1, key1, val1);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte npos1, AbstractNode<K, V> node1) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, CompactNode<K, V> node1) {
 			return new Value1Index1Node<>(mutator, pos1, key1, val1, npos1, node1);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte npos1, AbstractNode<K, V> node1,
-						byte npos2, AbstractNode<K, V> node2) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, CompactNode<K, V> node1, byte npos2,
+						CompactNode<K, V> node2) {
 			return new Value1Index2Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte npos1, AbstractNode<K, V> node1,
-						byte npos2, AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte npos1, CompactNode<K, V> node1, byte npos2,
+						CompactNode<K, V> node2, byte npos3, CompactNode<K, V> node3) {
 			return new Value1Index3Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2,
 							npos3, node3);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2) {
 			return new Value2Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte npos1,
-						AbstractNode<K, V> node1) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
+						CompactNode<K, V> node1) {
 			return new Value2Index1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte npos1,
-						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
+						CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2) {
 			return new Value2Index2Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1,
 							node1, npos2, node2);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3,
-						V val3) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3) {
 			return new Value3Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
 							val3);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3,
-						V val3, byte npos1, AbstractNode<K, V> node1) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte npos1, CompactNode<K, V> node1) {
 			return new Value3Index1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
 							val3, npos1, node1);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte pos1, K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3,
-						V val3, byte pos4, K key4, V val4) {
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
+						byte pos4, K key4, V val4) {
 			return new Value4Index0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
 							val3, pos4, key4, val4);
 		}
 
-		static final <K, V> AbstractNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
+		static final <K, V> CompactNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
 						int bitmap, int valmap, Object[] nodes, byte valueArity) {
 			return new MixedIndexNode<>(mutator, bitmap, valmap, nodes, valueArity);
 		}
@@ -1188,27 +1125,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					nodes[2] = key1;
 					nodes[3] = val1;
 
-					return (CompactNode) valNodeOf(null, (byte) mask0, key0, val0, (byte) mask1,
-									key1, val1);
+					return valNodeOf(null, (byte) mask0, key0, val0, (byte) mask1, key1, val1);
 				} else {
 					nodes[0] = key1;
 					nodes[1] = val1;
 					nodes[2] = key0;
 					nodes[3] = val0;
 
-					return (CompactNode) valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0,
-									key0, val0);
+					return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, key0, val0);
 				}
 			} else {
 				// values fit on next level
 				final CompactNode<K, V> node = mergeNodes(key0, keyHash0, val0, key1, keyHash1,
 								val1, shift + BIT_PARTITION_SIZE);
 
-				return (CompactNode) valNodeOf(null, (byte) mask0, node);
+				return valNodeOf(null, (byte) mask0, node);
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		static final <K, V> CompactNode<K, V> mergeNodes(CompactNode<K, V> node0, int keyHash0,
 						K key1, int keyHash1, V val1, int shift) {
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
@@ -1223,13 +1157,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				nodes[1] = val1;
 				nodes[2] = node0;
 
-				return (CompactNode) valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, node0);
+				return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, node0);
 			} else {
 				// values fit on next level
 				final CompactNode<K, V> node = mergeNodes(node0, keyHash0, key1, keyHash1, val1,
 								shift + BIT_PARTITION_SIZE);
 
-				return (CompactNode) valNodeOf(null, (byte) mask0, node);
+				return valNodeOf(null, (byte) mask0, node);
 			}
 		}
 	}
@@ -1240,7 +1174,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private Object[] nodes;
 		final private int bitmap;
 		final private int valmap;
-
 		final private byte valueArity;
 
 		MixedIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
@@ -1252,18 +1185,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			this.nodes = nodes;
 			this.bitmap = bitmap;
 			this.valmap = valmap;
-
 			this.valueArity = valueArity;
-			assert (valueArity == Integer.bitCount(valmap));
 
+			assert (valueArity == Integer.bitCount(valmap));
 			assert (valueArity() >= 2 || nodeArity() >= 1); // =
 															// SIZE_MORE_THAN_ONE
 
 			// for (int i = 0; i < 2 * valueArity; i++)
-			// assert ((nodes[i] instanceof AbstractNode) == false);
+			// assert ((nodes[i] instanceof CompactNode) == false);
 			//
 			// for (int i = 2 * valueArity; i < nodes.length; i++)
-			// assert ((nodes[i] instanceof AbstractNode) == true);
+			// assert ((nodes[i] instanceof CompactNode) == true);
 
 			// assert invariant
 			assert nodeInvariant();
@@ -1327,8 +1259,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1346,7 +1278,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					final AbstractNode<K, V> thisNew;
+					final CompactNode<K, V> thisNew;
 
 					if (isAllowedToEdit(this.mutator, mutator)) {
 						// no copying if already editable
@@ -1361,7 +1293,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 					return Result.updated(thisNew, (V) currentVal);
 				} else {
-					final AbstractNode<K, V> nodeNew = mergeNodes((K) nodes[valIndex],
+					final CompactNode<K, V> nodeNew = mergeNodes((K) nodes[valIndex],
 									nodes[valIndex].hashCode(), (V) nodes[valIndex + 1], key,
 									keyHash, val, shift + BIT_PARTITION_SIZE);
 
@@ -1372,7 +1304,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex,
 									offset + index, nodeNew);
 
-					final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap
+					final CompactNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap
 									| bitpos, valmap & ~bitpos, editableNodes,
 									(byte) (valueArity - 1));
 
@@ -1380,16 +1312,16 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 			} else if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
-				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
+				final CompactNode<K, V> subNode = (CompactNode<K, V>) nodes[bitIndex];
 
-				final Result<K, V> subNodeResult = subNode.updated(mutator, key, keyHash, val,
-								shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew;
+				final CompactNode<K, V> thisNew;
 
 				// modify current node (set replacement node)
 				if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1414,7 +1346,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex(bitpos), key,
 								val);
 
-				final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap
+				final CompactNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap
 								| bitpos, valmap | bitpos, editableNodes, (byte) (valueArity + 1));
 
 				return Result.modified(thisNew);
@@ -1423,8 +1355,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> comparator) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> comparator) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1443,10 +1375,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final byte npos2 = recoverMask(nmap, (byte) 2);
 						final byte npos3 = recoverMask(nmap, (byte) 3);
 						final byte npos4 = recoverMask(nmap, (byte) 4);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
-						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
-						final AbstractNode<K, V> node4 = (AbstractNode<K, V>) nodes[valueArity + 3];
+						final CompactNode<K, V> node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+						final CompactNode<K, V> node2 = (CompactNode<K, V>) nodes[valueArity + 1];
+						final CompactNode<K, V> node3 = (CompactNode<K, V>) nodes[valueArity + 2];
+						final CompactNode<K, V> node4 = (CompactNode<K, V>) nodes[valueArity + 3];
 
 						return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
 										npos3, node3, npos4, node4));
@@ -1461,9 +1393,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
 						final byte npos3 = recoverMask(nmap, (byte) 3);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
-						final AbstractNode<K, V> node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
+						final CompactNode<K, V> node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+						final CompactNode<K, V> node2 = (CompactNode<K, V>) nodes[valueArity + 1];
+						final CompactNode<K, V> node3 = (CompactNode<K, V>) nodes[valueArity + 2];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[2];
@@ -1488,8 +1420,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-						final AbstractNode<K, V> node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+						final CompactNode<K, V> node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+						final CompactNode<K, V> node2 = (CompactNode<K, V>) nodes[valueArity + 1];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[2];
@@ -1525,7 +1457,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
-						final AbstractNode<K, V> node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+						final CompactNode<K, V> node1 = (CompactNode<K, V>) nodes[valueArity + 0];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[2];
@@ -1629,7 +1561,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				} else {
 					final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
 
-					final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
+					final CompactNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
 									this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
 									(byte) (valueArity - 1));
 
@@ -1637,17 +1569,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 			} else if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
-				final AbstractNode<K, V> subNode = (AbstractNode<K, V>) nodes[bitIndex];
-				final Result<K, V> subNodeResult = subNode.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, comparator);
+				final CompactNode<K, V> subNode = (CompactNode<K, V>) nodes[bitIndex];
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, comparator);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				// TODO: rework result that it can take CompactNode instead of
-				// AbstractNode
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case 0: {
@@ -1686,12 +1616,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 							final int nmap = ((bitmap & ~bitpos) ^ valmap);
 							final byte npos1 = recoverMask(nmap, (byte) 1);
-							final AbstractNode<K, V> node1;
+							final CompactNode<K, V> node1;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 1];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -1709,18 +1639,18 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final int nmap = ((bitmap & ~bitpos) ^ valmap);
 							final byte npos1 = recoverMask(nmap, (byte) 1);
 							final byte npos2 = recoverMask(nmap, (byte) 2);
-							final AbstractNode<K, V> node1;
-							final AbstractNode<K, V> node2;
+							final CompactNode<K, V> node1;
+							final CompactNode<K, V> node2;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 2];
 							} else if (mask < npos2) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 2];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 1];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -1736,26 +1666,26 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final byte npos1 = recoverMask(nmap, (byte) 1);
 							final byte npos2 = recoverMask(nmap, (byte) 2);
 							final byte npos3 = recoverMask(nmap, (byte) 3);
-							final AbstractNode<K, V> node1;
-							final AbstractNode<K, V> node2;
-							final AbstractNode<K, V> node3;
+							final CompactNode<K, V> node1;
+							final CompactNode<K, V> node2;
+							final CompactNode<K, V> node3;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 2];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 3];
 							} else if (mask < npos2) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 2];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 3];
 							} else if (mask < npos3) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 3];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 2];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -1767,36 +1697,36 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 							final byte npos2 = recoverMask(nmap, (byte) 2);
 							final byte npos3 = recoverMask(nmap, (byte) 3);
 							final byte npos4 = recoverMask(nmap, (byte) 4);
-							final AbstractNode<K, V> node1;
-							final AbstractNode<K, V> node2;
-							final AbstractNode<K, V> node3;
-							final AbstractNode<K, V> node4;
+							final CompactNode<K, V> node1;
+							final CompactNode<K, V> node2;
+							final CompactNode<K, V> node3;
+							final CompactNode<K, V> node4;
 
 							if (mask < npos1) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
-								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 2];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 3];
+								node4 = (CompactNode<K, V>) nodes[valueArity + 4];
 							} else if (mask < npos2) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 2];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
-								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 2];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 3];
+								node4 = (CompactNode<K, V>) nodes[valueArity + 4];
 							} else if (mask < npos3) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 3];
-								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 3];
+								node4 = (CompactNode<K, V>) nodes[valueArity + 4];
 							} else if (mask < npos4) {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
-								node4 = (AbstractNode<K, V>) nodes[valueArity + 4];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 2];
+								node4 = (CompactNode<K, V>) nodes[valueArity + 4];
 							} else {
-								node1 = (AbstractNode<K, V>) nodes[valueArity + 0];
-								node2 = (AbstractNode<K, V>) nodes[valueArity + 1];
-								node3 = (AbstractNode<K, V>) nodes[valueArity + 2];
-								node4 = (AbstractNode<K, V>) nodes[valueArity + 3];
+								node1 = (CompactNode<K, V>) nodes[valueArity + 0];
+								node2 = (CompactNode<K, V>) nodes[valueArity + 1];
+								node3 = (CompactNode<K, V>) nodes[valueArity + 2];
+								node4 = (CompactNode<K, V>) nodes[valueArity + 3];
 							}
 
 							return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -1806,7 +1736,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					} else {
 						final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
 
-						final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
+						final CompactNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
 										bitmap & ~bitpos, valmap, editableNodes, valueArity);
 
 						return Result.modified(thisNew);
@@ -1819,9 +1749,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
 									valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
 
-					final AbstractNode<K, V> thisNew = CompactNode
-									.<K, V> valNodeOf(mutator, bitmap, valmap | bitpos,
-													editableNodes, (byte) (valueArity + 1));
+					final CompactNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator, bitmap,
+									valmap | bitpos, editableNodes, (byte) (valueArity + 1));
 
 					return Result.modified(thisNew);
 				}
@@ -1834,7 +1763,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					} else {
 						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
 
-						final AbstractNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
+						final CompactNode<K, V> thisNew = CompactNode.<K, V> valNodeOf(mutator,
 										bitmap, valmap, editableNodes, valueArity);
 
 						return Result.modified(thisNew);
@@ -2024,7 +1953,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
+		Iterator<CompactNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -2056,10 +1985,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 * Inserts an object if not yet present. Note, that this implementation
 		 * always returns a new immutable {@link TrieSet} instance.
 		 */
-		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				return Result.modified(mergeNodes(this, this.hash, key, keyHash, val, shift));
 			}
@@ -2068,7 +1996,9 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				return Result.unchanged(this);
 			}
 
+			@SuppressWarnings("unchecked")
 			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
+			@SuppressWarnings("unchecked")
 			final V[] valsNew = (V[]) copyAndInsert(vals, vals.length, val);
 			return Result.modified(new InplaceHashCollisionNode<>(keyHash, keysNew, valsNew));
 		}
@@ -2079,12 +2009,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
 				if (cmp.compare(keys[i], key) == 0) {
 					if (this.arity() == 1) {
-						return Result.modified(EMPTY_INPLACE_INDEX_NODE);
+						return Result.modified(CompactNode.<K, V> valNodeOf(mutator));
 					} else if (this.arity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
@@ -2093,8 +2023,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						 */
 						final K theOtherKey = (i == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (i == 0) ? vals[1] : vals[0];
-						return EMPTY_INPLACE_INDEX_NODE.updated(mutator, theOtherKey, keyHash,
-										theOtherVal, 0, cmp);
+						return CompactNode.<K, V> valNodeOf(mutator).updated(mutator, theOtherKey,
+										keyHash, theOtherVal, 0, cmp);
 					} else {
 						return Result.modified(new InplaceHashCollisionNode<>(keyHash,
 										(K[]) copyAndRemove(keys, i), (V[]) copyAndRemove(vals, i)));
@@ -2145,7 +2075,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Is leaf node.");
 		}
 
@@ -2254,10 +2184,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		while (it.hasNext()) {
 			final AbstractNode<K, V> node = it.next();
 
-			// it.next();
-			// final AbstractNode<K, V> node =
-			// CompactNode.EMPTY_INPLACE_INDEX_NODE;
-
 			Predicate<Object> isRoot = new Predicate<Object>() {
 				@Override
 				public boolean apply(Object arg0) {
@@ -2273,7 +2199,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			Footprint memoryFootprint = objectexplorer.ObjectGraphMeasurer.measure(node,
 							jointPredicate);
 
-			// if (node.arity() == 32) {
 			final int pointers = 2 * node.valueArity() + node.nodeArity();
 
 			final String statString = String
@@ -2287,7 +2212,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			final String statFileString = String.format("%d,%d,%d,%d", node.arity(),
 							node.valueArity(), node.nodeArity(), memoryInBytes);
 			lines.add(statFileString);
-			// }
 		}
 
 		Predicate<Object> totalPredicate = Predicates.not(Predicates.instanceOf(Integer.class));
@@ -2318,7 +2242,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	 */
 	private static class TrieMapNodeIterator<K, V> implements Iterator<AbstractNode<K, V>> {
 
-		final Deque<Iterator<AbstractNode<K, V>>> nodeIteratorStack;
+		final Deque<Iterator<? extends AbstractNode<K, V>>> nodeIteratorStack;
 
 		TrieMapNodeIterator(AbstractNode<K, V> rootNode) {
 			nodeIteratorStack = new ArrayDeque<>();
@@ -2366,26 +2290,26 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		protected abstract byte npos1();
 
-		protected final AbstractNode<K, V> node1;
+		protected final CompactNode<K, V> node1;
 
-		AbstractSingletonNode(AbstractNode<K, V> node1) {
+		AbstractSingletonNode(CompactNode<K, V> node1) {
 			this.node1 = node1;
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1()) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode());
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
 					return Result.updated(thisNew, subNodeResult.getReplacedValue());
@@ -2395,25 +2319,24 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			// no value
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1(), node1);
+			final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1(), node1);
 			return Result.modified(thisNew);
-
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1()) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_EMPTY:
@@ -2423,7 +2346,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew);
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew);
 					return Result.modified(thisNew);
 
 				default:
@@ -2564,7 +2487,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 0;
 		}
 
-		SingletonNodeAtMask0Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask0Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2577,7 +2500,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 1;
 		}
 
-		SingletonNodeAtMask1Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask1Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2590,7 +2513,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 2;
 		}
 
-		SingletonNodeAtMask2Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask2Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2603,7 +2526,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 3;
 		}
 
-		SingletonNodeAtMask3Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask3Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2616,7 +2539,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 4;
 		}
 
-		SingletonNodeAtMask4Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask4Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2629,7 +2552,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 5;
 		}
 
-		SingletonNodeAtMask5Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask5Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2642,7 +2565,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 6;
 		}
 
-		SingletonNodeAtMask6Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask6Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2655,7 +2578,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 7;
 		}
 
-		SingletonNodeAtMask7Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask7Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2668,7 +2591,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 8;
 		}
 
-		SingletonNodeAtMask8Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask8Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2681,7 +2604,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 9;
 		}
 
-		SingletonNodeAtMask9Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask9Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2694,7 +2617,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 10;
 		}
 
-		SingletonNodeAtMask10Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask10Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2707,7 +2630,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 11;
 		}
 
-		SingletonNodeAtMask11Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask11Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2720,7 +2643,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 12;
 		}
 
-		SingletonNodeAtMask12Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask12Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2733,7 +2656,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 13;
 		}
 
-		SingletonNodeAtMask13Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask13Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2746,7 +2669,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 14;
 		}
 
-		SingletonNodeAtMask14Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask14Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2759,7 +2682,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 15;
 		}
 
-		SingletonNodeAtMask15Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask15Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2772,7 +2695,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 16;
 		}
 
-		SingletonNodeAtMask16Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask16Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2785,7 +2708,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 17;
 		}
 
-		SingletonNodeAtMask17Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask17Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2798,7 +2721,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 18;
 		}
 
-		SingletonNodeAtMask18Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask18Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2811,7 +2734,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 19;
 		}
 
-		SingletonNodeAtMask19Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask19Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2824,7 +2747,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 20;
 		}
 
-		SingletonNodeAtMask20Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask20Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2837,7 +2760,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 21;
 		}
 
-		SingletonNodeAtMask21Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask21Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2850,7 +2773,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 22;
 		}
 
-		SingletonNodeAtMask22Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask22Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2863,7 +2786,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 23;
 		}
 
-		SingletonNodeAtMask23Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask23Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2876,7 +2799,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 24;
 		}
 
-		SingletonNodeAtMask24Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask24Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2889,7 +2812,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 25;
 		}
 
-		SingletonNodeAtMask25Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask25Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2902,7 +2825,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 26;
 		}
 
-		SingletonNodeAtMask26Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask26Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2915,7 +2838,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 27;
 		}
 
-		SingletonNodeAtMask27Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask27Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2928,7 +2851,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 28;
 		}
 
-		SingletonNodeAtMask28Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask28Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2941,7 +2864,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 29;
 		}
 
-		SingletonNodeAtMask29Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask29Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2954,7 +2877,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 30;
 		}
 
-		SingletonNodeAtMask30Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask30Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2967,7 +2890,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return 31;
 		}
 
-		SingletonNodeAtMask31Node(AbstractNode<K, V> node1) {
+		SingletonNodeAtMask31Node(CompactNode<K, V> node1) {
 			super(node1);
 		}
 
@@ -2979,20 +2902,20 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val);
+			final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 
 			return Result.unchanged(this);
 		}
@@ -3011,7 +2934,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
+		Iterator<CompactNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -3051,7 +2974,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -3099,12 +3022,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	private static final class Value0Index2Node<K, V> extends CompactNode<K, V> {
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 		private final byte npos2;
-		private final AbstractNode<K, V> node2;
+		private final CompactNode<K, V> node2;
 
-		Value0Index2Node(AtomicReference<Thread> mutator, byte npos1, AbstractNode<K, V> node1,
-						byte npos2, AbstractNode<K, V> node2) {
+		Value0Index2Node(AtomicReference<Thread> mutator, byte npos1, CompactNode<K, V> node1,
+						byte npos2, CompactNode<K, V> node2) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -3113,20 +3036,20 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-								subNodeResult.getNode(), npos2, node2);
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
+								npos2, node2);
 
 				if (subNodeResult.hasReplacedValue()) {
 					return Result.updated(thisNew, subNodeResult.getReplacedValue());
@@ -3134,14 +3057,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3153,33 +3076,33 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
+			final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
 							npos2, node2);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos2, node2);
 						return Result.modified(thisNew);
 					}
@@ -3187,7 +3110,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2);
 
 					return Result.modified(thisNew);
@@ -3196,21 +3119,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1);
 						return Result.modified(thisNew);
 					}
@@ -3218,7 +3141,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew);
 
 					return Result.modified(thisNew);
@@ -3260,8 +3183,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1, node2 });
 		}
 
 		@Override
@@ -3300,7 +3223,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -3375,14 +3298,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	private static final class Value0Index3Node<K, V> extends CompactNode<K, V> {
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 		private final byte npos2;
-		private final AbstractNode<K, V> node2;
+		private final CompactNode<K, V> node2;
 		private final byte npos3;
-		private final AbstractNode<K, V> node3;
+		private final CompactNode<K, V> node3;
 
-		Value0Index3Node(AtomicReference<Thread> mutator, byte npos1, AbstractNode<K, V> node1,
-						byte npos2, AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3) {
+		Value0Index3Node(AtomicReference<Thread> mutator, byte npos1, CompactNode<K, V> node1,
+						byte npos2, CompactNode<K, V> node2, byte npos3, CompactNode<K, V> node3) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -3393,20 +3316,20 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-								subNodeResult.getNode(), npos2, node2, npos3, node3);
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
+								npos2, node2, npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
 					return Result.updated(thisNew, subNodeResult.getReplacedValue());
@@ -3414,14 +3337,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 								subNodeResult.getNode(), npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3430,14 +3353,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 								mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3449,33 +3372,33 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
+			final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
 							npos2, node2, npos3, node3);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos2, node2,
 										npos3, node3);
 						return Result.modified(thisNew);
@@ -3484,7 +3407,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -3493,21 +3416,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
 										npos3, node3);
 						return Result.modified(thisNew);
@@ -3516,7 +3439,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -3525,21 +3448,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
 										npos2, node2);
 						return Result.modified(thisNew);
@@ -3548,7 +3471,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -3594,9 +3517,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2, node3 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -3635,7 +3557,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -3720,17 +3642,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	private static final class Value0Index4Node<K, V> extends CompactNode<K, V> {
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 		private final byte npos2;
-		private final AbstractNode<K, V> node2;
+		private final CompactNode<K, V> node2;
 		private final byte npos3;
-		private final AbstractNode<K, V> node3;
+		private final CompactNode<K, V> node3;
 		private final byte npos4;
-		private final AbstractNode<K, V> node4;
+		private final CompactNode<K, V> node4;
 
-		Value0Index4Node(AtomicReference<Thread> mutator, byte npos1, AbstractNode<K, V> node1,
-						byte npos2, AbstractNode<K, V> node2, byte npos3, AbstractNode<K, V> node3,
-						byte npos4, AbstractNode<K, V> node4) {
+		Value0Index4Node(AtomicReference<Thread> mutator, byte npos1, CompactNode<K, V> node1,
+						byte npos2, CompactNode<K, V> node2, byte npos3, CompactNode<K, V> node3,
+						byte npos4, CompactNode<K, V> node4) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -3743,20 +3665,20 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
-								subNodeResult.getNode(), npos2, node2, npos3, node3, npos4, node4);
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
+								npos2, node2, npos3, node3, npos4, node4);
 
 				if (subNodeResult.hasReplacedValue()) {
 					return Result.updated(thisNew, subNodeResult.getReplacedValue());
@@ -3764,14 +3686,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 								subNodeResult.getNode(), npos3, node3, npos4, node4);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3780,14 +3702,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 								mask, subNodeResult.getNode(), npos4, node4);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3796,14 +3718,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos4) {
-				final Result<K, V> subNodeResult = node4.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node4.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 								npos3, node3, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3815,33 +3737,33 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 			// no value
 
-			final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
+			final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, npos1, node1,
 							npos2, node2, npos3, node3, npos4, node4);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos2, node2,
 										npos3, node3, npos4, node4);
 						return Result.modified(thisNew);
@@ -3850,7 +3772,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
@@ -3859,21 +3781,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
 										npos3, node3, npos4, node4);
 						return Result.modified(thisNew);
@@ -3882,7 +3804,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
@@ -3891,21 +3813,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
 										npos2, node2, npos4, node4);
 						return Result.modified(thisNew);
@@ -3914,7 +3836,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, mask, subNodeNew, npos4, node4);
 
 					return Result.modified(thisNew);
@@ -3923,21 +3845,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos4) {
-				final Result<K, V> subNodeResult = node4.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node4.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), npos1, node1,
 										npos2, node2, npos3, node3);
 						return Result.modified(thisNew);
@@ -3946,7 +3868,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, npos3, node3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -3996,8 +3918,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2, node3,
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1, node2, node3,
 							node4 });
 		}
 
@@ -4037,7 +3959,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -4143,8 +4065,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -4158,10 +4080,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node);
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -4169,13 +4091,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val);
 				return Result.modified(thisNew);
 			}
@@ -4183,8 +4105,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -4223,7 +4145,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
+		Iterator<CompactNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -4275,7 +4197,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -4341,10 +4263,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key1;
 		private final V val1;
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 
 		Value1Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte npos1,
-						AbstractNode<K, V> node1) {
+						CompactNode<K, V> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -4354,8 +4276,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -4369,28 +4291,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1);
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node);
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4403,13 +4325,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, npos1, node1);
 				return Result.modified(thisNew);
 			}
@@ -4417,8 +4339,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -4429,28 +4351,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal());
 						return Result.modified(thisNew);
 					}
@@ -4458,7 +4380,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									subNodeNew);
 
 					return Result.modified(thisNew);
@@ -4500,8 +4422,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1 });
 		}
 
 		@Override
@@ -4552,7 +4474,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -4632,12 +4554,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key1;
 		private final V val1;
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 		private final byte npos2;
-		private final AbstractNode<K, V> node2;
+		private final CompactNode<K, V> node2;
 
 		Value1Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte npos1,
-						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2) {
+						CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -4649,8 +4571,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -4666,36 +4588,36 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
 									npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
 									npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 								subNodeResult.getNode(), npos2, node2);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4704,14 +4626,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 								node1, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4724,13 +4646,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
@@ -4738,8 +4660,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -4750,28 +4672,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos2,
 										node2);
 						return Result.modified(thisNew);
@@ -4780,7 +4702,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									subNodeNew, npos2, node2);
 
 					return Result.modified(thisNew);
@@ -4789,28 +4711,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos1,
 										node1);
 						return Result.modified(thisNew);
@@ -4819,7 +4741,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -4865,8 +4787,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1, node2 });
 		}
 
 		@Override
@@ -4917,7 +4839,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -5007,15 +4929,15 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key1;
 		private final V val1;
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 		private final byte npos2;
-		private final AbstractNode<K, V> node2;
+		private final CompactNode<K, V> node2;
 		private final byte npos3;
-		private final AbstractNode<K, V> node3;
+		private final CompactNode<K, V> node3;
 
 		Value1Index3Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte npos1,
-						AbstractNode<K, V> node1, byte npos2, AbstractNode<K, V> node2, byte npos3,
-						AbstractNode<K, V> node3) {
+						CompactNode<K, V> node1, byte npos2, CompactNode<K, V> node2, byte npos3,
+						CompactNode<K, V> node3) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -5029,8 +4951,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -5046,42 +4968,42 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
 									npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
 									npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos3) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, mask, node, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2,
 									node2, npos3, node3, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 								subNodeResult.getNode(), npos2, node2, npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -5090,14 +5012,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 								node1, mask, subNodeResult.getNode(), npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -5106,14 +5028,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 								node1, npos2, node2, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -5126,13 +5048,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, npos1, node1, npos2, node2, npos3, node3);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, npos1, node1, npos2, node2, npos3, node3);
 				return Result.modified(thisNew);
 			}
@@ -5140,8 +5062,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -5152,28 +5074,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3, node3));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, npos2, node2, npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos2,
 										node2, npos3, node3);
 						return Result.modified(thisNew);
@@ -5182,7 +5104,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									subNodeNew, npos2, node2, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -5191,28 +5113,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, npos1, node1, npos3, node3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos1,
 										node1, npos3, node3);
 						return Result.modified(thisNew);
@@ -5221,7 +5143,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, mask, subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -5230,28 +5152,28 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos3) {
-				final Result<K, V> subNodeResult = node3.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, npos1, node1, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), npos1,
 										node1, npos2, node2);
 						return Result.modified(thisNew);
@@ -5260,7 +5182,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, npos2, node2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -5310,9 +5232,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2, node3 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -5363,7 +5284,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -5478,8 +5399,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -5494,10 +5415,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask, node);
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos2) {
@@ -5512,10 +5433,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+				final CompactNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, node);
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -5523,19 +5444,19 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, pos2, key2, val2);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, pos2, key2, val2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, key, val);
 				return Result.modified(thisNew);
 			}
@@ -5543,8 +5464,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -5594,7 +5515,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
+		Iterator<CompactNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -5650,7 +5571,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -5731,10 +5652,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key2;
 		private final V val2;
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 
 		Value2Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
-						K key2, V val2, byte npos1, AbstractNode<K, V> node1) {
+						K key2, V val2, byte npos1, CompactNode<K, V> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -5747,8 +5668,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -5764,17 +5685,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask,
 									node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
 									node1, mask, node);
 					return Result.modified(thisNew);
 				}
@@ -5792,30 +5713,30 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+				final CompactNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -5828,19 +5749,19 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, pos2, key2, val2, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, pos2, key2, val2, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, key, val, npos1, node1);
 				return Result.modified(thisNew);
 			}
@@ -5848,8 +5769,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -5867,35 +5788,35 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, pos2, key2, val2);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
 										key2, val2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										pos2, key2, val2, mask, subNodeNew.headKey(),
 										subNodeNew.headVal());
 						return Result.modified(thisNew);
@@ -5904,7 +5825,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -5950,8 +5871,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1 });
 		}
 
 		@Override
@@ -6006,7 +5927,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -6101,13 +6022,13 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key2;
 		private final V val2;
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 		private final byte npos2;
-		private final AbstractNode<K, V> node2;
+		private final CompactNode<K, V> node2;
 
 		Value2Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
-						K key2, V val2, byte npos1, AbstractNode<K, V> node1, byte npos2,
-						AbstractNode<K, V> node2) {
+						K key2, V val2, byte npos1, CompactNode<K, V> node1, byte npos2,
+						CompactNode<K, V> node2) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6122,8 +6043,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -6139,23 +6060,23 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, mask,
 									node, npos1, node1, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
 									node1, mask, node, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, npos1,
 									node1, npos2, node2, mask, node);
 					return Result.modified(thisNew);
 				}
@@ -6173,36 +6094,36 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+				final CompactNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
 									node, npos1, node1, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, mask, node, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
 									node1, npos2, node2, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, subNodeResult.getNode(), npos2, node2);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -6211,14 +6132,14 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, npos1, node1, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -6231,19 +6152,19 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, pos2, key2, val2, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, pos2, key2, val2, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, key, val, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
@@ -6251,8 +6172,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -6272,35 +6193,35 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				return Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1, npos2,
 								node2));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, pos2, key2, val2, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
 										key2, val2, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										pos2, key2, val2, mask, subNodeNew.headKey(),
 										subNodeNew.headVal(), npos2, node2);
 						return Result.modified(thisNew);
@@ -6309,7 +6230,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, mask, subNodeNew, npos2, node2);
 
 					return Result.modified(thisNew);
@@ -6318,35 +6239,35 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 					throw new IllegalStateException("Size predicate violates node invariant.");
 				}
 			} else if (mask == npos2) {
-				final Result<K, V> subNodeResult = node2.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, pos2, key2, val2, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
 										key2, val2, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										pos2, key2, val2, mask, subNodeNew.headKey(),
 										subNodeNew.headVal(), npos1, node1);
 						return Result.modified(thisNew);
@@ -6355,7 +6276,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, npos1, node1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -6405,8 +6326,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1, node2 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1, node2 });
 		}
 
 		@Override
@@ -6461,7 +6382,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -6584,8 +6505,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -6601,10 +6522,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3, key3,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3, key3,
 								val3, mask, node);
 				return Result.modified(thisNew);
 
@@ -6621,10 +6542,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+				final CompactNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3, key3,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3, key3,
 								val3, mask, node);
 				return Result.modified(thisNew);
 
@@ -6641,10 +6562,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
+				final CompactNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, node);
 				return Result.modified(thisNew);
 
@@ -6653,25 +6574,25 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, pos2, key2, val2, pos3, key3, val3);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, pos2, key2, val2, pos3, key3, val3);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, key, val, pos3, key3, val3);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, pos3, key3, val3, mask, key, val);
 				return Result.modified(thisNew);
 			}
@@ -6679,8 +6600,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -6741,7 +6662,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
+		Iterator<CompactNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -6801,7 +6722,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -6897,11 +6818,11 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private final K key3;
 		private final V val3;
 		private final byte npos1;
-		private final AbstractNode<K, V> node1;
+		private final CompactNode<K, V> node1;
 
 		Value3Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, V val1, byte pos2,
 						K key2, V val2, byte pos3, K key3, V val3, byte npos1,
-						AbstractNode<K, V> node1) {
+						CompactNode<K, V> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6917,8 +6838,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -6934,17 +6855,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3,
 									key3, val3, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3,
 									key3, val3, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
@@ -6962,17 +6883,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+				final CompactNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3,
 									key3, val3, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3,
 									key3, val3, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
@@ -6990,30 +6911,30 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
+				final CompactNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.updated(mutator, key, keyHash, val, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, pos3, key3, val3, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -7026,25 +6947,25 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, pos2, key2, val2, pos3, key3, val3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, pos2, key2, val2, pos3, key3, val3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, key, val, pos3, key3, val3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, pos3, key3, val3, mask, key, val, npos1, node1);
 				return Result.modified(thisNew);
 			}
@@ -7052,8 +6973,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -7081,42 +7002,42 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				return Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
 								npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, V> subNodeResult = node1.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K, V> subNodeNew = (CompactNode<K, V>) subNodeResult.getNode();
+				final CompactNode<K, V> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE:
 					// inline value
 
 					if (mask < npos1) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), subNodeNew.headVal(), pos1, key1,
 										val1, pos2, key2, val2, pos3, key3, val3);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										mask, subNodeNew.headKey(), subNodeNew.headVal(), pos2,
 										key2, val2, pos3, key3, val3);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos3) {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										pos2, key2, val2, mask, subNodeNew.headKey(),
 										subNodeNew.headVal(), pos3, key3, val3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
+						final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1,
 										pos2, key2, val2, pos3, key3, val3, mask,
 										subNodeNew.headKey(), subNodeNew.headVal());
 						return Result.modified(thisNew);
@@ -7125,7 +7046,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
 
-					final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
+					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
 									key2, val2, pos3, key3, val3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -7175,8 +7096,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K, V>> of(new AbstractNode[] { node1 });
+		Iterator<CompactNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactNode<K, V>> of(new CompactNode[] { node1 });
 		}
 
 		@Override
@@ -7235,7 +7156,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -7367,8 +7288,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> updated(AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -7384,10 +7305,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
+				final CompactNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3, key3,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos2, key2, val2, pos3, key3,
 								val3, pos4, key4, val4, mask, node);
 				return Result.modified(thisNew);
 
@@ -7404,10 +7325,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
+				final CompactNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3, key3,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos3, key3,
 								val3, pos4, key4, val4, mask, node);
 				return Result.modified(thisNew);
 
@@ -7424,10 +7345,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
+				final CompactNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, pos4, key4, val4, mask, node);
 				return Result.modified(thisNew);
 
@@ -7444,10 +7365,10 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// merge into node
-				final AbstractNode<K, V> node = mergeNodes(key4, key4.hashCode(), val4, key,
+				final CompactNode<K, V> node = mergeNodes(key4, key4.hashCode(), val4, key,
 								keyHash, val, shift + BIT_PARTITION_SIZE);
 
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, pos3, key3, val3, mask, node);
 				return Result.modified(thisNew);
 
@@ -7456,31 +7377,31 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			// no value
 
 			if (mask < pos1) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, key, val, pos1, key1,
 								val1, pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask, key,
 								val, pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, mask, key, val, pos3, key3, val3, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos4) {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, pos3, key3, val3, mask, key, val, pos4, key4, val4);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final AbstractNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
+				final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
 								val2, pos3, key3, val3, pos4, key4, val4, mask, key, val);
 				return Result.modified(thisNew);
 			}
@@ -7488,8 +7409,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == pos1) {
@@ -7565,7 +7486,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Iterator<AbstractNode<K, V>> nodeIterator() {
+		Iterator<CompactNode<K, V>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -7630,7 +7551,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public AbstractNode<K, V> getNode(int index) {
+		public CompactNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
