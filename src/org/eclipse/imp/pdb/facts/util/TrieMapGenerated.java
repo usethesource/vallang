@@ -366,36 +366,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static class EmptySupplierIterator<K, V> implements SupplierIterator<K, V> {
-
-		private static final SupplierIterator EMPTY_ITERATOR = new EmptySupplierIterator();
-
-		@SuppressWarnings("unchecked")
-		static <K, V> SupplierIterator<K, V> emptyIterator() {
-			return EMPTY_ITERATOR;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return false;
-		}
-
-		@Override
-		public K next() {
-			throw new NoSuchElementException();
-		}
-
-		@Override
-		public V get() {
-			throw new NoSuchElementException();
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
 	private static class TrieMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 		private final SupplierIterator<K, V> iterator;
 
@@ -1108,7 +1078,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			assert key0.equals(key1) == false;
 
 			if (keyHash0 == keyHash1) {
-				return new InplaceHashCollisionNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
+				return new HashCollisionNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
 								(V[]) new Object[] { val0, val1 });
 			}
 
@@ -1915,12 +1885,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	// TODO: replace by immutable cons list
-	private static final class InplaceHashCollisionNode<K, V> extends CompactNode<K, V> {
+	private static final class HashCollisionNode<K, V> extends CompactNode<K, V> {
 		private final K[] keys;
 		private final V[] vals;
 		private final int hash;
 
-		InplaceHashCollisionNode(int hash, K[] keys, V[] vals) {
+		HashCollisionNode(int hash, K[] keys, V[] vals) {
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -2000,7 +1970,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
 			@SuppressWarnings("unchecked")
 			final V[] valsNew = (V[]) copyAndInsert(vals, vals.length, val);
-			return Result.modified(new InplaceHashCollisionNode<>(keyHash, keysNew, valsNew));
+			return Result.modified(new HashCollisionNode<>(keyHash, keysNew, valsNew));
 		}
 
 		/**
@@ -2026,7 +1996,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 						return CompactNode.<K, V> valNodeOf(mutator).updated(mutator, theOtherKey,
 										keyHash, theOtherVal, 0, cmp);
 					} else {
-						return Result.modified(new InplaceHashCollisionNode<>(keyHash,
+						return Result.modified(new HashCollisionNode<>(keyHash,
 										(K[]) copyAndRemove(keys, i), (V[]) copyAndRemove(vals, i)));
 					}
 				}
@@ -2100,7 +2070,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				return false;
 			}
 
-			InplaceHashCollisionNode<?, ?> that = (InplaceHashCollisionNode<?, ?>) other;
+			HashCollisionNode<?, ?> that = (HashCollisionNode<?, ?>) other;
 
 			if (hash != that.hash) {
 				return false;
