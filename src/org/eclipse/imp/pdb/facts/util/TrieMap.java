@@ -20,41 +20,45 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemove;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemovePair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndSet;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import objectexplorer.ObjectGraphMeasurer.Footprint;
-
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+/*
+ * Used for {@code #printStats()}
+ **/
+//import java.nio.charset.StandardCharsets;
+//import java.nio.file.Files;
+//import java.nio.file.Path;
+//import java.nio.file.Paths;
+//import java.util.ArrayList;
+//import java.util.List;
+//
+//import objectexplorer.ObjectGraphMeasurer.Footprint;
+//
+//import com.google.common.base.Predicate;
+//import com.google.common.base.Predicates;
 
 @SuppressWarnings("rawtypes")
-public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
+public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieMapGenerated EMPTY_INPLACE_INDEX_MAP = new TrieMapGenerated(
+	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
 					CompactNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
 	private final AbstractNode<K, V> rootNode;
 	private final int hashCode;
 	private final int cachedSize;
 
-	TrieMapGenerated(AbstractNode<K, V> rootNode, int hashCode, int cachedSize) {
+	TrieMap(AbstractNode<K, V> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
@@ -63,12 +67,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> ImmutableMap<K, V> of() {
-		return TrieMapGenerated.EMPTY_INPLACE_INDEX_MAP;
+		return TrieMap.EMPTY_INPLACE_INDEX_MAP;
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> TransientMap<K, V> transientOf() {
-		return TrieMapGenerated.EMPTY_INPLACE_INDEX_MAP.asTransient();
+		return TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -92,12 +96,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMapGenerated<K, V> __put(K k, V v) {
+	public TrieMap<K, V> __put(K k, V v) {
 		return __putEquivalent(k, v, equalityComparator());
 	}
 
 	@Override
-	public TrieMapGenerated<K, V> __putEquivalent(K key, V val, Comparator<Object> cmp) {
+	public TrieMap<K, V> __putEquivalent(K key, V val, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final Result<K, V, ? extends AbstractNode<K, V>> result = rootNode.updated(null, key,
 						keyHash, val, 0, cmp);
@@ -107,12 +111,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 				final int valHashOld = result.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMapGenerated<K, V>(result.getNode(), hashCode
+				return new TrieMap<K, V>(result.getNode(), hashCode
 								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMapGenerated<K, V>(result.getNode(), hashCode + (keyHash ^ valHash),
+			return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHash),
 							cachedSize + 1);
 		}
 
@@ -133,12 +137,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMapGenerated<K, V> __remove(K k) {
+	public TrieMap<K, V> __remove(K k) {
 		return __removeEquivalent(k, equalityComparator());
 	}
 
 	@Override
-	public TrieMapGenerated<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
+	public TrieMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final Result<K, V, ? extends AbstractNode<K, V>> result = rootNode.removed(null, key,
 						keyHash, 0, cmp);
@@ -151,7 +155,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
 							.hashCode();
 
-			return new TrieMapGenerated<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
+			return new TrieMap<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
 							cachedSize - 1);
 		}
 
@@ -244,22 +248,22 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 				@Override
 				public int size() {
-					return TrieMapGenerated.this.size();
+					return TrieMap.this.size();
 				}
 
 				@Override
 				public boolean isEmpty() {
-					return TrieMapGenerated.this.isEmpty();
+					return TrieMap.this.isEmpty();
 				}
 
 				@Override
 				public void clear() {
-					TrieMapGenerated.this.clear();
+					TrieMap.this.clear();
 				}
 
 				@Override
 				public boolean contains(Object k) {
-					return TrieMapGenerated.this.containsKey(k);
+					return TrieMap.this.containsKey(k);
 				}
 			};
 		}
@@ -432,7 +436,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		private int hashCode;
 		private int cachedSize;
 
-		TransientTrieMap(TrieMapGenerated<K, V> trieMap) {
+		TransientTrieMap(TrieMap<K, V> trieMap) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap.rootNode;
 			this.hashCode = trieMap.hashCode;
@@ -638,7 +642,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			mutator.set(null);
-			return new TrieMapGenerated<K, V>(rootNode, hashCode, cachedSize);
+			return new TrieMap<K, V>(rootNode, hashCode, cachedSize);
 		}
 	}
 
@@ -2131,8 +2135,8 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return false;
 		}
 
-		if (other instanceof TrieMapGenerated) {
-			TrieMapGenerated that = (TrieMapGenerated) other;
+		if (other instanceof TrieMap) {
+			TrieMap that = (TrieMap) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -2145,71 +2149,72 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	public void printStats() {
-		final Iterator<AbstractNode<K, V>> it = new TrieMapNodeIterator<>(rootNode);
-
-		final Path file = Paths.get("tree-node-stats.csv");
-		final List<String> lines = new ArrayList<>();
-		lines.add("arity,valueArity,nodeArity,size");
-
-		while (it.hasNext()) {
-			final AbstractNode<K, V> node = it.next();
-
-			Predicate<Object> isRoot = new Predicate<Object>() {
-				@Override
-				public boolean apply(Object arg0) {
-					return arg0 == node;
-				}
-			};
-
-			Predicate<Object> jointPredicate = Predicates.or(isRoot, Predicates.not(Predicates.or(
-							Predicates.instanceOf(AbstractNode.class),
-							Predicates.instanceOf(Integer.class))));
-
-			long memoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(node, jointPredicate);
-			Footprint memoryFootprint = objectexplorer.ObjectGraphMeasurer.measure(node,
-							jointPredicate);
-
-			final int pointers = 2 * node.valueArity() + node.nodeArity();
-
-			final String statString = String
-							.format("arity=%d [values=%d, nodes=%d]\n%d bytes [%1.1f bytes per pointer]\n%s\n",
-											node.arity(), node.valueArity(), node.nodeArity(),
-											memoryInBytes, (float) memoryInBytes / pointers,
-											memoryFootprint);
-
-			System.out.println(statString);
-
-			final String statFileString = String.format("%d,%d,%d,%d", node.arity(),
-							node.valueArity(), node.nodeArity(), memoryInBytes);
-			lines.add(statFileString);
-		}
-
-		Predicate<Object> totalPredicate = Predicates.not(Predicates.instanceOf(Integer.class));
-
-		long totalMemoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(rootNode,
-						totalPredicate);
-		Footprint totalMemoryFootprint = objectexplorer.ObjectGraphMeasurer.measure(rootNode,
-						totalPredicate);
-
-		final String totalStatString = String.format(
-						"size=%d\n%d bytes [%1.1f bytes per key-value-pair; min 8.0 bytes]\n%s\n",
-						cachedSize, totalMemoryInBytes, (float) totalMemoryInBytes / cachedSize,
-						totalMemoryFootprint);
-
-		System.out.println(totalStatString);
-
-		// write stats to file
-		try {
-			Files.write(file, lines, StandardCharsets.UTF_8);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		final Iterator<AbstractNode<K, V>> it = new TrieMapNodeIterator<>(rootNode);
+//
+//		final Path file = Paths.get("tree-node-stats.csv");
+//		final List<String> lines = new ArrayList<>();
+//		lines.add("arity,valueArity,nodeArity,size");
+//
+//		while (it.hasNext()) {
+//			final AbstractNode<K, V> node = it.next();
+//
+//			Predicate<Object> isRoot = new Predicate<Object>() {
+//				@Override
+//				public boolean apply(Object arg0) {
+//					return arg0 == node;
+//				}
+//			};
+//
+//			Predicate<Object> jointPredicate = Predicates.or(isRoot, Predicates.not(Predicates.or(
+//							Predicates.instanceOf(AbstractNode.class),
+//							Predicates.instanceOf(Integer.class))));
+//
+//			long memoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(node, jointPredicate);
+//			Footprint memoryFootprint = objectexplorer.ObjectGraphMeasurer.measure(node,
+//							jointPredicate);
+//
+//			final int pointers = 2 * node.valueArity() + node.nodeArity();
+//
+//			final String statString = String
+//							.format("arity=%d [values=%d, nodes=%d]\n%d bytes [%1.1f bytes per pointer]\n%s\n",
+//											node.arity(), node.valueArity(), node.nodeArity(),
+//											memoryInBytes, (float) memoryInBytes / pointers,
+//											memoryFootprint);
+//
+//			System.out.println(statString);
+//
+//			final String statFileString = String.format("%d,%d,%d,%d", node.arity(),
+//							node.valueArity(), node.nodeArity(), memoryInBytes);
+//			lines.add(statFileString);
+//		}
+//
+//		Predicate<Object> totalPredicate = Predicates.not(Predicates.instanceOf(Integer.class));
+//
+//		long totalMemoryInBytes = objectexplorer.MemoryMeasurer.measureBytes(rootNode,
+//						totalPredicate);
+//		Footprint totalMemoryFootprint = objectexplorer.ObjectGraphMeasurer.measure(rootNode,
+//						totalPredicate);
+//
+//		final String totalStatString = String.format(
+//						"size=%d\n%d bytes [%1.1f bytes per key-value-pair; min 8.0 bytes]\n%s\n",
+//						cachedSize, totalMemoryInBytes, (float) totalMemoryInBytes / cachedSize,
+//						totalMemoryFootprint);
+//
+//		System.out.println(totalStatString);
+//
+//		// write stats to file
+//		try {
+//			Files.write(file, lines, StandardCharsets.UTF_8);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
+	@SuppressWarnings("unused")
 	private static class TrieMapNodeIterator<K, V> implements Iterator<AbstractNode<K, V>> {
 
 		final Deque<Iterator<? extends AbstractNode<K, V>>> nodeIteratorStack;
