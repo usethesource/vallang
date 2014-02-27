@@ -218,9 +218,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				}
 			}
 
-			// TODO: if keyword parameters are better supported with default values, 
-			// this can become 'true' again.
-			return (!it1.hasNext() && !it2.hasNext());
+			return asWithKeywordParameters().isEqual(otherTree.asWithKeywordParameters());
 		}
 		
 		return false;
@@ -250,7 +248,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	 * TODO: Create and move to {@link AbstractConstructor}.
 	 */
 	@Override
-	public IAnnotatable<? extends IConstructor> asAnnotatable() {
+	public IAnnotatable<IConstructor> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<IConstructor>(this) {
 			@Override
 			protected IConstructor wrap(IConstructor content,
@@ -261,11 +259,16 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	@Override
-	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
+	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this) {
 	    @Override
 	    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
 	      return new ConstructorWithKeywordParametersFacade(content, parameters);
+	    }
+	    
+	    @Override
+	    protected IValue getDefault(String label) {
+	      return content.getConstructorType().getKeywordParameterDefault(label);
 	    }
     }; 
 	}

@@ -122,11 +122,16 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	}
 	
 	@Override
-	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
+	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
       @Override
       protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
         return new ConstructorWithKeywordParametersFacade(content, parameters);
+      }
+      
+      @Override
+      protected IValue getDefault(String label) {
+        return content.getConstructorType().getKeywordParameterDefault(label);
       }
     };
 	}

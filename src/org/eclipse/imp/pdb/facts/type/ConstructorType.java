@@ -13,11 +13,13 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 
 /**
  * A tree type is a type of tree node, defined by its name, the types of
@@ -37,10 +39,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
  */
 /*package*/ final class ConstructorType extends AbstractDataType {
 	private final Type fChildrenTypes;
-	private final Type fKeywordParameters;
 	private final Type fADT;
 	private final String fName;
-  private final IValue[] fKeywordParameterDefaults;
+	private final ImmutableMap<String, Type> fKeywordParameters;
+  private final ImmutableMap<String, IValue> fKeywordParameterDefaults;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 	  super(adt.getName(), adt.getTypeParameters());
@@ -56,19 +58,9 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
     fName = name.intern();
     fChildrenTypes = childrenTypes;
     fADT = adt;
-    
-    Object[] fields = new Object[keywordParameters.size() * 2];
-    fKeywordParameterDefaults = new IValue[keywordParameters.size()];
-    
-    int f = 0;
-    int d = 0;
-    for (Entry<String,Type> entry : keywordParameters.entrySet()) {
-      fields[f++] = entry.getValue();
-      fields[f++] = entry.getKey();
-      fKeywordParameterDefaults[d++] = defaults.get(entry.getKey());
-    }
-    
-    fKeywordParameters = TypeFactory.getInstance().tupleType(fields);
+
+    fKeywordParameters = AbstractSpecialisedImmutableMap.mapOf(keywordParameters);
+    fKeywordParameterDefaults = AbstractSpecialisedImmutableMap.mapOf(defaults);
 	}
 
   @Override
@@ -300,11 +292,16 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	public IValue getKeywordParameterDefault(String label) {
-	  return fKeywordParameterDefaults[fKeywordParameters.getFieldIndex(label)];
+	  return fKeywordParameterDefaults != null ? fKeywordParameterDefaults.get(label) : null;
 	}
 	
 	@Override
 	public Type getKeywordParameterType(String label) {
-	  return fKeywordParameters.getFieldType(label);
+	  return fKeywordParameters != null ? fKeywordParameters.get(label) : null;
+	}
+	
+	@Override
+	public Set<String> getKeywordParameters() {
+	  return fKeywordParameters.keySet();
 	}
 }

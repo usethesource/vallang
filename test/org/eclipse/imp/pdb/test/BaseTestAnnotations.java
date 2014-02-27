@@ -12,6 +12,9 @@
 
 package org.eclipse.imp.pdb.test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -222,6 +225,33 @@ public abstract class BaseTestAnnotations extends TestCase {
 		assertTrue(a.hashCode() == b.hashCode());		
 	}
 	
+
+	public void testNoKeywordParametersOnAnnotatedNode() {
+	   try {
+	     vf.node("hallo")
+	     .asAnnotatable()
+	     .setAnnotation("a", vf.integer(1))
+	     .asWithKeywordParameters()
+	     .setParameter("b", vf.integer(2));
+	   }
+	   catch (UnsupportedOperationException e) {
+	     assertTrue(true);
+	   }
+	}
+	
+	public void testAnnotationsOnNodeWithKeywordParameters() {
+    try {
+      vf.node("hallo")
+      .asWithKeywordParameters()
+      .setParameter("b", vf.integer(2))
+      .asAnnotatable()
+      .setAnnotation("a", vf.integer(1));
+    }
+    catch (UnsupportedOperationException e) {
+      assertTrue(true);
+    }
+ }
+	
 	public void testNodeAnnotation() {
 		ts.declareAnnotation(tf.nodeType(), "foo", tf.boolType());
 		INode n = vf.node("hello");
@@ -238,4 +268,36 @@ public abstract class BaseTestAnnotations extends TestCase {
 		ts.declareAnnotation(N, "b", tf.boolType());
 		assertTrue(!ts.getAnnotations(E).equals(ts.getAnnotations(N)));
 	}
+	
+	
+	public void testNodeKeywordParameter() {
+    INode n = vf.node("hello");
+    INode na = n.asWithKeywordParameters().setParameter("foo", vf.bool(true));
+    
+    assertTrue(na.asWithKeywordParameters().getParameter("foo").getType().isBool());
+    assertTrue(na.asWithKeywordParameters().getParameter("foo").equals(vf.bool(true)));
+  }
+	
+	public void testConstructorKeywordParameter() {
+	  TypeStore ts = new TypeStore();
+	  Type adt = tf.abstractDataType(ts, "adt");
+	  Map<String,Type> paramTypes = new HashMap<>();
+	  Map<String,IValue> defaults = new HashMap<>();
+	  paramTypes.put("foo", tf.boolType());
+	  defaults.put("foo", vf.bool(true));
+	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes, defaults);
+
+	  IConstructor n1 = vf.constructor(cons);
+	  
+	  // defaults work
+	  assertTrue(n1.asWithKeywordParameters().getParameter("foo").isEqual(vf.bool(true)));
+    
+	  // overrides work
+	  IConstructor n2 = n1.asWithKeywordParameters().setParameter("foo", vf.bool(false));
+	  assertTrue(n2.asWithKeywordParameters().getParameter("foo").isEqual(vf.bool(false)));
+
+	  // keywordparameters work on equality:
+	  assertFalse(n1.isEqual(n2));
+  }
+	
 }

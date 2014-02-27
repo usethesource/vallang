@@ -73,6 +73,8 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	 */
 	protected abstract T wrap(final T content, final ImmutableMap<String, IValue> parameters);
 	
+	protected abstract IValue getDefault(String label);
+	
 	@Override
 	public String toString() {
 		return content.toString();
@@ -81,16 +83,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
   @Override
   public IValue getParameter(String label) throws FactTypeUseException {
     IValue res = parameters.get(label);
-    
-    if (res != null) {
-      return res;
-    }
-     
-    if (content.getType().hasKeywordParameters()) {
-      return content.getType().getKeywordParameterDefault(label);
-    }
-    
-    return null;
+    return res != null ? res : getDefault(label);
   }
 
   @Override
@@ -126,6 +119,33 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
     }
     params.putAll(parameters);
     return Collections.unmodifiableMap(params);
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (!getClass().equals(other.getClass())) {
+      return false;
+    }
+    
+    AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
+    
+    if (!content.isEqual(o.content)) {
+      return false;
+    }
+    
+    Set<String> a = getParameterNames();
+    Set<String> b = o.getParameterNames();
+    if (!a.equals(b)) {
+      return false;
+    }
+    
+    for (String key : a) {
+      if (!getParameter(key).equals(o.getParameter(key))) {
+        return false;
+      }
+    }
+    
+    return true;
   }
   
   @Override

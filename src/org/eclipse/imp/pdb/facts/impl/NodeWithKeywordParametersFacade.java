@@ -128,6 +128,11 @@ public class NodeWithKeywordParametersFacade implements INode {
       protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
         return new NodeWithKeywordParametersFacade(content, parameters);
       }
+      
+      @Override
+      protected IValue getDefault(String label) {
+        return null;
+      }
     };
 	}
 	
