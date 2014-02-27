@@ -200,17 +200,17 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public SupplierIterator<K, V> keyIterator() {
-		return new TrieMapIterator<>(rootNode);
+		return new TrieMapIteratorWithFixedWidthStack<>(rootNode);
 	}
 
 	@Override
 	public Iterator<V> valueIterator() {
-		return new TrieMapValueIterator<>(new TrieMapIterator<>(rootNode));
+		return new TrieMapValueIterator<>(new TrieMapIteratorWithFixedWidthStack<>(rootNode));
 	}
 
 	@Override
 	public Iterator<Map.Entry<K, V>> entryIterator() {
-		return new TrieMapEntryIterator<>(new TrieMapIterator<>(rootNode));
+		return new TrieMapEntryIterator<>(new TrieMapIteratorWithFixedWidthStack<>(rootNode));
 	}
 
 	@Override
@@ -269,6 +269,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
+	@SuppressWarnings("unused")
 	private static class TrieMapIterator<K, V> implements SupplierIterator<K, V> {
 
 		final Deque<Iterator<AbstractNode<K, V>>> nodeIteratorStack;
@@ -328,6 +329,106 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public V get() {
 			return valueIterator.get();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static class TrieMapIteratorWithFixedWidthStack<K, V> implements SupplierIterator<K, V> {
+		int valueIndex;
+		int valueLength;
+		AbstractNode<K, V> valueNode;
+
+		V lastValue = null;
+
+		int stackLevel;
+
+		int[] indexAndLength = new int[7 * 2];
+
+		@SuppressWarnings("unchecked")
+		AbstractNode<K, V>[] nodes = new AbstractNode[7];
+
+		TrieMapIteratorWithFixedWidthStack(AbstractNode<K, V> rootNode) {
+			stackLevel = 0;
+
+			valueNode = rootNode;
+
+			valueIndex = 0;
+			valueLength = rootNode.valueArity();
+
+			nodes[0] = rootNode;
+			indexAndLength[0] = 0;
+			indexAndLength[1] = rootNode.nodeArity();
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (valueIndex < valueLength) {
+				return true;
+			}
+
+			while (true) {
+				final int nodeIndex = indexAndLength[2 * stackLevel];
+				final int nodeLength = indexAndLength[2 * stackLevel + 1];
+
+				if (nodeIndex < nodeLength) {
+					final AbstractNode<K, V> nextNode = nodes[stackLevel].getNode(nodeIndex);
+					indexAndLength[2 * stackLevel] = (nodeIndex + 1);
+
+					final int nextNodeValueArity = nextNode.valueArity();
+					final int nextNodeNodeArity = nextNode.nodeArity();
+
+					if (nextNodeNodeArity != 0) {
+						stackLevel++;
+
+						nodes[stackLevel] = nextNode;
+						indexAndLength[2 * stackLevel] = 0;
+						indexAndLength[2 * stackLevel + 1] = nextNode.nodeArity();
+					}
+
+					if (nextNodeValueArity != 0) {
+						valueNode = nextNode;
+						valueIndex = 0;
+						valueLength = nextNodeValueArity;
+						return true;
+					}
+				} else {
+					if (stackLevel == 0) {
+						return false;
+					}
+
+					stackLevel--;
+				}
+			}
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			} else {
+				K lastKey = valueNode.getKey(valueIndex);
+				lastValue = valueNode.getValue(valueIndex);
+
+				valueIndex += 1;
+
+				return lastKey;
+			}
+		}
+
+		@Override
+		public V get() {
+			if (lastValue == null) {
+				throw new NoSuchElementException();
+			} else {
+				V tmp = lastValue;
+				lastValue = null;
+
+				return tmp;
+			}
 		}
 
 		@Override
@@ -593,7 +694,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		 * depth first recursively.
 		 */
 		// TODO: test
-		private static class TransientTrieMapIterator<K, V> extends TrieMapIterator<K, V> {
+		private static class TransientTrieMapIterator<K, V> extends TrieMapIteratorWithFixedWidthStack<K, V> {
 
 			final TransientTrieMap<K, V> transientTrieMap;
 			K lastKey;
@@ -667,6 +768,12 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return (java.util.Map.Entry<K, V>) mapOf(key, val);
 		}
 
+		abstract K getKey(int index);
+
+		abstract V getValue(int index);
+
+		abstract public AbstractNode<K, V> getNode(int index);
+
 		abstract boolean hasNodes();
 
 		abstract Iterator<AbstractNode<K, V>> nodeIterator();
@@ -679,10 +786,6 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 
 		abstract int valueArity();
 
-		// abstract K getValue(int index);
-		//
-		// abstract public AbstractNode<K, V> getNode(int index);
-
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
@@ -694,7 +797,7 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		int size() {
-			final TrieMapIterator<K, V> it = new TrieMapIterator<>(this);
+			final SupplierIterator<K, V> it = new TrieMapIteratorWithFixedWidthStack<>(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -1767,6 +1870,25 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			throw new RuntimeException("Called with invalid arguments.");
 		}
 
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) nodes[2 * index];
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		V getValue(int index) {
+			return (V) nodes[2 * index + 1];
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			final int offset = 2 * valueArity;
+			return (AbstractNode<K, V>) nodes[offset + index];
+		}
+
 		@Override
 		SupplierIterator<K, V> valueIterator() {
 			return ArrayKeyValueIterator.of(nodes, 0, 2 * valueArity);
@@ -2012,15 +2134,20 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			return SIZE_MORE_THAN_ONE;
 		}
 
-		// @Override
-		// K getValue(int index) {
-		// return keys[index];
-		// }
-		//
-		// @Override
-		// public AbstractNode<K, V> getNode(int index) {
-		// throw new IllegalStateException("Is leaf node.");
-		// }
+		@Override
+		K getKey(int index) {
+			return keys[index];
+		}
+
+		@Override
+		V getValue(int index) {
+			return vals[index];
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Is leaf node.");
+		}
 
 		@Override
 		public int hashCode() {
@@ -2328,6 +2455,25 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return Optional.empty();
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			if (index == 0) {
+				return node1;
+			} else {
+				throw new IndexOutOfBoundsException();
+			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -2895,6 +3041,21 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_EMPTY;
 		}
@@ -3126,6 +3287,29 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 0;
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
@@ -3438,6 +3622,31 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 0;
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
@@ -3818,6 +4027,33 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -4014,6 +4250,33 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 1;
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -4264,6 +4527,39 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 1;
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
@@ -4596,6 +4892,41 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 1;
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
@@ -5010,6 +5341,43 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -5253,6 +5621,37 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 2;
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -5578,6 +5977,43 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 2;
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
@@ -5999,6 +6435,45 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -6293,6 +6768,41 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 3;
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -6695,6 +7205,47 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -7042,6 +7593,45 @@ public class TrieMapGenerated<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		int valueArity() {
 			return 4;
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		public AbstractNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
