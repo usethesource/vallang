@@ -149,24 +149,25 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
   }
   
   @Override
-  public boolean isEqual(IWithKeywordParameters<T> other) {
-    if (!getClass().equals(other.getClass())) {
+  public <U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other) {
+    if (!(other instanceof AbstractDefaultWithKeywordParameters<?>)) {
       return false;
     }
     
     AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
     
-    if (!content.isEqual(o.content)) {
-      return false;
-    }
-    
+    // it is important to go through the public API here, since
+    // default parameters may be retrieved from the types instead
+    // of from the fields of the current wrapper class
     Set<String> a = getParameterNames();
     Set<String> b = o.getParameterNames();
+    
     if (!a.equals(b)) {
       return false;
     }
     
     for (String key : a) {
+      // TODO: isEqual should become equals when annotations have been removed.
       if (!getParameter(key).isEqual(o.getParameter(key))) {
         return false;
       }

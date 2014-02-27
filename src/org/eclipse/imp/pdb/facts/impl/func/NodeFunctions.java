@@ -127,6 +127,18 @@ public class NodeFunctions {
 			  }
 			}
 			
+			if (node1.mayHaveKeywordParameters() && node2.mayHaveKeywordParameters()) {
+        return node1.asWithKeywordParameters().equalParameters(node2.asWithKeywordParameters());
+      }
+      
+      if (node1.mayHaveKeywordParameters()) {
+        return false;
+      }
+      
+      if (node2.mayHaveKeywordParameters()) {
+        return false;
+      }
+			
 			return true;
 		}
 		

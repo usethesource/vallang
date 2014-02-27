@@ -86,7 +86,7 @@ public class Constructor extends Node implements IConstructor {
     }
     
     return fType;
-	}
+	} 
 
 	public IValue get(String label) {
 		return super.get(fType.getFieldIndex(label));

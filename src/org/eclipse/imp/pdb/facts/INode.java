@@ -88,5 +88,4 @@ public interface INode extends IValue, Iterable<IValue> {
      * @see org.eclipse.imp.pdb.facts.IValue#asWithKeywordParameters()
      */
     public IWithKeywordParameters<? extends INode> asWithKeywordParameters();
-
 }

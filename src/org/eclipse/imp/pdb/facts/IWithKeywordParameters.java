@@ -68,6 +68,11 @@ public interface IWithKeywordParameters<T extends IValue> {
    */
   T setParameters(Map<String, IValue> params);
   
-  @Deprecated
-  boolean isEqual(IWithKeywordParameters<T> other);
+  /**
+   * Given an arbitrary other IWithKeywordParameters, compare the values of the
+   * parameters.
+   * @param other
+   * @return true iff the parameters are the same (same labels, same values)
+   */
+  <U extends IWithKeywordParameters<? extends IValue>> boolean equalParameters(U other);
 }

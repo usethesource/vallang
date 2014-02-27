@@ -216,9 +216,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				if (it1.next().isEqual(it2.next()) == false) {
 					return false;
 				}
-			}
+			}  
 
-			return asWithKeywordParameters().isEqual(otherTree.asWithKeywordParameters());
+			if (mayHaveKeywordParameters() && otherTree.mayHaveKeywordParameters()) {
+			  return asWithKeywordParameters().equalParameters(otherTree.asWithKeywordParameters());
+			}
+			
+			if (mayHaveKeywordParameters()) {
+			  return false;
+			}
+			
+			if (otherTree.mayHaveKeywordParameters()) {
+			  return false;
+			}
+			
+			return true;
 		}
 		
 		return false;
