@@ -188,7 +188,7 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 	/*
 	 * TODO: exchange TrieSet.equivalenceComparator() with standard equality operator
 	 */
-	static final class TransientTrieSet<E> implements TransientSet<E> {		
+	static final class TransientTrieSet<E> extends AbstractSet<E> implements TransientSet<E> {		
 		final private AtomicReference<Thread> mutator;		
 		private AbstractNode<E> rootNode;
 				
@@ -283,12 +283,12 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 //		public Iterator<E> iterator() {
 //			return content.iterator();
 //		}
-	//
-//		@Override
-//		public int size() {
-//			return content.size();
-//		}
-	//
+	
+		@Override
+		public int size() {
+			return rootNode.size();
+		}
+	
 //		@Override
 //		public boolean isEmpty() {
 //			return content.isEmpty();

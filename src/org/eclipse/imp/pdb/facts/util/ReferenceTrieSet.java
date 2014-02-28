@@ -597,7 +597,7 @@ public class ReferenceTrieSet<K> extends AbstractImmutableSet<K> {
 		return new TransientTrieSet<K>(this);
 	}
 
-	static final class TransientTrieSet<K> implements TransientSet<K> {
+	static final class TransientTrieSet<K> extends AbstractSet<K> implements TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractNode<K> rootNode;
 		private int hashCode;
@@ -725,6 +725,11 @@ public class ReferenceTrieSet<K> extends AbstractImmutableSet<K> {
 
 			return modified;
 		}
+		
+		@Override
+		public int size() {
+			return rootNode.size();
+		}		
 		
 		@Override
 		public Iterator<K> iterator() {

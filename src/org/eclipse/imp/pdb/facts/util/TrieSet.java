@@ -17,6 +17,7 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndMoveToFront;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemove;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndSet;
 
+import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -321,7 +322,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return new TransientTrieSet<K>(this);
 	}
 
-	static final class TransientTrieSet<K> implements TransientSet<K> {
+	static final class TransientTrieSet<K> extends AbstractSet<K> implements TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractNode<K> rootNode;
 		private int hashCode;
@@ -487,6 +488,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return modified;
 		}
 
+		@Override
+		public int size() {
+			return cachedSize;
+		}		
+		
 		@Override
 		public Iterator<K> iterator() {
 			return keyIterator();

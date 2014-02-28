@@ -12,8 +12,9 @@
 package org.eclipse.imp.pdb.facts.util;
 
 import java.util.Comparator;
+import java.util.Set;
 
-public interface TransientSet<E> extends Iterable<E> { // extends ImmutableCollection<E>, Set<E> {
+public interface TransientSet<E> extends ImmutableCollection<E>, Set<E> {
 
     E get(Object o);
     
