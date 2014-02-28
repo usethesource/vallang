@@ -1966,10 +1966,34 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return Result.modified(mergeNodes(this, this.hash, key, keyHash, val, shift));
 			}
 
-			if (containsKey(key, keyHash, shift, cmp)) {
-				return Result.unchanged(this);
-			}
+			for (int i = 0; i < keys.length; i++) {
+				if (cmp.compare(keys[i], key) == 0) {
+					
+					final V currentVal = vals[i];
+					
+					if (cmp.compare(currentVal, val) == 0) {
+						return Result.unchanged(this);
+					}
+					
+					final CompactNode<K, V> thisNew;
+					
+//					// update mapping
+//					if (isAllowedToEdit(this.mutator, mutator)) {
+//						// no copying if already editable
+//						this.vals[i] = val;
+//						thisNew = this;
+//					} else {
+						@SuppressWarnings("unchecked")
+						final V[] editableVals = (V[]) copyAndSet(this.vals, i, val);
 
+						thisNew = new HashCollisionNode<>(this.hash, this.keys, editableVals);
+//					}
+
+					return Result.updated(thisNew, currentVal);						
+				}
+			}
+			
+			// no value
 			@SuppressWarnings("unchecked")
 			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
 			@SuppressWarnings("unchecked")

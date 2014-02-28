@@ -95,13 +95,15 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 				throw new UnexpectedElementTypeException(upperBoundValType, valType);
 		}
 
-		// TODO: it is currently not possible to observe if a value was
-		// replaced, thus the least upper bound of the value type might be
-		// incorrect
-		mapContent.__put(key, value);
+		final IValue replaced = mapContent.__put(key, value);
 		
 		keyTypeBag.increase(keyType);
 		valTypeBag.increase(valType);
+		
+		if (replaced != null) {
+			final Type replacedType = replaced.getType();
+			valTypeBag.decrease(replacedType);
+		}
 	}
 	
 	@Override
