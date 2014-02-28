@@ -373,6 +373,24 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 			// TODO Auto-generated method stub
 			return false;
 		}
+
+		@Override
+		public E get(Object o) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public E getEquivalent(Object o, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public SupplierIterator<E, E> keyIterator() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 //	@Override
@@ -1155,6 +1173,24 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 	@Override
 	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set,
 			Comparator<Object> cmp) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public K get(Object o) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public K getEquivalent(Object o, Comparator<Object> cmp) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SupplierIterator<K, K> keyIterator() {
 		// TODO Auto-generated method stub
 		return null;
 	}

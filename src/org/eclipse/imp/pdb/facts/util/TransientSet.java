@@ -15,6 +15,10 @@ import java.util.Comparator;
 
 public interface TransientSet<E> extends Iterable<E> { // extends ImmutableCollection<E>, Set<E> {
 
+    E get(Object o);
+    
+    E getEquivalent(Object o, Comparator<Object> cmp);
+	
     boolean contains(Object o);
     
 	boolean containsEquivalent(Object o, Comparator<Object> cmp);
@@ -38,6 +42,8 @@ public interface TransientSet<E> extends Iterable<E> { // extends ImmutableColle
 	boolean __removeAll(ImmutableSet<? extends E> set);
 	
 	boolean __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
+	
+	SupplierIterator<E, E> keyIterator();
 	
 	ImmutableSet<E> freeze();
 	

@@ -16,6 +16,10 @@ import java.util.Set;
 
 public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
 	
+    E get(Object o);
+    
+    E getEquivalent(Object o, Comparator<Object> cmp);
+		
 	ImmutableSet<E> __insert(E e);
 	
 	ImmutableSet<E> __insertEquivalent(E e, Comparator<Object> cmp);
@@ -36,6 +40,8 @@ public interface ImmutableSet<E> extends ImmutableCollection<E>, Set<E> {
 
 	ImmutableSet<E> __removeEquivalent(E e, Comparator<Object> cmp);
 
+	SupplierIterator<E, E> keyIterator();	
+	
 	public abstract TransientSet<E> asTransient();
 
 	public abstract boolean isTransientSupported();
