@@ -141,6 +141,28 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+  public boolean hasKeywordParameter(String fieldName, TypeStore store) {
+    // we look up by name because this might be an instantiated parameterized data-type
+    // which will not be present in the store.
+    
+    Type parameterizedADT = store.lookupAbstractDataType(getName());
+    
+    if (parameterizedADT == null) {
+      throw new UndeclaredAbstractDataTypeException(this);
+    }
+    
+    for (Type alt : store.lookupAlternatives(parameterizedADT)) {
+      if (alt.hasKeywordParameter(fieldName)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+	
+	
+	
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		

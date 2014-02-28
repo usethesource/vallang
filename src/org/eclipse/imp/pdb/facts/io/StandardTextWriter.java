@@ -658,7 +658,7 @@ public class StandardTextWriter implements IValueTextWriter {
     	}
     	append(')');
     	untab();
-    	if (o.asAnnotatable().hasAnnotations()) {
+    	if (o.isAnnotatable() && o.asAnnotatable().hasAnnotations()) {
     		append('[');
     		tab();
     		indent();

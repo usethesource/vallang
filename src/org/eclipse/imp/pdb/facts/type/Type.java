@@ -119,6 +119,10 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     throw new IllegalOperationException("hasKeywordParameter", this);
   }
   
+  public boolean hasKeywordParameter(String fieldName, TypeStore store) {
+    throw new IllegalOperationException("hasKeywordParameter", this);
+  }
+  
   /**
    * Retrieve the type of a keyword parameter
    * @param parameter label
@@ -141,6 +145,13 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    */
   public Map<String,IValue> getKeywordParameterDefaults() {
     throw new IllegalOperationException("getKeywordParameterDefaults", this);
+  }
+  
+  /**
+   * @return the types for the keyword parameters
+   */
+  public Map<String,Type> getKeywordParameterTypes() {
+    throw new IllegalOperationException("getKeywordParameterTypes", this);
   }
   
   /**

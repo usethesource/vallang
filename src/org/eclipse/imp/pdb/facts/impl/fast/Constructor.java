@@ -49,14 +49,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
-	  IValue[] allChildren = new IValue[children.length + kwParams.size()];
-	  System.arraycopy(children, 0, allChildren, 0, children.length);
-	  
-	  for (Entry<String,IValue> entry : kwParams.entrySet()) {
-	    allChildren[constructorType.getFieldIndex(entry.getKey())] = entry.getValue();
-	  }
-
-	  return new Constructor(constructorType, allChildren);
+	  return new Constructor(constructorType, children).asWithKeywordParameters().setParameters(kwParams);
 	}
 	
 	private Constructor(Type constructorType, IValue[] children){

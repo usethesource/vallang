@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -286,13 +287,33 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	}
 	
 	@Override
-	public boolean hasKeywordParameters(){
-		return fKeywordParameters != null;
+	public boolean hasKeywordParameters() {
+		return fKeywordParameters != null && !fKeywordParameters.isEmpty();
+	}
+
+	@Override
+	public boolean hasKeywordParameter(String label) {
+	  return fKeywordParameters != null && fKeywordParameters.containsKey(label);
+	}
+	
+	@Override
+	public boolean hasKeywordParameter(String label, TypeStore store) {
+	  return hasKeywordParameter(label);
 	}
 	
 	@Override
 	public IValue getKeywordParameterDefault(String label) {
 	  return fKeywordParameterDefaults != null ? fKeywordParameterDefaults.get(label) : null;
+	}
+	
+	@Override
+	public Map<String,Type> getKeywordParameterTypes() {
+	  return fKeywordParameters != null ? fKeywordParameters : Collections.<String,Type>emptyMap();
+	}
+	
+	@Override
+	public Map<String, IValue> getKeywordParameterDefaults() {
+	  return fKeywordParameterDefaults != null ? fKeywordParameterDefaults : Collections.<String,IValue>emptyMap();
 	}
 	
 	@Override
