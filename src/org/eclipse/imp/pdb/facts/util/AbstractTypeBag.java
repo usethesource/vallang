@@ -11,8 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableJdkMap.mapOf;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -23,9 +22,9 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  */
 public abstract class AbstractTypeBag implements Cloneable {
 		
-	public abstract void increase(Type t);
+	public abstract AbstractTypeBag increase(Type t);
 
-	public abstract void decrease(Type t);
+	public abstract AbstractTypeBag decrease(Type t);
 	
 	public abstract Type lub();
 	
@@ -47,13 +46,18 @@ public abstract class AbstractTypeBag implements Cloneable {
 	 */
 	private static class TypeBag extends AbstractTypeBag {
 		private final String label;
-		private final Map<Type, Integer> countMap; // TODO: improve memory performance of internal map. 
+		private final ImmutableJdkMap<Type, Integer> countMap;
 		
-		private Type cachedLub = null;
+		private Type cachedLub;
 
-		private TypeBag(String label, Map<Type, Integer> countMap) {
+		private TypeBag(String label, ImmutableJdkMap<Type, Integer> countMap) {
+			this(label, countMap, null);
+		}
+		
+		private TypeBag(String label, ImmutableJdkMap<Type, Integer> countMap, Type cachedLub) {
 			this.label = label;
-			this.countMap = new HashMap<>(countMap);
+			this.countMap = countMap;
+			this.cachedLub = cachedLub;
 		}
 		
 		private TypeBag(Type... ts) {
@@ -62,7 +66,7 @@ public abstract class AbstractTypeBag implements Cloneable {
 		
 		private TypeBag(String label, Type... ts) {
 			this.label = label;
-			this.countMap = new HashMap<Type, Integer>(4);
+			this.countMap = mapOf();
 			
 			for (Type t : ts) {
 				this.increase(t);
@@ -70,27 +74,41 @@ public abstract class AbstractTypeBag implements Cloneable {
 		}
 		
 		@Override
-		public void increase(Type t) {
+		public AbstractTypeBag increase(Type t) {	
 			final Integer oldCount = countMap.get(t);
+			final ImmutableJdkMap<Type, Integer> newCountMap;
+			
 			if (oldCount == null) {
-				countMap.put(t, 1);
-				cachedLub = (cachedLub == null) ? null : cachedLub.lub(t); // update cached type
+				newCountMap = countMap.__put(t, 1);
+				
+				if (cachedLub == null) {
+					return new TypeBag(label, newCountMap);
+				} else {
+					// update cached type
+					final Type newCachedLub = cachedLub.lub(t);
+					return new TypeBag(label, newCountMap, newCachedLub);
+				}
 			} else {
-				countMap.put(t, oldCount + 1);
+				newCountMap = countMap.__put(t, oldCount + 1);
+				return new TypeBag(label, newCountMap);
 			}
 		}
 
 		@Override
-		public void decrease(Type t) {		
-			final Integer oldCount = countMap.remove(t);
+		public AbstractTypeBag decrease(Type t) {		
+			final Integer oldCount = countMap.get(t);
+			
 			if (oldCount == null) {
 				throw new IllegalStateException(String.format("Type '%s' was not present.", t));
 			} else if (oldCount > 1) {
-				countMap.put(t, oldCount - 1);
+				// update and decrease count; lub stays the same
+				final ImmutableJdkMap<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
+				return new TypeBag(label, newCountMap, cachedLub);
 			} else {
-				// count was zero, thus do not reinsert
-				cachedLub = null; // invalidate cached type
-			}
+				// count was zero, thus remove entry and invalidate cached type
+				final ImmutableJdkMap<Type, Integer> newCountMap = countMap.__remove(t);
+				return new TypeBag(label, newCountMap);
+			}			
 		}
 		
 		@Override

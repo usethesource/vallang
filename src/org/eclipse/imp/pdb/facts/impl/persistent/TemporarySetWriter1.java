@@ -40,7 +40,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 
-	protected final AbstractTypeBag elementTypeBag;
+	protected AbstractTypeBag elementTypeBag;
 	protected final TransientSet<IValue> setContent;
 
 	protected final boolean checkUpperBound;
@@ -76,7 +76,7 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 			throw new UnexpectedElementTypeException(upperBoundType, elementType);
 		}
 
-		elementTypeBag.increase(elementType);
+		elementTypeBag = elementTypeBag.increase(elementType);
 		setContent.__insertEquivalent(element, equivalenceComparator);
 	}
 

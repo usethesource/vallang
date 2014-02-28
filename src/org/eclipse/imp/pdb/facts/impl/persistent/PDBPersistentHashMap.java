@@ -83,18 +83,18 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		if (content == contentNew)
 			return this;
 
-		final AbstractTypeBag keyBagNew = keyTypeBag.clone();
-		final AbstractTypeBag valBagNew = valTypeBag.clone();
+		final AbstractTypeBag keyBagNew;
+		final AbstractTypeBag valBagNew;
 
 		if (content.size() == contentNew.size()) {
 			// value replaced
 			final IValue replaced = content.getEquivalent(key, equivalenceComparator);
-			valBagNew.decrease(replaced.getType());
-			valBagNew.increase(value.getType());
+			keyBagNew = keyTypeBag;
+			valBagNew = valTypeBag.decrease(replaced.getType()).increase(value.getType());
 		} else {
 			// pair added
-			keyBagNew.increase(key.getType());			
-			valBagNew.increase(value.getType());
+			keyBagNew = keyTypeBag.increase(key.getType());			
+			valBagNew = valTypeBag.increase(value.getType());
 		}
 		
 		return new PDBPersistentHashMap(keyBagNew, valBagNew, contentNew);

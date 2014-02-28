@@ -31,8 +31,8 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
  * @author Arnold Lankamp
  */
 /*package*/ class TemporaryMapWriter1 implements IMapWriter{
-	protected final AbstractTypeBag keyTypeBag;
-	protected final AbstractTypeBag valTypeBag;
+	protected AbstractTypeBag keyTypeBag;
+	protected AbstractTypeBag valTypeBag;
 	protected final TransientMap<IValue,IValue> mapContent;
 	
 	protected final boolean checkUpperBound;
@@ -97,12 +97,12 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 
 		final IValue replaced = mapContent.__put(key, value);
 		
-		keyTypeBag.increase(keyType);
-		valTypeBag.increase(valType);
+		keyTypeBag = keyTypeBag.increase(keyType);
+		valTypeBag = valTypeBag.increase(valType);
 		
 		if (replaced != null) {
 			final Type replacedType = replaced.getType();
-			valTypeBag.decrease(replacedType);
+			valTypeBag = valTypeBag.decrease(replacedType);
 		}
 	}
 	

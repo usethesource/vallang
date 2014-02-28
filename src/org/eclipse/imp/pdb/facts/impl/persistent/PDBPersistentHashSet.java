@@ -82,8 +82,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (content == contentNew)
 			return this;
 
-		final AbstractTypeBag bagNew = elementTypeBag.clone();
-		bagNew.increase(value.getType());
+		final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
 		
 		return new PDBPersistentHashSet(bagNew, contentNew);
 	}
@@ -96,8 +95,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (content == contentNew)
 			return this;
 
-		final AbstractTypeBag bagNew = elementTypeBag.clone();
-		bagNew.decrease(value.getType());
+		final AbstractTypeBag bagNew = elementTypeBag.decrease(value.getType());
 		
 		return new PDBPersistentHashSet(bagNew, contentNew);
 	}
@@ -195,18 +193,18 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 			final ImmutableSet<IValue> one;
 			final ImmutableSet<IValue> two;
-			final AbstractTypeBag bag;
+			AbstractTypeBag bag;
 			final ISet def;
 			
 			if (that.size() >= this.size()) {
 				def = that;
 				one = that.content;
-				bag = that.elementTypeBag.clone();
+				bag = that.elementTypeBag;
 				two = this.content;
 			} else {
 				def = this;
 				one = this.content;
-				bag = this.elementTypeBag.clone();
+				bag = this.elementTypeBag;
 				two = that.content;
 			}
 
@@ -216,7 +214,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			for (IValue key : two) {
 				if (tmp.__insertEquivalent(key, equivalenceComparator)) {
 					modified = true;
-					bag.increase(key.getType());
+					bag = bag.increase(key.getType());
 				}
 			}
 			
@@ -241,18 +239,18 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 			final ImmutableSet<IValue> one;
 			final ImmutableSet<IValue> two;
-			final AbstractTypeBag bag;
+			AbstractTypeBag bag;
 			final ISet def;
 			
 			if (that.size() >= this.size()) {
 				def = this;
 				one = this.content;
-				bag = this.elementTypeBag.clone();
+				bag = this.elementTypeBag;
 				two = that.content;
 			} else {
 				def = that;
 				one = that.content;
-				bag = that.elementTypeBag.clone();
+				bag = that.elementTypeBag;
 				two = this.content;
 			}
 			
@@ -264,7 +262,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 				if (!two.containsEquivalent(key, equivalenceComparator)) {
 					it.remove();
 					modified = true;
-					bag.decrease(key.getType());
+					bag = bag.decrease(key.getType());
 				}
 			}
 			
@@ -289,12 +287,12 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 			final ImmutableSet<IValue> one;
 			final ImmutableSet<IValue> two;
-			final AbstractTypeBag bag;
+			AbstractTypeBag bag;
 			final ISet def;
 			
 			def = this;
 			one = this.content;
-			bag = this.elementTypeBag.clone();
+			bag = this.elementTypeBag;
 			two = that.content;
 			
 			final TransientSet<IValue> tmp = one.asTransient();
@@ -303,7 +301,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			for (IValue key : two) {
 				if (tmp.__removeEquivalent(key, equivalenceComparator)) {
 					modified = true;
-					bag.decrease(key.getType());
+					bag = bag.decrease(key.getType());
 				}
 			}
 
