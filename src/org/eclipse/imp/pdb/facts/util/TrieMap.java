@@ -1957,7 +1957,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		/**
 		 * Inserts an object if not yet present. Note, that this implementation
-		 * always returns a new immutable {@link TrieSet} instance.
+		 * always returns a new immutable {@link TrieMap} instance.
 		 */
 		@Override
 		Result<K, V, ? extends CompactNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
@@ -1979,7 +1979,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		/**
 		 * Removes an object if present. Note, that this implementation always
-		 * returns a new immutable {@link TrieSet} instance.
+		 * returns a new immutable {@link TrieMap} instance.
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
@@ -5449,14 +5449,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos2, key2, val2));
+				/*
+				 * Create root node with singleton element. This node will
+				 * be a) either be the new root returned, or b) unwrapped
+				 * and inlined.
+				 */
+				return Result.modified(valNodeOf(mutator,
+								(byte) (key2.hashCode() & BIT_PARTITION_MASK), key2, val2));
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) != 0) {
 					return Result.unchanged(this);
 				}
 
 				// remove pair
-				return Result.modified(valNodeOf(mutator, pos1, key1, val1));
+				/*
+				 * Create root node with singleton element. This node will
+				 * be a) either be the new root returned, or b) unwrapped
+				 * and inlined.
+				 */
+				return Result.modified(valNodeOf(mutator,
+								(byte) (key1.hashCode() & BIT_PARTITION_MASK), key1, val1));
 			}
 
 			return Result.unchanged(this);
