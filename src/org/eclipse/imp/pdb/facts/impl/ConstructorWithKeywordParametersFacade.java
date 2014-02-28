@@ -91,14 +91,14 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 
 	@Override
 	public boolean isEqual(IValue other) {
-	  if (!other.mayHaveKeywordParameters()) {
+	  if (!(other instanceof ConstructorWithKeywordParametersFacade)) {
 	    return false;
 	  }
 	  
-	  IWithKeywordParameters<? extends IValue> o = other.asWithKeywordParameters();
-		
 	  // TODO: the equals here should be isEqual
-	  return content.isEqual(other) && o.equals(parameters);
+	  ConstructorWithKeywordParametersFacade o = (ConstructorWithKeywordParametersFacade) other;
+	  
+    return content.isEqual(o.content) && o.parameters.equals(parameters);
 	}
 	
 	@Override
