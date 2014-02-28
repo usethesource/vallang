@@ -24,15 +24,15 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.*;
  *   Orders first values then nodes (to achive better iteration performance)
  *   Hash code follows java.util.Set contract
  */
-public class TrieSet<K> extends AbstractImmutableSet<K> {
+public class ReferenceTrieSet<K> extends AbstractImmutableSet<K> {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static final TrieSet EMPTY = new TrieSet(AbstractNode.EMPTY_NODE, 0);
+	private static final ReferenceTrieSet EMPTY = new ReferenceTrieSet(AbstractNode.EMPTY_NODE, 0);
 
 	private final AbstractNode<K> rootNode;
 	private final int hashCode;
 
-	private TrieSet(AbstractNode<K> rootNode, int hashCode) {
+	private ReferenceTrieSet(AbstractNode<K> rootNode, int hashCode) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		assert invariant();
@@ -41,7 +41,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	@SafeVarargs
 	public static final <K> ImmutableSet<K> of(K... elements) {
 		@SuppressWarnings("unchecked")
-		ImmutableSet<K> result = TrieSet.EMPTY;
+		ImmutableSet<K> result = ReferenceTrieSet.EMPTY;
 		for (K k : elements)
 			result = result.__insert(k);
 		return result;
@@ -80,7 +80,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		final AbstractNode.Result<K> result = rootNode.updated(key, keyHash, 0, cmp);
 
 		if (result.isModified())
-			return new TrieSet<K>(result.getNode(), hashCode + keyHash);
+			return new ReferenceTrieSet<K>(result.getNode(), hashCode + keyHash);
 
 		return this;
 	}
@@ -120,7 +120,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		final AbstractNode.Result<K> result = rootNode.removed(key, keyHash, 0, cmp);
 
 		if (result.isModified())
-			return new TrieSet<K>(result.getNode(), hashCode - keyHash);
+			return new ReferenceTrieSet<K>(result.getNode(), hashCode - keyHash);
 
 		return this;
 	}
@@ -602,7 +602,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		private AbstractNode<K> rootNode;
 		private int hashCode;
 
-		TransientTrieSet(TrieSet<K> trieSet) {
+		TransientTrieSet(ReferenceTrieSet<K> trieSet) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieSet.rootNode;
 			this.hashCode = trieSet.hashCode;
@@ -821,7 +821,25 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				throw new IllegalStateException("Transient already frozen.");
 			
 			mutator.set(null);
-			return new TrieSet<K>(rootNode, hashCode);
+			return new ReferenceTrieSet<K>(rootNode, hashCode);
+		}
+
+		@Override
+		public K get(Object o) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public K getEquivalent(Object o, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public SupplierIterator<K, K> keyIterator() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -1504,7 +1522,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		/**
 		 * Inserts an object if not yet present. Note, that this implementation
-		 * always returns a new immutable {@link TrieSet} instance.
+		 * always returns a new immutable {@link ReferenceTrieSet} instance.
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1526,7 +1544,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		/**
 		 * Removes an object if present. Note, that this implementation always
-		 * returns a new immutable {@link TrieSet} instance.
+		 * returns a new immutable {@link ReferenceTrieSet} instance.
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
@@ -1658,8 +1676,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		if (other == null)
 			return false;
 
-		if (other instanceof TrieSet) {
-			TrieSet<?> that = (TrieSet<?>) other;
+		if (other instanceof ReferenceTrieSet) {
+			ReferenceTrieSet<?> that = (ReferenceTrieSet<?>) other;
 
 			if (this.size() != that.size())
 				return false;
@@ -1668,6 +1686,24 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		return super.equals(other);
+	}
+
+	@Override
+	public K get(Object o) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public K getEquivalent(Object o, Comparator<Object> cmp) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public SupplierIterator<K, K> keyIterator() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
