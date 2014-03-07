@@ -11,7 +11,12 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -38,7 +43,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	}
 
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-		return v.visitNode(this);
+		return v.visitConstructor(this);
 	}
 
 	public IValue get(int i) throws IndexOutOfBoundsException {
@@ -133,6 +138,28 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
       protected IValue getDefault(String label) {
         return content.getConstructorType().getKeywordParameterDefault(label);
       }
+      
+      @Override
+      public boolean hasParameters() {
+        return content.getConstructorType().hasKeywordParameters();
+      }
+      
+      @Override
+      public Set<String> getParameterNames() {
+        Set<String> names = new HashSet<>();
+        if (content.getType().hasKeywordParameters()) {
+          names.addAll(content.getConstructorType().getKeywordParameters());
+        }
+        return Collections.unmodifiableSet(parameters.keySet());
+      }
+      
+      @Override
+      public Map<String, IValue> getParameters() {
+        Map<String,IValue> params = new HashMap<>();
+        params.putAll(content.getConstructorType().getKeywordParameterDefaults());
+        params.putAll(parameters);
+        return Collections.unmodifiableMap(params);
+      }
     };
 	}
 
@@ -161,6 +188,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
     return content.has(label);
   }
 
+  
   @Override
   public Type getChildrenTypes() {
     return content.getChildrenTypes();

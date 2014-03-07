@@ -99,7 +99,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
   @Override
   public boolean hasParameters() {
-    return parameters.size() > 0 || content.getType().hasKeywordParameters();
+    return parameters.size() > 0;
   }
   
   @Override

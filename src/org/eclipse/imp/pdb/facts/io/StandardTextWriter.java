@@ -204,11 +204,18 @@ public class StandardTextWriter implements IValueTextWriter {
 			    if (k > 0) {
 			      append(',');
 			    }
-
-			    for (Entry<String,IValue> e : wkw.getParameters().entrySet()) {
+			    
+			    Iterator<Entry<String, IValue>> iterator = wkw.getParameters().entrySet().iterator();
+			    while (iterator.hasNext()) {
+			      Entry<String,IValue> e = iterator.next();
+			      
 			      append(e.getKey());
 			      append('=');
 			      e.getValue().accept(this);
+			      
+			      if (iterator.hasNext()) {
+			        append(',');
+			      }
 			    }
 			  }
 			}

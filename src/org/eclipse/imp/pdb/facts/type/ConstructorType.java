@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -97,13 +98,35 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 		builder.append(fName);
 		builder.append("(");
 
+		boolean withNormalParams = false;
 		Iterator<Type> iter = fChildrenTypes.iterator();
 		while(iter.hasNext()) {
+		  withNormalParams = true;
 			builder.append(iter.next());
 
 			if (iter.hasNext()) {
-				builder.append(",");
+				builder.append(',');
 			}
+		}
+		
+		if (hasKeywordParameters()) {
+		  if (withNormalParams) {
+		    builder.append(',');
+		  }
+		  
+		  Iterator<Entry<String,Type>> kwIter = fKeywordParameters.entrySet().iterator();
+		  while (kwIter.hasNext()) {
+		    Entry<String, Type> e = kwIter.next();
+		    builder.append(e.getValue());
+		    builder.append(' ');
+		    builder.append(e.getKey());
+		    builder.append(" = ");
+		    builder.append(fKeywordParameterDefaults.get(e.getKey()));
+		    
+		    if (kwIter.hasNext()) {
+		      builder.append(',');
+		    }
+		  }
 		}
 		builder.append(")");
 
