@@ -219,15 +219,18 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				}
 			}  
 
+			// TODO: this can be optimized when annotations are removed
 			if (mayHaveKeywordParameters() && otherTree.mayHaveKeywordParameters()) {
 			  return asWithKeywordParameters().equalParameters(otherTree.asWithKeywordParameters());
 			}
 			
-			if (mayHaveKeywordParameters()) {
+			// TODO: this can be optimized when annotations are removed
+			if (mayHaveKeywordParameters() && asWithKeywordParameters().hasParameters()) {
 			  return false;
 			}
 			
-			if (otherTree.mayHaveKeywordParameters()) {
+			// TODO: this can be optimized when annotations are removed
+			if (otherTree.mayHaveKeywordParameters() && otherTree.asWithKeywordParameters().hasParameters()) {
 			  return false;
 			}
 			
