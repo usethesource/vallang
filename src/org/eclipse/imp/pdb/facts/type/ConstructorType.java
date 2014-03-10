@@ -80,16 +80,55 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof ConstructorType) {
-			ConstructorType other = (ConstructorType) o;
-      return ((fName == null) ? other.fName == null : fName == (other.fName)) // fName is interned.
-					&& fChildrenTypes == other.fChildrenTypes
-					&& fKeywordParameterDefaults == other.fKeywordParameterDefaults
-					&& fADT == other.fADT;
-		}
-		return false;
+	  if (o instanceof ConstructorType) {
+	    ConstructorType other = (ConstructorType) o;
+	    
+	    if (fName != other.fName) { // fName is interned
+	      return false;
+	    }
+	    
+	    if (fChildrenTypes != other.fChildrenTypes) {
+	      return false;
+	    }
+	    
+	    if (fADT != other.fADT) {
+	      return false;
+	    }
+
+	  
+
+	    if (fKeywordParameters != null) {
+	      if (other.fKeywordParameters == null) {
+	        return false;
+	      }
+	      
+	      if (fKeywordParameters.size() != other.fKeywordParameters.size()) {
+          return false;
+        }
+	      
+	      for (Entry<String,Type> e : fKeywordParameters.entrySet()) {
+	        Type oType = other.fKeywordParameters.get(e.getKey());
+	        if (e.getValue() != oType) {
+	          return false;
+	        }
+	      }
+
+	      for (Entry<String,IValue> e : fKeywordParameterDefaults.entrySet()) {
+	        IValue oValue = other.fKeywordParameterDefaults.get(e.getKey());
+	        if (oValue == null || !e.getValue().isEqual(oValue)) {
+	          return false;
+	        }
+	      }
+	    }
+	    
+	    // nothing is different
+	    return true;
+	  }
+	  
+	  // not a constructor type
+	  return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
