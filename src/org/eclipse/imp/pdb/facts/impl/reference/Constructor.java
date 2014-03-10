@@ -1,7 +1,10 @@
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
@@ -193,6 +196,28 @@ public class Constructor extends Node implements IConstructor {
       @Override
       protected IValue getDefault(String label) {
         return content.getConstructorType().getKeywordParameterDefault(label);
+      }
+      
+      @Override
+      public boolean hasParameters() {
+        return content.getConstructorType().hasKeywordParameters();
+      }
+      
+      @Override
+      public Set<String> getParameterNames() {
+        Set<String> names = new HashSet<>();
+        if (content.getType().hasKeywordParameters()) {
+          names.addAll(content.getConstructorType().getKeywordParameters());
+        }
+        return Collections.unmodifiableSet(parameters.keySet());
+      }
+      
+      @Override
+      public Map<String, IValue> getParameters() {
+        Map<String,IValue> params = new HashMap<>();
+        params.putAll(content.getConstructorType().getKeywordParameterDefaults());
+        params.putAll(parameters);
+        return Collections.unmodifiableMap(params);
       }
     };
 	}
