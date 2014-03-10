@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -36,7 +37,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	protected final String name;
 	protected final IValue[] children;
-	protected final String[] keyArgNames;
 
 	/*package*/ static INode newNode(String name, IValue[] children) {
 		return new Node(name, children);
@@ -47,7 +47,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
 		this.children = children;
-		this.keyArgNames = null;
 	}
 
 	/*package*/ static INode newNode(String name, IList children) {
@@ -62,39 +61,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			childArray[i] = children.get(i);
 		}
 		this.children = childArray;
-		this.keyArgNames = null;
 	}
 	
 	/*package*/ static INode newNode(String name, IValue[] children, Map<String, IValue> keyArgValues) {
-		return new Node(name, children, keyArgValues);
+		INode node = new Node(name, children, keyArgValues);
+		
+		if (keyArgValues != null && keyArgValues.size() > 0) {
+		  return node.asWithKeywordParameters().setParameters(keyArgValues);
+		}
+		
+		return node;
 	}
 	
 	private Node(String name, IValue[] children, Map<String, IValue> keyArgValues) {
 		super();
-		
 		this.name = (name != null ? name.intern() : null); // Handle (weird) special case.
-		
-		if(keyArgValues != null){
-			int nkw = keyArgValues.size();
-			IValue[] extendedChildren = new IValue[children.length + nkw];
-			for(int i = 0; i < children.length;i++){
-				extendedChildren[i] = children[i];
-			}
-
-			String keyArgNames[]= new String[nkw];
-			int k = 0;
-			for(String kw : keyArgValues.keySet()){
-				keyArgNames[k++] = kw;
-			}
-			for(int i = 0; i < nkw; i++){
-				extendedChildren[children.length + i] = keyArgValues.get(keyArgNames[i]);
-			}
-			this.children = extendedChildren;
-			this.keyArgNames = keyArgNames;
-		} else {
-			this.children = children;
-			this.keyArgNames = null;
-		}
+		this.children = children;
 	}
 
 	@Override
