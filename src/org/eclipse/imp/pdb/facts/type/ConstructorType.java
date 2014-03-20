@@ -61,8 +61,14 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
     fChildrenTypes = childrenTypes;
     fADT = adt;
 
-    fKeywordParameters = AbstractSpecialisedImmutableMap.mapOf(keywordParameters);
-    fKeywordParameterDefaults = AbstractSpecialisedImmutableMap.mapOf(defaults);
+    if (keywordParameters == null || keywordParameters.isEmpty()) {
+      fKeywordParameterDefaults = null;
+      fKeywordParameters = null;
+    }
+    else {
+      fKeywordParameters = AbstractSpecialisedImmutableMap.mapOf(keywordParameters);
+      fKeywordParameterDefaults = AbstractSpecialisedImmutableMap.mapOf(defaults);
+    }
 	}
 
   @Override
@@ -96,7 +102,6 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	    }
 
 	  
-
 	    if (fKeywordParameters != null) {
 	      if (other.fKeywordParameters == null) {
 	        return false;
