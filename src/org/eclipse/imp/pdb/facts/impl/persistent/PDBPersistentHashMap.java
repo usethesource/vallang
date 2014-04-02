@@ -111,6 +111,11 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	}
 
 	@Override
+	public boolean containsValue(IValue value) {
+		return content.containsValueEquivalent(value, equivalenceComparator);
+	}
+	
+	@Override
 	public IValue get(IValue key) {
 		return content.getEquivalent(key, equivalenceComparator);
 	}
@@ -199,6 +204,36 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	@Override
 	public Iterator<Entry<IValue, IValue>> entryIterator() {
 		return content.entryIterator();
+	}
+
+	@Override
+	public IMap join(IMap that) {
+		// TODO Auto-generated method stub
+		return super.join(that);
+	}
+
+	@Override
+	public IMap remove(IMap that) {
+		// TODO Auto-generated method stub
+		return super.remove(that);
+	}
+
+	@Override
+	public IMap compose(IMap that) {
+		// TODO Auto-generated method stub
+		return super.compose(that);
+	}
+
+	@Override
+	public IMap common(IMap that) {
+		// TODO Auto-generated method stub
+		return super.common(that);
+	}
+
+	@Override
+	public boolean isSubMap(IMap that) {
+		// TODO Auto-generated method stub
+		return super.isSubMap(that);
 	}
 
 }

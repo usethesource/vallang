@@ -175,12 +175,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public boolean containsValue(Object o) {
-		throw new UnsupportedOperationException();
+		return containsValueEquivalent(o, equalityComparator());
 	}
 
 	@Override
 	public boolean containsValueEquivalent(Object o, Comparator<Object> cmp) {
-		throw new UnsupportedOperationException();
+		for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+			if (cmp.compare(iterator.next(), o) == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

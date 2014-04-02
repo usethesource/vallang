@@ -313,5 +313,17 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			return super.intersect(other);
 		}
 	}
+
+	@Override
+	public ISet product(ISet that) {
+		// TODO Auto-generated method stub
+		return super.product(that);
+	}
+
+	@Override
+	public boolean isSubsetOf(ISet that) {
+		// TODO Auto-generated method stub
+		return super.isSubsetOf(that);
+	}
 		
 }
