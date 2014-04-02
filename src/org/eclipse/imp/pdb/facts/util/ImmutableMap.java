@@ -45,7 +45,7 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
 	
 	ImmutableMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp);
 
-	Iterator<K> keyIterator();
+	SupplierIterator<K, V> keyIterator();
 	
 	Iterator<V> valueIterator();
 	

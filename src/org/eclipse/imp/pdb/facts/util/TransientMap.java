@@ -12,30 +12,37 @@
 package org.eclipse.imp.pdb.facts.util;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 
-public interface TransientMap<E,V> { // extends ImmutableCollection<E>, Set<E> {
+public interface TransientMap<K, V> extends Map<K, V> {
 
-    boolean containsKey(Object o);
-    
+	boolean containsKey(Object o);
+
 	boolean containsKeyEquivalent(Object o, Comparator<Object> cmp);
 
-    V get(Object o);
-    
-    V getEquivalent(Object o, Comparator<Object> cmp);
-	
-	V __put(E e, V v);
+	V get(Object o);
 
-	V __putEquivalent(E e, V v, Comparator<Object> cmp);
+	V getEquivalent(Object o, Comparator<Object> cmp);
 
-	boolean __putAll(Map<? extends E, ? extends V> map);	
+	V __put(K k, V v);
+
+	V __putEquivalent(K k, V v, Comparator<Object> cmp);
+
+	boolean __putAll(Map<? extends K, ? extends V> map);
+
+	boolean __putAllEquivalent(Map<? extends K, ? extends V> map, Comparator<Object> cmp);
+
+	boolean __remove(K k);
+
+	boolean __removeEquivalent(K k, Comparator<Object> cmp);
+
+	SupplierIterator<K, V> keyIterator();
 	
-	boolean __putAllEquivalent(Map<? extends E, ? extends V> map, Comparator<Object> cmp);
+	Iterator<V> valueIterator();
 	
-	boolean __remove(E e);
+	Iterator<Map.Entry<K, V>> entryIterator();	
 	
-	boolean __removeEquivalent(E e, Comparator<Object> cmp);
-	
-	ImmutableMap<E,V> freeze();
-	
+	ImmutableMap<K, V> freeze();
+
 }

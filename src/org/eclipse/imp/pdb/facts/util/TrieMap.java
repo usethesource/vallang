@@ -20,6 +20,7 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemove;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemovePair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndSet;
 
+import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -370,6 +371,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
+	/*
+	 * TODO/NOTE: This iterator is also reused by the TransientTrieMap.
+	 */
 	private static class TrieMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 		private final SupplierIterator<K, V> iterator;
 
@@ -392,10 +396,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public void remove() {
-			throw new UnsupportedOperationException();
+			iterator.remove();
 		}
 	}
 
+	/*
+	 * TODO/NOTE: This iterator is also reused by the TransientTrieMap.
+	 */
 	private static class TrieMapValueIterator<K, V> implements Iterator<V> {
 		private final SupplierIterator<K, V> iterator;
 
@@ -430,7 +437,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return new TransientTrieMap<K, V>(this);
 	}
 
-	static final class TransientTrieMap<K, V> implements TransientMap<K, V> {
+	static final class TransientTrieMap<K, V> extends AbstractMap<K, V> implements TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractNode<K, V> rootNode;
 		private int hashCode;
@@ -586,12 +593,73 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return modified;
 		}
 
-		// TODO: test; declare in transient interface
-		// @Override
+		@Override
+		public Set<java.util.Map.Entry<K, V>> entrySet() {
+			Set<java.util.Map.Entry<K, V>> entrySet = null;
+
+			if (entrySet == null) {
+				entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
+					@Override
+					public Iterator<java.util.Map.Entry<K, V>> iterator() {
+						return new Iterator<Entry<K, V>>() {
+							private final Iterator<Entry<K, V>> i = entryIterator();
+
+							@Override
+							public boolean hasNext() {
+								return i.hasNext();
+							}
+
+							@Override
+							public Entry<K, V> next() {
+								return i.next();
+							}
+
+							@Override
+							public void remove() {
+								i.remove();
+							}
+						};
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object k) {
+						return TransientTrieMap.this.containsKey(k);
+					}
+				};
+			}
+			return entrySet;
+		}		
+		
+		@Override
 		public SupplierIterator<K, V> keyIterator() {
 			return new TransientTrieMapIterator<K, V>(this);
 		}
 
+		@Override
+		public Iterator<V> valueIterator() {
+			return new TrieMapValueIterator<>(keyIterator());
+		}
+
+		@Override
+		public Iterator<Map.Entry<K, V>> entryIterator() {
+			return new TrieMapEntryIterator<>(keyIterator());
+		}		
+		
 		/**
 		 * Iterator that first iterates over inlined-values and then continues
 		 * depth first recursively.
