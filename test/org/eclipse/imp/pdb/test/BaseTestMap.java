@@ -20,7 +20,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -441,4 +443,40 @@ public abstract class BaseTestMap extends TestCase {
 		assertEquals(tf.integerType(), m1.getType().getValueType());
 	}
 	
+	public void testPutReplaceWithAnnotations_Map() { 
+		final Type E = tf.abstractDataType(ts, "E");
+		final Type N = tf.constructor(ts, E, "n", tf.integerType());
+		ts.declareAnnotation(E, "x", tf.integerType());
+		
+		final IConstructor n = vf.constructor(N, vf.integer(1));
+		final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
+		
+		final IMap m1 = vf.mapWriter().done()
+				.put(n, vf.integer(1))
+				.put(na, vf.integer(1));
+	
+		assertEquals(1, m1.size());
+		assertEquals(vf.integer(1), m1.get(n));
+		assertEquals(vf.integer(1), m1.get(na));
+	}
+	
+	public void testPutReplaceWithAnnotations_MapWriter() { 
+		final Type E = tf.abstractDataType(ts, "E");
+		final Type N = tf.constructor(ts, E, "n", tf.integerType());
+		ts.declareAnnotation(E, "x", tf.integerType());
+		
+		final IConstructor n = vf.constructor(N, vf.integer(1));
+		final IConstructor na = n.asAnnotatable().setAnnotation("x", vf.integer(1));
+		
+		final IMapWriter w1 = vf.mapWriter();
+		w1.put(n, vf.integer(1));
+		w1.put(na, vf.integer(1));
+	
+		final IMap m1 = w1.done();
+		
+		assertEquals(1, m1.size());
+		assertEquals(vf.integer(1), m1.get(n));
+		assertEquals(vf.integer(1), m1.get(na));
+	}
+		
 }

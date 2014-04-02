@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -21,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
+import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
 import org.eclipse.imp.pdb.facts.util.TrieMap;
 
@@ -31,6 +33,9 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
  * @author Arnold Lankamp
  */
 /*package*/ class TemporaryMapWriter1 implements IMapWriter{
+	@SuppressWarnings("unchecked")
+	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
+	
 	protected AbstractTypeBag keyTypeBag;
 	protected AbstractTypeBag valTypeBag;
 	protected final TransientMap<IValue,IValue> mapContent;
@@ -95,7 +100,7 @@ import org.eclipse.imp.pdb.facts.util.TrieMap;
 				throw new UnexpectedElementTypeException(upperBoundValType, valType);
 		}
 
-		final IValue replaced = mapContent.__put(key, value);
+		final IValue replaced = mapContent.__putEquivalent(key, value, equivalenceComparator);
 		
 		keyTypeBag = keyTypeBag.increase(keyType);
 		valTypeBag = valTypeBag.increase(valType);
