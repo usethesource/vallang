@@ -70,12 +70,50 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	public static final <K, V> ImmutableMap<K, V> of() {
 		return TrieMap.EMPTY_INPLACE_INDEX_MAP;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static final <K, V> ImmutableMap<K, V> of(Object... keyValuePairs) {
+		if (keyValuePairs.length % 2 != 0) {
+			throw new IllegalArgumentException(
+							"Length of argument list is uneven: no key/value pairs.");
+		}
+		
+		TrieMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP;
+		
+		for (int i = 0; i < keyValuePairs.length; i += 2) {
+			final K key = (K) keyValuePairs[i];
+			final V val = (V) keyValuePairs[i+1];
+			
+			result = result.__put(key, val);
+		}
+		
+		return result;
+	}	
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> TransientMap<K, V> transientOf() {
 		return TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final <K, V> TransientMap<K, V> transientOf(Object... keyValuePairs) {
+		if (keyValuePairs.length % 2 != 0) {
+			throw new IllegalArgumentException(
+							"Length of argument list is uneven: no key/value pairs.");
+		}
+		
+		TransientMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
+		
+		for (int i = 0; i < keyValuePairs.length; i += 2) {
+			final K key = (K) keyValuePairs[i];
+			final V val = (V) keyValuePairs[i+1];
+			
+			result.__put(key, val);
+		}
+		
+		return result;
+	}	
+	
 	@SuppressWarnings("unchecked")
 	protected static final <K> Comparator<K> equalityComparator() {
 		return EqualityUtils.getDefaultEqualityComparator();
