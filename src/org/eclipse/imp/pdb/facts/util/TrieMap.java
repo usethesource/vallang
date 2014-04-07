@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableJdkMap.mapOf;
+import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndInsert;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndInsertPair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndMoveToBackPair;
@@ -429,12 +429,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return iterator.hasNext();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public Map.Entry<K, V> next() {
 			final K key = iterator.next();
 			final V val = iterator.get();
-			return (java.util.Map.Entry<K, V>) mapOf(key, val);
+			return entryOf(key, val);
 		}
 
 		@Override
@@ -738,7 +737,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public int hashCode() {
-			return rootNode.hashCode();
+			return hashCode;
 		}
 
 		@Override
@@ -867,11 +866,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
-		}
-
-		@SuppressWarnings("unchecked")
-		static final <K, V> Map.Entry<K, V> entryOf(final K key, final V val) {
-			return (java.util.Map.Entry<K, V>) mapOf(key, val);
 		}
 
 		abstract K getKey(int index);
@@ -1326,7 +1320,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					final K _key = (K) nodes[valIndex];
 					final V _val = (V) nodes[valIndex + 1];
 
-					final Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) mapOf(_key, _val);
+					final Map.Entry<K, V> entry = entryOf(_key, _val);
 					return Optional.of(entry);
 				}
 
@@ -2255,10 +2249,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
-		return result;
+		return hashCode;
 	}
 
 	@Override

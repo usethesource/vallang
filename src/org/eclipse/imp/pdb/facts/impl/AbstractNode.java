@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.util.ImmutableJdkMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public abstract class AbstractNode extends AbstractValue implements INode {
@@ -71,7 +71,7 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 
 			@Override
 			protected INode wrap(INode content,
-					ImmutableJdkMap<String, IValue> annotations) {
+					ImmutableMap<String, IValue> annotations) {
 				return new AnnotatedNodeFacade(content, annotations);
 			}
 		};

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,15 +24,15 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.ImmutableJdkMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 public class AnnotatedConstructorFacade implements IConstructor {
 
 	protected final IConstructor content;
-	protected final ImmutableJdkMap<String, IValue> annotations;
+	protected final ImmutableMap<String, IValue> annotations;
 	
-	public AnnotatedConstructorFacade(final IConstructor content, final ImmutableJdkMap<String, IValue> annotations) {
+	public AnnotatedConstructorFacade(final IConstructor content, final ImmutableMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -169,7 +169,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,
-					ImmutableJdkMap<String, IValue> annotations) {
+					ImmutableMap<String, IValue> annotations) {
 				return new AnnotatedConstructorFacade(content, annotations);
 			}
 		};

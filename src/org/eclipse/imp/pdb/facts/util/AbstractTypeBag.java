@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableJdkMap.mapOf;
+import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.mapOf;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -46,15 +46,15 @@ public abstract class AbstractTypeBag implements Cloneable {
 	 */
 	private static class TypeBag extends AbstractTypeBag {
 		private final String label;
-		private final ImmutableJdkMap<Type, Integer> countMap;
+		private final ImmutableMap<Type, Integer> countMap;
 		
 		private Type cachedLub;
 
-		private TypeBag(String label, ImmutableJdkMap<Type, Integer> countMap) {
+		private TypeBag(String label, ImmutableMap<Type, Integer> countMap) {
 			this(label, countMap, null);
 		}
 		
-		private TypeBag(String label, ImmutableJdkMap<Type, Integer> countMap, Type cachedLub) {
+		private TypeBag(String label, ImmutableMap<Type, Integer> countMap, Type cachedLub) {
 			this.label = label;
 			this.countMap = countMap;
 			this.cachedLub = cachedLub;
@@ -76,7 +76,7 @@ public abstract class AbstractTypeBag implements Cloneable {
 		@Override
 		public AbstractTypeBag increase(Type t) {	
 			final Integer oldCount = countMap.get(t);
-			final ImmutableJdkMap<Type, Integer> newCountMap;
+			final ImmutableMap<Type, Integer> newCountMap;
 			
 			if (oldCount == null) {
 				newCountMap = countMap.__put(t, 1);
@@ -102,11 +102,11 @@ public abstract class AbstractTypeBag implements Cloneable {
 				throw new IllegalStateException(String.format("Type '%s' was not present.", t));
 			} else if (oldCount > 1) {
 				// update and decrease count; lub stays the same
-				final ImmutableJdkMap<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
+				final ImmutableMap<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
 				return new TypeBag(label, newCountMap, cachedLub);
 			} else {
 				// count was zero, thus remove entry and invalidate cached type
-				final ImmutableJdkMap<Type, Integer> newCountMap = countMap.__remove(t);
+				final ImmutableMap<Type, Integer> newCountMap = countMap.__remove(t);
 				return new TypeBag(label, newCountMap);
 			}			
 		}

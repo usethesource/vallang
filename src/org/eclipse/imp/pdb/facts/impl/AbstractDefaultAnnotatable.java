@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,9 +16,8 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableJdkMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableJdkMap;
-
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 
 /**
  * A generic wrapper for an {@link IValue} that associates annotations to it. 
@@ -28,7 +27,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableJdkMap;
 public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IAnnotatable<T> {
 
 	protected final T content;
-	protected final ImmutableJdkMap<String, IValue> annotations;
+	protected final ImmutableMap<String, IValue> annotations;
 		
 	/**
 	 * Creates an {@link IAnnotatable} view on {@literal content} with empty
@@ -39,7 +38,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 */
 	public AbstractDefaultAnnotatable(T content) {
 		this.content = content;
-		this.annotations = AbstractSpecialisedImmutableJdkMap.mapOf();
+		this.annotations = AbstractSpecialisedImmutableMap.mapOf();
 	}
 	
 	/**
@@ -51,7 +50,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @param annotations
 	 *            is the map of annotations associated to {@link #content}
 	 */
-	public AbstractDefaultAnnotatable(T content, ImmutableJdkMap<String, IValue> annotations) {
+	public AbstractDefaultAnnotatable(T content, ImmutableMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -68,7 +67,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @return a new representations of {@link #content} with associated
 	 *         {@link #annotations}
 	 */
-	protected abstract T wrap(final T content, final ImmutableJdkMap<String, IValue> annotations);
+	protected abstract T wrap(final T content, final ImmutableMap<String, IValue> annotations);
 	
 	@Override
 	public boolean hasAnnotations() {
@@ -111,7 +110,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 		if (otherAnnotations.isEmpty())
 			return content;
 		
-		return wrap(content, AbstractSpecialisedImmutableJdkMap.mapOf(otherAnnotations));
+		return wrap(content, AbstractSpecialisedImmutableMap.mapOf(otherAnnotations));
 	}
 
 	@Override

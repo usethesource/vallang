@@ -540,7 +540,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public int hashCode() {
-			return rootNode.hashCode();
+			return hashCode;
 		}
 
 		@Override
@@ -1870,10 +1870,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((rootNode == null) ? 0 : rootNode.hashCode());
-		return result;
+		return hashCode;
 	}
 
 	@Override
