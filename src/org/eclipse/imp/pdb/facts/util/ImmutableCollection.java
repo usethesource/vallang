@@ -19,5 +19,9 @@ public interface ImmutableCollection<E> extends Collection<E> {
     boolean contains(Object o);
     
 	boolean containsEquivalent(Object o, Comparator<Object> cmp);
+
+	boolean containsAll(Collection<?> c);
+	
+	boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp);
 	
 }

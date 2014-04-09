@@ -78,7 +78,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							"Length of argument list is uneven: no key/value pairs.");
 		}
 		
-		TrieMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP;
+		ImmutableMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP;
 		
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];
@@ -102,7 +102,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							"Length of argument list is uneven: no key/value pairs.");
 		}
 		
-		TransientMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
+		final TransientMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
 		
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];

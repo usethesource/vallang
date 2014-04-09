@@ -206,6 +206,26 @@ public class TrieSetWithValuesInlined<K> extends AbstractImmutableSet<K> {
 		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
 			return rootNode.contains(o, o.hashCode(), 0, cmp);
 		}		
+
+		@Override
+		public boolean containsAll(Collection<?> c) {
+			for (Object item : c) {
+				if (!contains(item)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		@Override
+		public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
+			for (Object item : c) {
+				if (!containsEquivalent(item, cmp)) {
+					return false;
+				}
+			}
+			return true;
+		}		
 		
 		@Override
 		public boolean __insert(E e) {

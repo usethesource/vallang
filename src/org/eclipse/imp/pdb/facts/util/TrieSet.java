@@ -19,6 +19,7 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndSet;
 
 import java.util.AbstractSet;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -64,9 +65,32 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static final <K> ImmutableSet<K> of(K... keys) {
+		ImmutableSet<K> result = TrieSet.EMPTY_INPLACE_INDEX_SET;
+		
+		for (K item : keys) {
+			result = result.__insert(item);
+		}
+		
+		return result;
+	}		
+	
+	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf() {
 		return TrieSet.EMPTY_INPLACE_INDEX_SET.asTransient();
 	}
+	
+	@SafeVarargs
+	@SuppressWarnings("unchecked")
+	public static final <K> TransientSet<K> transientOf(K... keys) {
+		final TransientSet<K> result = TrieSet.EMPTY_INPLACE_INDEX_SET.asTransient();		
+		
+		for (K item : keys) {
+			result.__insert(item);
+		}
+		
+		return result;
+	}		
 
 	@SuppressWarnings("unchecked")
 	protected static final <K> Comparator<K> equalityComparator() {
@@ -359,6 +383,26 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return rootNode.contains(o, o.hashCode(), 0, cmp);
 		}
 
+		@Override
+		public boolean containsAll(Collection<?> c) {
+			for (Object item : c) {
+				if (!contains(item)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		@Override
+		public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
+			for (Object item : c) {
+				if (!containsEquivalent(item, cmp)) {
+					return false;
+				}
+			}
+			return true;
+		}		
+		
 		@Override
 		public K get(Object key) {
 			return getEquivalent(key, equalityComparator());

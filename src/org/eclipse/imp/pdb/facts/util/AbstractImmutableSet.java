@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.util;
 
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Comparator;
 
 public abstract class AbstractImmutableSet<E> extends AbstractSet<E> implements ImmutableSet<E> {
 
@@ -55,5 +56,25 @@ public abstract class AbstractImmutableSet<E> extends AbstractSet<E> implements 
 	public TransientSet<E> asTransient() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		for (Object item : c) {
+			if (!contains(item)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
+	@Override
+	public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
+		for (Object item : c) {
+			if (!containsEquivalent(item, cmp)) {
+				return false;
+			}
+		}
+		return true;
+	}
+		
 }

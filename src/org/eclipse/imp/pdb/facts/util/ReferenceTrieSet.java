@@ -629,6 +629,26 @@ public class ReferenceTrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
+		public boolean containsAll(Collection<?> c) {
+			for (Object item : c) {
+				if (!contains(item)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		@Override
+		public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
+			for (Object item : c) {
+				if (!containsEquivalent(item, cmp)) {
+					return false;
+				}
+			}
+			return true;
+		}		
+		
+		@Override
 		public boolean __insert(K key) {
 			return __insertEquivalent(key, equalityComparator());
 		}

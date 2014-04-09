@@ -568,19 +568,19 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
 						entryOf(key2, val2));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2);
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2);
 	}
 
 	@Override
 	public Collection<V> values() {
 		// TODO: will fail if two values are equals; return listOf(...)
-		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2);
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2);
 	}
 
 	@Override
@@ -805,19 +805,19 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
 						entryOf(key2, val2), entryOf(key3, val3));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2, key3);
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3);
 	}
 
 	@Override
 	public Collection<V> values() {
 		// TODO: will fail if two values are equals; return listOf(...)
-		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2, val3);
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3);
 	}
 
 	@Override
@@ -1075,19 +1075,19 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
 						entryOf(key2, val2), entryOf(key3, val3), entryOf(key4, val4));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2, key3, key4);
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3, key4);
 	}
 
 	@Override
 	public Collection<V> values() {
 		// TODO: will fail if two values are equals; return listOf(...)
-		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2, val3, val4);
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3, val4);
 	}
 
 	@Override
@@ -1378,20 +1378,20 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return AbstractSpecialisedImmutableJdkSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
+		return AbstractSpecialisedImmutableSet.<Map.Entry<K, V>> setOf(entryOf(key1, val1),
 						entryOf(key2, val2), entryOf(key3, val3), entryOf(key4, val4),
 						entryOf(key5, val5));
 	}
 
 	@Override
 	public Set<K> keySet() {
-		return AbstractSpecialisedImmutableJdkSet.setOf(key1, key2, key3, key4, key5);
+		return AbstractSpecialisedImmutableSet.setOf(key1, key2, key3, key4, key5);
 	}
 
 	@Override
 	public Collection<V> values() {
 		// TODO: will fail if two values are equals; return listOf(...)
-		return AbstractSpecialisedImmutableJdkSet.setOf(val1, val2, val3, val4, val5);
+		return AbstractSpecialisedImmutableSet.setOf(val1, val2, val3, val4, val5);
 	}
 
 	@Override
