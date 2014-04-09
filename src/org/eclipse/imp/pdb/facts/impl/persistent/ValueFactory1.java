@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,19 +34,19 @@ public class ValueFactory1 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 	}
 
 	public ISetWriter setWriter(Type elementType) {
-		return new TemporarySetWriter1(elementType);
+		return new SetWriter(elementType);
 	}
 
 	public ISetWriter setWriter() {
-		return new TemporarySetWriter1();
+		return new SetWriter();
 	}
 
 	public ISetWriter relationWriter(Type tupleType) {
-		return new TemporarySetWriter1(tupleType);
+		return new SetWriter(tupleType);
 	}
 
 	public ISetWriter relationWriter() {
-		return new TemporarySetWriter1();
+		return new SetWriter();
 	}
 
 	public ISet set(Type elementType) {
@@ -74,12 +74,12 @@ public class ValueFactory1 extends org.eclipse.imp.pdb.facts.impl.fast.ValueFact
 
 	@Override
 	public IMapWriter mapWriter(Type mapType) {
-		return new TemporaryMapWriter1(mapType);
+		return new MapWriter(mapType);
 	}
 
 	@Override
 	public IMapWriter mapWriter() {
-		return new TemporaryMapWriter1();
+		return new MapWriter();
 	}
 
 	@Override

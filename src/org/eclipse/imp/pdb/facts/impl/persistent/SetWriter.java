@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 CWI
+ * Copyright (c) 2013-2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,12 +8,6 @@
  * Contributors:
  *
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *
- * Based on code by:
- *
- *   * Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
@@ -24,21 +18,17 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
-import org.eclipse.imp.pdb.facts.impl.AbstractWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
 import org.eclipse.imp.pdb.facts.util.TrieSet;
 
-/*package*/class TemporarySetWriter1 extends AbstractWriter implements
-		ISetWriter {
-	
-	@SuppressWarnings({ "unchecked", "unused" })
-	private static final Comparator<Object> equalityComparator = EqualityUtils.getDefaultEqualityComparator();
-	
+class SetWriter implements ISetWriter {
+
 	@SuppressWarnings("unchecked")
-	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
+	private static final Comparator<Object> equivalenceComparator = EqualityUtils
+					.getEquivalenceComparator();
 
 	protected AbstractTypeBag elementTypeBag;
 	protected final TransientSet<IValue> setContent;
@@ -47,20 +37,20 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	protected final Type upperBoundType;
 	protected ISet constructedSet;
 
-	/* package */TemporarySetWriter1(Type upperBoundType) {
+	SetWriter(Type upperBoundType) {
 		super();
 
 		this.checkUpperBound = true;
 		this.upperBoundType = upperBoundType;
-		
+
 		elementTypeBag = AbstractTypeBag.of();
 		setContent = TrieSet.transientOf();
 		constructedSet = null;
 	}
 
-	/* package */TemporarySetWriter1() {
+	SetWriter() {
 		super();
-		
+
 		this.checkUpperBound = false;
 		this.upperBoundType = null;
 
@@ -81,21 +71,20 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	}
 
 	@Override
-	public void insert(IValue... elems) throws FactTypeUseException {
+	public void insert(IValue... values) throws FactTypeUseException {
 		checkMutation();
 
-		for (IValue elem : elems) {
-			put(elem);
+		for (IValue item : values) {
+			put(item);
 		}
 	}
 
 	@Override
-	public void insertAll(Iterable<? extends IValue> collection)
-			throws FactTypeUseException {
+	public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
 		checkMutation();
 
-		for (IValue v : collection) {
-			put(v);
+		for (IValue item : collection) {
+			put(item);
 		}
 	}
 
@@ -109,11 +98,11 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 	}
 
 	private void checkMutation() {
-		if (constructedSet != null)
-			throw new UnsupportedOperationException(
-					"Mutation of a finalized set is not supported.");
+		if (constructedSet != null) {
+			throw new UnsupportedOperationException("Mutation of a finalized set is not supported.");
+		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return setContent.toString();
