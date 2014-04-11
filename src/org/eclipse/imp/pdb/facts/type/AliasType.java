@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
 /**
@@ -81,12 +81,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public IValue getKeywordParameterDefault(String label) {
+	public IValueInitializer getKeywordParameterDefault(String label) {
 	  return fAliased.getKeywordParameterDefault(label);
 	}
 	
 	@Override
-	public Map<String, IValue> getKeywordParameterDefaults() {
+	public Map<String, IValueInitializer> getKeywordParameterDefaults() {
 	  return fAliased.getKeywordParameterDefaults();
 	}
 	

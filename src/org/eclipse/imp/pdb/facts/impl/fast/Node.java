@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AbstractNode;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;

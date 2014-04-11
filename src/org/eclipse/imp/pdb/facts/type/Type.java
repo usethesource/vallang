@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
@@ -111,7 +112,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @param parameter label
    * @return the associated default value
    */
-  public IValue getKeywordParameterDefault(String label) {
+  public IValueInitializer getKeywordParameterDefault(String label) {
     throw new IllegalOperationException("getDefaultValue", this);
   }
   
@@ -143,7 +144,7 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   /**
    * @return the defaults for the keyword parameters
    */
-  public Map<String,IValue> getKeywordParameterDefaults() {
+  public Map<String, IValueInitializer> getKeywordParameterDefaults() {
     throw new IllegalOperationException("getKeywordParameterDefaults", this);
   }
   

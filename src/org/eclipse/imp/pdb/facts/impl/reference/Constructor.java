@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueInitializer;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
@@ -195,7 +196,7 @@ public class Constructor extends Node implements IConstructor {
       
       @Override
       protected IValue getDefault(String label) {
-        return content.getConstructorType().getKeywordParameterDefault(label);
+        return content.getConstructorType().getKeywordParameterDefault(label).initialize();
       }
       
       @Override
@@ -215,7 +216,9 @@ public class Constructor extends Node implements IConstructor {
       @Override
       public Map<String, IValue> getParameters() {
         Map<String,IValue> params = new HashMap<>();
-        params.putAll(content.getConstructorType().getKeywordParameterDefaults());
+        for (String key : content.getConstructorType().getKeywordParameters()) {
+    		params.put(key, content.getConstructorType().getKeywordParameterDefault(key).initialize());
+    	}
         params.putAll(parameters);
         return Collections.unmodifiableMap(params);
       }

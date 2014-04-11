@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IValueInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldTypeException;
@@ -506,7 +507,7 @@ public class TypeFactory {
    *           , UndeclaredAbstractDataTypeException,
    *           RedeclaredFieldNameException, RedeclaredConstructorException
    */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Map<String, Type> keywordParameters, Map<String,IValue> keywordParameterDefaults)
+  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Map<String, Type> keywordParameters, Map<String,IValueInitializer> keywordParameterDefaults)
       throws FactTypeDeclarationException {
     checkNull(store, adt, name, tupleType);
 

@@ -115,7 +115,9 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
   public Map<String,IValue> getParameters() {
     Map<String,IValue> params = new HashMap<>();
     if (content.getType().hasKeywordParameters()) {
-      params.putAll(content.getType().getKeywordParameterDefaults());
+    	for (String key : content.getType().getKeywordParameters()) {
+    		params.put(key, content.getType().getKeywordParameterDefault(key).initialize());
+    	}
     }
     params.putAll(parameters);
     return Collections.unmodifiableMap(params);

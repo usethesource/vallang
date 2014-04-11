@@ -136,7 +136,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
       
       @Override
       protected IValue getDefault(String label) {
-        return content.getConstructorType().getKeywordParameterDefault(label);
+        return content.getConstructorType().getKeywordParameterDefault(label).initialize();
       }
       
       @Override
@@ -156,7 +156,9 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
       @Override
       public Map<String, IValue> getParameters() {
         Map<String,IValue> params = new HashMap<>();
-        params.putAll(content.getConstructorType().getKeywordParameterDefaults());
+        for (String key : content.getConstructorType().getKeywordParameters()) {
+    		params.put(key, content.getConstructorType().getKeywordParameterDefault(key).initialize());
+    	}
         params.putAll(parameters);
         return Collections.unmodifiableMap(params);
       }
