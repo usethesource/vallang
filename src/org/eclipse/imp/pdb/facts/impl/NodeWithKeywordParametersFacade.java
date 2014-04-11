@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -123,17 +124,18 @@ public class NodeWithKeywordParametersFacade implements INode {
 	
 	@Override
 	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-	  return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
-      @Override
-      protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
-        return new NodeWithKeywordParametersFacade(content, parameters);
-      }
-      
-      @Override
-      protected IValue getDefault(String label) {
-        return null;
-      }
-    };
+		return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
+			@Override
+			protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
+				return new NodeWithKeywordParametersFacade(content, parameters);
+			}
+
+			@Override
+			protected ImmutableMap<String, IValue> getDefaults() {
+				return AbstractSpecialisedImmutableMap.mapOf();
+			}
+
+		};
 	}
 	
 }

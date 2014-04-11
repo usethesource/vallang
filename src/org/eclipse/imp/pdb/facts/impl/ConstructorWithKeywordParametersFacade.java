@@ -12,8 +12,6 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -51,7 +50,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	}
 	
 	public IConstructor set(int i, IValue newChild) throws IndexOutOfBoundsException {
-	  IConstructor newContent = content.set(i, newChild);
+		IConstructor newContent = content.set(i, newChild);
 		return new ConstructorWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
@@ -135,32 +134,23 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
       }
       
       @Override
-      protected IValue getDefault(String label) {
-        return content.getConstructorType().getKeywordParameterDefault(label).initialize();
-      }
-      
-      @Override
       public boolean hasParameters() {
         return content.getConstructorType().hasKeywordParameters();
       }
       
       @Override
       public Set<String> getParameterNames() {
-        Set<String> names = new HashSet<>();
-        if (content.getType().hasKeywordParameters()) {
-          names.addAll(content.getConstructorType().getKeywordParameters());
-        }
         return Collections.unmodifiableSet(parameters.keySet());
       }
       
       @Override
       public Map<String, IValue> getParameters() {
-        Map<String,IValue> params = new HashMap<>();
-        for (String key : content.getConstructorType().getKeywordParameters()) {
-    		params.put(key, content.getConstructorType().getKeywordParameterDefault(key).initialize());
-    	}
-        params.putAll(parameters);
-        return Collections.unmodifiableMap(params);
+        return Collections.unmodifiableMap(parameters);
+      }
+
+      @Override
+      protected ImmutableMap<String, IValue> getDefaults() {
+    	 return getConstructorType().getKeywordParameterDefaults().initialize();
       }
     };
 	}

@@ -17,16 +17,15 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.eclipse.imp.pdb.facts.ConstantInitializer;
+import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IValueInitializer;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -284,10 +283,10 @@ public abstract class BaseTestAnnotations extends TestCase {
 	  TypeStore ts = new TypeStore();
 	  Type adt = tf.abstractDataType(ts, "adt");
 	  Map<String,Type> paramTypes = new HashMap<>();
-	  Map<String,IValueInitializer> defaults = new HashMap<>();
+	  Map<String,IValue> defaults = new HashMap<>();
 	  paramTypes.put("foo", tf.boolType());
-	  defaults.put("foo", new ConstantInitializer(vf.bool(true)));
-	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes, defaults);
+	  defaults.put("foo", vf.bool(true));
+	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes, new ConstantKeywordParameterInitializer(defaults));
 
 	  IConstructor n1 = vf.constructor(cons);
 	  

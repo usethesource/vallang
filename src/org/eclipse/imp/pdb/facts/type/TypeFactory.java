@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IValueInitializer;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldNameException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalFieldTypeException;
@@ -507,7 +507,7 @@ public class TypeFactory {
    *           , UndeclaredAbstractDataTypeException,
    *           RedeclaredFieldNameException, RedeclaredConstructorException
    */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Map<String, Type> keywordParameters, Map<String,IValueInitializer> keywordParameterDefaults)
+  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Map<String, Type> keywordParameters, IKeywordParameterInitializer keywordParameterDefaults)
       throws FactTypeDeclarationException {
     checkNull(store, adt, name, tupleType);
 
@@ -515,10 +515,6 @@ public class TypeFactory {
       throw new IllegalIdentifierException(name);
     }
 
-    if (!keywordParameters.keySet().equals(keywordParameterDefaults.keySet())) {
-      throw new IllegalArgumentException("keyword parameter types and default values are not aligned.");
-    }
-    
     Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters, keywordParameterDefaults));
 
     Type params = adt.getTypeParameters();

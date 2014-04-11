@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IValueInitializer;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
@@ -44,7 +45,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	private final Type fADT;
 	private final String fName;
 	private final ImmutableMap<String, Type> fKeywordParameters;
-	private final ImmutableMap<String, IValueInitializer> fKeywordParameterDefaults;
+	private final IKeywordParameterInitializer fKeywordParameterDefaults;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 	  super(adt.getName(), adt.getTypeParameters());
@@ -55,7 +56,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 		fKeywordParameters = null;
 	}
 	
-	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Map<String,Type> keywordParameters, Map<String,IValueInitializer> defaults) {
+	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Map<String,Type> keywordParameters, IKeywordParameterInitializer defaults) {
 	  super(adt.getName(), adt.getTypeParameters());
     fName = name.intern();
     fChildrenTypes = childrenTypes;
@@ -67,7 +68,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
     }
     else {
       fKeywordParameters = AbstractSpecialisedImmutableMap.mapOf(keywordParameters);
-      fKeywordParameterDefaults = AbstractSpecialisedImmutableMap.mapOf(defaults);
+      fKeywordParameterDefaults = defaults;
     }
 	}
 
@@ -118,11 +119,8 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	        }
 	      }
 
-	      for (Entry<String,IValueInitializer> e : fKeywordParameterDefaults.entrySet()) {
-	        IValueInitializer oValue = other.fKeywordParameterDefaults.get(e.getKey());
-	        if (oValue == null || !e.getValue().equals(oValue)) {
-	          return false;
-	        }
+	      if (fKeywordParameterDefaults.equals(((ConstructorType) o).fKeywordParameterDefaults)) {
+	    	  return false;
 	      }
 	    }
 	    
@@ -164,8 +162,6 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 		    builder.append(e.getValue());
 		    builder.append(' ');
 		    builder.append(e.getKey());
-		    builder.append(" = ");
-		    builder.append(fKeywordParameterDefaults.get(e.getKey()));
 		    
 		    if (kwIter.hasNext()) {
 		      builder.append(',');
@@ -368,19 +364,32 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	  return hasKeywordParameter(label);
 	}
 	
-	@Override
-	public IValueInitializer getKeywordParameterDefault(String label) {
-	  return fKeywordParameterDefaults != null ? fKeywordParameterDefaults.get(label) : null;
-	}
 	
 	@Override
 	public Map<String,Type> getKeywordParameterTypes() {
 	  return fKeywordParameters != null ? fKeywordParameters : Collections.<String,Type>emptyMap();
 	}
 	
+	private static class EmptyInitializer implements IKeywordParameterInitializer {
+		private static class InstanceKeeper {
+			public static IKeywordParameterInitializer instance = new EmptyInitializer();
+		}
+		
+		private EmptyInitializer() { }
+		
+		public static IKeywordParameterInitializer getInstance() {
+			return InstanceKeeper.instance;
+		}
+		
+		@Override
+		public ImmutableMap<String, IValue> initialize() {
+			return AbstractSpecialisedImmutableMap.mapOf();
+		}
+	}
+	
 	@Override
-	public Map<String, IValueInitializer> getKeywordParameterDefaults() {
-	  return fKeywordParameterDefaults != null ? fKeywordParameterDefaults : Collections.<String,IValueInitializer>emptyMap();
+	public IKeywordParameterInitializer getKeywordParameterDefaults() {
+	  return fKeywordParameterDefaults != null ? fKeywordParameterDefaults : EmptyInitializer.getInstance();
 	}
 	
 	@Override

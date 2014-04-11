@@ -12,7 +12,6 @@ package org.eclipse.imp.pdb.facts.impl.fast;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -288,34 +287,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	    }
 	    
 	    @Override
-      protected IValue getDefault(String label) {
-        return content.getConstructorType().getKeywordParameterDefault(label).initialize();
-      }
-      
-      @Override
-      public boolean hasParameters() {
-        return content.getConstructorType().hasKeywordParameters();
-      }
-      
-      @Override
-      public Set<String> getParameterNames() {
-        Set<String> names = new HashSet<>();
-        if (content.getType().hasKeywordParameters()) {
-          names.addAll(content.getConstructorType().getKeywordParameters());
-        }
-        return Collections.unmodifiableSet(parameters.keySet());
-      }
-      
-      @Override
-      public Map<String, IValue> getParameters() {
-        Map<String,IValue> params = new HashMap<>();
-        for (String key : content.getConstructorType().getKeywordParameters()) {
-    		params.put(key, content.getConstructorType().getKeywordParameterDefault(key).initialize());
-    	}
-        params.putAll(parameters);
-        return Collections.unmodifiableMap(params);
-      }
-    }; 
+	    public boolean hasParameters() {
+	    	return content.getConstructorType().hasKeywordParameters();
+	    }
+
+	    @Override
+	    public Set<String> getParameterNames() {
+	    	return Collections.unmodifiableSet(parameters.keySet());
+	    }
+
+	    @Override
+	    public Map<String, IValue> getParameters() {
+	    	return Collections.unmodifiableMap(parameters);
+	    }
+
+		@Override
+		protected ImmutableMap<String, IValue> getDefaults() {
+			return content.getConstructorType().getKeywordParameterDefaults().initialize();
+		}
+	  }; 
 	}
-	
+
 }
