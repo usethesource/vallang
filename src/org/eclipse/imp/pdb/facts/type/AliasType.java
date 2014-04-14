@@ -14,7 +14,6 @@ package org.eclipse.imp.pdb.facts.type;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -82,12 +81,12 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	
 	
 	@Override
-	public IKeywordParameterInitializer getKeywordParameterDefaults() {
-	  return fAliased.getKeywordParameterDefaults();
+	public IKeywordParameterInitializer getKeywordParameterInitializer(String label) {
+	  return fAliased.getKeywordParameterInitializer(label);
 	}
 	
 	@Override
-	public Set<String> getKeywordParameters() {
+	public String[] getKeywordParameters() {
 	  return fAliased.getKeywordParameters();
 	}
 	
@@ -97,7 +96,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public Map<String, Type> getKeywordParameterTypes() {
+	public Type getKeywordParameterTypes() {
 	  return fAliased.getKeywordParameterTypes();
 	}
 	

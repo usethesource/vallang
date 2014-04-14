@@ -507,7 +507,7 @@ public class TypeFactory {
    *           , UndeclaredAbstractDataTypeException,
    *           RedeclaredFieldNameException, RedeclaredConstructorException
    */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Map<String, Type> keywordParameters, IKeywordParameterInitializer keywordParameterDefaults)
+  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Type keywordParameters, Map<String,IKeywordParameterInitializer> initializers)
       throws FactTypeDeclarationException {
     checkNull(store, adt, name, tupleType);
 
@@ -515,7 +515,7 @@ public class TypeFactory {
       throw new IllegalIdentifierException(name);
     }
 
-    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters, keywordParameterDefaults));
+    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters, initializers));
 
     Type params = adt.getTypeParameters();
 

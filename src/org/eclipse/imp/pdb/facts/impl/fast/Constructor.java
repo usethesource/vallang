@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -30,6 +29,7 @@ import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ArrayIterator;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -280,7 +280,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this) {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, ConstructorWithKeywordParametersFacade.computeKeywordParameters(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf())) {
 	    @Override
 	    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
 	      return new ConstructorWithKeywordParametersFacade(content, parameters);
@@ -292,19 +292,14 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	    }
 
 	    @Override
-	    public Set<String> getParameterNames() {
-	    	return Collections.unmodifiableSet(parameters.keySet());
+	    public String[] getParameterNames() {
+	    	return content.getConstructorType().getKeywordParameters();
 	    }
 
 	    @Override
 	    public Map<String, IValue> getParameters() {
 	    	return Collections.unmodifiableMap(parameters);
 	    }
-
-		@Override
-		protected ImmutableMap<String, IValue> getDefaults() {
-			return content.getConstructorType().getKeywordParameterDefaults().initialize();
-		}
 	  }; 
 	}
 

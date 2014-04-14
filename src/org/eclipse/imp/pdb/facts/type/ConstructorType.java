@@ -14,15 +14,10 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 
 /**
  * A tree type is a type of tree node, defined by its name, the types of
@@ -44,8 +39,8 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
-	private final ImmutableMap<String, Type> fKeywordParameters;
-	private final IKeywordParameterInitializer fKeywordParameterDefaults;
+	private final Type fKeywordParameters;
+	private final Map<String,IKeywordParameterInitializer> fKeywordParameterDefaults;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 	  super(adt.getName(), adt.getTypeParameters());
@@ -56,20 +51,21 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 		fKeywordParameters = null;
 	}
 	
-	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Map<String,Type> keywordParameters, IKeywordParameterInitializer defaults) {
-	  super(adt.getName(), adt.getTypeParameters());
-    fName = name.intern();
-    fChildrenTypes = childrenTypes;
-    fADT = adt;
+	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Type keywordParameters, Map<String,IKeywordParameterInitializer> defaults) {
+		super(adt.getName(), adt.getTypeParameters());
+		fName = name.intern();
+		fChildrenTypes = childrenTypes;
+		fADT = adt;
 
-    if (keywordParameters == null || keywordParameters.isEmpty()) {
-      fKeywordParameterDefaults = null;
-      fKeywordParameters = null;
-    }
-    else {
-      fKeywordParameters = AbstractSpecialisedImmutableMap.mapOf(keywordParameters);
-      fKeywordParameterDefaults = defaults;
-    }
+
+		if (keywordParameters == null || keywordParameters.isBottom()) {
+			fKeywordParameterDefaults = null;
+			fKeywordParameters = null;
+		}
+		else {
+			fKeywordParameters = keywordParameters;
+			fKeywordParameterDefaults = Collections.unmodifiableMap(defaults);
+		}
 	}
 
   @Override
@@ -104,26 +100,19 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 
 	  
 	    if (fKeywordParameters != null) {
-	      if (other.fKeywordParameters == null) {
-	        return false;
-	      }
-	      
-	      if (fKeywordParameters.size() != other.fKeywordParameters.size()) {
-          return false;
-        }
-	      
-	      for (Entry<String,Type> e : fKeywordParameters.entrySet()) {
-	        Type oType = other.fKeywordParameters.get(e.getKey());
-	        if (e.getValue() != oType) {
-	          return false;
-	        }
-	      }
+	    	if (other.fKeywordParameters == null) {
+	    		return false;
+	    	}
 
-	      if (fKeywordParameterDefaults.equals(((ConstructorType) o).fKeywordParameterDefaults)) {
-	    	  return false;
-	      }
+	    	if (fKeywordParameters != other.fKeywordParameters) {
+	    		return false;
+	    	}
+
+	    	if (fKeywordParameterDefaults.equals(((ConstructorType) o).fKeywordParameterDefaults)) {
+	    		return false;
+	    	}
 	    }
-	    
+
 	    // nothing is different
 	    return true;
 	  }
@@ -156,16 +145,14 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 		    builder.append(',');
 		  }
 		  
-		  Iterator<Entry<String,Type>> kwIter = fKeywordParameters.entrySet().iterator();
-		  while (kwIter.hasNext()) {
-		    Entry<String, Type> e = kwIter.next();
-		    builder.append(e.getValue());
-		    builder.append(' ');
-		    builder.append(e.getKey());
-		    
-		    if (kwIter.hasNext()) {
-		      builder.append(',');
-		    }
+		  iter = fChildrenTypes.iterator();
+		  while(iter.hasNext()) {
+			  withNormalParams = true;
+			  builder.append(iter.next());
+
+			  if (iter.hasNext()) {
+				  builder.append(',');
+			  }
 		  }
 		}
 		builder.append(")");
@@ -351,12 +338,12 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	
 	@Override
 	public boolean hasKeywordParameters() {
-		return fKeywordParameters != null && !fKeywordParameters.isEmpty();
+		return fKeywordParameters != null;
 	}
 
 	@Override
 	public boolean hasKeywordParameter(String label) {
-	  return fKeywordParameters != null && fKeywordParameters.containsKey(label);
+	  return fKeywordParameters.hasField(label);
 	}
 	
 	@Override
@@ -366,39 +353,22 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 	
 	
 	@Override
-	public Map<String,Type> getKeywordParameterTypes() {
-	  return fKeywordParameters != null ? fKeywordParameters : Collections.<String,Type>emptyMap();
-	}
-	
-	private static class EmptyInitializer implements IKeywordParameterInitializer {
-		private static class InstanceKeeper {
-			public static IKeywordParameterInitializer instance = new EmptyInitializer();
-		}
-		
-		private EmptyInitializer() { }
-		
-		public static IKeywordParameterInitializer getInstance() {
-			return InstanceKeeper.instance;
-		}
-		
-		@Override
-		public ImmutableMap<String, IValue> initialize() {
-			return AbstractSpecialisedImmutableMap.mapOf();
-		}
+	public Type getKeywordParameterTypes() {
+	  return fKeywordParameters;
 	}
 	
 	@Override
-	public IKeywordParameterInitializer getKeywordParameterDefaults() {
-	  return fKeywordParameterDefaults != null ? fKeywordParameterDefaults : EmptyInitializer.getInstance();
+	public IKeywordParameterInitializer getKeywordParameterInitializer(String label) {
+	  return fKeywordParameterDefaults.get(label);
 	}
 	
 	@Override
 	public Type getKeywordParameterType(String label) {
-	  return fKeywordParameters != null ? fKeywordParameters.get(label) : null;
+	  return fKeywordParameters != null ? fKeywordParameters.getFieldType(label) : null;
 	}
 	
 	@Override
-	public Set<String> getKeywordParameters() {
-	  return fKeywordParameters != null ? fKeywordParameters.keySet() : Collections.<String>emptySet();
+	public String[] getKeywordParameters() {
+	  return fKeywordParameters != null ? fKeywordParameters.getFieldNames() : new String[0];
 	}
 }

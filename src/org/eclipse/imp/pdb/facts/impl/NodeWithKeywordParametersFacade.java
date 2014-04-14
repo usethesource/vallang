@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.impl;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IList;
@@ -129,12 +130,6 @@ public class NodeWithKeywordParametersFacade implements INode {
 			protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
 				return new NodeWithKeywordParametersFacade(content, parameters);
 			}
-
-			@Override
-			protected ImmutableMap<String, IValue> getDefaults() {
-				return AbstractSpecialisedImmutableMap.mapOf();
-			}
-
 		};
 	}
 	

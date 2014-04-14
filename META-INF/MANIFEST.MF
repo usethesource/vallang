@@ -11,9 +11,10 @@ Export-Package:
  org.eclipse.imp.pdb.facts.exceptions,
  org.eclipse.imp.pdb.facts.impl,
  org.eclipse.imp.pdb.facts.impl.fast,
- org.eclipse.imp.pdb.facts.impl.reference,
  org.eclipse.imp.pdb.facts.impl.primitive,
+ org.eclipse.imp.pdb.facts.impl.reference,
  org.eclipse.imp.pdb.facts.io,
  org.eclipse.imp.pdb.facts.type,
+ org.eclipse.imp.pdb.facts.util,
  org.eclipse.imp.pdb.facts.visitors
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

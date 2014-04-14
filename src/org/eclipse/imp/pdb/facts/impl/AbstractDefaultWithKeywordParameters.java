@@ -11,10 +11,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
@@ -31,20 +30,6 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> implements IWithKeywordParameters<T> {
   protected final T content;
 	protected final ImmutableMap<String, IValue> parameters;
-		
-	/**
-	 * Creates an {@link IWithKeywordParameters} view on {@literal content} with empty
-	 * annotations.
-	 * 
-	 * @param content
-	 *            is the wrapped object that supports annotations
-	 */
-	public AbstractDefaultWithKeywordParameters(T content) {
-		this.content = content;
-		this.parameters = getDefaults();
-	}
-	
-	protected abstract ImmutableMap<String,IValue> getDefaults();
 	
 	/**
 	 * Creates an {@link IWithKeywordParameters} view on {@link #content} with already
@@ -57,7 +42,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	 */
 	public AbstractDefaultWithKeywordParameters(T content, ImmutableMap<String, IValue> parameters) {
 		this.content = content;
-		this.parameters = AbstractSpecialisedImmutableMap.mapOf(getDefaults()).__putAll(parameters);
+		this.parameters = parameters;
 	}
 	
 	/**
@@ -101,12 +86,13 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
-	public Set<String> getParameterNames() {
-		Set<String> names = new HashSet<>();
+	public String[] getParameterNames() {
 		if (content.getType().hasKeywordParameters()) {
-			names.addAll(content.getType().getKeywordParameters());
+			return content.getType().getKeywordParameters();
 		}
-		return Collections.unmodifiableSet(parameters.keySet()); 
+		else {
+			return parameters.keySet().toArray(new String[parameters.keySet().size()]);
+		}
 	}
 
 	@Override
@@ -126,9 +112,10 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 			return false;
 		}
 
-		Set<String> a = getParameterNames();
-		Set<String> b = o.getParameterNames();
-		if (!a.equals(b)) {
+		String[] a = getParameterNames();
+		String[] b = o.getParameterNames();
+		
+		if (!Arrays.equals(a, b)) {
 			return false;
 		}
 
@@ -152,10 +139,10 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 		// it is important to go through the public API here, since
 		// default parameters may be retrieved from the types instead
 		// of from the fields of the current wrapper class
-		Set<String> a = getParameterNames();
-		Set<String> b = o.getParameterNames();
+		String[] a = getParameterNames();
+		String[] b = o.getParameterNames();
 
-		if (!a.equals(b)) {
+		if (!Arrays.equals(a, b)) {
 			return false;
 		}
 

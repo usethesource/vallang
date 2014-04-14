@@ -13,7 +13,6 @@
 package org.eclipse.imp.pdb.facts;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
@@ -54,7 +53,7 @@ public interface IWithKeywordParameters<T extends IValue> {
 	/**
 	 * @return an array of parameter names
 	 */
-	public Set<String> getParameterNames();
+	public String[] getParameterNames();
 
 	/**
 	 * @return an unmodifiable map for the keyword parameters

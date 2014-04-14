@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.AbstractImmutableMap;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -65,17 +66,11 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 	
 	@Override
 	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-	  return new AbstractDefaultWithKeywordParameters<INode>(this) {
+	  return new AbstractDefaultWithKeywordParameters<INode>(this, AbstractSpecialisedImmutableMap.<String, IValue>mapOf()) {
 	    @Override
 	    protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
 	      return new NodeWithKeywordParametersFacade(content, parameters);
 	    }
-
-		@Override
-		protected ImmutableMap<String, IValue> getDefaults() {
-			return AbstractSpecialisedImmutableMap.mapOf();
-		}
-	    
     };
 	}
 

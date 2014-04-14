@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
@@ -282,11 +283,10 @@ public abstract class BaseTestAnnotations extends TestCase {
 	public void testConstructorKeywordParameter() {
 	  TypeStore ts = new TypeStore();
 	  Type adt = tf.abstractDataType(ts, "adt");
-	  Map<String,Type> paramTypes = new HashMap<>();
-	  Map<String,IValue> defaults = new HashMap<>();
-	  paramTypes.put("foo", tf.boolType());
-	  defaults.put("foo", vf.bool(true));
-	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes, new ConstantKeywordParameterInitializer(defaults));
+	  Map<String,IKeywordParameterInitializer> defaults = new HashMap<>();
+	  Type paramTypes = tf.tupleType(tf.boolType(), "foo");
+	  defaults.put("foo", new ConstantKeywordParameterInitializer(vf.bool(true)));
+	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes, defaults);
 
 	  IConstructor n1 = vf.constructor(cons);
 	  
