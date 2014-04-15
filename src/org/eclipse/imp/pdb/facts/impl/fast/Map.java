@@ -103,20 +103,20 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
-	public boolean isSubMap(IMap other){
+	public boolean isSubMap(IMap other) {
 		Map otherMap = (Map) other;
-		
+
 		Iterator<IValue> keysIterator = iterator();
-		while (keysIterator.hasNext()){
+		while (keysIterator.hasNext()) {
 			IValue key = keysIterator.next();
-      if (!otherMap.data.contains(key)) {
-			  return false;
+			if (!otherMap.data.contains(key)) {
+				return false;
 			}
 			if (!otherMap.data.get(key).isEqual(data.get(key))) {
-			  return false;
+				return false;
 			}
 		}
-		
+
 		return true;
 	}
 	

@@ -174,58 +174,51 @@ public final class MapFunctions {
 	
 	}
 
-	public static boolean containsKeyWithEquals(IValueFactory valueFactory,
-			IMap map1, IValue key) {
+	public static IValue get(IValueFactory valueFactory, IMap map1, IValue key) {
 		for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
 			Entry<IValue, IValue> entry = iterator.next();
-			if (entry.getKey().equals(key)) {
-				return true;
+			if (entry.getKey().isEqual(key)) {
+				return entry.getValue();
 			}
 		}
-        return false;
+		return null;
 	}
 
-  public static IValue get(IValueFactory valueFactory,
-      IMap map1, IValue key) {
-    for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
-      Entry<IValue, IValue> entry = iterator.next();
-      if (entry.getKey().isEqual(key)) {
-        return entry.getValue();
-      }
-    }
-        return null;
-  }	
-	
-  public static boolean containsKey(IValueFactory valueFactory, IMap map1, IValue key) {
-    for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
-      Entry<IValue, IValue> entry = iterator.next();
-      if (entry.getKey().isEqual(key)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-	public static boolean containsValueWithEquals(IValueFactory valueFactory,
-			IMap map1, IValue value) {
-		for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
-			Entry<IValue, IValue> entry = iterator.next();
-			if (entry.getValue().equals(value)) {
+	public static boolean containsKeyWithEquals(IValueFactory valueFactory, IMap map1, IValue key) {
+		for (Iterator<IValue> iterator = map1.iterator(); iterator.hasNext();) {
+			if (iterator.next().equals(key)) {
 				return true;
 			}
 		}
-        return false;
+		return false;
 	}
-	
-	public static boolean containsValue(IValueFactory valueFactory,
-			IMap map1, IValue value) {
-		for (Iterator<Entry<IValue, IValue>> iterator = map1.entryIterator(); iterator.hasNext();) {
-			Entry<IValue, IValue> entry = iterator.next();
-			if (entry.getValue().isEqual(value)) {
+
+	public static boolean containsKey(IValueFactory valueFactory, IMap map1, IValue key) {
+		for (Iterator<IValue> iterator = map1.iterator(); iterator.hasNext();) {
+			if (iterator.next().isEqual(key)) {
 				return true;
 			}
 		}
-        return false;
-	}	
-	
+		return false;
+	}
+
+	public static boolean containsValueWithEquals(IValueFactory valueFactory, IMap map1,
+					IValue value) {
+		for (Iterator<IValue> iterator = map1.valueIterator(); iterator.hasNext();) {
+			if (iterator.next().equals(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean containsValue(IValueFactory valueFactory, IMap map1, IValue value) {
+		for (Iterator<IValue> iterator = map1.valueIterator(); iterator.hasNext();) {
+			if (iterator.next().isEqual(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

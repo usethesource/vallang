@@ -53,20 +53,36 @@ public final class SetFunctions {
 		sw.insert(e);
 		return sw.done();
 	}
-
+	
 	public static ISet intersect(IValueFactory vf, ISet set1, ISet set2) {
+		if (set1 == set2)
+			return set1;
+		
 		ISetWriter w = vf.setWriter();
-
+		
 		for (IValue v : set1) {
 			if (set2.contains(v)) {
 				w.insert(v);
 			}
 		}
-
+		
 		return w.done();
 	}
-
+	
+	public static ISet union(IValueFactory vf, ISet set1, ISet set2) {
+		if (set1 == set2)
+			return set1;
+		
+		ISetWriter w = vf.setWriter();
+		w.insertAll(set1);
+		w.insertAll(set2);
+		return w.done();
+	}
+	
 	public static ISet subtract(IValueFactory vf, ISet set1, ISet set2) {
+		if (set1 == set2)
+			return vf.set();
+		
 		ISetWriter sw = vf.setWriter();
 		for (IValue a : set1) {
 			if (!set2.contains(a)) {
@@ -99,13 +115,6 @@ public final class SetFunctions {
 			}
 		}
 		return true;
-	}
-
-	public static ISet union(IValueFactory vf, ISet set1, ISet set2) {
-		ISetWriter w = vf.setWriter();
-		w.insertAll(set1);
-		w.insertAll(set2);
-		return w.done();
 	}
 
 	public static int hashCode(IValueFactory vf, ISet set1) {
