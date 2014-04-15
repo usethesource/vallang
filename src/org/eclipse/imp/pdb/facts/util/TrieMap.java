@@ -2244,7 +2244,35 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return Arrays.toString(nodes);
+	        final StringBuilder bldr = new StringBuilder();
+	        bldr.append('[');
+	        	        
+	        for (byte i = 0; i < payloadArity(); i++) {
+	        	final byte pos = (byte) recoverMask(valmap, (byte) (i+1));	
+	            bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));		
+	            // bldr.append(String.format("@%d: %s=%s", pos, "key", "val"));			
+
+		        if (!((i + 1) == payloadArity())) {
+		        	bldr.append(", ");
+		        }
+	        }
+
+	        if (payloadArity() > 0 && nodeArity() > 0) {
+	        	bldr.append(", ");
+	        }
+	        
+	        for (byte i = 0; i < nodeArity(); i++) {
+	        	final byte pos = (byte) recoverMask(bitmap ^ valmap, (byte) (i+1));	
+	        	bldr.append(String.format("@%d: %s", pos, getNode(i)));
+	        	// bldr.append(String.format("@%d: %s", pos, "node"));			
+
+		        if (!((i + 1) == nodeArity())) {
+		        	bldr.append(", ");
+		        }
+	        }
+	        
+	        bldr.append(']');    
+			return bldr.toString();
 		}
 
 		@Override
