@@ -3503,9 +3503,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public int hashCode() {
-
 			int result = 1;
-
 			return result;
 		}
 
@@ -3522,6 +3520,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "[]";
 		}
 
 	}
@@ -3929,6 +3932,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s, @%d: %s]", npos1, node1, npos2, node2);
 		}
 
 	}
@@ -4450,6 +4458,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s, @%d: %s, @%d: %s]", npos1, node1, npos2, node2, npos3,
+							node3);
 		}
 
 	}
@@ -5085,6 +5099,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return true;
 		}
 
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", npos1, node1, npos2, node2,
+							npos3, node3, npos4, node4);
+		}
+
 	}
 
 	private static final class Value1Index0Node<K, V> extends CompactNode<K, V> {
@@ -5360,6 +5380,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s]", pos1, key1, val1);
 		}
 
 	}
@@ -5755,6 +5780,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s]", pos1, key1, val1, npos1, node1);
 		}
 
 	}
@@ -6276,6 +6306,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s]", pos1, key1, val1, npos1, node1,
+							npos2, node2);
 		}
 
 	}
@@ -6919,6 +6955,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return true;
 		}
 
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, val1, npos1,
+							node1, npos2, node2, npos3, node3);
+		}
+
 	}
 
 	private static final class Value2Index0Node<K, V> extends CompactNode<K, V> {
@@ -7277,6 +7319,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s]", pos1, key1, val1, pos2, key2, val2);
 		}
 
 	}
@@ -7781,6 +7828,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s]", pos1, key1, val1, pos2, key2,
+							val2, npos1, node1);
 		}
 
 	}
@@ -8412,6 +8465,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return true;
 		}
 
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]", pos1, key1, val1, pos2,
+							key2, val2, npos1, node1, npos2, node2);
+		}
+
 	}
 
 	private static final class Value3Index0Node<K, V> extends CompactNode<K, V> {
@@ -8868,6 +8927,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s]", pos1, key1, val1, pos2, key2,
+							val2, pos3, key3, val3);
 		}
 
 	}
@@ -9476,6 +9541,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return true;
 		}
 
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]", pos1, key1, val1,
+							pos2, key2, val2, pos3, key3, val3, npos1, node1);
+		}
+
 	}
 
 	private static final class Value4Index0Node<K, V> extends CompactNode<K, V> {
@@ -10027,6 +10098,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]", pos1, key1, val1,
+							pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
 		}
 
 	}
