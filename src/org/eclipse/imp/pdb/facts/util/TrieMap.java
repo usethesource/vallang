@@ -3552,10 +3552,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final Result<K, V, ? extends CompactNode<K, V>> result;
 
 			if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
@@ -3570,10 +3568,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
@@ -3602,10 +3598,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final Result<K, V, ? extends CompactNode<K, V>> result;
 
 			if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
@@ -3620,10 +3614,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
@@ -3974,10 +3966,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final Result<K, V, ? extends CompactNode<K, V>> result;
 
 			if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
@@ -3992,10 +3982,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
@@ -4010,10 +3998,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos3) {
-				final CompactNode<K, V> subNode = node3;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -4042,10 +4028,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final Result<K, V, ? extends CompactNode<K, V>> result;
 
 			if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
@@ -4060,10 +4044,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
@@ -4078,10 +4060,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos3) {
-				final CompactNode<K, V> subNode = node3;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -4514,10 +4494,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final Result<K, V, ? extends CompactNode<K, V>> result;
 
 			if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
@@ -4532,10 +4510,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
@@ -4550,10 +4526,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos3) {
-				final CompactNode<K, V> subNode = node3;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -4568,10 +4542,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos4) {
-				final CompactNode<K, V> subNode = node4;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node4.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -4600,10 +4572,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final Result<K, V, ? extends CompactNode<K, V>> result;
 
 			if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
@@ -4618,10 +4588,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
@@ -4636,10 +4604,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos3) {
-				final CompactNode<K, V> subNode = node3;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -4654,10 +4620,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos4) {
-				final CompactNode<K, V> subNode = node4;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node4.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -5447,10 +5411,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
@@ -5498,10 +5460,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
@@ -5860,10 +5820,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
@@ -5878,10 +5836,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -5936,10 +5892,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
@@ -5954,10 +5908,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -6399,10 +6351,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
@@ -6417,10 +6367,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -6435,10 +6383,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos3) {
-				final CompactNode<K, V> subNode = node3;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -6496,10 +6442,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
@@ -6514,10 +6458,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -6532,10 +6474,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos3) {
-				final CompactNode<K, V> subNode = node3;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node3.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
@@ -7424,10 +7364,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -7502,10 +7440,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -7944,10 +7880,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -7962,10 +7896,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -8046,10 +7978,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -8064,10 +7994,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == npos2) {
-				final CompactNode<K, V> subNode = node2;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node2.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -9058,10 +8986,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
@@ -9159,10 +9085,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 			} else if (mask == npos1) {
-				final CompactNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+				final Result<K, V, ? extends CompactNode<K, V>> subNodeResult = node1.updated(mutator,
+								key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (subNodeResult.isModified()) {
 					final CompactNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2, key2,
