@@ -3648,18 +3648,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew, npos2, node2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2));
 						break;
 
 					default:
@@ -3673,18 +3673,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, subNodeNew));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode));
 						break;
 
 					default:
@@ -3711,18 +3711,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew, npos2, node2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2));
 						break;
 
 					default:
@@ -3736,18 +3736,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, subNodeNew));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode));
 						break;
 
 					default:
@@ -4094,18 +4094,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew, npos2, node2,
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
 										npos3, node3));
 						break;
 
@@ -4120,18 +4120,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, subNodeNew,
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
 										npos3, node3));
 						break;
 
@@ -4146,19 +4146,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
 						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										subNodeNew));
+										updatedNode));
 						break;
 
 					default:
@@ -4185,18 +4185,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew, npos2, node2,
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
 										npos3, node3));
 						break;
 
@@ -4211,18 +4211,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, subNodeNew,
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
 										npos3, node3));
 						break;
 
@@ -4237,19 +4237,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
 						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										subNodeNew));
+										updatedNode));
 						break;
 
 					default:
@@ -4654,18 +4654,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew, npos2, node2,
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
 										npos3, node3, npos4, node4));
 						break;
 
@@ -4680,18 +4680,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, subNodeNew,
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
 										npos3, node3, npos4, node4));
 						break;
 
@@ -4706,19 +4706,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
 						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										subNodeNew, npos4, node4));
+										updatedNode, npos4, node4));
 						break;
 
 					default:
@@ -4732,19 +4732,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node4
 						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, subNodeNew));
+										node3, mask, updatedNode));
 						break;
 
 					default:
@@ -4771,18 +4771,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew, npos2, node2,
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
 										npos3, node3, npos4, node4));
 						break;
 
@@ -4797,18 +4797,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, subNodeNew,
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
 										npos3, node3, npos4, node4));
 						break;
 
@@ -4823,19 +4823,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
 						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										subNodeNew, npos4, node4));
+										updatedNode, npos4, node4));
 						break;
 
 					default:
@@ -4849,19 +4849,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node4
 						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, subNodeNew));
+										node3, mask, updatedNode));
 						break;
 
 					default:
@@ -5501,18 +5501,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, subNodeNew));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, updatedNode));
 						break;
 
 					default:
@@ -5546,18 +5546,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, subNodeNew));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, updatedNode));
 						break;
 
 					default:
@@ -5949,19 +5949,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, subNodeNew,
-										npos2, node2));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
+										updatedNode, npos2, node2));
 						break;
 
 					default:
@@ -5975,19 +5975,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, subNodeNew));
+										mask, updatedNode));
 						break;
 
 					default:
@@ -6021,19 +6021,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, subNodeNew,
-										npos2, node2));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
+										updatedNode, npos2, node2));
 						break;
 
 					default:
@@ -6047,19 +6047,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, subNodeNew));
+										mask, updatedNode));
 						break;
 
 					default:
@@ -6516,19 +6516,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, subNodeNew,
-										npos2, node2, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
+										updatedNode, npos2, node2, npos3, node3));
 						break;
 
 					default:
@@ -6542,19 +6542,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, subNodeNew, npos3, node3));
+										mask, updatedNode, npos3, node3));
 						break;
 
 					default:
@@ -6568,19 +6568,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										npos2, node2, mask, subNodeNew));
+										npos2, node2, mask, updatedNode));
 						break;
 
 					default:
@@ -6615,19 +6615,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, subNodeNew,
-										npos2, node2, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
+										updatedNode, npos2, node2, npos3, node3));
 						break;
 
 					default:
@@ -6641,19 +6641,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, subNodeNew, npos3, node3));
+										mask, updatedNode, npos3, node3));
 						break;
 
 					default:
@@ -6667,19 +6667,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										npos2, node2, mask, subNodeNew));
+										npos2, node2, mask, updatedNode));
 						break;
 
 					default:
@@ -7488,19 +7488,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, subNodeNew));
+										mask, updatedNode));
 						break;
 
 					default:
@@ -7541,19 +7541,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, subNodeNew));
+										mask, updatedNode));
 						break;
 
 					default:
@@ -8044,19 +8044,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, subNodeNew, npos2, node2));
+										mask, updatedNode, npos2, node2));
 						break;
 
 					default:
@@ -8070,19 +8070,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										npos1, node1, mask, subNodeNew));
+										npos1, node1, mask, updatedNode));
 						break;
 
 					default:
@@ -8125,19 +8125,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, subNodeNew, npos2, node2));
+										mask, updatedNode, npos2, node2));
 						break;
 
 					default:
@@ -8151,19 +8151,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										npos1, node1, mask, subNodeNew));
+										npos1, node1, mask, updatedNode));
 						break;
 
 					default:
@@ -9143,19 +9143,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										pos3, key3, val3, mask, subNodeNew));
+										pos3, key3, val3, mask, updatedNode));
 						break;
 
 					default:
@@ -9206,19 +9206,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (nestedResult.isModified()) {
-					final CompactNode<K, V> subNodeNew = nestedResult.getNode();
+					final CompactNode<K, V> updatedNode = nestedResult.getNode();
 
-					switch (subNodeNew.sizePredicate()) {
+					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, subNodeNew.headKey(),
-										subNodeNew.headVal()));
+						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey(),
+										updatedNode.headVal()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
 						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										pos3, key3, val3, mask, subNodeNew));
+										pos3, key3, val3, mask, updatedNode));
 						break;
 
 					default:
