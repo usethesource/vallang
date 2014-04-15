@@ -51,7 +51,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	protected IValueFactory getValueFactory() {
-		return ValueFactory1.getInstance();
+		return ValueFactory.getInstance();
 	}
 
 	@Override

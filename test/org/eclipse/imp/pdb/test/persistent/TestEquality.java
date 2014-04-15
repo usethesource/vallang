@@ -10,7 +10,7 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.test.persistent;
 
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory1;
+import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
 import org.eclipse.imp.pdb.test.BaseTestEquality;
 
 /**
@@ -19,6 +19,6 @@ import org.eclipse.imp.pdb.test.BaseTestEquality;
 public class TestEquality extends BaseTestEquality{
 	
 	protected void setUp() throws Exception{
-		super.setUp(ValueFactory1.getInstance());
+		super.setUp(ValueFactory.getInstance());
 	}
 }
