@@ -139,6 +139,13 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
   }
   
   /**
+   * @return the initializers for the keyword parameters
+   */
+  public Map<String,IKeywordParameterInitializer> getKeywordParameterInitializers() {
+    throw new IllegalOperationException("getKeywordParameterInitializer", this);
+  }
+  
+  /**
    * Retrieve the keyword parameter types of a constructor, represented as a tuple type
    * @return the types for the keyword parameters
    */

@@ -363,6 +363,11 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
+	public Map<String,IKeywordParameterInitializer> getKeywordParameterInitializers() {
+	  return fKeywordParameterDefaults;
+	}
+	
+	@Override
 	public Type getKeywordParameterType(String label) {
 	  return fKeywordParameters != null ? fKeywordParameters.getFieldType(label) : null;
 	}
