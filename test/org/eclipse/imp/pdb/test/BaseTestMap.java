@@ -431,8 +431,30 @@ public abstract class BaseTestMap extends TestCase {
 		assertEquals(1, m1.size());
 		assertEquals(vf.integer(2), m1.get(vf.integer(1)));
 	}
+
+	public void testDynamicTypesAfterMapUpdatesGrow() {
+		final IMap m1 = vf.mapWriter().done()
+				.put(vf.integer(1), vf.integer(1))
+				.put(vf.integer(1), vf.real(1));
 	
-	public void testDynamicTypesAfterMappingUpdates() {
+		assertEquals(1, m1.size());
+		assertEquals(tf.integerType(), m1.getType().getKeyType());
+		assertEquals(tf.realType(), m1.getType().getValueType());
+	}
+	
+	public void testDynamicTypesAfterMapWriterUpdatesGrow() {
+		final IMapWriter w1 = vf.mapWriter();
+		w1.put(vf.integer(1), vf.integer(1));
+		w1.put(vf.integer(1), vf.real(1));
+
+		final IMap m1 = w1.done();
+		
+		assertEquals(1, m1.size());
+		assertEquals(tf.integerType(), m1.getType().getKeyType());
+		assertEquals(tf.realType(), m1.getType().getValueType());
+	}	
+	
+	public void testDynamicTypesAfterMapUpdatesShrink() {
 		final IMap m1 = vf.mapWriter().done()
 				.put(vf.integer(1), vf.integer(1))
 				.put(vf.integer(1), vf.real(1))
@@ -442,6 +464,19 @@ public abstract class BaseTestMap extends TestCase {
 		assertEquals(tf.integerType(), m1.getType().getKeyType());
 		assertEquals(tf.integerType(), m1.getType().getValueType());
 	}
+	
+	public void testDynamicTypesAfterMapWriterUpdatesShrink() {
+		final IMapWriter w1 = vf.mapWriter();
+		w1.put(vf.integer(1), vf.integer(1));
+		w1.put(vf.integer(1), vf.real(1));
+		w1.put(vf.integer(1), vf.integer(1));
+	
+		final IMap m1 = w1.done();
+		
+		assertEquals(1, m1.size());
+		assertEquals(tf.integerType(), m1.getType().getKeyType());
+		assertEquals(tf.integerType(), m1.getType().getValueType());
+	}	
 	
 	public void testPutReplaceWithAnnotations_Map() { 
 		final Type E = tf.abstractDataType(ts, "E");

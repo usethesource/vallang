@@ -122,16 +122,41 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	public IMap put(IValue key, IValue value){
 		ShareableValuesHashMap newData = new ShareableValuesHashMap(data);
-		newData.put(key, value);
+		IValue replaced = newData.put(key, value);
 		
-		Type newMapType = mapType;
-		Type newKeyType = mapType.getKeyType().lub(key.getType());
-		Type newValueType = mapType.getValueType().lub(value.getType());
-		if(newKeyType != mapType.getKeyType() || newValueType != mapType.getValueType()) {
-			 newMapType = TypeFactory.getInstance().mapType(newKeyType, mapType.getKeyLabel(), newValueType, mapType.getValueLabel());
-		}
+		if (replaced != null) {
+			/*
+			 * we might have to narrow dynamic type of value range
+			 */
+			Type voidType = TypeFactory.getInstance().voidType();
+			
+			Type newMapType = mapType;
+			Type newKeyType = voidType;
+			Type newValueType = voidType;
+			
+			for (Iterator<Entry<IValue, IValue>> it = newData.entryIterator(); it.hasNext(); ) {
+				final Entry<IValue, IValue> currentEntry = it.next();
+				
+				newKeyType = newKeyType.lub(currentEntry.getKey().getType());
+				newValueType = newValueType.lub(currentEntry.getValue().getType());
+				
+				if(newKeyType != mapType.getKeyType() || newValueType != mapType.getValueType()) {
+					 newMapType = TypeFactory.getInstance().mapType(newKeyType, mapType.getKeyLabel(), newValueType, mapType.getValueLabel());
+				}			
+			}
 
-		return new MapWriter(newMapType, newData).done();
+			return new MapWriter(newMapType, newData).done();
+		} else {			
+			Type newMapType = mapType;
+			Type newKeyType = mapType.getKeyType().lub(key.getType());
+			Type newValueType = mapType.getValueType().lub(value.getType());
+			
+			if(newKeyType != mapType.getKeyType() || newValueType != mapType.getValueType()) {
+				 newMapType = TypeFactory.getInstance().mapType(newKeyType, mapType.getKeyLabel(), newValueType, mapType.getValueLabel());
+			}
+	
+			return new MapWriter(newMapType, newData).done();
+		}
 	}
 	
 	public IMap common(IMap other){
