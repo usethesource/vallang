@@ -325,4 +325,23 @@ public abstract class BaseTestSet extends TestCase {
 		}
 		
 	}
+
+	public void testTypeDoubleInsertOneRemoveWithSet() {
+		ISet set1 = vf.set().insert(doubles[0]).insert(integers[0]).insert(integers[0]);
+		ISet set2 = set1.delete(integers[0]);
+		
+		assertEquals(tf.realType(), set2.getElementType());
+	}
+	
+	public void testTypeDoubleInsertOneRemoveWithSetWriter() {
+		ISetWriter w = vf.setWriter();
+		w.insert(doubles[0]);
+		w.insert(integers[0]);
+		w.insert(integers[0]);
+		ISet set1 = w.done();
+		ISet set2 = set1.delete(integers[0]);
+		
+		assertEquals(tf.realType(), set2.getElementType());
+	}
+	
 }

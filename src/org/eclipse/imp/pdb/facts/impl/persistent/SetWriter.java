@@ -66,8 +66,10 @@ class SetWriter implements ISetWriter {
 			throw new UnexpectedElementTypeException(upperBoundType, elementType);
 		}
 
-		elementTypeBag = elementTypeBag.increase(elementType);
-		setContent.__insertEquivalent(element, equivalenceComparator);
+		boolean result = setContent.__insertEquivalent(element, equivalenceComparator);		
+		if (result) {
+			elementTypeBag = elementTypeBag.increase(elementType);
+		}
 	}
 
 	@Override
