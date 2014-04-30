@@ -41,7 +41,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
   	  
   	  if (content.getConstructorType().hasFieldNames()) {
   		  for (String label : content.getConstructorType().getFieldNames()) {
-  			  env.put(label, content.get(label));
+  			  env = env.__put(label, content.get(label));
   		  }
   	  }
 
