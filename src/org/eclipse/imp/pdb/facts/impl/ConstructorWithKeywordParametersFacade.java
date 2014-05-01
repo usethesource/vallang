@@ -56,6 +56,11 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
   		  }
   	  }
   	  
+  	  if (content.getConstructorType().hasFieldNames()) {
+		  for (String label : content.getConstructorType().getFieldNames()) {
+			  env = env.__remove(label);
+		  }
+	  }
   	  return env;
     }
 	
