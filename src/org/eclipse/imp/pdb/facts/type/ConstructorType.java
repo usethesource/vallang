@@ -132,7 +132,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		boolean withNormalParams = false;
 		Iterator<Type> iter = fChildrenTypes.iterator();
 		while(iter.hasNext()) {
-		  withNormalParams = true;
+			withNormalParams = true;
 			builder.append(iter.next());
 
 			if (iter.hasNext()) {
@@ -145,12 +145,13 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		    builder.append(',');
 		  }
 		  
-		  iter = fChildrenTypes.iterator();
-		  while(iter.hasNext()) {
-			  withNormalParams = true;
-			  builder.append(iter.next());
-
-			  if (iter.hasNext()) {
+		  String[] names = fKeywordParameters.getFieldNames();
+		  for (int i = 0; i < names.length; i++) {
+			  builder.append(fKeywordParameters.getFieldType(i));
+			  builder.append(' ');
+			  builder.append(names[i]);
+			  
+			  if (i < names.length - 1) {
 				  builder.append(',');
 			  }
 		  }
