@@ -31,13 +31,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieSet EMPTY_INPLACE_INDEX_SET = new TrieSet(
-					CompactNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
+					CompactSetNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
-	private final AbstractNode<K> rootNode;
+	private final AbstractSetNode<K> rootNode;
 	private final int hashCode;
 	private final int cachedSize;
 
-	TrieSet(AbstractNode<K> rootNode, int hashCode, int cachedSize) {
+	TrieSet(AbstractSetNode<K> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
@@ -104,7 +104,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	@Override
 	public TrieSet<K> __insertEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, Void, ? extends AbstractNode<K>> result = rootNode.updated(null, key,
+		final Result<K, Void, ? extends AbstractSetNode<K>> result = rootNode.updated(null, key,
 						keyHash, 0, cmp);
 
 		if (result.isModified()) {
@@ -148,7 +148,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	@Override
 	public TrieSet<K> __removeEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, Void, ? extends AbstractNode<K>> result = rootNode.removed(null, key,
+		final Result<K, Void, ? extends AbstractSetNode<K>> result = rootNode.removed(null, key,
 						keyHash, 0, cmp);
 
 		if (result.isModified()) {
@@ -224,7 +224,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	private static class TrieSetIteratorWithFixedWidthStack<K> implements SupplierIterator<K, K> {
 		int valueIndex;
 		int valueLength;
-		AbstractNode<K> valueNode;
+		AbstractSetNode<K> valueNode;
 
 		K lastValue = null;
 
@@ -233,9 +233,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		int[] indexAndLength = new int[7 * 2];
 
 		@SuppressWarnings("unchecked")
-		AbstractNode<K>[] nodes = new AbstractNode[7];
+		AbstractSetNode<K>[] nodes = new AbstractSetNode[7];
 
-		TrieSetIteratorWithFixedWidthStack(AbstractNode<K> rootNode) {
+		TrieSetIteratorWithFixedWidthStack(AbstractSetNode<K> rootNode) {
 			stackLevel = 0;
 
 			valueNode = rootNode;
@@ -259,7 +259,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				final int nodeLength = indexAndLength[2 * stackLevel + 1];
 
 				if (nodeIndex < nodeLength) {
-					final AbstractNode<K> nextNode = nodes[stackLevel].getNode(nodeIndex);
+					final AbstractSetNode<K> nextNode = nodes[stackLevel].getNode(nodeIndex);
 					indexAndLength[2 * stackLevel] = (nodeIndex + 1);
 
 					final int nextNodeValueArity = nextNode.valueArity();
@@ -333,7 +333,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	static final class TransientTrieSet<K> extends AbstractSet<K> implements TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
-		private AbstractNode<K> rootNode;
+		private AbstractSetNode<K> rootNode;
 		private int hashCode;
 		private int cachedSize;
 
@@ -416,7 +416,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, Void, ? extends AbstractNode<K>> result = rootNode.updated(mutator,
+			final Result<K, Void, ? extends AbstractSetNode<K>> result = rootNode.updated(mutator,
 							key, keyHash, 0, cmp);
 
 			if (result.isModified()) {
@@ -465,7 +465,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, Void, ? extends AbstractNode<K>> result = rootNode.removed(mutator,
+			final Result<K, Void, ? extends AbstractSetNode<K>> result = rootNode.removed(mutator,
 							key, keyHash, 0, cmp);
 
 			if (result.isModified()) {
@@ -588,24 +588,24 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	static final class Result<T1, T2, N extends AbstractNode<T1>> {
+	static final class Result<T1, T2, N extends AbstractSetNode<T1>> {
 		private final N result;
 		private final T2 replacedValue;
 		private final boolean isModified;
 
 		// update: inserted/removed single element, element count changed
-		public static <T1, T2, N extends AbstractNode<T1>> Result<T1, T2, N> modified(N node) {
+		public static <T1, T2, N extends AbstractSetNode<T1>> Result<T1, T2, N> modified(N node) {
 			return new Result<>(node, null, true);
 		}
 
 		// update: replaced single mapping, but element count unchanged
-		public static <T1, T2, N extends AbstractNode<T1>> Result<T1, T2, N> updated(N node,
+		public static <T1, T2, N extends AbstractSetNode<T1>> Result<T1, T2, N> updated(N node,
 						T2 replacedValue) {
 			return new Result<>(node, replacedValue, true);
 		}
 
 		// update: neither element, nor element count changed
-		public static <T1, T2, N extends AbstractNode<T1>> Result<T1, T2, N> unchanged(N node) {
+		public static <T1, T2, N extends AbstractSetNode<T1>> Result<T1, T2, N> unchanged(N node) {
 			return new Result<>(node, null, false);
 		}
 
@@ -677,7 +677,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	private static abstract class AbstractNode<K> {
+	private static abstract class AbstractSetNode<K> {
 
 		protected static final int BIT_PARTITION_SIZE = 5;
 		protected static final int BIT_PARTITION_MASK = 0x1f;
@@ -686,11 +686,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		abstract Optional<K> findByKey(Object key, int hash, int shift, Comparator<Object> cmp);
 
-		abstract Result<K, Void, ? extends AbstractNode<K>> updated(
+		abstract Result<K, Void, ? extends AbstractSetNode<K>> updated(
 						AtomicReference<Thread> mutator, K key, int keyHash, int shift,
 						Comparator<Object> cmp);
 
-		abstract Result<K, Void, ? extends AbstractNode<K>> removed(
+		abstract Result<K, Void, ? extends AbstractSetNode<K>> removed(
 						AtomicReference<Thread> mutator, K key, int hash, int shift,
 						Comparator<Object> cmp);
 
@@ -700,11 +700,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		abstract K getKey(int index);
 
-		abstract AbstractNode<K> getNode(int index);
+		abstract AbstractSetNode<K> getNode(int index);
 
 		abstract boolean hasNodes();
 
-		abstract Iterator<? extends AbstractNode<K>> nodeIterator();
+		abstract Iterator<? extends AbstractSetNode<K>> nodeIterator();
 
 		abstract int nodeArity();
 
@@ -737,17 +737,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	private static abstract class CompactNode<K> extends AbstractNode<K> {
+	private static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
 		static final byte SIZE_MORE_THAN_ONE = 0b10;
 
 		@Override
-		abstract Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator,
+		abstract Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
 						K key, int keyHash, int shift, Comparator<Object> cmp);
 
 		@Override
-		abstract Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator,
+		abstract Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
 						K key, int hash, int shift, Comparator<Object> cmp);
 
 		/**
@@ -779,10 +779,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		static final CompactNode EMPTY_INPLACE_INDEX_NODE = new Value0Index0Node();
+		static final CompactSetNode EMPTY_INPLACE_INDEX_NODE = new Value0Index0Node();
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos,
-						CompactNode<K> node) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos,
+						CompactSetNode<K> node) {
 			switch (pos) {
 			case 0:
 				return new SingletonNodeAtMask0Node<>(node);
@@ -855,14 +855,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@SuppressWarnings("unchecked")
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator) {
 			return EMPTY_INPLACE_INDEX_NODE;
 		}
 
 		// manually added
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, byte npos1, CompactNode<K> node1, byte npos2, CompactNode<K> node2,
-						byte npos3, CompactNode<K> node3, byte npos4, CompactNode<K> node4) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, byte npos1, CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2,
+						byte npos3, CompactSetNode<K> node3, byte npos4, CompactSetNode<K> node4) {
 			final int bitmap = (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3)
 							| (1 << npos4);
 			final int valmap = (1 << pos1);
@@ -872,9 +872,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		// manually added
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, byte pos2, K key2, byte pos3, K key3, byte npos1,
-						CompactNode<K> node1, byte npos2, CompactNode<K> node2) {
+						CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
 							| (1 << npos2);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
@@ -884,9 +884,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		// manually added
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, byte pos2, K key2, byte npos1, CompactNode<K> node1, byte npos2,
-						CompactNode<K> node2, byte npos3, CompactNode<K> node3) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, byte pos2, K key2, byte npos1, CompactSetNode<K> node1, byte npos2,
+						CompactSetNode<K> node2, byte npos3, CompactSetNode<K> node3) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2)
 							| (1 << npos3);
 			final int valmap = (1 << pos1) | (1 << pos2);
@@ -896,9 +896,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		// manually added
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, byte pos2, K key2, byte pos3, K key3, byte pos4, K key4,
-						byte npos1, CompactNode<K> node1) {
+						byte npos1, CompactSetNode<K> node1) {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
 
@@ -907,7 +907,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		// manually added
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, byte pos2, K key2, byte pos3, K key3, byte pos4, K key4, byte pos5,
 						K key5) {
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
@@ -916,85 +916,85 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							key4, key5 }, (byte) 5);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
-						CompactNode<K> node1, byte npos2, CompactNode<K> node2) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+						CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2) {
 			return new Value0Index2Node<>(mutator, npos1, node1, npos2, node2);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
-						CompactNode<K> node1, byte npos2, CompactNode<K> node2, byte npos3,
-						CompactNode<K> node3) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+						CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2, byte npos3,
+						CompactSetNode<K> node3) {
 			return new Value0Index3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
-						CompactNode<K> node1, byte npos2, CompactNode<K> node2, byte npos3,
-						CompactNode<K> node3, byte npos4, CompactNode<K> node4) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte npos1,
+						CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2, byte npos3,
+						CompactSetNode<K> node3, byte npos4, CompactSetNode<K> node4) {
 			return new Value0Index4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
 							node4);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1, K key1) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1, K key1) {
 			return new Value1Index0Node<>(mutator, pos1, key1);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, byte npos1, CompactNode<K> node1) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, byte npos1, CompactSetNode<K> node1) {
 			return new Value1Index1Node<>(mutator, pos1, key1, npos1, node1);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, byte npos1, CompactNode<K> node1, byte npos2, CompactNode<K> node2) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, byte npos1, CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2) {
 			return new Value1Index2Node<>(mutator, pos1, key1, npos1, node1, npos2, node2);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, byte npos1, CompactNode<K> node1, byte npos2, CompactNode<K> node2,
-						byte npos3, CompactNode<K> node3) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, byte npos1, CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2,
+						byte npos3, CompactSetNode<K> node3) {
 			return new Value1Index3Node<>(mutator, pos1, key1, npos1, node1, npos2, node2, npos3,
 							node3);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, byte pos2, K key2) {
 			return new Value2Index0Node<>(mutator, pos1, key1, pos2, key2);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, byte pos2, K key2, byte npos1, CompactNode<K> node1) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, byte pos2, K key2, byte npos1, CompactSetNode<K> node1) {
 			return new Value2Index1Node<>(mutator, pos1, key1, pos2, key2, npos1, node1);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, byte pos2, K key2, byte npos1, CompactNode<K> node1, byte npos2,
-						CompactNode<K> node2) {
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+						K key1, byte pos2, K key2, byte npos1, CompactSetNode<K> node1, byte npos2,
+						CompactSetNode<K> node2) {
 			return new Value2Index2Node<>(mutator, pos1, key1, pos2, key2, npos1, node1, npos2,
 							node2);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, byte pos2, K key2, byte pos3, K key3) {
 			return new Value3Index0Node<>(mutator, pos1, key1, pos2, key2, pos3, key3);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, byte pos2, K key2, byte pos3, K key3, byte npos1,
-						CompactNode<K> node1) {
+						CompactSetNode<K> node1) {
 			return new Value3Index1Node<>(mutator, pos1, key1, pos2, key2, pos3, key3, npos1, node1);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
 						K key1, byte pos2, K key2, byte pos3, K key3, byte pos4, K key4) {
 			return new Value4Index0Node<>(mutator, pos1, key1, pos2, key2, pos3, key3, pos4, key4);
 		}
 
-		static final <K> CompactNode<K> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
+		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
 						int valmap, Object[] nodes, byte valueArity) {
 			return new MixedIndexNode<>(mutator, bitmap, valmap, nodes, valueArity);
 		}
 
 		@SuppressWarnings("unchecked")
-		static final <K> CompactNode<K> mergeNodes(K key0, int keyHash0, K key1, int keyHash1,
+		static final <K> CompactSetNode<K> mergeNodes(K key0, int keyHash0, K key1, int keyHash1,
 						int shift) {
 			assert key0.equals(key1) == false;
 
@@ -1022,14 +1022,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 			} else {
 				// values fit on next level
-				final CompactNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
+				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
 				return valNodeOf(null, (byte) mask0, node);
 			}
 		}
 
-		static final <K> CompactNode<K> mergeNodes(CompactNode<K> node0, int keyHash0, K key1,
+		static final <K> CompactSetNode<K> mergeNodes(CompactSetNode<K> node0, int keyHash0, K key1,
 						int keyHash1, int shift) {
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
@@ -1045,7 +1045,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return valNodeOf(null, (byte) mask1, key1, (byte) mask0, node0);
 			} else {
 				// values fit on next level
-				final CompactNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
+				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
 				return valNodeOf(null, (byte) mask0, node);
@@ -1053,7 +1053,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	private static final class MixedIndexNode<K> extends CompactNode<K> {
+	private static final class MixedIndexNode<K> extends CompactSetNode<K> {
 		private AtomicReference<Thread> mutator;
 
 		private Object[] nodes;
@@ -1077,10 +1077,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 															// SIZE_MORE_THAN_ONE
 
 			// for (int i = 0; i < valueArity; i++)
-			// assert ((nodes[i] instanceof CompactNode) == false);
+			// assert ((nodes[i] instanceof CompactSetNode) == false);
 			//
 			// for (int i = valueArity; i < nodes.length; i++)
-			// assert ((nodes[i] instanceof CompactNode) == true);
+			// assert ((nodes[i] instanceof CompactSetNode) == true);
 
 			// assert invariant
 			assert nodeInvariant();
@@ -1105,7 +1105,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 
 			if ((bitmap & bitpos) != 0) {
-				return ((AbstractNode<K>) nodes[bitIndex(bitpos)]).contains(key, hash, shift
+				return ((AbstractSetNode<K>) nodes[bitIndex(bitpos)]).contains(key, hash, shift
 								+ BIT_PARTITION_SIZE, cmp);
 			}
 
@@ -1130,7 +1130,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 
 			if ((bitmap & bitpos) != 0) { // node (not value)
-				final AbstractNode<K> subNode = ((AbstractNode<K>) nodes[bitIndex(bitpos)]);
+				final AbstractSetNode<K> subNode = ((AbstractSetNode<K>) nodes[bitIndex(bitpos)]);
 
 				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
@@ -1140,7 +1140,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
@@ -1153,7 +1153,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				if (cmp.compare(currentKey, key) == 0) {
 					return Result.unchanged(this);
 				} else {
-					final CompactNode<K> nodeNew = mergeNodes((K) nodes[valIndex],
+					final CompactSetNode<K> nodeNew = mergeNodes((K) nodes[valIndex],
 									nodes[valIndex].hashCode(), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
@@ -1164,7 +1164,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					final Object[] editableNodes = copyAndMoveToBack(this.nodes, valIndex, offset
 									+ index, nodeNew);
 
-					final CompactNode<K> thisNew = CompactNode.<K> valNodeOf(mutator, bitmap
+					final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap
 									| bitpos, valmap & ~bitpos, editableNodes,
 									(byte) (valueArity - 1));
 
@@ -1172,16 +1172,16 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 			} else if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
-				final CompactNode<K> subNode = (CompactNode<K>) nodes[bitIndex];
+				final CompactSetNode<K> subNode = (CompactSetNode<K>) nodes[bitIndex];
 
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = subNode.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = subNode.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew;
+				final CompactSetNode<K> thisNew;
 
 				// modify current node (set replacement node)
 				if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1192,7 +1192,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					final Object[] editableNodes = copyAndSet(this.nodes, bitIndex,
 									subNodeResult.getNode());
 
-					thisNew = CompactNode.<K> valNodeOf(mutator, bitmap, valmap, editableNodes,
+					thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap, valmap, editableNodes,
 									valueArity);
 				}
 
@@ -1205,7 +1205,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// no value
 				final Object[] editableNodes = copyAndInsert(this.nodes, valIndex(bitpos), key);
 
-				final CompactNode<K> thisNew = CompactNode.<K> valNodeOf(mutator, bitmap | bitpos,
+				final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap | bitpos,
 								valmap | bitpos, editableNodes, (byte) (valueArity + 1));
 
 				return Result.modified(thisNew);
@@ -1214,7 +1214,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> comparator) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
@@ -1234,10 +1234,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						final byte npos2 = recoverMask(nmap, (byte) 2);
 						final byte npos3 = recoverMask(nmap, (byte) 3);
 						final byte npos4 = recoverMask(nmap, (byte) 4);
-						final CompactNode<K> node1 = (CompactNode<K>) nodes[valueArity + 0];
-						final CompactNode<K> node2 = (CompactNode<K>) nodes[valueArity + 1];
-						final CompactNode<K> node3 = (CompactNode<K>) nodes[valueArity + 2];
-						final CompactNode<K> node4 = (CompactNode<K>) nodes[valueArity + 3];
+						final CompactSetNode<K> node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+						final CompactSetNode<K> node2 = (CompactSetNode<K>) nodes[valueArity + 1];
+						final CompactSetNode<K> node3 = (CompactSetNode<K>) nodes[valueArity + 2];
+						final CompactSetNode<K> node4 = (CompactSetNode<K>) nodes[valueArity + 3];
 
 						return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
 										npos3, node3, npos4, node4));
@@ -1251,9 +1251,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
 						final byte npos3 = recoverMask(nmap, (byte) 3);
-						final CompactNode<K> node1 = (CompactNode<K>) nodes[valueArity + 0];
-						final CompactNode<K> node2 = (CompactNode<K>) nodes[valueArity + 1];
-						final CompactNode<K> node3 = (CompactNode<K>) nodes[valueArity + 2];
+						final CompactSetNode<K> node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+						final CompactSetNode<K> node2 = (CompactSetNode<K>) nodes[valueArity + 1];
+						final CompactSetNode<K> node3 = (CompactSetNode<K>) nodes[valueArity + 2];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[1];
@@ -1274,8 +1274,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
 						final byte npos2 = recoverMask(nmap, (byte) 2);
-						final CompactNode<K> node1 = (CompactNode<K>) nodes[valueArity + 0];
-						final CompactNode<K> node2 = (CompactNode<K>) nodes[valueArity + 1];
+						final CompactSetNode<K> node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+						final CompactSetNode<K> node2 = (CompactSetNode<K>) nodes[valueArity + 1];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[1];
@@ -1302,7 +1302,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 						final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 						final byte npos1 = recoverMask(nmap, (byte) 1);
-						final CompactNode<K> node1 = (CompactNode<K>) nodes[valueArity + 0];
+						final CompactSetNode<K> node1 = (CompactSetNode<K>) nodes[valueArity + 0];
 
 						if (mask < pos1) {
 							key1 = (K) nodes[1];
@@ -1370,7 +1370,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				} else {
 					final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
 
-					final CompactNode<K> thisNew = CompactNode.<K> valNodeOf(mutator, this.bitmap
+					final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, this.bitmap
 									& ~bitpos, this.valmap & ~bitpos, editableNodes,
 									(byte) (valueArity - 1));
 
@@ -1378,15 +1378,15 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 			} else if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
-				final CompactNode<K> subNode = (CompactNode<K>) nodes[bitIndex];
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = subNode.removed(
+				final CompactSetNode<K> subNode = (CompactSetNode<K>) nodes[bitIndex];
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = subNode.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, comparator);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case 0: {
@@ -1418,12 +1418,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 							final int nmap = ((bitmap & ~bitpos) ^ valmap);
 							final byte npos1 = recoverMask(nmap, (byte) 1);
-							final CompactNode<K> node1;
+							final CompactSetNode<K> node1;
 
 							if (mask < npos1) {
-								node1 = (CompactNode<K>) nodes[valueArity + 1];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 1];
 							} else {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
@@ -1439,18 +1439,18 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							final int nmap = ((bitmap & ~bitpos) ^ valmap);
 							final byte npos1 = recoverMask(nmap, (byte) 1);
 							final byte npos2 = recoverMask(nmap, (byte) 2);
-							final CompactNode<K> node1;
-							final CompactNode<K> node2;
+							final CompactSetNode<K> node1;
+							final CompactSetNode<K> node2;
 
 							if (mask < npos1) {
-								node1 = (CompactNode<K>) nodes[valueArity + 1];
-								node2 = (CompactNode<K>) nodes[valueArity + 2];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 2];
 							} else if (mask < npos2) {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 2];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 2];
 							} else {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 1];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 1];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2,
@@ -1465,26 +1465,26 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							final byte npos1 = recoverMask(nmap, (byte) 1);
 							final byte npos2 = recoverMask(nmap, (byte) 2);
 							final byte npos3 = recoverMask(nmap, (byte) 3);
-							final CompactNode<K> node1;
-							final CompactNode<K> node2;
-							final CompactNode<K> node3;
+							final CompactSetNode<K> node1;
+							final CompactSetNode<K> node2;
+							final CompactSetNode<K> node3;
 
 							if (mask < npos1) {
-								node1 = (CompactNode<K>) nodes[valueArity + 1];
-								node2 = (CompactNode<K>) nodes[valueArity + 2];
-								node3 = (CompactNode<K>) nodes[valueArity + 3];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 2];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 3];
 							} else if (mask < npos2) {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 2];
-								node3 = (CompactNode<K>) nodes[valueArity + 3];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 2];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 3];
 							} else if (mask < npos3) {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 1];
-								node3 = (CompactNode<K>) nodes[valueArity + 3];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 3];
 							} else {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 1];
-								node3 = (CompactNode<K>) nodes[valueArity + 2];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 2];
 							}
 
 							return Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1,
@@ -1496,36 +1496,36 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							final byte npos2 = recoverMask(nmap, (byte) 2);
 							final byte npos3 = recoverMask(nmap, (byte) 3);
 							final byte npos4 = recoverMask(nmap, (byte) 4);
-							final CompactNode<K> node1;
-							final CompactNode<K> node2;
-							final CompactNode<K> node3;
-							final CompactNode<K> node4;
+							final CompactSetNode<K> node1;
+							final CompactSetNode<K> node2;
+							final CompactSetNode<K> node3;
+							final CompactSetNode<K> node4;
 
 							if (mask < npos1) {
-								node1 = (CompactNode<K>) nodes[valueArity + 1];
-								node2 = (CompactNode<K>) nodes[valueArity + 2];
-								node3 = (CompactNode<K>) nodes[valueArity + 3];
-								node4 = (CompactNode<K>) nodes[valueArity + 4];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 2];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 3];
+								node4 = (CompactSetNode<K>) nodes[valueArity + 4];
 							} else if (mask < npos2) {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 2];
-								node3 = (CompactNode<K>) nodes[valueArity + 3];
-								node4 = (CompactNode<K>) nodes[valueArity + 4];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 2];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 3];
+								node4 = (CompactSetNode<K>) nodes[valueArity + 4];
 							} else if (mask < npos3) {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 1];
-								node3 = (CompactNode<K>) nodes[valueArity + 3];
-								node4 = (CompactNode<K>) nodes[valueArity + 4];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 3];
+								node4 = (CompactSetNode<K>) nodes[valueArity + 4];
 							} else if (mask < npos4) {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 1];
-								node3 = (CompactNode<K>) nodes[valueArity + 2];
-								node4 = (CompactNode<K>) nodes[valueArity + 4];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 2];
+								node4 = (CompactSetNode<K>) nodes[valueArity + 4];
 							} else {
-								node1 = (CompactNode<K>) nodes[valueArity + 0];
-								node2 = (CompactNode<K>) nodes[valueArity + 1];
-								node3 = (CompactNode<K>) nodes[valueArity + 2];
-								node4 = (CompactNode<K>) nodes[valueArity + 3];
+								node1 = (CompactSetNode<K>) nodes[valueArity + 0];
+								node2 = (CompactSetNode<K>) nodes[valueArity + 1];
+								node3 = (CompactSetNode<K>) nodes[valueArity + 2];
+								node4 = (CompactSetNode<K>) nodes[valueArity + 3];
 							}
 
 							return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
@@ -1535,7 +1535,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					} else {
 						final Object[] editableNodes = copyAndRemove(this.nodes, bitIndex);
 
-						final CompactNode<K> thisNew = CompactNode.<K> valNodeOf(mutator, bitmap
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap
 										& ~bitpos, valmap, editableNodes, valueArity);
 
 						return Result.modified(thisNew);
@@ -1548,7 +1548,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					final Object[] editableNodes = copyAndMoveToFront(this.nodes, bitIndex,
 									valIndexNew, subNodeNew.headKey());
 
-					final CompactNode<K> thisNew = CompactNode.<K> valNodeOf(mutator, bitmap,
+					final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap,
 									valmap | bitpos, editableNodes, (byte) (valueArity + 1));
 
 					return Result.modified(thisNew);
@@ -1562,7 +1562,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					} else {
 						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
 
-						final CompactNode<K> thisNew = CompactNode.<K> valNodeOf(mutator, bitmap,
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap,
 										valmap, editableNodes, valueArity);
 
 						return Result.modified(thisNew);
@@ -1606,9 +1606,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public AbstractNode<K> getNode(int index) {
+		public AbstractSetNode<K> getNode(int index) {
 			final int offset = valueArity;
-			return (AbstractNode<K>) nodes[offset + index];
+			return (AbstractSetNode<K>) nodes[offset + index];
 		}
 
 		@Override
@@ -1618,11 +1618,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K>> nodeIterator() {
+		Iterator<AbstractSetNode<K>> nodeIterator() {
 			final int offset = valueArity;
 
 			for (int i = offset; i < nodes.length - offset; i++) {
-				assert ((nodes[i] instanceof AbstractNode) == true);
+				assert ((nodes[i] instanceof AbstractSetNode) == true);
 			}
 
 			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
@@ -1701,7 +1701,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	// TODO: replace by immutable cons list
-	private static final class HashCollisionNode<K> extends CompactNode<K> {
+	private static final class HashCollisionNode<K> extends CompactSetNode<K> {
 		private final K[] keys;
 		private final int hash;
 
@@ -1723,7 +1723,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
+		Iterator<CompactSetNode<K>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -1750,7 +1750,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		 * always returns a new immutable {@link TrieSet} instance.
 		 */
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				return Result.modified(mergeNodes(this, this.hash, key, keyHash, shift));
@@ -1771,12 +1771,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
 				if (cmp.compare(keys[i], key) == 0) {
 					if (this.arity() == 1) {
-						return Result.modified(CompactNode.<K> valNodeOf(mutator));
+						return Result.modified(CompactSetNode.<K> valNodeOf(mutator));
 					} else if (this.arity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
@@ -1784,7 +1784,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						 * unwrapped and inlined.
 						 */
 						final K theOtherKey = (i == 0) ? keys[1] : keys[0];
-						return CompactNode.<K> valNodeOf(mutator).updated(mutator, theOtherKey,
+						return CompactSetNode.<K> valNodeOf(mutator).updated(mutator, theOtherKey,
 										keyHash, 0, cmp);
 					} else {
 						return Result.modified(new HashCollisionNode<>(keyHash,
@@ -1831,7 +1831,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			throw new IllegalStateException("Is leaf node.");
 		}
 
@@ -1924,54 +1924,54 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return super.equals(other);
 	}
 
-	private abstract static class AbstractSingletonNode<K> extends CompactNode<K> {
+	private abstract static class AbstractSingletonNode<K> extends CompactSetNode<K> {
 
 		protected abstract byte npos1();
 
-		protected final CompactNode<K> node1;
+		protected final CompactSetNode<K> node1;
 
-		AbstractSingletonNode(CompactNode<K> node1) {
+		AbstractSingletonNode(CompactSetNode<K> node1) {
 			this.node1 = node1;
 			assert nodeInvariant();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1()) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode());
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode());
 
 				return Result.modified(thisNew);
 			}
 
 			// no value
-			final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, npos1(), node1);
+			final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, npos1(), node1);
 			return Result.modified(thisNew);
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1()) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_EMPTY:
@@ -1981,7 +1981,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				case SIZE_MORE_THAN_ONE:
 					// modify current node (set replacement node)
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew);
 					return Result.modified(thisNew);
 
 				default:
@@ -2020,7 +2020,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public AbstractNode<K> getNode(int index) {
+		public AbstractSetNode<K> getNode(int index) {
 			if (index == 0) {
 				return node1;
 			} else {
@@ -2030,8 +2030,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractNode<K>> nodeIterator() {
-			return ArrayIterator.<AbstractNode<K>> of(new AbstractNode[] { node1 });
+		Iterator<AbstractSetNode<K>> nodeIterator() {
+			return ArrayIterator.<AbstractSetNode<K>> of(new AbstractSetNode[] { node1 });
 		}
 
 		@Override
@@ -2111,7 +2111,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 0;
 		}
 
-		SingletonNodeAtMask0Node(CompactNode<K> node1) {
+		SingletonNodeAtMask0Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2124,7 +2124,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 1;
 		}
 
-		SingletonNodeAtMask1Node(CompactNode<K> node1) {
+		SingletonNodeAtMask1Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2137,7 +2137,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 2;
 		}
 
-		SingletonNodeAtMask2Node(CompactNode<K> node1) {
+		SingletonNodeAtMask2Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2150,7 +2150,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 3;
 		}
 
-		SingletonNodeAtMask3Node(CompactNode<K> node1) {
+		SingletonNodeAtMask3Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2163,7 +2163,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 4;
 		}
 
-		SingletonNodeAtMask4Node(CompactNode<K> node1) {
+		SingletonNodeAtMask4Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2176,7 +2176,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 5;
 		}
 
-		SingletonNodeAtMask5Node(CompactNode<K> node1) {
+		SingletonNodeAtMask5Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2189,7 +2189,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 6;
 		}
 
-		SingletonNodeAtMask6Node(CompactNode<K> node1) {
+		SingletonNodeAtMask6Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2202,7 +2202,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 7;
 		}
 
-		SingletonNodeAtMask7Node(CompactNode<K> node1) {
+		SingletonNodeAtMask7Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2215,7 +2215,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 8;
 		}
 
-		SingletonNodeAtMask8Node(CompactNode<K> node1) {
+		SingletonNodeAtMask8Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2228,7 +2228,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 9;
 		}
 
-		SingletonNodeAtMask9Node(CompactNode<K> node1) {
+		SingletonNodeAtMask9Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2241,7 +2241,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 10;
 		}
 
-		SingletonNodeAtMask10Node(CompactNode<K> node1) {
+		SingletonNodeAtMask10Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2254,7 +2254,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 11;
 		}
 
-		SingletonNodeAtMask11Node(CompactNode<K> node1) {
+		SingletonNodeAtMask11Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2267,7 +2267,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 12;
 		}
 
-		SingletonNodeAtMask12Node(CompactNode<K> node1) {
+		SingletonNodeAtMask12Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2280,7 +2280,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 13;
 		}
 
-		SingletonNodeAtMask13Node(CompactNode<K> node1) {
+		SingletonNodeAtMask13Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2293,7 +2293,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 14;
 		}
 
-		SingletonNodeAtMask14Node(CompactNode<K> node1) {
+		SingletonNodeAtMask14Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2306,7 +2306,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 15;
 		}
 
-		SingletonNodeAtMask15Node(CompactNode<K> node1) {
+		SingletonNodeAtMask15Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2319,7 +2319,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 16;
 		}
 
-		SingletonNodeAtMask16Node(CompactNode<K> node1) {
+		SingletonNodeAtMask16Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2332,7 +2332,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 17;
 		}
 
-		SingletonNodeAtMask17Node(CompactNode<K> node1) {
+		SingletonNodeAtMask17Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2345,7 +2345,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 18;
 		}
 
-		SingletonNodeAtMask18Node(CompactNode<K> node1) {
+		SingletonNodeAtMask18Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2358,7 +2358,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 19;
 		}
 
-		SingletonNodeAtMask19Node(CompactNode<K> node1) {
+		SingletonNodeAtMask19Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2371,7 +2371,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 20;
 		}
 
-		SingletonNodeAtMask20Node(CompactNode<K> node1) {
+		SingletonNodeAtMask20Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2384,7 +2384,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 21;
 		}
 
-		SingletonNodeAtMask21Node(CompactNode<K> node1) {
+		SingletonNodeAtMask21Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2397,7 +2397,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 22;
 		}
 
-		SingletonNodeAtMask22Node(CompactNode<K> node1) {
+		SingletonNodeAtMask22Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2410,7 +2410,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 23;
 		}
 
-		SingletonNodeAtMask23Node(CompactNode<K> node1) {
+		SingletonNodeAtMask23Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2423,7 +2423,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 24;
 		}
 
-		SingletonNodeAtMask24Node(CompactNode<K> node1) {
+		SingletonNodeAtMask24Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2436,7 +2436,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 25;
 		}
 
-		SingletonNodeAtMask25Node(CompactNode<K> node1) {
+		SingletonNodeAtMask25Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2449,7 +2449,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 26;
 		}
 
-		SingletonNodeAtMask26Node(CompactNode<K> node1) {
+		SingletonNodeAtMask26Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2462,7 +2462,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 27;
 		}
 
-		SingletonNodeAtMask27Node(CompactNode<K> node1) {
+		SingletonNodeAtMask27Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2475,7 +2475,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 28;
 		}
 
-		SingletonNodeAtMask28Node(CompactNode<K> node1) {
+		SingletonNodeAtMask28Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2488,7 +2488,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 29;
 		}
 
-		SingletonNodeAtMask29Node(CompactNode<K> node1) {
+		SingletonNodeAtMask29Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2501,7 +2501,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 30;
 		}
 
-		SingletonNodeAtMask30Node(CompactNode<K> node1) {
+		SingletonNodeAtMask30Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
@@ -2514,31 +2514,31 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return 31;
 		}
 
-		SingletonNodeAtMask31Node(CompactNode<K> node1) {
+		SingletonNodeAtMask31Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class Value0Index0Node<K> extends CompactNode<K> {
+	private static final class Value0Index0Node<K> extends CompactSetNode<K> {
 
 		Value0Index0Node() {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			// no value
 
-			final CompactNode<K> thisNew = valNodeOf(mutator, mask, key);
+			final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 
 			return Result.unchanged(this);
@@ -2557,7 +2557,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
+		Iterator<CompactSetNode<K>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -2592,7 +2592,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -2633,14 +2633,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value0Index2Node<K> extends CompactNode<K> {
+	private static final class Value0Index2Node<K> extends CompactSetNode<K> {
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 		private final byte npos2;
-		private final CompactNode<K> node2;
+		private final CompactSetNode<K> node2;
 
-		Value0Index2Node(AtomicReference<Thread> mutator, byte npos1, CompactNode<K> node1,
-						byte npos2, CompactNode<K> node2) {
+		Value0Index2Node(AtomicReference<Thread> mutator, byte npos1, CompactSetNode<K> node1,
+						byte npos2, CompactSetNode<K> node2) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -2649,19 +2649,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
 								npos2, node2);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -2670,14 +2670,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
 								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -2689,31 +2689,31 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			// no value
 
-			final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, npos1, node1, npos2, node2);
+			final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, npos1, node1, npos2, node2);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos2, node2);
 					return Result.modified(thisNew);
 
@@ -2721,7 +2721,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2);
 
 					return Result.modified(thisNew);
@@ -2731,20 +2731,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos1, node1);
 					return Result.modified(thisNew);
 
@@ -2752,7 +2752,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew);
 
 					return Result.modified(thisNew);
@@ -2794,8 +2794,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1, node2 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2 });
 		}
 
 		@Override
@@ -2829,7 +2829,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -2897,16 +2897,16 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value0Index3Node<K> extends CompactNode<K> {
+	private static final class Value0Index3Node<K> extends CompactSetNode<K> {
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 		private final byte npos2;
-		private final CompactNode<K> node2;
+		private final CompactSetNode<K> node2;
 		private final byte npos3;
-		private final CompactNode<K> node3;
+		private final CompactSetNode<K> node3;
 
-		Value0Index3Node(AtomicReference<Thread> mutator, byte npos1, CompactNode<K> node1,
-						byte npos2, CompactNode<K> node2, byte npos3, CompactNode<K> node3) {
+		Value0Index3Node(AtomicReference<Thread> mutator, byte npos1, CompactSetNode<K> node1,
+						byte npos2, CompactSetNode<K> node2, byte npos3, CompactSetNode<K> node3) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -2917,19 +2917,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
 								npos2, node2, npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -2938,14 +2938,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
 								subNodeResult.getNode(), npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -2954,14 +2954,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node3.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node3.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2, mask,
 								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -2973,32 +2973,32 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			// no value
 
-			final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, npos1, node1, npos2,
+			final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, npos1, node1, npos2,
 							node2, npos3, node3);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 
@@ -3006,7 +3006,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -3016,20 +3016,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos1, node1, npos3, node3);
 					return Result.modified(thisNew);
 
@@ -3037,7 +3037,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -3047,20 +3047,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos3) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node3.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node3.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos1, node1, npos2, node2);
 					return Result.modified(thisNew);
 
@@ -3068,7 +3068,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 									mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -3114,8 +3114,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1, node2, node3 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -3149,7 +3149,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -3227,19 +3227,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value0Index4Node<K> extends CompactNode<K> {
+	private static final class Value0Index4Node<K> extends CompactSetNode<K> {
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 		private final byte npos2;
-		private final CompactNode<K> node2;
+		private final CompactSetNode<K> node2;
 		private final byte npos3;
-		private final CompactNode<K> node3;
+		private final CompactSetNode<K> node3;
 		private final byte npos4;
-		private final CompactNode<K> node4;
+		private final CompactSetNode<K> node4;
 
-		Value0Index4Node(AtomicReference<Thread> mutator, byte npos1, CompactNode<K> node1,
-						byte npos2, CompactNode<K> node2, byte npos3, CompactNode<K> node3,
-						byte npos4, CompactNode<K> node4) {
+		Value0Index4Node(AtomicReference<Thread> mutator, byte npos1, CompactSetNode<K> node1,
+						byte npos2, CompactSetNode<K> node2, byte npos3, CompactSetNode<K> node3,
+						byte npos4, CompactSetNode<K> node4) {
 			this.npos1 = npos1;
 			this.node1 = node1;
 			this.npos2 = npos2;
@@ -3252,19 +3252,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode(),
 								npos2, node2, npos3, node3, npos4, node4);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3273,14 +3273,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
 								subNodeResult.getNode(), npos3, node3, npos4, node4);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3289,14 +3289,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node3.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node3.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2, mask,
 								subNodeResult.getNode(), npos4, node4);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3305,14 +3305,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos4) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node4.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node4.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 								npos3, node3, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3324,32 +3324,32 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			// no value
 
-			final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, npos1, node1, npos2,
+			final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, npos1, node1, npos2,
 							node2, npos3, node3, npos4, node4);
 			return Result.modified(thisNew);
 
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos2, node2, npos3, node3, npos4, node4);
 					return Result.modified(thisNew);
 
@@ -3357,7 +3357,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew, npos2,
 									node2, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
@@ -3367,20 +3367,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos1, node1, npos3, node3, npos4, node4);
 					return Result.modified(thisNew);
 
@@ -3388,7 +3388,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask,
 									subNodeNew, npos3, node3, npos4, node4);
 
 					return Result.modified(thisNew);
@@ -3398,20 +3398,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos3) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node3.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node3.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos1, node1, npos2, node2, npos4, node4);
 					return Result.modified(thisNew);
 
@@ -3419,7 +3419,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 									mask, subNodeNew, npos4, node4);
 
 					return Result.modified(thisNew);
@@ -3429,20 +3429,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos4) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node4.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node4.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, subNodeNew.headKey(),
 									npos1, node1, npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 
@@ -3450,7 +3450,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 									npos3, node3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -3500,9 +3500,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
+		Iterator<CompactSetNode<K>> nodeIterator() {
 			return ArrayIterator
-							.<CompactNode<K>> of(new CompactNode[] { node1, node2, node3, node4 });
+							.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2, node3, node4 });
 		}
 
 		@Override
@@ -3536,7 +3536,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -3624,7 +3624,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value1Index0Node<K> extends CompactNode<K> {
+	private static final class Value1Index0Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 
@@ -3635,7 +3635,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -3645,10 +3645,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, node);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -3656,19 +3656,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -3678,7 +3678,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// remove pair
-				return Result.modified(CompactNode.<K> valNodeOf(mutator));
+				return Result.modified(CompactSetNode.<K> valNodeOf(mutator));
 			}
 
 			return Result.unchanged(this);
@@ -3707,7 +3707,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
+		Iterator<CompactSetNode<K>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -3748,7 +3748,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -3800,14 +3800,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value1Index1Node<K> extends CompactNode<K> {
+	private static final class Value1Index1Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 
 		Value1Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, byte npos1,
-						CompactNode<K> node1) {
+						CompactSetNode<K> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.npos1 = npos1;
@@ -3816,7 +3816,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -3826,28 +3826,28 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, node, npos1, node1);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask, node);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -3860,13 +3860,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, npos1,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, npos1,
 								node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, npos1,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, npos1,
 								node1);
 				return Result.modified(thisNew);
 			}
@@ -3874,7 +3874,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -3886,27 +3886,27 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey());
 						return Result.modified(thisNew);
 					}
@@ -3915,7 +3915,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, subNodeNew);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -3956,8 +3956,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1 });
 		}
 
 		@Override
@@ -3997,7 +3997,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -4063,16 +4063,16 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value1Index2Node<K> extends CompactNode<K> {
+	private static final class Value1Index2Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 		private final byte npos2;
-		private final CompactNode<K> node2;
+		private final CompactSetNode<K> node2;
 
 		Value1Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1, byte npos1,
-						CompactNode<K> node1, byte npos2, CompactNode<K> node2) {
+						CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.npos1 = npos1;
@@ -4083,7 +4083,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -4093,36 +4093,36 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
 									npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
 									npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 									mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 								subNodeResult.getNode(), npos2, node2);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4131,14 +4131,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1, mask,
 								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4151,13 +4151,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, npos1,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, npos1,
 								node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, npos1,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, npos1,
 								node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
@@ -4165,7 +4165,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -4177,27 +4177,27 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2));
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), npos2, node2);
 						return Result.modified(thisNew);
 					}
@@ -4206,7 +4206,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, subNodeNew,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, subNodeNew,
 									npos2, node2);
 
 					return Result.modified(thisNew);
@@ -4216,27 +4216,27 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), npos1, node1);
 						return Result.modified(thisNew);
 					}
@@ -4245,7 +4245,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
 									mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -4291,8 +4291,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1, node2 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2 });
 		}
 
 		@Override
@@ -4332,7 +4332,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -4408,19 +4408,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value1Index3Node<K> extends CompactNode<K> {
+	private static final class Value1Index3Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 		private final byte npos2;
-		private final CompactNode<K> node2;
+		private final CompactSetNode<K> node2;
 		private final byte npos3;
-		private final CompactNode<K> node3;
+		private final CompactSetNode<K> node3;
 
 		Value1Index3Node(AtomicReference<Thread> mutator, byte pos1, K key1, byte npos1,
-						CompactNode<K> node1, byte npos2, CompactNode<K> node2, byte npos3,
-						CompactNode<K> node3) {
+						CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2, byte npos3,
+						CompactSetNode<K> node3) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.npos1 = npos1;
@@ -4433,7 +4433,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -4443,42 +4443,42 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, node, npos1, node1,
 									npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, mask, node,
 									npos2, node2, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos3) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 									mask, node, npos3, node3);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
 									npos3, node3, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 								subNodeResult.getNode(), npos2, node2, npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4487,14 +4487,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1, mask,
 								subNodeResult.getNode(), npos3, node3);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4503,14 +4503,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos3) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node3.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node3.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1, npos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1, npos2,
 								node2, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -4523,13 +4523,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, npos1,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, npos1,
 								node1, npos2, node2, npos3, node3);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, npos1,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, npos1,
 								node1, npos2, node2, npos3, node3);
 				return Result.modified(thisNew);
 			}
@@ -4537,7 +4537,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -4549,28 +4549,28 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3, node3));
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, npos2, node2, npos3,
 										node3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), npos2, node2, npos3, node3);
 						return Result.modified(thisNew);
 					}
@@ -4579,7 +4579,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, subNodeNew,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, subNodeNew,
 									npos2, node2, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -4589,28 +4589,28 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, npos1, node1, npos3,
 										node3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), npos1, node1, npos3, node3);
 						return Result.modified(thisNew);
 					}
@@ -4619,7 +4619,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
 									mask, subNodeNew, npos3, node3);
 
 					return Result.modified(thisNew);
@@ -4629,28 +4629,28 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos3) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node3.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node3.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, npos1, node1, npos2,
 										node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), npos1, node1, npos2, node2);
 						return Result.modified(thisNew);
 					}
@@ -4659,7 +4659,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
 									npos2, node2, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -4709,8 +4709,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1, node2, node3 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -4750,7 +4750,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -4836,7 +4836,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value2Index0Node<K> extends CompactNode<K> {
+	private static final class Value2Index0Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte pos2;
@@ -4851,7 +4851,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -4861,10 +4861,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, mask, node);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, mask, node);
 				return Result.modified(thisNew);
 
 			} else if (mask == pos2) {
@@ -4873,10 +4873,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, node);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, node);
 				return Result.modified(thisNew);
 
 			}
@@ -4884,24 +4884,24 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2, key2);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2, key2);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2, key2);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2, key2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask, key);
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask, key);
 				return Result.modified(thisNew);
 			}
 
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -4961,7 +4961,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
+		Iterator<CompactSetNode<K>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -5004,7 +5004,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -5064,16 +5064,16 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value2Index1Node<K> extends CompactNode<K> {
+	private static final class Value2Index1Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte pos2;
 		private final K key2;
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 
 		Value2Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, byte pos2, K key2,
-						byte npos1, CompactNode<K> node1) {
+						byte npos1, CompactSetNode<K> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.pos2 = pos2;
@@ -5084,7 +5084,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -5094,17 +5094,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, mask, node,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, mask, node,
 									npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, npos1, node1,
 									mask, node);
 					return Result.modified(thisNew);
 				}
@@ -5115,30 +5115,30 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, node,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, node,
 									npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
 									mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -5151,19 +5151,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
 								key2, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
 								key2, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								key, npos1, node1);
 				return Result.modified(thisNew);
 			}
@@ -5171,7 +5171,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -5190,33 +5190,33 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, pos2, key2);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), pos2, key2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
 										mask, subNodeNew.headKey());
 						return Result.modified(thisNew);
 					}
@@ -5225,7 +5225,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 									subNodeNew);
 
 					return Result.modified(thisNew);
@@ -5271,8 +5271,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1 });
 		}
 
 		@Override
@@ -5314,7 +5314,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -5388,18 +5388,18 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value2Index2Node<K> extends CompactNode<K> {
+	private static final class Value2Index2Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte pos2;
 		private final K key2;
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 		private final byte npos2;
-		private final CompactNode<K> node2;
+		private final CompactSetNode<K> node2;
 
 		Value2Index2Node(AtomicReference<Thread> mutator, byte pos1, K key1, byte pos2, K key2,
-						byte npos1, CompactNode<K> node1, byte npos2, CompactNode<K> node2) {
+						byte npos1, CompactSetNode<K> node1, byte npos2, CompactSetNode<K> node2) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.pos2 = pos2;
@@ -5412,7 +5412,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -5422,23 +5422,23 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, mask, node,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, mask, node,
 									npos1, node1, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, npos1, node1,
 									mask, node, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, npos1, node1,
 									npos2, node2, mask, node);
 					return Result.modified(thisNew);
 				}
@@ -5449,36 +5449,36 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, node,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, node,
 									npos1, node1, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else if (mask < npos2) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
 									mask, node, npos2, node2);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, npos1, node1,
 									npos2, node2, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								subNodeResult.getNode(), npos2, node2);
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -5487,14 +5487,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				return Result.modified(thisNew);
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, npos1,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, npos1,
 								node1, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -5507,19 +5507,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
 								key2, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
 								key2, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								key, npos1, node1, npos2, node2);
 				return Result.modified(thisNew);
 			}
@@ -5527,7 +5527,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -5546,33 +5546,33 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1, npos2, node2));
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, pos2, key2, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), pos2, key2, npos2, node2);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
 										mask, subNodeNew.headKey(), npos2, node2);
 						return Result.modified(thisNew);
 					}
@@ -5581,7 +5581,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 									subNodeNew, npos2, node2);
 
 					return Result.modified(thisNew);
@@ -5591,33 +5591,33 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 				}
 			} else if (mask == npos2) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node2.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node2.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, pos2, key2, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), pos2, key2, npos1, node1);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
 										mask, subNodeNew.headKey(), npos1, node1);
 						return Result.modified(thisNew);
 					}
@@ -5626,7 +5626,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
 									npos1, node1, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -5676,8 +5676,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1, node2 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2 });
 		}
 
 		@Override
@@ -5719,7 +5719,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -5803,7 +5803,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value3Index0Node<K> extends CompactNode<K> {
+	private static final class Value3Index0Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte pos2;
@@ -5823,7 +5823,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -5833,10 +5833,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3, mask,
 								node);
 				return Result.modified(thisNew);
 
@@ -5846,10 +5846,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3, mask,
 								node);
 				return Result.modified(thisNew);
 
@@ -5859,10 +5859,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key3, key3.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key3, key3.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								node);
 				return Result.modified(thisNew);
 
@@ -5871,25 +5871,25 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
 								key2, pos3, key3);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
 								key2, pos3, key3);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								key, pos3, key3);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
 								key3, mask, key);
 				return Result.modified(thisNew);
 			}
@@ -5897,7 +5897,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -5958,7 +5958,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
+		Iterator<CompactSetNode<K>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -6003,7 +6003,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -6071,7 +6071,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value3Index1Node<K> extends CompactNode<K> {
+	private static final class Value3Index1Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte pos2;
@@ -6079,10 +6079,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		private final byte pos3;
 		private final K key3;
 		private final byte npos1;
-		private final CompactNode<K> node1;
+		private final CompactSetNode<K> node1;
 
 		Value3Index1Node(AtomicReference<Thread> mutator, byte pos1, K key1, byte pos2, K key2,
-						byte pos3, K key3, byte npos1, CompactNode<K> node1) {
+						byte pos3, K key3, byte npos1, CompactSetNode<K> node1) {
 			this.pos1 = pos1;
 			this.key1 = key1;
 			this.pos2 = pos2;
@@ -6095,7 +6095,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -6105,17 +6105,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3, mask,
 									node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3,
 									npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
@@ -6126,17 +6126,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3, mask,
 									node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3,
 									npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
@@ -6147,30 +6147,30 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key3, key3.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key3, key3.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
 				if (mask < npos1) {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 									node, npos1, node1);
 					return Result.modified(thisNew);
 				}
 
 				else {
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
 									npos1, node1, mask, node);
 					return Result.modified(thisNew);
 				}
 
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.updated(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.updated(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
 								key3, mask, subNodeResult.getNode());
 
 				if (subNodeResult.hasReplacedValue()) {
@@ -6183,25 +6183,25 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
 								key2, pos3, key3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
 								key2, pos3, key3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								key, pos3, key3, npos1, node1);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
 								key3, mask, key, npos1, node1);
 				return Result.modified(thisNew);
 			}
@@ -6209,7 +6209,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -6235,39 +6235,39 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				// remove pair
 				return Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, npos1, node1));
 			} else if (mask == npos1) {
-				final Result<K, Void, ? extends CompactNode<K>> subNodeResult = node1.removed(
+				final Result<K, Void, ? extends CompactSetNode<K>> subNodeResult = node1.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
 				if (!subNodeResult.isModified()) {
 					return Result.unchanged(this);
 				}
 
-				final CompactNode<K> subNodeNew = subNodeResult.getNode();
+				final CompactSetNode<K> subNodeNew = subNodeResult.getNode();
 
 				switch (subNodeNew.sizePredicate()) {
 				case SIZE_ONE: {
 					// inline value
 
 					if (mask < pos1) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
 										subNodeNew.headKey(), pos1, key1, pos2, key2, pos3, key3);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos2) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask,
 										subNodeNew.headKey(), pos2, key2, pos3, key3);
 						return Result.modified(thisNew);
 					}
 
 					else if (mask < pos3) {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
 										mask, subNodeNew.headKey(), pos3, key3);
 						return Result.modified(thisNew);
 					}
 
 					else {
-						final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+						final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
 										pos3, key3, mask, subNodeNew.headKey());
 						return Result.modified(thisNew);
 					}
@@ -6276,7 +6276,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				case SIZE_MORE_THAN_ONE: {
 					// modify current node (set replacement node)
 
-					final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
 									key3, mask, subNodeNew);
 
 					return Result.modified(thisNew);
@@ -6326,8 +6326,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactNode<K>> of(new CompactNode[] { node1 });
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1 });
 		}
 
 		@Override
@@ -6371,7 +6371,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -6453,7 +6453,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class Value4Index0Node<K> extends CompactNode<K> {
+	private static final class Value4Index0Node<K> extends CompactSetNode<K> {
 		private final byte pos1;
 		private final K key1;
 		private final byte pos2;
@@ -6477,7 +6477,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> updated(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -6487,10 +6487,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key1, key1.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3, pos4,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos2, key2, pos3, key3, pos4,
 								key4, mask, node);
 				return Result.modified(thisNew);
 
@@ -6500,10 +6500,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key2, key2.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3, pos4,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos3, key3, pos4,
 								key4, mask, node);
 				return Result.modified(thisNew);
 
@@ -6513,10 +6513,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key3, key3.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key3, key3.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos4,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos4,
 								key4, mask, node);
 				return Result.modified(thisNew);
 
@@ -6526,10 +6526,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				}
 
 				// merge into node
-				final CompactNode<K> node = mergeNodes(key4, key4.hashCode(), key, keyHash, shift
+				final CompactSetNode<K> node = mergeNodes(key4, key4.hashCode(), key, keyHash, shift
 								+ BIT_PARTITION_SIZE);
 
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
 								key3, mask, node);
 				return Result.modified(thisNew);
 
@@ -6538,31 +6538,31 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			// no value
 
 			if (mask < pos1) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, pos1, key1, pos2,
 								key2, pos3, key3, pos4, key4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos2) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, mask, key, pos2,
 								key2, pos3, key3, pos4, key4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos3) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
 								key, pos3, key3, pos4, key4);
 				return Result.modified(thisNew);
 			}
 
 			else if (mask < pos4) {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
 								key3, mask, key, pos4, key4);
 				return Result.modified(thisNew);
 			}
 
 			else {
-				final CompactNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+				final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
 								key3, pos4, key4, mask, key);
 				return Result.modified(thisNew);
 			}
@@ -6570,7 +6570,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactNode<K>> removed(AtomicReference<Thread> mutator, K key,
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
@@ -6642,7 +6642,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Iterator<CompactNode<K>> nodeIterator() {
+		Iterator<CompactSetNode<K>> nodeIterator() {
 			return Collections.emptyIterator();
 		}
 
@@ -6690,7 +6690,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public CompactNode<K> getNode(int index) {
+		public CompactSetNode<K> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
