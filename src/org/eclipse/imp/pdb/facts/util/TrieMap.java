@@ -830,7 +830,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static abstract class AbstractNode<K, V> {
+	protected static abstract class AbstractNode<K, V> {
 
 		protected static final int BIT_PARTITION_SIZE = 5;
 		protected static final int BIT_PARTITION_MASK = 0x1f;
@@ -1200,20 +1200,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final Object[] nodes = new Object[4];
+//				final Object[] nodes = new Object[4];
 
 				if (mask0 < mask1) {
-					nodes[0] = key0;
-					nodes[1] = val0;
-					nodes[2] = key1;
-					nodes[3] = val1;
+//					nodes[0] = key0;
+//					nodes[1] = val0;
+//					nodes[2] = key1;
+//					nodes[3] = val1;
 
 					return valNodeOf(null, (byte) mask0, key0, val0, (byte) mask1, key1, val1);
 				} else {
-					nodes[0] = key1;
-					nodes[1] = val1;
-					nodes[2] = key0;
-					nodes[3] = val0;
+//					nodes[0] = key1;
+//					nodes[1] = val1;
+//					nodes[2] = key0;
+//					nodes[3] = val0;
 
 					return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, key0, val0);
 				}
@@ -2573,11 +2573,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return super.equals(other);
 	}
 
+	/*
+	 * For analysis purposes only.
+	 */
+	protected AbstractNode<K, V> getRootNode() {
+		return rootNode;
+	}
+	
+	/*
+	 * For analysis purposes only.
+	 */
+	protected Iterator<AbstractNode<K, V>> nodeIterator() {
+		return new TrieMapNodeIterator<>(rootNode);
+	}
+		
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	@SuppressWarnings("unused")
 	private static class TrieMapNodeIterator<K, V> implements Iterator<AbstractNode<K, V>> {
 
 		final Deque<Iterator<? extends AbstractNode<K, V>>> nodeIteratorStack;
@@ -3846,7 +3859,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
@@ -4363,7 +4375,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
@@ -4993,7 +5004,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
@@ -5299,7 +5309,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -5690,7 +5699,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6207,7 +6215,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6845,7 +6852,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -7225,7 +7231,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -7725,7 +7730,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8351,7 +8355,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8820,7 +8823,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -9423,7 +9425,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -9978,7 +9979,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-
 			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -10058,4 +10058,5 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 	}
+
 }
