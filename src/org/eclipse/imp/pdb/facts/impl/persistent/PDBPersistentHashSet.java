@@ -310,7 +310,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			}
 			return def;
 		} else {
-			return super.intersect(other);
+			return super.subtract(other);
 		}
 	}
 

@@ -1358,19 +1358,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				final int valIndex = valIndex(bitpos);
 
 				if (nodes[valIndex].equals(key)) {
-					return Result.unchanged(this);
-				}
+					if (this.arity() == 5) {
+						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask,
+										bitpos));
+					} else {
+						final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
 
-				if (this.arity() == 5) {
-					return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										this.bitmap & ~bitpos, this.valmap & ~bitpos,
+										editableNodes, (byte) (payloadArity - 1));
+
+						return Result.modified(thisNew);
+					}
 				} else {
-					final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
-
-					final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-									this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
-									(byte) (payloadArity - 1));
-
-					return Result.modified(thisNew);
+					return Result.unchanged(this);
 				}
 			} else if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
@@ -1425,12 +1426,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						return Result.modified(thisNew);
 					}
 				}
-				}		
+				}
 			}
 
 			return Result.unchanged(this);
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
@@ -1442,19 +1443,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				final int valIndex = valIndex(bitpos);
 
 				if (cmp.compare(nodes[valIndex], key) == 0) {
-					return Result.unchanged(this);
-				}
+					if (this.arity() == 5) {
+						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask,
+										bitpos));
+					} else {
+						final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
 
-				if (this.arity() == 5) {
-					return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										this.bitmap & ~bitpos, this.valmap & ~bitpos,
+										editableNodes, (byte) (payloadArity - 1));
+
+						return Result.modified(thisNew);
+					}
 				} else {
-					final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
-
-					final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-									this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
-									(byte) (payloadArity - 1));
-
-					return Result.modified(thisNew);
+					return Result.unchanged(this);
 				}
 			} else if ((bitmap & bitpos) != 0) { // node (not value)
 				final int bitIndex = bitIndex(bitpos);
@@ -1509,7 +1511,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						return Result.modified(thisNew);
 					}
 				}
-				}		
+				}
 			}
 
 			return Result.unchanged(this);
@@ -3105,7 +3107,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3129,7 +3132,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3166,7 +3170,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3190,7 +3195,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3213,6 +3219,16 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		private CompactSetNode<K> inlineValue(AtomicReference<Thread> mutator, byte mask, K key) {
 			return valNodeOf(mutator, mask, key, npos1, node1, npos2, node2);
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos2, node2);
+		}
+
+		private CompactSetNode<K> removeNode2AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos1, node1);
 		}
 
 		@Override
@@ -3512,7 +3528,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3537,7 +3554,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3562,7 +3580,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3600,7 +3619,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3625,7 +3645,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3650,7 +3671,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -3674,6 +3696,21 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		private CompactSetNode<K> inlineValue(AtomicReference<Thread> mutator, byte mask, K key) {
 			return valNodeOf(mutator, mask, key, npos1, node1, npos2, node2, npos3, node3);
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos2, node2, npos3, node3);
+		}
+
+		private CompactSetNode<K> removeNode2AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos1, node1, npos3, node3);
+		}
+
+		private CompactSetNode<K> removeNode3AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos1, node1, npos2, node2);
 		}
 
 		@Override
@@ -4022,7 +4059,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4047,7 +4085,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4072,7 +4111,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4097,7 +4137,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode4AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4135,7 +4176,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4160,7 +4202,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4185,7 +4228,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4210,7 +4254,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode4AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4234,6 +4279,26 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		private CompactSetNode<K> inlineValue(AtomicReference<Thread> mutator, byte mask, K key) {
 			return valNodeOf(mutator, mask, key, npos1, node1, npos2, node2, npos3, node3, npos4, node4);
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos2, node2, npos3, node3, npos4, node4);
+		}
+
+		private CompactSetNode<K> removeNode2AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos1, node1, npos3, node3, npos4, node4);
+		}
+
+		private CompactSetNode<K> removeNode3AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos1, node1, npos2, node2, npos4, node4);
+		}
+
+		private CompactSetNode<K> removeNode4AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			return valNodeOf(mutator, mask, key, npos1, node1, npos2, node2, npos3, node3);
 		}
 
 		@Override
@@ -4807,7 +4872,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4851,7 +4917,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -4877,6 +4944,15 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return valNodeOf(mutator, mask, key, pos1, key1, npos1, node1);
 			} else {
 				return valNodeOf(mutator, pos1, key1, mask, key, npos1, node1);
+			}
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1);
+			} else {
+				return valNodeOf(mutator, pos1, key1, mask, key);
 			}
 		}
 
@@ -5204,7 +5280,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5229,7 +5306,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5274,7 +5352,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5299,7 +5378,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5326,6 +5406,24 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return valNodeOf(mutator, mask, key, pos1, key1, npos1, node1, npos2, node2);
 			} else {
 				return valNodeOf(mutator, pos1, key1, mask, key, npos1, node1, npos2, node2);
+			}
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, npos2, node2);
+			} else {
+				return valNodeOf(mutator, pos1, key1, mask, key, npos2, node2);
+			}
+		}
+
+		private CompactSetNode<K> removeNode2AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, npos1, node1);
+			} else {
+				return valNodeOf(mutator, pos1, key1, mask, key, npos1, node1);
 			}
 		}
 
@@ -5707,7 +5805,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5732,7 +5831,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5757,7 +5857,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5803,7 +5904,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5828,7 +5930,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5853,7 +5956,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -5882,6 +5986,33 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			} else {
 				return valNodeOf(mutator, pos1, key1, mask, key, npos1, node1, npos2, node2, npos3,
 								node3);
+			}
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, npos2, node2, npos3, node3);
+			} else {
+				return valNodeOf(mutator, pos1, key1, mask, key, npos2, node2, npos3, node3);
+			}
+		}
+
+		private CompactSetNode<K> removeNode2AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, npos1, node1, npos3, node3);
+			} else {
+				return valNodeOf(mutator, pos1, key1, mask, key, npos1, node1, npos3, node3);
+			}
+		}
+
+		private CompactSetNode<K> removeNode3AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, npos1, node1, npos2, node2);
+			} else {
+				return valNodeOf(mutator, pos1, key1, mask, key, npos1, node1, npos2, node2);
 			}
 		}
 
@@ -6184,15 +6315,25 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if (mask == pos1) {
 				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2));
+					/*
+					 * Create node with element key2. This node will a) either
+					 * become the new root returned, or b) unwrapped and inlined.
+					 */
+					final byte pos2AtShiftZero = (shift == 0) ? pos2
+									: (byte) (keyHash & BIT_PARTITION_MASK);
+					result = Result.modified(valNodeOf(mutator, pos2AtShiftZero, key2));
 				} else {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == pos2) {
 				if (key.equals(key2)) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1));
+					/*
+					 * Create node with element key1. This node will a) either
+					 * become the new root returned, or b) unwrapped and inlined.
+					 */
+					final byte pos1AtShiftZero = (shift == 0) ? pos1
+									: (byte) (keyHash & BIT_PARTITION_MASK);
+					result = Result.modified(valNodeOf(mutator, pos1AtShiftZero, key1));
 				} else {
 					result = Result.unchanged(this);
 				}
@@ -6211,15 +6352,25 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if (mask == pos1) {
 				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2));
+					/*
+					 * Create node with element key2. This node will a) either
+					 * become the new root returned, or b) unwrapped and inlined.
+					 */
+					final byte pos2AtShiftZero = (shift == 0) ? pos2
+									: (byte) (keyHash & BIT_PARTITION_MASK);
+					result = Result.modified(valNodeOf(mutator, pos2AtShiftZero, key2));
 				} else {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == pos2) {
 				if (cmp.compare(key, key2) == 0) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1));
+					/*
+					 * Create node with element key1. This node will a) either
+					 * become the new root returned, or b) unwrapped and inlined.
+					 */
+					final byte pos1AtShiftZero = (shift == 0) ? pos1
+									: (byte) (keyHash & BIT_PARTITION_MASK);
+					result = Result.modified(valNodeOf(mutator, pos1AtShiftZero, key1));
 				} else {
 					result = Result.unchanged(this);
 				}
@@ -6571,7 +6722,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -6623,7 +6775,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -6652,6 +6805,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return valNodeOf(mutator, pos1, key1, mask, key, pos2, key2, npos1, node1);
 			} else {
 				return valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, npos1, node1);
+			}
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, pos2, key2);
+			} else if (mask < pos2) {
+				return valNodeOf(mutator, pos1, key1, mask, key, pos2, key2);
+			} else {
+				return valNodeOf(mutator, pos1, key1, pos2, key2, mask, key);
 			}
 		}
 
@@ -7050,7 +7214,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -7075,7 +7240,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -7127,7 +7293,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -7152,7 +7319,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -7181,6 +7349,28 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return valNodeOf(mutator, pos1, key1, mask, key, pos2, key2, npos1, node1, npos2, node2);
 			} else {
 				return valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, npos1, node1, npos2, node2);
+			}
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, pos2, key2, npos2, node2);
+			} else if (mask < pos2) {
+				return valNodeOf(mutator, pos1, key1, mask, key, pos2, key2, npos2, node2);
+			} else {
+				return valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, npos2, node2);
+			}
+		}
+
+		private CompactSetNode<K> removeNode2AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, pos2, key2, npos1, node1);
+			} else if (mask < pos2) {
+				return valNodeOf(mutator, pos1, key1, mask, key, pos2, key2, npos1, node1);
+			} else {
+				return valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, npos1, node1);
 			}
 		}
 
@@ -7979,7 +8169,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -8038,7 +8229,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					switch (updatedNode.sizePredicate()) {
 					case SIZE_ONE:
 						// inline sub-node value
-						result = Result.modified(inlineValue(mutator, mask, updatedNode.headKey()));
+						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
+										updatedNode.headKey()));
 						break;
 
 					case SIZE_MORE_THAN_ONE:
@@ -8069,6 +8261,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, pos3, key3, npos1, node1);
 			} else {
 				return valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3, mask, key, npos1, node1);
+			}
+		}
+
+		private CompactSetNode<K> removeNode1AndInlineValue(AtomicReference<Thread> mutator, byte mask,
+						K key) {
+			if (mask < pos1) {
+				return valNodeOf(mutator, mask, key, pos1, key1, pos2, key2, pos3, key3);
+			} else if (mask < pos2) {
+				return valNodeOf(mutator, pos1, key1, mask, key, pos2, key2, pos3, key3);
+			} else if (mask < pos3) {
+				return valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, pos3, key3);
+			} else {
+				return valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3, mask, key);
 			}
 		}
 
