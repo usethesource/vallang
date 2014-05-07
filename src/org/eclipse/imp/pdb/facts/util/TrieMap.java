@@ -741,24 +741,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	static final class Result<T1, T2, N extends AbstractMapNode<T1, T2>> {
+	static final class Result<T1, T2, N extends AbstractNode<T1, T2>> {
 		private final N result;
 		private final T2 replacedValue;
 		private final boolean isModified;
 
 		// update: inserted/removed single element, element count changed
-		public static <T1, T2, N extends AbstractMapNode<T1, T2>> Result<T1, T2, N> modified(N node) {
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> modified(N node) {
 			return new Result<>(node, null, true);
 		}
 
 		// update: replaced single mapping, but element count unchanged
-		public static <T1, T2, N extends AbstractMapNode<T1, T2>> Result<T1, T2, N> updated(N node,
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> updated(N node,
 						T2 replacedValue) {
 			return new Result<>(node, replacedValue, true);
 		}
 
 		// update: neither element, nor element count changed
-		public static <T1, T2, N extends AbstractMapNode<T1, T2>> Result<T1, T2, N> unchanged(N node) {
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> unchanged(N node) {
 			return new Result<>(node, null, false);
 		}
 
@@ -830,19 +830,22 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	protected static abstract class AbstractMapNode<K, V> {
+	protected static abstract class AbstractNode<K, V> {
+		
+	}
+	
+	protected static abstract class AbstractMapNode<K, V> extends AbstractNode<K, V> {
 
 		protected static final int BIT_PARTITION_SIZE = 5;
 		protected static final int BIT_PARTITION_MASK = 0x1f;
 
 		abstract boolean containsKey(Object key, int keyHash, int shift);
 		
-		abstract boolean containsKey(Object key, int keyHash, int shift,
-						Comparator<Object> comparator);
+		abstract boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp);
 
-		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift);
+		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift);
 		
-		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift,
+		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
 						Comparator<Object> cmp);
 
 		abstract Result<K, V, ? extends AbstractMapNode<K, V>> updated(
@@ -853,10 +856,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						Comparator<Object> cmp);
 
 		abstract Result<K, V, ? extends AbstractMapNode<K, V>> removed(
-						AtomicReference<Thread> mutator, K key, int hash, int shift);
+						AtomicReference<Thread> mutator, K key, int keyHash, int shift);
 		
 		abstract Result<K, V, ? extends AbstractMapNode<K, V>> removed(
-						AtomicReference<Thread> mutator, K key, int hash, int shift,
+						AtomicReference<Thread> mutator, K key, int keyHash, int shift,
 						Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
