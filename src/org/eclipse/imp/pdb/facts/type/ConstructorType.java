@@ -344,7 +344,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 
 	@Override
 	public boolean hasKeywordParameter(String label) {
-	  return fKeywordParameters.hasField(label);
+	  return fKeywordParameters != null && fKeywordParameters.hasField(label);
 	}
 	
 	@Override
@@ -355,7 +355,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	
 	@Override
 	public Type getKeywordParameterTypes() {
-	  return fKeywordParameters;
+	  return fKeywordParameters != null ? fKeywordParameters : TypeFactory.getInstance().voidType();
 	}
 	
 	@Override
