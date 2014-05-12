@@ -619,7 +619,7 @@ public class StandardTextReader extends AbstractTextReader {
 	private IValue readString(Type expected) throws IOException {
 		StringBuilder builder = new StringBuilder();
 		current = stream.read();
-		
+
 		while (current != END_OF_STRING) {
 			if (current == '\\') {
 				current = stream.read();
@@ -652,35 +652,36 @@ public class StandardTextReader extends AbstractTextReader {
 					builder.append('\\');
 					break;
 				case 'a':
-          StringBuilder a = new StringBuilder();
-          a.append((char)stream.read());
-          a.append((char)stream.read());
-          builder.append((char) Integer.parseInt(a.toString(), 16));
-          break;
-        case 'u':
-          StringBuilder u = new StringBuilder();
-          u.append((char) stream.read());
-          u.append((char)stream.read());
-          u.append((char)stream.read());
-          u.append((char)stream.read());
-          builder.append((char) Integer.parseInt(u.toString(), 16));
-          break;
-        case 'U':
-          StringBuilder U = new StringBuilder();
-          U.append((char)stream.read());
-          U.append((char)stream.read());
-          U.append((char)stream.read());
-          U.append((char)stream.read());
-          U.append((char)stream.read());
-          U.append((char)stream.read());
-          int cp = Integer.parseInt(U.toString(), 16);
-          
-          if (!Character.isValidCodePoint(cp)) {
-            throw new FactParseError(U + " is not a valid 24 bit Unicode character", stream.getOffset());
-          }
-          builder.appendCodePoint(cp);
-        default:
-          builder.append(current);
+					StringBuilder a = new StringBuilder();
+					a.append((char)stream.read());
+					a.append((char)stream.read());
+					builder.append((char) Integer.parseInt(a.toString(), 16));
+					break;
+				case 'u':
+					StringBuilder u = new StringBuilder();
+					u.append((char) stream.read());
+					u.append((char)stream.read());
+					u.append((char)stream.read());
+					u.append((char)stream.read());
+					builder.append((char) Integer.parseInt(u.toString(), 16));
+					break;
+				case 'U':
+					StringBuilder U = new StringBuilder();
+					U.append((char)stream.read());
+					U.append((char)stream.read());
+					U.append((char)stream.read());
+					U.append((char)stream.read());
+					U.append((char)stream.read());
+					U.append((char)stream.read());
+					int cp = Integer.parseInt(U.toString(), 16);
+
+					if (!Character.isValidCodePoint(cp)) {
+						throw new FactParseError(U + " is not a valid 24 bit Unicode character", stream.getOffset());
+					}
+					builder.appendCodePoint(cp);
+					break;
+				default:
+					builder.append(current);
 				}
 				current = stream.read();
 			}
@@ -689,21 +690,21 @@ public class StandardTextReader extends AbstractTextReader {
 				current = stream.read();
 			}
 		}
-		
+
 		String str = builder.toString();
 		current = stream.read();
-		
-		
+
+
 		if (current == START_OF_ARGUMENTS) {
 			ArrayList<IValue> arr = new ArrayList<>();
 			Map<String,IValue> kwParams = new HashMap<>();
 			readFixed(expected, END_OF_ARGUMENTS, arr, kwParams);
 			IValue[] result = new IValue[arr.size()];
 			result = arr.toArray(result);
-			
+
 			return factory.node(str, result, kwParams);
 		}
-		
+
 		return factory.string(str);
 	}
 
