@@ -1055,7 +1055,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos4);
 			final int valmap = (1 << pos1);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, node1,
+			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, node1,
 							node2, node3, node4 }, (byte) 1);
 		}
 
@@ -1067,7 +1067,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos2);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
+			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
 							val2, key3, val3, node1, node2 }, (byte) 3);
 		}
 
@@ -1080,7 +1080,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos3);
 			final int valmap = (1 << pos1) | (1 << pos2);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
+			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
 							val2, node1, node2, node3 }, (byte) 2);
 		}
 
@@ -1091,7 +1091,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
+			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
 							val2, key3, val3, key4, val4, node1 }, (byte) 4);
 		}
 
@@ -1101,7 +1101,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
 
-			return new MixedIndexNode<>(mutator, valmap, valmap, new Object[] { key1, val1, key2,
+			return new BitmapIndexedMapNode<>(mutator, valmap, valmap, new Object[] { key1, val1, key2,
 							val2, key3, val3, key4, val4, key5, val5 }, (byte) 5);
 		}
 
@@ -1186,7 +1186,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
 						int bitmap, int valmap, Object[] nodes, byte payloadArity) {
-			return new MixedIndexNode<>(mutator, bitmap, valmap, nodes, payloadArity);
+			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, nodes, payloadArity);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1255,7 +1255,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static final class MixedIndexNode<K, V> extends CompactMapNode<K, V> {
+	private static final class BitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
 		private AtomicReference<Thread> mutator;
 
 		private Object[] nodes;
@@ -1263,7 +1263,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		final private int valmap;
 		final private byte payloadArity;
 
-		MixedIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
+		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
 						byte payloadArity) {
 			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
@@ -2218,7 +2218,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			MixedIndexNode<?, ?> that = (MixedIndexNode<?, ?>) other;
+			BitmapIndexedMapNode<?, ?> that = (BitmapIndexedMapNode<?, ?>) other;
 			if (bitmap != that.bitmap) {
 				return false;
 			}
