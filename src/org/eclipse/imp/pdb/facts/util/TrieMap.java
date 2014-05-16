@@ -20,6 +20,7 @@ import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemove;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemovePair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndSet;
 
+import java.text.DecimalFormat;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
@@ -2588,6 +2589,101 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	 */
 	protected Iterator<AbstractMapNode<K, V>> nodeIterator() {
 		return new TrieMapNodeIterator<>(rootNode);
+	}
+	
+	/*
+	 * For analysis purposes only.
+	 */
+	protected int getNodeCount() {
+		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();
+		int sumNodes = 0;
+				
+		for (; it.hasNext(); it.next()) {
+			sumNodes += 1;
+		}
+		
+		return sumNodes;
+	}
+	
+	/*
+	 * For analysis purposes only.
+	 *
+	 * Payload X Node
+	 */
+	protected int[][] arityCombinationsHistogram() {
+		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();		
+		final int[][] sumArityCombinations = new int[33][33];
+		
+		while (it.hasNext()) {
+			final AbstractMapNode<K, V> node = it.next();
+			sumArityCombinations[node.payloadArity()][node.nodeArity()] += 1;
+		}
+		
+		return sumArityCombinations;		
+	}
+	
+	/*
+	 * For analysis purposes only.
+	 */
+	protected int[] arityHistogram() {
+		final int[][] sumArityCombinations = arityCombinationsHistogram();
+		final int[] sumArity = new int[33];
+		
+		final int maxArity = 32; // TODO: factor out constant
+		
+		for (int j = 0; j <= maxArity; j++) {
+			for (int maxRestArity = maxArity - j, k = 0; k <= maxRestArity - j; k++) {
+				sumArity[j + k] += sumArityCombinations[j][k];
+			}
+		}
+		
+		return sumArity;
+	}
+
+	/*
+	 * For analysis purposes only.
+	 */
+	protected void printStatistics() {
+		final int[][] sumArityCombinations = arityCombinationsHistogram();
+		final int[] sumArity = arityHistogram();
+		final int sumNodes = getNodeCount();
+
+		final int[] cumsumArity = new int[33];
+		for (int cumsum = 0, i = 0; i < 33; i++) {
+			cumsum += sumArity[i];
+			cumsumArity[i] = cumsum;
+		}
+
+		final float threshhold = 0.01f; // for printing results
+		for (int i = 0; i < 33; i++) {
+			float arityPercentage = (float) (sumArity[i]) / sumNodes;
+			float cumsumArityPercentage = (float) (cumsumArity[i]) / sumNodes;
+
+			if (arityPercentage != 0 && arityPercentage >= threshhold) {
+				// details per level
+				StringBuilder bldr = new StringBuilder();
+				int max = i;
+				for (int j = 0; j <= max; j++) {
+					for (int k = max - j; k <= max - j; k++) {
+						float arityCombinationsPercentage = (float) (sumArityCombinations[j][k])
+										/ sumNodes;
+
+						if (arityCombinationsPercentage != 0
+										&& arityCombinationsPercentage >= threshhold) {
+							bldr.append(String.format("%d/%d: %s, ", j, k, new DecimalFormat(
+											"0.00%").format(arityCombinationsPercentage)));
+						}
+					}
+				}
+				final String detailPercentages = bldr.toString();
+
+				// overview
+				System.out.println(String.format("%2d: %s\t[cumsum = %s]\t%s", i,
+								new DecimalFormat("0.00%").format(arityPercentage),
+								new DecimalFormat("0.00%").format(cumsumArityPercentage),
+								detailPercentages));
+			}
+		}
 	}
 		
 	/**
