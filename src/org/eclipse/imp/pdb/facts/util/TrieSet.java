@@ -890,7 +890,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							| (1 << npos4);
 			final int valmap = (1 << pos1);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, node1, node2,
+			return new BitmapIndexedSetNode<>(mutator, bitmap, valmap, new Object[] { key1, node1, node2,
 							node3, node4 }, (byte) 1);
 		}
 
@@ -902,7 +902,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							| (1 << npos2);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, key2, key3,
+			return new BitmapIndexedSetNode<>(mutator, bitmap, valmap, new Object[] { key1, key2, key3,
 							node1, node2 }, (byte) 3);
 		}
 
@@ -914,7 +914,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							| (1 << npos3);
 			final int valmap = (1 << pos1) | (1 << pos2);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, key2, node1,
+			return new BitmapIndexedSetNode<>(mutator, bitmap, valmap, new Object[] { key1, key2, node1,
 							node2, node3 }, (byte) 2);
 		}
 
@@ -925,7 +925,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
 
-			return new MixedIndexNode<>(mutator, bitmap, valmap, new Object[] { key1, key2, key3,
+			return new BitmapIndexedSetNode<>(mutator, bitmap, valmap, new Object[] { key1, key2, key3,
 							key4, node1 }, (byte) 4);
 		}
 
@@ -935,7 +935,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						K key5) {
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
 
-			return new MixedIndexNode<>(mutator, valmap, valmap, new Object[] { key1, key2, key3,
+			return new BitmapIndexedSetNode<>(mutator, valmap, valmap, new Object[] { key1, key2, key3,
 							key4, key5 }, (byte) 5);
 		}
 
@@ -1013,7 +1013,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
 						int valmap, Object[] nodes, byte valueArity) {
-			return new MixedIndexNode<>(mutator, bitmap, valmap, nodes, valueArity);
+			return new BitmapIndexedSetNode<>(mutator, bitmap, valmap, nodes, valueArity);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1076,7 +1076,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	private static final class MixedIndexNode<K> extends CompactSetNode<K> {
+	private static final class BitmapIndexedSetNode<K> extends CompactSetNode<K> {
 		private AtomicReference<Thread> mutator;
 
 		private Object[] nodes;
@@ -1084,7 +1084,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		final private int valmap;
 		final private byte payloadArity;
 
-		MixedIndexNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
+		BitmapIndexedSetNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
 						byte payloadArity) {
 			assert (Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
@@ -1905,7 +1905,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			MixedIndexNode<?> that = (MixedIndexNode<?>) other;
+			BitmapIndexedSetNode<?> that = (BitmapIndexedSetNode<?>) other;
 			if (bitmap != that.bitmap) {
 				return false;
 			}
