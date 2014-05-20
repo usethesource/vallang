@@ -100,11 +100,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return result;
 	}	
 	
-	@SuppressWarnings("unchecked")
-	protected static final <K> Comparator<K> equalityComparator() {
-		return EqualityUtils.getDefaultEqualityComparator();
-	}
-
 	private boolean invariant() {
 		int _hash = 0;
 		int _count = 0;
@@ -121,8 +116,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMap<K, V> __put(K k, V v) {
-		return __putEquivalent(k, v, equalityComparator());
+	public TrieMap<K, V> __put(K key, V val) {
+		final int keyHash = key.hashCode();
+		final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.updated(null, key,
+						keyHash, val, 0);
+
+		if (result.isModified()) {
+			if (result.hasReplacedValue()) {
+				final int valHashOld = result.getReplacedValue().hashCode();
+				final int valHashNew = val.hashCode();
+
+				return new TrieMap<K, V>(result.getNode(), hashCode
+								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
+			}
+
+			final int valHash = val.hashCode();
+			return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHash),
+							cachedSize + 1);
+		}
+
+		return this;
 	}
 
 	@Override
@@ -150,8 +163,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		return __putAllEquivalent(map, equalityComparator());
-	}
+		TransientMap<K, V> tmp = asTransient();
+		tmp.__putAll(map);
+		return tmp.freeze();	}
 
 	@Override
 	public ImmutableMap<K, V> __putAllEquivalent(Map<? extends K, ? extends V> map,
@@ -162,9 +176,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMap<K, V> __remove(K k) {
-		return __removeEquivalent(k, equalityComparator());
-	}
+	public TrieMap<K, V> __remove(K key) {
+		final int keyHash = key.hashCode();
+		final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.removed(null, key,
+						keyHash, 0);
+
+		if (result.isModified()) {
+			// TODO: carry deleted value in result
+			// assert result.hasReplacedValue();
+			// final int valHash = result.getReplacedValue().hashCode();
+
+			final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue()
+							.hashCode();
+
+			return new TrieMap<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
+							cachedSize - 1);
+		}
+
+		return this;	}
 
 	@Override
 	public TrieMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
@@ -189,7 +218,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public boolean containsKey(Object o) {
-		return rootNode.containsKey(o, o.hashCode(), 0, equalityComparator());
+		return rootNode.containsKey(o, o.hashCode(), 0);
 	}
 
 	@Override
@@ -199,7 +228,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public boolean containsValue(Object o) {
-		return containsValueEquivalent(o, equalityComparator());
+		for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+			if (iterator.next().equals(o)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -214,7 +248,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public V get(Object key) {
-		return getEquivalent(key, equalityComparator());
+		final Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(), 0);
+
+		if (result.isPresent()) {
+			return result.get().getValue();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -495,7 +535,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public boolean containsKey(Object o) {
-			return rootNode.containsKey(o, o.hashCode(), 0, equalityComparator());
+			return rootNode.containsKey(o, o.hashCode(), 0);
 		}
 
 		@Override
@@ -505,7 +545,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public V get(Object key) {
-			return getEquivalent(key, equalityComparator());
+			final Optional<Map.Entry<K, V>> result = rootNode
+							.findByKey(key, key.hashCode(), 0);
+
+			if (result.isPresent()) {
+				return result.get().getValue();
+			} else {
+				return null;
+			}
 		}
 
 		@Override
@@ -521,8 +568,43 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public V __put(K k, V v) {
-			return __putEquivalent(k, v, equalityComparator());
+		public V __put(K key, V val) {
+			if (mutator.get() == null) {
+				throw new IllegalStateException("Transient already frozen.");
+			}
+
+			final int keyHash = key.hashCode();
+			final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.updated(mutator,
+							key, keyHash, val, 0);
+
+			if (result.isModified()) {
+				rootNode = result.getNode();
+
+				if (result.hasReplacedValue()) {
+					final V old = result.getReplacedValue();
+
+					final int valHashOld = old.hashCode();
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+					hashCode -= keyHash ^ valHashOld;
+					// cachedSize remains same
+
+					assert invariant();
+					return old;
+				} else {
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+					cachedSize += 1;
+
+					assert invariant();
+					return null;
+				}
+			}
+
+			assert invariant();
+			return null;
 		}
 
 		@Override
@@ -566,8 +648,33 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public boolean __remove(K k) {
-			return __removeEquivalent(k, equalityComparator());
+		public boolean __remove(K key) {
+			if (mutator.get() == null) {
+				throw new IllegalStateException("Transient already frozen.");
+			}
+
+			final int keyHash = key.hashCode();
+			final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.removed(mutator,
+							key, keyHash, 0);
+
+			if (result.isModified()) {
+				// TODO: carry deleted value in result
+				// assert result.hasReplacedValue();
+				// final int valHash = result.getReplacedValue().hashCode();
+
+				final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue()
+								.hashCode();
+
+				rootNode = result.getNode();
+				hashCode -= keyHash ^ valHash;
+				cachedSize -= 1;
+
+				assert invariant();
+				return true;
+			}
+
+			assert invariant();
+			return false;
 		}
 
 		@Override
@@ -602,7 +709,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public boolean __putAll(Map<? extends K, ? extends V> map) {
-			return __putAllEquivalent(map, equalityComparator());
+			boolean modified = false;
+
+			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+				final boolean isPresent = containsKey(entry.getKey());
+				final V replaced = __put(entry.getKey(), entry.getValue());
+
+				if (!isPresent || replaced != null) {
+					modified = true;
+				}
+			}
+
+			return modified;
 		}
 
 		@Override
@@ -972,69 +1090,69 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (pos) {
 			case 0:
-				return new SingletonNodeAtMask0Node<>(node);
+				return new SingletonMapNodeAtMask0Node<>(node);
 			case 1:
-				return new SingletonNodeAtMask1Node<>(node);
+				return new SingletonMapNodeAtMask1Node<>(node);
 			case 2:
-				return new SingletonNodeAtMask2Node<>(node);
+				return new SingletonMapNodeAtMask2Node<>(node);
 			case 3:
-				return new SingletonNodeAtMask3Node<>(node);
+				return new SingletonMapNodeAtMask3Node<>(node);
 			case 4:
-				return new SingletonNodeAtMask4Node<>(node);
+				return new SingletonMapNodeAtMask4Node<>(node);
 			case 5:
-				return new SingletonNodeAtMask5Node<>(node);
+				return new SingletonMapNodeAtMask5Node<>(node);
 			case 6:
-				return new SingletonNodeAtMask6Node<>(node);
+				return new SingletonMapNodeAtMask6Node<>(node);
 			case 7:
-				return new SingletonNodeAtMask7Node<>(node);
+				return new SingletonMapNodeAtMask7Node<>(node);
 			case 8:
-				return new SingletonNodeAtMask8Node<>(node);
+				return new SingletonMapNodeAtMask8Node<>(node);
 			case 9:
-				return new SingletonNodeAtMask9Node<>(node);
+				return new SingletonMapNodeAtMask9Node<>(node);
 			case 10:
-				return new SingletonNodeAtMask10Node<>(node);
+				return new SingletonMapNodeAtMask10Node<>(node);
 			case 11:
-				return new SingletonNodeAtMask11Node<>(node);
+				return new SingletonMapNodeAtMask11Node<>(node);
 			case 12:
-				return new SingletonNodeAtMask12Node<>(node);
+				return new SingletonMapNodeAtMask12Node<>(node);
 			case 13:
-				return new SingletonNodeAtMask13Node<>(node);
+				return new SingletonMapNodeAtMask13Node<>(node);
 			case 14:
-				return new SingletonNodeAtMask14Node<>(node);
+				return new SingletonMapNodeAtMask14Node<>(node);
 			case 15:
-				return new SingletonNodeAtMask15Node<>(node);
+				return new SingletonMapNodeAtMask15Node<>(node);
 			case 16:
-				return new SingletonNodeAtMask16Node<>(node);
+				return new SingletonMapNodeAtMask16Node<>(node);
 			case 17:
-				return new SingletonNodeAtMask17Node<>(node);
+				return new SingletonMapNodeAtMask17Node<>(node);
 			case 18:
-				return new SingletonNodeAtMask18Node<>(node);
+				return new SingletonMapNodeAtMask18Node<>(node);
 			case 19:
-				return new SingletonNodeAtMask19Node<>(node);
+				return new SingletonMapNodeAtMask19Node<>(node);
 			case 20:
-				return new SingletonNodeAtMask20Node<>(node);
+				return new SingletonMapNodeAtMask20Node<>(node);
 			case 21:
-				return new SingletonNodeAtMask21Node<>(node);
+				return new SingletonMapNodeAtMask21Node<>(node);
 			case 22:
-				return new SingletonNodeAtMask22Node<>(node);
+				return new SingletonMapNodeAtMask22Node<>(node);
 			case 23:
-				return new SingletonNodeAtMask23Node<>(node);
+				return new SingletonMapNodeAtMask23Node<>(node);
 			case 24:
-				return new SingletonNodeAtMask24Node<>(node);
+				return new SingletonMapNodeAtMask24Node<>(node);
 			case 25:
-				return new SingletonNodeAtMask25Node<>(node);
+				return new SingletonMapNodeAtMask25Node<>(node);
 			case 26:
-				return new SingletonNodeAtMask26Node<>(node);
+				return new SingletonMapNodeAtMask26Node<>(node);
 			case 27:
-				return new SingletonNodeAtMask27Node<>(node);
+				return new SingletonMapNodeAtMask27Node<>(node);
 			case 28:
-				return new SingletonNodeAtMask28Node<>(node);
+				return new SingletonMapNodeAtMask28Node<>(node);
 			case 29:
-				return new SingletonNodeAtMask29Node<>(node);
+				return new SingletonMapNodeAtMask29Node<>(node);
 			case 30:
-				return new SingletonNodeAtMask30Node<>(node);
+				return new SingletonMapNodeAtMask30Node<>(node);
 			case 31:
-				return new SingletonNodeAtMask31Node<>(node);
+				return new SingletonMapNodeAtMask31Node<>(node);
 
 			default:
 				throw new IllegalStateException("Position out of range.");
@@ -1195,7 +1313,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert key0.equals(key1) == false;
 
 			if (keyHash0 == keyHash1) {
-				return new HashCollisionNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
+				return new HashCollisionMapNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
 								(V[]) new Object[] { val0, val1 });
 			}
 
@@ -2271,12 +2389,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	// TODO: replace by immutable cons list
-	private static final class HashCollisionNode<K, V> extends CompactMapNode<K, V> {
+	private static final class HashCollisionMapNode<K, V> extends CompactMapNode<K, V> {
 		private final K[] keys;
 		private final V[] vals;
 		private final int hash;
 
-		HashCollisionNode(int hash, K[] keys, V[] vals) {
+		HashCollisionMapNode(int hash, K[] keys, V[] vals) {
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -2368,7 +2486,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						@SuppressWarnings("unchecked")
 						final V[] editableVals = (V[]) copyAndSet(this.vals, i, val);
 
-						thisNew = new HashCollisionNode<>(this.hash, this.keys, editableVals);
+						thisNew = new HashCollisionMapNode<>(this.hash, this.keys, editableVals);
 //					}
 
 					return Result.updated(thisNew, currentVal);						
@@ -2380,7 +2498,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
 			@SuppressWarnings("unchecked")
 			final V[] valsNew = (V[]) copyAndInsert(vals, vals.length, val);
-			return Result.modified(new HashCollisionNode<>(keyHash, keysNew, valsNew));
+			return Result.modified(new HashCollisionMapNode<>(keyHash, keysNew, valsNew));
 		}
 
 		/**
@@ -2406,7 +2524,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						return CompactMapNode.<K, V> valNodeOf(mutator).updated(mutator, theOtherKey,
 										keyHash, theOtherVal, 0, cmp);
 					} else {
-						return Result.modified(new HashCollisionNode<>(keyHash,
+						return Result.modified(new HashCollisionMapNode<>(keyHash,
 										(K[]) copyAndRemove(keys, i), (V[]) copyAndRemove(vals, i)));
 					}
 				}
@@ -2480,7 +2598,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return false;
 			}
 
-			HashCollisionNode<?, ?> that = (HashCollisionNode<?, ?>) other;
+			HashCollisionMapNode<?, ?> that = (HashCollisionMapNode<?, ?>) other;
 
 			if (hash != that.hash) {
 				return false;
@@ -2527,26 +2645,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, V val, int shift) {
-			return updated(mutator, key, keyHash, val, shift, EqualityUtils.getDefaultEqualityComparator());
+			return updated(mutator, key, keyHash, val, shift);
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+			return removed(mutator, key, keyHash, shift);
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift) {
-			return containsKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+			return containsKey(key, keyHash, shift);
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			return findByKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+			return findByKey(key, keyHash, shift);
 		}
 	}
 
@@ -2736,13 +2854,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private abstract static class AbstractSingletonNode<K, V> extends CompactMapNode<K, V> {
+	private abstract static class AbstractSingletonMapNode<K, V> extends CompactMapNode<K, V> {
 
 		protected abstract byte npos1();
 
 		protected final CompactMapNode<K, V> node1;
 
-		AbstractSingletonNode(CompactMapNode<K, V> node1) {
+		AbstractSingletonMapNode(CompactMapNode<K, V> node1) {
 			this.node1 = node1;
 		}
 		
@@ -3008,7 +3126,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			AbstractSingletonNode<?, ?> that = (AbstractSingletonNode<?, ?>) other;
+			AbstractSingletonMapNode<?, ?> that = (AbstractSingletonMapNode<?, ?>) other;
 
 			if (!node1.equals(that.node1)) {
 				return false;
@@ -3033,417 +3151,417 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	}
 
-	private static final class SingletonNodeAtMask0Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask0Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 0;
 		}
 
-		SingletonNodeAtMask0Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask0Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask1Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask1Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 1;
 		}
 
-		SingletonNodeAtMask1Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask1Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask2Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask2Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 2;
 		}
 
-		SingletonNodeAtMask2Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask2Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask3Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask3Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 3;
 		}
 
-		SingletonNodeAtMask3Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask3Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask4Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask4Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 4;
 		}
 
-		SingletonNodeAtMask4Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask4Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask5Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask5Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 5;
 		}
 
-		SingletonNodeAtMask5Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask5Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask6Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask6Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 6;
 		}
 
-		SingletonNodeAtMask6Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask6Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask7Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask7Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 7;
 		}
 
-		SingletonNodeAtMask7Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask7Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask8Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask8Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 8;
 		}
 
-		SingletonNodeAtMask8Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask8Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask9Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask9Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 9;
 		}
 
-		SingletonNodeAtMask9Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask9Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask10Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask10Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 10;
 		}
 
-		SingletonNodeAtMask10Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask10Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask11Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask11Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 11;
 		}
 
-		SingletonNodeAtMask11Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask11Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask12Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask12Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 12;
 		}
 
-		SingletonNodeAtMask12Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask12Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask13Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask13Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 13;
 		}
 
-		SingletonNodeAtMask13Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask13Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask14Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask14Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 14;
 		}
 
-		SingletonNodeAtMask14Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask14Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask15Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask15Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 15;
 		}
 
-		SingletonNodeAtMask15Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask15Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask16Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask16Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 16;
 		}
 
-		SingletonNodeAtMask16Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask16Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask17Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask17Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 17;
 		}
 
-		SingletonNodeAtMask17Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask17Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask18Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask18Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 18;
 		}
 
-		SingletonNodeAtMask18Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask18Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask19Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask19Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 19;
 		}
 
-		SingletonNodeAtMask19Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask19Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask20Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask20Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 20;
 		}
 
-		SingletonNodeAtMask20Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask20Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask21Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask21Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 21;
 		}
 
-		SingletonNodeAtMask21Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask21Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask22Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask22Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 22;
 		}
 
-		SingletonNodeAtMask22Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask22Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask23Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask23Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 23;
 		}
 
-		SingletonNodeAtMask23Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask23Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask24Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask24Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 24;
 		}
 
-		SingletonNodeAtMask24Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask24Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask25Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask25Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 25;
 		}
 
-		SingletonNodeAtMask25Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask25Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask26Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask26Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 26;
 		}
 
-		SingletonNodeAtMask26Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask26Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask27Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask27Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 27;
 		}
 
-		SingletonNodeAtMask27Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask27Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask28Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask28Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 28;
 		}
 
-		SingletonNodeAtMask28Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask28Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask29Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask29Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 29;
 		}
 
-		SingletonNodeAtMask29Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask29Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask30Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask30Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 30;
 		}
 
-		SingletonNodeAtMask30Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask30Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask31Node<K, V> extends AbstractSingletonNode<K, V> {
+	private static final class SingletonMapNodeAtMask31Node<K, V> extends AbstractSingletonMapNode<K, V> {
 
 		@Override
 		protected byte npos1() {
 			return 31;
 		}
 
-		SingletonNodeAtMask31Node(CompactMapNode<K, V> node1) {
+		SingletonMapNodeAtMask31Node(CompactMapNode<K, V> node1) {
 			super(node1);
 		}
 
