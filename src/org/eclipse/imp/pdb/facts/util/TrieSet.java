@@ -808,69 +808,69 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						CompactSetNode<K> node) {
 			switch (pos) {
 			case 0:
-				return new SingletonNodeAtMask0Node<>(node);
+				return new SingletonSetNodeAtMask0Node<>(node);
 			case 1:
-				return new SingletonNodeAtMask1Node<>(node);
+				return new SingletonSetNodeAtMask1Node<>(node);
 			case 2:
-				return new SingletonNodeAtMask2Node<>(node);
+				return new SingletonSetNodeAtMask2Node<>(node);
 			case 3:
-				return new SingletonNodeAtMask3Node<>(node);
+				return new SingletonSetNodeAtMask3Node<>(node);
 			case 4:
-				return new SingletonNodeAtMask4Node<>(node);
+				return new SingletonSetNodeAtMask4Node<>(node);
 			case 5:
-				return new SingletonNodeAtMask5Node<>(node);
+				return new SingletonSetNodeAtMask5Node<>(node);
 			case 6:
-				return new SingletonNodeAtMask6Node<>(node);
+				return new SingletonSetNodeAtMask6Node<>(node);
 			case 7:
-				return new SingletonNodeAtMask7Node<>(node);
+				return new SingletonSetNodeAtMask7Node<>(node);
 			case 8:
-				return new SingletonNodeAtMask8Node<>(node);
+				return new SingletonSetNodeAtMask8Node<>(node);
 			case 9:
-				return new SingletonNodeAtMask9Node<>(node);
+				return new SingletonSetNodeAtMask9Node<>(node);
 			case 10:
-				return new SingletonNodeAtMask10Node<>(node);
+				return new SingletonSetNodeAtMask10Node<>(node);
 			case 11:
-				return new SingletonNodeAtMask11Node<>(node);
+				return new SingletonSetNodeAtMask11Node<>(node);
 			case 12:
-				return new SingletonNodeAtMask12Node<>(node);
+				return new SingletonSetNodeAtMask12Node<>(node);
 			case 13:
-				return new SingletonNodeAtMask13Node<>(node);
+				return new SingletonSetNodeAtMask13Node<>(node);
 			case 14:
-				return new SingletonNodeAtMask14Node<>(node);
+				return new SingletonSetNodeAtMask14Node<>(node);
 			case 15:
-				return new SingletonNodeAtMask15Node<>(node);
+				return new SingletonSetNodeAtMask15Node<>(node);
 			case 16:
-				return new SingletonNodeAtMask16Node<>(node);
+				return new SingletonSetNodeAtMask16Node<>(node);
 			case 17:
-				return new SingletonNodeAtMask17Node<>(node);
+				return new SingletonSetNodeAtMask17Node<>(node);
 			case 18:
-				return new SingletonNodeAtMask18Node<>(node);
+				return new SingletonSetNodeAtMask18Node<>(node);
 			case 19:
-				return new SingletonNodeAtMask19Node<>(node);
+				return new SingletonSetNodeAtMask19Node<>(node);
 			case 20:
-				return new SingletonNodeAtMask20Node<>(node);
+				return new SingletonSetNodeAtMask20Node<>(node);
 			case 21:
-				return new SingletonNodeAtMask21Node<>(node);
+				return new SingletonSetNodeAtMask21Node<>(node);
 			case 22:
-				return new SingletonNodeAtMask22Node<>(node);
+				return new SingletonSetNodeAtMask22Node<>(node);
 			case 23:
-				return new SingletonNodeAtMask23Node<>(node);
+				return new SingletonSetNodeAtMask23Node<>(node);
 			case 24:
-				return new SingletonNodeAtMask24Node<>(node);
+				return new SingletonSetNodeAtMask24Node<>(node);
 			case 25:
-				return new SingletonNodeAtMask25Node<>(node);
+				return new SingletonSetNodeAtMask25Node<>(node);
 			case 26:
-				return new SingletonNodeAtMask26Node<>(node);
+				return new SingletonSetNodeAtMask26Node<>(node);
 			case 27:
-				return new SingletonNodeAtMask27Node<>(node);
+				return new SingletonSetNodeAtMask27Node<>(node);
 			case 28:
-				return new SingletonNodeAtMask28Node<>(node);
+				return new SingletonSetNodeAtMask28Node<>(node);
 			case 29:
-				return new SingletonNodeAtMask29Node<>(node);
+				return new SingletonSetNodeAtMask29Node<>(node);
 			case 30:
-				return new SingletonNodeAtMask30Node<>(node);
+				return new SingletonSetNodeAtMask30Node<>(node);
 			case 31:
-				return new SingletonNodeAtMask31Node<>(node);
+				return new SingletonSetNodeAtMask31Node<>(node);
 
 			default:
 				throw new IllegalStateException("Position out of range.");
@@ -1022,7 +1022,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			assert key0.equals(key1) == false;
 
 			if (keyHash0 == keyHash1) {
-				return new HashCollisionNode<>(keyHash0, (K[]) new Object[] { key0, key1 });
+				return new HashCollisionSetNode<>(keyHash0, (K[]) new Object[] { key0, key1 });
 			}
 
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
@@ -1930,11 +1930,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	}
 
 	// TODO: replace by immutable cons list
-	private static final class HashCollisionNode<K> extends CompactSetNode<K> {
+	private static final class HashCollisionSetNode<K> extends CompactSetNode<K> {
 		private final K[] keys;
 		private final int hash;
 
-		HashCollisionNode(int hash, K[] keys) {
+		HashCollisionSetNode(int hash, K[] keys) {
 			this.keys = keys;
 			this.hash = hash;
 
@@ -2003,7 +2003,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			@SuppressWarnings("unchecked")
 			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
-			return Result.modified(new HashCollisionNode<>(keyHash, keysNew));
+			return Result.modified(new HashCollisionSetNode<>(keyHash, keysNew));
 		}
 
 		/**
@@ -2028,7 +2028,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						return CompactSetNode.<K> valNodeOf(mutator).updated(mutator, theOtherKey,
 										keyHash, null, 0, cmp);
 					} else {
-						return Result.modified(new HashCollisionNode<>(keyHash,
+						return Result.modified(new HashCollisionSetNode<>(keyHash,
 										(K[]) copyAndRemove(keys, i)));
 					}
 				}
@@ -2097,7 +2097,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			HashCollisionNode<?> that = (HashCollisionNode<?>) other;
+			HashCollisionSetNode<?> that = (HashCollisionSetNode<?>) other;
 
 			if (hash != that.hash) {
 				return false;
@@ -2191,13 +2191,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return super.equals(other);
 	}
 
-	private abstract static class AbstractSingletonNode<K> extends CompactSetNode<K> {
+	private abstract static class AbstractSingletonSetNode<K> extends CompactSetNode<K> {
 
 		protected abstract byte npos1();
 
 		protected final CompactSetNode<K> node1;
 
-		AbstractSingletonNode(CompactSetNode<K> node1) {
+		AbstractSingletonSetNode(CompactSetNode<K> node1) {
 			this.node1 = node1;
 			assert nodeInvariant();
 		}
@@ -2430,7 +2430,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			AbstractSingletonNode<?> that = (AbstractSingletonNode<?>) other;
+			AbstractSingletonSetNode<?> that = (AbstractSingletonSetNode<?>) other;
 
 			if (!node1.equals(that.node1)) {
 				return false;
@@ -2450,417 +2450,417 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	}
 
-	private static final class SingletonNodeAtMask0Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask0Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 0;
 		}
 
-		SingletonNodeAtMask0Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask0Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask1Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask1Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 1;
 		}
 
-		SingletonNodeAtMask1Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask1Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask2Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask2Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 2;
 		}
 
-		SingletonNodeAtMask2Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask2Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask3Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask3Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 3;
 		}
 
-		SingletonNodeAtMask3Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask3Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask4Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask4Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 4;
 		}
 
-		SingletonNodeAtMask4Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask4Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask5Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask5Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 5;
 		}
 
-		SingletonNodeAtMask5Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask5Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask6Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask6Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 6;
 		}
 
-		SingletonNodeAtMask6Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask6Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask7Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask7Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 7;
 		}
 
-		SingletonNodeAtMask7Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask7Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask8Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask8Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 8;
 		}
 
-		SingletonNodeAtMask8Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask8Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask9Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask9Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 9;
 		}
 
-		SingletonNodeAtMask9Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask9Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask10Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask10Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 10;
 		}
 
-		SingletonNodeAtMask10Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask10Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask11Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask11Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 11;
 		}
 
-		SingletonNodeAtMask11Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask11Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask12Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask12Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 12;
 		}
 
-		SingletonNodeAtMask12Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask12Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask13Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask13Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 13;
 		}
 
-		SingletonNodeAtMask13Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask13Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask14Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask14Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 14;
 		}
 
-		SingletonNodeAtMask14Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask14Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask15Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask15Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 15;
 		}
 
-		SingletonNodeAtMask15Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask15Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask16Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask16Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 16;
 		}
 
-		SingletonNodeAtMask16Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask16Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask17Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask17Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 17;
 		}
 
-		SingletonNodeAtMask17Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask17Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask18Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask18Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 18;
 		}
 
-		SingletonNodeAtMask18Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask18Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask19Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask19Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 19;
 		}
 
-		SingletonNodeAtMask19Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask19Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask20Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask20Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 20;
 		}
 
-		SingletonNodeAtMask20Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask20Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask21Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask21Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 21;
 		}
 
-		SingletonNodeAtMask21Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask21Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask22Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask22Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 22;
 		}
 
-		SingletonNodeAtMask22Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask22Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask23Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask23Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 23;
 		}
 
-		SingletonNodeAtMask23Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask23Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask24Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask24Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 24;
 		}
 
-		SingletonNodeAtMask24Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask24Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask25Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask25Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 25;
 		}
 
-		SingletonNodeAtMask25Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask25Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask26Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask26Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 26;
 		}
 
-		SingletonNodeAtMask26Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask26Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask27Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask27Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 27;
 		}
 
-		SingletonNodeAtMask27Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask27Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask28Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask28Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 28;
 		}
 
-		SingletonNodeAtMask28Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask28Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask29Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask29Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 29;
 		}
 
-		SingletonNodeAtMask29Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask29Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask30Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask30Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 30;
 		}
 
-		SingletonNodeAtMask30Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask30Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
 	}
 
-	private static final class SingletonNodeAtMask31Node<K> extends AbstractSingletonNode<K> {
+	private static final class SingletonSetNodeAtMask31Node<K> extends AbstractSingletonSetNode<K> {
 
 		@Override
 		protected byte npos1() {
 			return 31;
 		}
 
-		SingletonNodeAtMask31Node(CompactSetNode<K> node1) {
+		SingletonSetNodeAtMask31Node(CompactSetNode<K> node1) {
 			super(node1);
 		}
 
