@@ -1186,8 +1186,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos4);
 			final int valmap = (1 << pos1);
 
-			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, node1,
-							node2, node3, node4 }, (byte) 1);
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, node1, node2,
+							node3, node4 }, (byte) 1);
 		}
 
 		// manually added
@@ -1198,8 +1198,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos2);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
 
-			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
-							val2, key3, val3, node1, node2 }, (byte) 3);
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1, node2 }, (byte) 3);
 		}
 
 		// manually added
@@ -1211,8 +1211,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							| (1 << npos3);
 			final int valmap = (1 << pos1) | (1 << pos2);
 
-			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
-							val2, node1, node2, node3 }, (byte) 2);
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
+							node2, node3 }, (byte) 2);
 		}
 
 		// manually added
@@ -1222,8 +1222,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
 
-			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, new Object[] { key1, val1, key2,
-							val2, key3, val3, key4, val4, node1 }, (byte) 4);
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, node1 }, (byte) 4);
 		}
 
 		// manually added
@@ -1232,8 +1232,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
 			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
 
-			return new BitmapIndexedMapNode<>(mutator, valmap, valmap, new Object[] { key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5 }, (byte) 5);
+			return valNodeOf(mutator, valmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5 }, (byte) 5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
