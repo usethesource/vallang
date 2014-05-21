@@ -41,7 +41,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
 					CompactMapNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
-	public static final boolean USE_SPECIALIAZIONS = false;
+	private static final boolean USE_SPECIALIAZIONS = true;
+	private static final boolean USE_STACK_ITERATOR = true;
 
 	private final AbstractMapNode<K, V> rootNode;
 	private final int hashCode;
@@ -278,17 +279,21 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public SupplierIterator<K, V> keyIterator() {
-		return new TrieMapIteratorWithFixedWidthStack<>(rootNode);
+		if (USE_STACK_ITERATOR) {
+			return new TrieMapIteratorWithFixedWidthStack<>(rootNode);
+		} else {
+			return new TrieMapIterator<>((CompactMapNode<K, V>) rootNode);
+		}
 	}
 
 	@Override
 	public Iterator<V> valueIterator() {
-		return new TrieMapValueIterator<>(new TrieMapIteratorWithFixedWidthStack<>(rootNode));
+		return new TrieMapValueIterator<>(keyIterator());
 	}
 
 	@Override
 	public Iterator<Map.Entry<K, V>> entryIterator() {
-		return new TrieMapEntryIterator<>(new TrieMapIteratorWithFixedWidthStack<>(rootNode));
+		return new TrieMapEntryIterator<>(keyIterator());
 	}
 
 	@Override
@@ -343,6 +348,75 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return entrySet;
 	}
 
+	/**
+	 * Iterator that first iterates over inlined-values and then continues depth
+	 * first recursively.
+	 */
+	private static class TrieMapIterator<K, V> implements SupplierIterator<K, V> {
+
+		final Deque<Iterator<? extends CompactMapNode<K, V>>> nodeIteratorStack;
+		SupplierIterator<K, V> valueIterator;
+
+		TrieMapIterator(CompactMapNode<K, V> rootNode) {
+			if (rootNode.hasPayload()) {
+				valueIterator = rootNode.payloadIterator();
+			} else {
+				valueIterator = EmptySupplierIterator.emptyIterator();
+			}
+
+			nodeIteratorStack = new ArrayDeque<>();
+			if (rootNode.hasNodes()) {
+				nodeIteratorStack.push(rootNode.nodeIterator());
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			while (true) {
+				if (valueIterator.hasNext()) {
+					return true;
+				} else {
+					if (nodeIteratorStack.isEmpty()) {
+						return false;
+					} else {
+						if (nodeIteratorStack.peek().hasNext()) {
+							CompactMapNode<K, V> innerNode = nodeIteratorStack.peek().next();
+
+							if (innerNode.hasPayload())
+								valueIterator = innerNode.payloadIterator();
+
+							if (innerNode.hasNodes()) {
+								nodeIteratorStack.push(innerNode.nodeIterator());
+							}
+							continue;
+						} else {
+							nodeIteratorStack.pop();
+							continue;
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext())
+				throw new NoSuchElementException();
+
+			return valueIterator.next();
+		}
+
+		@Override
+		public V get() {
+			return valueIterator.get();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}	
+	
 	private static class TrieMapIteratorWithFixedWidthStack<K, V> implements SupplierIterator<K, V> {
 		int valueIndex;
 		int valueLength;
@@ -1075,6 +1149,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		abstract V headVal();
 
+		@Override
+		abstract Iterator<? extends CompactMapNode<K, V>> nodeIterator();
+		
 		boolean nodeInvariant() {
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
 			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
@@ -2361,7 +2438,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractMapNode<K, V>> nodeIterator() {
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
 			final int offset = 2 * payloadArity;
 
 			for (int i = offset; i < nodes.length - offset; i++) {
@@ -3182,8 +3259,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<AbstractMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<AbstractMapNode<K, V>> of(new AbstractMapNode[] { node1 });
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
 		}
 
 		@Override
