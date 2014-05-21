@@ -41,7 +41,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
 					CompactMapNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
-	private static final boolean USE_SPECIALIAZIONS = true;
+	private static final boolean USE_SPECIALIAZIONS = false;
 	private static final boolean USE_STACK_ITERATOR = true; // does not effect TransientMap
 
 	private final AbstractMapNode<K, V> rootNode;
@@ -420,70 +420,75 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	 * Iterator skeleton that uses a fixed stack in depth.
 	 */
 	private static abstract class AbstractMapIterator<K, V> {
-		protected int valueIndex;
-		protected int valueLength;
-		protected AbstractMapNode<K, V> valueNode;
+		protected int currentValueCursor;
+		protected int currentValueLength;
+		protected AbstractMapNode<K, V> currentValueNode;
 
-		private int stackLevel;
-		private int[] nodeIndices = new int[7];
-		private int[] nodeLengths = new int[7];
+		private int currentStackLevel;
+		private int[] nodeCursorsAndLengths = new int[7 * 2];
 
 		@SuppressWarnings("unchecked")
 		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[7];
 
 		AbstractMapIterator(AbstractMapNode<K, V> rootNode) {
-			stackLevel = 0;
+			currentStackLevel = 0;
 
-			valueNode = rootNode;
-			valueIndex = 0;
-			valueLength = rootNode.payloadArity();
+			currentValueNode = rootNode;
+			currentValueCursor = 0;
+			currentValueLength = rootNode.payloadArity();
 
 			nodes[0] = rootNode;
-			nodeIndices[0] = 0;
-			nodeLengths[0] = rootNode.nodeArity();
+			nodeCursorsAndLengths[0] = 0;
+			nodeCursorsAndLengths[1] = rootNode.nodeArity();
 		}
 
 		public boolean hasNext() {
-			if (valueIndex < valueLength) {
+			if (currentValueCursor < currentValueLength) {
 				return true;
 			} else {
 				/*
 				 * search for next node that contains values
 				 */
-				while (stackLevel >= 0) {
-					final int nodeIndex = nodeIndices[stackLevel];
-					final int nodeLength = nodeLengths[stackLevel];
+				while (currentStackLevel >= 0) {
+					final int currentCursorIndex = currentStackLevel * 2;
+					final int currentLengthIndex = currentCursorIndex + 1;
+					
+					final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
+					final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
 
-					if (nodeIndex < nodeLength) {
-						final AbstractMapNode<K, V> nextNode = nodes[stackLevel].getNode(nodeIndex);
-						nodeIndices[stackLevel]++;
+					if (nodeCursor < nodeLength) {
+						final AbstractMapNode<K, V> nextNode = nodes[currentStackLevel]
+										.getNode(nodeCursor);
+						nodeCursorsAndLengths[currentCursorIndex]++;
 
-						final int nextNodePayloadArity = nextNode.payloadArity();
-						final int nextNodeNodeArity = nextNode.nodeArity();
+						final int nextValueLength = nextNode.payloadArity();
+						final int nextNodeLength = nextNode.nodeArity();
 
-						if (nextNodeNodeArity != 0) {
+						if (nextNodeLength > 0) {
 							/*
 							 * put node on next stack level for depth-first
 							 * traversal
 							 */
-							final int nextStackLevel = ++stackLevel;
-
+							final int nextStackLevel = ++currentStackLevel;
+							final int nextCursorIndex = nextStackLevel * 2;
+							final int nextLengthIndex = nextCursorIndex + 1;
+							
 							nodes[nextStackLevel] = nextNode;
-							nodeIndices[nextStackLevel] = 0;
-							nodeLengths[nextStackLevel] = nextNodeNodeArity;
+							nodeCursorsAndLengths[nextCursorIndex] = 0;
+							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
 						}
 
-						if (nextNodePayloadArity != 0) {
+						if (nextValueLength != 0) {
 							/*
 							 * found for next node that contains values
 							 */
-							valueNode = nextNode;
-							valueIndex = 0;
-							valueLength = nextNodePayloadArity;
+							currentValueNode = nextNode;
+							currentValueCursor = 0;
+							currentValueLength = nextValueLength;
 							return true;
 						}
 					} else {
-						stackLevel--;
+						currentStackLevel--;
 					}
 				}
 			}
@@ -508,7 +513,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
-				return valueNode.getKey(valueIndex++);
+				return currentValueNode.getKey(currentValueCursor++);
 			}
 		}
 
@@ -530,7 +535,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
-				return valueNode.getValue(valueIndex++);
+				return currentValueNode.getValue(currentValueCursor++);
 			}
 		}
 
@@ -552,7 +557,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
-				return valueNode.getKeyValueEntry(valueIndex++);
+				return currentValueNode.getKeyValueEntry(currentValueCursor++);
 			}
 		}
 
@@ -894,7 +899,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				if (!hasNext()) {
 					throw new NoSuchElementException();
 				} else {
-					lastKey = valueNode.getKey(valueIndex++);
+					lastKey = currentValueNode.getKey(currentValueCursor++);
 					return lastKey;
 				}
 			}
