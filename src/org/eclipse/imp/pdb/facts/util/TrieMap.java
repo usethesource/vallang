@@ -41,6 +41,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
 					CompactMapNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
+	public static final boolean USE_SPECIALIAZIONS = false;
+
 	private final AbstractMapNode<K, V> rootNode;
 	private final int hashCode;
 	private final int cachedSize;
@@ -165,7 +167,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		TransientMap<K, V> tmp = asTransient();
 		tmp.__putAll(map);
-		return tmp.freeze();	}
+		return tmp.freeze();	
+	}
 
 	@Override
 	public ImmutableMap<K, V> __putAllEquivalent(Map<? extends K, ? extends V> map,
@@ -989,6 +992,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		abstract V getValue(int index);
 
+		abstract Map.Entry<K, V> getKeyValueEntry(int index);
+		
 		abstract AbstractMapNode<K, V> getNode(int index);
 
 		abstract boolean hasNodes();
@@ -1083,8 +1088,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		@SuppressWarnings("unchecked")
-		static final CompactMapNode EMPTY_INPLACE_INDEX_NODE = new Map0To0Node(null);
+		static final CompactMapNode EMPTY_INPLACE_INDEX_NODE; 
+					
+		static {
+			if (USE_SPECIALIAZIONS) {
+				EMPTY_INPLACE_INDEX_NODE = new Map0To0Node<>(null);
+			} else {
+				EMPTY_INPLACE_INDEX_NODE = new BitmapIndexedMapNode<>(null, 0, 0, new Object[] {},
+								(byte) 0);
+			}
+		};
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
 						CompactMapNode<K, V> node) {
@@ -1320,31 +1333,37 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
 
-			if (mask0 != mask1) {
+			if (mask0 != mask1) {	
 				// both nodes fit on same level
-//				final Object[] nodes = new Object[4];
-
-				if (mask0 < mask1) {
-//					nodes[0] = key0;
-//					nodes[1] = val0;
-//					nodes[2] = key1;
-//					nodes[3] = val1;
-
-					return valNodeOf(null, (byte) mask0, key0, val0, (byte) mask1, key1, val1);
+				
+				if (USE_SPECIALIAZIONS) {
+					if (mask0 < mask1) {
+						return valNodeOf(null, (byte) mask0, key0, val0, (byte) mask1, key1, val1);
+					} else {
+						return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, key0, val0);
+					}					
 				} else {
-//					nodes[0] = key1;
-//					nodes[1] = val1;
-//					nodes[2] = key0;
-//					nodes[3] = val0;
-
-					return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, key0, val0);
+					final int valmap = 1 << mask0 | 1 << mask1;
+		
+					if (mask0 < mask1) {
+						return valNodeOf(null, valmap, valmap, new Object[] { key0, val0, key1,
+										val1 }, (byte) 2);
+					} else {
+						return valNodeOf(null, valmap, valmap, new Object[] { key1, val1, key0,
+										val0 }, (byte) 2);
+					}
 				}
 			} else {
 				// values fit on next level
 				final CompactMapNode<K, V> node = mergeNodes(key0, keyHash0, val0, key1, keyHash1,
 								val1, shift + BIT_PARTITION_SIZE);
 
-				return valNodeOf(null, (byte) mask0, node);
+				if (USE_SPECIALIAZIONS) {				
+					return valNodeOf(null, (byte) mask0, node);
+				} else {
+					final int bitmap = 1 << mask0;
+					return valNodeOf(null, bitmap, 0, new Object[] { node }, (byte) 0);
+				}
 			}
 		}
 
@@ -1355,20 +1374,29 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final Object[] nodes = new Object[3];
+				
+				if (USE_SPECIALIAZIONS) {
+					// store values before node
+					return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, node0);
+				} else {
+					final int bitmap = 1 << mask0 | 1 << mask1;
+					final int valmap = 1 << mask1;
 
-				// store values before node
-				nodes[0] = key1;
-				nodes[1] = val1;
-				nodes[2] = node0;
-
-				return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, node0);
+					// store values before node
+					return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node0 },
+									(byte) 1);
+				}
 			} else {
 				// values fit on next level
 				final CompactMapNode<K, V> node = mergeNodes(node0, keyHash0, key1, keyHash1, val1,
 								shift + BIT_PARTITION_SIZE);
 
-				return valNodeOf(null, (byte) mask0, node);
+				if (USE_SPECIALIAZIONS) {				
+					return valNodeOf(null, (byte) mask0, node);
+				} else {
+					final int bitmap = 1 << mask0;
+					return valNodeOf(null, bitmap, 0, new Object[] { node }, (byte) 0);
+				}
 			}
 		}
 	}
@@ -1393,8 +1421,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.payloadArity = payloadArity;
 
 			assert (payloadArity == Integer.bitCount(valmap));
-			assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-															// SIZE_MORE_THAN_ONE
+//			assert (payloadArity() >= 2 || nodeArity() >= 1); // =
+//															// SIZE_MORE_THAN_ONE
 
 			// for (int i = 0; i < 2 * payloadArity; i++)
 			// assert ((nodes[i] instanceof CompactNode) == false);
@@ -1710,7 +1738,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final int valIndex = valIndex(bitpos);
 
 				if (nodes[valIndex].equals(key)) {
-					if (this.arity() == 5) {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node will a)
+						 * either become the new root returned, or b) unwrapped and
+						 * inlined during returning.
+						 */
+						final CompactMapNode<K, V> thisNew;
+						final int newValmap = (shift == 0) ? this.valmap & ~bitpos
+										: 1 << (keyHash & BIT_PARTITION_MASK);
+
+						if (valIndex == 0) {
+							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[2], nodes[3] }, (byte) (1));
+						} else {
+							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[0], nodes[1] }, (byte) (1));
+						}
+
+						return Result.modified(thisNew);
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
 						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
 					} else {
 						final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
@@ -1738,10 +1785,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 				switch (subNodeNew.sizePredicate()) {
 				case 0: {
-					// remove node
-					if (this.arity() == 5) {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
 						return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
 					} else {
+						// remove node
 						final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
 
 						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
@@ -1751,16 +1801,22 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 				case 1: {
-					// inline value (move to front)
-					final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else {
+						// inline value (move to front)
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
 
-					final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
-									valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
+						final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
+										valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
 
-					final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-									bitmap, valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
+						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
+										bitmap, valmap | bitpos, editableNodes,
+										(byte) (payloadArity + 1));
 
-					return Result.modified(thisNew);
+						return Result.modified(thisNew);
+					}
 				}
 				default: {
 					// modify current node (set replacement node)
@@ -1794,7 +1850,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final int valIndex = valIndex(bitpos);
 
 				if (cmp.compare(nodes[valIndex], key) == 0) {
-					if (this.arity() == 5) {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node will a)
+						 * either become the new root returned, or b) unwrapped and
+						 * inlined during returning.
+						 */
+						final CompactMapNode<K, V> thisNew;
+						final int newValmap = (shift == 0) ? this.valmap & ~bitpos
+										: 1 << (keyHash & BIT_PARTITION_MASK);
+
+						if (valIndex == 0) {
+							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[2], nodes[3] }, (byte) (1));
+						} else {
+							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[0], nodes[1] }, (byte) (1));
+						}
+
+						return Result.modified(thisNew);
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
 						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
 					} else {
 						final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
@@ -1822,10 +1897,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 				switch (subNodeNew.sizePredicate()) {
 				case 0: {
-					// remove node
-					if (this.arity() == 5) {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
 						return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
 					} else {
+						// remove node
 						final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
 
 						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
@@ -1835,16 +1913,22 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 				case 1: {
-					// inline value (move to front)
-					final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else {
+						// inline value (move to front)
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
 
-					final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
-									valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
+						final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
+										valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
 
-					final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-									bitmap, valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
+						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
+										bitmap, valmap | bitpos, editableNodes,
+										(byte) (payloadArity + 1));
 
-					return Result.modified(thisNew);
+						return Result.modified(thisNew);
+					}
 				}
 				default: {
 					// modify current node (set replacement node)
@@ -2256,6 +2340,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		V getValue(int index) {
 			return (V) nodes[2 * index + 1];
 		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			return entryOf((K) nodes[2 * index], (V) nodes[2 * index + 1]);
+		}		
 
 		@SuppressWarnings("unchecked")
 		@Override
@@ -2384,7 +2474,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+			if (USE_SPECIALIAZIONS) {
+				return SIZE_MORE_THAN_ONE;
+			} else {
+				if (this.nodeArity() == 0 && this.payloadArity == 0) {
+					return SIZE_EMPTY;
+				} else if (this.nodeArity() == 0 && this.payloadArity == 1) {
+					return SIZE_ONE;
+				} else {
+					return SIZE_MORE_THAN_ONE;
+				}
+			}
 		}
 	}
 
@@ -2571,6 +2671,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		V getValue(int index) {
 			return vals[index];
 		}
+		
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			return entryOf(keys[index], vals[index]);
+		}
 
 		@Override
 		public CompactMapNode<K, V> getNode(int index) {
@@ -2645,26 +2750,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, V val, int shift) {
-			return updated(mutator, key, keyHash, val, shift);
+			return updated(mutator, key, keyHash, val, shift, EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift);
+			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift) {
-			return containsKey(key, keyHash, shift);
+			return containsKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			return findByKey(key, keyHash, shift);
+			return findByKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
 		}
 	}
 
@@ -3058,6 +3163,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		V getValue(int index) {
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3572,6 +3682,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Map0To0Node(final AtomicReference<Thread> mutator) {
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -3678,6 +3789,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_EMPTY;
 		}
@@ -3730,6 +3846,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node2 = node2;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -4082,6 +4199,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -4162,6 +4284,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node3 = node3;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -4618,6 +4741,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -4715,6 +4843,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node4 = node4;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -5271,6 +5400,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -5357,6 +5491,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.val1 = val1;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -5578,6 +5713,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_ONE;
 		}
@@ -5647,6 +5792,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node1 = node1;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -5980,6 +6126,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -6065,6 +6221,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node2 = node2;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -6517,6 +6674,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -6619,6 +6786,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node3 = node3;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -7185,6 +7353,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -7284,6 +7462,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.val2 = val2;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -7587,6 +7766,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -7678,6 +7869,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node1 = node1;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -8100,6 +8292,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -8208,6 +8412,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node2 = node2;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -8757,6 +8962,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -8869,6 +9086,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.val3 = val3;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -9228,6 +9446,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -9341,6 +9573,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.node1 = node1;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -9850,6 +10083,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -9974,6 +10221,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.val4 = val4;
 
 			assert nodeInvariant();
+			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
@@ -10401,6 +10649,22 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return val3;
 			case 3:
 				return val4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
