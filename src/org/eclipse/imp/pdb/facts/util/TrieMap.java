@@ -42,7 +42,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					CompactMapNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
 	private static final boolean USE_SPECIALIAZIONS = true;
-	private static final boolean USE_STACK_ITERATOR = true;
+	private static final boolean USE_STACK_ITERATOR = true; // does not effect TransientMap
 
 	private final AbstractMapNode<K, V> rootNode;
 	private final int hashCode;
@@ -107,11 +107,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		int _hash = 0;
 		int _count = 0;
 
-		for (SupplierIterator<K, V> it = keyIterator(); it.hasNext();) {
-			final K key = it.next();
-			final V val = it.get();
-
-			_hash += key.hashCode() ^ val.hashCode();
+		for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
+			final Map.Entry<K, V> entry = it.next();
+			
+			_hash += entry.getKey().hashCode() ^ entry.getValue().hashCode();
 			_count += 1;
 		}
 
@@ -280,7 +279,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public SupplierIterator<K, V> keyIterator() {
 		if (USE_STACK_ITERATOR) {
-			return new TrieMapIteratorWithFixedWidthStack<>(rootNode);
+			return new MapKeyIterator<>(rootNode);
 		} else {
 			return new TrieMapIterator<>((CompactMapNode<K, V>) rootNode);
 		}
@@ -288,12 +287,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public Iterator<V> valueIterator() {
-		return new TrieMapValueIterator<>(keyIterator());
+		return new MapValueIterator<>(rootNode);
 	}
 
 	@Override
 	public Iterator<Map.Entry<K, V>> entryIterator() {
-		return new TrieMapEntryIterator<>(keyIterator());
+		return new MapEntryIterator<>(rootNode);
 	}
 
 	@Override
@@ -417,72 +416,91 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}	
 	
-	private static class TrieMapIteratorWithFixedWidthStack<K, V> implements SupplierIterator<K, V> {
-		int valueIndex;
-		int valueLength;
-		AbstractMapNode<K, V> valueNode;
+	/**
+	 * Iterator skeleton that uses a fixed stack in depth.
+	 */
+	private static abstract class AbstractMapIterator<K, V> {
+		protected int valueIndex;
+		protected int valueLength;
+		protected AbstractMapNode<K, V> valueNode;
 
-		V lastValue = null;
-
-		int stackLevel;
-
-		int[] indexAndLength = new int[7 * 2];
+		private int stackLevel;
+		private int[] nodeIndices = new int[7];
+		private int[] nodeLengths = new int[7];
 
 		@SuppressWarnings("unchecked")
 		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[7];
 
-		TrieMapIteratorWithFixedWidthStack(AbstractMapNode<K, V> rootNode) {
+		AbstractMapIterator(AbstractMapNode<K, V> rootNode) {
 			stackLevel = 0;
 
 			valueNode = rootNode;
-
 			valueIndex = 0;
 			valueLength = rootNode.payloadArity();
 
 			nodes[0] = rootNode;
-			indexAndLength[0] = 0;
-			indexAndLength[1] = rootNode.nodeArity();
+			nodeIndices[0] = 0;
+			nodeLengths[0] = rootNode.nodeArity();
 		}
 
-		@Override
 		public boolean hasNext() {
 			if (valueIndex < valueLength) {
 				return true;
-			}
+			} else {
+				/*
+				 * search for next node that contains values
+				 */
+				while (stackLevel >= 0) {
+					final int nodeIndex = nodeIndices[stackLevel];
+					final int nodeLength = nodeLengths[stackLevel];
 
-			while (true) {
-				final int nodeIndex = indexAndLength[2 * stackLevel];
-				final int nodeLength = indexAndLength[2 * stackLevel + 1];
+					if (nodeIndex < nodeLength) {
+						final AbstractMapNode<K, V> nextNode = nodes[stackLevel].getNode(nodeIndex);
+						nodeIndices[stackLevel]++;
 
-				if (nodeIndex < nodeLength) {
-					final AbstractMapNode<K, V> nextNode = nodes[stackLevel].getNode(nodeIndex);
-					indexAndLength[2 * stackLevel] = (nodeIndex + 1);
+						final int nextNodePayloadArity = nextNode.payloadArity();
+						final int nextNodeNodeArity = nextNode.nodeArity();
 
-					final int nextNodePayloadArity = nextNode.payloadArity();
-					final int nextNodeNodeArity = nextNode.nodeArity();
+						if (nextNodeNodeArity != 0) {
+							/*
+							 * put node on next stack level for depth-first
+							 * traversal
+							 */
+							final int nextStackLevel = ++stackLevel;
 
-					if (nextNodeNodeArity != 0) {
-						stackLevel++;
+							nodes[nextStackLevel] = nextNode;
+							nodeIndices[nextStackLevel] = 0;
+							nodeLengths[nextStackLevel] = nextNodeNodeArity;
+						}
 
-						nodes[stackLevel] = nextNode;
-						indexAndLength[2 * stackLevel] = 0;
-						indexAndLength[2 * stackLevel + 1] = nextNode.nodeArity();
+						if (nextNodePayloadArity != 0) {
+							/*
+							 * found for next node that contains values
+							 */
+							valueNode = nextNode;
+							valueIndex = 0;
+							valueLength = nextNodePayloadArity;
+							return true;
+						}
+					} else {
+						stackLevel--;
 					}
-
-					if (nextNodePayloadArity != 0) {
-						valueNode = nextNode;
-						valueIndex = 0;
-						valueLength = nextNodePayloadArity;
-						return true;
-					}
-				} else {
-					if (stackLevel == 0) {
-						return false;
-					}
-
-					stackLevel--;
 				}
 			}
+
+			return false;
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class MapKeyIterator<K, V> extends AbstractMapIterator<K, V> implements
+					SupplierIterator<K, V> {
+
+		MapKeyIterator(AbstractMapNode<K, V> rootNode) {
+			super(rootNode);
 		}
 
 		@Override
@@ -490,84 +508,56 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
-				K lastKey = valueNode.getKey(valueIndex);
-				lastValue = valueNode.getValue(valueIndex);
-
-				valueIndex += 1;
-
-				return lastKey;
+				return valueNode.getKey(valueIndex++);
 			}
 		}
 
 		@Override
 		public V get() {
-			if (lastValue == null) {
-				throw new NoSuchElementException();
-			} else {
-				V tmp = lastValue;
-				lastValue = null;
-
-				return tmp;
-			}
-		}
-
-		@Override
-		public void remove() {
 			throw new UnsupportedOperationException();
 		}
 	}
 
-	/*
-	 * TODO/NOTE: This iterator is also reused by the TransientTrieMap.
-	 */
-	private static class TrieMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
-		private final SupplierIterator<K, V> iterator;
+	private static final class MapValueIterator<K, V> extends AbstractMapIterator<K, V> implements
+					SupplierIterator<V, K> {
 
-		TrieMapEntryIterator(SupplierIterator<K, V> iterator) {
-			this.iterator = iterator;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iterator.hasNext();
-		}
-
-		@Override
-		public Map.Entry<K, V> next() {
-			final K key = iterator.next();
-			final V val = iterator.get();
-			return entryOf(key, val);
-		}
-
-		@Override
-		public void remove() {
-			iterator.remove();
-		}
-	}
-
-	/*
-	 * TODO/NOTE: This iterator is also reused by the TransientTrieMap.
-	 */
-	private static class TrieMapValueIterator<K, V> implements Iterator<V> {
-		private final SupplierIterator<K, V> iterator;
-
-		TrieMapValueIterator(SupplierIterator<K, V> iterator) {
-			this.iterator = iterator;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iterator.hasNext();
+		MapValueIterator(AbstractMapNode<K, V> rootNode) {
+			super(rootNode);
 		}
 
 		@Override
 		public V next() {
-			iterator.next();
-			return iterator.get();
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			} else {
+				return valueNode.getValue(valueIndex++);
+			}
 		}
 
 		@Override
-		public void remove() {
+		public K get() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class MapEntryIterator<K, V> extends AbstractMapIterator<K, V> implements
+					SupplierIterator<Map.Entry<K, V>, K> {
+
+		MapEntryIterator(AbstractMapNode<K, V> rootNode) {
+			super(rootNode);
+		}
+
+		@Override
+		public Map.Entry<K, V> next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			} else {
+				return valueNode.getKeyValueEntry(valueIndex++);
+			}
+		}
+
+		@Override
+		public K get() {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -600,11 +590,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		private boolean invariant() {
 			int _hash = 0;
 
-			for (SupplierIterator<K, V> it = keyIterator(); it.hasNext();) {
-				final K key = it.next();
-				final V val = it.get();
-
-				_hash += key.hashCode() ^ val.hashCode();
+			for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
+				final Map.Entry<K, V> entry = it.next();
+				
+				_hash += entry.getKey().hashCode() ^ entry.getValue().hashCode();
 			}
 
 			return this.hashCode == _hash;
@@ -870,41 +859,54 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		
 		@Override
 		public SupplierIterator<K, V> keyIterator() {
-			return new TransientTrieMapIterator<K, V>(this);
+			return new TransientMapKeyIterator<>(this);
 		}
 
 		@Override
 		public Iterator<V> valueIterator() {
-			return new TrieMapValueIterator<>(keyIterator());
+//			return new TrieMapValueIterator<>(keyIterator());
+			return new MapValueIterator<>(rootNode); // TODO: iterator does not support removal
 		}
 
 		@Override
 		public Iterator<Map.Entry<K, V>> entryIterator() {
-			return new TrieMapEntryIterator<>(keyIterator());
+//			return new TrieMapEntryIterator<>(keyIterator());
+			return new MapEntryIterator<>(rootNode); // TODO: iterator does not support removal
 		}		
 		
 		/**
 		 * Iterator that first iterates over inlined-values and then continues
 		 * depth first recursively.
 		 */
-		// TODO: test
-		private static class TransientTrieMapIterator<K, V> extends
-						TrieMapIteratorWithFixedWidthStack<K, V> {
+		private static class TransientMapKeyIterator<K, V> extends AbstractMapIterator<K, V>
+						implements SupplierIterator<K, V> {
 
 			final TransientTrieMap<K, V> transientTrieMap;
 			K lastKey;
 
-			TransientTrieMapIterator(TransientTrieMap<K, V> transientTrieMap) {
+			TransientMapKeyIterator(TransientTrieMap<K, V> transientTrieMap) {
 				super(transientTrieMap.rootNode);
 				this.transientTrieMap = transientTrieMap;
 			}
 
 			@Override
 			public K next() {
-				lastKey = super.next();
-				return lastKey;
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				} else {
+					lastKey = valueNode.getKey(valueIndex++);
+					return lastKey;
+				}
 			}
 
+			@Override
+			public V get() {
+				throw new UnsupportedOperationException();
+			}
+
+			/*
+			 * TODO: test removal with iteration rigorously
+			 */
 			@Override
 			public void remove() {
 				transientTrieMap.__remove(lastKey);
@@ -1093,7 +1095,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		int size() {
-			final SupplierIterator<K, V> it = new TrieMapIteratorWithFixedWidthStack<>(this);
+			final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
 
 			int size = 0;
 			while (it.hasNext()) {
