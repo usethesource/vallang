@@ -41,7 +41,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
 					CompactMapNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
-	private static final boolean USE_SPECIALIAZIONS = false;
+	private static final boolean USE_SPECIALIAZIONS = true;
 	private static final boolean USE_STACK_ITERATOR = true; // does not effect TransientMap
 
 	private final AbstractMapNode<K, V> rootNode;
