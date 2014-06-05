@@ -425,10 +425,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		protected AbstractMapNode<K, V> currentValueNode;
 
 		private int currentStackLevel;
-		private int[] nodeCursorsAndLengths = new int[7 * 2];
+		private int[] nodeCursorsAndLengths = new int[16 * 2];
 
 		@SuppressWarnings("unchecked")
-		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[7];
+		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[16];
 
 		AbstractMapIterator(AbstractMapNode<K, V> rootNode) {
 			currentStackLevel = 0;
@@ -1183,6 +1183,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 		};
 
+		@SuppressWarnings("unchecked")
+		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
+			return EMPTY_INPLACE_INDEX_NODE;
+		}
+		
+		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
+						int bitmap, int valmap, Object[] nodes, byte payloadArity) {
+			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, nodes, payloadArity);
+		}		
+		
 		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
 						CompactMapNode<K, V> node) {
 			switch (pos) {
@@ -1256,152 +1266,175 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
-			return EMPTY_INPLACE_INDEX_NODE;
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2) {
+			return new Map0To2Node<>(mutator, npos1, node1, npos2, node2);
 		}
 
-		// manually added
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte npos1, CompactMapNode<K, V> node1, byte npos2,
-						CompactMapNode<K, V> node2, byte npos3, CompactMapNode<K, V> node3, byte npos4,
-						CompactMapNode<K, V> node4) {
-			final int bitmap = (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3)
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2, final byte npos3,
+						final CompactMapNode<K, V> node3) {
+			return new Map0To3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2, final byte npos3,
+						final CompactMapNode<K, V> node3, final byte npos4,
+						final CompactMapNode<K, V> node4) {
+			return new Map0To4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
+							node4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2, final byte npos3,
+						final CompactMapNode<K, V> node3, final byte npos4,
+						final CompactMapNode<K, V> node4, final byte npos5,
+						final CompactMapNode<K, V> node5) {
+			final int bitmap = 0 | (1 << npos1) | (1 << npos2) | (1 << npos3) | (1 << npos4)
+							| (1 << npos5);
+			final int valmap = 0;
+
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { node1, node2, node3, node4,
+							node5 }, (byte) 0);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1) {
+			return new Map1To0Node<>(mutator, pos1, key1, val1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte npos1,
+						final CompactMapNode<K, V> node1) {
+			return new Map1To1Node<>(mutator, pos1, key1, val1, npos1, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte npos1,
+						final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2) {
+			return new Map1To2Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte npos1,
+						final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2, final byte npos3,
+						final CompactMapNode<K, V> node3) {
+			return new Map1To3Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2, npos3,
+							node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte npos1,
+						final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2, final byte npos3,
+						final CompactMapNode<K, V> node3, final byte npos4,
+						final CompactMapNode<K, V> node4) {
+			final int bitmap = 0 | (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3)
 							| (1 << npos4);
-			final int valmap = (1 << pos1);
+			final int valmap = 0 | (1 << pos1);
 
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, node1, node2,
 							node3, node4 }, (byte) 1);
 		}
 
-		// manually added
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-						byte npos1, CompactMapNode<K, V> node1, byte npos2, CompactMapNode<K, V> node2) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
-							| (1 << npos2);
-			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3);
-
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
-							val3, node1, node2 }, (byte) 3);
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2) {
+			return new Map2To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2);
 		}
 
-		// manually added
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
-						CompactMapNode<K, V> node1, byte npos2, CompactMapNode<K, V> node2, byte npos3,
-						CompactMapNode<K, V> node3) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2)
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte npos1, final CompactMapNode<K, V> node1) {
+			return new Map2To1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte npos1, final CompactMapNode<K, V> node1,
+						final byte npos2, final CompactMapNode<K, V> node2) {
+			return new Map2To2Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1,
+							npos2, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte npos1, final CompactMapNode<K, V> node1,
+						final byte npos2, final CompactMapNode<K, V> node2, final byte npos3,
+						final CompactMapNode<K, V> node3) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2)
 							| (1 << npos3);
-			final int valmap = (1 << pos1) | (1 << pos2);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2);
 
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
 							node2, node3 }, (byte) 2);
 		}
 
-		// manually added
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-						byte pos4, K key4, V val4, byte npos1, CompactMapNode<K, V> node1) {
-			final int bitmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1);
-			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte pos3, final K key3, final V val3) {
+			return new Map3To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte pos3, final K key3, final V val3,
+						final byte npos1, final CompactMapNode<K, V> node1) {
+			return new Map3To1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
+							npos1, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte pos3, final K key3, final V val3,
+						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
+						final CompactMapNode<K, V> node2) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
+							| (1 << npos2);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3);
+
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1, node2 }, (byte) 3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte pos3, final K key3, final V val3, final byte pos4,
+						final K key4, final V val4) {
+			return new Map4To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
+							pos4, key4, val4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte pos3, final K key3, final V val3, final byte pos4,
+						final K key4, final V val4, final byte npos1,
+						final CompactMapNode<K, V> node1) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
+							| (1 << npos1);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
 
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, node1 }, (byte) 4);
 		}
 
-		// manually added
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-						byte pos4, K key4, V val4, byte pos5, K key5, V val5) {
-			final int valmap = (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5);
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
+						final V val2, final byte pos3, final K key3, final V val3, final byte pos4,
+						final K key4, final V val4, final byte pos5, final K key5, final V val5) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
+							| (1 << pos5);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
+							| (1 << pos5);
 
-			return valNodeOf(mutator, valmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5 }, (byte) 5);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte npos1, CompactMapNode<K, V> node1, byte npos2, CompactMapNode<K, V> node2) {
-			return new Map0To2Node<>(mutator, npos1, node1, npos2, node2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte npos1, CompactMapNode<K, V> node1, byte npos2, CompactMapNode<K, V> node2,
-						byte npos3, CompactMapNode<K, V> node3) {
-			return new Map0To3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						byte npos1, CompactMapNode<K, V> node1, byte npos2, CompactMapNode<K, V> node2,
-						byte npos3, CompactMapNode<K, V> node3, byte npos4, CompactMapNode<K, V> node4) {
-			return new Map0To4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
-							node4);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1) {
-			return new Map1To0Node<>(mutator, pos1, key1, val1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte npos1, CompactMapNode<K, V> node1) {
-			return new Map1To1Node<>(mutator, pos1, key1, val1, npos1, node1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte npos1, CompactMapNode<K, V> node1, byte npos2,
-						CompactMapNode<K, V> node2) {
-			return new Map1To2Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte npos1, CompactMapNode<K, V> node1, byte npos2,
-						CompactMapNode<K, V> node2, byte npos3, CompactMapNode<K, V> node3) {
-			return new Map1To3Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2,
-							npos3, node3);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2) {
-			return new Map2To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
-						CompactMapNode<K, V> node1) {
-			return new Map2To1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte npos1,
-						CompactMapNode<K, V> node1, byte npos2, CompactMapNode<K, V> node2) {
-			return new Map2To2Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1,
-							node1, npos2, node2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3) {
-			return new Map3To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
-							val3);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-						byte npos1, CompactMapNode<K, V> node1) {
-			return new Map3To1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
-							val3, npos1, node1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos1,
-						K key1, V val1, byte pos2, K key2, V val2, byte pos3, K key3, V val3,
-						byte pos4, K key4, V val4) {
-			return new Map4To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3,
-							val3, pos4, key4, val4);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						int bitmap, int valmap, Object[] nodes, byte payloadArity) {
-			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, nodes, payloadArity);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -5689,8 +5722,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
 			} else {
 				return false;
 			}
@@ -5700,8 +5733,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
 			} else {
 				return false;
 			}
@@ -6089,8 +6122,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			} else {
@@ -6102,8 +6135,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else {
@@ -6627,8 +6660,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			} else if (mask == npos2) {
@@ -6642,8 +6675,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
@@ -7295,8 +7328,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			} else if (mask == npos2) {
@@ -7312,8 +7345,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
@@ -7730,10 +7763,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
-			} else if (mask == pos2 && key.equals(key2)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
+			} else if (mask == pos2) {
+				return key.equals(key2);
 			} else {
 				return false;
 			}
@@ -7743,10 +7776,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
+			} else if (mask == pos2) {
+				return cmp.compare(key, key2) == 0;
 			} else {
 				return false;
 			}
@@ -8243,10 +8276,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
-			} else if (mask == pos2 && key.equals(key2)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
+			} else if (mask == pos2) {
+				return key.equals(key2);
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			} else {
@@ -8258,10 +8291,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
+			} else if (mask == pos2) {
+				return cmp.compare(key, key2) == 0;
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else {
@@ -8903,10 +8936,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
-			} else if (mask == pos2 && key.equals(key2)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
+			} else if (mask == pos2) {
+				return key.equals(key2);
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			} else if (mask == npos2) {
@@ -8920,10 +8953,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
+			} else if (mask == pos2) {
+				return cmp.compare(key, key2) == 0;
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else if (mask == npos2) {
@@ -9398,12 +9431,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
-			} else if (mask == pos2 && key.equals(key2)) {
-				return true;
-			} else if (mask == pos3 && key.equals(key3)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
+			} else if (mask == pos2) {
+				return key.equals(key2);
+			} else if (mask == pos3) {
+				return key.equals(key3);
 			} else {
 				return false;
 			}
@@ -9413,12 +9446,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return true;
-			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
+			} else if (mask == pos2) {
+				return cmp.compare(key, key2) == 0;
+			} else if (mask == pos3) {
+				return cmp.compare(key, key3) == 0;
 			} else {
 				return false;
 			}
@@ -10022,12 +10055,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
-			} else if (mask == pos2 && key.equals(key2)) {
-				return true;
-			} else if (mask == pos3 && key.equals(key3)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
+			} else if (mask == pos2) {
+				return key.equals(key2);
+			} else if (mask == pos3) {
+				return key.equals(key3);
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			} else {
@@ -10039,12 +10072,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return true;
-			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
+			} else if (mask == pos2) {
+				return cmp.compare(key, key2) == 0;
+			} else if (mask == pos3) {
+				return cmp.compare(key, key3) == 0;
 			} else if (mask == npos1) {
 				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			} else {
@@ -10594,14 +10627,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && key.equals(key1)) {
-				return true;
-			} else if (mask == pos2 && key.equals(key2)) {
-				return true;
-			} else if (mask == pos3 && key.equals(key3)) {
-				return true;
-			} else if (mask == pos4 && key.equals(key4)) {
-				return true;
+			if (mask == pos1) {
+				return key.equals(key1);
+			} else if (mask == pos2) {
+				return key.equals(key2);
+			} else if (mask == pos3) {
+				return key.equals(key3);
+			} else if (mask == pos4) {
+				return key.equals(key4);
 			} else {
 				return false;
 			}
@@ -10611,14 +10644,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return true;
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return true;
-			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
-				return true;
-			} else if (mask == pos4 && cmp.compare(key, key4) == 0) {
-				return true;
+			if (mask == pos1) {
+				return cmp.compare(key, key1) == 0;
+			} else if (mask == pos2) {
+				return cmp.compare(key, key2) == 0;
+			} else if (mask == pos3) {
+				return cmp.compare(key, key3) == 0;
+			} else if (mask == pos4) {
+				return cmp.compare(key, key4) == 0;
 			} else {
 				return false;
 			}
