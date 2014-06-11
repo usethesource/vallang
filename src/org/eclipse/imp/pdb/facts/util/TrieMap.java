@@ -2078,10 +2078,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final byte npos2 = recoverMask(nmap, (byte) 2);
 				final byte npos3 = recoverMask(nmap, (byte) 3);
 				final byte npos4 = recoverMask(nmap, (byte) 4);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-				final CompactMapNode<K, V> node3 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
-				final CompactMapNode<K, V> node4 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
+				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+				final CompactMapNode<K, V> node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
+				final CompactMapNode<K, V> node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
 
 				return valNodeOf(mutator, npos1, node1, npos2, node2, npos3, node3, npos4, node4);
 			}
@@ -2095,9 +2095,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final byte npos1 = recoverMask(nmap, (byte) 1);
 				final byte npos2 = recoverMask(nmap, (byte) 2);
 				final byte npos3 = recoverMask(nmap, (byte) 3);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-				final CompactMapNode<K, V> node3 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
+				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+				final CompactMapNode<K, V> node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
 
 				if (mask < pos1) {
 					key1 = (K) nodes[2];
@@ -2122,8 +2122,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 				final byte npos1 = recoverMask(nmap, (byte) 1);
 				final byte npos2 = recoverMask(nmap, (byte) 2);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
+				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
 
 				if (mask < pos1) {
 					key1 = (K) nodes[2];
@@ -2159,7 +2159,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 				final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
 				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
+				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
 
 				if (mask < pos1) {
 					key1 = (K) nodes[2];
@@ -2304,9 +2304,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final CompactMapNode<K, V> node1;
 
 				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
 				} else {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
 				}
 
 				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
@@ -2328,14 +2328,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final CompactMapNode<K, V> node2;
 
 				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
 				} else if (mask < npos2) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
 				} else {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
 				}
 
 				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1, npos2,
@@ -2356,21 +2356,21 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final CompactMapNode<K, V> node3;
 
 				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
 				} else if (mask < npos2) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
 				} else if (mask < npos3) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
 				} else {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
 				}
 
 				return valNodeOf(mutator, pos1, key1, val1, npos1, node1, npos2, node2, npos3,
@@ -2388,30 +2388,30 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final CompactMapNode<K, V> node4;
 
 				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
-					node4 = (CompactMapNode<K, V>) nodes[payloadArity + 4];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
+					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
 				} else if (mask < npos2) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
-					node4 = (CompactMapNode<K, V>) nodes[payloadArity + 4];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
+					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
 				} else if (mask < npos3) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
-					node4 = (CompactMapNode<K, V>) nodes[payloadArity + 4];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
+					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
 				} else if (mask < npos4) {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
-					node4 = (CompactMapNode<K, V>) nodes[payloadArity + 4];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
+					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
 				} else {
-					node1 = (CompactMapNode<K, V>) nodes[payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[payloadArity + 2];
-					node4 = (CompactMapNode<K, V>) nodes[payloadArity + 3];
+					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
+					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
+					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
+					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
 				}
 
 				return valNodeOf(mutator, npos1, node1, npos2, node2, npos3, node3, npos4, node4);
