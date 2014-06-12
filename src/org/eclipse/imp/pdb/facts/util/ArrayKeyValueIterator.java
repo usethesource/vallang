@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2014 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,17 +11,19 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class ArrayIterator<E> implements Iterator<E> {
-
-	final E[] values;
+@Deprecated
+public class ArrayKeyValueIterator<K, V> implements SupplierIterator<K, V> {
+	
+	final Object[] values;
 	final int end;
 	int currentIndex;
+	V currentValue;
 	
-	public ArrayIterator(final E[] values, int start, int end) {
+	public ArrayKeyValueIterator(final Object[] values, int start, int end) {
 		assert start <= end && end <= values.length;
+		assert (end - start) % 2 == 0;
 		
 		this.values = values;
 		this.end = end;
@@ -34,22 +36,32 @@ public class ArrayIterator<E> implements Iterator<E> {
 	}
 
 	@Override
-	public E next() {
-		if (!hasNext()) throw new NoSuchElementException();
-		return values[currentIndex++];
+	public K next() {
+		if (!hasNext())
+			throw new NoSuchElementException();
+		
+		final K currentKey = (K) values[currentIndex++];
+		currentValue = (V) values[currentIndex++];
+		
+		return currentKey;
 	}
 
+	@Override
+	public V get() {		
+		return currentValue;
+	}
+		
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
 
-	public static <E> Iterator<E> of(E[] array) {
-		return new ArrayIterator<>(array, 0, array.length);
+	public static <K, V> ArrayKeyValueIterator<K, V> of(Object[] array) {
+		return new ArrayKeyValueIterator<>(array, 0, array.length);
 	}
 	
-	public static <E> Iterator<E> of(E[] array, int start, int length) {
-		return new ArrayIterator<>(array, start, start + length);
+	public static <K, V> ArrayKeyValueIterator<K, V> of(Object[] array, int start, int length) {
+		return new ArrayKeyValueIterator<>(array, start, start + length);
 	}
-
+	
 }

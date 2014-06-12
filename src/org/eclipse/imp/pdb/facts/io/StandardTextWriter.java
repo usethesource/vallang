@@ -542,7 +542,7 @@ public class StandardTextWriter implements IValueTextWriter {
           else {
             append(ch);
 
-            if (Character.isHighSurrogate(ch)) {
+            if (Character.isHighSurrogate(ch) && i + 1 < chars.length) {
               append(chars[++i]);
             }
           }

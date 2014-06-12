@@ -37,6 +37,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	
 	protected IMap constructedMap;
 	protected final boolean inferred;
+	protected boolean inferredTypeinvalidated;
 	
 	/*package*/ MapWriter(){
 		super();
@@ -86,7 +87,11 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		checkMutation();
 		updateTypes(key,value);
 		
-		data.put(key, value);
+		IValue replaced = data.put(key, value);
+		
+		if (replaced != null) {
+			inferredTypeinvalidated = true;
+		}
 	}
 	
 	private void updateTypes(IValue key, IValue value) {
@@ -182,8 +187,23 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 				Type voidMapType = TypeFactory.getInstance().mapType(voidType, mapType.getKeyLabel(), voidType, mapType.getValueLabel());
 
 				constructedMap = Map.newMap(voidMapType, data);
-			}
-			else {
+			} else {
+				if (inferred && inferredTypeinvalidated) {
+					Type voidType = TypeFactory.getInstance().voidType();
+					
+					keyType = voidType;
+					valueType = voidType;
+					
+					for (Iterator<Entry<IValue, IValue>> it = data.entryIterator(); it.hasNext(); ) {
+						final Entry<IValue, IValue> currentEntry = it.next();
+						
+						keyType = keyType.lub(currentEntry.getKey().getType());
+						valueType = valueType.lub(currentEntry.getValue().getType());
+						
+						mapType = TypeFactory.getInstance().mapType(keyType, mapType.getKeyLabel(), valueType, mapType.getValueLabel());
+					}
+				}
+				
 				constructedMap = Map.newMap(mapType, data);
 			}
 		}
