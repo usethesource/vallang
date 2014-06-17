@@ -995,171 +995,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	static final class Result<T1, T2, N extends AbstractNode<T1, T2>> {
-		private final N result;
-		private final T2 replacedValue;
-		private final boolean isModified;
-
-		// update: inserted/removed single element, element count changed
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> modified(N node) {
-			return new Result<>(node, null, true);
-		}
-
-		// update: replaced single mapping, but element count unchanged
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> updated(N node,
-						T2 replacedValue) {
-			return new Result<>(node, replacedValue, true);
-		}
-
-		// update: neither element, nor element count changed
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> unchanged(N node) {
-			return new Result<>(node, null, false);
-		}
-
-		private Result(N node, T2 replacedValue, boolean isMutated) {
-			this.result = node;
-			this.replacedValue = replacedValue;
-			this.isModified = isMutated;
-		}
-
-		public N getNode() {
-			return result;
-		}
-
-		public boolean isModified() {
-			return isModified;
-		}
-
-		public boolean hasReplacedValue() {
-			return replacedValue != null;
-		}
-
-		public T2 getReplacedValue() {
-			return replacedValue;
-		}
-	}
-
-	abstract static class Optional<T> {
-		private static final Optional EMPTY = new Optional() {
-			@Override
-			boolean isPresent() {
-				return false;
-			}
-
-			@Override
-			Object get() {
-				return null;
-			}
-		};
-
-		@SuppressWarnings("unchecked")
-		static <T> Optional<T> empty() {
-			return EMPTY;
-		}
-
-		static <T> Optional<T> of(T value) {
-			return new Value<T>(value);
-		}
-
-		abstract boolean isPresent();
-
-		abstract T get();
-
-		private static final class Value<T> extends Optional<T> {
-			private final T value;
-
-			private Value(T value) {
-				this.value = value;
-			}
-
-			@Override
-			boolean isPresent() {
-				return true;
-			}
-
-			@Override
-			T get() {
-				return value;
-			}
-		}
-	}
-
-	protected static abstract class AbstractNode<K, V> {
-
-	}
-
-	protected static abstract class AbstractMapNode<K, V> extends AbstractNode<K, V> {
-
-		abstract boolean containsKey(Object key, int keyHash, int shift);
-
-		abstract boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp);
-
-		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift);
-
-		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp);
-
-		abstract Result<K, V, ? extends AbstractMapNode<K, V>> updated(
-						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift);
-
-		abstract Result<K, V, ? extends AbstractMapNode<K, V>> updated(
-						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
-						Comparator<Object> cmp);
-
-		abstract Result<K, V, ? extends AbstractMapNode<K, V>> removed(
-						AtomicReference<Thread> mutator, K key, int keyHash, int shift);
-
-		abstract Result<K, V, ? extends AbstractMapNode<K, V>> removed(
-						AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp);
-
-		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
-			return x != null && y != null && (x == y || x.get() == y.get());
-		}
-
-		abstract K getKey(int index);
-
-		abstract V getValue(int index);
-
-		abstract Map.Entry<K, V> getKeyValueEntry(int index);
-
-		abstract AbstractMapNode<K, V> getNode(int index);
-
-		abstract boolean hasNodes();
-
-		abstract Iterator<? extends AbstractMapNode<K, V>> nodeIterator();
-
-		abstract int nodeArity();
-
-		abstract boolean hasPayload();
-
-		abstract SupplierIterator<K, V> payloadIterator();
-
-		abstract int payloadArity();
-
-		/**
-		 * The arity of this trie node (i.e. number of values and nodes stored
-		 * on this level).
-		 * 
-		 * @return sum of nodes and values stored within
-		 */
-		int arity() {
-			return payloadArity() + nodeArity();
-		}
-
-		int size() {
-			final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
-
-			int size = 0;
-			while (it.hasNext()) {
-				size += 1;
-				it.next();
-			}
-
-			return size;
-		}
-	}
-
 	// TODO: replace by immutable cons list
 	private static final class HashCollisionMapNode<K, V> extends CompactMapNode<K, V> {
 		private final K[] keys;
@@ -1684,299 +1519,166 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static final class BitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
-		private AtomicReference<Thread> mutator;
-
-		private Object[] nodes;
-		// final private int bitmap;
-		// final private int valmap;
-		final private byte payloadArity;
-
-		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
-						byte payloadArity) {
-			super(mutator, bitmap, valmap);
-
-			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
-
-			this.mutator = mutator;
-
-			this.nodes = nodes;
-			// this.bitmap = bitmap;
-			// this.valmap = valmap;
-			this.payloadArity = payloadArity;
-
-			assert (payloadArity == Integer.bitCount(valmap));
-			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-			// // SIZE_MORE_THAN_ONE
-
-			// for (int i = 0; i < 2 * payloadArity; i++)
-			// assert ((nodes[i] instanceof CompactNode) == false);
-			//
-			// for (int i = 2 * payloadArity; i < nodes.length; i++)
-			// assert ((nodes[i] instanceof CompactNode) == true);
-
-			// assert invariant
-			assert nodeInvariant();
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		K getKey(int index) {
-			return (K) nodes[2 * index];
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		V getValue(int index) {
-			return (V) nodes[2 * index + 1];
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Map.Entry<K, V> getKeyValueEntry(int index) {
-			return entryOf((K) nodes[2 * index], (V) nodes[2 * index + 1]);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public CompactMapNode<K, V> getNode(int index) {
-			final int offset = 2 * payloadArity;
-			return (CompactMapNode<K, V>) nodes[offset + index];
-		}
-
-		@Override
-		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(nodes, 0, 2 * payloadArity);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			final int offset = 2 * payloadArity;
-
-			for (int i = offset; i < nodes.length - offset; i++) {
-				assert ((nodes[i] instanceof AbstractMapNode) == true);
+	abstract static class Optional<T> {
+		private static final Optional EMPTY = new Optional() {
+			@Override
+			boolean isPresent() {
+				return false;
 			}
 
-			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
-		}
+			@Override
+			Object get() {
+				return null;
+			}
+		};
 
 		@SuppressWarnings("unchecked")
-		@Override
-		K headKey() {
-			assert hasPayload();
-			return (K) nodes[0];
+		static <T> Optional<T> empty() {
+			return EMPTY;
 		}
 
-		@SuppressWarnings("unchecked")
-		@Override
-		V headVal() {
-			assert hasPayload();
-			return (V) nodes[1];
+		static <T> Optional<T> of(T value) {
+			return new Value<T>(value);
 		}
 
-		@Override
-		boolean hasPayload() {
-			return payloadArity != 0;
+		abstract boolean isPresent();
+
+		abstract T get();
+
+		private static final class Value<T> extends Optional<T> {
+			private final T value;
+
+			private Value(T value) {
+				this.value = value;
+			}
+
+			@Override
+			boolean isPresent() {
+				return true;
+			}
+
+			@Override
+			T get() {
+				return value;
+			}
+		}
+	}
+
+	static final class Result<T1, T2, N extends AbstractNode<T1, T2>> {
+		private final N result;
+		private final T2 replacedValue;
+		private final boolean isModified;
+
+		// update: inserted/removed single element, element count changed
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> modified(N node) {
+			return new Result<>(node, null, true);
 		}
 
-		@Override
-		int payloadArity() {
-			return payloadArity;
+		// update: replaced single mapping, but element count unchanged
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> updated(N node,
+						T2 replacedValue) {
+			return new Result<>(node, replacedValue, true);
 		}
 
-		@Override
-		boolean hasNodes() {
-			return 2 * payloadArity != nodes.length;
+		// update: neither element, nor element count changed
+		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> unchanged(N node) {
+			return new Result<>(node, null, false);
 		}
 
-		@Override
-		int nodeArity() {
-			return nodes.length - 2 * payloadArity;
+		private Result(N node, T2 replacedValue, boolean isMutated) {
+			this.result = node;
+			this.replacedValue = replacedValue;
+			this.isModified = isMutated;
 		}
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 0;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
-			result = prime * result + Arrays.hashCode(nodes);
+		public N getNode() {
 			return result;
 		}
 
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			BitmapIndexedMapNode<?, ?> that = (BitmapIndexedMapNode<?, ?>) other;
-			if (bitmap != that.bitmap) {
-				return false;
-			}
-			if (valmap != that.valmap) {
-				return false;
-			}
-			if (!Arrays.equals(nodes, that.nodes)) {
-				return false;
-			}
-			return true;
+		public boolean isModified() {
+			return isModified;
 		}
 
-		@Override
-		public String toString() {
-			final StringBuilder bldr = new StringBuilder();
-			bldr.append('[');
+		public boolean hasReplacedValue() {
+			return replacedValue != null;
+		}
 
-			for (byte i = 0; i < payloadArity(); i++) {
-				final byte pos = recoverMask(valmap, (byte) (i + 1));
-				bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));
+		public T2 getReplacedValue() {
+			return replacedValue;
+		}
+	}
 
-				if (!((i + 1) == payloadArity())) {
-					bldr.append(", ");
+	protected static abstract class AbstractNode<K, V> {
+	}
+
+	protected static abstract class AbstractMapNode<K, V> extends AbstractNode<K, V> {
+
+		abstract boolean containsKey(Object key, int keyHash, int shift);
+
+		abstract boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp);
+
+		abstract Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift);
+
+		abstract Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
+						Comparator<Object> cmp);
+
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift);
+
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift, Comparator<Object> cmp);
+
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift);
+
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp);
+
+		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
+			return x != null && y != null && (x == y || x.get() == y.get());
+		}
+
+		abstract K getKey(int index);
+
+		abstract V getValue(int index);
+
+		abstract java.util.Map.Entry<K, V> getKeyValueEntry(int index);
+
+		abstract AbstractMapNode<K, V> getNode(int index);
+
+		abstract boolean hasNodes();
+
+		abstract Iterator<? extends AbstractMapNode<K, V>> nodeIterator();
+
+		abstract int nodeArity();
+
+		abstract boolean hasPayload();
+
+		abstract SupplierIterator<K, V> payloadIterator();
+
+		abstract int payloadArity();
+
+		/**
+		 * The arity of this trie node (i.e. number of values and nodes stored on
+		 * this level).
+		 * 
+		 * @return sum of nodes and values stored within
+		 */
+		int arity() {
+			return payloadArity() + nodeArity();
+		}
+
+		int size() {
+				final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
+
+				int size = 0;
+				while (it.hasNext()) {
+					size += 1;
+					it.next();
 				}
+
+				return size;
 			}
-
-			if (payloadArity() > 0 && nodeArity() > 0) {
-				bldr.append(", ");
-			}
-
-			for (byte i = 0; i < nodeArity(); i++) {
-				final byte pos = recoverMask(bitmap ^ valmap, (byte) (i + 1));
-				bldr.append(String.format("@%d: %s", pos, getNode(i)));
-
-				if (!((i + 1) == nodeArity())) {
-					bldr.append(", ");
-				}
-			}
-
-			bldr.append(']');
-			return bldr.toString();
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		CompactMapNode<K, V> convertToGenericNode() {
-			return this;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
-			final CompactMapNode<K, V> thisNew;
-			final int valIndex = 2 * index;
-
-			if (isAllowedToEdit(this.mutator, mutator)) {
-				// no copying if already editable
-				this.nodes[valIndex + 1] = val;
-				thisNew = this;
-			} else {
-				final Object[] editableNodes = copyAndSet(this.nodes, valIndex + 1, val);
-
-				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-								payloadArity);
-			}
-
-			return thisNew;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
-			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
-			final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex, key, val);
-
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-							| bitpos, valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
-
-			return thisNew;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
-			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
-			final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
-
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, this.bitmap
-							& ~bitpos, this.valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
-
-			return thisNew;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
-						CompactMapNode<K, V> node) {
-			final int bitIndex = 2 * payloadArity + index;
-			final CompactMapNode<K, V> thisNew;
-
-			// modify current node (set replacement node)
-			if (isAllowedToEdit(this.mutator, mutator)) {
-				// no copying if already editable
-				this.nodes[bitIndex] = node;
-				thisNew = this;
-			} else {
-				final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, node);
-
-				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-								payloadArity);
-			}
-
-			return thisNew;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
-			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
-			final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
-
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-							& ~bitpos, valmap, editableNodes, payloadArity);
-
-			return thisNew;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
-			// final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^
-			// valmap) & (bitpos - 1));
-			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
-
-			final int offset = 2 * (payloadArity - 1);
-			final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1));
-
-			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset + index,
-							node);
-
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-							| bitpos, valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
-
-			return thisNew;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
-			final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-
-			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex, valIndexNew,
-							node.headKey(), node.headVal());
-
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap,
-							valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
-
-			return thisNew;
-		}
 	}
 
 	private static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
@@ -2920,6 +2622,301 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return Result.unchanged(this);
 		}
 
+	}
+
+	private static final class BitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
+		private AtomicReference<Thread> mutator;
+
+		private Object[] nodes;
+		// final private int bitmap;
+		// final private int valmap;
+		final private byte payloadArity;
+
+		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
+						byte payloadArity) {
+			super(mutator, bitmap, valmap);
+
+			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
+
+			this.mutator = mutator;
+
+			this.nodes = nodes;
+			// this.bitmap = bitmap;
+			// this.valmap = valmap;
+			this.payloadArity = payloadArity;
+
+			assert (payloadArity == Integer.bitCount(valmap));
+			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
+			// // SIZE_MORE_THAN_ONE
+
+			// for (int i = 0; i < 2 * payloadArity; i++)
+			// assert ((nodes[i] instanceof CompactNode) == false);
+			//
+			// for (int i = 2 * payloadArity; i < nodes.length; i++)
+			// assert ((nodes[i] instanceof CompactNode) == true);
+
+			// assert invariant
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) nodes[2 * index];
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		V getValue(int index) {
+			return (V) nodes[2 * index + 1];
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			return entryOf((K) nodes[2 * index], (V) nodes[2 * index + 1]);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactMapNode<K, V> getNode(int index) {
+			final int offset = 2 * payloadArity;
+			return (CompactMapNode<K, V>) nodes[offset + index];
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(nodes, 0, 2 * payloadArity);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			final int offset = 2 * payloadArity;
+
+			for (int i = offset; i < nodes.length - offset; i++) {
+				assert ((nodes[i] instanceof AbstractMapNode) == true);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K headKey() {
+			assert hasPayload();
+			return (K) nodes[0];
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		V headVal() {
+			assert hasPayload();
+			return (V) nodes[1];
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return payloadArity;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return 2 * payloadArity != nodes.length;
+		}
+
+		@Override
+		int nodeArity() {
+			return nodes.length - 2 * payloadArity;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 0;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+			result = prime * result + Arrays.hashCode(nodes);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			BitmapIndexedMapNode<?, ?> that = (BitmapIndexedMapNode<?, ?>) other;
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+			if (!Arrays.equals(nodes, that.nodes)) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			final StringBuilder bldr = new StringBuilder();
+			bldr.append('[');
+
+			for (byte i = 0; i < payloadArity(); i++) {
+				final byte pos = recoverMask(valmap, (byte) (i + 1));
+				bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));
+
+				if (!((i + 1) == payloadArity())) {
+					bldr.append(", ");
+				}
+			}
+
+			if (payloadArity() > 0 && nodeArity() > 0) {
+				bldr.append(", ");
+			}
+
+			for (byte i = 0; i < nodeArity(); i++) {
+				final byte pos = recoverMask(bitmap ^ valmap, (byte) (i + 1));
+				bldr.append(String.format("@%d: %s", pos, getNode(i)));
+
+				if (!((i + 1) == nodeArity())) {
+					bldr.append(", ");
+				}
+			}
+
+			bldr.append(']');
+			return bldr.toString();
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return this;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final CompactMapNode<K, V> thisNew;
+			final int valIndex = 2 * index;
+
+			if (isAllowedToEdit(this.mutator, mutator)) {
+				// no copying if already editable
+				this.nodes[valIndex + 1] = val;
+				thisNew = this;
+			} else {
+				final Object[] editableNodes = copyAndSet(this.nodes, valIndex + 1, val);
+
+				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
+								payloadArity);
+			}
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex, key, val);
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
+							| bitpos, valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, this.bitmap
+							& ~bitpos, this.valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			final int bitIndex = 2 * payloadArity + index;
+			final CompactMapNode<K, V> thisNew;
+
+			// modify current node (set replacement node)
+			if (isAllowedToEdit(this.mutator, mutator)) {
+				// no copying if already editable
+				this.nodes[bitIndex] = node;
+				thisNew = this;
+			} else {
+				final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, node);
+
+				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
+								payloadArity);
+			}
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
+							& ~bitpos, valmap, editableNodes, payloadArity);
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			// final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^
+			// valmap) & (bitpos - 1));
+			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+
+			final int offset = 2 * (payloadArity - 1);
+			final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1));
+
+			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset + index,
+							node);
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
+							| bitpos, valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+
+			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex, valIndexNew,
+							node.headKey(), node.headVal());
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap,
+							valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
+
+			return thisNew;
+		}
 	}
 
 	private static final class Map0To0Node<K, V> extends CompactMapNode<K, V> {
