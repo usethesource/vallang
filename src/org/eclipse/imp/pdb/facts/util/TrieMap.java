@@ -1091,9 +1091,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	protected static abstract class AbstractMapNode<K, V> extends AbstractNode<K, V> {
 
-		protected static final int BIT_PARTITION_SIZE = 5;
-		protected static final int BIT_PARTITION_MASK = 0x1f;
-
 		abstract boolean containsKey(Object key, int keyHash, int shift);
 
 		abstract boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp);
@@ -1317,7 +1314,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			for (byte i = 0; i < payloadArity(); i++) {
 				final byte pos = recoverMask(valmap, (byte) (i + 1));
 				bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));
-				// bldr.append(String.format("@%d: %s=%s", pos, "key", "val"));
 
 				if (!((i + 1) == payloadArity())) {
 					bldr.append(", ");
@@ -1331,7 +1327,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			for (byte i = 0; i < nodeArity(); i++) {
 				final byte pos = recoverMask(bitmap ^ valmap, (byte) (i + 1));
 				bldr.append(String.format("@%d: %s", pos, getNode(i)));
-				// bldr.append(String.format("@%d: %s", pos, "node"));
 
 				if (!((i + 1) == nodeArity())) {
 					bldr.append(", ");
@@ -2000,6 +1995,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	private static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
+
+		protected static final int BIT_PARTITION_SIZE = 5;
+		protected static final int BIT_PARTITION_MASK = 0x1f;
+
 		protected final int bitmap;
 		protected final int valmap;
 
@@ -2949,10 +2948,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -3113,10 +3111,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -3333,10 +3330,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+			return ArrayIterator.of(node1, node2);
 		}
 
 		@Override
@@ -3575,11 +3571,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+			return ArrayIterator.of(node1, node2, node3);
 		}
 
 		@Override
@@ -3839,11 +3833,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4 });
+			return ArrayIterator.of(node1, node2, node3, node4);
 		}
 
 		@Override
@@ -4127,11 +4119,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5);
 		}
 
 		@Override
@@ -4436,11 +4426,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5, node6 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5, node6);
 		}
 
 		@Override
@@ -4774,11 +4762,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5, node6, node7 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5, node6, node7);
 		}
 
 		@Override
@@ -5141,11 +5127,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5, node6, node7, node8 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5, node6, node7, node8);
 		}
 
 		@Override
@@ -5523,10 +5507,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -5761,10 +5744,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -6049,10 +6031,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+			return ArrayIterator.of(node1, node2);
 		}
 
 		@Override
@@ -6362,11 +6343,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+			return ArrayIterator.of(node1, node2, node3);
 		}
 
 		@Override
@@ -6704,11 +6683,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4 });
+			return ArrayIterator.of(node1, node2, node3, node4);
 		}
 
 		@Override
@@ -7073,11 +7050,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5);
 		}
 
 		@Override
@@ -7478,11 +7453,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5, node6 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5, node6);
 		}
 
 		@Override
@@ -7924,11 +7897,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5, node6, node7 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5, node6, node7);
 		}
 
 		@Override
@@ -8393,10 +8364,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -8665,10 +8635,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -8991,10 +8960,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+			return ArrayIterator.of(node1, node2);
 		}
 
 		@Override
@@ -9350,11 +9318,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+			return ArrayIterator.of(node1, node2, node3);
 		}
 
 		@Override
@@ -9748,11 +9714,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4 });
+			return ArrayIterator.of(node1, node2, node3, node4);
 		}
 
 		@Override
@@ -10195,11 +10159,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5);
 		}
 
 		@Override
@@ -10683,11 +10645,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5, node6 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5, node6);
 		}
 
 		@Override
@@ -11197,10 +11157,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -11503,10 +11462,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -11874,10 +11832,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+			return ArrayIterator.of(node1, node2);
 		}
 
 		@Override
@@ -12297,11 +12254,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+			return ArrayIterator.of(node1, node2, node3);
 		}
 
 		@Override
@@ -12766,11 +12721,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4 });
+			return ArrayIterator.of(node1, node2, node3, node4);
 		}
 
 		@Override
@@ -13281,11 +13234,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4, node5 });
+			return ArrayIterator.of(node1, node2, node3, node4, node5);
 		}
 
 		@Override
@@ -13828,10 +13779,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -14173,10 +14123,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -14599,10 +14548,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+			return ArrayIterator.of(node1, node2);
 		}
 
 		@Override
@@ -15077,11 +15025,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+			return ArrayIterator.of(node1, node2, node3);
 		}
 
 		@Override
@@ -15606,11 +15552,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
-							node4 });
+			return ArrayIterator.of(node1, node2, node3, node4);
 		}
 
 		@Override
@@ -16175,10 +16119,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -16570,10 +16513,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -17043,10 +16985,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+			return ArrayIterator.of(node1, node2);
 		}
 
 		@Override
@@ -17571,11 +17512,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator
-							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+			return ArrayIterator.of(node1, node2, node3);
 		}
 
 		@Override
@@ -18149,10 +18088,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -18581,10 +18519,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -19098,10 +19035,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+			return ArrayIterator.of(node1, node2);
 		}
 
 		@Override
@@ -19672,10 +19608,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
@@ -20142,10 +20077,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+			return ArrayIterator.of(node1);
 		}
 
 		@Override
@@ -20702,10 +20636,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			assert nodeInvariant();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
+			return Collections.<CompactMapNode<K, V>> emptyIterator();
 		}
 
 		@Override
