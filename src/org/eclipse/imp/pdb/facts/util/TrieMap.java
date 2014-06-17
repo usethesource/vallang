@@ -909,56 +909,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	/**
-	 * Iterator that first iterates over inlined-values and then continues depth
-	 * first recursively.
-	 */
-	private static class TrieMapNodeIterator<K, V> implements Iterator<AbstractMapNode<K, V>> {
-
-		final Deque<Iterator<? extends AbstractMapNode<K, V>>> nodeIteratorStack;
-
-		TrieMapNodeIterator(AbstractMapNode<K, V> rootNode) {
-			nodeIteratorStack = new ArrayDeque<>();
-			nodeIteratorStack.push(Collections.singleton(rootNode).iterator());
-		}
-
-		@Override
-		public boolean hasNext() {
-			while (true) {
-				if (nodeIteratorStack.isEmpty()) {
-					return false;
-				} else {
-					if (nodeIteratorStack.peek().hasNext()) {
-						return true;
-					} else {
-						nodeIteratorStack.pop();
-						continue;
-					}
-				}
-			}
-		}
-
-		@Override
-		public AbstractMapNode<K, V> next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			}
-
-			AbstractMapNode<K, V> innerNode = nodeIteratorStack.peek().next();
-
-			if (innerNode.hasNodes()) {
-				nodeIteratorStack.push(innerNode.nodeIterator());
-			}
-
-			return innerNode;
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
 	abstract static class Optional<T> {
 		private static final Optional EMPTY = new Optional() {
 			@Override
@@ -2911,6 +2861,56 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public V get() {
 			return valueIterator.get();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	/**
+	 * Iterator that first iterates over inlined-values and then continues depth
+	 * first recursively.
+	 */
+	private static class TrieMapNodeIterator<K, V> implements Iterator<AbstractMapNode<K, V>> {
+
+		final Deque<Iterator<? extends AbstractMapNode<K, V>>> nodeIteratorStack;
+
+		TrieMapNodeIterator(AbstractMapNode<K, V> rootNode) {
+			nodeIteratorStack = new ArrayDeque<>();
+			nodeIteratorStack.push(Collections.singleton(rootNode).iterator());
+		}
+
+		@Override
+		public boolean hasNext() {
+			while (true) {
+				if (nodeIteratorStack.isEmpty()) {
+					return false;
+				} else {
+					if (nodeIteratorStack.peek().hasNext()) {
+						return true;
+					} else {
+						nodeIteratorStack.pop();
+						continue;
+					}
+				}
+			}
+		}
+
+		@Override
+		public AbstractMapNode<K, V> next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+
+			AbstractMapNode<K, V> innerNode = nodeIteratorStack.peek().next();
+
+			if (innerNode.hasNodes()) {
+				nodeIteratorStack.push(innerNode.nodeIterator());
+			}
+
+			return innerNode;
 		}
 
 		@Override
