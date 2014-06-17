@@ -375,226 +375,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return entrySet;
 	}
 
-	/**
-	 * Iterator that first iterates over inlined-values and then continues depth
-	 * first recursively.
-	 */
-	private static class TrieMapIterator<K, V> implements SupplierIterator<K, V> {
-
-		final Deque<Iterator<? extends CompactMapNode<K, V>>> nodeIteratorStack;
-		SupplierIterator<K, V> valueIterator;
-
-		TrieMapIterator(CompactMapNode<K, V> rootNode) {
-			if (rootNode.hasPayload()) {
-				valueIterator = rootNode.payloadIterator();
-			} else {
-				valueIterator = EmptySupplierIterator.emptyIterator();
-			}
-
-			nodeIteratorStack = new ArrayDeque<>();
-			if (rootNode.hasNodes()) {
-				nodeIteratorStack.push(rootNode.nodeIterator());
-			}
-		}
-
-		@Override
-		public boolean hasNext() {
-			while (true) {
-				if (valueIterator.hasNext()) {
-					return true;
-				} else {
-					if (nodeIteratorStack.isEmpty()) {
-						return false;
-					} else {
-						if (nodeIteratorStack.peek().hasNext()) {
-							CompactMapNode<K, V> innerNode = nodeIteratorStack.peek().next();
-
-							if (innerNode.hasPayload())
-								valueIterator = innerNode.payloadIterator();
-
-							if (innerNode.hasNodes()) {
-								nodeIteratorStack.push(innerNode.nodeIterator());
-							}
-							continue;
-						} else {
-							nodeIteratorStack.pop();
-							continue;
-						}
-					}
-				}
-			}
-		}
-
-		@Override
-		public K next() {
-			if (!hasNext())
-				throw new NoSuchElementException();
-
-			return valueIterator.next();
-		}
-
-		@Override
-		public V get() {
-			return valueIterator.get();
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	/**
-	 * Iterator skeleton that uses a fixed stack in depth.
-	 */
-	private static abstract class AbstractMapIterator<K, V> {
-		protected int currentValueCursor;
-		protected int currentValueLength;
-		protected AbstractMapNode<K, V> currentValueNode;
-
-		private int currentStackLevel;
-		private int[] nodeCursorsAndLengths = new int[16 * 2];
-
-		@SuppressWarnings("unchecked")
-		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[16];
-
-		AbstractMapIterator(AbstractMapNode<K, V> rootNode) {
-			currentStackLevel = 0;
-
-			currentValueNode = rootNode;
-			currentValueCursor = 0;
-			currentValueLength = rootNode.payloadArity();
-
-			nodes[0] = rootNode;
-			nodeCursorsAndLengths[0] = 0;
-			nodeCursorsAndLengths[1] = rootNode.nodeArity();
-		}
-
-		public boolean hasNext() {
-			if (currentValueCursor < currentValueLength) {
-				return true;
-			} else {
-				/*
-				 * search for next node that contains values
-				 */
-				while (currentStackLevel >= 0) {
-					final int currentCursorIndex = currentStackLevel * 2;
-					final int currentLengthIndex = currentCursorIndex + 1;
-
-					final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
-					final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
-
-					if (nodeCursor < nodeLength) {
-						final AbstractMapNode<K, V> nextNode = nodes[currentStackLevel]
-										.getNode(nodeCursor);
-						nodeCursorsAndLengths[currentCursorIndex]++;
-
-						final int nextValueLength = nextNode.payloadArity();
-						final int nextNodeLength = nextNode.nodeArity();
-
-						if (nextNodeLength > 0) {
-							/*
-							 * put node on next stack level for depth-first
-							 * traversal
-							 */
-							final int nextStackLevel = ++currentStackLevel;
-							final int nextCursorIndex = nextStackLevel * 2;
-							final int nextLengthIndex = nextCursorIndex + 1;
-
-							nodes[nextStackLevel] = nextNode;
-							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
-						}
-
-						if (nextValueLength != 0) {
-							/*
-							 * found for next node that contains values
-							 */
-							currentValueNode = nextNode;
-							currentValueCursor = 0;
-							currentValueLength = nextValueLength;
-							return true;
-						}
-					} else {
-						currentStackLevel--;
-					}
-				}
-			}
-
-			return false;
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private static final class MapKeyIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<K, V> {
-
-		MapKeyIterator(AbstractMapNode<K, V> rootNode) {
-			super(rootNode);
-		}
-
-		@Override
-		public K next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			} else {
-				return currentValueNode.getKey(currentValueCursor++);
-			}
-		}
-
-		@Override
-		public V get() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private static final class MapValueIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<V, K> {
-
-		MapValueIterator(AbstractMapNode<K, V> rootNode) {
-			super(rootNode);
-		}
-
-		@Override
-		public V next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			} else {
-				return currentValueNode.getValue(currentValueCursor++);
-			}
-		}
-
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private static final class MapEntryIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<Map.Entry<K, V>, K> {
-
-		MapEntryIterator(AbstractMapNode<K, V> rootNode) {
-			super(rootNode);
-		}
-
-		@Override
-		public Map.Entry<K, V> next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			} else {
-				return currentValueNode.getKeyValueEntry(currentValueCursor++);
-			}
-		}
-
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
 	@Override
 	public boolean isTransientSupported() {
 		return true;
@@ -995,346 +775,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	// TODO: replace by immutable cons list
-	private static final class HashCollisionMapNode<K, V> extends CompactMapNode<K, V> {
-		private final K[] keys;
-		private final V[] vals;
-		private final int hash;
-
-		HashCollisionMapNode(int hash, K[] keys, V[] vals) {
-			super(null, 0, 0); // TODO: Split compact node base class and remove dependency on constructor
-			this.keys = keys;
-			this.vals = vals;
-			this.hash = hash;
-
-			assert payloadArity() >= 2;
-		}
-
-		@Override
-		SupplierIterator<K, V> payloadIterator() {
-			// TODO: change representation of keys and values
-			assert keys.length == vals.length;
-
-			final Object[] keysAndVals = new Object[keys.length + vals.length];
-			for (int i = 0; i < keys.length; i++) {
-				keysAndVals[2 * i] = keys[i];
-				keysAndVals[2 * i + 1] = vals[i];
-			}
-
-			return ArrayKeyValueIterator.of(keysAndVals);
-		}
-
-		@Override
-		public String toString() {
-			final Object[] keysAndVals = new Object[keys.length + vals.length];
-			for (int i = 0; i < keys.length; i++) {
-				keysAndVals[2 * i] = keys[i];
-				keysAndVals[2 * i + 1] = vals[i];
-			}
-			return Arrays.toString(keysAndVals);
-		}
-
-		@Override
-		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return Collections.emptyIterator();
-		}
-
-		@Override
-		K headKey() {
-			assert hasPayload();
-			return keys[0];
-		}
-
-		@Override
-		V headVal() {
-			assert hasPayload();
-			return vals[0];
-		}
-
-		@Override
-		public boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			if (this.hash == keyHash) {
-				for (K k : keys) {
-					if (cmp.compare(k, key) == 0) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		/**
-		 * Inserts an object if not yet present. Note, that this implementation
-		 * always returns a new immutable {@link TrieMap} instance.
-		 */
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
-			if (this.hash != keyHash) {
-				return Result.modified(mergeNodes(this, this.hash, key, keyHash, val, shift));
-			}
-
-			for (int i = 0; i < keys.length; i++) {
-				if (cmp.compare(keys[i], key) == 0) {
-
-					final V currentVal = vals[i];
-
-					if (cmp.compare(currentVal, val) == 0) {
-						return Result.unchanged(this);
-					}
-
-					final CompactMapNode<K, V> thisNew;
-
-					// // update mapping
-					// if (isAllowedToEdit(this.mutator, mutator)) {
-					// // no copying if already editable
-					// this.vals[i] = val;
-					// thisNew = this;
-					// } else {
-					@SuppressWarnings("unchecked")
-					final V[] editableVals = (V[]) copyAndSet(this.vals, i, val);
-
-					thisNew = new HashCollisionMapNode<>(this.hash, this.keys, editableVals);
-					// }
-
-					return Result.updated(thisNew, currentVal);
-				}
-			}
-
-			// no value
-			@SuppressWarnings("unchecked")
-			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
-			@SuppressWarnings("unchecked")
-			final V[] valsNew = (V[]) copyAndInsert(vals, vals.length, val);
-			return Result.modified(new HashCollisionMapNode<>(keyHash, keysNew, valsNew));
-		}
-
-		/**
-		 * Removes an object if present. Note, that this implementation always
-		 * returns a new immutable {@link TrieMap} instance.
-		 */
-		@SuppressWarnings("unchecked")
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						K key, int keyHash, int shift, Comparator<Object> cmp) {
-			for (int i = 0; i < keys.length; i++) {
-				if (cmp.compare(keys[i], key) == 0) {
-					if (this.arity() == 1) {
-						return Result.modified(CompactMapNode.<K, V> valNodeOf(mutator));
-					} else if (this.arity() == 2) {
-						/*
-						 * Create root node with singleton element. This node
-						 * will be a) either be the new root returned, or b)
-						 * unwrapped and inlined.
-						 */
-						final K theOtherKey = (i == 0) ? keys[1] : keys[0];
-						final V theOtherVal = (i == 0) ? vals[1] : vals[0];
-						return CompactMapNode.<K, V> valNodeOf(mutator).updated(mutator,
-										theOtherKey, keyHash, theOtherVal, 0, cmp);
-					} else {
-						return Result.modified(new HashCollisionMapNode<>(keyHash,
-										(K[]) copyAndRemove(keys, i), (V[]) copyAndRemove(vals, i)));
-					}
-				}
-			}
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return keys.length;
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
-		int arity() {
-			return payloadArity();
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		K getKey(int index) {
-			return keys[index];
-		}
-
-		@Override
-		V getValue(int index) {
-			return vals[index];
-		}
-
-		@Override
-		Map.Entry<K, V> getKeyValueEntry(int index) {
-			return entryOf(keys[index], vals[index]);
-		}
-
-		@Override
-		public CompactMapNode<K, V> getNode(int index) {
-			throw new IllegalStateException("Is leaf node.");
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 0;
-			result = prime * result + hash;
-			result = prime * result + Arrays.hashCode(keys);
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-
-			HashCollisionMapNode<?, ?> that = (HashCollisionMapNode<?, ?>) other;
-
-			if (hash != that.hash) {
-				return false;
-			}
-
-			if (arity() != that.arity()) {
-				return false;
-			}
-
-			/*
-			 * Linear scan for each key, because of arbitrary element order.
-			 */
-			outerLoop: for (SupplierIterator<?, ?> it = that.payloadIterator(); it.hasNext();) {
-				final Object otherKey = it.next();
-				@SuppressWarnings("deprecation")
-				final Object otherVal = it.get();
-
-				for (int i = 0; i < keys.length; i++) {
-					final K key = keys[i];
-					final V val = vals[i];
-
-					if (key.equals(otherKey) && val.equals(otherVal)) {
-						continue outerLoop;
-					}
-				}
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift, Comparator<Object> cmp) {
-			for (int i = 0; i < keys.length; i++) {
-				final K _key = keys[i];
-				if (cmp.compare(key, _key) == 0) {
-					final V _val = vals[i];
-					return Optional.of(entryOf(_key, _val));
-				}
-			}
-			return Optional.empty();
-		}
-
-		// TODO: generate instead of delegate
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						K key, int keyHash, V val, int shift) {
-			return updated(mutator, key, keyHash, val, shift,
-							EqualityUtils.getDefaultEqualityComparator());
-		}
-
-		// TODO: generate instead of delegate
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						K key, int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift,
-							EqualityUtils.getDefaultEqualityComparator());
-		}
-
-		// TODO: generate instead of delegate
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			return containsKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
-		}
-
-		// TODO: generate instead of delegate
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			return findByKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
-		}
-
-		@Override
-		CompactMapNode<K, V> convertToGenericNode() {
-			return this;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
-						CompactMapNode<K, V> node) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
-
 	@Override
 	public int hashCode() {
 		return hashCode;
@@ -1669,16 +1109,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		int size() {
-				final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
+			final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
 
-				int size = 0;
-				while (it.hasNext()) {
-					size += 1;
-					it.next();
-				}
-
-				return size;
+			int size = 0;
+			while (it.hasNext()) {
+				size += 1;
+				it.next();
 			}
+
+			return size;
+		}
 	}
 
 	private static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
@@ -2916,6 +2356,566 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
 
 			return thisNew;
+		}
+	}
+
+	private static final class HashCollisionMapNode<K, V> extends CompactMapNode<K, V> {
+		private final K[] keys;
+		private final V[] vals;
+		private final int hash;
+
+		HashCollisionMapNode(int hash, K[] keys, V[] vals) {
+			super(null, 0, 0); // TODO: Split compact node base class and remove
+								// dependency on constructor
+			this.keys = keys;
+			this.vals = vals;
+			this.hash = hash;
+
+			assert payloadArity() >= 2;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			// TODO: change representation of keys and values
+			assert keys.length == vals.length;
+
+			final Object[] keysAndVals = new Object[keys.length + vals.length];
+			for (int i = 0; i < keys.length; i++) {
+				keysAndVals[2 * i] = keys[i];
+				keysAndVals[2 * i + 1] = vals[i];
+			}
+
+			return ArrayKeyValueIterator.of(keysAndVals);
+		}
+
+		@Override
+		public String toString() {
+			final Object[] keysAndVals = new Object[keys.length + vals.length];
+			for (int i = 0; i < keys.length; i++) {
+				keysAndVals[2 * i] = keys[i];
+				keysAndVals[2 * i + 1] = vals[i];
+			}
+			return Arrays.toString(keysAndVals);
+		}
+
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			assert hasPayload();
+			return keys[0];
+		}
+
+		@Override
+		V headVal() {
+			assert hasPayload();
+			return vals[0];
+		}
+
+		@Override
+		public boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
+			if (this.hash == keyHash) {
+				for (K k : keys) {
+					if (cmp.compare(k, key) == 0) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * Inserts an object if not yet present. Note, that this implementation
+		 * always returns a new immutable {@link TrieMap} instance.
+		 */
+		@Override
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
+			if (this.hash != keyHash) {
+				return Result.modified(mergeNodes(this, this.hash, key, keyHash, val, shift));
+			}
+
+			for (int i = 0; i < keys.length; i++) {
+				if (cmp.compare(keys[i], key) == 0) {
+
+					final V currentVal = vals[i];
+
+					if (cmp.compare(currentVal, val) == 0) {
+						return Result.unchanged(this);
+					}
+
+					final CompactMapNode<K, V> thisNew;
+
+					// // update mapping
+					// if (isAllowedToEdit(this.mutator, mutator)) {
+					// // no copying if already editable
+					// this.vals[i] = val;
+					// thisNew = this;
+					// } else {
+					@SuppressWarnings("unchecked")
+					final V[] editableVals = (V[]) copyAndSet(this.vals, i, val);
+
+					thisNew = new HashCollisionMapNode<>(this.hash, this.keys, editableVals);
+					// }
+
+					return Result.updated(thisNew, currentVal);
+				}
+			}
+
+			// no value
+			@SuppressWarnings("unchecked")
+			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
+			@SuppressWarnings("unchecked")
+			final V[] valsNew = (V[]) copyAndInsert(vals, vals.length, val);
+			return Result.modified(new HashCollisionMapNode<>(keyHash, keysNew, valsNew));
+		}
+
+		/**
+		 * Removes an object if present. Note, that this implementation always
+		 * returns a new immutable {@link TrieMap} instance.
+		 */
+		@SuppressWarnings("unchecked")
+		@Override
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
+			for (int i = 0; i < keys.length; i++) {
+				if (cmp.compare(keys[i], key) == 0) {
+					if (this.arity() == 1) {
+						return Result.modified(CompactMapNode.<K, V> valNodeOf(mutator));
+					} else if (this.arity() == 2) {
+						/*
+						 * Create root node with singleton element. This node will
+						 * be a) either be the new root returned, or b) unwrapped
+						 * and inlined.
+						 */
+						final K theOtherKey = (i == 0) ? keys[1] : keys[0];
+						final V theOtherVal = (i == 0) ? vals[1] : vals[0];
+						return CompactMapNode.<K, V> valNodeOf(mutator).updated(mutator, theOtherKey,
+										keyHash, theOtherVal, 0, cmp);
+					} else {
+						return Result.modified(new HashCollisionMapNode<>(keyHash, (K[]) copyAndRemove(
+										keys, i), (V[]) copyAndRemove(vals, i)));
+					}
+				}
+			}
+			return Result.unchanged(this);
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return keys.length;
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		int arity() {
+			return payloadArity();
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		K getKey(int index) {
+			return keys[index];
+		}
+
+		@Override
+		V getValue(int index) {
+			return vals[index];
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			return entryOf(keys[index], vals[index]);
+		}
+
+		@Override
+		public CompactMapNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Is leaf node.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 0;
+			result = prime * result + hash;
+			result = prime * result + Arrays.hashCode(keys);
+			result = prime * result + Arrays.hashCode(vals);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+
+			HashCollisionMapNode<?, ?> that = (HashCollisionMapNode<?, ?>) other;
+
+			if (hash != that.hash) {
+				return false;
+			}
+
+			if (arity() != that.arity()) {
+				return false;
+			}
+
+			/*
+			 * Linear scan for each key, because of arbitrary element order.
+			 */
+			outerLoop: for (SupplierIterator<?, ?> it = that.payloadIterator(); it.hasNext();) {
+				final Object otherKey = it.next();
+				@SuppressWarnings("deprecation")
+				final Object otherVal = it.get();
+
+				for (int i = 0; i < keys.length; i++) {
+					final K key = keys[i];
+					final V val = vals[i];
+
+					if (key.equals(otherKey) && val.equals(otherVal)) {
+						continue outerLoop;
+					}
+				}
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		Optional<Map.Entry<K, V>> findByKey(Object key, int hash, int shift, Comparator<Object> cmp) {
+			for (int i = 0; i < keys.length; i++) {
+				final K _key = keys[i];
+				if (cmp.compare(key, _key) == 0) {
+					final V _val = vals[i];
+					return Optional.of(entryOf(_key, _val));
+				}
+			}
+			return Optional.empty();
+		}
+
+		// TODO: generate instead of delegate
+		@Override
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift) {
+			return updated(mutator, key, keyHash, val, shift,
+							EqualityUtils.getDefaultEqualityComparator());
+		}
+
+		// TODO: generate instead of delegate
+		@Override
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift) {
+			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+		}
+
+		// TODO: generate instead of delegate
+		@Override
+		boolean containsKey(Object key, int keyHash, int shift) {
+			return containsKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+		}
+
+		// TODO: generate instead of delegate
+		@Override
+		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
+			return findByKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return this;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+
+	/**
+	 * Iterator skeleton that uses a fixed stack in depth.
+	 */
+	private static abstract class AbstractMapIterator<K, V> {
+		protected int currentValueCursor;
+		protected int currentValueLength;
+		protected AbstractMapNode<K, V> currentValueNode;
+
+		private int currentStackLevel;
+		private int[] nodeCursorsAndLengths = new int[16 * 2];
+
+		@SuppressWarnings("unchecked")
+		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[16];
+
+		AbstractMapIterator(AbstractMapNode<K, V> rootNode) {
+			currentStackLevel = 0;
+
+			currentValueNode = rootNode;
+			currentValueCursor = 0;
+			currentValueLength = rootNode.payloadArity();
+
+			nodes[0] = rootNode;
+			nodeCursorsAndLengths[0] = 0;
+			nodeCursorsAndLengths[1] = rootNode.nodeArity();
+		}
+
+		public boolean hasNext() {
+			if (currentValueCursor < currentValueLength) {
+				return true;
+			} else {
+				/*
+				 * search for next node that contains values
+				 */
+				while (currentStackLevel >= 0) {
+					final int currentCursorIndex = currentStackLevel * 2;
+					final int currentLengthIndex = currentCursorIndex + 1;
+
+					final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
+					final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
+
+					if (nodeCursor < nodeLength) {
+						final AbstractMapNode<K, V> nextNode = nodes[currentStackLevel]
+										.getNode(nodeCursor);
+						nodeCursorsAndLengths[currentCursorIndex]++;
+
+						final int nextValueLength = nextNode.payloadArity();
+						final int nextNodeLength = nextNode.nodeArity();
+
+						if (nextNodeLength > 0) {
+							/*
+							 * put node on next stack level for depth-first
+							 * traversal
+							 */
+							final int nextStackLevel = ++currentStackLevel;
+							final int nextCursorIndex = nextStackLevel * 2;
+							final int nextLengthIndex = nextCursorIndex + 1;
+
+							nodes[nextStackLevel] = nextNode;
+							nodeCursorsAndLengths[nextCursorIndex] = 0;
+							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
+						}
+
+						if (nextValueLength != 0) {
+							/*
+							 * found for next node that contains values
+							 */
+							currentValueNode = nextNode;
+							currentValueCursor = 0;
+							currentValueLength = nextValueLength;
+							return true;
+						}
+					} else {
+						currentStackLevel--;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class MapKeyIterator<K, V> extends AbstractMapIterator<K, V> implements
+					SupplierIterator<K, V> {
+
+		MapKeyIterator(AbstractMapNode<K, V> rootNode) {
+			super(rootNode);
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			} else {
+				return currentValueNode.getKey(currentValueCursor++);
+			}
+		}
+
+		@Override
+		public V get() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class MapValueIterator<K, V> extends AbstractMapIterator<K, V> implements
+					SupplierIterator<V, K> {
+
+		MapValueIterator(AbstractMapNode<K, V> rootNode) {
+			super(rootNode);
+		}
+
+		@Override
+		public V next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			} else {
+				return currentValueNode.getValue(currentValueCursor++);
+			}
+		}
+
+		@Override
+		public K get() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class MapEntryIterator<K, V> extends AbstractMapIterator<K, V> implements
+					SupplierIterator<Map.Entry<K, V>, K> {
+
+		MapEntryIterator(AbstractMapNode<K, V> rootNode) {
+			super(rootNode);
+		}
+
+		@Override
+		public Map.Entry<K, V> next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			} else {
+				return currentValueNode.getKeyValueEntry(currentValueCursor++);
+			}
+		}
+
+		@Override
+		public K get() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	/**
+	 * Iterator that first iterates over inlined-values and then continues depth
+	 * first recursively.
+	 */
+	private static class TrieMapIterator<K, V> implements SupplierIterator<K, V> {
+
+		final Deque<Iterator<? extends CompactMapNode>> nodeIteratorStack;
+		SupplierIterator<K, V> valueIterator;
+
+		TrieMapIterator(CompactMapNode<K, V> rootNode) {
+			if (rootNode.hasPayload()) {
+				valueIterator = rootNode.payloadIterator();
+			} else {
+				valueIterator = EmptySupplierIterator.emptyIterator();
+			}
+
+			nodeIteratorStack = new ArrayDeque<>();
+			if (rootNode.hasNodes()) {
+				nodeIteratorStack.push(rootNode.nodeIterator());
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			while (true) {
+				if (valueIterator.hasNext()) {
+					return true;
+				} else {
+					if (nodeIteratorStack.isEmpty()) {
+						return false;
+					} else {
+						if (nodeIteratorStack.peek().hasNext()) {
+							CompactMapNode<K, V> innerNode = nodeIteratorStack.peek().next();
+
+							if (innerNode.hasPayload())
+								valueIterator = innerNode.payloadIterator();
+
+							if (innerNode.hasNodes()) {
+								nodeIteratorStack.push(innerNode.nodeIterator());
+							}
+							continue;
+						} else {
+							nodeIteratorStack.pop();
+							continue;
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext())
+				throw new NoSuchElementException();
+
+			return valueIterator.next();
+		}
+
+		@Override
+		public V get() {
+			return valueIterator.get();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
 		}
 	}
 
