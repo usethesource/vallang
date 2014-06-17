@@ -42,8 +42,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					CompactMapNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
 	private static final boolean DEBUG = false;
-	private static final boolean USE_STACK_ITERATOR = true; // does not effect
-															// TransientMap
 
 	private final AbstractMapNode<K, V> rootNode;
 	private final int hashCode;
@@ -305,11 +303,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public SupplierIterator<K, V> keyIterator() {
-		if (USE_STACK_ITERATOR) {
-			return new MapKeyIterator<>(rootNode);
-		} else {
-			return new TrieMapIterator<>((CompactMapNode<K, V>) rootNode);
-		}
+		return new MapKeyIterator<>(rootNode);
 	}
 
 	@Override
@@ -2434,75 +2428,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public K get() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	/**
-	 * Iterator that first iterates over inlined-values and then continues depth
-	 * first recursively.
-	 */
-	private static class TrieMapIterator<K, V> implements SupplierIterator<K, V> {
-
-		final Deque<Iterator<? extends CompactMapNode>> nodeIteratorStack;
-		SupplierIterator<K, V> valueIterator;
-
-		TrieMapIterator(CompactMapNode<K, V> rootNode) {
-			if (rootNode.hasPayload()) {
-				valueIterator = rootNode.payloadIterator();
-			} else {
-				valueIterator = EmptySupplierIterator.emptyIterator();
-			}
-
-			nodeIteratorStack = new ArrayDeque<>();
-			if (rootNode.hasNodes()) {
-				nodeIteratorStack.push(rootNode.nodeIterator());
-			}
-		}
-
-		@Override
-		public boolean hasNext() {
-			while (true) {
-				if (valueIterator.hasNext()) {
-					return true;
-				} else {
-					if (nodeIteratorStack.isEmpty()) {
-						return false;
-					} else {
-						if (nodeIteratorStack.peek().hasNext()) {
-							CompactMapNode<K, V> innerNode = nodeIteratorStack.peek().next();
-
-							if (innerNode.hasPayload())
-								valueIterator = innerNode.payloadIterator();
-
-							if (innerNode.hasNodes()) {
-								nodeIteratorStack.push(innerNode.nodeIterator());
-							}
-							continue;
-						} else {
-							nodeIteratorStack.pop();
-							continue;
-						}
-					}
-				}
-			}
-		}
-
-		@Override
-		public K next() {
-			if (!hasNext())
-				throw new NoSuchElementException();
-
-			return valueIterator.next();
-		}
-
-		@Override
-		public V get() {
-			return valueIterator.get();
-		}
-
-		@Override
-		public void remove() {
 			throw new UnsupportedOperationException();
 		}
 	}
