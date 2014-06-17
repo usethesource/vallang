@@ -147,7 +147,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public TrieMap<K, V> __put(K key, V val) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.updated(null, key,
+		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(null, key,
 						keyHash, val, 0);
 
 		if (result.isModified()) {
@@ -170,7 +170,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public TrieMap<K, V> __putEquivalent(K key, V val, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.updated(null, key,
+		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(null, key,
 						keyHash, val, 0, cmp);
 
 		if (result.isModified()) {
@@ -208,7 +208,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public TrieMap<K, V> __remove(K key) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.removed(null, key,
+		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(null, key,
 						keyHash, 0);
 
 		if (result.isModified()) {
@@ -228,7 +228,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public TrieMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.removed(null, key,
+		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(null, key,
 						keyHash, 0, cmp);
 
 		if (result.isModified()) {
@@ -383,396 +383,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	@Override
 	public TransientMap<K, V> asTransient() {
 		return new TransientTrieMap<K, V>(this);
-	}
-
-	static final class TransientTrieMap<K, V> extends AbstractMap<K, V> implements
-					TransientMap<K, V> {
-		final private AtomicReference<Thread> mutator;
-		private AbstractMapNode<K, V> rootNode;
-		private int hashCode;
-		private int cachedSize;
-
-		TransientTrieMap(TrieMap<K, V> trieMap) {
-			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
-			this.rootNode = trieMap.rootNode;
-			this.hashCode = trieMap.hashCode;
-			this.cachedSize = trieMap.cachedSize;
-			if (DEBUG) {
-				assert invariant();
-			}
-		}
-
-		// TODO: merge with TrieMap invariant (as function)
-		private boolean invariant() {
-			int _hash = 0;
-
-			for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
-				final Map.Entry<K, V> entry = it.next();
-
-				_hash += entry.getKey().hashCode() ^ entry.getValue().hashCode();
-			}
-
-			return this.hashCode == _hash;
-		}
-
-		@Override
-		public boolean containsKey(Object o) {
-			return rootNode.containsKey(o, o.hashCode(), 0);
-		}
-
-		@Override
-		public boolean containsKeyEquivalent(Object o, Comparator<Object> cmp) {
-			return rootNode.containsKey(o, o.hashCode(), 0, cmp);
-		}
-
-		@Override
-		public V get(Object key) {
-			final Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(), 0);
-
-			if (result.isPresent()) {
-				return result.get().getValue();
-			} else {
-				return null;
-			}
-		}
-
-		@Override
-		public V getEquivalent(Object key, Comparator<Object> cmp) {
-			final Optional<Map.Entry<K, V>> result = rootNode
-							.findByKey(key, key.hashCode(), 0, cmp);
-
-			if (result.isPresent()) {
-				return result.get().getValue();
-			} else {
-				return null;
-			}
-		}
-
-		@Override
-		public V __put(K key, V val) {
-			if (mutator.get() == null) {
-				throw new IllegalStateException("Transient already frozen.");
-			}
-
-			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.updated(mutator,
-							key, keyHash, val, 0);
-
-			if (result.isModified()) {
-				rootNode = result.getNode();
-
-				if (result.hasReplacedValue()) {
-					final V old = result.getReplacedValue();
-
-					final int valHashOld = old.hashCode();
-					final int valHashNew = val.hashCode();
-
-					hashCode += keyHash ^ valHashNew;
-					hashCode -= keyHash ^ valHashOld;
-					// cachedSize remains same
-
-					if (DEBUG) {
-						assert invariant();
-					}
-					return old;
-				} else {
-					final int valHashNew = val.hashCode();
-
-					hashCode += keyHash ^ valHashNew;
-					cachedSize += 1;
-
-					if (DEBUG) {
-						assert invariant();
-					}
-					return null;
-				}
-			}
-
-			if (DEBUG) {
-				assert invariant();
-			}
-			return null;
-		}
-
-		@Override
-		public V __putEquivalent(K key, V val, Comparator<Object> cmp) {
-			if (mutator.get() == null) {
-				throw new IllegalStateException("Transient already frozen.");
-			}
-
-			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.updated(mutator,
-							key, keyHash, val, 0, cmp);
-
-			if (result.isModified()) {
-				rootNode = result.getNode();
-
-				if (result.hasReplacedValue()) {
-					final V old = result.getReplacedValue();
-
-					final int valHashOld = old.hashCode();
-					final int valHashNew = val.hashCode();
-
-					hashCode += keyHash ^ valHashNew;
-					hashCode -= keyHash ^ valHashOld;
-					// cachedSize remains same
-
-					if (DEBUG) {
-						assert invariant();
-					}
-					return old;
-				} else {
-					final int valHashNew = val.hashCode();
-
-					hashCode += keyHash ^ valHashNew;
-					cachedSize += 1;
-
-					if (DEBUG) {
-						assert invariant();
-					}
-					return null;
-				}
-			}
-
-			if (DEBUG) {
-				assert invariant();
-			}
-			return null;
-		}
-
-		@Override
-		public boolean __remove(K key) {
-			if (mutator.get() == null) {
-				throw new IllegalStateException("Transient already frozen.");
-			}
-
-			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.removed(mutator,
-							key, keyHash, 0);
-
-			if (result.isModified()) {
-				// TODO: carry deleted value in result
-				// assert result.hasReplacedValue();
-				// final int valHash = result.getReplacedValue().hashCode();
-
-				final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue().hashCode();
-
-				rootNode = result.getNode();
-				hashCode -= keyHash ^ valHash;
-				cachedSize -= 1;
-
-				if (DEBUG) {
-					assert invariant();
-				}
-				return true;
-			}
-
-			if (DEBUG) {
-				assert invariant();
-			}
-			return false;
-		}
-
-		@Override
-		public boolean __removeEquivalent(K key, Comparator<Object> cmp) {
-			if (mutator.get() == null) {
-				throw new IllegalStateException("Transient already frozen.");
-			}
-
-			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends AbstractMapNode<K, V>> result = rootNode.removed(mutator,
-							key, keyHash, 0, cmp);
-
-			if (result.isModified()) {
-				// TODO: carry deleted value in result
-				// assert result.hasReplacedValue();
-				// final int valHash = result.getReplacedValue().hashCode();
-
-				final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
-								.hashCode();
-
-				rootNode = result.getNode();
-				hashCode -= keyHash ^ valHash;
-				cachedSize -= 1;
-
-				if (DEBUG) {
-					assert invariant();
-				}
-				return true;
-			}
-
-			if (DEBUG) {
-				assert invariant();
-			}
-			return false;
-		}
-
-		@Override
-		public boolean __putAll(Map<? extends K, ? extends V> map) {
-			boolean modified = false;
-
-			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
-				final boolean isPresent = containsKey(entry.getKey());
-				final V replaced = __put(entry.getKey(), entry.getValue());
-
-				if (!isPresent || replaced != null) {
-					modified = true;
-				}
-			}
-
-			return modified;
-		}
-
-		@Override
-		public boolean __putAllEquivalent(Map<? extends K, ? extends V> map, Comparator<Object> cmp) {
-			boolean modified = false;
-
-			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
-				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
-				final V replaced = __putEquivalent(entry.getKey(), entry.getValue(), cmp);
-
-				if (!isPresent || replaced != null) {
-					modified = true;
-				}
-			}
-
-			return modified;
-		}
-
-		@Override
-		public Set<java.util.Map.Entry<K, V>> entrySet() {
-			Set<java.util.Map.Entry<K, V>> entrySet = null;
-
-			if (entrySet == null) {
-				entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
-					@Override
-					public Iterator<java.util.Map.Entry<K, V>> iterator() {
-						return new Iterator<Entry<K, V>>() {
-							private final Iterator<Entry<K, V>> i = entryIterator();
-
-							@Override
-							public boolean hasNext() {
-								return i.hasNext();
-							}
-
-							@Override
-							public Entry<K, V> next() {
-								return i.next();
-							}
-
-							@Override
-							public void remove() {
-								i.remove();
-							}
-						};
-					}
-
-					@Override
-					public int size() {
-						return TransientTrieMap.this.size();
-					}
-
-					@Override
-					public boolean isEmpty() {
-						return TransientTrieMap.this.isEmpty();
-					}
-
-					@Override
-					public void clear() {
-						TransientTrieMap.this.clear();
-					}
-
-					@Override
-					public boolean contains(Object k) {
-						return TransientTrieMap.this.containsKey(k);
-					}
-				};
-			}
-			return entrySet;
-		}
-
-		@Override
-		public SupplierIterator<K, V> keyIterator() {
-			return new TransientMapKeyIterator<>(this);
-		}
-
-		@Override
-		public Iterator<V> valueIterator() {
-			// return new TrieMapValueIterator<>(keyIterator());
-			return new MapValueIterator<>(rootNode); // TODO: iterator does not
-														// support removal
-		}
-
-		@Override
-		public Iterator<Map.Entry<K, V>> entryIterator() {
-			// return new TrieMapEntryIterator<>(keyIterator());
-			return new MapEntryIterator<>(rootNode); // TODO: iterator does not
-														// support removal
-		}
-
-		/**
-		 * Iterator that first iterates over inlined-values and then continues
-		 * depth first recursively.
-		 */
-		private static class TransientMapKeyIterator<K, V> extends AbstractMapIterator<K, V>
-						implements SupplierIterator<K, V> {
-
-			final TransientTrieMap<K, V> transientTrieMap;
-			K lastKey;
-
-			TransientMapKeyIterator(TransientTrieMap<K, V> transientTrieMap) {
-				super(transientTrieMap.rootNode);
-				this.transientTrieMap = transientTrieMap;
-			}
-
-			@Override
-			public K next() {
-				if (!hasNext()) {
-					throw new NoSuchElementException();
-				} else {
-					lastKey = currentValueNode.getKey(currentValueCursor++);
-					return lastKey;
-				}
-			}
-
-			@Override
-			public V get() {
-				throw new UnsupportedOperationException();
-			}
-
-			/*
-			 * TODO: test removal with iteration rigorously
-			 */
-			@Override
-			public void remove() {
-				transientTrieMap.__remove(lastKey);
-			}
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			return rootNode.equals(o);
-		}
-
-		@Override
-		public int hashCode() {
-			return hashCode;
-		}
-
-		@Override
-		public String toString() {
-			return rootNode.toString();
-		}
-
-		@Override
-		public ImmutableMap<K, V> freeze() {
-			if (mutator.get() == null) {
-				throw new IllegalStateException("Transient already frozen.");
-			}
-
-			mutator.set(null);
-			return new TrieMap<K, V>(rootNode, hashCode, cachedSize);
-		}
 	}
 
 	@Override
@@ -1012,17 +622,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		abstract Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
 						Comparator<Object> cmp);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						K key, int keyHash, V val, int shift);
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(
+						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						K key, int keyHash, V val, int shift, Comparator<Object> cmp);
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(
+						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
+						Comparator<Object> cmp);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						K key, int keyHash, int shift);
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(
+						AtomicReference<Thread> mutator, K key, int keyHash, int shift);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						K key, int keyHash, int shift, Comparator<Object> cmp);
+		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(
+						AtomicReference<Thread> mutator, K key, int keyHash, int shift,
+						Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
@@ -1049,8 +661,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		abstract int payloadArity();
 
 		/**
-		 * The arity of this trie node (i.e. number of values and nodes stored on
-		 * this level).
+		 * The arity of this trie node (i.e. number of values and nodes stored
+		 * on this level).
 		 * 
 		 * @return sum of nodes and values stored within
 		 */
@@ -1093,8 +705,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		/**
 		 * Abstract predicate over a node's size. Value can be either
-		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or {@value #SIZE_MORE_THAN_ONE}
-		 * .
+		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or
+		 * {@value #SIZE_MORE_THAN_ONE}.
 		 * 
 		 * @return size predicate
 		 */
@@ -1133,10 +745,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		abstract CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val);
+		abstract CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index,
+						V val);
 
-		abstract CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos,
-						K key, V val);
+		abstract CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator,
+						int bitpos, K key, V val);
 
 		abstract CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos);
 
@@ -1145,11 +758,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		abstract CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos);
 
-		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node);
+		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
+						AtomicReference<Thread> mutator, int bitpos, CompactMapNode<K, V> node);
 
-		abstract CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node);
+		abstract CompactMapNode<K, V> copyAndMigrateFromNodeToInline(
+						AtomicReference<Thread> mutator, int bitpos, CompactMapNode<K, V> node);
 
 		@SuppressWarnings("unchecked")
 		static final <K, V> CompactMapNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
@@ -1183,8 +796,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 		}
 
-		static final <K, V> CompactMapNode<K, V> mergeNodes(CompactMapNode<K, V> node0, int keyHash0,
-						K key1, int keyHash1, V val1, int shift) {
+		static final <K, V> CompactMapNode<K, V> mergeNodes(CompactMapNode<K, V> node0,
+						int keyHash0, K key1, int keyHash1, V val1, int shift) {
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
 			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
 
@@ -1211,8 +824,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			EMPTY_INPLACE_INDEX_NODE = new Map0To0Node<>(null, 0, 0);
 		};
 
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
-						int valmap, Object[] nodes, byte payloadArity) {
+		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
+						int bitmap, int valmap, Object[] nodes, byte payloadArity) {
 			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, nodes, payloadArity);
 		}
 
@@ -1262,7 +875,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6) {
-			return new Map0To6Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6);
+			return new Map0To6Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+							node6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -1270,8 +884,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
-			return new Map0To7Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
-							node7);
+			return new Map0To7Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+							node6, node7);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -1280,8 +894,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
 						final CompactMapNode<K, V> node8) {
-			return new Map0To8Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
-							node7, node8);
+			return new Map0To8Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+							node6, node7, node8);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -1312,7 +926,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final int bitmap, final int valmap, final K key1, final V val1,
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
-			return new Map1To4Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4);
+			return new Map1To4Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+							node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -1320,8 +935,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5) {
-			return new Map1To5Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-							node5);
+			return new Map1To5Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+							node4, node5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -1329,8 +944,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
-			return new Map1To6Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-							node5, node6);
+			return new Map1To6Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+							node4, node5, node6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -1339,8 +954,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
 						final CompactMapNode<K, V> node7) {
-			return new Map1To7Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-							node5, node6, node7);
+			return new Map1To7Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+							node4, node5, node6, node7);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -1349,39 +964,40 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
 						final CompactMapNode<K, V> node7, final CompactMapNode<K, V> node8) {
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
-							node4, node5, node6, node7, node8 }, (byte) 1);
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, node1, node2,
+							node3, node4, node5, node6, node7, node8 }, (byte) 1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2) {
 			return new Map2To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final CompactMapNode<K, V> node1) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final CompactMapNode<K, V> node1) {
 			return new Map2To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
 			return new Map2To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			return new Map2To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
 							node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4) {
 			return new Map2To4Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
@@ -1389,8 +1005,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			return new Map2To5Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
@@ -1398,8 +1014,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6) {
@@ -1408,8 +1024,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
@@ -1418,150 +1034,157 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3) {
 			return new Map3To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1) {
-			return new Map3To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3,
+						final CompactMapNode<K, V> node1) {
+			return new Map3To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			return new Map3To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 							node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3) {
 			return new Map3To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 							node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			return new Map3To4Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 							node1, node2, node3, node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5) {
 			return new Map3To5Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 							node1, node2, node3, node4, node5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
 							val3, node1, node2, node3, node4, node5, node6 }, (byte) 3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4) {
-			return new Map4To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4) {
+			return new Map4To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1) {
-			return new Map4To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, node1);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final CompactMapNode<K, V> node1) {
+			return new Map4To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
-			return new Map4To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, node1, node2);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
+			return new Map4To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3) {
-			return new Map4To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, node1, node2, node3);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			return new Map4To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
-			return new Map4To4Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, node1, node2, node3, node4);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			return new Map4To4Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, node1, node2, node3, node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, node1, node2, node3, node4, node5 }, (byte) 4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5) {
-			return new Map5To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5) {
+			return new Map5To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final CompactMapNode<K, V> node1) {
-			return new Map5To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, node1);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1) {
+			return new Map5To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2) {
-			return new Map5To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, node1, node2);
+			return new Map5To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
-			return new Map5To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, node1, node2, node3);
+			return new Map5To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final CompactMapNode<K, V> node1,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4) {
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
@@ -1569,93 +1192,98 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6) {
-			return new Map6To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6) {
+			return new Map6To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
 						final CompactMapNode<K, V> node1) {
-			return new Map6To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, node1);
+			return new Map6To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
-			return new Map6To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, node1, node2);
+			return new Map6To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3) {
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 }, (byte) 6);
+							val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 },
+							(byte) 6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6, final K key7,
-						final V val7) {
-			return new Map7To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, key7, val7);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
+						final K key7, final V val7) {
+			return new Map7To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6, final K key7,
-						final V val7, final CompactMapNode<K, V> node1) {
-			return new Map7To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, key7, val7, node1);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
+						final K key7, final V val7, final CompactMapNode<K, V> node1) {
+			return new Map7To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6, final K key7,
-						final V val7, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
+						final K key7, final V val7, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 },
 							(byte) 7);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6, final K key7,
-						final V val7, final K key8, final V val8) {
-			return new Map8To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
+						final K key7, final V val7, final K key8, final V val8) {
+			return new Map8To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6, final K key7,
-						final V val7, final K key8, final V val8, final CompactMapNode<K, V> node1) {
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, node1 },
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
+						final K key7, final V val7, final K key8, final V val8,
+						final CompactMapNode<K, V> node1) {
+			return valNodeOf(mutator, bitmap, valmap,
+							new Object[] { key1, val1, key2, val2, key3, val3, key4, val4, key5,
+											val5, key6, val6, key7, val7, key8, val8, node1 },
 							(byte) 8);
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
-						final V val2, final K key3, final V val3, final K key4, final V val4,
-						final K key5, final V val5, final K key6, final V val6, final K key7,
-						final V val7, final K key8, final V val8, final K key9, final V val9) {
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final K key2, final V val2, final K key3, final V val3, final K key4,
+						final V val4, final K key5, final V val5, final K key6, final V val6,
+						final K key7, final V val7, final K key8, final V val8, final K key9,
+						final V val9) {
 			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, key9,
 							val9 }, (byte) 9);
@@ -1684,7 +1312,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			if ((bitmap & bitpos) != 0) {
-				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
+								shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
@@ -1700,8 +1329,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			if ((bitmap & bitpos) != 0) {
-				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE,
-								cmp);
+				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
+								shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -1765,8 +1394,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1781,13 +1410,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, valIndex(bitpos), val);
+					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, valIndex(bitpos),
+									val);
 
 					return Result.updated(thisNew, currentVal);
 				} else {
 					final CompactMapNode<K, V> nodeNew = mergeNodes(getKey(keyIndex(bitpos)),
-									getKey(keyIndex(bitpos)).hashCode(), getValue(valIndex(bitpos)),
-									key, keyHash, val, shift + BIT_PARTITION_SIZE);
+									getKey(keyIndex(bitpos)).hashCode(),
+									getValue(valIndex(bitpos)), key, keyHash, val, shift
+													+ BIT_PARTITION_SIZE);
 
 					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
 									bitpos, nodeNew);
@@ -1821,8 +1452,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1837,13 +1468,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					}
 
 					// update mapping
-					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, valIndex(bitpos), val);
+					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, valIndex(bitpos),
+									val);
 
 					return Result.updated(thisNew, currentVal);
 				} else {
 					final CompactMapNode<K, V> nodeNew = mergeNodes(getKey(keyIndex(bitpos)),
-									getKey(keyIndex(bitpos)).hashCode(), getValue(valIndex(bitpos)),
-									key, keyHash, val, shift + BIT_PARTITION_SIZE);
+									getKey(keyIndex(bitpos)).hashCode(),
+									getValue(valIndex(bitpos)), key, keyHash, val, shift
+													+ BIT_PARTITION_SIZE);
 
 					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
 									bitpos, nodeNew);
@@ -1877,8 +1510,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -1945,8 +1578,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
@@ -2022,8 +1655,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		// final private int valmap;
 		final private byte payloadArity;
 
-		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
-						byte payloadArity) {
+		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap,
+						Object[] nodes, byte payloadArity) {
 			super(mutator, bitmap, valmap);
 
 			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
@@ -2236,8 +1869,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
 			final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
 
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, this.bitmap
-							& ~bitpos, this.valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
+							this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
+							(byte) (payloadArity - 1));
 
 			return thisNew;
 		}
@@ -2265,7 +1899,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
-			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			final int bitIndex = 2 * payloadArity
+							+ Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
 			final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
 
 			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
@@ -2277,15 +1912,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			// final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^
-			// valmap) & (bitpos - 1));
+			// final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap
+			// ^ valmap) & (bitpos - 1));
 			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
 
 			final int offset = 2 * (payloadArity - 1);
-			final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos)) & (bitpos - 1));
+			final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
 
-			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset + index,
-							node);
+			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset
+							+ index, node);
 
 			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
 							| bitpos, valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
@@ -2296,11 +1932,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			final int bitIndex = 2 * payloadArity
+							+ Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
 			final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
 
-			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex, valIndexNew,
-							node.headKey(), node.headVal());
+			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
+							valIndexNew, node.headKey(), node.headVal());
 
 			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap,
 							valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
@@ -2382,8 +2019,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		 * always returns a new immutable {@link TrieMap} instance.
 		 */
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				return Result.modified(mergeNodes(this, this.hash, key, keyHash, val, shift));
 			}
@@ -2429,25 +2066,25 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
 				if (cmp.compare(keys[i], key) == 0) {
 					if (this.arity() == 1) {
 						return Result.modified(CompactMapNode.<K, V> valNodeOf(mutator));
 					} else if (this.arity() == 2) {
 						/*
-						 * Create root node with singleton element. This node will
-						 * be a) either be the new root returned, or b) unwrapped
-						 * and inlined.
+						 * Create root node with singleton element. This node
+						 * will be a) either be the new root returned, or b)
+						 * unwrapped and inlined.
 						 */
 						final K theOtherKey = (i == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (i == 0) ? vals[1] : vals[0];
-						return CompactMapNode.<K, V> valNodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, theOtherVal, 0, cmp);
+						return CompactMapNode.<K, V> valNodeOf(mutator).updated(mutator,
+										theOtherKey, keyHash, theOtherVal, 0, cmp);
 					} else {
-						return Result.modified(new HashCollisionMapNode<>(keyHash, (K[]) copyAndRemove(
-										keys, i), (V[]) copyAndRemove(vals, i)));
+						return Result.modified(new HashCollisionMapNode<>(keyHash,
+										(K[]) copyAndRemove(keys, i), (V[]) copyAndRemove(vals, i)));
 					}
 				}
 			}
@@ -2572,17 +2209,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		// TODO: generate instead of delegate
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift) {
 			return updated(mutator, key, keyHash, val, shift,
 							EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
+			return removed(mutator, key, keyHash, shift,
+							EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
@@ -2916,6 +2554,397 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
+		}
+	}
+
+	static final class TransientTrieMap<K, V> extends AbstractMap<K, V> implements
+					TransientMap<K, V> {
+		final private AtomicReference<Thread> mutator;
+		private AbstractMapNode<K, V> rootNode;
+		private int hashCode;
+		private int cachedSize;
+
+		TransientTrieMap(TrieMap<K, V> trieMap) {
+			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
+			this.rootNode = trieMap.rootNode;
+			this.hashCode = trieMap.hashCode;
+			this.cachedSize = trieMap.cachedSize;
+			if (DEBUG) {
+				assert invariant();
+			}
+		}
+
+		// TODO: merge with TrieMap invariant (as function)
+		private boolean invariant() {
+			int _hash = 0;
+
+			for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
+				final Map.Entry<K, V> entry = it.next();
+
+				_hash += entry.getKey().hashCode() ^ entry.getValue().hashCode();
+			}
+
+			return this.hashCode == _hash;
+		}
+
+		@Override
+		public boolean containsKey(Object o) {
+			return rootNode.containsKey(o, o.hashCode(), 0);
+		}
+
+		@Override
+		public boolean containsKeyEquivalent(Object o, Comparator<Object> cmp) {
+			return rootNode.containsKey(o, o.hashCode(), 0, cmp);
+		}
+
+		@Override
+		public V get(Object key) {
+			final Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(), 0);
+
+			if (result.isPresent()) {
+				return result.get().getValue();
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public V getEquivalent(Object key, Comparator<Object> cmp) {
+			final Optional<Map.Entry<K, V>> result = rootNode
+							.findByKey(key, key.hashCode(), 0, cmp);
+
+			if (result.isPresent()) {
+				return result.get().getValue();
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public V __put(K key, V val) {
+			if (mutator.get() == null) {
+				throw new IllegalStateException("Transient already frozen.");
+			}
+
+			final int keyHash = key.hashCode();
+			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(mutator,
+							key, keyHash, val, 0);
+
+			if (result.isModified()) {
+				rootNode = result.getNode();
+
+				if (result.hasReplacedValue()) {
+					final V old = result.getReplacedValue();
+
+					final int valHashOld = old.hashCode();
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+					hashCode -= keyHash ^ valHashOld;
+					// cachedSize remains same
+
+					if (DEBUG) {
+						assert invariant();
+					}
+					return old;
+				} else {
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+					cachedSize += 1;
+
+					if (DEBUG) {
+						assert invariant();
+					}
+					return null;
+				}
+			}
+
+			if (DEBUG) {
+				assert invariant();
+			}
+			return null;
+		}
+
+		@Override
+		public V __putEquivalent(K key, V val, Comparator<Object> cmp) {
+			if (mutator.get() == null) {
+				throw new IllegalStateException("Transient already frozen.");
+			}
+
+			final int keyHash = key.hashCode();
+			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(mutator,
+							key, keyHash, val, 0, cmp);
+
+			if (result.isModified()) {
+				rootNode = result.getNode();
+
+				if (result.hasReplacedValue()) {
+					final V old = result.getReplacedValue();
+
+					final int valHashOld = old.hashCode();
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+					hashCode -= keyHash ^ valHashOld;
+					// cachedSize remains same
+
+					if (DEBUG) {
+						assert invariant();
+					}
+					return old;
+				} else {
+					final int valHashNew = val.hashCode();
+
+					hashCode += keyHash ^ valHashNew;
+					cachedSize += 1;
+
+					if (DEBUG) {
+						assert invariant();
+					}
+					return null;
+				}
+			}
+
+			if (DEBUG) {
+				assert invariant();
+			}
+			return null;
+		}
+
+		@Override
+		public boolean __remove(K key) {
+			if (mutator.get() == null) {
+				throw new IllegalStateException("Transient already frozen.");
+
+			}
+
+			final int keyHash = key.hashCode();
+			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(mutator,
+							key, keyHash, 0);
+
+			if (result.isModified()) {
+				// TODO: carry deleted value in result
+				// assert result.hasReplacedValue();
+				// final int valHash = result.getReplacedValue().hashCode();
+
+				final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue().hashCode();
+
+				rootNode = result.getNode();
+				hashCode -= keyHash ^ valHash;
+				cachedSize -= 1;
+
+				if (DEBUG) {
+					assert invariant();
+				}
+				return true;
+			}
+
+			if (DEBUG) {
+				assert invariant();
+			}
+			return false;
+		}
+
+		@Override
+		public boolean __removeEquivalent(K key, Comparator<Object> cmp) {
+			if (mutator.get() == null) {
+				throw new IllegalStateException("Transient already frozen.");
+			}
+
+			final int keyHash = key.hashCode();
+			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(mutator,
+							key, keyHash, 0, cmp);
+
+			if (result.isModified()) {
+				// TODO: carry deleted value in result
+				// assert result.hasReplacedValue();
+				// final int valHash = result.getReplacedValue().hashCode();
+
+				final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().getValue()
+								.hashCode();
+
+				rootNode = result.getNode();
+				hashCode -= keyHash ^ valHash;
+				cachedSize -= 1;
+
+				if (DEBUG) {
+					assert invariant();
+				}
+				return true;
+			}
+
+			if (DEBUG) {
+				assert invariant();
+			}
+			return false;
+		}
+
+		@Override
+		public boolean __putAll(Map<? extends K, ? extends V> map) {
+			boolean modified = false;
+
+			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+				final boolean isPresent = containsKey(entry.getKey());
+				final V replaced = __put(entry.getKey(), entry.getValue());
+
+				if (!isPresent || replaced != null) {
+					modified = true;
+				}
+			}
+
+			return modified;
+		}
+
+		@Override
+		public boolean __putAllEquivalent(Map<? extends K, ? extends V> map, Comparator<Object> cmp) {
+			boolean modified = false;
+
+			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
+				final V replaced = __putEquivalent(entry.getKey(), entry.getValue(), cmp);
+
+				if (!isPresent || replaced != null) {
+					modified = true;
+				}
+			}
+
+			return modified;
+		}
+
+		@Override
+		public Set<java.util.Map.Entry<K, V>> entrySet() {
+			Set<java.util.Map.Entry<K, V>> entrySet = null;
+
+			if (entrySet == null) {
+				entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
+					@Override
+					public Iterator<java.util.Map.Entry<K, V>> iterator() {
+						return new Iterator<Entry<K, V>>() {
+							private final Iterator<Entry<K, V>> i = entryIterator();
+
+							@Override
+							public boolean hasNext() {
+								return i.hasNext();
+							}
+
+							@Override
+							public Entry<K, V> next() {
+								return i.next();
+							}
+
+							@Override
+							public void remove() {
+								i.remove();
+							}
+						};
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object k) {
+						return TransientTrieMap.this.containsKey(k);
+					}
+				};
+			}
+			return entrySet;
+		}
+
+		@Override
+		public SupplierIterator<K, V> keyIterator() {
+			return new TransientMapKeyIterator<>(this);
+		}
+
+		@Override
+		public Iterator<V> valueIterator() {
+			// return new TrieMapValueIterator<>(keyIterator());
+			return new MapValueIterator<>(rootNode); // TODO: iterator does not
+														// support removal
+		}
+
+		@Override
+		public Iterator<Map.Entry<K, V>> entryIterator() {
+			// return new TrieMapEntryIterator<>(keyIterator());
+			return new MapEntryIterator<>(rootNode); // TODO: iterator does not
+														// support removal
+		}
+
+		/**
+		 * Iterator that first iterates over inlined-values and then continues
+		 * depth first recursively.
+		 */
+		private static class TransientMapKeyIterator<K, V> extends AbstractMapIterator<K, V>
+						implements SupplierIterator<K, V> {
+
+			final TransientTrieMap<K, V> transientTrieMap;
+			K lastKey;
+
+			TransientMapKeyIterator(TransientTrieMap<K, V> transientTrieMap) {
+				super(transientTrieMap.rootNode);
+				this.transientTrieMap = transientTrieMap;
+			}
+
+			@Override
+			public K next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				} else {
+					lastKey = currentValueNode.getKey(currentValueCursor++);
+					return lastKey;
+				}
+			}
+
+			@Override
+			public V get() {
+				throw new UnsupportedOperationException();
+			}
+
+			/*
+			 * TODO: test removal with iteration rigorously
+			 */
+			@Override
+			public void remove() {
+				transientTrieMap.__remove(lastKey);
+			}
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			return rootNode.equals(o);
+		}
+
+		@Override
+		public int hashCode() {
+			return hashCode;
+		}
+
+		@Override
+		public String toString() {
+			return rootNode.toString();
+		}
+
+		@Override
+		public ImmutableMap<K, V> freeze() {
+			if (mutator.get() == null) {
+				throw new IllegalStateException("Transient already frozen.");
+			}
+
+			mutator.set(null);
+			return new TrieMap<K, V>(rootNode, hashCode, cachedSize);
 		}
 	}
 
@@ -3527,8 +3556,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+			return String.format("[@%d: %s, @%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1),
+							node1, recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
 
 	}
@@ -3786,8 +3815,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1),
-							node1, recoverMask(bitmap ^ valmap, (byte) 2), node2,
+			return String.format("[@%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3);
 		}
 
@@ -4189,7 +4219,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+								node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4301,8 +4332,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5 },
-							(byte) 0);
+			return valNodeOf(null, bitmap, valmap,
+							new Object[] { node1, node2, node3, node4, node5 }, (byte) 0);
 		}
 
 		@Override
@@ -4498,8 +4529,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5,
-								node6);
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+								node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4628,8 +4659,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5,
-							node6 }, (byte) 0);
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4,
+							node5, node6 }, (byte) 0);
 		}
 
 		@Override
@@ -4836,8 +4867,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5,
-								node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+								node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4985,8 +5016,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5,
-							node6, node7 }, (byte) 0);
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4,
+							node5, node6, node7 }, (byte) 0);
 		}
 
 		@Override
@@ -5203,8 +5234,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5,
-								node6, node7, node8);
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+								node5, node6, node7, node8);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5373,8 +5404,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5,
-							node6, node7, node8 }, (byte) 0);
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4,
+							node5, node6, node7, node8 }, (byte) 0);
 		}
 
 		@Override
@@ -5985,8 +6016,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s]", recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+			return String.format("[@%d: %s=%s, @%d: %s]", recoverMask(valmap, (byte) 1), key1,
+							val1, recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
 
 	}
@@ -6231,7 +6262,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2 }, (byte) 1);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2 },
+							(byte) 1);
 		}
 
 		@Override
@@ -6294,8 +6326,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s]", recoverMask(valmap, (byte) 1), key1,
-							val1, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s]", recoverMask(valmap, (byte) 1),
+							key1, val1, recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
 
@@ -6560,8 +6592,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3 },
-							(byte) 1);
+			return valNodeOf(null, bitmap, valmap,
+							new Object[] { key1, val1, node1, node2, node3 }, (byte) 1);
 		}
 
 		@Override
@@ -6771,11 +6803,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+								node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+								node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6879,36 +6911,44 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2, node3,
+									node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2, node3,
+									node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node3,
+									node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node3,
+									node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7124,7 +7164,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4,
+								node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7140,11 +7181,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+								node3, node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+								node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7170,15 +7211,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4,
+								node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4,
+								node5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4,
+								node5);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
+								node5);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7220,17 +7266,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4,
+									node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4,
+									node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4,
+									node5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4,
+									node5);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node5);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node,
+									node5);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+									node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7529,8 +7581,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4, node5,
-								node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4,
+								node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7546,11 +7598,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
-								node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+								node3, node4, node5, node6);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
-								node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+								node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7576,20 +7628,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4, node5,
-								node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4,
+								node5, node6);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4, node5,
-								node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4,
+								node5, node6);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4, node5,
-								node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4,
+								node5, node6);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node, node5,
-								node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
+								node5, node6);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node,
-								node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node, node6);
 			case 5:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
 								node5, node);
@@ -7606,17 +7658,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (bitIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2, node3, node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2, node3, node4, node5,
+								node6);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node3, node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node3, node4, node5,
+								node6);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node4, node5,
+								node6);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node5,
+								node6);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node6);
 			case 5:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7636,26 +7694,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4, node5,
-									node6);
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4,
+									node5, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4, node5,
-									node6);
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4,
+									node5, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4, node5,
-									node6);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4,
+									node5, node6);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4, node5,
-									node6);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4,
+									node5, node6);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node5,
-									node6);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node,
+									node5, node6);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node,
-									node6);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+									node, node6);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
-									node);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+									node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7833,7 +7891,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+			return String.format(
+							"[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
 							recoverMask(valmap, (byte) 1), key1, val1,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
@@ -7975,8 +8034,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4, node5,
-								node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4,
+								node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7992,11 +8051,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
-								node4, node5, node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+								node3, node4, node5, node6, node7);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
-								node4, node5, node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+								node3, node4, node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8023,20 +8082,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4, node5,
-								node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4,
+								node5, node6, node7);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4, node5,
-								node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4,
+								node5, node6, node7);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4, node5,
-								node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4,
+								node5, node6, node7);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node, node5,
-								node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
+								node5, node6, node7);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node,
-								node6, node7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node, node6, node7);
 			case 5:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
 								node5, node, node7);
@@ -8095,29 +8154,29 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4, node5,
-									node6, node7);
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4,
+									node5, node6, node7);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4, node5,
-									node6, node7);
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4,
+									node5, node6, node7);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4, node5,
-									node6, node7);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4,
+									node5, node6, node7);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4, node5,
-									node6, node7);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4,
+									node5, node6, node7);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node5,
-									node6, node7);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node,
+									node5, node6, node7);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node,
-									node6, node7);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+									node, node6, node7);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
-									node, node7);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+									node6, node, node7);
 				case 7:
-					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
-									node7, node);
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5,
+									node6, node7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8525,7 +8584,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2 }, (byte) 2);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2 },
+							(byte) 2);
 		}
 
 		@Override
@@ -8587,8 +8647,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s]", recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2);
+			return String.format("[@%d: %s=%s, @%d: %s=%s]", recoverMask(valmap, (byte) 1), key1,
+							val1, recoverMask(valmap, (byte) 2), key2, val2);
 		}
 
 	}
@@ -8909,8 +8969,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s]", recoverMask(valmap, (byte) 1),
-							key1, val1, recoverMask(valmap, (byte) 2), key2, val2,
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
 
@@ -9164,22 +9225,28 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9190,8 +9257,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap,
-							new Object[] { key1, val1, key2, val2, node1, node2 }, (byte) 2);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
+							node2 }, (byte) 2);
 		}
 
 		@Override
@@ -9264,8 +9331,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
 
@@ -9394,9 +9462,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
+								node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2,
+								node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9447,11 +9517,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
+								node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+								node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9532,42 +9605,42 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
-									node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
-									node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
-									node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9578,8 +9651,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
-							node3 }, (byte) 2);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
+							node2, node3 }, (byte) 2);
 		}
 
 		@Override
@@ -9657,8 +9730,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3);
 		}
@@ -9792,11 +9866,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
+								node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2,
+								node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9847,17 +9921,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
+								node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+								node3, node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node, node4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9871,13 +9945,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (bitIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3,
+								node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3,
+								node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9897,40 +9975,40 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2, node3,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2,
+									node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2, node3,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2,
+									node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node, node3,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node,
+									node3, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node, node4);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
-									node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2, node3,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2,
+									node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2, node3,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2,
+									node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node3,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node,
+									node3, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
-									node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node, node4);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-									node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9954,56 +10032,56 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
-									node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node2, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
-									node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node2, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
-									node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10014,8 +10092,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
-							node3, node4 }, (byte) 2);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
+							node2, node3, node4 }, (byte) 2);
 		}
 
 		@Override
@@ -10098,8 +10176,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3,
 							recoverMask(bitmap ^ valmap, (byte) 4), node4);
@@ -10239,11 +10318,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
+								node3, node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2,
+								node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10281,9 +10360,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+								node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10294,20 +10375,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
+								node3, node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+								node3, node4, node5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node, node4, node5);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node, node5);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4, node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10321,20 +10402,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (bitIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3, node4,
-								node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3,
+								node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3, node4,
-								node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3,
+								node4, node5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node4,
-								node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node4, node5);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node5);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10354,46 +10435,46 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2, node3,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2,
+									node3, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2, node3,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2,
+									node3, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node, node3,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node,
+									node3, node4, node5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node, node4, node5);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
-									node, node5);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node4, node, node5);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
-									node5, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2, node3,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2,
+									node3, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2, node3,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2,
+									node3, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node3,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node,
+									node3, node4, node5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
-									node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node, node4, node5);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-									node, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node4, node, node5);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-									node5, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10417,70 +10498,70 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
-									node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node2, node3, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
-									node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node2, node3, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
-									node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node3, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node3, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node3, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node3, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node3, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node3, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node3, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10491,8 +10572,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
-							node3, node4, node5 }, (byte) 2);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
+							node2, node3, node4, node5 }, (byte) 2);
 		}
 
 		@Override
@@ -10581,8 +10662,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3,
 							recoverMask(bitmap ^ valmap, (byte) 4), node4,
@@ -10727,11 +10809,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3,
-								node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
+								node3, node4, node5, node6);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3,
-								node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2,
+								node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10784,23 +10866,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						CompactMapNode<K, V> node) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3,
-								node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
+								node3, node4, node5, node6);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3,
-								node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+								node3, node4, node5, node6);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node,
-								node4, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node, node4, node5, node6);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node, node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node, node5, node6);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4, node, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4, node, node6);
 			case 5:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4, node5, node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4, node5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10814,23 +10896,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (bitIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3, node4,
-								node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3,
+								node4, node5, node6);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3, node4,
-								node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3,
+								node4, node5, node6);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node4,
-								node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node4, node5, node6);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node5, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node5, node6);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4, node6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4, node6);
 			case 5:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10850,52 +10932,52 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2, node3,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2,
+									node3, node4, node5, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2, node3,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2,
+									node3, node4, node5, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node, node3,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node,
+									node3, node4, node5, node6);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node, node4, node5, node6);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
-									node, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node4, node, node5, node6);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
-									node5, node, node6);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node4, node5, node, node6);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
-									node5, node6, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3,
+									node4, node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2, node3,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2,
+									node3, node4, node5, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2, node3,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2,
+									node3, node4, node5, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node3,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node,
+									node3, node4, node5, node6);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
-									node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node, node4, node5, node6);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-									node, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node4, node, node5, node6);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-									node5, node, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node4, node5, node, node6);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
-									node5, node6, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3,
+									node4, node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10919,84 +11001,84 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
-									node3, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node2, node3, node4, node5, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
-									node3, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node2, node3, node4, node5, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
-									node3, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node2, node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node3, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node3, node4, node5, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node3, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node3, node4, node5, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node3, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node4, node5, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node4, node5, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node4, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node3, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node3, node5, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node3, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node3, node5, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node3, node5, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node3, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node3, node4, node6);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node3, node4, node6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node3, node4, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node3, node4, node6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node3, node4, node6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node3, node4, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 5:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
-									node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									node1, node2, node3, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
-									node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									node1, node2, node3, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
-									node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									node1, node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11007,8 +11089,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
-							node3, node4, node5, node6 }, (byte) 2);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
+							node2, node3, node4, node5, node6 }, (byte) 2);
 		}
 
 		@Override
@@ -11102,8 +11184,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3,
 							recoverMask(bitmap ^ valmap, (byte) 4), node4,
@@ -11250,13 +11333,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11337,8 +11424,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3 },
-							(byte) 3);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3 }, (byte) 3);
 		}
 
 		@Override
@@ -11409,8 +11496,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s]", recoverMask(valmap, (byte) 1),
-							key1, val1, recoverMask(valmap, (byte) 2), key2, val2,
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
 							recoverMask(valmap, (byte) 3), key3, val3);
 		}
 
@@ -11560,17 +11648,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								node1);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, node1);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, node1);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, node1);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11678,17 +11766,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11699,8 +11787,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							node1 }, (byte) 3);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1 }, (byte) 3);
 		}
 
 		@Override
@@ -11777,8 +11865,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
 
@@ -11798,7 +11887,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		Map3To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
 						final K key1, final V val1, final K key2, final V val2, final K key3,
-						final V val3, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+						final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
 			this.bitmap = bitmap;
 			this.valmap = valmap;
@@ -11935,17 +12025,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, node1, node2);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, node1, node2);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, node1, node2);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11978,8 +12068,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
 								node2);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12074,34 +12164,34 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node2);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12112,8 +12202,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							node1, node2 }, (byte) 3);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1, node2 }, (byte) 3);
 		}
 
 		@Override
@@ -12195,8 +12285,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
@@ -12359,17 +12450,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, node1, node2, node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, node1, node2, node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, node1, node2, node3);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12384,11 +12475,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+								node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+								node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12402,11 +12496,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
 								node2, node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node, node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12420,14 +12514,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (bitIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node2,
-								node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node2, node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12515,51 +12609,51 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node2, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node2);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12570,8 +12664,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							node1, node2, node3 }, (byte) 3);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1, node2, node3 }, (byte) 3);
 		}
 
 		@Override
@@ -12658,8 +12752,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3);
@@ -12828,17 +12923,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, node1, node2, node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, node1, node2, node3, node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, node1, node2, node3, node4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12853,14 +12948,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+								node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+								node3, node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12874,14 +12969,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
 								node2, node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node, node3, node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node, node4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12895,17 +12990,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (bitIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node2,
-								node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node2, node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node3, node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13002,68 +13097,68 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node2, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node2, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node2, node3, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node3, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node2, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node2, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node2, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node2, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13074,8 +13169,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							node1, node2, node3, node4 }, (byte) 3);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1, node2, node3, node4 }, (byte) 3);
 		}
 
 		@Override
@@ -13168,8 +13263,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3,
@@ -13343,17 +13439,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, node1, node2, node3, node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, node1, node2, node3, node4, node5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, node1, node2, node3, node4, node5);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								node1, node2, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, node1, node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13368,14 +13464,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+								node3, node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+								node3, node4, node5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
-								node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+								node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13389,17 +13485,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
 								node2, node3, node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node, node3, node4, node5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node, node4, node5);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node, node5);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4, node);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13413,20 +13509,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (bitIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node2,
-								node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node2, node3, node4, node5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node3, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node3, node4, node5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node4, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node4, node5);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node5);
 			case 4:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13532,85 +13628,85 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node2, node3, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node2, node3, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node2, node3, node4, node5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node2, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node3, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node3, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node3, node4, node5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node3, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node2, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node2, node4, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node2, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node2, node4, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node2, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node2, node4, node5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node2, node4, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node2, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node2, node3, node5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node2, node3, node5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node2, node3, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node2, node3, node5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node2, node3, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node2, node3, node5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node2, node3, node5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node2, node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, node1, node2, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, node1, node2, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, node1, node2, node3, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, node1, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13621,8 +13717,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							node1, node2, node3, node4, node5 }, (byte) 3);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1, node2, node3, node4, node5 }, (byte) 3);
 		}
 
 		@Override
@@ -13720,8 +13816,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3,
@@ -13778,8 +13875,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 });
 		}
 
 		@Override
@@ -13859,13 +13956,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
 			switch (index) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4, val4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4, val4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4, val4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4, val);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13881,17 +13982,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val);
@@ -13946,28 +14047,32 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13984,8 +14089,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4 }, (byte) 4);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4 }, (byte) 4);
 		}
 
 		@Override
@@ -14066,8 +14171,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(valmap, (byte) 4), key4, val4);
 		}
 
@@ -14122,8 +14228,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 });
 		}
 
 		@Override
@@ -14234,17 +14340,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, node1);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, node1);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, node1);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, node1);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, node1);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, node1);
@@ -14315,8 +14421,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
-									node1);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node, node1);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
 									node1, node);
@@ -14326,8 +14432,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
-									node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node, node1);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
 									node1, node);
@@ -14337,8 +14443,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
-									node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node, node1);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
 									node1, node);
@@ -14348,8 +14454,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
-									node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node, node1);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 									node1, node);
@@ -14376,20 +14482,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14400,8 +14506,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, node1 }, (byte) 4);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, node1 }, (byte) 4);
 		}
 
 		@Override
@@ -14487,8 +14593,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(valmap, (byte) 4), key4, val4,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
@@ -14547,8 +14654,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 });
 		}
 
 		@Override
@@ -14661,17 +14768,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, node1, node2);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, node1, node2);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, node1, node2);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, node1, node2);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, node1, node2);
@@ -14689,17 +14796,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node1,
-								node2);
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+								node1, node2);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node1,
-								node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+								node1, node2);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node1,
-								node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+								node1, node2);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14752,8 +14859,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
-									node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node, node1, node2);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
 									node1, node, node2);
@@ -14766,8 +14873,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
-									node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node, node1, node2);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
 									node1, node, node2);
@@ -14780,8 +14887,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
-									node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node, node1, node2);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
 									node1, node, node2);
@@ -14794,8 +14901,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
-									node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node, node1, node2);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 									node1, node, node2);
@@ -14825,40 +14932,40 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node2);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node2);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node1);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node1);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node1);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node1);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14869,8 +14976,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, node1, node2 }, (byte) 4);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, node1, node2 }, (byte) 4);
 		}
 
 		@Override
@@ -14960,9 +15067,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(valmap, (byte) 4), key4, val4,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2);
@@ -15024,8 +15133,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 });
 		}
 
 		@Override
@@ -15140,17 +15249,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, node1, node2, node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, node1, node2, node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, node1, node2, node3);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, node1, node2, node3);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, node1, node2, node3);
@@ -15168,17 +15277,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node1,
-								node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+								node1, node2, node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node1,
-								node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+								node1, node2, node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node1,
-								node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+								node1, node2, node3);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15237,8 +15346,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
-									node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node, node1, node2, node3);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
 									node1, node, node2, node3);
@@ -15254,8 +15363,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
-									node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node, node1, node2, node3);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
 									node1, node, node2, node3);
@@ -15271,8 +15380,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
-									node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node, node1, node2, node3);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
 									node1, node, node2, node3);
@@ -15288,8 +15397,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
-									node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node, node1, node2, node3);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 									node1, node, node2, node3);
@@ -15322,60 +15431,60 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node2, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node2, node3);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node1, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node1, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node1, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node1, node3);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node1, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node1, node2);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node1, node2);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15386,8 +15495,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, node1, node2, node3 }, (byte) 4);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, node1, node2, node3 }, (byte) 4);
 		}
 
 		@Override
@@ -15484,8 +15593,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(valmap, (byte) 4), key4, val4,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
@@ -15551,8 +15661,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 });
 		}
 
 		@Override
@@ -15669,17 +15779,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, node1, node2, node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, node1, node2, node3, node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, node1, node2, node3, node4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, node1, node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, node1, node2, node3, node4);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, node1, node2, node3, node4);
@@ -15697,17 +15807,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node1,
-								node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+								node1, node2, node3, node4);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node1,
-								node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+								node1, node2, node3, node4);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node1,
-								node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+								node1, node2, node3, node4);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15772,8 +15882,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
-									node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node, node1, node2, node3, node4);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
 									node1, node, node2, node3, node4);
@@ -15792,8 +15902,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
-									node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node, node1, node2, node3, node4);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
 									node1, node, node2, node3, node4);
@@ -15812,8 +15922,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
-									node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node, node1, node2, node3, node4);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
 									node1, node, node2, node3, node4);
@@ -15832,8 +15942,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
-									node1, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node, node1, node2, node3, node4);
 				case 1:
 					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
 									node1, node, node2, node3, node4);
@@ -15869,80 +15979,80 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node2, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node2, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node2, node3, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node2, node3, node4);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node2, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node1, node3, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node1, node3, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node1, node3, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node1, node3, node4);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node1, node3, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node1, node2, node4);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node1, node2, node4);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node1, node2, node4);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node1, node2, node4);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node1, node2, node4);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, node1, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, node1, node2, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, node1, node2, node3);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15953,8 +16063,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, node1, node2, node3, node4 }, (byte) 4);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, node1, node2, node3, node4 }, (byte) 4);
 		}
 
 		@Override
@@ -16056,8 +16166,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
 							recoverMask(valmap, (byte) 4), key4, val4,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
@@ -16118,8 +16229,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5 });
 		}
 
 		@Override
@@ -16234,17 +16345,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5);
@@ -16309,40 +16420,40 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16359,8 +16470,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5 }, (byte) 5);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5 }, (byte) 5);
 		}
 
 		@Override
@@ -16450,10 +16561,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5);
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5);
 		}
 
 	}
@@ -16512,8 +16624,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5 });
 		}
 
 		@Override
@@ -16633,17 +16745,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, node1);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, node1);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, node1);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, node1);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, node1);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, node1);
@@ -16724,55 +16836,55 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16796,23 +16908,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16823,8 +16935,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, node1 }, (byte) 5);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, node1 }, (byte) 5);
 		}
 
 		@Override
@@ -16920,10 +17032,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(bitmap ^ valmap, (byte) 1), node1);
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
 
 	}
@@ -16984,8 +17098,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5 });
 		}
 
 		@Override
@@ -17107,17 +17221,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, node1, node2);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, node1, node2);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, node1, node2);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, node1, node2);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, node1, node2);
@@ -17204,70 +17318,70 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17291,46 +17405,46 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, node2);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, node2);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, node2);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, node1);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, node1);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, node1);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, node1);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, node1);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17341,8 +17455,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, node1, node2 }, (byte) 5);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, node1, node2 }, (byte) 5);
 		}
 
 		@Override
@@ -17443,10 +17557,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
 
@@ -17511,8 +17627,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5 });
 		}
 
 		@Override
@@ -17636,17 +17752,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, node1, node2, node3);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, node1, node2, node3);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, node1, node2, node3);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, node1, node2, node3);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, node1, node2, node3);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, node1, node2, node3);
@@ -17739,85 +17855,85 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node, node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node1, node, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node1, node, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node1, node2, node, node3);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node1, node2, node, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, node1, node2, node3, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node, node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node1, node, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node1, node, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node1, node2, node, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node1, node2, node, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, node1, node2, node3, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node, node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node1, node, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node1, node, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node1, node2, node, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node1, node2, node, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, node1, node2, node3, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node, node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node1, node, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node1, node, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node1, node2, node, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node1, node2, node, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, node1, node2, node3, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node, node1, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node, node1, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node1, node, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node1, node, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node1, node2, node, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node1, node2, node, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, node1, node2, node3, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17841,69 +17957,69 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, node2, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, node2, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, node2, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, node2, node3);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, node2, node3);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, node2, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, node1, node3);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, node1, node3);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, node1, node3);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, node1, node3);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, node1, node3);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, node1, node3);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, node1, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, node1, node2);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, node1, node2);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, node1, node2);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17914,8 +18030,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, node1, node2, node3 }, (byte) 5);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, node1, node2, node3 }, (byte) 5);
 		}
 
 		@Override
@@ -18021,10 +18137,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2,
 							recoverMask(bitmap ^ valmap, (byte) 3), node3);
 		}
@@ -18087,8 +18205,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6 });
 		}
 
 		@Override
@@ -18212,17 +18330,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, key6, val6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, key6, val6);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, key6, val6);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, key6, val6);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, key6, val6);
@@ -18293,48 +18411,48 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 5:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18351,8 +18469,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, key6, val6 }, (byte) 6);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6 }, (byte) 6);
 		}
 
 		@Override
@@ -18452,10 +18570,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(valmap, (byte) 6), key6, val6);
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(valmap, (byte) 6), key6, val6);
 		}
 
 	}
@@ -18518,8 +18638,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6 });
 		}
 
 		@Override
@@ -18648,17 +18768,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, node1);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, node1);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, node1);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, key6, val6, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, key6, val6, node1);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, key6, val6, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, key6, val6, node1);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, key6, val6, node1);
@@ -18745,66 +18865,66 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 5:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18828,26 +18948,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, key6, val6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, key6, val6);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, key6, val6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, key6, val6);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, key6, val6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, key6, val6);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, key6, val6);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, key6, val6);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, key, val);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18858,8 +18978,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, key6, val6, node1 }, (byte) 6);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, node1 }, (byte) 6);
 		}
 
 		@Override
@@ -18964,10 +19084,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(valmap, (byte) 6), key6, val6,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
 
@@ -19034,8 +19156,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6 });
 		}
 
 		@Override
@@ -19166,17 +19288,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, key6, val6, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, key6, val6, node1, node2);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, key6, val6, node1, node2);
@@ -19269,84 +19391,84 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 5:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, node, node1, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, node, node1, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, node1, node, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, node1, node, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, node1, node2, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19370,52 +19492,52 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6, node2);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, key6, val6, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, key6, val6, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, key6, val6, node2);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, key6, val6, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, key6, val6, node2);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, key6, val6, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, key6, val6, node2);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, key, val, node2);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6, node1);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, key6, val6, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, key6, val6, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, key6, val6, node1);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, key6, val6, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, key6, val6, node1);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, key6, val6, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, key6, val6, node1);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, key, val, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19426,8 +19548,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, key6, val6, node1, node2 }, (byte) 6);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, node1, node2 }, (byte) 6);
 		}
 
 		@Override
@@ -19537,10 +19659,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(valmap, (byte) 6), key6, val6,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1,
 							recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
@@ -19607,8 +19731,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, key7, val7 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7 });
 		}
 
 		@Override
@@ -19741,17 +19865,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, key6, val6, key7, val7);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, key6, val6, key7, val7);
@@ -19828,56 +19952,56 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, key7, val7, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, key7, val7, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, key7, val7, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 5:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key7, val7, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 6:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19894,8 +20018,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, key6, val6, key7, val7 }, (byte) 7);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, key7, val7 }, (byte) 7);
 		}
 
 		@Override
@@ -20004,10 +20128,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(valmap, (byte) 6), key6, val6,
 							recoverMask(valmap, (byte) 7), key7, val7);
 		}
 
@@ -20076,8 +20202,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, key7, val7 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7 });
 		}
 
 		@Override
@@ -20215,17 +20341,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, key6, val6, key7, val7, node1);
@@ -20318,77 +20444,77 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, key7, val7, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, key7, val7, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, key7, val7, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, key7, val7, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, key7, val7, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, key7, val7, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, key7, val7, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 5:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key7, val7, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key7, val7, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key7, val7, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 6:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, node, node1);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, node, node1);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, node1, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20412,29 +20538,29 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (valIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6, key7, val7);
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 1:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
-									val3, key4, val4, key5, val5, key6, val6, key7, val7);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2,
+									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 2:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
-									val3, key4, val4, key5, val5, key6, val6, key7, val7);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val,
+									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 3:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
-									val, key4, val4, key5, val5, key6, val6, key7, val7);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key, val, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 4:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key, val, key5, val5, key6, val6, key7, val7);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key, val, key5, val5, key6, val6, key7, val7);
 				case 5:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key, val, key6, val6, key7, val7);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key, val, key6, val6, key7, val7);
 				case 6:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, key, val, key7, val7);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, key, val, key7, val7);
 				case 7:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, key7, val7, key, val);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, key7, val7, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20445,8 +20571,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, key6, val6, key7, val7, node1 }, (byte) 7);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1 }, (byte) 7);
 		}
 
 		@Override
@@ -20560,10 +20686,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(valmap, (byte) 6), key6, val6,
 							recoverMask(valmap, (byte) 7), key7, val7,
 							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
@@ -20635,8 +20763,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
-							val4, key5, val5, key6, val6, key7, val7, key8, val8 });
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7, key8, val8 });
 		}
 
 		@Override
@@ -20778,17 +20906,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			switch (valIndex) {
 			case 0:
-				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 1:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 2:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
-								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 3:
-				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
-								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+								val, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 4:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key, val, key5, val5, key6, val6, key7, val7, key8, val8);
@@ -20871,64 +20999,64 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, key8, val8, node);
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 1:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
-									val5, key6, val6, key7, val7, key8, val8, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 2:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
-									val5, key6, val6, key7, val7, key8, val8, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 3:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
-									val5, key6, val6, key7, val7, key8, val8, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 4:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key6, val6, key7, val7, key8, val8, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 5:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key7, val7, key8, val8, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 6:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, key8, val8, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
 			case 7:
 				switch (bitIndex) {
 				case 0:
-					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
-									val4, key5, val5, key6, val6, key7, val7, node);
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									key4, val4, key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20945,8 +21073,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
-							key4, val4, key5, val5, key6, val6, key7, val7, key8, val8 }, (byte) 8);
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8 },
+							(byte) 8);
 		}
 
 		@Override
@@ -21064,12 +21193,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
-							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
-							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
-							recoverMask(valmap, (byte) 7), key7, val7, recoverMask(valmap, (byte) 8),
-							key8, val8);
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(valmap, (byte) 5), key5, val5,
+							recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 7), key7, val7,
+							recoverMask(valmap, (byte) 8), key8, val8);
 		}
 
 	}
