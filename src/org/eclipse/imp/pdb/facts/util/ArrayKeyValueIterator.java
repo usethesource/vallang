@@ -13,7 +13,6 @@ package org.eclipse.imp.pdb.facts.util;
 
 import java.util.NoSuchElementException;
 
-@Deprecated
 public class ArrayKeyValueIterator<K, V> implements SupplierIterator<K, V> {
 	
 	final Object[] values;
@@ -35,6 +34,7 @@ public class ArrayKeyValueIterator<K, V> implements SupplierIterator<K, V> {
 		return currentIndex < end;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public K next() {
 		if (!hasNext())

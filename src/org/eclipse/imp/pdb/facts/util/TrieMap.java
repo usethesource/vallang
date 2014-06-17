@@ -41,8 +41,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	private static final TrieMap EMPTY_INPLACE_INDEX_MAP = new TrieMap(
 					CompactMapNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
+	private static final boolean DEBUG = false;
 	private static final boolean USE_SPECIALIAZIONS = true;
-	private static final boolean USE_STACK_ITERATOR = true; // does not effect TransientMap
+	private static final boolean USE_STACK_ITERATOR = true; // does not effect
+															// TransientMap
 
 	private final AbstractMapNode<K, V> rootNode;
 	private final int hashCode;
@@ -52,32 +54,34 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
-		assert invariant();
+		if (DEBUG) {
+			assert invariant();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> ImmutableMap<K, V> of() {
 		return TrieMap.EMPTY_INPLACE_INDEX_MAP;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static final <K, V> ImmutableMap<K, V> of(Object... keyValuePairs) {
 		if (keyValuePairs.length % 2 != 0) {
 			throw new IllegalArgumentException(
 							"Length of argument list is uneven: no key/value pairs.");
 		}
-		
+
 		ImmutableMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP;
-		
+
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];
-			final V val = (V) keyValuePairs[i+1];
-			
+			final V val = (V) keyValuePairs[i + 1];
+
 			result = result.__put(key, val);
 		}
-		
+
 		return result;
-	}	
+	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> TransientMap<K, V> transientOf() {
@@ -90,31 +94,55 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			throw new IllegalArgumentException(
 							"Length of argument list is uneven: no key/value pairs.");
 		}
-		
+
 		final TransientMap<K, V> result = TrieMap.EMPTY_INPLACE_INDEX_MAP.asTransient();
-		
+
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];
-			final V val = (V) keyValuePairs[i+1];
-			
+			final V val = (V) keyValuePairs[i + 1];
+
 			result.__put(key, val);
 		}
-		
+
 		return result;
-	}	
-	
+	}
+
 	private boolean invariant() {
 		int _hash = 0;
 		int _count = 0;
 
 		for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
 			final Map.Entry<K, V> entry = it.next();
-			
+
 			_hash += entry.getKey().hashCode() ^ entry.getValue().hashCode();
 			_count += 1;
 		}
 
 		return this.hashCode == _hash && this.cachedSize == _count;
+	}
+
+	// returns 0 <= mask <= 31
+	static byte recoverMask(int map, byte i_th) {
+		assert 1 <= i_th && i_th <= 32;
+
+		byte cnt1 = 0;
+		byte mask = 0;
+
+		while (mask < 32) {
+			if ((map & 0x01) == 0x01) {
+				cnt1 += 1;
+
+				if (cnt1 == i_th) {
+					return mask;
+				}
+			}
+
+			map = map >> 1;
+			mask += 1;
+		}
+
+		assert cnt1 != i_th;
+		throw new RuntimeException("Called with invalid arguments.");
 	}
 
 	@Override
@@ -128,8 +156,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final int valHashOld = result.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMap<K, V>(result.getNode(), hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
+				return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHashNew)
+								- (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
@@ -151,8 +179,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final int valHashOld = result.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMap<K, V>(result.getNode(), hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
+				return new TrieMap<K, V>(result.getNode(), hashCode + (keyHash ^ valHashNew)
+								- (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
@@ -167,7 +195,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
 		TransientMap<K, V> tmp = asTransient();
 		tmp.__putAll(map);
-		return tmp.freeze();	
+		return tmp.freeze();
 	}
 
 	@Override
@@ -189,14 +217,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			// assert result.hasReplacedValue();
 			// final int valHash = result.getReplacedValue().hashCode();
 
-			final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue()
-							.hashCode();
+			final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue().hashCode();
 
 			return new TrieMap<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
 							cachedSize - 1);
 		}
 
-		return this;	}
+		return this;
+	}
 
 	@Override
 	public TrieMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp) {
@@ -333,6 +361,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					return TrieMap.this.isEmpty();
 				}
 
+				@SuppressWarnings("deprecation")
 				@Override
 				public void clear() {
 					TrieMap.this.clear();
@@ -414,8 +443,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
-	}	
-	
+	}
+
 	/**
 	 * Iterator skeleton that uses a fixed stack in depth.
 	 */
@@ -452,7 +481,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				while (currentStackLevel >= 0) {
 					final int currentCursorIndex = currentStackLevel * 2;
 					final int currentLengthIndex = currentCursorIndex + 1;
-					
+
 					final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
 					final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
 
@@ -472,7 +501,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							final int nextStackLevel = ++currentStackLevel;
 							final int nextCursorIndex = nextStackLevel * 2;
 							final int nextLengthIndex = nextCursorIndex + 1;
-							
+
 							nodes[nextStackLevel] = nextNode;
 							nodeCursorsAndLengths[nextCursorIndex] = 0;
 							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
@@ -577,7 +606,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return new TransientTrieMap<K, V>(this);
 	}
 
-	static final class TransientTrieMap<K, V> extends AbstractMap<K, V> implements TransientMap<K, V> {
+	static final class TransientTrieMap<K, V> extends AbstractMap<K, V> implements
+					TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
 		private int hashCode;
@@ -588,7 +618,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.rootNode = trieMap.rootNode;
 			this.hashCode = trieMap.hashCode;
 			this.cachedSize = trieMap.cachedSize;
-			assert invariant();
+			if (DEBUG) {
+				assert invariant();
+			}
 		}
 
 		// TODO: merge with TrieMap invariant (as function)
@@ -597,7 +629,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			for (Iterator<Map.Entry<K, V>> it = entryIterator(); it.hasNext();) {
 				final Map.Entry<K, V> entry = it.next();
-				
+
 				_hash += entry.getKey().hashCode() ^ entry.getValue().hashCode();
 			}
 
@@ -616,8 +648,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public V get(Object key) {
-			final Optional<Map.Entry<K, V>> result = rootNode
-							.findByKey(key, key.hashCode(), 0);
+			final Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 			if (result.isPresent()) {
 				return result.get().getValue();
@@ -661,7 +692,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					hashCode -= keyHash ^ valHashOld;
 					// cachedSize remains same
 
-					assert invariant();
+					if (DEBUG) {
+						assert invariant();
+					}
 					return old;
 				} else {
 					final int valHashNew = val.hashCode();
@@ -669,12 +702,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					hashCode += keyHash ^ valHashNew;
 					cachedSize += 1;
 
-					assert invariant();
+					if (DEBUG) {
+						assert invariant();
+					}
 					return null;
 				}
 			}
 
-			assert invariant();
+			if (DEBUG) {
+				assert invariant();
+			}
 			return null;
 		}
 
@@ -701,7 +738,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					hashCode -= keyHash ^ valHashOld;
 					// cachedSize remains same
 
-					assert invariant();
+					if (DEBUG) {
+						assert invariant();
+					}
 					return old;
 				} else {
 					final int valHashNew = val.hashCode();
@@ -709,12 +748,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					hashCode += keyHash ^ valHashNew;
 					cachedSize += 1;
 
-					assert invariant();
+					if (DEBUG) {
+						assert invariant();
+					}
 					return null;
 				}
 			}
 
-			assert invariant();
+			if (DEBUG) {
+				assert invariant();
+			}
 			return null;
 		}
 
@@ -733,18 +776,21 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				// assert result.hasReplacedValue();
 				// final int valHash = result.getReplacedValue().hashCode();
 
-				final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue()
-								.hashCode();
+				final int valHash = rootNode.findByKey(key, keyHash, 0).get().getValue().hashCode();
 
 				rootNode = result.getNode();
 				hashCode -= keyHash ^ valHash;
 				cachedSize -= 1;
 
-				assert invariant();
+				if (DEBUG) {
+					assert invariant();
+				}
 				return true;
 			}
 
-			assert invariant();
+			if (DEBUG) {
+				assert invariant();
+			}
 			return false;
 		}
 
@@ -770,11 +816,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				hashCode -= keyHash ^ valHash;
 				cachedSize -= 1;
 
-				assert invariant();
+				if (DEBUG) {
+					assert invariant();
+				}
 				return true;
 			}
 
-			assert invariant();
+			if (DEBUG) {
+				assert invariant();
+			}
 			return false;
 		}
 
@@ -860,8 +910,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				};
 			}
 			return entrySet;
-		}		
-		
+		}
+
 		@Override
 		public SupplierIterator<K, V> keyIterator() {
 			return new TransientMapKeyIterator<>(this);
@@ -869,16 +919,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public Iterator<V> valueIterator() {
-//			return new TrieMapValueIterator<>(keyIterator());
-			return new MapValueIterator<>(rootNode); // TODO: iterator does not support removal
+			// return new TrieMapValueIterator<>(keyIterator());
+			return new MapValueIterator<>(rootNode); // TODO: iterator does not
+														// support removal
 		}
 
 		@Override
 		public Iterator<Map.Entry<K, V>> entryIterator() {
-//			return new TrieMapEntryIterator<>(keyIterator());
-			return new MapEntryIterator<>(rootNode); // TODO: iterator does not support removal
-		}		
-		
+			// return new TrieMapEntryIterator<>(keyIterator());
+			return new MapEntryIterator<>(rootNode); // TODO: iterator does not
+														// support removal
+		}
+
 		/**
 		 * Iterator that first iterates over inlined-values and then continues
 		 * depth first recursively.
@@ -1034,33 +1086,33 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	protected static abstract class AbstractNode<K, V> {
-		
+
 	}
-	
+
 	protected static abstract class AbstractMapNode<K, V> extends AbstractNode<K, V> {
 
 		protected static final int BIT_PARTITION_SIZE = 5;
 		protected static final int BIT_PARTITION_MASK = 0x1f;
 
 		abstract boolean containsKey(Object key, int keyHash, int shift);
-		
+
 		abstract boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp);
 
 		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift);
-		
+
 		abstract Optional<Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
 						Comparator<Object> cmp);
 
 		abstract Result<K, V, ? extends AbstractMapNode<K, V>> updated(
-						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift);		
-		
+						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift);
+
 		abstract Result<K, V, ? extends AbstractMapNode<K, V>> updated(
 						AtomicReference<Thread> mutator, K key, int keyHash, V val, int shift,
 						Comparator<Object> cmp);
 
 		abstract Result<K, V, ? extends AbstractMapNode<K, V>> removed(
 						AtomicReference<Thread> mutator, K key, int keyHash, int shift);
-		
+
 		abstract Result<K, V, ? extends AbstractMapNode<K, V>> removed(
 						AtomicReference<Thread> mutator, K key, int keyHash, int shift,
 						Comparator<Object> cmp);
@@ -1074,7 +1126,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		abstract V getValue(int index);
 
 		abstract Map.Entry<K, V> getKeyValueEntry(int index);
-		
+
 		abstract AbstractMapNode<K, V> getNode(int index);
 
 		abstract boolean hasNodes();
@@ -1112,434 +1164,30 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
-		static final byte SIZE_EMPTY = 0b00;
-		static final byte SIZE_ONE = 0b01;
-		static final byte SIZE_MORE_THAN_ONE = 0b10;
-
-		@Override
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						K key, int keyHash, V val, int shift);
-
-		@Override
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						K key, int keyHash, V val, int shift, Comparator<Object> cmp);	
-		
-		@Override
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						K key, int hash, int shift);
-		
-		@Override
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						K key, int hash, int shift, Comparator<Object> cmp);		
-
-		/**
-		 * Abstract predicate over a node's size. Value can be either
-		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or
-		 * {@value #SIZE_MORE_THAN_ONE}.
-		 * 
-		 * @return size predicate
-		 */
-		abstract byte sizePredicate();
-
-		/**
-		 * Returns the first key stored within this node.
-		 * 
-		 * @return first key
-		 */
-		abstract K headKey();
-
-		/**
-		 * Returns the first value stored within this node.
-		 * 
-		 * @return first value
-		 */
-		abstract V headVal();
-
-		@Override
-		abstract Iterator<? extends CompactMapNode<K, V>> nodeIterator();
-		
-		boolean nodeInvariant() {
-			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
-			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
-			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
-							: true;
-			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
-
-			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
-							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
-
-			return inv1 && inv2 && inv3 && inv4 && inv5;
-		}
-
-		static final CompactMapNode EMPTY_INPLACE_INDEX_NODE; 
-					
-		static {
-			if (USE_SPECIALIAZIONS) {
-				EMPTY_INPLACE_INDEX_NODE = new Map0To0Node<>(null);
-			} else {
-				EMPTY_INPLACE_INDEX_NODE = new BitmapIndexedMapNode<>(null, 0, 0, new Object[] {},
-								(byte) 0);
-			}
-		};
-
-		@SuppressWarnings("unchecked")
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
-			return EMPTY_INPLACE_INDEX_NODE;
-		}
-		
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator,
-						int bitmap, int valmap, Object[] nodes, byte payloadArity) {
-			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, nodes, payloadArity);
-		}		
-		
-		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, byte pos,
-						CompactMapNode<K, V> node) {
-			switch (pos) {
-			case 0:
-				return new SingletonMapNodeAtMask0Node<>(node);
-			case 1:
-				return new SingletonMapNodeAtMask1Node<>(node);
-			case 2:
-				return new SingletonMapNodeAtMask2Node<>(node);
-			case 3:
-				return new SingletonMapNodeAtMask3Node<>(node);
-			case 4:
-				return new SingletonMapNodeAtMask4Node<>(node);
-			case 5:
-				return new SingletonMapNodeAtMask5Node<>(node);
-			case 6:
-				return new SingletonMapNodeAtMask6Node<>(node);
-			case 7:
-				return new SingletonMapNodeAtMask7Node<>(node);
-			case 8:
-				return new SingletonMapNodeAtMask8Node<>(node);
-			case 9:
-				return new SingletonMapNodeAtMask9Node<>(node);
-			case 10:
-				return new SingletonMapNodeAtMask10Node<>(node);
-			case 11:
-				return new SingletonMapNodeAtMask11Node<>(node);
-			case 12:
-				return new SingletonMapNodeAtMask12Node<>(node);
-			case 13:
-				return new SingletonMapNodeAtMask13Node<>(node);
-			case 14:
-				return new SingletonMapNodeAtMask14Node<>(node);
-			case 15:
-				return new SingletonMapNodeAtMask15Node<>(node);
-			case 16:
-				return new SingletonMapNodeAtMask16Node<>(node);
-			case 17:
-				return new SingletonMapNodeAtMask17Node<>(node);
-			case 18:
-				return new SingletonMapNodeAtMask18Node<>(node);
-			case 19:
-				return new SingletonMapNodeAtMask19Node<>(node);
-			case 20:
-				return new SingletonMapNodeAtMask20Node<>(node);
-			case 21:
-				return new SingletonMapNodeAtMask21Node<>(node);
-			case 22:
-				return new SingletonMapNodeAtMask22Node<>(node);
-			case 23:
-				return new SingletonMapNodeAtMask23Node<>(node);
-			case 24:
-				return new SingletonMapNodeAtMask24Node<>(node);
-			case 25:
-				return new SingletonMapNodeAtMask25Node<>(node);
-			case 26:
-				return new SingletonMapNodeAtMask26Node<>(node);
-			case 27:
-				return new SingletonMapNodeAtMask27Node<>(node);
-			case 28:
-				return new SingletonMapNodeAtMask28Node<>(node);
-			case 29:
-				return new SingletonMapNodeAtMask29Node<>(node);
-			case 30:
-				return new SingletonMapNodeAtMask30Node<>(node);
-			case 31:
-				return new SingletonMapNodeAtMask31Node<>(node);
-
-			default:
-				throw new IllegalStateException("Position out of range.");
-			}
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2) {
-			return new Map0To2Node<>(mutator, npos1, node1, npos2, node2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3) {
-			return new Map0To3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3, final byte npos4,
-						final CompactMapNode<K, V> node4) {
-			return new Map0To4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
-							node4);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3, final byte npos4,
-						final CompactMapNode<K, V> node4, final byte npos5,
-						final CompactMapNode<K, V> node5) {
-			final int bitmap = 0 | (1 << npos1) | (1 << npos2) | (1 << npos3) | (1 << npos4)
-							| (1 << npos5);
-			final int valmap = 0;
-
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { node1, node2, node3, node4,
-							node5 }, (byte) 0);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1) {
-			return new Map1To0Node<>(mutator, pos1, key1, val1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte npos1,
-						final CompactMapNode<K, V> node1) {
-			return new Map1To1Node<>(mutator, pos1, key1, val1, npos1, node1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte npos1,
-						final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2) {
-			return new Map1To2Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte npos1,
-						final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3) {
-			return new Map1To3Node<>(mutator, pos1, key1, val1, npos1, node1, npos2, node2, npos3,
-							node3);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte npos1,
-						final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3, final byte npos4,
-						final CompactMapNode<K, V> node4) {
-			final int bitmap = 0 | (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3)
-							| (1 << npos4);
-			final int valmap = 0 | (1 << pos1);
-
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, node1, node2,
-							node3, node4 }, (byte) 1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2) {
-			return new Map2To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte npos1, final CompactMapNode<K, V> node1) {
-			return new Map2To1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte npos1, final CompactMapNode<K, V> node1,
-						final byte npos2, final CompactMapNode<K, V> node2) {
-			return new Map2To2Node<>(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1,
-							npos2, node2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte npos1, final CompactMapNode<K, V> node1,
-						final byte npos2, final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2)
-							| (1 << npos3);
-			final int valmap = 0 | (1 << pos1) | (1 << pos2);
-
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3 }, (byte) 2);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte pos3, final K key3, final V val3) {
-			return new Map3To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte pos3, final K key3, final V val3,
-						final byte npos1, final CompactMapNode<K, V> node1) {
-			return new Map3To1Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
-							npos1, node1);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte pos3, final K key3, final V val3,
-						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
-							| (1 << npos2);
-			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3);
-
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
-							val3, node1, node2 }, (byte) 3);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte pos3, final K key3, final V val3, final byte pos4,
-						final K key4, final V val4) {
-			return new Map4To0Node<>(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
-							pos4, key4, val4);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte pos3, final K key3, final V val3, final byte pos4,
-						final K key4, final V val4, final byte npos1,
-						final CompactMapNode<K, V> node1) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
-							| (1 << npos1);
-			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
-
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, node1 }, (byte) 4);
-		}
-
-		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
-						final byte pos1, final K key1, final V val1, final byte pos2, final K key2,
-						final V val2, final byte pos3, final K key3, final V val3, final byte pos4,
-						final K key4, final V val4, final byte pos5, final K key5, final V val5) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
-							| (1 << pos5);
-			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
-							| (1 << pos5);
-
-			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5 }, (byte) 5);
-		}
-
-		@SuppressWarnings("unchecked")
-		static final <K, V> CompactMapNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
-						int keyHash1, V val1, int shift) {
-			assert key0.equals(key1) == false;
-
-			if (keyHash0 == keyHash1) {
-				return new HashCollisionMapNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
-								(V[]) new Object[] { val0, val1 });
-			}
-
-			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
-			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
-
-			if (mask0 != mask1) {	
-				// both nodes fit on same level
-				
-				if (USE_SPECIALIAZIONS) {
-					if (mask0 < mask1) {
-						return valNodeOf(null, (byte) mask0, key0, val0, (byte) mask1, key1, val1);
-					} else {
-						return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, key0, val0);
-					}					
-				} else {
-					final int valmap = 1 << mask0 | 1 << mask1;
-		
-					if (mask0 < mask1) {
-						return valNodeOf(null, valmap, valmap, new Object[] { key0, val0, key1,
-										val1 }, (byte) 2);
-					} else {
-						return valNodeOf(null, valmap, valmap, new Object[] { key1, val1, key0,
-										val0 }, (byte) 2);
-					}
-				}
-			} else {
-				// values fit on next level
-				final CompactMapNode<K, V> node = mergeNodes(key0, keyHash0, val0, key1, keyHash1,
-								val1, shift + BIT_PARTITION_SIZE);
-
-				if (USE_SPECIALIAZIONS) {				
-					return valNodeOf(null, (byte) mask0, node);
-				} else {
-					final int bitmap = 1 << mask0;
-					return valNodeOf(null, bitmap, 0, new Object[] { node }, (byte) 0);
-				}
-			}
-		}
-
-		static final <K, V> CompactMapNode<K, V> mergeNodes(CompactMapNode<K, V> node0, int keyHash0,
-						K key1, int keyHash1, V val1, int shift) {
-			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
-			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
-
-			if (mask0 != mask1) {
-				// both nodes fit on same level
-				
-				if (USE_SPECIALIAZIONS) {
-					// store values before node
-					return valNodeOf(null, (byte) mask1, key1, val1, (byte) mask0, node0);
-				} else {
-					final int bitmap = 1 << mask0 | 1 << mask1;
-					final int valmap = 1 << mask1;
-
-					// store values before node
-					return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node0 },
-									(byte) 1);
-				}
-			} else {
-				// values fit on next level
-				final CompactMapNode<K, V> node = mergeNodes(node0, keyHash0, key1, keyHash1, val1,
-								shift + BIT_PARTITION_SIZE);
-
-				if (USE_SPECIALIAZIONS) {				
-					return valNodeOf(null, (byte) mask0, node);
-				} else {
-					final int bitmap = 1 << mask0;
-					return valNodeOf(null, bitmap, 0, new Object[] { node }, (byte) 0);
-				}
-			}
-		}
-	}
-
 	private static final class BitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
 		private AtomicReference<Thread> mutator;
 
 		private Object[] nodes;
-		final private int bitmap;
-		final private int valmap;
+//		final private int bitmap;
+//		final private int valmap;
 		final private byte payloadArity;
 
-		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
-						byte payloadArity) {
+		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap,
+						Object[] nodes, byte payloadArity) {
+			super(mutator, bitmap, valmap);
+			
 			assert (2 * Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
 			this.mutator = mutator;
 
 			this.nodes = nodes;
-			this.bitmap = bitmap;
-			this.valmap = valmap;
+//			this.bitmap = bitmap;
+//			this.valmap = valmap;
 			this.payloadArity = payloadArity;
 
 			assert (payloadArity == Integer.bitCount(valmap));
-//			assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-//															// SIZE_MORE_THAN_ONE
+			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
+			// // SIZE_MORE_THAN_ONE
 
 			// for (int i = 0; i < 2 * payloadArity; i++)
 			// assert ((nodes[i] instanceof CompactNode) == false);
@@ -1550,902 +1198,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			// assert invariant
 			assert nodeInvariant();
 		}
-
-		final int bitIndex(int bitpos) {
-			return 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
-		}
-
-		final int valIndex(int bitpos) {
-			return 2 * Integer.bitCount(valmap & (bitpos - 1));
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) {
-				return nodes[valIndex(bitpos)].equals(key);
-			}
-
-			if ((bitmap & bitpos) != 0) {
-				return ((AbstractMapNode<K, V>) nodes[bitIndex(bitpos)]).containsKey(key, keyHash, shift
-								+ BIT_PARTITION_SIZE);
-			}
-
-			return false;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) {
-				return cmp.compare(nodes[valIndex(bitpos)], key) == 0;
-			}
-
-			if ((bitmap & bitpos) != 0) {
-				return ((AbstractMapNode<K, V>) nodes[bitIndex(bitpos)]).containsKey(key, keyHash, shift
-								+ BIT_PARTITION_SIZE, cmp);
-			}
-
-			return false;
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) { // inplace value
-				final int valIndex = valIndex(bitpos);
-
-				if (nodes[valIndex].equals(key)) {
-					final K _key = (K) nodes[valIndex];
-					final V _val = (V) nodes[valIndex + 1];
-
-					final Map.Entry<K, V> entry = entryOf(_key, _val);
-					return Optional.of(entry);
-				}
-
-				return Optional.empty();
-			}
-
-			if ((bitmap & bitpos) != 0) { // node (not value)
-				final AbstractMapNode<K, V> subNode = ((AbstractMapNode<K, V>) nodes[bitIndex(bitpos)]);
-
-				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			}
-
-			return Optional.empty();
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) { // inplace value
-				final int valIndex = valIndex(bitpos);
-
-				if (cmp.compare(nodes[valIndex], key) == 0) {
-					final K _key = (K) nodes[valIndex];
-					final V _val = (V) nodes[valIndex + 1];
-
-					final Map.Entry<K, V> entry = entryOf(_key, _val);
-					return Optional.of(entry);
-				}
-
-				return Optional.empty();
-			}
-
-			if ((bitmap & bitpos) != 0) { // node (not value)
-				final AbstractMapNode<K, V> subNode = ((AbstractMapNode<K, V>) nodes[bitIndex(bitpos)]);
-
-				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) { // inplace value
-				final int valIndex = valIndex(bitpos);
-
-				final Object currentKey = nodes[valIndex];
-
-				if (currentKey.equals(key)) {
-
-					final Object currentVal = nodes[valIndex + 1];
-
-					if (currentVal.equals(val)) {
-						return Result.unchanged(this);
-					}
-
-					// update mapping
-					final CompactMapNode<K, V> thisNew;
-
-					if (isAllowedToEdit(this.mutator, mutator)) {
-						// no copying if already editable
-						this.nodes[valIndex + 1] = val;
-						thisNew = this;
-					} else {
-						final Object[] editableNodes = copyAndSet(this.nodes, valIndex + 1, val);
-
-						thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-										payloadArity);
-					}
-
-					return Result.updated(thisNew, (V) currentVal);
-				} else {
-					final CompactMapNode<K, V> nodeNew = mergeNodes((K) nodes[valIndex],
-									nodes[valIndex].hashCode(), (V) nodes[valIndex + 1], key, keyHash,
-									val, shift + BIT_PARTITION_SIZE);
-
-					final int offset = 2 * (payloadArity - 1);
-					final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
-									& (bitpos - 1));
-
-					final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset
-									+ index, nodeNew);
-
-					final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-									| bitpos, valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
-
-					return Result.modified(thisNew);
-				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
-				final int bitIndex = bitIndex(bitpos);
-				final CompactMapNode<K, V> subNode = (CompactMapNode<K, V>) nodes[bitIndex];
-
-				final Result<K, V, ? extends CompactMapNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (!subNodeResult.isModified()) {
-					return Result.unchanged(this);
-				}
-
-				final CompactMapNode<K, V> thisNew;
-
-				// modify current node (set replacement node)
-				if (isAllowedToEdit(this.mutator, mutator)) {
-					// no copying if already editable
-					this.nodes[bitIndex] = subNodeResult.getNode();
-					thisNew = this;
-				} else {
-					final Object[] editableNodes = copyAndSet(this.nodes, bitIndex,
-									subNodeResult.getNode());
-
-					thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-									payloadArity);
-				}
-
-				if (subNodeResult.hasReplacedValue()) {
-					return Result.updated(thisNew, subNodeResult.getReplacedValue());
-				}
-
-				return Result.modified(thisNew);
-			} else {
-				// no value
-				final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex(bitpos), key, val);
-
-				final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-								bitmap | bitpos, valmap | bitpos, editableNodes,
-								(byte) (payloadArity + 1));
-
-				return Result.modified(thisNew);
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) { // inplace value
-				final int valIndex = valIndex(bitpos);
-
-				final Object currentKey = nodes[valIndex];
-
-				if (cmp.compare(currentKey, key) == 0) {
-
-					final Object currentVal = nodes[valIndex + 1];
-
-					if (cmp.compare(currentVal, val) == 0) {
-						return Result.unchanged(this);
-					}
-
-					// update mapping
-					final CompactMapNode<K, V> thisNew;
-
-					if (isAllowedToEdit(this.mutator, mutator)) {
-						// no copying if already editable
-						this.nodes[valIndex + 1] = val;
-						thisNew = this;
-					} else {
-						final Object[] editableNodes = copyAndSet(this.nodes, valIndex + 1, val);
-
-						thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-										payloadArity);
-					}
-
-					return Result.updated(thisNew, (V) currentVal);
-				} else {
-					final CompactMapNode<K, V> nodeNew = mergeNodes((K) nodes[valIndex],
-									nodes[valIndex].hashCode(), (V) nodes[valIndex + 1], key, keyHash,
-									val, shift + BIT_PARTITION_SIZE);
-
-					final int offset = 2 * (payloadArity - 1);
-					final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
-									& (bitpos - 1));
-
-					final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset
-									+ index, nodeNew);
-
-					final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-									| bitpos, valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
-
-					return Result.modified(thisNew);
-				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
-				final int bitIndex = bitIndex(bitpos);
-				final CompactMapNode<K, V> subNode = (CompactMapNode<K, V>) nodes[bitIndex];
-
-				final Result<K, V, ? extends CompactMapNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!subNodeResult.isModified()) {
-					return Result.unchanged(this);
-				}
-
-				final CompactMapNode<K, V> thisNew;
-
-				// modify current node (set replacement node)
-				if (isAllowedToEdit(this.mutator, mutator)) {
-					// no copying if already editable
-					this.nodes[bitIndex] = subNodeResult.getNode();
-					thisNew = this;
-				} else {
-					final Object[] editableNodes = copyAndSet(this.nodes, bitIndex,
-									subNodeResult.getNode());
-
-					thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-									payloadArity);
-				}
-
-				if (subNodeResult.hasReplacedValue()) {
-					return Result.updated(thisNew, subNodeResult.getReplacedValue());
-				}
-
-				return Result.modified(thisNew);
-			} else {
-				// no value
-				final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex(bitpos), key, val);
-
-				final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-								bitmap | bitpos, valmap | bitpos, editableNodes,
-								(byte) (payloadArity + 1));
-
-				return Result.modified(thisNew);
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) { // inplace value
-				final int valIndex = valIndex(bitpos);
-
-				if (nodes[valIndex].equals(key)) {
-					if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
-						/*
-						 * Create new node with remaining pair. The new node will a)
-						 * either become the new root returned, or b) unwrapped and
-						 * inlined during returning.
-						 */
-						final CompactMapNode<K, V> thisNew;
-						final int newValmap = (shift == 0) ? this.valmap & ~bitpos
-										: 1 << (keyHash & BIT_PARTITION_MASK);
-
-						if (valIndex == 0) {
-							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
-											new Object[] { nodes[2], nodes[3] }, (byte) (1));
-						} else {
-							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
-											new Object[] { nodes[0], nodes[1] }, (byte) (1));
-						}
-
-						return Result.modified(thisNew);
-					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
-					} else {
-						final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
-										(byte) (payloadArity - 1));
-
-						return Result.modified(thisNew);
-					}
-				} else {
-					return Result.unchanged(this);
-				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
-				final int bitIndex = bitIndex(bitpos);
-				final CompactMapNode<K, V> subNode = (CompactMapNode<K, V>) nodes[bitIndex];
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
-				}
-
-				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
-
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return nestedResult;
-					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-						return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
-					} else {
-						// remove node
-						final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										bitmap & ~bitpos, valmap, editableNodes, payloadArity);
-
-						return Result.modified(thisNew);
-					}
-				}
-				case 1: {
-					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return nestedResult;
-					} else {
-						// inline value (move to front)
-						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-
-						final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
-										valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										bitmap, valmap | bitpos, editableNodes,
-										(byte) (payloadArity + 1));
-
-						return Result.modified(thisNew);
-					}
-				}
-				default: {
-					// modify current node (set replacement node)
-					if (isAllowedToEdit(this.mutator, mutator)) {
-						// no copying if already editable
-						this.nodes[bitIndex] = subNodeNew;
-						return Result.modified(this);
-					} else {
-						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										bitmap, valmap, editableNodes, payloadArity);
-
-						return Result.modified(thisNew);
-					}
-				}
-				}
-			}
-
-			return Result.unchanged(this);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
-
-			if ((valmap & bitpos) != 0) { // inplace value
-				final int valIndex = valIndex(bitpos);
-
-				if (cmp.compare(nodes[valIndex], key) == 0) {
-					if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
-						/*
-						 * Create new node with remaining pair. The new node will a)
-						 * either become the new root returned, or b) unwrapped and
-						 * inlined during returning.
-						 */
-						final CompactMapNode<K, V> thisNew;
-						final int newValmap = (shift == 0) ? this.valmap & ~bitpos
-										: 1 << (keyHash & BIT_PARTITION_MASK);
-
-						if (valIndex == 0) {
-							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
-											new Object[] { nodes[2], nodes[3] }, (byte) (1));
-						} else {
-							thisNew = CompactMapNode.<K, V> valNodeOf(mutator, newValmap, newValmap,
-											new Object[] { nodes[0], nodes[1] }, (byte) (1));
-						}
-
-						return Result.modified(thisNew);
-					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
-					} else {
-						final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
-										(byte) (payloadArity - 1));
-
-						return Result.modified(thisNew);
-					}
-				} else {
-					return Result.unchanged(this);
-				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
-				final int bitIndex = bitIndex(bitpos);
-				final CompactMapNode<K, V> subNode = (CompactMapNode<K, V>) nodes[bitIndex];
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
-				}
-
-				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
-
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return nestedResult;
-					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-						return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
-					} else {
-						// remove node
-						final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										bitmap & ~bitpos, valmap, editableNodes, payloadArity);
-
-						return Result.modified(thisNew);
-					}
-				}
-				case 1: {
-					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return nestedResult;
-					} else {
-						// inline value (move to front)
-						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-
-						final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
-										valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										bitmap, valmap | bitpos, editableNodes,
-										(byte) (payloadArity + 1));
-
-						return Result.modified(thisNew);
-					}
-				}
-				default: {
-					// modify current node (set replacement node)
-					if (isAllowedToEdit(this.mutator, mutator)) {
-						// no copying if already editable
-						this.nodes[bitIndex] = subNodeNew;
-						return Result.modified(this);
-					} else {
-						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
-
-						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-										bitmap, valmap, editableNodes, payloadArity);
-
-						return Result.modified(thisNew);
-					}
-				}
-				}
-			}
-
-			return Result.unchanged(this);
-		}
 		
-		@SuppressWarnings("unchecked")
-		private CompactMapNode<K, V> removeInplaceValueAndConvertSpecializedNode(final int mask,
-						final int bitpos) {
-			switch (this.payloadArity) { // 0 <= payloadArity <= 5
-			case 1: {
-				final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final byte npos2 = recoverMask(nmap, (byte) 2);
-				final byte npos3 = recoverMask(nmap, (byte) 3);
-				final byte npos4 = recoverMask(nmap, (byte) 4);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-				final CompactMapNode<K, V> node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-				final CompactMapNode<K, V> node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-
-				return valNodeOf(mutator, npos1, node1, npos2, node2, npos3, node3, npos4, node4);
-			}
-			case 2: {
-				final int map = (valmap & ~bitpos);
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final K key1;
-				final V val1;
-
-				final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final byte npos2 = recoverMask(nmap, (byte) 2);
-				final byte npos3 = recoverMask(nmap, (byte) 3);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-				final CompactMapNode<K, V> node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-
-				if (mask < pos1) {
-					key1 = (K) nodes[2];
-					val1 = (V) nodes[3];
-				} else {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-				}
-
-				return valNodeOf(mutator, pos1, key1, val1, npos1, node1, npos2, node2, npos3,
-								node3);
-			}
-			case 3: {
-				final int map = (valmap & ~bitpos);
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final byte pos2 = recoverMask(map, (byte) 2);
-				final K key1;
-				final K key2;
-				final V val1;
-				final V val2;
-
-				final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final byte npos2 = recoverMask(nmap, (byte) 2);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-				final CompactMapNode<K, V> node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-
-				if (mask < pos1) {
-					key1 = (K) nodes[2];
-					val1 = (V) nodes[3];
-					key2 = (K) nodes[4];
-					val2 = (V) nodes[5];
-				} else if (mask < pos2) {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[4];
-					val2 = (V) nodes[5];
-				} else {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[2];
-					val2 = (V) nodes[3];
-				}
-
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1, npos2,
-								node2);
-			}
-			case 4: {
-				final int map = (valmap & ~bitpos);
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final byte pos2 = recoverMask(map, (byte) 2);
-				final byte pos3 = recoverMask(map, (byte) 3);
-				final K key1;
-				final K key2;
-				final K key3;
-				final V val1;
-				final V val2;
-				final V val3;
-
-				final int nmap = ((bitmap & ~bitpos) ^ (valmap & ~bitpos));
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final CompactMapNode<K, V> node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-
-				if (mask < pos1) {
-					key1 = (K) nodes[2];
-					val1 = (V) nodes[3];
-					key2 = (K) nodes[4];
-					val2 = (V) nodes[5];
-					key3 = (K) nodes[6];
-					val3 = (V) nodes[7];
-				} else if (mask < pos2) {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[4];
-					val2 = (V) nodes[5];
-					key3 = (K) nodes[6];
-					val3 = (V) nodes[7];
-				} else if (mask < pos3) {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[2];
-					val2 = (V) nodes[3];
-					key3 = (K) nodes[6];
-					val3 = (V) nodes[7];
-				} else {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[2];
-					val2 = (V) nodes[3];
-					key3 = (K) nodes[4];
-					val3 = (V) nodes[5];
-				}
-
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
-								npos1, node1);
-			}
-			case 5: {
-				final int map = (valmap & ~bitpos);
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final byte pos2 = recoverMask(map, (byte) 2);
-				final byte pos3 = recoverMask(map, (byte) 3);
-				final byte pos4 = recoverMask(map, (byte) 4);
-				final K key1;
-				final K key2;
-				final K key3;
-				final K key4;
-				final V val1;
-				final V val2;
-				final V val3;
-				final V val4;
-
-				if (mask < pos1) {
-					key1 = (K) nodes[2];
-					val1 = (V) nodes[3];
-					key2 = (K) nodes[4];
-					val2 = (V) nodes[5];
-					key3 = (K) nodes[6];
-					val3 = (V) nodes[7];
-					key4 = (K) nodes[8];
-					val4 = (V) nodes[9];
-				} else if (mask < pos2) {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[4];
-					val2 = (V) nodes[5];
-					key3 = (K) nodes[6];
-					val3 = (V) nodes[7];
-					key4 = (K) nodes[8];
-					val4 = (V) nodes[9];
-				} else if (mask < pos3) {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[2];
-					val2 = (V) nodes[3];
-					key3 = (K) nodes[6];
-					val3 = (V) nodes[7];
-					key4 = (K) nodes[8];
-					val4 = (V) nodes[9];
-				} else if (mask < pos4) {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[2];
-					val2 = (V) nodes[3];
-					key3 = (K) nodes[4];
-					val3 = (V) nodes[5];
-					key4 = (K) nodes[8];
-					val4 = (V) nodes[9];
-				} else {
-					key1 = (K) nodes[0];
-					val1 = (V) nodes[1];
-					key2 = (K) nodes[2];
-					val2 = (V) nodes[3];
-					key3 = (K) nodes[4];
-					val3 = (V) nodes[5];
-					key4 = (K) nodes[6];
-					val4 = (V) nodes[7];
-				}
-
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
-								pos4, key4, val4);
-			}
-			default: {
-				throw new IllegalStateException();
-			}				
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		private CompactMapNode<K, V> removeSubNodeAndConvertSpecializedNode(final int mask,
-						final int bitpos) {
-			switch (this.nodeArity()) {
-			case 1: {
-				final int map = valmap;
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final byte pos2 = recoverMask(map, (byte) 2);
-				final byte pos3 = recoverMask(map, (byte) 3);
-				final byte pos4 = recoverMask(map, (byte) 4);
-				final K key1 = (K) nodes[0];
-				final K key2 = (K) nodes[2];
-				final K key3 = (K) nodes[4];
-				final K key4 = (K) nodes[6];
-				final V val1 = (V) nodes[1];
-				final V val2 = (V) nodes[3];
-				final V val3 = (V) nodes[5];
-				final V val4 = (V) nodes[7];
-
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
-								pos4, key4, val4);
-			}
-			case 2: {
-				final int map = valmap;
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final byte pos2 = recoverMask(map, (byte) 2);
-				final byte pos3 = recoverMask(map, (byte) 3);
-				final K key1 = (K) nodes[0];
-				final K key2 = (K) nodes[2];
-				final K key3 = (K) nodes[4];
-				final V val1 = (V) nodes[1];
-				final V val2 = (V) nodes[3];
-				final V val3 = (V) nodes[5];
-
-				final int nmap = ((bitmap & ~bitpos) ^ valmap);
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final CompactMapNode<K, V> node1;
-
-				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-				} else {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-				}
-
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3,
-								npos1, node1);
-			}
-			case 3: {
-				final int map = valmap;
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final byte pos2 = recoverMask(map, (byte) 2);
-				final K key1 = (K) nodes[0];
-				final K key2 = (K) nodes[2];
-				final V val1 = (V) nodes[1];
-				final V val2 = (V) nodes[3];
-
-				final int nmap = ((bitmap & ~bitpos) ^ valmap);
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final byte npos2 = recoverMask(nmap, (byte) 2);
-				final CompactMapNode<K, V> node1;
-				final CompactMapNode<K, V> node2;
-
-				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-				} else if (mask < npos2) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-				} else {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-				}
-
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, npos1, node1, npos2,
-								node2);
-			}
-			case 4: {
-				final int map = valmap;
-				final byte pos1 = recoverMask(map, (byte) 1);
-				final K key1 = (K) nodes[0];
-				final V val1 = (V) nodes[1];
-
-				final int nmap = ((bitmap & ~bitpos) ^ valmap);
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final byte npos2 = recoverMask(nmap, (byte) 2);
-				final byte npos3 = recoverMask(nmap, (byte) 3);
-				final CompactMapNode<K, V> node1;
-				final CompactMapNode<K, V> node2;
-				final CompactMapNode<K, V> node3;
-
-				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-				} else if (mask < npos2) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-				} else if (mask < npos3) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-				} else {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-				}
-
-				return valNodeOf(mutator, pos1, key1, val1, npos1, node1, npos2, node2, npos3,
-								node3);
-			}
-			case 5: {
-				final int nmap = ((bitmap & ~bitpos) ^ valmap);
-				final byte npos1 = recoverMask(nmap, (byte) 1);
-				final byte npos2 = recoverMask(nmap, (byte) 2);
-				final byte npos3 = recoverMask(nmap, (byte) 3);
-				final byte npos4 = recoverMask(nmap, (byte) 4);
-				final CompactMapNode<K, V> node1;
-				final CompactMapNode<K, V> node2;
-				final CompactMapNode<K, V> node3;
-				final CompactMapNode<K, V> node4;
-
-				if (mask < npos1) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
-				} else if (mask < npos2) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
-				} else if (mask < npos3) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
-				} else if (mask < npos4) {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 4];
-				} else {
-					node1 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 0];
-					node2 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 1];
-					node3 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 2];
-					node4 = (CompactMapNode<K, V>) nodes[2 * payloadArity + 3];
-				}
-
-				return valNodeOf(mutator, npos1, node1, npos2, node2, npos3, node3, npos4, node4);
-			}
-			default: {
-				throw new IllegalStateException();
-			}			
-			}
-		}
-		
-		// returns 0 <= mask <= 31
-		static byte recoverMask(int map, byte i_th) {
-			assert 1 <= i_th && i_th <= 32;
-
-			byte cnt1 = 0;
-			byte mask = 0;
-
-			while (mask < 32) {
-				if ((map & 0x01) == 0x01) {
-					cnt1 += 1;
-
-					if (cnt1 == i_th) {
-						return mask;
-					}
-				}
-
-				map = map >> 1;
-				mask += 1;
-			}
-
-			assert cnt1 != i_th;
-			throw new RuntimeException("Called with invalid arguments.");
-		}
-
 		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
@@ -2457,18 +1210,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		V getValue(int index) {
 			return (V) nodes[2 * index + 1];
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		Map.Entry<K, V> getKeyValueEntry(int index) {
 			return entryOf((K) nodes[2 * index], (V) nodes[2 * index + 1]);
-		}		
+		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public AbstractMapNode<K, V> getNode(int index) {
+		public CompactMapNode<K, V> getNode(int index) {
 			final int offset = 2 * payloadArity;
-			return (AbstractMapNode<K, V>) nodes[offset + index];
+			return (CompactMapNode<K, V>) nodes[offset + index];
 		}
 
 		@Override
@@ -2558,34 +1311,34 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-	        final StringBuilder bldr = new StringBuilder();
-	        bldr.append('[');
-	        	        
-	        for (byte i = 0; i < payloadArity(); i++) {
-	        	final byte pos = (byte) recoverMask(valmap, (byte) (i+1));	
-	            bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));		
-	            // bldr.append(String.format("@%d: %s=%s", pos, "key", "val"));			
+			final StringBuilder bldr = new StringBuilder();
+			bldr.append('[');
 
-		        if (!((i + 1) == payloadArity())) {
-		        	bldr.append(", ");
-		        }
-	        }
+			for (byte i = 0; i < payloadArity(); i++) {
+				final byte pos = recoverMask(valmap, (byte) (i + 1));
+				bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));
+				// bldr.append(String.format("@%d: %s=%s", pos, "key", "val"));
 
-	        if (payloadArity() > 0 && nodeArity() > 0) {
-	        	bldr.append(", ");
-	        }
-	        
-	        for (byte i = 0; i < nodeArity(); i++) {
-	        	final byte pos = (byte) recoverMask(bitmap ^ valmap, (byte) (i+1));	
-	        	bldr.append(String.format("@%d: %s", pos, getNode(i)));
-	        	// bldr.append(String.format("@%d: %s", pos, "node"));			
+				if (!((i + 1) == payloadArity())) {
+					bldr.append(", ");
+				}
+			}
 
-		        if (!((i + 1) == nodeArity())) {
-		        	bldr.append(", ");
-		        }
-	        }
-	        
-	        bldr.append(']');    
+			if (payloadArity() > 0 && nodeArity() > 0) {
+				bldr.append(", ");
+			}
+
+			for (byte i = 0; i < nodeArity(); i++) {
+				final byte pos = recoverMask(bitmap ^ valmap, (byte) (i + 1));
+				bldr.append(String.format("@%d: %s", pos, getNode(i)));
+				// bldr.append(String.format("@%d: %s", pos, "node"));
+
+				if (!((i + 1) == nodeArity())) {
+					bldr.append(", ");
+				}
+			}
+
+			bldr.append(']');
 			return bldr.toString();
 		}
 
@@ -2603,6 +1356,123 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				}
 			}
 		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return this;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final CompactMapNode<K, V> thisNew;
+			final int valIndex = 2 * index;
+			
+			if (isAllowedToEdit(this.mutator, mutator)) {
+				// no copying if already editable
+				this.nodes[valIndex + 1] = val;
+				thisNew = this;
+			} else {
+				final Object[] editableNodes = copyAndSet(this.nodes, valIndex + 1, val);
+
+				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap,
+								editableNodes, payloadArity);
+			}
+			
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {			
+			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex, key, val);
+			
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
+							| bitpos, valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(
+							mutator, this.bitmap & ~bitpos, this.valmap & ~bitpos,
+							editableNodes, (byte) (payloadArity - 1));
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			final int bitIndex = 2 * payloadArity + index;
+			final CompactMapNode<K, V> thisNew;
+
+			// modify current node (set replacement node)
+			if (isAllowedToEdit(this.mutator, mutator)) {
+				// no copying if already editable
+				this.nodes[bitIndex] = node;
+				thisNew = this;
+			} else {
+				final Object[] editableNodes = copyAndSet(this.nodes, bitIndex,
+								node);
+
+				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap,
+								editableNodes, payloadArity);
+			}
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(
+							mutator, bitmap & ~bitpos, valmap, editableNodes,
+							payloadArity);
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+//			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			
+			final int offset = 2 * (payloadArity - 1);
+			final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+
+			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset
+							+ index, node);
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
+							| bitpos, valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
+
+			return thisNew;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+
+			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
+							valIndexNew, node.headKey(), node.headVal());
+
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(
+							mutator, bitmap, valmap | bitpos, editableNodes,
+							(byte) (payloadArity + 1));
+
+			return thisNew;
+		}
 	}
 
 	// TODO: replace by immutable cons list
@@ -2612,6 +1482,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		private final int hash;
 
 		HashCollisionMapNode(int hash, K[] keys, V[] vals) {
+			super(null, 0, 0); // TODO: Split compact node base class and remove dependency on constructor
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -2677,39 +1548,39 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		 * always returns a new immutable {@link TrieMap} instance.
 		 */
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				return Result.modified(mergeNodes(this, this.hash, key, keyHash, val, shift));
 			}
 
 			for (int i = 0; i < keys.length; i++) {
 				if (cmp.compare(keys[i], key) == 0) {
-					
+
 					final V currentVal = vals[i];
-					
+
 					if (cmp.compare(currentVal, val) == 0) {
 						return Result.unchanged(this);
 					}
-					
+
 					final CompactMapNode<K, V> thisNew;
-					
-//					// update mapping
-//					if (isAllowedToEdit(this.mutator, mutator)) {
-//						// no copying if already editable
-//						this.vals[i] = val;
-//						thisNew = this;
-//					} else {
-						@SuppressWarnings("unchecked")
-						final V[] editableVals = (V[]) copyAndSet(this.vals, i, val);
 
-						thisNew = new HashCollisionMapNode<>(this.hash, this.keys, editableVals);
-//					}
+					// // update mapping
+					// if (isAllowedToEdit(this.mutator, mutator)) {
+					// // no copying if already editable
+					// this.vals[i] = val;
+					// thisNew = this;
+					// } else {
+					@SuppressWarnings("unchecked")
+					final V[] editableVals = (V[]) copyAndSet(this.vals, i, val);
 
-					return Result.updated(thisNew, currentVal);						
+					thisNew = new HashCollisionMapNode<>(this.hash, this.keys, editableVals);
+					// }
+
+					return Result.updated(thisNew, currentVal);
 				}
 			}
-			
+
 			// no value
 			@SuppressWarnings("unchecked")
 			final K[] keysNew = (K[]) copyAndInsert(keys, keys.length, key);
@@ -2724,8 +1595,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
 				if (cmp.compare(keys[i], key) == 0) {
 					if (this.arity() == 1) {
@@ -2738,8 +1609,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						 */
 						final K theOtherKey = (i == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (i == 0) ? vals[1] : vals[0];
-						return CompactMapNode.<K, V> valNodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, theOtherVal, 0, cmp);
+						return CompactMapNode.<K, V> valNodeOf(mutator).updated(mutator,
+										theOtherKey, keyHash, theOtherVal, 0, cmp);
 					} else {
 						return Result.modified(new HashCollisionMapNode<>(keyHash,
 										(K[]) copyAndRemove(keys, i), (V[]) copyAndRemove(vals, i)));
@@ -2788,7 +1659,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		V getValue(int index) {
 			return vals[index];
 		}
-		
+
 		@Override
 		Map.Entry<K, V> getKeyValueEntry(int index) {
 			return entryOf(keys[index], vals[index]);
@@ -2835,7 +1706,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			 */
 			outerLoop: for (SupplierIterator<?, ?> it = that.payloadIterator(); it.hasNext();) {
 				final Object otherKey = it.next();
-				final Object otherVal = it.next();
+				@SuppressWarnings("deprecation")
+				final Object otherVal = it.get();
 
 				for (int i = 0; i < keys.length; i++) {
 					final K key = keys[i];
@@ -2865,16 +1737,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		// TODO: generate instead of delegate
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			return updated(mutator, key, keyHash, val, shift, EqualityUtils.getDefaultEqualityComparator());
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, V val, int shift) {
+			return updated(mutator, key, keyHash, val, shift,
+							EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
+			return removed(mutator, key, keyHash, shift,
+							EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
@@ -2887,6 +1761,57 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
 			return findByKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return this;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -2905,7 +1830,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		if (other instanceof TrieMap) {
-			TrieMap that = (TrieMap) other;
+			TrieMap<?, ?> that = (TrieMap<?, ?>) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -2923,60 +1848,58 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	protected AbstractMapNode<K, V> getRootNode() {
 		return rootNode;
 	}
-	
+
 	/*
 	 * For analysis purposes only.
 	 */
 	protected Iterator<AbstractMapNode<K, V>> nodeIterator() {
 		return new TrieMapNodeIterator<>(rootNode);
 	}
-	
+
 	/*
 	 * For analysis purposes only.
 	 */
 	protected int getNodeCount() {
 		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();
 		int sumNodes = 0;
-				
+
 		for (; it.hasNext(); it.next()) {
 			sumNodes += 1;
 		}
-		
+
 		return sumNodes;
 	}
-	
+
 	/*
-	 * For analysis purposes only.
-	 *
-	 * Payload X Node
+	 * For analysis purposes only. Payload X Node
 	 */
 	protected int[][] arityCombinationsHistogram() {
-		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();		
+		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();
 		final int[][] sumArityCombinations = new int[33][33];
-		
+
 		while (it.hasNext()) {
 			final AbstractMapNode<K, V> node = it.next();
 			sumArityCombinations[node.payloadArity()][node.nodeArity()] += 1;
 		}
-		
-		return sumArityCombinations;		
+
+		return sumArityCombinations;
 	}
-	
+
 	/*
 	 * For analysis purposes only.
 	 */
 	protected int[] arityHistogram() {
 		final int[][] sumArityCombinations = arityCombinationsHistogram();
 		final int[] sumArity = new int[33];
-		
+
 		final int maxArity = 32; // TODO: factor out constant
-		
+
 		for (int j = 0; j <= maxArity; j++) {
 			for (int maxRestArity = maxArity - j, k = 0; k <= maxRestArity - j; k++) {
 				sumArity[j + k] += sumArityCombinations[j][k];
 			}
 		}
-		
+
 		return sumArity;
 	}
 
@@ -3025,7 +1948,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 		}
 	}
-		
+
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
@@ -3076,777 +1999,954 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private abstract static class AbstractSingletonMapNode<K, V> extends CompactMapNode<K, V> {
+	private static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
+		protected final int bitmap;
+		protected final int valmap;
 
-		protected abstract byte npos1();
-
-		protected final CompactMapNode<K, V> node1;
-
-		AbstractSingletonMapNode(CompactMapNode<K, V> node1) {
-			this.node1 = node1;
+		CompactMapNode(final AtomicReference<Thread> mutator, final int bitmap, final int valmap) {
+			super();
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 		}
-		
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
 
-			if (mask == npos1()) {
-				final CompactMapNode<K, V> subNode = node1;
+		static final byte SIZE_EMPTY = 0b00;
+		static final byte SIZE_ONE = 0b01;
+		static final byte SIZE_MORE_THAN_ONE = 0b10;
 
-				final Result<K, V, ? extends CompactMapNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+		abstract CompactMapNode<K, V> convertToGenericNode();
 
-				if (subNodeResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode());
+		/**
+		 * Abstract predicate over a node's size. Value can be either
+		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or {@value #SIZE_MORE_THAN_ONE}
+		 * .
+		 * 
+		 * @return size predicate
+		 */
+		abstract byte sizePredicate();
 
-					if (subNodeResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, subNodeResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
+		/**
+		 * Returns the first key stored within this node.
+		 * 
+		 * @return first key
+		 */
+		abstract K headKey();
 
-			return result;
-		}
+		/**
+		 * Returns the first value stored within this node.
+		 * 
+		 * @return first value
+		 */
+		abstract V headVal();
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1()) {
-				final CompactMapNode<K, V> subNode = node1;
-
-				final Result<K, V, ? extends CompactMapNode<K, V>> subNodeResult = subNode.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (subNodeResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask, subNodeResult.getNode());
-
-					if (subNodeResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, subNodeResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-		
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos1(), node1);
-		}
+		abstract CompactMapNode<K, V> getNode(int index);
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
+		abstract Iterator<? extends CompactMapNode<K, V>> nodeIterator();
 
-			if (mask == npos1()) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> subNodeResult = node1.removed(mutator,
-								key, keyHash, shift + BIT_PARTITION_SIZE);
+		boolean nodeInvariant() {
+			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
+			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
+			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
+							: true;
+			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
-				if (subNodeResult.isModified()) {
-					final CompactMapNode<K, V> subNodeNew = subNodeResult.getNode();
+			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
+							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
 
-					switch (subNodeNew.sizePredicate()) {
-					case SIZE_EMPTY:
-					case SIZE_ONE:
-						// escalate (singleton or empty) result
-						result = subNodeResult;
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
+			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
+		abstract CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val);
 
-			if (mask == npos1()) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> subNodeResult = node1.removed(mutator,
-								key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+		abstract CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos,
+						K key, V val);
 
-				if (subNodeResult.isModified()) {
-					final CompactMapNode<K, V> subNodeNew = subNodeResult.getNode();
+		abstract CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos);
 
-					switch (subNodeNew.sizePredicate()) {
-					case SIZE_EMPTY:
-					case SIZE_ONE:
-						// escalate (singleton or empty) result
-						result = subNodeResult;
-						break;
+		abstract CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node);
 
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, subNodeNew));
-						break;
+		abstract CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos);
 
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
+		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node);
+
+		abstract CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node);
+
+		@SuppressWarnings("unchecked")
+		static final <K, V> CompactMapNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
+						int keyHash1, V val1, int shift) {
+			assert key0.equals(key1) == false;
+
+			if (keyHash0 == keyHash1) {
+				return new HashCollisionMapNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
+								(V[]) new Object[] { val0, val1 });
 			}
 
-			return result;
-		}	
-		
+			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
+			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+
+			if (mask0 != mask1) {
+				// both nodes fit on same level
+				final int valmap = 1 << mask0 | 1 << mask1;
+
+				if (mask0 < mask1) {
+					return valNodeOf(null, valmap, valmap, key0, val0, key1, val1);
+				} else {
+					return valNodeOf(null, valmap, valmap, key1, val1, key0, val0);
+				}
+			} else {
+				// values fit on next level
+				final CompactMapNode<K, V> node = mergeNodes(key0, keyHash0, val0, key1, keyHash1,
+								val1, shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = 1 << mask0;
+				return valNodeOf(null, bitmap, 0, node);
+			}
+		}
+
+		static final <K, V> CompactMapNode<K, V> mergeNodes(CompactMapNode<K, V> node0, int keyHash0,
+						K key1, int keyHash1, V val1, int shift) {
+			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
+			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+
+			if (mask0 != mask1) {
+				// both nodes fit on same level
+				final int bitmap = 1 << mask0 | 1 << mask1;
+				final int valmap = 1 << mask1;
+
+				// store values before node
+				return valNodeOf(null, bitmap, valmap, key1, val1, node0);
+			} else {
+				// values fit on next level
+				final CompactMapNode<K, V> node = mergeNodes(node0, keyHash0, key1, keyHash1, val1,
+								shift + BIT_PARTITION_SIZE);
+
+				final int bitmap = 1 << mask0;
+				return valNodeOf(null, bitmap, 0, node);
+			}
+		}
+
+		static final CompactMapNode EMPTY_INPLACE_INDEX_NODE;
+
+		static {
+			EMPTY_INPLACE_INDEX_NODE = new Map0To0Node<>(null, 0, 0);
+		};
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
+						int valmap, Object[] nodes, byte payloadArity) {
+			return new BitmapIndexedMapNode<>(mutator, bitmap, valmap, nodes, payloadArity);
+		}
+
+		// TODO: consolidate and remove
+		static final <K, V> CompactMapNode<K, V> valNodeOf(AtomicReference<Thread> mutator) {
+			return valNodeOf(mutator, 0, 0);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap) {
+			return new Map0To0Node<>(mutator, bitmap, valmap);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1) {
+			return new Map0To1Node<>(mutator, bitmap, valmap, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
+			return new Map0To2Node<>(mutator, bitmap, valmap, node1, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			return new Map0To3Node<>(mutator, bitmap, valmap, node1, node2, node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			return new Map0To4Node<>(mutator, bitmap, valmap, node1, node2, node3, node4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+			return new Map0To5Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6) {
+			return new Map0To6Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
+			return new Map0To7Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+							node7);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
+						final CompactMapNode<K, V> node8) {
+			return new Map0To8Node<>(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+							node7, node8);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1) {
+			return new Map1To0Node<>(mutator, bitmap, valmap, key1, val1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1) {
+			return new Map1To1Node<>(mutator, bitmap, valmap, key1, val1, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			return new Map1To2Node<>(mutator, bitmap, valmap, key1, val1, node1, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3) {
+			return new Map1To3Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+			return new Map1To4Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5) {
+			return new Map1To5Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+							node5);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
+			return new Map1To6Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+							node5, node6);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
+						final CompactMapNode<K, V> node7) {
+			return new Map1To7Node<>(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+							node5, node6, node7);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
+						final CompactMapNode<K, V> node7, final CompactMapNode<K, V> node8) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
+							node4, node5, node6, node7, node8 }, (byte) 1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2) {
+			return new Map2To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final CompactMapNode<K, V> node1) {
+			return new Map2To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			return new Map2To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			return new Map2To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+							node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			return new Map2To4Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+							node3, node4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+			return new Map2To5Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+							node3, node4, node5);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6) {
+			return new Map2To6Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+							node3, node4, node5, node6);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
+							node2, node3, node4, node5, node6, node7 }, (byte) 2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3) {
+			return new Map3To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1) {
+			return new Map3To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
+			return new Map3To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							node1, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			return new Map3To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							node1, node2, node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			return new Map3To4Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							node1, node2, node3, node4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+			return new Map3To5Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+							node1, node2, node3, node4, node5);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, node1, node2, node3, node4, node5, node6 }, (byte) 3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4) {
+			return new Map4To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final CompactMapNode<K, V> node1) {
+			return new Map4To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			return new Map4To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, node1, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3) {
+			return new Map4To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, node1, node2, node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+			return new Map4To4Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, node1, node2, node3, node4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, node1, node2, node3, node4, node5 }, (byte) 4);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5) {
+			return new Map5To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final CompactMapNode<K, V> node1) {
+			return new Map5To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
+			return new Map5To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, node1, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			return new Map5To3Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, node1, node2, node3);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, node1, node2, node3, node4 }, (byte) 5);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6) {
+			return new Map6To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6,
+						final CompactMapNode<K, V> node1) {
+			return new Map6To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			return new Map6To2Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, node1, node2);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 }, (byte) 6);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6, final K key7,
+						final V val7) {
+			return new Map7To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, key7, val7);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6, final K key7,
+						final V val7, final CompactMapNode<K, V> node1) {
+			return new Map7To1Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, key7, val7, node1);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6, final K key7,
+						final V val7, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 },
+							(byte) 7);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6, final K key7,
+						final V val7, final K key8, final V val8) {
+			return new Map8To0Node<>(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, key7, val7, key8, val8);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6, final K key7,
+						final V val7, final K key8, final V val8, final CompactMapNode<K, V> node1) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, node1 },
+							(byte) 8);
+		}
+
+		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
+						final int bitmap, final int valmap, final K key1, final V val1, final K key2,
+						final V val2, final K key3, final V val3, final K key4, final V val4,
+						final K key5, final V val5, final K key6, final V val6, final K key7,
+						final V val7, final K key8, final V val8, final K key9, final V val9) {
+			return valNodeOf(mutator, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, key9,
+							val9 }, (byte) 9);
+		}
+
+		final int keyIndex(int bitpos) {
+			return Integer.bitCount(valmap & (bitpos - 1));
+		}
+
+		final int valIndex(int bitpos) {
+			return Integer.bitCount(valmap & (bitpos - 1));
+		}
+
+		// TODO: obviate necessity for bitmap ^ valmap
+		final int nodeIndex(int bitpos) {
+			return Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+		}
+
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
 
-			if (mask == npos1()) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
+			if ((valmap & bitpos) != 0) {
+				return getKey(keyIndex(bitpos)).equals(key);
 			}
+
+			if ((bitmap & bitpos) != 0) {
+				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+			}
+
+			return false;
 		}
 
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
 
-			if (mask == npos1()) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
+			if ((valmap & bitpos) != 0) {
+				return cmp.compare(getKey(keyIndex(bitpos)), key) == 0;
 			}
+
+			if ((bitmap & bitpos) != 0) {
+				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE,
+								cmp);
+			}
+
+			return false;
 		}
 
 		@Override
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
 
-			if (mask == npos1()) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
+			if ((valmap & bitpos) != 0) { // inplace value
+				// final int valIndex = valIndex(bitpos);
+
+				if (getKey(keyIndex(bitpos)).equals(key)) {
+					final K _key = getKey(keyIndex(bitpos));
+					final V _val = getValue(valIndex(bitpos));
+
+					final Map.Entry<K, V> entry = entryOf(_key, _val);
+					return Optional.of(entry);
+				}
+
 				return Optional.empty();
 			}
+
+			if ((bitmap & bitpos) != 0) { // node (not value)
+				final AbstractMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+
+				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+			}
+
+			return Optional.empty();
 		}
 
 		@Override
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
 						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
 
-			if (mask == npos1()) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
+			if ((valmap & bitpos) != 0) { // inplace value
+				// final int valIndex = valIndex(bitpos);
+
+				if (cmp.compare(getKey(keyIndex(bitpos)), key) == 0) {
+					final K _key = getKey(keyIndex(bitpos));
+					final V _val = getValue(valIndex(bitpos));
+
+					final Map.Entry<K, V> entry = entryOf(_key, _val);
+					return Optional.of(entry);
+				}
+
 				return Optional.empty();
 			}
+
+			if ((bitmap & bitpos) != 0) { // node (not value)
+				final AbstractMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+
+				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			}
+
+			return Optional.empty();
 		}
 
 		@Override
-		K getKey(int index) {
-			throw new UnsupportedOperationException();
-		}
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
 
-		@Override
-		V getValue(int index) {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		Map.Entry<K, V> getKeyValueEntry(int index) {
-			throw new UnsupportedOperationException();
-		}
+			if ((valmap & bitpos) != 0) { // inplace value
+				final K currentKey = getKey(keyIndex(bitpos));
 
-		@Override
-		public AbstractMapNode<K, V> getNode(int index) {
-			if (index == 0) {
-				return node1;
+				if (currentKey.equals(key)) {
+					final V currentVal = getValue(valIndex(bitpos));
+
+					if (currentVal.equals(val)) {
+						return Result.unchanged(this);
+					}
+
+					// update mapping
+					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, valIndex(bitpos), val);
+
+					return Result.updated(thisNew, currentVal);
+				} else {
+					final CompactMapNode<K, V> nodeNew = mergeNodes(getKey(keyIndex(bitpos)),
+									getKey(keyIndex(bitpos)).hashCode(), getValue(valIndex(bitpos)),
+									key, keyHash, val, shift + BIT_PARTITION_SIZE);
+
+					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
+									bitpos, nodeNew);
+
+					return Result.modified(thisNew);
+				}
+			} else if ((bitmap & bitpos) != 0) { // node (not value)
+				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+
+				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
+
+				if (!nestedResult.isModified()) {
+					return Result.unchanged(this);
+				}
+
+				final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, nodeIndex(bitpos),
+								nestedResult.getNode());
+
+				if (nestedResult.hasReplacedValue()) {
+					return Result.updated(thisNew, nestedResult.getReplacedValue());
+				}
+
+				return Result.modified(thisNew);
 			} else {
-				throw new IndexOutOfBoundsException();
+				// no value
+				final CompactMapNode<K, V> thisNew = copyAndInsertValue(mutator, bitpos, key, val);
+
+				return Result.modified(thisNew);
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
-		}
+		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
+						int keyHash, V val, int shift, Comparator<Object> cmp) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
 
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
+			if ((valmap & bitpos) != 0) { // inplace value
+				final K currentKey = getKey(keyIndex(bitpos));
 
-		@Override
-		int nodeArity() {
-			return 1;
-		}
+				if (cmp.compare(currentKey, key) == 0) {
+					final V currentVal = getValue(valIndex(bitpos));
 
-		@Override
-		SupplierIterator<K, V> payloadIterator() {
-			return EmptySupplierIterator.emptyIterator();
-		}
+					if (cmp.compare(currentVal, val) == 0) {
+						return Result.unchanged(this);
+					}
 
-		@Override
-		boolean hasPayload() {
-			return false;
-		}
+					// update mapping
+					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, valIndex(bitpos), val);
 
-		@Override
-		int payloadArity() {
-			return 0;
-		}
+					return Result.updated(thisNew, currentVal);
+				} else {
+					final CompactMapNode<K, V> nodeNew = mergeNodes(getKey(keyIndex(bitpos)),
+									getKey(keyIndex(bitpos)).hashCode(), getValue(valIndex(bitpos)),
+									key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
+					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
+									bitpos, nodeNew);
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + npos1();
-			result = prime * result + node1.hashCode();
-			return result;
-		}
+					return Result.modified(thisNew);
+				}
+			} else if ((bitmap & bitpos) != 0) { // node (not value)
+				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
 
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
+				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
+								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
+
+				if (!nestedResult.isModified()) {
+					return Result.unchanged(this);
+				}
+
+				final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, nodeIndex(bitpos),
+								nestedResult.getNode());
+
+				if (nestedResult.hasReplacedValue()) {
+					return Result.updated(thisNew, nestedResult.getReplacedValue());
+				}
+
+				return Result.modified(thisNew);
+			} else {
+				// no value
+				final CompactMapNode<K, V> thisNew = copyAndInsertValue(mutator, bitpos, key, val);
+
+				return Result.modified(thisNew);
 			}
-			if (this == other) {
-				return true;
+		}
+
+		@Override
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (getKey(valIndex).equals(key)) {
+					if (this.arity() == 9) {
+						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos)
+										.convertToGenericNode();
+
+						return Result.modified(thisNew);
+					} else {
+						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
+
+						return Result.modified(thisNew);
+					}
+				} else {
+					return Result.unchanged(this);
+				}
+			} else if ((bitmap & bitpos) != 0) { // node (not value)
+				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
+
+				if (!nestedResult.isModified()) {
+					return Result.unchanged(this);
+				}
+
+				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
+
+				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					if (this.arity() == 9) {
+						// remove node and convert
+						final CompactMapNode<K, V> thisNew = copyAndRemoveNode(mutator, bitpos)
+										.convertToGenericNode();
+
+						return Result.modified(thisNew);
+					} else {
+						// remove node
+						final CompactMapNode<K, V> thisNew = copyAndRemoveNode(mutator, bitpos);
+
+						return Result.modified(thisNew);
+					}
+				}
+				case 1: {
+					// inline value (move to front)
+					final CompactMapNode<K, V> thisNew = copyAndMigrateFromNodeToInline(mutator,
+									bitpos, subNodeNew);
+
+					return Result.modified(thisNew);
+				}
+				default: {
+					// modify current node (set replacement node)
+					final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, bitpos, subNodeNew);
+
+					return Result.modified(thisNew);
+				}
+				}
 			}
-			if (getClass() != other.getClass()) {
-				return false;
+
+			return Result.unchanged(this);
+		}
+
+		@Override
+		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
+						int keyHash, int shift, Comparator<Object> cmp) {
+			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (cmp.compare(getKey(valIndex), key) == 0) {
+					if (this.arity() == 9) {
+						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos)
+										.convertToGenericNode();
+
+						return Result.modified(thisNew);
+					} else {
+						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
+
+						return Result.modified(thisNew);
+					}
+				} else {
+					return Result.unchanged(this);
+				}
+			} else if ((bitmap & bitpos) != 0) { // node (not value)
+				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+
+				if (!nestedResult.isModified()) {
+					return Result.unchanged(this);
+				}
+
+				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
+
+				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					if (this.arity() == 9) {
+						// remove node and convert
+						final CompactMapNode<K, V> thisNew = copyAndRemoveNode(mutator, bitpos)
+										.convertToGenericNode();
+
+						return Result.modified(thisNew);
+					} else {
+						// remove node
+						final CompactMapNode<K, V> thisNew = copyAndRemoveNode(mutator, bitpos);
+
+						return Result.modified(thisNew);
+					}
+				}
+				case 1: {
+					// inline value (move to front)
+					final CompactMapNode<K, V> thisNew = copyAndMigrateFromNodeToInline(mutator,
+									bitpos, subNodeNew);
+
+					return Result.modified(thisNew);
+				}
+				default: {
+					// modify current node (set replacement node)
+					final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, bitpos, subNodeNew);
+
+					return Result.modified(thisNew);
+				}
+				}
 			}
-			AbstractSingletonMapNode<?, ?> that = (AbstractSingletonMapNode<?, ?>) other;
 
-			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[%s]", node1);
-		}
-
-		@Override
-		K headKey() {
-			throw new UnsupportedOperationException("No key in this kind of node.");
-		}
-
-		@Override
-		V headVal() {
-			throw new UnsupportedOperationException("No value in this kind of node.");
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask0Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 0;
-		}
-
-		SingletonMapNodeAtMask0Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask1Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 1;
-		}
-
-		SingletonMapNodeAtMask1Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask2Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 2;
-		}
-
-		SingletonMapNodeAtMask2Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask3Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 3;
-		}
-
-		SingletonMapNodeAtMask3Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask4Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 4;
-		}
-
-		SingletonMapNodeAtMask4Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask5Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 5;
-		}
-
-		SingletonMapNodeAtMask5Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask6Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 6;
-		}
-
-		SingletonMapNodeAtMask6Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask7Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 7;
-		}
-
-		SingletonMapNodeAtMask7Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask8Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 8;
-		}
-
-		SingletonMapNodeAtMask8Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask9Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 9;
-		}
-
-		SingletonMapNodeAtMask9Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask10Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 10;
-		}
-
-		SingletonMapNodeAtMask10Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask11Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 11;
-		}
-
-		SingletonMapNodeAtMask11Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask12Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 12;
-		}
-
-		SingletonMapNodeAtMask12Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask13Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 13;
-		}
-
-		SingletonMapNodeAtMask13Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask14Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 14;
-		}
-
-		SingletonMapNodeAtMask14Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask15Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 15;
-		}
-
-		SingletonMapNodeAtMask15Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask16Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 16;
-		}
-
-		SingletonMapNodeAtMask16Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask17Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 17;
-		}
-
-		SingletonMapNodeAtMask17Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask18Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 18;
-		}
-
-		SingletonMapNodeAtMask18Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask19Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 19;
-		}
-
-		SingletonMapNodeAtMask19Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask20Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 20;
-		}
-
-		SingletonMapNodeAtMask20Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask21Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 21;
-		}
-
-		SingletonMapNodeAtMask21Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask22Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 22;
-		}
-
-		SingletonMapNodeAtMask22Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask23Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 23;
-		}
-
-		SingletonMapNodeAtMask23Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask24Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 24;
-		}
-
-		SingletonMapNodeAtMask24Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask25Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 25;
-		}
-
-		SingletonMapNodeAtMask25Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask26Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 26;
-		}
-
-		SingletonMapNodeAtMask26Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask27Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 27;
-		}
-
-		SingletonMapNodeAtMask27Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask28Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 28;
-		}
-
-		SingletonMapNodeAtMask28Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask29Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 29;
-		}
-
-		SingletonMapNodeAtMask29Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask30Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 30;
-		}
-
-		SingletonMapNodeAtMask30Node(CompactMapNode<K, V> node1) {
-			super(node1);
-		}
-
-	}
-
-	private static final class SingletonMapNodeAtMask31Node<K, V> extends AbstractSingletonMapNode<K, V> {
-
-		@Override
-		protected byte npos1() {
-			return 31;
-		}
-
-		SingletonMapNodeAtMask31Node(CompactMapNode<K, V> node1) {
-			super(node1);
+			return Result.unchanged(this);
 		}
 
 	}
 
 	private static final class Map0To0Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
 
-		Map0To0Node(final AtomicReference<Thread> mutator) {
-
+		Map0To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			return Result.modified(valNodeOf(mutator, mask, key, val));
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			return Result.modified(valNodeOf(mutator, mask, key, val));
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			return Result.unchanged(this);
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			return Result.unchanged(this);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			return false;
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			return false;
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			return Optional.empty();
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			return Optional.empty();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -3891,7 +2991,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -3908,6 +3008,60 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		Map.Entry<K, V> getKeyValueEntry(int index) {
 			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] {}, (byte) 0);
 		}
 
 		@Override
@@ -3944,312 +3098,239 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	}
 
-	private static final class Map0To2Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte npos1;
+	private static final class Map0To1Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
 		private final CompactMapNode<K, V> node1;
 
-		private final byte npos2;
-		private final CompactMapNode<K, V> node2;
-
-		Map0To2Node(final AtomicReference<Thread> mutator, final byte npos1,
-						final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2) {
-
-			this.npos1 = npos1;
+		Map0To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.node1 = node1;
 
-			this.npos2 = npos2;
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		V headVal() {
+			throw new UnsupportedOperationException("Node does not directly contain a value.");
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1 }, (byte) 0);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + node1.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map0To1Node<?, ?> that = (Map0To1Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1), node1);
+		}
+
+	}
+
+	private static final class Map0To2Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+
+		Map0To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.node1 = node1;
 			this.node2 = node2;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask,
-									nestedResult.getNode(), npos2, node2);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
-									nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask,
-									nestedResult.getNode(), npos2, node2);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
-									nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2);
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos2, node2);
-		}
-
-		private CompactMapNode<K, V> removeNode2AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -4294,7 +3375,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -4321,6 +3402,103 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2 }, (byte) 0);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -4329,11 +3507,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
-			result = prime * result + npos2;
 			result = prime * result + node2.hashCode();
 
 			return result;
@@ -4352,13 +3530,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To2Node<?, ?> that = (Map0To2Node<?, ?>) other;
 
-			if (npos1 != that.npos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			if (npos2 != that.npos2) {
 				return false;
 			}
 			if (!node2.equals(that.node2)) {
@@ -4370,425 +3549,30 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s]", npos1, node1, npos2, node2);
+			return String.format("[@%d: %s, @%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
 
 	}
 
 	private static final class Map0To3Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte npos1;
+		private final int bitmap;
+		private final int valmap;
 		private final CompactMapNode<K, V> node1;
-
-		private final byte npos2;
 		private final CompactMapNode<K, V> node2;
-
-		private final byte npos3;
 		private final CompactMapNode<K, V> node3;
 
-		Map0To3Node(final AtomicReference<Thread> mutator, final byte npos1,
-						final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
+		Map0To3Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3) {
-
-			this.npos1 = npos1;
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.node1 = node1;
-
-			this.npos2 = npos2;
 			this.node2 = node2;
-
-			this.npos3 = npos3;
 			this.node3 = node3;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask,
-									nestedResult.getNode(), npos2, node2, npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
-									nestedResult.getNode(), npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask,
-									nestedResult.getNode(), npos2, node2, npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
-									nestedResult.getNode(), npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
-										npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
-										npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node3
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
-										npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
-										npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node3
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2, npos3, node3);
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos2, node2, npos3, node3);
-		}
-
-		private CompactMapNode<K, V> removeNode2AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos3, node3);
-		}
-
-		private CompactMapNode<K, V> removeNode3AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -4834,7 +3618,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -4863,6 +3647,114 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3 }, (byte) 0);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -4871,14 +3763,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
-			result = prime * result + npos2;
 			result = prime * result + node2.hashCode();
 
-			result = prime * result + npos3;
 			result = prime * result + node3.hashCode();
 
 			return result;
@@ -4897,19 +3788,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To3Node<?, ?> that = (Map0To3Node<?, ?>) other;
 
-			if (npos1 != that.npos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!node1.equals(that.node1)) {
 				return false;
 			}
-			if (npos2 != that.npos2) {
-				return false;
-			}
 			if (!node2.equals(that.node2)) {
-				return false;
-			}
-			if (npos3 != that.npos3) {
 				return false;
 			}
 			if (!node3.equals(that.node3)) {
@@ -4921,531 +3810,33 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", npos1, node1, npos2, node2, npos3,
-							node3);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1),
+							node1, recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3);
 		}
 
 	}
 
 	private static final class Map0To4Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte npos1;
+		private final int bitmap;
+		private final int valmap;
 		private final CompactMapNode<K, V> node1;
-
-		private final byte npos2;
 		private final CompactMapNode<K, V> node2;
-
-		private final byte npos3;
 		private final CompactMapNode<K, V> node3;
-
-		private final byte npos4;
 		private final CompactMapNode<K, V> node4;
 
-		Map0To4Node(final AtomicReference<Thread> mutator, final byte npos1,
-						final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3, final byte npos4,
-						final CompactMapNode<K, V> node4) {
-
-			this.npos1 = npos1;
+		Map0To4Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.node1 = node1;
-
-			this.npos2 = npos2;
 			this.node2 = node2;
-
-			this.npos3 = npos3;
 			this.node3 = node3;
-
-			this.npos4 = npos4;
 			this.node4 = node4;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask,
-									nestedResult.getNode(), npos2, node2, npos3, node3, npos4, node4);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
-									nestedResult.getNode(), npos3, node3, npos4, node4);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									mask, nestedResult.getNode(), npos4, node4);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos4) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node4.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									npos3, node3, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, mask,
-									nestedResult.getNode(), npos2, node2, npos3, node3, npos4, node4);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, mask,
-									nestedResult.getNode(), npos3, node3, npos4, node4);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									mask, nestedResult.getNode(), npos4, node4);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos4) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node4.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									npos3, node3, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
-										npos3, node3, npos4, node4));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
-										npos3, node3, npos4, node4));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node3
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										updatedNode, npos4, node4));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos4) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node4.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode4AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node4
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
-										npos3, node3, npos4, node4));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
-										npos3, node3, npos4, node4));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node3
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										updatedNode, npos4, node4));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos4) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node4.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode4AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node4
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2, npos3, node3, npos4,
-							node4);
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos2, node2, npos3, node3, npos4, node4);
-		}
-
-		private CompactMapNode<K, V> removeNode2AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos3, node3, npos4, node4);
-		}
-
-		private CompactMapNode<K, V> removeNode3AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2, npos4, node4);
-		}
-
-		private CompactMapNode<K, V> removeNode4AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			return valNodeOf(mutator, mask, key, val, npos1, node1, npos2, node2, npos3, node3);
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos4) {
-				return node4.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos4) {
-				return node4.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos4) {
-				return node4.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos4) {
-				return node4.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -5491,7 +3882,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -5522,6 +3913,126 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node2, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4 },
+							(byte) 0);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -5530,17 +4041,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
-			result = prime * result + npos2;
 			result = prime * result + node2.hashCode();
 
-			result = prime * result + npos3;
 			result = prime * result + node3.hashCode();
 
-			result = prime * result + npos4;
 			result = prime * result + node4.hashCode();
 
 			return result;
@@ -5559,25 +4068,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To4Node<?, ?> that = (Map0To4Node<?, ?>) other;
 
-			if (npos1 != that.npos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			if (npos2 != that.npos2) {
 				return false;
 			}
 			if (!node2.equals(that.node2)) {
 				return false;
 			}
-			if (npos3 != that.npos3) {
-				return false;
-			}
 			if (!node3.equals(that.node3)) {
-				return false;
-			}
-			if (npos4 != that.npos4) {
 				return false;
 			}
 			if (!node4.equals(that.node4)) {
@@ -5589,178 +4093,1434 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", npos1, node1, npos2, node2,
-							npos3, node3, npos4, node4);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+		}
+
+	}
+
+	private static final class Map0To5Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+
+		Map0To5Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 5;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		V headVal() {
+			throw new UnsupportedOperationException("Node does not directly contain a value.");
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node2, node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5 },
+							(byte) 0);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map0To5Node<?, ?> that = (Map0To5Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5);
+		}
+
+	}
+
+	private static final class Map0To6Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+		private final CompactMapNode<K, V> node6;
+
+		Map0To6Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+			this.node6 = node6;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5, node6 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 6;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		V headVal() {
+			throw new UnsupportedOperationException("Node does not directly contain a value.");
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			case 5:
+				return node6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5,
+								node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node, node3, node4, node5, node6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node4, node5, node6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node5, node6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node2, node3, node4, node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node3, node4, node5, node6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node4, node5, node6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node5, node6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node2, node3, node4, node5,
+									node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node3, node4, node5,
+									node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node4, node5,
+									node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node5,
+									node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5,
+							node6 }, (byte) 0);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			result = prime * result + node6.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map0To6Node<?, ?> that = (Map0To6Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+			if (!node6.equals(that.node6)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5,
+							recoverMask(bitmap ^ valmap, (byte) 6), node6);
+		}
+
+	}
+
+	private static final class Map0To7Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+		private final CompactMapNode<K, V> node6;
+		private final CompactMapNode<K, V> node7;
+
+		Map0To7Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
+						final CompactMapNode<K, V> node7) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+			this.node6 = node6;
+			this.node7 = node7;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5, node6, node7 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 7;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		V headVal() {
+			throw new UnsupportedOperationException("Node does not directly contain a value.");
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			case 5:
+				return node6;
+			case 6:
+				return node7;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5,
+								node6, node7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5, node6,
+								node7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node, node3, node4, node5, node6,
+								node7);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node4, node5, node6,
+								node7);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node5, node6,
+								node7);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node6,
+								node7);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node,
+								node7);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+								node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node2, node3, node4, node5, node6, node7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node3, node4, node5, node6, node7);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node4, node5, node6, node7);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node5, node6, node7);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node6, node7);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node7);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node2, node3, node4, node5,
+									node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node3, node4, node5,
+									node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node4, node5,
+									node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node5,
+									node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node5, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 6:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5,
+							node6, node7 }, (byte) 0);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			result = prime * result + node6.hashCode();
+
+			result = prime * result + node7.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map0To7Node<?, ?> that = (Map0To7Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+			if (!node6.equals(that.node6)) {
+				return false;
+			}
+			if (!node7.equals(that.node7)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5,
+							recoverMask(bitmap ^ valmap, (byte) 6), node6,
+							recoverMask(bitmap ^ valmap, (byte) 7), node7);
+		}
+
+	}
+
+	private static final class Map0To8Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+		private final CompactMapNode<K, V> node6;
+		private final CompactMapNode<K, V> node7;
+		private final CompactMapNode<K, V> node8;
+
+		Map0To8Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
+						final CompactMapNode<K, V> node7, final CompactMapNode<K, V> node8) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+			this.node6 = node6;
+			this.node7 = node7;
+			this.node8 = node8;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5, node6, node7, node8 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 8;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return false;
+		}
+
+		@Override
+		int payloadArity() {
+			return 0;
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		V headVal() {
+			throw new UnsupportedOperationException("Node does not directly contain a value.");
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			case 5:
+				return node6;
+			case 6:
+				return node7;
+			case 7:
+				return node8;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		V getValue(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4, node5,
+								node6, node7, node8);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5, node6,
+								node7, node8);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node, node3, node4, node5, node6,
+								node7, node8);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node4, node5, node6,
+								node7, node8);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node5, node6,
+								node7, node8);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node6,
+								node7, node8);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node,
+								node7, node8);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+								node, node8);
+			case 7:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+								node7, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node2, node3, node4, node5, node6, node7,
+								node8);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, node1, node3, node4, node5, node6, node7,
+								node8);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node4, node5, node6, node7,
+								node8);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node5, node6, node7,
+								node8);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node6, node7,
+								node8);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node7,
+								node8);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+								node8);
+			case 7:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+								node7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node2, node3, node4, node5,
+									node6, node7, node8);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node3, node4, node5,
+									node6, node7, node8);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node4, node5,
+									node6, node7, node8);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node5,
+									node6, node7, node8);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node6, node7, node8);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node5, node7, node8);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 6:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node5, node6, node8);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 7:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, node1, node2, node3, node4,
+									node5, node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4, node5,
+							node6, node7, node8 }, (byte) 0);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			result = prime * result + node6.hashCode();
+
+			result = prime * result + node7.hashCode();
+
+			result = prime * result + node8.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map0To8Node<?, ?> that = (Map0To8Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+			if (!node6.equals(that.node6)) {
+				return false;
+			}
+			if (!node7.equals(that.node7)) {
+				return false;
+			}
+			if (!node8.equals(that.node8)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5,
+							recoverMask(bitmap ^ valmap, (byte) 6), node6,
+							recoverMask(bitmap ^ valmap, (byte) 7), node7,
+							recoverMask(bitmap ^ valmap, (byte) 8), node8);
 		}
 
 	}
 
 	private static final class Map1To0Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
 
-		Map1To0Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1) {
-
-			this.pos1 = pos1;
+		Map1To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(CompactMapNode.<K, V> valNodeOf(mutator));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(CompactMapNode.<K, V> valNodeOf(mutator));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -5805,7 +5565,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -5840,6 +5600,94 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1 }, (byte) 1);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_ONE;
 		}
@@ -5848,8 +5696,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
@@ -5869,9 +5718,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To0Node<?, ?> that = (Map1To0Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
@@ -5884,291 +5737,28 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s]", pos1, key1, val1);
+			return String.format("[@%d: %s=%s]", recoverMask(valmap, (byte) 1), key1, val1);
 		}
 
 	}
 
 	private static final class Map1To1Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte npos1;
 		private final CompactMapNode<K, V> node1;
 
-		Map1To1Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte npos1, final CompactMapNode<K, V> node1) {
-
-			this.pos1 = pos1;
+		Map1To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final CompactMapNode<K, V> node1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.npos1 = npos1;
 			this.node1 = node1;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val, npos1, node1), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
-									nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val, npos1, node1), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
-									nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos1, node1);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1, node1);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -6213,7 +5803,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -6253,6 +5843,130 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1 }, (byte) 1);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -6261,12 +5975,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
 			return result;
@@ -6285,16 +5999,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To1Node<?, ?> that = (Map1To1Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
-				return false;
-			}
-			if (npos1 != that.npos1) {
 				return false;
 			}
 			if (!node1.equals(that.node1)) {
@@ -6306,415 +6021,32 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s]", pos1, key1, val1, npos1, node1);
+			return String.format("[@%d: %s=%s, @%d: %s]", recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
 
 	}
 
 	private static final class Map1To2Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte npos1;
 		private final CompactMapNode<K, V> node1;
-
-		private final byte npos2;
 		private final CompactMapNode<K, V> node2;
 
-		Map1To2Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
+		Map1To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2) {
-
-			this.pos1 = pos1;
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.npos1 = npos1;
 			this.node1 = node1;
-
-			this.npos2 = npos2;
 			this.node2 = node2;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, npos1, node1, npos2, node2),
-										val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1, npos2,
-										node2));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node, npos2,
-										node2));
-					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
-									nestedResult.getNode(), npos2, node2);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
-									node1, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, npos1, node1, npos2, node2),
-										val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1, npos2,
-										node2));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node, npos2,
-										node2));
-					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
-									nestedResult.getNode(), npos2, node2);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
-									node1, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
-										updatedNode, npos2, node2));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
-										updatedNode, npos2, node2));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos1, node1, npos2, node2);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1, node1, npos2, node2);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos2, node2);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos2, node2);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode2AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos1, node1);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1, node1);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -6759,7 +6091,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -6801,6 +6133,145 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2 }, (byte) 1);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -6809,15 +6280,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
-			result = prime * result + npos2;
 			result = prime * result + node2.hashCode();
 
 			return result;
@@ -6836,22 +6306,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To2Node<?, ?> that = (Map1To2Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (npos1 != that.npos1) {
-				return false;
-			}
 			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			if (npos2 != that.npos2) {
 				return false;
 			}
 			if (!node2.equals(that.node2)) {
@@ -6863,534 +6331,35 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s]", pos1, key1, val1, npos1, node1,
-							npos2, node2);
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s]", recoverMask(valmap, (byte) 1), key1,
+							val1, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2);
 		}
 
 	}
 
 	private static final class Map1To3Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte npos1;
 		private final CompactMapNode<K, V> node1;
-
-		private final byte npos2;
 		private final CompactMapNode<K, V> node2;
-
-		private final byte npos3;
 		private final CompactMapNode<K, V> node3;
 
-		Map1To3Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte npos1, final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2, final byte npos3,
-						final CompactMapNode<K, V> node3) {
-
-			this.pos1 = pos1;
+		Map1To3Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.npos1 = npos1;
 			this.node1 = node1;
-
-			this.npos2 = npos2;
 			this.node2 = node2;
-
-			this.npos3 = npos3;
 			this.node3 = node3;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, npos1, node1, npos2, node2,
-														npos3, node3), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1, npos2,
-										node2, npos3, node3));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node, npos2,
-										node2, npos3, node3));
-					} else if (mask < npos3) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										node, npos3, node3));
-					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
-									nestedResult.getNode(), npos2, node2, npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
-									node1, mask, nestedResult.getNode(), npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
-									node1, npos2, node2, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, npos1, node1, npos2, node2,
-														npos3, node3), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1, npos2,
-										node2, npos3, node3));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node, npos2,
-										node2, npos3, node3));
-					} else if (mask < npos3) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										node, npos3, node3));
-					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, mask,
-									nestedResult.getNode(), npos2, node2, npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
-									node1, mask, nestedResult.getNode(), npos3, node3);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, npos1,
-									node1, npos2, node2, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-									node3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
-										updatedNode, npos2, node2, npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, updatedNode, npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node3
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										npos2, node2, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-									node3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask,
-										updatedNode, npos2, node2, npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, updatedNode, npos3, node3));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos3) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node3.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode3AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node3
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										npos2, node2, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos1, node1, npos2, node2,
-								npos3, node3);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1, node1, npos2, node2,
-								npos3, node3);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos2, node2, npos3, node3);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos2, node2, npos3, node3);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode2AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos1, node1, npos3, node3);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1, node1, npos3, node3);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode3AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, npos1, node1, npos2, node2);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, npos1, node1, npos2, node2);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos3) {
-				return node3.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos3) {
-				return node3.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -7436,7 +6405,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -7480,6 +6449,161 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3 },
+							(byte) 1);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -7488,18 +6612,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
-			result = prime * result + npos2;
 			result = prime * result + node2.hashCode();
 
-			result = prime * result + npos3;
 			result = prime * result + node3.hashCode();
 
 			return result;
@@ -7518,28 +6640,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To3Node<?, ?> that = (Map1To3Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (npos1 != that.npos1) {
-				return false;
-			}
 			if (!node1.equals(that.node1)) {
 				return false;
 			}
-			if (npos2 != that.npos2) {
-				return false;
-			}
 			if (!node2.equals(that.node2)) {
-				return false;
-			}
-			if (npos3 != that.npos3) {
 				return false;
 			}
 			if (!node3.equals(that.node3)) {
@@ -7551,265 +6668,1729 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, val1, npos1,
-							node1, npos2, node2, npos3, node3);
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+		}
+
+	}
+
+	private static final class Map1To4Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+
+		Map1To4Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 4;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
+								node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
+								node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
+							node4 }, (byte) 1);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map1To4Node<?, ?> that = (Map1To4Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+		}
+
+	}
+
+	private static final class Map1To5Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+
+		Map1To5Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 5;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
+								node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
+								node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node, node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4, node5);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node5);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2, node3,
+									node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2, node3,
+									node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node3,
+									node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node3,
+									node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
+							node4, node5 }, (byte) 1);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map1To5Node<?, ?> that = (Map1To5Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5);
+		}
+
+	}
+
+	private static final class Map1To6Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+		private final CompactMapNode<K, V> node6;
+
+		Map1To6Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+			this.node6 = node6;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5, node6 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 6;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			case 5:
+				return node6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4, node5,
+								node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
+								node4, node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
+								node4, node5, node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4, node5,
+								node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4, node5,
+								node6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4, node5,
+								node6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node, node5,
+								node6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node,
+								node6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2, node3, node4, node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node3, node4, node5, node6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node4, node5, node6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node5, node6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4, node5,
+									node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4, node5,
+									node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4, node5,
+									node6);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4, node5,
+									node6);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node5,
+									node6);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node,
+									node6);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+									node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2, node3,
+									node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2, node3,
+									node4, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node3,
+									node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node3,
+									node4, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node4, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node4, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node4, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
+							node4, node5, node6 }, (byte) 1);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			result = prime * result + node6.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map1To6Node<?, ?> that = (Map1To6Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+			if (!node6.equals(that.node6)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5,
+							recoverMask(bitmap ^ valmap, (byte) 6), node6);
+		}
+
+	}
+
+	private static final class Map1To7Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+		private final CompactMapNode<K, V> node6;
+		private final CompactMapNode<K, V> node7;
+
+		Map1To7Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+			this.node6 = node6;
+			this.node7 = node7;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5, node6, node7 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 7;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 1;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			case 5:
+				return node6;
+			case 6:
+				return node7;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4, node5,
+								node6, node7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2, node3,
+								node4, node5, node6, node7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2, node3,
+								node4, node5, node6, node7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+								node7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4, node5,
+								node6, node7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node3, node4, node5,
+								node6, node7);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node4, node5,
+								node6, node7);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node, node5,
+								node6, node7);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node,
+								node6, node7);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5, node, node7);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5, node6, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node2, node3, node4, node5,
+								node6, node7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node3, node4, node5,
+								node6, node7);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node4, node5,
+								node6, node7);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node5,
+								node6, node7);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node6, node7);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5, node7);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5, node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, node, node1, node2, node3, node4, node5,
+									node6, node7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, node1, node, node2, node3, node4, node5,
+									node6, node7);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node, node3, node4, node5,
+									node6, node7);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node, node4, node5,
+									node6, node7);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node, node5,
+									node6, node7);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node,
+									node6, node7);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+									node, node7);
+				case 7:
+					return valNodeOf(mutator, bitmap, valmap, node1, node2, node3, node4, node5, node6,
+									node7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node2, node3,
+									node4, node5, node6, node7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node2, node3,
+									node4, node5, node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node3,
+									node4, node5, node6, node7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node3,
+									node4, node5, node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node4, node5, node6, node7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node4, node5, node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node5, node6, node7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node5, node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node4, node6, node7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node4, node6, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node4, node5, node7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node4, node5, node7);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 6:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, node1, node2,
+									node3, node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, node1, node2,
+									node3, node4, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
+							node4, node5, node6, node7 }, (byte) 1);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			result = prime * result + node6.hashCode();
+
+			result = prime * result + node7.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map1To7Node<?, ?> that = (Map1To7Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+			if (!node6.equals(that.node6)) {
+				return false;
+			}
+			if (!node7.equals(that.node7)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5,
+							recoverMask(bitmap ^ valmap, (byte) 6), node6,
+							recoverMask(bitmap ^ valmap, (byte) 7), node7);
 		}
 
 	}
 
 	private static final class Map2To0Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte pos2;
 		private final K key2;
 		private final V val2;
 
-		Map2To0Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte pos2, final K key2, final V val2) {
-
-			this.pos1 = pos1;
+		Map2To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.pos2 = pos2;
 			this.key2 = key2;
 			this.val2 = val2;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val, pos2, key2, val2),
-										val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, mask, node));
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					if (val.equals(val2)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val),
-										val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val, pos2, key2, val2),
-										val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, mask, node));
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					if (cmp.compare(val, val2) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val),
-										val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					/*
-					 * Create node with pair key2, val2. This node will a) either
-					 * become the new root returned, or b) unwrapped and inlined.
-					 */
-					final byte pos2AtShiftZero = (shift == 0) ? pos2
-									: (byte) (keyHash & BIT_PARTITION_MASK);
-					result = Result.modified(valNodeOf(mutator, pos2AtShiftZero, key2, val2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					/*
-					 * Create node with pair key1, val1. This node will a) either
-					 * become the new root returned, or b) unwrapped and inlined.
-					 */
-					final byte pos1AtShiftZero = (shift == 0) ? pos1
-									: (byte) (keyHash & BIT_PARTITION_MASK);
-					result = Result.modified(valNodeOf(mutator, pos1AtShiftZero, key1, val1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					/*
-					 * Create node with pair key2, val2. This node will a) either
-					 * become the new root returned, or b) unwrapped and inlined.
-					 */
-					final byte pos2AtShiftZero = (shift == 0) ? pos2
-									: (byte) (keyHash & BIT_PARTITION_MASK);
-					result = Result.modified(valNodeOf(mutator, pos2AtShiftZero, key2, val2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					/*
-					 * Create node with pair key1, val1. This node will a) either
-					 * become the new root returned, or b) unwrapped and inlined.
-					 */
-					final byte pos1AtShiftZero = (shift == 0) ? pos1
-									: (byte) (keyHash & BIT_PARTITION_MASK);
-					result = Result.modified(valNodeOf(mutator, pos1AtShiftZero, key1, val1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == pos2) {
-				return key.equals(key2);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == pos2) {
-				return cmp.compare(key, key2) == 0;
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && key.equals(key2)) {
-				return Optional.of(entryOf(key2, val2));
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return Optional.of(entryOf(key2, val2));
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -7854,7 +8435,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -7895,6 +8476,107 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2 }, (byte) 2);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -7903,12 +8585,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + pos2;
 			result = prime * result + key2.hashCode();
 			result = prime * result + val2.hashCode();
 
@@ -7928,16 +8610,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To0Node<?, ?> that = (Map2To0Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
-				return false;
-			}
-			if (pos2 != that.pos2) {
 				return false;
 			}
 			if (!key2.equals(that.key2)) {
@@ -7952,385 +8635,34 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s]", pos1, key1, val1, pos2, key2, val2);
+			return String.format("[@%d: %s=%s, @%d: %s=%s]", recoverMask(valmap, (byte) 1), key1, val1,
+							recoverMask(valmap, (byte) 2), key2, val2);
 		}
 
 	}
 
 	private static final class Map2To1Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte pos2;
 		private final K key2;
 		private final V val2;
-
-		private final byte npos1;
 		private final CompactMapNode<K, V> node1;
 
-		Map2To1Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte pos2, final K key2, final V val2, final byte npos1,
+		Map2To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2,
 						final CompactMapNode<K, V> node1) {
-
-			this.pos1 = pos1;
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.pos2 = pos2;
 			this.key2 = key2;
 			this.val2 = val2;
-
-			this.npos1 = npos1;
 			this.node1 = node1;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, npos1,
-														node1), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, mask, node,
-										npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1,
-										mask, node));
-					}
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					if (val.equals(val2)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, npos1,
-														node1), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, node,
-										npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, npos1,
-														node1), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, mask, node,
-										npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1,
-										mask, node));
-					}
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					if (cmp.compare(val, val2) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, npos1,
-														node1), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, node,
-										npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, npos1,
-								node1);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, npos1,
-								node1);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, npos1,
-								node1);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == pos2) {
-				return key.equals(key2);
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == pos2) {
-				return cmp.compare(key, key2) == 0;
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && key.equals(key2)) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -8375,7 +8707,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -8421,6 +8753,148 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1 },
+							(byte) 2);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -8429,16 +8903,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + pos2;
 			result = prime * result + key2.hashCode();
 			result = prime * result + val2.hashCode();
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
 			return result;
@@ -8457,25 +8930,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To1Node<?, ?> that = (Map2To1Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (pos2 != that.pos2) {
-				return false;
-			}
 			if (!key2.equals(that.key2)) {
 				return false;
 			}
 			if (!val2.equals(that.val2)) {
-				return false;
-			}
-			if (npos1 != that.npos1) {
 				return false;
 			}
 			if (!node1.equals(that.node1)) {
@@ -8487,518 +8958,37 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s]", pos1, key1, val1, pos2, key2,
-							val2, npos1, node1);
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s]", recoverMask(valmap, (byte) 1),
+							key1, val1, recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1);
 		}
 
 	}
 
 	private static final class Map2To2Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte pos2;
 		private final K key2;
 		private final V val2;
-
-		private final byte npos1;
 		private final CompactMapNode<K, V> node1;
-
-		private final byte npos2;
 		private final CompactMapNode<K, V> node2;
 
-		Map2To2Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte pos2, final K key2, final V val2, final byte npos1,
-						final CompactMapNode<K, V> node1, final byte npos2,
-						final CompactMapNode<K, V> node2) {
-
-			this.pos1 = pos1;
+		Map2To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.pos2 = pos2;
 			this.key2 = key2;
 			this.val2 = val2;
-
-			this.npos1 = npos1;
 			this.node1 = node1;
-
-			this.npos2 = npos2;
 			this.node2 = node2;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, npos1,
-														node1, npos2, node2), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, mask, node,
-										npos1, node1, npos2, node2));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1,
-										mask, node, npos2, node2));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1,
-										npos2, node2, mask, node));
-					}
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					if (val.equals(val2)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, npos1,
-														node1, npos2, node2), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, node,
-										npos1, node1, npos2, node2));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, node, npos2, node2));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										npos2, node2, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, mask, nestedResult.getNode(), npos2, node2);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, npos1, node1, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, npos1,
-														node1, npos2, node2), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, mask, node,
-										npos1, node1, npos2, node2));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1,
-										mask, node, npos2, node2));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1,
-										npos2, node2, mask, node));
-					}
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					if (cmp.compare(val, val2) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, npos1,
-														node1, npos2, node2), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, mask, node,
-										npos1, node1, npos2, node2));
-					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										mask, node, npos2, node2));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1,
-										npos2, node2, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, mask, nestedResult.getNode(), npos2, node2);
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, npos1, node1, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1, npos2,
-									node2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1, npos2,
-									node2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, updatedNode, npos2, node2));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										npos1, node1, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, npos1, node1, npos2,
-									node2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, npos1, node1, npos2,
-									node2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, updatedNode, npos2, node2));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos2) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node2.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode2AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node2
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										npos1, node1, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, npos1,
-								node1, npos2, node2);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, npos1,
-								node1, npos2, node2);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, npos1,
-								node1, npos2, node2);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, npos2,
-								node2);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, npos2,
-								node2);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, npos2,
-								node2);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode2AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, npos1,
-								node1);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, npos1,
-								node1);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, npos1,
-								node1);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == pos2) {
-				return key.equals(key2);
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == pos2) {
-				return cmp.compare(key, key2) == 0;
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && key.equals(key2)) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else if (mask == npos2) {
-				return node2.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -9043,7 +9033,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -9091,6 +9081,170 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+								node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+								node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+								node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap,
+							new Object[] { key1, val1, key2, val2, node1, node2 }, (byte) 2);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -9099,19 +9253,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + pos2;
 			result = prime * result + key2.hashCode();
 			result = prime * result + val2.hashCode();
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
-			result = prime * result + npos2;
 			result = prime * result + node2.hashCode();
 
 			return result;
@@ -9130,16 +9282,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To2Node<?, ?> that = (Map2To2Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
-				return false;
-			}
-			if (pos2 != that.pos2) {
 				return false;
 			}
 			if (!key2.equals(that.key2)) {
@@ -9148,13 +9301,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (!val2.equals(that.val2)) {
 				return false;
 			}
-			if (npos1 != that.npos1) {
-				return false;
-			}
 			if (!node1.equals(that.node1)) {
-				return false;
-			}
-			if (npos2 != that.npos2) {
 				return false;
 			}
 			if (!node2.equals(that.node2)) {
@@ -9166,326 +9313,1888 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]", pos1, key1, val1, pos2,
-							key2, val2, npos1, node1, npos2, node2);
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+		}
+
+	}
+
+	private static final class Map2To3Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+
+		Map2To3Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator
+							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 3;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 2;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+								node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+								node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+								node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
+									node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
+									node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
+									node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
+							node3 }, (byte) 2);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map2To3Node<?, ?> that = (Map2To3Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+		}
+
+	}
+
+	private static final class Map2To4Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+
+		Map2To4Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 4;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 2;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3,
+								node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3,
+								node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+								node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+								node2, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+								node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3,
+								node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3,
+								node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node,
+								node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2, node3,
+									node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2, node3,
+									node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node, node3,
+									node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node,
+									node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+									node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2, node3,
+									node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2, node3,
+									node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node3,
+									node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
+									node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+									node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
+									node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
+									node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
+									node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
+							node3, node4 }, (byte) 2);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map2To4Node<?, ?> that = (Map2To4Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+		}
+
+	}
+
+	private static final class Map2To5Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+
+		Map2To5Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 5;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 2;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3,
+								node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3,
+								node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+								node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+								node2, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+								node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3,
+								node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3,
+								node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node,
+								node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node, node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3, node4,
+								node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3, node4,
+								node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node4,
+								node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2, node3,
+									node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2, node3,
+									node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node, node3,
+									node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node,
+									node4, node5);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+									node, node5);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+									node5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2, node3,
+									node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2, node3,
+									node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node3,
+									node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
+									node4, node5);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+									node, node5);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+									node5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
+									node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
+									node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
+									node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node3, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node3, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node3, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
+							node3, node4, node5 }, (byte) 2);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map2To5Node<?, ?> that = (Map2To5Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5);
+		}
+
+	}
+
+	private static final class Map2To6Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+		private final CompactMapNode<K, V> node6;
+
+		Map2To6Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+			this.node6 = node6;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5, node6 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 6;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 2;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			case 5:
+				return node6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2, node3,
+								node4, node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, node1, node2, node3,
+								node4, node5, node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+								node2, node3, node4, node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+								node2, node3, node4, node5, node6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+								node2, node3, node4, node5, node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+								node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+								node5, node6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2, node3,
+								node4, node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node, node3,
+								node4, node5, node6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node,
+								node4, node5, node6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node, node5, node6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4, node, node6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4, node5, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node2, node3, node4,
+								node5, node6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node3, node4,
+								node5, node6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node4,
+								node5, node6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node5, node6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4, node6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node, node1, node2, node3,
+									node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node, node2, node3,
+									node4, node5, node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node, node3,
+									node4, node5, node6);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node,
+									node4, node5, node6);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+									node, node5, node6);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+									node5, node, node6);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, node1, node2, node3, node4,
+									node5, node6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node1, node2, node3,
+									node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node, node2, node3,
+									node4, node5, node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node, node3,
+									node4, node5, node6);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node,
+									node4, node5, node6);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+									node, node5, node6);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+									node5, node, node6);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, node1, node2, node3, node4,
+									node5, node6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node2,
+									node3, node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node2,
+									node3, node4, node5, node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node2,
+									node3, node4, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node3, node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node3, node4, node5, node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node3, node4, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node4, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node4, node5, node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node4, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node3, node5, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node3, node5, node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node3, node5, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node3, node4, node6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node3, node4, node6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node3, node4, node6);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, node1,
+									node2, node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, node1,
+									node2, node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, node1,
+									node2, node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1, node2,
+							node3, node4, node5, node6 }, (byte) 2);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			result = prime * result + node6.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map2To6Node<?, ?> that = (Map2To6Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+			if (!node6.equals(that.node6)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5,
+							recoverMask(bitmap ^ valmap, (byte) 6), node6);
 		}
 
 	}
 
 	private static final class Map3To0Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte pos2;
 		private final K key2;
 		private final V val2;
-
-		private final byte pos3;
 		private final K key3;
 		private final V val3;
 
-		Map3To0Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte pos2, final K key2, final V val2, final byte pos3, final K key3,
+		Map3To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
 						final V val3) {
-
-			this.pos1 = pos1;
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.pos2 = pos2;
 			this.key2 = key2;
 			this.val2 = val2;
-
-			this.pos3 = pos3;
 			this.key3 = key3;
 			this.val3 = val3;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, pos3,
-														key3, val3), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									mask, node));
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					if (val.equals(val2)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, pos3,
-														key3, val3), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									mask, node));
-				}
-			} else if (mask == pos3) {
-				if (key.equals(key3)) {
-					if (val.equals(val3)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key3, val3
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val), val3);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, pos3,
-														key3, val3), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									mask, node));
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					if (cmp.compare(val, val2) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, pos3,
-														key3, val3), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									mask, node));
-				}
-			} else if (mask == pos3) {
-				if (cmp.compare(key, key3) == 0) {
-					if (cmp.compare(val, val3) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key3, val3
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val), val3);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos3) {
-				if (key.equals(key3)) {
-					// remove key3, val3
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos3) {
-				if (cmp.compare(key, key3) == 0) {
-					// remove key3, val3
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, pos3,
-								key3, val3);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, pos3,
-								key3, val3);
-			} else if (mask < pos3) {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, pos3,
-								key3, val3);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-								key, val);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == pos2) {
-				return key.equals(key2);
-			} else if (mask == pos3) {
-				return key.equals(key3);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == pos2) {
-				return cmp.compare(key, key2) == 0;
-			} else if (mask == pos3) {
-				return cmp.compare(key, key3) == 0;
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && key.equals(key2)) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == pos3 && key.equals(key3)) {
-				return Optional.of(entryOf(key3, val3));
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
-				return Optional.of(entryOf(key3, val3));
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -9530,7 +11239,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -9577,6 +11286,121 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3 },
+							(byte) 3);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -9585,16 +11409,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + pos2;
 			result = prime * result + key2.hashCode();
 			result = prime * result + val2.hashCode();
 
-			result = prime * result + pos3;
 			result = prime * result + key3.hashCode();
 			result = prime * result + val3.hashCode();
 
@@ -9614,25 +11437,23 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To0Node<?, ?> that = (Map3To0Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
 				return false;
 			}
-			if (pos2 != that.pos2) {
-				return false;
-			}
 			if (!key2.equals(that.key2)) {
 				return false;
 			}
 			if (!val2.equals(that.val2)) {
-				return false;
-			}
-			if (pos3 != that.pos3) {
 				return false;
 			}
 			if (!key3.equals(that.key3)) {
@@ -9647,477 +11468,39 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s]", pos1, key1, val1, pos2, key2,
-							val2, pos3, key3, val3);
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s]", recoverMask(valmap, (byte) 1),
+							key1, val1, recoverMask(valmap, (byte) 2), key2, val2,
+							recoverMask(valmap, (byte) 3), key3, val3);
 		}
 
 	}
 
 	private static final class Map3To1Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte pos2;
 		private final K key2;
 		private final V val2;
-
-		private final byte pos3;
 		private final K key3;
 		private final V val3;
-
-		private final byte npos1;
 		private final CompactMapNode<K, V> node1;
 
-		Map3To1Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte pos2, final K key2, final V val2, final byte pos3, final K key3,
-						final V val3, final byte npos1, final CompactMapNode<K, V> node1) {
-
-			this.pos1 = pos1;
+		Map3To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final CompactMapNode<K, V> node1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.pos2 = pos2;
 			this.key2 = key2;
 			this.val2 = val2;
-
-			this.pos3 = pos3;
 			this.key3 = key3;
 			this.val3 = val3;
-
-			this.npos1 = npos1;
 			this.node1 = node1;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, pos3,
-														key3, val3, npos1, node1), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-										mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-										npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					if (val.equals(val2)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, pos3,
-														key3, val3, npos1, node1), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-										mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-										npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == pos3) {
-				if (key.equals(key3)) {
-					if (val.equals(val3)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key3, val3
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val, npos1, node1), val3);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, pos3, key3, val3, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, pos3,
-														key3, val3, npos1, node1), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-										mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-										npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					if (cmp.compare(val, val2) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, pos3,
-														key3, val3, npos1, node1), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-										mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-										npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == pos3) {
-				if (cmp.compare(key, key3) == 0) {
-					if (cmp.compare(val, val3) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key3, val3
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val, npos1, node1), val3);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										mask, node, npos1, node1));
-					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										npos1, node1, mask, node));
-					}
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.updated(
-								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> thisNew = valNodeOf(mutator, pos1, key1, val1, pos2,
-									key2, val2, pos3, key3, val3, mask, nestedResult.getNode());
-
-					if (nestedResult.hasReplacedValue()) {
-						result = Result.updated(thisNew, nestedResult.getReplacedValue());
-					} else {
-						result = Result.modified(thisNew);
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos3) {
-				if (key.equals(key3)) {
-					// remove key3, val3
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										pos3, key3, val3, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos3) {
-				if (cmp.compare(key, key3) == 0) {
-					// remove key3, val3
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									npos1, node1));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == npos1) {
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = node1.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (nestedResult.isModified()) {
-					final CompactMapNode<K, V> updatedNode = nestedResult.getNode();
-
-					switch (updatedNode.sizePredicate()) {
-					case SIZE_ONE:
-						// inline sub-node value
-						result = Result.modified(removeNode1AndInlineValue(mutator, mask,
-										updatedNode.headKey(), updatedNode.headVal()));
-						break;
-
-					case SIZE_MORE_THAN_ONE:
-						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-										pos3, key3, val3, mask, updatedNode));
-						break;
-
-					default:
-						throw new IllegalStateException("Size predicate violates node invariant.");
-					}
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, pos3,
-								key3, val3, npos1, node1);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, pos3,
-								key3, val3, npos1, node1);
-			} else if (mask < pos3) {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, pos3,
-								key3, val3, npos1, node1);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-								key, val, npos1, node1);
-			}
-		}
-
-		private CompactMapNode<K, V> removeNode1AndInlineValue(AtomicReference<Thread> mutator,
-						byte mask, K key, V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, pos3,
-								key3, val3);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, pos3,
-								key3, val3);
-			} else if (mask < pos3) {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, pos3,
-								key3, val3);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-								key, val);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == pos2) {
-				return key.equals(key2);
-			} else if (mask == pos3) {
-				return key.equals(key3);
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == pos2) {
-				return cmp.compare(key, key2) == 0;
-			} else if (mask == pos3) {
-				return cmp.compare(key, key3) == 0;
-			} else if (mask == npos1) {
-				return node1.containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && key.equals(key2)) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == pos3 && key.equals(key3)) {
-				return Optional.of(entryOf(key3, val3));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
-				return Optional.of(entryOf(key3, val3));
-			} else if (mask == npos1) {
-				return node1.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -10162,7 +11545,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			switch (index) {
 			case 0:
 				return node1;
@@ -10214,6 +11597,173 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							node1 }, (byte) 3);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -10222,20 +11772,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + pos2;
 			result = prime * result + key2.hashCode();
 			result = prime * result + val2.hashCode();
 
-			result = prime * result + pos3;
 			result = prime * result + key3.hashCode();
 			result = prime * result + val3.hashCode();
 
-			result = prime * result + npos1;
 			result = prime * result + node1.hashCode();
 
 			return result;
@@ -10254,16 +11802,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To1Node<?, ?> that = (Map3To1Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
-				return false;
-			}
-			if (pos2 != that.pos2) {
 				return false;
 			}
 			if (!key2.equals(that.key2)) {
@@ -10272,16 +11821,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (!val2.equals(that.val2)) {
 				return false;
 			}
-			if (pos3 != that.pos3) {
-				return false;
-			}
 			if (!key3.equals(that.key3)) {
 				return false;
 			}
 			if (!val3.equals(that.val3)) {
-				return false;
-			}
-			if (npos1 != that.npos1) {
 				return false;
 			}
 			if (!node1.equals(that.node1)) {
@@ -10293,403 +11836,1996 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]", pos1, key1, val1,
-							pos2, key2, val2, pos3, key3, val3, npos1, node1);
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+		}
+
+	}
+
+	private static final class Map3To2Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+
+		Map3To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.node1 = node1;
+			this.node2 = node2;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 2;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 3;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
+								node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, node1,
+								node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, node1,
+								node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+								node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node, node1,
+									node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node,
+									node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node, node1,
+									node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node,
+									node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node1,
+									node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+									node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node2);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							node1, node2 }, (byte) 3);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map3To2Node<?, ?> that = (Map3To2Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+		}
+
+	}
+
+	private static final class Map3To3Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+
+		Map3To3Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator
+							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 3;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 3;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
+								node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, node1,
+								node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, node1,
+								node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								node1, node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								node1, node2, node3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+								node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node2,
+								node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node, node1,
+									node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node,
+									node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node, node1,
+									node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node,
+									node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node1,
+									node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+									node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node2, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node2);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							node1, node2, node3 }, (byte) 3);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map3To3Node<?, ?> that = (Map3To3Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+		}
+
+	}
+
+	private static final class Map3To4Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+
+		Map3To4Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 4;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 3;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
+								node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, node1,
+								node2, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, node1,
+								node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								node1, node2, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								node1, node2, node3, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2, node3,
+								node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2, node3,
+								node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+								node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node2,
+								node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node, node1,
+									node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node,
+									node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node, node1,
+									node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node,
+									node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node1,
+									node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+									node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node2, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node2, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node2, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node2, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node2, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node2, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node2, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							node1, node2, node3, node4 }, (byte) 3);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map3To4Node<?, ?> that = (Map3To4Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+		}
+
+	}
+
+	private static final class Map3To5Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+		private final CompactMapNode<K, V> node5;
+
+		Map3To5Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+			this.node5 = node5;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4, node5 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 5;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 3;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			case 4:
+				return node5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
+								node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, node1,
+								node2, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, node1,
+								node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								node1, node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								node1, node2, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								node1, node2, node3, node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								node1, node2, node3, node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2, node3,
+								node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2, node3,
+								node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2, node3,
+								node4, node5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+								node2, node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node, node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node, node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3, node, node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3, node4, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node2,
+								node3, node4, node5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node3, node4, node5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node4, node5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3, node5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node, node1,
+									node2, node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node,
+									node2, node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node, node3, node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node3, node, node4, node5);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node3, node4, node, node5);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, node1, node2,
+									node3, node4, node5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node, node1,
+									node2, node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node,
+									node2, node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node, node3, node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node3, node, node4, node5);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node3, node4, node, node5);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, node1, node2,
+									node3, node4, node5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node1,
+									node2, node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node,
+									node2, node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node, node3, node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node3, node, node4, node5);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node3, node4, node, node5);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node1, node2,
+									node3, node4, node5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node2, node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node2, node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node2, node3, node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node2, node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node3, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node3, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node3, node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node3, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node2, node4, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node2, node4, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node2, node4, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node2, node4, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node2, node3, node5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node2, node3, node5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node2, node3, node5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node2, node3, node5);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, node1, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, node1, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, node1, node2, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, node1, node2, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							node1, node2, node3, node4, node5 }, (byte) 3);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			result = prime * result + node5.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map3To5Node<?, ?> that = (Map3To5Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+			if (!node5.equals(that.node5)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4,
+							recoverMask(bitmap ^ valmap, (byte) 5), node5);
 		}
 
 	}
 
 	private static final class Map4To0Node<K, V> extends CompactMapNode<K, V> {
-
-		private final byte pos1;
+		private final int bitmap;
+		private final int valmap;
 		private final K key1;
 		private final V val1;
-
-		private final byte pos2;
 		private final K key2;
 		private final V val2;
-
-		private final byte pos3;
 		private final K key3;
 		private final V val3;
-
-		private final byte pos4;
 		private final K key4;
 		private final V val4;
 
-		Map4To0Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final V val1,
-						final byte pos2, final K key2, final V val2, final byte pos3, final K key3,
-						final V val3, final byte pos4, final K key4, final V val4) {
-
-			this.pos1 = pos1;
+		Map4To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
-
-			this.pos2 = pos2;
 			this.key2 = key2;
 			this.val2 = val2;
-
-			this.pos3 = pos3;
 			this.key3 = key3;
 			this.val3 = val3;
-
-			this.pos4 = pos4;
 			this.key4 = key4;
 			this.val4 = val4;
 
 			assert nodeInvariant();
-			assert USE_SPECIALIAZIONS;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					if (val.equals(val1)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, pos3,
-														key3, val3, pos4, key4, val4), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									pos4, key4, val4, mask, node));
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					if (val.equals(val2)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, pos3,
-														key3, val3, pos4, key4, val4), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									pos4, key4, val4, mask, node));
-				}
-			} else if (mask == pos3) {
-				if (key.equals(key3)) {
-					if (val.equals(val3)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key3, val3
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val, pos4, key4, val4), val3);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos4, key4, val4, mask, node));
-				}
-			} else if (mask == pos4) {
-				if (key.equals(key4)) {
-					if (val.equals(val4)) {
-						result = Result.unchanged(this);
-					} else {
-						// update key4, val4
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val3, pos4, key4, val), val4);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key4, key4.hashCode(), val4, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos3, key3, val3, mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, V val, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					if (cmp.compare(val, val1) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key1, val1
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val, pos2, key2, val2, pos3,
-														key3, val3, pos4, key4, val4), val1);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key1, key1.hashCode(), val1, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									pos4, key4, val4, mask, node));
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					if (cmp.compare(val, val2) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key2, val2
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val, pos3,
-														key3, val3, pos4, key4, val4), val2);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key2, key2.hashCode(), val2, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									pos4, key4, val4, mask, node));
-				}
-			} else if (mask == pos3) {
-				if (cmp.compare(key, key3) == 0) {
-					if (cmp.compare(val, val3) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key3, val3
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val, pos4, key4, val4), val3);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key3, key3.hashCode(), val3, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos4, key4, val4, mask, node));
-				}
-			} else if (mask == pos4) {
-				if (cmp.compare(key, key4) == 0) {
-					if (cmp.compare(val, val4) == 0) {
-						result = Result.unchanged(this);
-					} else {
-						// update key4, val4
-						result = Result.updated(
-										valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3,
-														key3, val3, pos4, key4, val), val4);
-					}
-				} else {
-					// merge into node
-					final CompactMapNode<K, V> node = mergeNodes(key4, key4.hashCode(), val4, key,
-									keyHash, val, shift + BIT_PARTITION_SIZE);
-
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos3, key3, val3, mask, node));
-				}
-			} else {
-				// no value
-				result = Result.modified(inlineValue(mutator, mask, key, val));
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (key.equals(key1)) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									pos4, key4, val4));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (key.equals(key2)) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									pos4, key4, val4));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos3) {
-				if (key.equals(key3)) {
-					// remove key3, val3
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos4, key4, val4));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos4) {
-				if (key.equals(key4)) {
-					// remove key4, val4
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos3, key3, val3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-			final Result<K, V, ? extends CompactMapNode<K, V>> result;
-
-			if (mask == pos1) {
-				if (cmp.compare(key, key1) == 0) {
-					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, val2, pos3, key3, val3,
-									pos4, key4, val4));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos2) {
-				if (cmp.compare(key, key2) == 0) {
-					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos3, key3, val3,
-									pos4, key4, val4));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos3) {
-				if (cmp.compare(key, key3) == 0) {
-					// remove key3, val3
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos4, key4, val4));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else if (mask == pos4) {
-				if (cmp.compare(key, key4) == 0) {
-					// remove key4, val4
-					result = Result.modified(valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2,
-									pos3, key3, val3));
-				} else {
-					result = Result.unchanged(this);
-				}
-			} else {
-				result = Result.unchanged(this);
-			}
-
-			return result;
-		}
-
-		private CompactMapNode<K, V> inlineValue(AtomicReference<Thread> mutator, byte mask, K key,
-						V val) {
-			if (mask < pos1) {
-				return valNodeOf(mutator, mask, key, val, pos1, key1, val1, pos2, key2, val2, pos3,
-								key3, val3, pos4, key4, val4);
-			} else if (mask < pos2) {
-				return valNodeOf(mutator, pos1, key1, val1, mask, key, val, pos2, key2, val2, pos3,
-								key3, val3, pos4, key4, val4);
-			} else if (mask < pos3) {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, mask, key, val, pos3,
-								key3, val3, pos4, key4, val4);
-			} else if (mask < pos4) {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3, mask,
-								key, val, pos4, key4, val4);
-			} else {
-				return valNodeOf(mutator, pos1, key1, val1, pos2, key2, val2, pos3, key3, val3, pos4,
-								key4, val4, mask, key, val);
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return key.equals(key1);
-			} else if (mask == pos2) {
-				return key.equals(key2);
-			} else if (mask == pos3) {
-				return key.equals(key3);
-			} else if (mask == pos4) {
-				return key.equals(key4);
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1) {
-				return cmp.compare(key, key1) == 0;
-			} else if (mask == pos2) {
-				return cmp.compare(key, key2) == 0;
-			} else if (mask == pos3) {
-				return cmp.compare(key, key3) == 0;
-			} else if (mask == pos4) {
-				return cmp.compare(key, key4) == 0;
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && key.equals(key1)) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && key.equals(key2)) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == pos3 && key.equals(key3)) {
-				return Optional.of(entryOf(key3, val3));
-			} else if (mask == pos4 && key.equals(key4)) {
-				return Optional.of(entryOf(key4, val4));
-			} else {
-				return Optional.empty();
-			}
-		}
-
-		@Override
-		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
-						Comparator<Object> cmp) {
-			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
-
-			if (mask == pos1 && cmp.compare(key, key1) == 0) {
-				return Optional.of(entryOf(key1, val1));
-			} else if (mask == pos2 && cmp.compare(key, key2) == 0) {
-				return Optional.of(entryOf(key2, val2));
-			} else if (mask == pos3 && cmp.compare(key, key3) == 0) {
-				return Optional.of(entryOf(key3, val3));
-			} else if (mask == pos4 && cmp.compare(key, key4) == 0) {
-				return Optional.of(entryOf(key4, val4));
-			} else {
-				return Optional.empty();
-			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -10735,7 +13871,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		AbstractMapNode<K, V> getNode(int index) {
+		CompactMapNode<K, V> getNode(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -10788,6 +13924,139 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4, val4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4, val4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4, val4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4 }, (byte) 4);
+		}
+
+		@Override
 		byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -10796,20 +14065,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
 
-			result = prime * result + pos1;
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
 
-			result = prime * result + pos2;
 			result = prime * result + key2.hashCode();
 			result = prime * result + val2.hashCode();
 
-			result = prime * result + pos3;
 			result = prime * result + key3.hashCode();
 			result = prime * result + val3.hashCode();
 
-			result = prime * result + pos4;
 			result = prime * result + key4.hashCode();
 			result = prime * result + val4.hashCode();
 
@@ -10829,16 +14096,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map4To0Node<?, ?> that = (Map4To0Node<?, ?>) other;
 
-			if (pos1 != that.pos1) {
+			if (bitmap != that.bitmap) {
 				return false;
 			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
 			if (!key1.equals(that.key1)) {
 				return false;
 			}
 			if (!val1.equals(that.val1)) {
-				return false;
-			}
-			if (pos2 != that.pos2) {
 				return false;
 			}
 			if (!key2.equals(that.key2)) {
@@ -10847,16 +14115,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			if (!val2.equals(that.val2)) {
 				return false;
 			}
-			if (pos3 != that.pos3) {
-				return false;
-			}
 			if (!key3.equals(that.key3)) {
 				return false;
 			}
 			if (!val3.equals(that.val3)) {
-				return false;
-			}
-			if (pos4 != that.pos4) {
 				return false;
 			}
 			if (!key4.equals(that.key4)) {
@@ -10871,8 +14133,7028 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]", pos1, key1, val1,
-							pos2, key2, val2, pos3, key3, val3, pos4, key4, val4);
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4);
+		}
+
+	}
+
+	private static final class Map4To1Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final CompactMapNode<K, V> node1;
+
+		Map4To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final CompactMapNode<K, V> node1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.node1 = node1;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 4;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
+									node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
+									node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
+									node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+									node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, node1 }, (byte) 4);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map4To1Node<?, ?> that = (Map4To1Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+		}
+
+	}
+
+	private static final class Map4To2Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+
+		Map4To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.node1 = node1;
+			this.node2 = node2;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 2;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 4;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, node1, node2);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node1,
+								node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node1,
+								node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node1,
+								node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
+									node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
+									node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
+									node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+									node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node2);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node2);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node1);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node1);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node1);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, node1, node2 }, (byte) 4);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map4To2Node<?, ?> that = (Map4To2Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+		}
+
+	}
+
+	private static final class Map4To3Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+
+		Map4To3Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator
+							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 3;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 4;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, node1, node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, node1, node2, node3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, node1, node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, node1, node2, node3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, node1, node2, node3);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node1,
+								node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node1,
+								node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node1,
+								node2, node3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
+									node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
+									node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
+									node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+									node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node2, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node2, node3);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node1, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node1, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node1, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node1, node3);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node1, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node1, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node1, node2);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node1, node2);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node1, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, node1, node2, node3 }, (byte) 4);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map4To3Node<?, ?> that = (Map4To3Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+		}
+
+	}
+
+	private static final class Map4To4Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+		private final CompactMapNode<K, V> node4;
+
+		Map4To4Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+						final CompactMapNode<K, V> node4) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+			this.node4 = node4;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3,
+							node4 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 4;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 4;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			case 3:
+				return node4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, node1, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, node1, node2, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, node1, node2, node3, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, node1, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, node1, node2, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, node1, node2, node3, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, node1, node2, node3, node4);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, node1, node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node1,
+								node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node1,
+								node2, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node1,
+								node2, node3, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node1,
+								node2, node3, node4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2, node, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2, node3, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node2, node3, node4);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node3, node4);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2, node4);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, node,
+									node1, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node2, node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node2, node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4,
+									node1, node2, node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, node,
+									node1, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node2, node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node2, node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4,
+									node1, node2, node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, node,
+									node1, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node2, node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node2, node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4,
+									node1, node2, node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
+									node1, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node2, node, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node2, node3, node, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3,
+									node1, node2, node3, node4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node2, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node2, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node2, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node2, node3, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node2, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node1, node3, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node1, node3, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node1, node3, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node1, node3, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node1, node3, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node1, node2, node4);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node1, node2, node4);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node1, node2, node4);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node1, node2, node4);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node1, node2, node4);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, node1, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, node1, node2, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, node1, node2, node3);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, node1, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, node1, node2, node3, node4 }, (byte) 4);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			result = prime * result + node4.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map4To4Node<?, ?> that = (Map4To4Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+			if (!node4.equals(that.node4)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3,
+							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+		}
+
+	}
+
+	private static final class Map5To0Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+
+		Map5To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 5;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5 }, (byte) 5);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map5To0Node<?, ?> that = (Map5To0Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5);
+		}
+
+	}
+
+	private static final class Map5To1Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final CompactMapNode<K, V> node1;
+
+		Map5To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final CompactMapNode<K, V> node1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.node1 = node1;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 5;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, node1);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, node1 }, (byte) 5);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map5To1Node<?, ?> that = (Map5To1Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(bitmap ^ valmap, (byte) 1), node1);
+		}
+
+	}
+
+	private static final class Map5To2Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+
+		Map5To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.node1 = node1;
+			this.node2 = node2;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 2;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 5;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, node1, node2);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, node1, node2);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, node1, node2);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, node1, node2);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, node2);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, node2);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, node2);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, node1);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, node1);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, node1);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, node1);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, node1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, node1, node2 }, (byte) 5);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map5To2Node<?, ?> that = (Map5To2Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+		}
+
+	}
+
+	private static final class Map5To3Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+		private final CompactMapNode<K, V> node3;
+
+		Map5To3Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+						final CompactMapNode<K, V> node3) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.node1 = node1;
+			this.node2 = node2;
+			this.node3 = node3;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator
+							.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2, node3 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 3;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 5;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			case 2:
+				return node3;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, node1, node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, node1, node2, node3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, node1, node2, node3);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, node1, node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, node1, node2, node3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, node1, node2, node3);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, node1, node2, node3);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, node1, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, node1, node2, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, node1, node2, node3);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, node1, node2, node3);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, node1, node2, node3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node2, node3);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node3);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node, node1, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node1, node, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node1, node2, node, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, node1, node2, node3, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, node2, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, node2, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, node2, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, node2, node3);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, node2, node3);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, node2, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, node1, node3);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, node1, node3);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, node1, node3);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, node1, node3);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, node1, node3);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, node1, node3);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, node1, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, node1, node2);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, node1, node2);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, node1, node2);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, node1, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, node1, node2, node3 }, (byte) 5);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			result = prime * result + node3.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map5To3Node<?, ?> that = (Map5To3Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+			if (!node3.equals(that.node3)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2,
+							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+		}
+
+	}
+
+	private static final class Map6To0Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final K key6;
+		private final V val6;
+
+		Map6To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final K key6, final V val6) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.key6 = key6;
+			this.val6 = val6;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 6;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			case 5:
+				return key6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			case 5:
+				return val6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			case 5:
+				return entryOf(key6, val6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, key6, val6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, key6, val6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, key6, val6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, key6, val6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, key6, val6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, key6, val6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, key6, val6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, key6, val6);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, key6, val6);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, key6, val6);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, key6, val6);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, key6, val6);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key6, val6);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6 }, (byte) 6);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + key6.hashCode();
+			result = prime * result + val6.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map6To0Node<?, ?> that = (Map6To0Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!key6.equals(that.key6)) {
+				return false;
+			}
+			if (!val6.equals(that.val6)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(valmap, (byte) 6), key6, val6);
+		}
+
+	}
+
+	private static final class Map6To1Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final K key6;
+		private final V val6;
+		private final CompactMapNode<K, V> node1;
+
+		Map6To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final K key6, final V val6, final CompactMapNode<K, V> node1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.key6 = key6;
+			this.val6 = val6;
+			this.node1 = node1;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 6;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			case 5:
+				return key6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			case 5:
+				return val6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			case 5:
+				return entryOf(key6, val6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, key6, val6, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, key6, val6, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, key6, val6, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, key6, val6, node1);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, key6, val6, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, key6, val6, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, key6, val6, node1);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, key6, val6, node1);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, key6, val6, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, key6, val6, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, key6, val6, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, key6, val6, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key6, val6, node1);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, key6, val6);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, key6, val6);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, key6, val6);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, key6, val6);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, node1 }, (byte) 6);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + key6.hashCode();
+			result = prime * result + val6.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map6To1Node<?, ?> that = (Map6To1Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!key6.equals(that.key6)) {
+				return false;
+			}
+			if (!val6.equals(that.val6)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+		}
+
+	}
+
+	private static final class Map6To2Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final K key6;
+		private final V val6;
+		private final CompactMapNode<K, V> node1;
+		private final CompactMapNode<K, V> node2;
+
+		Map6To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final K key6, final V val6, final CompactMapNode<K, V> node1,
+						final CompactMapNode<K, V> node2) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.key6 = key6;
+			this.val6 = val6;
+			this.node1 = node1;
+			this.node2 = node2;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1, node2 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 2;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 6;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			case 1:
+				return node2;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			case 5:
+				return key6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			case 5:
+				return val6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			case 5:
+				return entryOf(key6, val6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, key6, val6, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, key6, val6, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, key6, val6, node1, node2);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, key6, val6, node1, node2);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, key6, val6, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, key6, val6, node1, node2);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, key6, val6, node1, node2);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, key6, val6, node1, node2);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key, val, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, key6, val6, node1, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, key6, val6, node1, node2);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, key6, val6, node1, node2);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, key6, val6, node1, node2);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key6, val6, node1, node2);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, node1, node2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node2);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, node, node1, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, node1, node, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, node1, node2, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6, node2);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6, node2);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, key6, val6, node2);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, key6, val6, node2);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, key6, val6, node2);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, key6, val6, node2);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, key, val, node2);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6, node1);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, key6, val6, node1);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, key6, val6, node1);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, key6, val6, node1);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, key6, val6, node1);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, key, val, node1);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, node1, node2 }, (byte) 6);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + key6.hashCode();
+			result = prime * result + val6.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			result = prime * result + node2.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map6To2Node<?, ?> that = (Map6To2Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!key6.equals(that.key6)) {
+				return false;
+			}
+			if (!val6.equals(that.val6)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+			if (!node2.equals(that.node2)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1,
+							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+		}
+
+	}
+
+	private static final class Map7To0Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final K key6;
+		private final V val6;
+		private final K key7;
+		private final V val7;
+
+		Map7To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final K key6, final V val6, final K key7, final V val7) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.key6 = key6;
+			this.val6 = val6;
+			this.key7 = key7;
+			this.val7 = val7;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, key7, val7 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 7;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			case 5:
+				return key6;
+			case 6:
+				return key7;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			case 5:
+				return val6;
+			case 6:
+				return val7;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			case 5:
+				return entryOf(key6, val6);
+			case 6:
+				return entryOf(key7, val7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, key6, val6, key7, val7);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, key6, val6, key7, val7);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, key6, val6, key7, val7);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val, key7, val7);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, key6, val6, key7, val7);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, key6, val6, key7, val7);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, key6, val6, key7, val7);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key, val, key7, val7);
+			case 7:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, key6, val6, key7, val7);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, key6, val6, key7, val7);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, key6, val6, key7, val7);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, key6, val6, key7, val7);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key6, val6, key7, val7);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key7, val7);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, key7, val7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, key7, val7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, key7, val7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key7, val7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 6:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7 }, (byte) 7);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + key6.hashCode();
+			result = prime * result + val6.hashCode();
+
+			result = prime * result + key7.hashCode();
+			result = prime * result + val7.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map7To0Node<?, ?> that = (Map7To0Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!key6.equals(that.key6)) {
+				return false;
+			}
+			if (!val6.equals(that.val6)) {
+				return false;
+			}
+			if (!key7.equals(that.key7)) {
+				return false;
+			}
+			if (!val7.equals(that.val7)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 7), key7, val7);
+		}
+
+	}
+
+	private static final class Map7To1Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final K key6;
+		private final V val6;
+		private final K key7;
+		private final V val7;
+		private final CompactMapNode<K, V> node1;
+
+		Map7To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final K key6, final V val6, final K key7, final V val7,
+						final CompactMapNode<K, V> node1) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.key6 = key6;
+			this.val6 = val6;
+			this.key7 = key7;
+			this.val7 = val7;
+			this.node1 = node1;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return ArrayIterator.<CompactMapNode<K, V>> of(new CompactMapNode[] { node1 });
+		}
+
+		@Override
+		boolean hasNodes() {
+			return true;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, key7, val7 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 7;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			switch (index) {
+			case 0:
+				return node1;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			case 5:
+				return key6;
+			case 6:
+				return key7;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			case 5:
+				return val6;
+			case 6:
+				return val7;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			case 5:
+				return entryOf(key6, val6);
+			case 6:
+				return entryOf(key7, val7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, key6, val6, key7, val7, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, key6, val6, key7, val7, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, key6, val6, key7, val7, node1);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val, key7, val7, node1);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, key6, val6, key7, val7, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, key6, val6, key7, val7, node1);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, key6, val6, key7, val7, node1);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key, val, key7, val7, node1);
+			case 7:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, key, val, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, key6, val6, key7, val7, node1);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, key6, val6, key7, val7, node1);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, key6, val6, key7, val7, node1);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, key6, val6, key7, val7, node1);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key6, val6, key7, val7, node1);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key7, val7, node1);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, node1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			final int bitIndex = nodeIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+
+			switch (bitIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, key7, val7, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, key7, val7, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, key7, val7, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, key7, val7, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, key7, val7, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, key7, val7, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key7, val7, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key7, val7, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 6:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, node, node1);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, node1, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = nodeIndex(bitpos);
+			final int valIndex = valIndex(bitpos);
+
+			final int valmap = this.valmap | bitpos;
+
+			final K key = node.headKey();
+			final V val = node.headVal();
+
+			switch (bitIndex) {
+			case 0:
+				switch (valIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6, key7, val7);
+				case 1:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3,
+									val3, key4, val4, key5, val5, key6, val6, key7, val7);
+				case 2:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3,
+									val3, key4, val4, key5, val5, key6, val6, key7, val7);
+				case 3:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key,
+									val, key4, val4, key5, val5, key6, val6, key7, val7);
+				case 4:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key, val, key5, val5, key6, val6, key7, val7);
+				case 5:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key, val, key6, val6, key7, val7);
+				case 6:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, key, val, key7, val7);
+				case 7:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, key7, val7, key, val);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7, node1 }, (byte) 7);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + key6.hashCode();
+			result = prime * result + val6.hashCode();
+
+			result = prime * result + key7.hashCode();
+			result = prime * result + val7.hashCode();
+
+			result = prime * result + node1.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map7To1Node<?, ?> that = (Map7To1Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!key6.equals(that.key6)) {
+				return false;
+			}
+			if (!val6.equals(that.val6)) {
+				return false;
+			}
+			if (!key7.equals(that.key7)) {
+				return false;
+			}
+			if (!val7.equals(that.val7)) {
+				return false;
+			}
+			if (!node1.equals(that.node1)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 7), key7, val7,
+							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+		}
+
+	}
+
+	private static final class Map8To0Node<K, V> extends CompactMapNode<K, V> {
+		private final int bitmap;
+		private final int valmap;
+		private final K key1;
+		private final V val1;
+		private final K key2;
+		private final V val2;
+		private final K key3;
+		private final V val3;
+		private final K key4;
+		private final V val4;
+		private final K key5;
+		private final V val5;
+		private final K key6;
+		private final V val6;
+		private final K key7;
+		private final V val7;
+		private final K key8;
+		private final V val8;
+
+		Map8To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
+						final K key1, final V val1, final K key2, final V val2, final K key3,
+						final V val3, final K key4, final V val4, final K key5, final V val5,
+						final K key6, final V val6, final K key7, final V val7, final K key8,
+						final V val8) {
+			super(mutator, bitmap, valmap);
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+			this.key1 = key1;
+			this.val1 = val1;
+			this.key2 = key2;
+			this.val2 = val2;
+			this.key3 = key3;
+			this.val3 = val3;
+			this.key4 = key4;
+			this.val4 = val4;
+			this.key5 = key5;
+			this.val5 = val5;
+			this.key6 = key6;
+			this.val6 = val6;
+			this.key7 = key7;
+			this.val7 = val7;
+			this.key8 = key8;
+			this.val8 = val8;
+
+			assert nodeInvariant();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactMapNode<K, V>> nodeIterator() {
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		boolean hasNodes() {
+			return false;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0;
+		}
+
+		@Override
+		SupplierIterator<K, V> payloadIterator() {
+			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+							val4, key5, val5, key6, val6, key7, val7, key8, val8 });
+		}
+
+		@Override
+		boolean hasPayload() {
+			return true;
+		}
+
+		@Override
+		int payloadArity() {
+			return 8;
+		}
+
+		@Override
+		K headKey() {
+			return key1;
+		}
+
+		@Override
+		V headVal() {
+			return val1;
+		}
+
+		@Override
+		CompactMapNode<K, V> getNode(int index) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		K getKey(int index) {
+			switch (index) {
+			case 0:
+				return key1;
+			case 1:
+				return key2;
+			case 2:
+				return key3;
+			case 3:
+				return key4;
+			case 4:
+				return key5;
+			case 5:
+				return key6;
+			case 6:
+				return key7;
+			case 7:
+				return key8;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		V getValue(int index) {
+			switch (index) {
+			case 0:
+				return val1;
+			case 1:
+				return val2;
+			case 2:
+				return val3;
+			case 3:
+				return val4;
+			case 4:
+				return val5;
+			case 5:
+				return val6;
+			case 6:
+				return val7;
+			case 7:
+				return val8;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		Map.Entry<K, V> getKeyValueEntry(int index) {
+			switch (index) {
+			case 0:
+				return entryOf(key1, val1);
+			case 1:
+				return entryOf(key2, val2);
+			case 2:
+				return entryOf(key3, val3);
+			case 3:
+				return entryOf(key4, val4);
+			case 4:
+				return entryOf(key5, val5);
+			case 5:
+				return entryOf(key6, val6);
+			case 6:
+				return entryOf(key7, val7);
+			case 7:
+				return entryOf(key8, val8);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			switch (index) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val, key4,
+								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val, key6, val6, key7, val7, key8, val8);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val, key7, val7, key8, val8);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val, key8, val8);
+			case 7:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, key8, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+						V val) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap | bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key, val, key1, val1, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key, val, key2, val2, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key, val, key3, val3,
+								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key, val,
+								key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key, val, key5, val5, key6, val6, key7, val7, key8, val8);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key, val, key6, val6, key7, val7, key8, val8);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key, val, key7, val7, key8, val8);
+			case 7:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, key, val, key8, val8);
+			case 8:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7, key8, val8, key, val);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap & ~bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+								val5, key6, val6, key7, val7, key8, val8);
+			case 1:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+								val5, key6, val6, key7, val7, key8, val8);
+			case 2:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+								val5, key6, val6, key7, val7, key8, val8);
+			case 3:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+								val5, key6, val6, key7, val7, key8, val8);
+			case 4:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key6, val6, key7, val7, key8, val8);
+			case 5:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key7, val7, key8, val8);
+			case 6:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key8, val8);
+			case 7:
+				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+								val4, key5, val5, key6, val6, key7, val7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+						CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+							& (bitpos - 1));
+			final int valIndex = valIndex(bitpos);
+
+			final int bitmap = this.bitmap | bitpos;
+			final int valmap = this.valmap & ~bitpos;
+
+			switch (valIndex) {
+			case 0:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key2, val2, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, key8, val8, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 1:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key3, val3, key4, val4, key5,
+									val5, key6, val6, key7, val7, key8, val8, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 2:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key4, val4, key5,
+									val5, key6, val6, key7, val7, key8, val8, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 3:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key5,
+									val5, key6, val6, key7, val7, key8, val8, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 4:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key6, val6, key7, val7, key8, val8, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 5:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key7, val7, key8, val8, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 6:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, key8, val8, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			case 7:
+				switch (bitIndex) {
+				case 0:
+					return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
+									val4, key5, val5, key6, val6, key7, val7, node);
+				default:
+					throw new IllegalStateException("Index out of range.");
+				}
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						int bitpos, CompactMapNode<K, V> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		CompactMapNode<K, V> convertToGenericNode() {
+			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3, val3,
+							key4, val4, key5, val5, key6, val6, key7, val7, key8, val8 }, (byte) 8);
+		}
+
+		@Override
+		byte sizePredicate() {
+			return SIZE_MORE_THAN_ONE;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + bitmap;
+			result = prime * result + valmap;
+
+			result = prime * result + key1.hashCode();
+			result = prime * result + val1.hashCode();
+
+			result = prime * result + key2.hashCode();
+			result = prime * result + val2.hashCode();
+
+			result = prime * result + key3.hashCode();
+			result = prime * result + val3.hashCode();
+
+			result = prime * result + key4.hashCode();
+			result = prime * result + val4.hashCode();
+
+			result = prime * result + key5.hashCode();
+			result = prime * result + val5.hashCode();
+
+			result = prime * result + key6.hashCode();
+			result = prime * result + val6.hashCode();
+
+			result = prime * result + key7.hashCode();
+			result = prime * result + val7.hashCode();
+
+			result = prime * result + key8.hashCode();
+			result = prime * result + val8.hashCode();
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Map8To0Node<?, ?> that = (Map8To0Node<?, ?>) other;
+
+			if (bitmap != that.bitmap) {
+				return false;
+			}
+			if (valmap != that.valmap) {
+				return false;
+			}
+
+			if (!key1.equals(that.key1)) {
+				return false;
+			}
+			if (!val1.equals(that.val1)) {
+				return false;
+			}
+			if (!key2.equals(that.key2)) {
+				return false;
+			}
+			if (!val2.equals(that.val2)) {
+				return false;
+			}
+			if (!key3.equals(that.key3)) {
+				return false;
+			}
+			if (!val3.equals(that.val3)) {
+				return false;
+			}
+			if (!key4.equals(that.key4)) {
+				return false;
+			}
+			if (!val4.equals(that.val4)) {
+				return false;
+			}
+			if (!key5.equals(that.key5)) {
+				return false;
+			}
+			if (!val5.equals(that.val5)) {
+				return false;
+			}
+			if (!key6.equals(that.key6)) {
+				return false;
+			}
+			if (!val6.equals(that.val6)) {
+				return false;
+			}
+			if (!key7.equals(that.key7)) {
+				return false;
+			}
+			if (!val7.equals(that.val7)) {
+				return false;
+			}
+			if (!key8.equals(that.key8)) {
+				return false;
+			}
+			if (!val8.equals(that.val8)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
+							recoverMask(valmap, (byte) 1), key1, val1, recoverMask(valmap, (byte) 2),
+							key2, val2, recoverMask(valmap, (byte) 3), key3, val3,
+							recoverMask(valmap, (byte) 4), key4, val4, recoverMask(valmap, (byte) 5),
+							key5, val5, recoverMask(valmap, (byte) 6), key6, val6,
+							recoverMask(valmap, (byte) 7), key7, val7, recoverMask(valmap, (byte) 8),
+							key8, val8);
 		}
 
 	}
