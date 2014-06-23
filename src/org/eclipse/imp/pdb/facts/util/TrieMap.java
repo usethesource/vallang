@@ -680,7 +680,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	private static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
 
 		protected static final int BIT_PARTITION_SIZE = 5;
-		protected static final int BIT_PARTITION_MASK = 0x1f;
+		protected static final int BIT_PARTITION_MASK = 0b11111;
 
 		protected final int bitmap;
 		protected final int valmap;
@@ -830,7 +830,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
 						final int bitmap, final int valmap) {
-			return new Map0To0Node<>(mutator, bitmap, valmap);
+			return EMPTY_INPLACE_INDEX_NODE;
 		}
 
 		static final <K, V> CompactMapNode<K, V> valNodeOf(final AtomicReference<Thread> mutator,
@@ -2285,15 +2285,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 	 * Iterator skeleton that uses a fixed stack in depth.
 	 */
 	private static abstract class AbstractMapIterator<K, V> {
+
+		// TODO: verify maximum deepness
+		private static final int MAX_DEPTH = 6;
+
 		protected int currentValueCursor;
 		protected int currentValueLength;
 		protected AbstractMapNode<K, V> currentValueNode;
 
 		private int currentStackLevel;
-		private int[] nodeCursorsAndLengths = new int[16 * 2];
+		private int[] nodeCursorsAndLengths = new int[MAX_DEPTH * 2];
 
 		@SuppressWarnings("unchecked")
-		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[16];
+		AbstractMapNode<K, V>[] nodes = new AbstractMapNode[MAX_DEPTH];
 
 		AbstractMapIterator(AbstractMapNode<K, V> rootNode) {
 			currentStackLevel = 0;
@@ -2848,8 +2852,25 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public boolean equals(Object o) {
-			return rootNode.equals(o);
+		public boolean equals(Object other) {
+			if (other == this) {
+				return true;
+			}
+			if (other == null) {
+				return false;
+			}
+
+			if (other instanceof TransientTrieMap) {
+				TransientTrieMap<?, ?> that = (TransientTrieMap<?, ?>) other;
+
+				if (this.size() != that.size()) {
+					return false;
+				}
+
+				return rootNode.equals(that.rootNode);
+			}
+
+			return super.equals(other);
 		}
 
 		@Override
