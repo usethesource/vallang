@@ -29,7 +29,9 @@ public class TrieMapTests {
 		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
 		
 		for (int i = size; i > 0; i--) {
-			map = map.__put(i, i);
+			TrieMap<Integer, Integer> res = map.__put(i, i);
+			assert res.containsKey(i);			
+			map = res;
 		}
 		
 //		map.printStats(); // TODO: reimplement printStats()
@@ -41,12 +43,14 @@ public class TrieMapTests {
 
 		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
 		
-		Random rand = new Random();
+		Random rand = new Random(13);
 		
 		for (int i = size; i > 0; i--) {
 			final int j = rand.nextInt(); 
 			
-			map = map.__put(j, j);
+			TrieMap<Integer, Integer> res = map.__put(j, j);
+			assert res.containsKey(j);			
+			map = res;
 		}
 		
 //		map.printStats(); // TODO: reimplement printStats()
