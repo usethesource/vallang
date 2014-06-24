@@ -682,13 +682,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		protected static final int BIT_PARTITION_SIZE = 5;
 		protected static final int BIT_PARTITION_MASK = 0b11111;
 
-		protected final int bitmap;
-		protected final int valmap;
+		int bitmap() {
+			throw new UnsupportedOperationException();
+		}
 
-		CompactMapNode(final AtomicReference<Thread> mutator, final int bitmap, final int valmap) {
-			super();
-			this.bitmap = bitmap;
-			this.valmap = valmap;
+		int valmap() {
+			throw new UnsupportedOperationException();
 		}
 
 		static final byte SIZE_EMPTY = 0b00;
@@ -1284,16 +1283,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		final int keyIndex(int bitpos) {
-			return Integer.bitCount(valmap & (bitpos - 1));
+			return Integer.bitCount(valmap() & (bitpos - 1));
 		}
 
 		final int valIndex(int bitpos) {
-			return Integer.bitCount(valmap & (bitpos - 1));
+			return Integer.bitCount(valmap() & (bitpos - 1));
 		}
 
 		// TODO: obviate necessity for bitmap ^ valmap
 		final int nodeIndex(int bitpos) {
-			return Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+			return Integer.bitCount((bitmap() ^ valmap()) & (bitpos - 1));
 		}
 
 		@Override
@@ -1301,11 +1300,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) {
+			if ((valmap() & bitpos) != 0) {
 				return getKey(keyIndex(bitpos)).equals(key);
 			}
 
-			if ((bitmap & bitpos) != 0) {
+			if ((bitmap() & bitpos) != 0) {
 				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
 								shift + BIT_PARTITION_SIZE);
 			}
@@ -1318,11 +1317,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) {
+			if ((valmap() & bitpos) != 0) {
 				return cmp.compare(getKey(keyIndex(bitpos)), key) == 0;
 			}
 
-			if ((bitmap & bitpos) != 0) {
+			if ((bitmap() & bitpos) != 0) {
 				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
 								shift + BIT_PARTITION_SIZE, cmp);
 			}
@@ -1335,7 +1334,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) { // inplace value
+			if ((valmap() & bitpos) != 0) { // inplace value
 				// final int valIndex = valIndex(bitpos);
 
 				if (getKey(keyIndex(bitpos)).equals(key)) {
@@ -1349,7 +1348,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return Optional.empty();
 			}
 
-			if ((bitmap & bitpos) != 0) { // node (not value)
+			if ((bitmap() & bitpos) != 0) { // node (not value)
 				final AbstractMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
 
 				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
@@ -1364,7 +1363,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) { // inplace value
+			if ((valmap() & bitpos) != 0) { // inplace value
 				// final int valIndex = valIndex(bitpos);
 
 				if (cmp.compare(getKey(keyIndex(bitpos)), key) == 0) {
@@ -1378,7 +1377,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return Optional.empty();
 			}
 
-			if ((bitmap & bitpos) != 0) { // node (not value)
+			if ((bitmap() & bitpos) != 0) { // node (not value)
 				final AbstractMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
 
 				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
@@ -1393,7 +1392,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) { // inplace value
+			if ((valmap() & bitpos) != 0) { // inplace value
 				final K currentKey = getKey(keyIndex(bitpos));
 
 				if (currentKey.equals(key)) {
@@ -1419,7 +1418,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 					return Result.modified(thisNew);
 				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
+			} else if ((bitmap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
 
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
@@ -1451,7 +1450,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) { // inplace value
+			if ((valmap() & bitpos) != 0) { // inplace value
 				final K currentKey = getKey(keyIndex(bitpos));
 
 				if (cmp.compare(currentKey, key) == 0) {
@@ -1477,7 +1476,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 					return Result.modified(thisNew);
 				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
+			} else if ((bitmap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
 
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
@@ -1509,7 +1508,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) { // inplace value
+			if ((valmap() & bitpos) != 0) { // inplace value
 				final int valIndex = valIndex(bitpos);
 
 				if (getKey(valIndex).equals(key)) {
@@ -1526,7 +1525,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				} else {
 					return Result.unchanged(this);
 				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
+			} else if ((bitmap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
@@ -1577,7 +1576,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
-			if ((valmap & bitpos) != 0) { // inplace value
+			if ((valmap() & bitpos) != 0) { // inplace value
 				final int valIndex = valIndex(bitpos);
 
 				if (cmp.compare(getKey(valIndex), key) == 0) {
@@ -1594,7 +1593,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				} else {
 					return Result.unchanged(this);
 				}
-			} else if ((bitmap & bitpos) != 0) { // node (not value)
+			} else if ((bitmap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
@@ -1641,12 +1640,93 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	}
 
-	private static final class BitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
+	private static abstract class CompactMixedMapNode<K, V> extends CompactMapNode<K, V> {
+
+		private final int bitmap;
+		private final int valmap;
+
+		CompactMixedMapNode(final AtomicReference<Thread> mutator, final int bitmap,
+						final int valmap) {
+			this.bitmap = bitmap;
+			this.valmap = valmap;
+		}
+
+		@Override
+		public int bitmap() {
+			return bitmap;
+		}
+
+		@Override
+		public int valmap() {
+			return valmap;
+		}
+
+	}
+
+	private static abstract class CompactNodesOnlyMapNode<K, V> extends CompactMapNode<K, V> {
+
+		private final int bitmap;
+
+		CompactNodesOnlyMapNode(final AtomicReference<Thread> mutator, final int bitmap,
+						final int valmap) {
+			this.bitmap = bitmap;
+		}
+
+		@Override
+		public int bitmap() {
+			return bitmap;
+		}
+
+		@Override
+		public int valmap() {
+			return 0;
+		}
+
+	}
+
+	private static abstract class CompactValuesOnlyMapNode<K, V> extends CompactMapNode<K, V> {
+
+		private final int valmap;
+
+		CompactValuesOnlyMapNode(final AtomicReference<Thread> mutator, final int bitmap,
+						final int valmap) {
+			this.valmap = valmap;
+		}
+
+		@Override
+		public int bitmap() {
+			return valmap; // TODO: separate valmap/bitmap semantic
+		}
+
+		@Override
+		public int valmap() {
+			return valmap;
+		}
+
+	}
+
+	private static abstract class CompactEmptyMapNode<K, V> extends CompactMapNode<K, V> {
+
+		CompactEmptyMapNode(final AtomicReference<Thread> mutator, final int bitmap,
+						final int valmap) {
+		}
+
+		@Override
+		public int bitmap() {
+			return 0;
+		}
+
+		@Override
+		public int valmap() {
+			return 0;
+		}
+
+	}
+
+	private static final class BitmapIndexedMapNode<K, V> extends CompactMixedMapNode<K, V> {
 		private AtomicReference<Thread> mutator;
 
 		private Object[] nodes;
-		// final private int bitmap;
-		// final private int valmap;
 		final private byte payloadArity;
 
 		BitmapIndexedMapNode(AtomicReference<Thread> mutator, int bitmap, int valmap,
@@ -1658,8 +1738,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			this.mutator = mutator;
 
 			this.nodes = nodes;
-			// this.bitmap = bitmap;
-			// this.valmap = valmap;
 			this.payloadArity = payloadArity;
 
 			assert (payloadArity == Integer.bitCount(valmap));
@@ -1756,8 +1834,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 			result = prime * result + Arrays.hashCode(nodes);
 			return result;
 		}
@@ -1774,10 +1852,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return false;
 			}
 			BitmapIndexedMapNode<?, ?> that = (BitmapIndexedMapNode<?, ?>) other;
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 			if (!Arrays.equals(nodes, that.nodes)) {
@@ -1792,7 +1870,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			bldr.append('[');
 
 			for (byte i = 0; i < payloadArity(); i++) {
-				final byte pos = recoverMask(valmap, (byte) (i + 1));
+				final byte pos = recoverMask(valmap(), (byte) (i + 1));
 				bldr.append(String.format("@%d: %s=%s", pos, getKey(i), getValue(i)));
 
 				if (!((i + 1) == payloadArity())) {
@@ -1805,7 +1883,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			for (byte i = 0; i < nodeArity(); i++) {
-				final byte pos = recoverMask(bitmap ^ valmap, (byte) (i + 1));
+				final byte pos = recoverMask(bitmap() ^ valmap(), (byte) (i + 1));
 				bldr.append(String.format("@%d: %s", pos, getNode(i)));
 
 				if (!((i + 1) == nodeArity())) {
@@ -1839,8 +1917,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			} else {
 				final Object[] editableNodes = copyAndSet(this.nodes, valIndex + 1, val);
 
-				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-								payloadArity);
+				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap(), valmap(),
+								editableNodes, payloadArity);
 			}
 
 			return thisNew;
@@ -1849,22 +1927,22 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
 						V val) {
-			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			final int valIndex = 2 * Integer.bitCount(valmap() & (bitpos - 1));
 			final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex, key, val);
 
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-							| bitpos, valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap()
+							| bitpos, valmap() | bitpos, editableNodes, (byte) (payloadArity + 1));
 
 			return thisNew;
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
-			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			final int valIndex = 2 * Integer.bitCount(valmap() & (bitpos - 1));
 			final Object[] editableNodes = copyAndRemovePair(this.nodes, valIndex);
 
 			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
-							this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
+							this.bitmap() & ~bitpos, this.valmap() & ~bitpos, editableNodes,
 							(byte) (payloadArity - 1));
 
 			return thisNew;
@@ -1884,8 +1962,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			} else {
 				final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, node);
 
-				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap, valmap, editableNodes,
-								payloadArity);
+				thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap(), valmap(),
+								editableNodes, payloadArity);
 			}
 
 			return thisNew;
@@ -1894,11 +1972,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = 2 * payloadArity
-							+ Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
+							+ Integer.bitCount((bitmap() ^ valmap()) & (bitpos - 1));
 			final Object[] editableNodes = copyAndRemovePair(this.nodes, bitIndex);
 
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-							& ~bitpos, valmap, editableNodes, payloadArity);
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap()
+							& ~bitpos, valmap(), editableNodes, payloadArity);
 
 			return thisNew;
 		}
@@ -1906,19 +1984,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			// final int bitIndex = 2 * payloadArity + Integer.bitCount((bitmap
-			// ^ valmap) & (bitpos - 1));
-			final int valIndex = 2 * Integer.bitCount(valmap & (bitpos - 1));
+			// final int bitIndex = 2 * payloadArity +
+			// Integer.bitCount((bitmap() ^ valmap()) & (bitpos - 1));
+			final int valIndex = 2 * Integer.bitCount(valmap() & (bitpos - 1));
 
 			final int offset = 2 * (payloadArity - 1);
-			final int index = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int index = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 
 			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset
 							+ index, node);
 
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap
-							| bitpos, valmap & ~bitpos, editableNodes, (byte) (payloadArity - 1));
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap()
+							| bitpos, valmap() & ~bitpos, editableNodes, (byte) (payloadArity - 1));
 
 			return thisNew;
 		}
@@ -1927,14 +2005,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = 2 * payloadArity
-							+ Integer.bitCount((bitmap ^ valmap) & (bitpos - 1));
-			final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+							+ Integer.bitCount((bitmap() ^ valmap()) & (bitpos - 1));
+			final int valIndexNew = Integer.bitCount((valmap() | bitpos) & (bitpos - 1));
 
 			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
 							valIndexNew, node.headKey(), node.headVal());
 
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap,
-							valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
+			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator, bitmap(),
+							valmap() | bitpos, editableNodes, (byte) (payloadArity + 1));
 
 			return thisNew;
 		}
@@ -1946,8 +2024,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		private final int hash;
 
 		HashCollisionMapNode(int hash, K[] keys, V[] vals) {
-			super(null, 0, 0); // TODO: Split compact node base class and remove
-								// dependency on constructor
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -2894,14 +2970,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	private static final class Map0To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To0Node<K, V> extends CompactEmptyMapNode<K, V> {
 
 		Map0To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
+
 			assert nodeInvariant();
 		}
 
@@ -2975,8 +3048,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -3016,7 +3089,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] {}, (byte) 0);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] {}, (byte) 0);
 		}
 
 		@Override
@@ -3053,16 +3126,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	}
 
-	private static final class Map0To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To1Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map0To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
 						final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 
 			assert nodeInvariant();
@@ -3143,8 +3212,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -3162,6 +3231,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node);
@@ -3174,7 +3246,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -3196,7 +3269,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -3216,7 +3290,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1 }, (byte) 0);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1 }, (byte) 0);
 		}
 
 		@Override
@@ -3228,8 +3302,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -3249,10 +3323,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To1Node<?, ?> that = (Map0To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -3265,22 +3339,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1), node1);
+			return String.format("[@%d: %s]", recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map0To2Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To2Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 
 		Map0To2Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 			this.node2 = node2;
 
@@ -3364,8 +3434,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -3383,6 +3453,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node, node2);
@@ -3397,7 +3470,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -3421,7 +3495,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -3448,7 +3523,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2 }, (byte) 0);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1, node2 }, (byte) 0);
 		}
 
 		@Override
@@ -3460,8 +3535,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -3483,10 +3558,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To2Node<?, ?> that = (Map0To2Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -3502,15 +3577,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s]", recoverMask(bitmap ^ valmap, (byte) 1),
-							node1, recoverMask(bitmap ^ valmap, (byte) 2), node2);
+			return String.format("[@%d: %s, @%d: %s]", recoverMask(bitmap() ^ valmap(), (byte) 1),
+							node1, recoverMask(bitmap() ^ valmap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Map0To3Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To3Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 		private final CompactMapNode<K, V> node3;
@@ -3519,8 +3592,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 			this.node2 = node2;
 			this.node3 = node3;
@@ -3607,8 +3678,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -3626,6 +3697,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node, node2, node3);
@@ -3642,7 +3716,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -3668,7 +3743,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -3702,7 +3778,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3 }, (byte) 0);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1, node2, node3 },
+							(byte) 0);
 		}
 
 		@Override
@@ -3714,8 +3791,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -3739,10 +3816,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To3Node<?, ?> that = (Map0To3Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -3762,16 +3839,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3);
 		}
 
 	}
 
-	private static final class Map0To4Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To4Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 		private final CompactMapNode<K, V> node3;
@@ -3781,8 +3856,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 			this.node2 = node2;
 			this.node3 = node3;
@@ -3872,8 +3945,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -3891,6 +3964,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4);
@@ -3909,7 +3985,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -3937,7 +4014,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -3978,7 +4056,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4 },
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1, node2, node3, node4 },
 							(byte) 0);
 		}
 
@@ -3991,8 +4069,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -4018,10 +4096,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To4Node<?, ?> that = (Map0To4Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -4044,17 +4122,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4);
 		}
 
 	}
 
-	private static final class Map0To5Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To5Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 		private final CompactMapNode<K, V> node3;
@@ -4066,8 +4142,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 			this.node2 = node2;
 			this.node3 = node3;
@@ -4160,8 +4234,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -4180,6 +4254,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5);
@@ -4200,7 +4277,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -4230,7 +4308,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -4278,8 +4357,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap,
-							new Object[] { node1, node2, node3, node4, node5 }, (byte) 0);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1, node2, node3, node4,
+							node5 }, (byte) 0);
 		}
 
 		@Override
@@ -4291,8 +4370,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -4320,10 +4399,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To5Node<?, ?> that = (Map0To5Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -4349,18 +4428,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5);
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5);
 		}
 
 	}
 
-	private static final class Map0To6Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To6Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 		private final CompactMapNode<K, V> node3;
@@ -4373,8 +4450,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 			this.node2 = node2;
 			this.node3 = node3;
@@ -4470,8 +4545,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -4490,6 +4565,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5, node6);
@@ -4512,7 +4590,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -4544,7 +4623,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -4605,7 +4685,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1, node2, node3, node4,
 							node5, node6 }, (byte) 0);
 		}
 
@@ -4618,8 +4698,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -4649,10 +4729,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To6Node<?, ?> that = (Map0To6Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -4681,19 +4761,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5,
-							recoverMask(bitmap ^ valmap, (byte) 6), node6);
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5,
+							recoverMask(bitmap() ^ valmap(), (byte) 6), node6);
 		}
 
 	}
 
-	private static final class Map0To7Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To7Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 		private final CompactMapNode<K, V> node3;
@@ -4708,8 +4786,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
 						final CompactMapNode<K, V> node7) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 			this.node2 = node2;
 			this.node3 = node3;
@@ -4808,8 +4884,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -4828,6 +4904,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5, node6,
@@ -4859,7 +4938,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -4893,7 +4973,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -4962,7 +5043,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1, node2, node3, node4,
 							node5, node6, node7 }, (byte) 0);
 		}
 
@@ -4975,8 +5056,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -5008,10 +5089,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To7Node<?, ?> that = (Map0To7Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -5043,20 +5124,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5,
-							recoverMask(bitmap ^ valmap, (byte) 6), node6,
-							recoverMask(bitmap ^ valmap, (byte) 7), node7);
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5,
+							recoverMask(bitmap() ^ valmap(), (byte) 6), node6,
+							recoverMask(bitmap() ^ valmap(), (byte) 7), node7);
 		}
 
 	}
 
-	private static final class Map0To8Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map0To8Node<K, V> extends CompactNodesOnlyMapNode<K, V> {
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 		private final CompactMapNode<K, V> node3;
@@ -5072,8 +5151,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
 						final CompactMapNode<K, V> node7, final CompactMapNode<K, V> node8) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.node1 = node1;
 			this.node2 = node2;
 			this.node3 = node3;
@@ -5175,8 +5252,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -5195,6 +5272,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, node, node2, node3, node4, node5, node6,
@@ -5229,7 +5309,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -5273,7 +5354,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -5350,7 +5432,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { node1, node2, node3, node4,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { node1, node2, node3, node4,
 							node5, node6, node7, node8 }, (byte) 0);
 		}
 
@@ -5363,8 +5445,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + node1.hashCode();
 
@@ -5398,10 +5480,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map0To8Node<?, ?> that = (Map0To8Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -5437,29 +5519,25 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5,
-							recoverMask(bitmap ^ valmap, (byte) 6), node6,
-							recoverMask(bitmap ^ valmap, (byte) 7), node7,
-							recoverMask(bitmap ^ valmap, (byte) 8), node8);
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5,
+							recoverMask(bitmap() ^ valmap(), (byte) 6), node6,
+							recoverMask(bitmap() ^ valmap(), (byte) 7), node7,
+							recoverMask(bitmap() ^ valmap(), (byte) 8), node8);
 		}
 
 	}
 
-	private static final class Map1To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 
 		Map1To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
 						final K key1, final V val1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 
@@ -5543,6 +5621,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val);
@@ -5556,8 +5637,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -5573,8 +5654,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -5598,12 +5679,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -5626,7 +5707,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1 }, (byte) 1);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1 }, (byte) 1);
 		}
 
 		@Override
@@ -5638,8 +5719,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -5660,10 +5741,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To0Node<?, ?> that = (Map1To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -5679,14 +5760,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s]", recoverMask(valmap, (byte) 1), key1, val1);
+			return String.format("[@%d: %s=%s]", recoverMask(valmap(), (byte) 1), key1, val1);
 		}
 
 	}
 
-	private static final class Map1To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To1Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final CompactMapNode<K, V> node1;
@@ -5694,8 +5773,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Map1To1Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
 						final K key1, final V val1, final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.node1 = node1;
@@ -5785,6 +5862,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, node1);
@@ -5798,8 +5878,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -5815,8 +5895,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -5829,6 +5909,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node);
@@ -5841,7 +5924,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -5854,12 +5938,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -5882,7 +5966,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -5904,7 +5989,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1 }, (byte) 1);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, node1 }, (byte) 1);
 		}
 
 		@Override
@@ -5916,8 +6001,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -5940,10 +6025,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To1Node<?, ?> that = (Map1To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -5962,15 +6047,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s]", recoverMask(valmap, (byte) 1), key1,
-							val1, recoverMask(bitmap ^ valmap, (byte) 1), node1);
+			return String.format("[@%d: %s=%s, @%d: %s]", recoverMask(valmap(), (byte) 1), key1,
+							val1, recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map1To2Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To2Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final CompactMapNode<K, V> node1;
@@ -5980,8 +6063,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.node1 = node1;
@@ -6074,6 +6155,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2);
@@ -6087,8 +6171,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6104,8 +6188,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6118,6 +6202,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2);
@@ -6132,7 +6219,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -6147,12 +6235,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6177,7 +6265,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -6208,7 +6297,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2 },
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, node1, node2 },
 							(byte) 1);
 		}
 
@@ -6221,8 +6310,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6247,10 +6336,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To2Node<?, ?> that = (Map1To2Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -6272,16 +6361,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s]", recoverMask(valmap, (byte) 1),
-							key1, val1, recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s]", recoverMask(valmap(), (byte) 1),
+							key1, val1, recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Map1To3Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To3Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final CompactMapNode<K, V> node1;
@@ -6292,8 +6379,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.node1 = node1;
@@ -6389,6 +6474,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3);
@@ -6402,8 +6490,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6419,8 +6507,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6433,6 +6521,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3);
@@ -6449,7 +6540,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -6466,12 +6558,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6498,7 +6590,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -6538,8 +6631,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap,
-							new Object[] { key1, val1, node1, node2, node3 }, (byte) 1);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, node1, node2,
+							node3 }, (byte) 1);
 		}
 
 		@Override
@@ -6551,8 +6644,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6579,10 +6672,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To3Node<?, ?> that = (Map1To3Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -6608,17 +6701,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3);
 		}
 
 	}
 
-	private static final class Map1To4Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To4Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final CompactMapNode<K, V> node1;
@@ -6631,8 +6722,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.node1 = node1;
@@ -6731,6 +6820,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4);
@@ -6744,8 +6836,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6763,8 +6855,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6777,6 +6869,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4);
@@ -6795,7 +6890,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -6814,12 +6910,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -6848,7 +6944,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -6905,8 +7002,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
-							node4 }, (byte) 1);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, node1, node2,
+							node3, node4 }, (byte) 1);
 		}
 
 		@Override
@@ -6918,8 +7015,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6948,10 +7045,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To4Node<?, ?> that = (Map1To4Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -6980,18 +7077,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4);
 		}
 
 	}
 
-	private static final class Map1To5Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To5Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final CompactMapNode<K, V> node1;
@@ -7005,8 +7100,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.node1 = node1;
@@ -7108,6 +7201,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4,
@@ -7122,8 +7218,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -7141,8 +7237,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -7155,6 +7251,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4,
@@ -7180,7 +7279,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -7201,12 +7301,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -7243,7 +7343,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -7311,8 +7412,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
-							node4, node5 }, (byte) 1);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, node1, node2,
+							node3, node4, node5 }, (byte) 1);
 		}
 
 		@Override
@@ -7324,8 +7425,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -7356,10 +7457,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To5Node<?, ?> that = (Map1To5Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -7391,19 +7492,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5);
 		}
 
 	}
 
-	private static final class Map1To6Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To6Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final CompactMapNode<K, V> node1;
@@ -7419,8 +7518,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.node1 = node1;
@@ -7525,6 +7622,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4,
@@ -7539,8 +7639,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -7558,8 +7658,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -7572,6 +7672,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4,
@@ -7600,7 +7703,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -7629,12 +7733,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -7674,7 +7778,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -7753,8 +7858,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
-							node4, node5, node6 }, (byte) 1);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, node1, node2,
+							node3, node4, node5, node6 }, (byte) 1);
 		}
 
 		@Override
@@ -7766,8 +7871,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -7800,10 +7905,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To6Node<?, ?> that = (Map1To6Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -7839,20 +7944,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5,
-							recoverMask(bitmap ^ valmap, (byte) 6), node6);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5,
+							recoverMask(bitmap() ^ valmap(), (byte) 6), node6);
 		}
 
 	}
 
-	private static final class Map1To7Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map1To7Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final CompactMapNode<K, V> node1;
@@ -7869,8 +7972,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.node1 = node1;
@@ -7978,6 +8079,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, node1, node2, node3, node4,
@@ -7992,8 +8096,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8011,8 +8115,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8026,6 +8130,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, node, node2, node3, node4,
@@ -8057,7 +8164,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -8089,12 +8197,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8137,7 +8245,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -8227,8 +8336,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, node1, node2, node3,
-							node4, node5, node6, node7 }, (byte) 1);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, node1, node2,
+							node3, node4, node5, node6, node7 }, (byte) 1);
 		}
 
 		@Override
@@ -8240,8 +8349,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8276,10 +8385,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map1To7Node<?, ?> that = (Map1To7Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -8318,21 +8427,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5,
-							recoverMask(bitmap ^ valmap, (byte) 6), node6,
-							recoverMask(bitmap ^ valmap, (byte) 7), node7);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5,
+							recoverMask(bitmap() ^ valmap(), (byte) 6), node6,
+							recoverMask(bitmap() ^ valmap(), (byte) 7), node7);
 		}
 
 	}
 
-	private static final class Map2To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map2To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -8341,8 +8448,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Map2To0Node(final AtomicReference<Thread> mutator, final int bitmap, final int valmap,
 						final K key1, final V val1, final K key2, final V val2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -8434,6 +8539,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2);
@@ -8449,8 +8557,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8468,8 +8576,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8495,12 +8603,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8530,7 +8638,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2 },
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2 },
 							(byte) 2);
 		}
 
@@ -8543,8 +8651,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8568,10 +8676,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To0Node<?, ?> that = (Map2To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -8593,15 +8701,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s=%s, @%d: %s=%s]", recoverMask(valmap, (byte) 1), key1,
-							val1, recoverMask(valmap, (byte) 2), key2, val2);
+			return String.format("[@%d: %s=%s, @%d: %s=%s]", recoverMask(valmap(), (byte) 1), key1,
+							val1, recoverMask(valmap(), (byte) 2), key2, val2);
 		}
 
 	}
 
-	private static final class Map2To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map2To1Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -8612,8 +8718,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final K key2, final V val2,
 						final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -8711,6 +8815,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1);
@@ -8726,8 +8833,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8745,8 +8852,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8761,6 +8868,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node);
@@ -8773,7 +8883,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -8786,12 +8897,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -8823,7 +8934,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -8847,8 +8959,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1 },
-							(byte) 2);
+			return valNodeOf(null, bitmap(), valmap(),
+							new Object[] { key1, val1, key2, val2, node1 }, (byte) 2);
 		}
 
 		@Override
@@ -8860,8 +8972,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8887,10 +8999,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To1Node<?, ?> that = (Map2To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -8916,16 +9028,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map2To2Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map2To2Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -8937,8 +9047,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final K key2, final V val2,
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -9039,6 +9147,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2);
@@ -9054,8 +9165,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9076,8 +9187,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9092,6 +9203,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2);
@@ -9106,7 +9220,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -9121,12 +9236,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9162,7 +9277,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -9203,8 +9319,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
-							node2 }, (byte) 2);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2,
+							node1, node2 }, (byte) 2);
 		}
 
 		@Override
@@ -9216,8 +9332,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -9245,10 +9361,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To2Node<?, ?> that = (Map2To2Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -9277,17 +9393,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Map2To3Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map2To3Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -9301,8 +9415,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -9406,6 +9518,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
@@ -9423,8 +9538,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9445,8 +9560,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9461,6 +9576,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
@@ -9480,7 +9598,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -9497,12 +9616,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9542,7 +9661,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -9597,8 +9717,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3 }, (byte) 2);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2,
+							node1, node2, node3 }, (byte) 2);
 		}
 
 		@Override
@@ -9610,8 +9730,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -9641,10 +9761,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To3Node<?, ?> that = (Map2To3Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -9676,18 +9796,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3);
 		}
 
 	}
 
-	private static final class Map2To4Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map2To4Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -9702,8 +9820,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -9810,6 +9926,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
@@ -9827,8 +9946,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9849,8 +9968,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9865,6 +9984,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
@@ -9887,7 +10009,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -9910,12 +10033,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -9969,7 +10092,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -10038,8 +10162,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3, node4 }, (byte) 2);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2,
+							node1, node2, node3, node4 }, (byte) 2);
 		}
 
 		@Override
@@ -10051,8 +10175,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -10084,10 +10208,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To4Node<?, ?> that = (Map2To4Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -10122,19 +10246,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4);
 		}
 
 	}
 
-	private static final class Map2To5Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map2To5Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -10151,8 +10273,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -10262,6 +10382,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
@@ -10279,8 +10402,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -10301,8 +10424,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -10319,6 +10442,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
@@ -10344,7 +10470,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -10370,12 +10497,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -10435,7 +10562,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -10518,8 +10646,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3, node4, node5 }, (byte) 2);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2,
+							node1, node2, node3, node4, node5 }, (byte) 2);
 		}
 
 		@Override
@@ -10531,8 +10659,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -10566,10 +10694,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To5Node<?, ?> that = (Map2To5Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -10608,20 +10736,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5);
 		}
 
 	}
 
-	private static final class Map2To6Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map2To6Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -10639,8 +10765,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -10753,6 +10877,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, node1, node2,
@@ -10770,8 +10897,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -10792,8 +10919,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -10810,6 +10937,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, node, node2,
@@ -10838,7 +10968,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -10867,12 +10998,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -10938,7 +11069,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -11035,8 +11167,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3, node4, node5, node6 }, (byte) 2);
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2,
+							node1, node2, node3, node4, node5, node6 }, (byte) 2);
 		}
 
 		@Override
@@ -11048,8 +11180,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -11085,10 +11217,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map2To6Node<?, ?> that = (Map2To6Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -11130,21 +11262,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5,
-							recoverMask(bitmap ^ valmap, (byte) 6), node6);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5,
+							recoverMask(bitmap() ^ valmap(), (byte) 6), node6);
 		}
 
 	}
 
-	private static final class Map3To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map3To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -11156,8 +11286,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final K key2, final V val2, final K key3,
 						final V val3) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -11257,6 +11385,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3);
@@ -11274,8 +11405,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -11299,8 +11430,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -11328,12 +11459,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -11370,7 +11501,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3 }, (byte) 3);
 		}
 
@@ -11383,8 +11514,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -11411,10 +11542,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To0Node<?, ?> that = (Map3To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -11443,16 +11574,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3);
 		}
 
 	}
 
-	private static final class Map3To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map3To1Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -11465,8 +11594,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final K key2, final V val2, final K key3,
 						final V val3, final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -11572,6 +11699,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1);
@@ -11589,8 +11719,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -11614,8 +11744,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -11632,6 +11762,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node);
@@ -11644,7 +11777,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -11657,12 +11791,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -11703,7 +11837,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -11733,7 +11868,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, node1 }, (byte) 3);
 		}
 
@@ -11746,8 +11881,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -11776,10 +11911,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To1Node<?, ?> that = (Map3To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -11811,17 +11946,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map3To2Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map3To2Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -11836,8 +11969,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -11946,6 +12077,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
@@ -11966,8 +12100,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -11991,8 +12125,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -12009,6 +12143,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
@@ -12025,7 +12162,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -12040,12 +12178,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -12101,7 +12239,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -12148,7 +12287,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, node1, node2 }, (byte) 3);
 		}
 
@@ -12161,8 +12300,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -12193,10 +12332,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To2Node<?, ?> that = (Map3To2Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -12231,18 +12370,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Map3To3Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map3To3Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -12258,8 +12395,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -12371,6 +12506,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
@@ -12391,8 +12529,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -12416,8 +12554,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -12437,6 +12575,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
@@ -12456,7 +12597,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -12476,12 +12618,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -12546,7 +12688,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -12610,7 +12753,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, node1, node2, node3 }, (byte) 3);
 		}
 
@@ -12623,8 +12766,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -12657,10 +12800,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To3Node<?, ?> that = (Map3To3Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -12698,19 +12841,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3);
 		}
 
 	}
 
-	private static final class Map3To4Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map3To4Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -12728,8 +12869,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -12844,6 +12983,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
@@ -12864,8 +13006,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -12889,8 +13031,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -12910,6 +13052,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
@@ -12932,7 +13077,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -12955,12 +13101,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -13034,7 +13180,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -13115,7 +13262,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, node1, node2, node3, node4 }, (byte) 3);
 		}
 
@@ -13128,8 +13275,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -13164,10 +13311,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To4Node<?, ?> that = (Map3To4Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -13209,20 +13356,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4);
 		}
 
 	}
 
-	private static final class Map3To5Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map3To5Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -13241,8 +13386,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -13360,6 +13503,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, node1,
@@ -13380,8 +13526,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -13405,8 +13551,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -13426,6 +13572,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, node,
@@ -13451,7 +13600,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -13477,12 +13627,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -13565,7 +13715,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -13663,7 +13814,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, node1, node2, node3, node4, node5 }, (byte) 3);
 		}
 
@@ -13676,8 +13827,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -13714,10 +13865,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map3To5Node<?, ?> that = (Map3To5Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -13762,21 +13913,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4,
-							recoverMask(bitmap ^ valmap, (byte) 5), node5);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4,
+							recoverMask(bitmap() ^ valmap(), (byte) 5), node5);
 		}
 
 	}
 
-	private static final class Map4To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map4To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -13790,8 +13939,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final K key2, final V val2, final K key3,
 						final V val3, final K key4, final V val4) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -13900,6 +14047,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -13923,8 +14073,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -13951,8 +14101,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -13982,12 +14132,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -14035,7 +14185,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4 }, (byte) 4);
 		}
 
@@ -14048,8 +14198,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -14079,10 +14229,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map4To0Node<?, ?> that = (Map4To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -14117,17 +14267,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4);
 		}
 
 	}
 
-	private static final class Map4To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map4To1Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -14142,8 +14290,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final K key2, final V val2, final K key3,
 						final V val3, final K key4, final V val4, final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -14258,6 +14404,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -14281,8 +14430,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -14309,8 +14458,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -14329,6 +14478,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -14342,7 +14494,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -14356,12 +14509,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -14419,7 +14572,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -14452,7 +14606,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, node1 }, (byte) 4);
 		}
 
@@ -14465,8 +14619,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -14498,10 +14652,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map4To1Node<?, ?> that = (Map4To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -14539,18 +14693,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map4To2Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map4To2Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -14567,8 +14719,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final K key4, final V val4, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -14686,6 +14836,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -14709,8 +14862,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -14737,8 +14890,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -14761,6 +14914,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -14777,7 +14933,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -14794,12 +14951,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -14869,7 +15026,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -14922,7 +15080,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, node1, node2 }, (byte) 4);
 		}
 
@@ -14935,8 +15093,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -14970,10 +15128,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map4To2Node<?, ?> that = (Map4To2Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -15015,19 +15173,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Map4To3Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map4To3Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -15045,8 +15201,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final K key4, final V val4, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -15167,6 +15321,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -15190,8 +15347,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -15218,8 +15375,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -15242,6 +15399,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -15261,7 +15421,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -15281,12 +15442,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -15368,7 +15529,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -15441,7 +15603,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, node1, node2, node3 }, (byte) 4);
 		}
 
@@ -15454,8 +15616,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -15491,10 +15653,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map4To3Node<?, ?> that = (Map4To3Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -15539,20 +15701,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3);
 		}
 
 	}
 
-	private static final class Map4To4Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map4To4Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -15572,8 +15732,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -15697,6 +15855,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -15720,8 +15881,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -15748,8 +15909,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -15772,6 +15933,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -15794,7 +15958,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -15817,12 +15982,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -15916,7 +16081,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -16009,7 +16175,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, node1, node2, node3, node4 }, (byte) 4);
 		}
 
@@ -16022,8 +16188,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -16061,10 +16227,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map4To4Node<?, ?> that = (Map4To4Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -16112,21 +16278,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3,
-							recoverMask(bitmap ^ valmap, (byte) 4), node4);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3,
+							recoverMask(bitmap() ^ valmap(), (byte) 4), node4);
 		}
 
 	}
 
-	private static final class Map5To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map5To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -16142,8 +16306,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key1, final V val1, final K key2, final V val2, final K key3,
 						final V val3, final K key4, final V val4, final K key5, final V val5) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -16260,6 +16422,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -16286,8 +16451,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -16317,8 +16482,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -16355,12 +16520,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -16416,7 +16581,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5 }, (byte) 5);
 		}
 
@@ -16429,8 +16594,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -16463,10 +16628,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map5To0Node<?, ?> that = (Map5To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -16507,18 +16672,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public String toString() {
 			return String.format("[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5);
 		}
 
 	}
 
-	private static final class Map5To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map5To1Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -16536,8 +16699,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final K key4, final V val4, final K key5, final V val5,
 						final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -16660,6 +16821,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -16686,8 +16850,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -16717,8 +16881,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -16744,6 +16908,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -16757,7 +16924,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -16771,12 +16939,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -16845,7 +17013,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -16881,7 +17050,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, node1 }, (byte) 5);
 		}
 
@@ -16894,8 +17063,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -16930,10 +17099,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map5To1Node<?, ?> that = (Map5To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -16978,19 +17147,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map5To2Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map5To2Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -17009,8 +17176,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final K key4, final V val4, final K key5, final V val5,
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -17136,6 +17301,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -17162,8 +17330,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -17193,8 +17361,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -17220,6 +17388,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -17236,7 +17407,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -17253,12 +17425,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -17342,7 +17514,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -17401,7 +17574,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, node1, node2 }, (byte) 5);
 		}
 
@@ -17414,8 +17587,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -17452,10 +17625,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map5To2Node<?, ?> that = (Map5To2Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -17503,20 +17676,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Map5To3Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map5To3Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -17537,8 +17708,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -17667,6 +17836,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -17693,8 +17865,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -17724,8 +17896,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -17751,6 +17923,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -17770,7 +17945,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -17790,12 +17966,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -17894,7 +18070,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -17976,7 +18153,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, node1, node2, node3 }, (byte) 5);
 		}
 
@@ -17989,8 +18166,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -18029,10 +18206,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map5To3Node<?, ?> that = (Map5To3Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -18083,21 +18260,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2,
-							recoverMask(bitmap ^ valmap, (byte) 3), node3);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2,
+							recoverMask(bitmap() ^ valmap(), (byte) 3), node3);
 		}
 
 	}
 
-	private static final class Map6To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map6To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -18116,8 +18291,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final K key4, final V val4, final K key5, final V val5,
 						final K key6, final V val6) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -18242,6 +18415,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -18271,8 +18447,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -18305,8 +18481,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -18346,12 +18522,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -18415,7 +18591,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6 }, (byte) 6);
 		}
 
@@ -18428,8 +18604,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -18465,10 +18641,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map6To0Node<?, ?> that = (Map6To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -18516,19 +18692,17 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(valmap, (byte) 6), key6, val6);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(valmap(), (byte) 6), key6, val6);
 		}
 
 	}
 
-	private static final class Map6To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map6To1Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -18548,8 +18722,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final K key4, final V val4, final K key5, final V val5,
 						final K key6, final V val6, final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -18680,6 +18852,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -18709,8 +18884,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -18743,8 +18918,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -18773,6 +18948,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -18786,7 +18964,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -18800,12 +18979,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -18885,7 +19064,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -18924,7 +19104,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, node1 }, (byte) 6);
 		}
 
@@ -18937,8 +19117,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -18976,10 +19156,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map6To1Node<?, ?> that = (Map6To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -19030,20 +19210,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(valmap, (byte) 6), key6, val6,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(valmap(), (byte) 6), key6, val6,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map6To2Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map6To2Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -19065,8 +19243,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key6, final V val6, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -19200,6 +19376,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -19229,8 +19408,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -19263,8 +19442,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -19293,6 +19472,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -19309,7 +19491,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -19326,12 +19509,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -19429,7 +19612,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -19494,7 +19678,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, node1, node2 }, (byte) 6);
 		}
 
@@ -19507,8 +19691,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -19548,10 +19732,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map6To2Node<?, ?> that = (Map6To2Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -19605,21 +19789,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(valmap, (byte) 6), key6, val6,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1,
-							recoverMask(bitmap ^ valmap, (byte) 2), node2);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(valmap(), (byte) 6), key6, val6,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1,
+							recoverMask(bitmap() ^ valmap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Map7To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map7To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -19640,8 +19822,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final V val3, final K key4, final V val4, final K key5, final V val5,
 						final K key6, final V val6, final K key7, final V val7) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -19774,6 +19954,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -19806,8 +19989,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -19843,8 +20026,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -19887,12 +20070,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -19964,7 +20147,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, key7, val7 }, (byte) 7);
 		}
 
@@ -19977,8 +20160,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -20017,10 +20200,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map7To0Node<?, ?> that = (Map7To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -20074,20 +20257,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(valmap, (byte) 6), key6, val6,
-							recoverMask(valmap, (byte) 7), key7, val7);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(valmap(), (byte) 6), key6, val6,
+							recoverMask(valmap(), (byte) 7), key7, val7);
 		}
 
 	}
 
-	private static final class Map7To1Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map7To1Node<K, V> extends CompactMixedMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -20110,8 +20291,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key6, final V val6, final K key7, final V val7,
 						final CompactMapNode<K, V> node1) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -20250,6 +20429,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -20282,8 +20464,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -20319,8 +20501,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -20352,6 +20534,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
 						CompactMapNode<K, V> node) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val1, key2, val2, key3, val3, key4,
@@ -20365,7 +20550,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap();
 
 			switch (bitIndex) {
 			case 0:
@@ -20379,12 +20565,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -20475,7 +20661,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = valIndex(bitpos);
 
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap() | bitpos;
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -20517,7 +20704,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1 }, (byte) 7);
 		}
 
@@ -20530,8 +20717,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -20572,10 +20759,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map7To1Node<?, ?> that = (Map7To1Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -20632,21 +20819,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(valmap, (byte) 6), key6, val6,
-							recoverMask(valmap, (byte) 7), key7, val7,
-							recoverMask(bitmap ^ valmap, (byte) 1), node1);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(valmap(), (byte) 6), key6, val6,
+							recoverMask(valmap(), (byte) 7), key7, val7,
+							recoverMask(bitmap() ^ valmap(), (byte) 1), node1);
 		}
 
 	}
 
-	private static final class Map8To0Node<K, V> extends CompactMapNode<K, V> {
-		private final int bitmap;
-		private final int valmap;
+	private static final class Map8To0Node<K, V> extends CompactValuesOnlyMapNode<K, V> {
 		private final K key1;
 		private final V val1;
 		private final K key2;
@@ -20670,8 +20855,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						final K key6, final V val6, final K key7, final V val7, final K key8,
 						final V val8) {
 			super(mutator, bitmap, valmap);
-			this.bitmap = bitmap;
-			this.valmap = valmap;
 			this.key1 = key1;
 			this.val1 = val1;
 			this.key2 = key2;
@@ -20812,6 +20995,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
+			final int bitmap = this.bitmap();
+			final int valmap = this.valmap();
+
 			switch (index) {
 			case 0:
 				return valNodeOf(mutator, bitmap, valmap, key1, val, key2, val2, key3, val3, key4,
@@ -20847,8 +21033,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						V val) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap | bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() | bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -20887,8 +21073,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap & ~bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() & ~bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -20934,12 +21120,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = Integer.bitCount(((bitmap | bitpos) ^ (valmap & ~bitpos))
+			final int bitIndex = Integer.bitCount(((bitmap() | bitpos) ^ (valmap() & ~bitpos))
 							& (bitpos - 1));
 			final int valIndex = valIndex(bitpos);
 
-			final int bitmap = this.bitmap | bitpos;
-			final int valmap = this.valmap & ~bitpos;
+			final int bitmap = this.bitmap() | bitpos;
+			final int valmap = this.valmap() & ~bitpos;
 
 			switch (valIndex) {
 			case 0:
@@ -21019,7 +21205,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> convertToGenericNode() {
-			return valNodeOf(null, bitmap, valmap, new Object[] { key1, val1, key2, val2, key3,
+			return valNodeOf(null, bitmap(), valmap(), new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8 },
 							(byte) 8);
 		}
@@ -21033,8 +21219,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + bitmap;
-			result = prime * result + valmap;
+			result = prime * result + bitmap();
+			result = prime * result + valmap();
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -21076,10 +21262,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 			Map8To0Node<?, ?> that = (Map8To0Node<?, ?>) other;
 
-			if (bitmap != that.bitmap) {
+			if (bitmap() != that.bitmap()) {
 				return false;
 			}
-			if (valmap != that.valmap) {
+			if (valmap() != that.valmap()) {
 				return false;
 			}
 
@@ -21139,14 +21325,14 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public String toString() {
 			return String.format(
 							"[@%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s, @%d: %s=%s]",
-							recoverMask(valmap, (byte) 1), key1, val1,
-							recoverMask(valmap, (byte) 2), key2, val2,
-							recoverMask(valmap, (byte) 3), key3, val3,
-							recoverMask(valmap, (byte) 4), key4, val4,
-							recoverMask(valmap, (byte) 5), key5, val5,
-							recoverMask(valmap, (byte) 6), key6, val6,
-							recoverMask(valmap, (byte) 7), key7, val7,
-							recoverMask(valmap, (byte) 8), key8, val8);
+							recoverMask(valmap(), (byte) 1), key1, val1,
+							recoverMask(valmap(), (byte) 2), key2, val2,
+							recoverMask(valmap(), (byte) 3), key3, val3,
+							recoverMask(valmap(), (byte) 4), key4, val4,
+							recoverMask(valmap(), (byte) 5), key5, val5,
+							recoverMask(valmap(), (byte) 6), key6, val6,
+							recoverMask(valmap(), (byte) 7), key7, val7,
+							recoverMask(valmap(), (byte) 8), key8, val8);
 		}
 
 	}
