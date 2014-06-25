@@ -12,12 +12,8 @@
 package org.eclipse.imp.pdb.facts.util;
 
 public class ArrayUtils {
-	public static Object[] copy(Object[] array) {
-		final Object[] arrayNew = new Object[array.length];
-		System.arraycopy(array, 0, arrayNew, 0, array.length);
-		return arrayNew;
-	}
 	
+	@Deprecated
 	public static Object[] copyAndSet(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length];
 		System.arraycopy(array, 0, arrayNew, 0, array.length);
@@ -90,28 +86,12 @@ public class ArrayUtils {
 		System.arraycopy(array, index, arrayNew, index + 1, array.length - index);
 		return arrayNew;
 	}
-	
-	@Deprecated
-	public static Object[] copyAndInsertPair(Object[] array, int index, Object keyNew, Object valNew) {
-		final Object[] arrayNew = new Object[array.length + 2];
-		System.arraycopy(array, 0, arrayNew, 0, index);
-		arrayNew[index] = keyNew;
-		arrayNew[index+1] = valNew;
-		System.arraycopy(array, index, arrayNew, index + 2, array.length - index);
-		return arrayNew;
-	}	
 
+	@Deprecated
 	public static Object[] copyAndRemove(Object[] array, int index) {
 		final Object[] arrayNew = new Object[array.length - 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
 		System.arraycopy(array, index + 1, arrayNew, index, array.length - index - 1);
-		return arrayNew;
-	}
-	
-	public static Object[] copyAndRemovePair(Object[] array, int index) {
-		final Object[] arrayNew = new Object[array.length - 2];
-		System.arraycopy(array, 0, arrayNew, 0, index);
-		System.arraycopy(array, index + 2, arrayNew, index, array.length - index - 2);
 		return arrayNew;
 	}
 	
