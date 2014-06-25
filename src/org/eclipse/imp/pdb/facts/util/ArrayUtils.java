@@ -33,21 +33,7 @@ public class ArrayUtils {
 			System.arraycopy(array, indexNew + 1, arrayNew, indexNew + 1, array.length - indexNew - 1);
 			return arrayNew;
 		}
-	}	
-
-	/**
-	 * Shrinks the array by 1 (key, val pair becomes a node) and moves...
-	 */
-	public static Object[] copyAndMoveToBackPair(Object[] array, int indexOld, int indexNew, Object nodeNew) {
-		assert indexOld <= indexNew;		
-
-		final Object[] arrayNew = new Object[array.length - 1];
-		System.arraycopy(array, 0, arrayNew, 0, indexOld);
-		System.arraycopy(array, indexOld + 2, arrayNew, indexOld, indexNew - indexOld);
-		arrayNew[indexNew] = nodeNew;
-		System.arraycopy(array, indexNew + 2, arrayNew, indexNew + 1, array.length - indexNew - 2);
-		return arrayNew;
-	}	
+	}
 	
 	public static Object[] copyAndMoveToFront(Object[] array, int indexOld, int indexNew, Object elementNew) {
 		assert indexOld >= indexNew;
@@ -62,22 +48,7 @@ public class ArrayUtils {
 			return arrayNew;
 		}
 	}	
-	
-	/**
-	 * Enlarges the array by 1 (a node becomes a key, val pair) and moves...
-	 */
-	public static Object[] copyAndMoveToFrontPair(Object[] array, int indexOld, int indexNew, Object keyNew, Object valNew) {
-		assert indexOld >= indexNew;
-
-		final Object[] arrayNew = new Object[array.length+1];
-		System.arraycopy(array, 0, arrayNew, 0, indexNew);
-		arrayNew[indexNew] = keyNew;
-		arrayNew[indexNew+1] = valNew;
-		System.arraycopy(array, indexNew, arrayNew, indexNew + 2, indexOld - indexNew); // TODO: test
-		System.arraycopy(array, indexOld + 1, arrayNew, indexOld + 1, array.length - indexOld - 1); // TODO: test
-		return arrayNew;
-	}	
-	
+		
 	@Deprecated
 	public static Object[] copyAndInsert(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length + 1];

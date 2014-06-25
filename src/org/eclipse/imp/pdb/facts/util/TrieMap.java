@@ -13,8 +13,6 @@ package org.eclipse.imp.pdb.facts.util;
 
 import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndInsert;
-import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndMoveToBackPair;
-import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndMoveToFrontPair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemove;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndSet;
 
@@ -1999,35 +1997,43 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int valIndex = 2 * valIndex(bitpos);
+			final int idxOld = 2 * valIndex(bitpos);
+			final int idxNew = 2 * (payloadArity - 1) + nodeIndex(bitpos);
 
-			final int offset = 2 * (payloadArity - 1);
-			final int index = nodeIndex(bitpos);
+			final Object[] src = this.nodes;
+			final Object[] dst = new Object[src.length - 2 + 1];
 
-			final Object[] editableNodes = copyAndMoveToBackPair(this.nodes, valIndex, offset
-							+ index, node);
+			// copy 'src' and remove 2 element(s) at position 'idxOld' and
+			// insert 1 element(s) at position 'idxNew' (TODO: carefully test)
+			System.arraycopy(src, 0, dst, 0, idxOld);
+			System.arraycopy(src, idxOld + 2, dst, idxOld, idxNew - idxOld);
+			dst[idxNew + 0] = node;
+			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
 
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> nodeOf(mutator, nodeMap()
-							| bitpos, dataMap() ^ bitpos, editableNodes, (byte) (payloadArity - 1));
-
-			return thisNew;
+			return nodeOf(mutator, nodeMap() | bitpos, dataMap() ^ bitpos, dst,
+							(byte) (payloadArity - 1));
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
 						int bitpos, CompactMapNode<K, V> node) {
-			final int bitIndex = 2 * payloadArity + nodeIndex(bitpos);
-			final int valIndexNew = valIndex(bitpos); // TODO: unify index usage
-														// copyAndMoveToFrontPair
-														// as with other methods
+			final int idxOld = 2 * payloadArity + nodeIndex(bitpos);
+			final int idxNew = valIndex(bitpos);
 
-			final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
-							valIndexNew, node.headKey(), node.headVal());
+			final Object[] src = this.nodes;
+			final Object[] dst = new Object[src.length - 1 + 2];
 
-			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> nodeOf(mutator, nodeMap()
-							^ bitpos, dataMap() | bitpos, editableNodes, (byte) (payloadArity + 1));
+			// copy 'src' and remove 1 element(s) at position 'idxOld' and
+			// insert 2 element(s) at position 'idxNew' (TODO: carefully test)
+			assert idxOld >= idxNew;
+			System.arraycopy(src, 0, dst, 0, idxNew);
+			dst[idxNew + 0] = node.headKey();
+			dst[idxNew + 1] = node.headVal();
+			System.arraycopy(src, idxNew, dst, idxNew + 2, idxOld - idxNew);
+			System.arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
 
-			return thisNew;
+			return nodeOf(mutator, nodeMap() ^ bitpos, dataMap() | bitpos, dst,
+							(byte) (payloadArity + 1));
 		}
 	}
 
