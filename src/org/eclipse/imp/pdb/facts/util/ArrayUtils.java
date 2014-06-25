@@ -82,6 +82,7 @@ public class ArrayUtils {
 		return arrayNew;
 	}	
 	
+	@Deprecated
 	public static Object[] copyAndInsert(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length + 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);
@@ -90,6 +91,7 @@ public class ArrayUtils {
 		return arrayNew;
 	}
 	
+	@Deprecated
 	public static Object[] copyAndInsertPair(Object[] array, int index, Object keyNew, Object valNew) {
 		final Object[] arrayNew = new Object[array.length + 2];
 		System.arraycopy(array, 0, arrayNew, 0, index);

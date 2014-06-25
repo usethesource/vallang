@@ -13,7 +13,6 @@ package org.eclipse.imp.pdb.facts.util;
 
 import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndInsert;
-import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndInsertPair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndMoveToBackPair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndMoveToFrontPair;
 import static org.eclipse.imp.pdb.facts.util.ArrayUtils.copyAndRemove;
@@ -1927,11 +1926,19 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
 						V val) {
-			final int valIndex = 2 * valIndex(bitpos);
-			final Object[] editableNodes = copyAndInsertPair(this.nodes, valIndex, key, val);
+			final int idx = 2 * valIndex(bitpos);
+
+			final Object[] src = this.nodes;
+			final Object[] dst = new Object[src.length + 2];
+
+			// copy 'src' and insert tuple at position 'idx'
+			System.arraycopy(src, 0, dst, 0, idx);
+			dst[idx + 0] = key;
+			dst[idx + 1] = val;
+			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
 			final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> nodeOf(mutator, nodeMap(),
-							dataMap() | bitpos, editableNodes, (byte) (payloadArity + 1));
+							dataMap() | bitpos, dst, (byte) (payloadArity + 1));
 
 			return thisNew;
 		}
