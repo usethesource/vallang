@@ -1287,18 +1287,29 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
+		K keyAt(int bitpos) {
+			return getKey(dataIndex(bitpos));
+		}
+
+		V valAt(int bitpos) {
+			return getValue(dataIndex(bitpos));
+		}
+
+		CompactMapNode<K, V> nodeAt(int bitpos) {
+			return getNode(nodeIndex(bitpos));
+		}
+
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) {
-				return getKey(dataIndex(bitpos)).equals(key);
+				return keyAt(bitpos).equals(key);
 			}
 
 			if ((nodeMap() & bitpos) != 0) {
-				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
-								shift + BIT_PARTITION_SIZE);
+				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
@@ -1310,12 +1321,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) {
-				return cmp.compare(getKey(dataIndex(bitpos)), key) == 0;
+				return cmp.compare(keyAt(bitpos), key) == 0;
 			}
 
 			if ((nodeMap() & bitpos) != 0) {
-				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
-								shift + BIT_PARTITION_SIZE, cmp);
+				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -1327,11 +1337,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				// final int valIndex = dataIndex(bitpos);
-
-				if (getKey(dataIndex(bitpos)).equals(key)) {
-					final K _key = getKey(dataIndex(bitpos));
-					final V _val = getValue(dataIndex(bitpos));
+				if (keyAt(bitpos).equals(key)) {
+					final K _key = keyAt(bitpos);
+					final V _val = valAt(bitpos);
 
 					final Map.Entry<K, V> entry = entryOf(_key, _val);
 					return Optional.of(entry);
@@ -1341,7 +1349,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final AbstractMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final AbstractMapNode<K, V> subNode = nodeAt(bitpos);
 
 				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
@@ -1356,11 +1364,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				// final int valIndex = dataIndex(bitpos);
-
-				if (cmp.compare(getKey(dataIndex(bitpos)), key) == 0) {
-					final K _key = getKey(dataIndex(bitpos));
-					final V _val = getValue(dataIndex(bitpos));
+				if (cmp.compare(keyAt(bitpos), key) == 0) {
+					final K _key = keyAt(bitpos);
+					final V _val = valAt(bitpos);
 
 					final Map.Entry<K, V> entry = entryOf(_key, _val);
 					return Optional.of(entry);
@@ -1370,7 +1376,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final AbstractMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final AbstractMapNode<K, V> subNode = nodeAt(bitpos);
 
 				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
@@ -1385,10 +1391,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final K currentKey = getKey(dataIndex(bitpos));
+				final K currentKey = keyAt(bitpos);
 
 				if (currentKey.equals(key)) {
-					final V currentVal = getValue(dataIndex(bitpos));
+					final V currentVal = valAt(bitpos);
 
 					if (currentVal.equals(val)) {
 						return Result.unchanged(this);
@@ -1399,10 +1405,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 					return Result.updated(thisNew, currentVal);
 				} else {
-					final CompactMapNode<K, V> nodeNew = mergeNodes(getKey(dataIndex(bitpos)),
-									getKey(dataIndex(bitpos)).hashCode(),
-									getValue(dataIndex(bitpos)), key, keyHash, val, shift
-													+ BIT_PARTITION_SIZE);
+					final CompactMapNode<K, V> nodeNew = mergeNodes(keyAt(bitpos), keyAt(bitpos)
+									.hashCode(), valAt(bitpos), key, keyHash, val, shift
+									+ BIT_PARTITION_SIZE);
 
 					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
 									bitpos, nodeNew);
@@ -1410,7 +1415,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					return Result.modified(thisNew);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
@@ -1442,10 +1447,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final K currentKey = getKey(dataIndex(bitpos));
+				final K currentKey = keyAt(bitpos);
 
 				if (cmp.compare(currentKey, key) == 0) {
-					final V currentVal = getValue(dataIndex(bitpos));
+					final V currentVal = valAt(bitpos);
 
 					if (cmp.compare(currentVal, val) == 0) {
 						return Result.unchanged(this);
@@ -1456,10 +1461,9 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 					return Result.updated(thisNew, currentVal);
 				} else {
-					final CompactMapNode<K, V> nodeNew = mergeNodes(getKey(dataIndex(bitpos)),
-									getKey(dataIndex(bitpos)).hashCode(),
-									getValue(dataIndex(bitpos)), key, keyHash, val, shift
-													+ BIT_PARTITION_SIZE);
+					final CompactMapNode<K, V> nodeNew = mergeNodes(keyAt(bitpos), keyAt(bitpos)
+									.hashCode(), valAt(bitpos), key, keyHash, val, shift
+									+ BIT_PARTITION_SIZE);
 
 					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
 									bitpos, nodeNew);
@@ -1467,7 +1471,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					return Result.modified(thisNew);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE, cmp);
@@ -1499,9 +1503,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int valIndex = dataIndex(bitpos);
-
-				if (getKey(valIndex).equals(key)) {
+				if (keyAt(bitpos).equals(key)) {
 					if (this.arity() == 9) {
 						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos)
 										.convertToGenericNode();
@@ -1516,7 +1518,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					return Result.unchanged(this);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
 
@@ -1567,9 +1569,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			final int bitpos = (1 << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int valIndex = dataIndex(bitpos);
-
-				if (cmp.compare(getKey(valIndex), key) == 0) {
+				if (cmp.compare(keyAt(bitpos), key) == 0) {
 					if (this.arity() == 9) {
 						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos)
 										.convertToGenericNode();
@@ -1584,7 +1584,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 					return Result.unchanged(this);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = getNode(nodeIndex(bitpos));
+				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
 								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 
