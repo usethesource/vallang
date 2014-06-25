@@ -130,7 +130,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				}
 			}
 
-			map = map >> 1;
+			map = (int) (map >> 1);
 			mask += 1;
 		}
 
@@ -734,24 +734,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		abstract CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos,
-						V val);
+		abstract CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator,
+						final int bitpos, V val);
 
 		abstract CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator,
-						int bitpos, K key, V val);
+						final int bitpos, K key, V val);
 
-		abstract CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos);
+		abstract CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator,
+						final int bitpos);
 
-		abstract CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
-						CompactMapNode<K, V> node);
+		abstract CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator,
+						final int bitpos, CompactMapNode<K, V> node);
 
-		abstract CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos);
+		abstract CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator,
+						final int bitpos);
 
 		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
-						AtomicReference<Thread> mutator, int bitpos, CompactMapNode<K, V> node);
+						AtomicReference<Thread> mutator, final int bitpos, CompactMapNode<K, V> node);
 
 		abstract CompactMapNode<K, V> copyAndMigrateFromNodeToInline(
-						AtomicReference<Thread> mutator, int bitpos, CompactMapNode<K, V> node);
+						AtomicReference<Thread> mutator, final int bitpos, CompactMapNode<K, V> node);
 
 		@SuppressWarnings("unchecked")
 		static final <K, V> CompactMapNode<K, V> mergeNodes(K key0, int keyHash0, V val0, K key1,
@@ -768,20 +770,20 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int dataMap = 1 << mask0 | 1 << mask1;
+				final int dataMap = (int) (1L << mask0 | 1L << mask1);
 
 				if (mask0 < mask1) {
-					return nodeOf(null, 0, dataMap, key0, val0, key1, val1);
+					return nodeOf(null, (int) 0, dataMap, key0, val0, key1, val1);
 				} else {
-					return nodeOf(null, 0, dataMap, key1, val1, key0, val0);
+					return nodeOf(null, (int) 0, dataMap, key1, val1, key0, val0);
 				}
 			} else {
 				// values fit on next level
 				final CompactMapNode<K, V> node = mergeNodes(key0, keyHash0, val0, key1, keyHash1,
 								val1, shift + BIT_PARTITION_SIZE);
 
-				final int nodeMap = 1 << mask0;
-				return nodeOf(null, nodeMap, 0, node);
+				final int nodeMap = (int) (1L << mask0);
+				return nodeOf(null, nodeMap, (int) 0, node);
 			}
 		}
 
@@ -792,8 +794,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int nodeMap = 1 << mask0;
-				final int dataMap = 1 << mask1;
+				final int nodeMap = (int) (1L << mask0);
+				final int dataMap = (int) (1L << mask1);
 
 				// store values before node
 				return nodeOf(null, nodeMap, dataMap, key1, val1, node0);
@@ -802,15 +804,15 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				final CompactMapNode<K, V> node = mergeNodes(node0, keyHash0, key1, keyHash1, val1,
 								shift + BIT_PARTITION_SIZE);
 
-				final int nodeMap = 1 << mask0;
-				return nodeOf(null, nodeMap, 0, node);
+				final int nodeMap = (int) (1L << mask0);
+				return nodeOf(null, nodeMap, (int) 0, node);
 			}
 		}
 
 		static final CompactMapNode EMPTY_INPLACE_INDEX_NODE;
 
 		static {
-			EMPTY_INPLACE_INDEX_NODE = new Map0To0Node<>(null, 0, 0);
+			EMPTY_INPLACE_INDEX_NODE = new Map0To0Node<>(null, (int) 0, (int) 0);
 		};
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(AtomicReference<Thread> mutator,
@@ -820,7 +822,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		// TODO: consolidate and remove
 		static final <K, V> CompactMapNode<K, V> nodeOf(AtomicReference<Thread> mutator) {
-			return nodeOf(mutator, 0, 0);
+			return nodeOf(mutator, (int) 0, (int) 0);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1279,30 +1281,30 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 							val9 }, (byte) 9);
 		}
 
-		final int dataIndex(int bitpos) {
+		final int dataIndex(final int bitpos) {
 			return Integer.bitCount(dataMap() & (bitpos - 1));
 		}
 
-		final int nodeIndex(int bitpos) {
+		final int nodeIndex(final int bitpos) {
 			return Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
-		K keyAt(int bitpos) {
+		K keyAt(final int bitpos) {
 			return getKey(dataIndex(bitpos));
 		}
 
-		V valAt(int bitpos) {
+		V valAt(final int bitpos) {
 			return getValue(dataIndex(bitpos));
 		}
 
-		CompactMapNode<K, V> nodeAt(int bitpos) {
+		CompactMapNode<K, V> nodeAt(final int bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return keyAt(bitpos).equals(key);
@@ -1318,7 +1320,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return cmp.compare(keyAt(bitpos), key) == 0;
@@ -1334,7 +1336,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -1361,7 +1363,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift,
 						Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -1388,7 +1390,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
 						K key, int keyHash, V val, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final K currentKey = keyAt(bitpos);
@@ -1444,7 +1446,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
 						K key, int keyHash, V val, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final K currentKey = keyAt(bitpos);
@@ -1500,7 +1502,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
 						K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -1566,7 +1568,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
 						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (1 << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -1824,8 +1826,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) dataMap());
+			result = prime * result + ((int) dataMap());
 			result = prime * result + Arrays.hashCode(nodes);
 			return result;
 		}
@@ -1896,7 +1898,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int idx = 2 * dataIndex(bitpos) + 1;
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1916,7 +1919,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int idx = 2 * payloadArity + nodeIndex(bitpos);
 
@@ -1937,8 +1940,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int idx = 2 * dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
@@ -1950,14 +1953,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			dst[idx + 1] = val;
 			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			final CompactMapNode<K, V> thisNew = nodeOf(mutator, nodeMap(), dataMap() | bitpos,
-							dst, (byte) (payloadArity + 1));
-
-			return thisNew;
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst,
+							(byte) (payloadArity + 1));
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int idx = 2 * payloadArity + nodeIndex(bitpos);
 
 			final Object[] src = this.nodes;
@@ -1967,14 +1968,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 1, dst, idx, src.length - idx - 1);
 
-			final CompactMapNode<K, V> thisNew = nodeOf(mutator, nodeMap() ^ bitpos, dataMap(),
-							dst, payloadArity);
-
-			return thisNew;
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), dataMap(), dst, payloadArity);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int idx = 2 * dataIndex(bitpos);
 
 			final Object[] src = this.nodes;
@@ -1984,15 +1982,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 2, dst, idx, src.length - idx - 2);
 
-			final CompactMapNode<K, V> thisNew = nodeOf(mutator, nodeMap(), dataMap() ^ bitpos,
-							dst, (byte) (payloadArity - 1));
-
-			return thisNew;
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst,
+							(byte) (payloadArity - 1));
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int idxOld = 2 * dataIndex(bitpos);
 			final int idxNew = 2 * (payloadArity - 1) + nodeIndex(bitpos);
 
@@ -2007,13 +2003,13 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
 
-			return nodeOf(mutator, nodeMap() | bitpos, dataMap() ^ bitpos, dst,
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst,
 							(byte) (payloadArity - 1));
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int idxOld = 2 * payloadArity + nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
@@ -2029,7 +2025,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			System.arraycopy(src, idxNew, dst, idxNew + 2, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
 
-			return nodeOf(mutator, nodeMap() ^ bitpos, dataMap() | bitpos, dst,
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst,
 							(byte) (payloadArity + 1));
 		}
 	}
@@ -2327,47 +2323,48 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int index, V val) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
 						V val) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int index,
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -3055,17 +3052,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -3076,30 +3074,30 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -3219,17 +3217,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -3240,12 +3239,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -3261,11 +3260,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -3277,18 +3276,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -3320,8 +3319,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -3443,17 +3442,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -3464,12 +3464,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -3487,11 +3487,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -3505,18 +3505,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -3555,8 +3555,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -3689,17 +3689,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -3710,12 +3711,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -3735,11 +3736,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -3755,18 +3756,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -3813,8 +3814,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -3957,17 +3958,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -3978,12 +3980,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -4005,11 +4007,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -4027,18 +4029,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -4092,8 +4094,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -4248,17 +4250,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -4270,12 +4273,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -4299,11 +4302,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -4323,18 +4326,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -4395,8 +4398,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -4561,17 +4564,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -4583,12 +4587,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -4614,11 +4618,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -4640,18 +4644,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -4725,8 +4729,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -4902,17 +4906,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -4924,12 +4929,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -4964,11 +4969,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -4992,18 +4997,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -5085,8 +5090,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -5272,17 +5277,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -5294,12 +5300,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -5337,11 +5343,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -5375,18 +5381,18 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -5476,8 +5482,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + node1.hashCode();
 
@@ -5651,7 +5657,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5666,12 +5673,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -5684,11 +5691,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -5699,24 +5706,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -5733,7 +5740,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -5751,8 +5758,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -5893,7 +5900,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5908,12 +5916,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -5926,11 +5934,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -5941,7 +5949,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -5957,11 +5965,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -5973,12 +5981,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -5997,12 +6005,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -6036,8 +6044,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6189,7 +6197,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6204,12 +6213,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6222,11 +6231,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6237,7 +6246,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -6255,11 +6264,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -6273,12 +6282,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6299,12 +6308,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -6348,8 +6357,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6512,7 +6521,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6527,12 +6537,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6545,11 +6555,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6560,7 +6570,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -6580,11 +6590,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -6600,12 +6610,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6628,12 +6638,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -6686,8 +6696,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -6861,7 +6871,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6876,12 +6887,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6896,11 +6907,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6911,7 +6922,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -6933,11 +6944,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -6955,12 +6966,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -6985,12 +6996,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -7060,8 +7071,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -7245,7 +7256,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7261,12 +7273,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -7281,11 +7293,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -7296,7 +7308,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -7325,11 +7337,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -7349,12 +7361,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -7387,12 +7399,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -7473,8 +7485,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -7669,7 +7681,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7685,12 +7698,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -7705,11 +7718,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -7720,7 +7733,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -7752,11 +7765,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -7784,12 +7797,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -7825,12 +7838,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -7922,8 +7935,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8129,7 +8142,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8145,12 +8159,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8165,11 +8179,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8181,7 +8195,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -8216,11 +8230,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -8251,12 +8265,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8295,12 +8309,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -8403,8 +8417,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8592,7 +8606,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8609,12 +8624,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8629,11 +8644,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8646,24 +8661,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8687,7 +8702,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -8706,8 +8721,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -8869,7 +8884,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8886,12 +8902,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8906,11 +8922,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8923,7 +8939,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -8939,11 +8955,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -8955,12 +8971,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -8988,12 +9004,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -9030,8 +9046,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -9204,7 +9220,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9221,12 +9238,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -9244,11 +9261,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -9261,7 +9278,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -9279,11 +9296,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -9297,12 +9314,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -9334,12 +9351,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -9393,8 +9410,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -9578,7 +9595,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9595,12 +9613,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -9618,11 +9636,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -9635,7 +9653,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -9655,11 +9673,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -9675,12 +9693,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -9716,12 +9734,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -9789,8 +9807,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -9984,7 +10002,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10003,12 +10022,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -10026,11 +10045,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -10043,7 +10062,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -10069,11 +10088,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -10095,12 +10114,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -10150,12 +10169,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -10237,8 +10256,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -10443,7 +10462,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10462,12 +10482,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -10485,11 +10505,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -10504,7 +10524,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -10533,11 +10553,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -10562,12 +10582,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -10623,12 +10643,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -10724,8 +10744,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -10941,7 +10961,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10960,12 +10981,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -10983,11 +11004,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11002,7 +11023,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -11034,11 +11055,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -11066,12 +11087,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11133,12 +11154,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -11248,8 +11269,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -11452,7 +11473,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11471,12 +11493,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11497,11 +11519,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11516,24 +11538,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11564,7 +11586,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -11583,8 +11605,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -11767,7 +11789,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11786,12 +11809,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11812,11 +11835,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11831,7 +11854,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -11847,11 +11870,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -11863,12 +11886,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -11905,12 +11928,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -11953,8 +11976,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -12148,7 +12171,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12170,12 +12194,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -12196,11 +12220,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -12215,7 +12239,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -12235,11 +12259,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -12253,12 +12277,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -12310,12 +12334,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -12375,8 +12399,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -12580,7 +12604,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12602,12 +12627,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -12628,11 +12653,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -12650,7 +12675,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -12673,11 +12698,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -12696,12 +12721,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -12762,12 +12787,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -12844,8 +12869,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -13060,7 +13085,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13082,12 +13108,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -13108,11 +13134,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -13130,7 +13156,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -13156,11 +13182,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -13182,12 +13208,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -13257,12 +13283,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -13356,8 +13382,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -13583,7 +13609,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13605,12 +13632,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -13631,11 +13658,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -13653,7 +13680,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -13682,11 +13709,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -13711,12 +13738,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -13795,12 +13822,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -13911,8 +13938,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -14130,7 +14157,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14155,12 +14183,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -14184,11 +14212,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -14205,24 +14233,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -14264,7 +14292,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -14283,8 +14311,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -14488,7 +14516,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14513,12 +14542,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -14542,11 +14571,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -14563,7 +14592,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -14580,11 +14609,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -14597,12 +14626,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -14656,12 +14685,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -14707,8 +14736,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -14923,7 +14952,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14948,12 +14978,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -14977,11 +15007,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -15002,7 +15032,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -15022,11 +15052,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -15042,12 +15072,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -15113,12 +15143,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -15184,8 +15214,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -15411,7 +15441,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15436,12 +15467,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -15465,11 +15496,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -15490,7 +15521,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -15513,11 +15544,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -15536,12 +15567,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -15619,12 +15650,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -15710,8 +15741,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -15948,7 +15979,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15973,12 +16005,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -16002,11 +16034,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -16027,7 +16059,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -16053,11 +16085,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -16079,12 +16111,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -16174,12 +16206,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -16285,8 +16317,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -16518,7 +16550,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16546,12 +16579,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -16578,11 +16611,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -16606,24 +16639,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -16673,7 +16706,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -16692,8 +16725,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -16918,7 +16951,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16946,12 +16980,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -16978,11 +17012,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -17006,7 +17040,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -17023,11 +17057,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -17040,12 +17074,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -17110,12 +17144,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -17164,8 +17198,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -17401,7 +17435,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17429,12 +17464,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -17461,11 +17496,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -17489,7 +17524,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -17509,11 +17544,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -17529,12 +17564,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -17614,12 +17649,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -17691,8 +17726,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -17939,7 +17974,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17967,12 +18003,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -17999,11 +18035,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -18027,7 +18063,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -18050,11 +18086,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -18073,12 +18109,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -18173,12 +18209,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -18273,8 +18309,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -18521,7 +18557,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18552,12 +18589,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -18587,11 +18624,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -18618,24 +18655,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -18693,7 +18730,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -18712,8 +18749,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -18959,7 +18996,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18990,12 +19028,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -19025,11 +19063,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -19056,7 +19094,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -19073,11 +19111,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -19090,12 +19128,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -19171,12 +19209,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -19228,8 +19266,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -19486,7 +19524,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19517,12 +19556,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -19552,11 +19591,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -19583,7 +19622,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -19603,11 +19642,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -19623,12 +19662,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -19722,12 +19761,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -19805,8 +19844,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -20067,7 +20106,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20101,12 +20141,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -20139,11 +20179,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -20173,24 +20213,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -20256,7 +20296,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -20275,8 +20315,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -20543,7 +20583,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20577,12 +20618,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -20615,11 +20656,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -20649,7 +20690,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
@@ -20666,11 +20707,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			final int bitIndex = nodeIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap();
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap());
 
 			switch (bitIndex) {
 			case 0:
@@ -20683,12 +20724,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -20775,12 +20816,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() ^ bitpos;
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap() ^ bitpos);
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			final K key = node.headKey();
 			final V val = node.headVal();
@@ -20835,8 +20876,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
@@ -21112,7 +21153,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, int bitpos, V val) {
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+						V val) {
 			final int index = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -21149,12 +21191,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, int bitpos, K key,
-						V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						K key, V val) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() | bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() | bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -21190,11 +21232,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap();
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap());
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -21227,24 +21269,24 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, int bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
-			final int nodeMap = this.nodeMap() | bitpos;
-			final int dataMap = this.dataMap() ^ bitpos;
+			final int nodeMap = (int) (this.nodeMap() | bitpos);
+			final int dataMap = (int) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
@@ -21318,7 +21360,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						int bitpos, CompactMapNode<K, V> node) {
+						final int bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -21338,8 +21380,8 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + nodeMap();
-			result = prime * result + dataMap();
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
 
 			result = prime * result + key1.hashCode();
 			result = prime * result + val1.hashCode();
