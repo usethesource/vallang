@@ -17,13 +17,13 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractSet;
 import org.eclipse.imp.pdb.facts.impl.func.SetFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
-
-import java.util.Iterator;
 
 /*package*/ class Set extends AbstractSet {
 

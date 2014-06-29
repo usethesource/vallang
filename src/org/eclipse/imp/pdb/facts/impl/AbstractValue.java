@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-
-import java.io.IOException;
-import java.io.StringWriter;
 
 public abstract class AbstractValue implements IValue {
 

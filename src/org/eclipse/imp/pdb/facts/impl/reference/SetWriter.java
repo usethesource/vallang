@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.HashSet;
+
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -25,8 +27,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-
-import java.util.HashSet;
 
 /*package*/ class SetWriter extends AbstractWriter implements ISetWriter {
     protected final HashSet<IValue> setContent;

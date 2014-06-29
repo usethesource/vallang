@@ -13,6 +13,8 @@
 
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.Objects;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -28,8 +30,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UnexpectedElementTypeException;
 import org.eclipse.imp.pdb.facts.impl.primitive.AbstractPrimitiveValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-
-import java.util.Objects;
 
 /**
  * This is a reference implementation for an @{link IValueFactory}. It uses

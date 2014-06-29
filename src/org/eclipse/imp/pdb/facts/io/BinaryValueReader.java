@@ -18,7 +18,6 @@ import java.io.InputStream;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.IValueBinaryReader;
 import org.eclipse.imp.pdb.facts.io.binary.BinaryReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;

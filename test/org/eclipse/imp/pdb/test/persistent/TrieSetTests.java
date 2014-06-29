@@ -11,12 +11,12 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.test.persistent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISet;

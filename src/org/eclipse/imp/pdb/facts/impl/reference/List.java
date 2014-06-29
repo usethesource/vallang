@@ -11,13 +11,13 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractList;
 import org.eclipse.imp.pdb.facts.impl.func.ListFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
-
-import java.util.Iterator;
 
 /*package*/ class List extends AbstractList {
 
