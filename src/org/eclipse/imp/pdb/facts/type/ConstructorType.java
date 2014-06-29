@@ -58,7 +58,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		fADT = adt;
 
 
-		if (keywordParameters == null || keywordParameters.isBottom()) {
+		if (keywordParameters == null || keywordParameters.isBottom() || keywordParameters.getArity() == 0) {
 			fKeywordParameterDefaults = null;
 			fKeywordParameters = null;
 		}
