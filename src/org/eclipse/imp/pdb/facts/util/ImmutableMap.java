@@ -45,11 +45,13 @@ public interface ImmutableMap<K, V> extends Map<K, V> {
 	
 	ImmutableMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp);
 
-	SupplierIterator<K, V> keyIterator();
+	Iterator<K> keyIterator();
 	
 	Iterator<V> valueIterator();
 	
 	Iterator<Map.Entry<K, V>> entryIterator();
+	
+//	SupplierIterator<K, V> supplierIterator();
 	
 	public abstract TransientMap<K, V> asTransient();
 
