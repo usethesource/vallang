@@ -293,6 +293,16 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   }
 
   @Override
+  public boolean hasField(String fieldName) {
+	  return false;
+  }
+  
+  @Override
+  public boolean hasField(String fieldName, TypeStore store) {
+	  return false;
+  }
+  
+  @Override
   public String getFieldName(int i) {
     return null;
   }
