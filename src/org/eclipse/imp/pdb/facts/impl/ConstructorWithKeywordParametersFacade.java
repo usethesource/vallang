@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
@@ -86,7 +89,12 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	}
 
 	public String toString() {
-		return content.toString();
+		try(StringWriter stream = new StringWriter()) {
+			new StandardTextWriter().write(this, stream);
+			return stream.toString();
+		} catch (IOException ioex) {
+			throw new RuntimeException("Should have never happened.", ioex);
+		}
 	}
 
 	public String getName() {
