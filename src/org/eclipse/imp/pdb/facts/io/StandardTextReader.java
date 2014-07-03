@@ -828,6 +828,7 @@ public class StandardTextReader extends AbstractTextReader {
 		int offset;
 		boolean inString = false;
 		int prev = -1;
+		int beforePrev = -1;
 	
 		public NoWhiteSpaceReader(Reader wrapped) {
 			this.wrapped = wrapped;
@@ -854,11 +855,12 @@ public class StandardTextReader extends AbstractTextReader {
 				inString = true;
 			}
 			else if (inString) {
-				if (prev != '\\' && r == '\"') {
+				if ((prev != '\\' && r == '\"') || (beforePrev == '\\' && prev == '\\' && r == '\"')) {
 					inString = false;
 				}
 			}
 			
+			beforePrev = prev;
 			prev = r;
 			return r;
 		}
