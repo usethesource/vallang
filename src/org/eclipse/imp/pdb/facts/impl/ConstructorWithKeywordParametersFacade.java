@@ -130,7 +130,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	  // TODO: the equals here should be isEqual
 	  ConstructorWithKeywordParametersFacade o = (ConstructorWithKeywordParametersFacade) other;
 	  
-    return content.isEqual(o.content) && o.parameters.equals(parameters);
+	  return content.isEqual(o.content) && o.parameters.equals(parameters);
 	}
 	
 	@Override
