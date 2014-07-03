@@ -166,12 +166,22 @@ public class BinaryWriter{
 			writeTuple((ITuple) value);
 		}else if(value instanceof IConstructor){
 			IConstructor constructor = (IConstructor) value;
-			if(!constructor.asAnnotatable().hasAnnotations()) writeConstructor(constructor);
-			else writeAnnotatedConstructor(constructor);
+			if((constructor.mayHaveKeywordParameters() && constructor.asWithKeywordParameters().hasParameters())
+			  || !constructor.asAnnotatable().hasAnnotations()) {
+				writeConstructor(constructor);
+			}
+			else {
+				writeAnnotatedConstructor(constructor);
+			}
 		}else if(value instanceof INode){
 			INode node = (INode) value;
-			if(!node.asAnnotatable().hasAnnotations()) writeNode(node);
-			else writeAnnotatedNode(node);
+			if ((node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) 
+				|| !node.asAnnotatable().hasAnnotations()) {
+				writeNode(node);
+			}
+			else {
+				writeAnnotatedNode(node);
+			}
 		}else if(value instanceof IList){
 			writeList((IList) value);
 		}else if(value instanceof ISet){
