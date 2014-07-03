@@ -11,6 +11,7 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -55,6 +56,15 @@ public class StandardTextWriter implements IValueTextWriter {
 	public StandardTextWriter(boolean indent, int tabSize) {
 		this.indent = indent;
 		this.tabSize = tabSize;
+	}
+	
+	public static String valueToString(IValue value) {
+		try(StringWriter stream = new StringWriter()) {
+			new StandardTextWriter().write(value, stream);
+			return stream.toString();
+		} catch (IOException ioex) {
+			throw new RuntimeException("Should have never happened.", ioex);
+		}
 	}
 	
 	public void write(IValue value, java.io.Writer stream) throws IOException {

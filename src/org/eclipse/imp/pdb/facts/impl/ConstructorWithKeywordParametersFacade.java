@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -89,12 +87,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	}
 
 	public String toString() {
-		try(StringWriter stream = new StringWriter()) {
-			new StandardTextWriter().write(this, stream);
-			return stream.toString();
-		} catch (IOException ioex) {
-			throw new RuntimeException("Should have never happened.", ioex);
-		}
+		return StandardTextWriter.valueToString(this);
 	}
 
 	public String getName() {

@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.io.IOException;
-import java.io.StringWriter;
-
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
@@ -28,12 +25,7 @@ public abstract class AbstractValue implements IValue {
 	}
 
 	public String toString() {
-		try(StringWriter stream = new StringWriter()) {
-			new StandardTextWriter().write(this, stream);
-			return stream.toString();
-		} catch (IOException ioex) {
-			throw new RuntimeException("Should have never happened.", ioex);
-		}
+		return StandardTextWriter.valueToString(this);
 	}
 
 	@Override

@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
@@ -58,12 +56,7 @@ public class AnnotatedNodeFacade implements INode {
 	}
 
 	public String toString() {
-		try(StringWriter stream = new StringWriter()) {
-			new StandardTextWriter().write(this, stream);
-			return stream.toString();
-		} catch (IOException ioex) {
-			throw new RuntimeException("Should have never happened.", ioex);
-		}
+		return StandardTextWriter.valueToString(this);
 	}
 
 	public String getName() {
