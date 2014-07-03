@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -95,11 +96,15 @@ public class NodeWithKeywordParametersFacade implements INode {
 	  if (!other.mayHaveKeywordParameters()) {
 	    return false;
 	  }
+
+	  if (other instanceof NodeWithKeywordParametersFacade) {
+		  NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
+		  
+		  // TODO: this equals is fishy
+		  return content.isEqual(o.content) && o.parameters.equals(parameters);
+	  }
 	  
-	  IWithKeywordParameters<? extends IValue> o = other.asWithKeywordParameters();
-		
-	  // TODO: the equals here should be isEqual
-	  return content.isEqual(other) && o.equals(parameters);
+	  return false;
 	}
 	
 	@Override
