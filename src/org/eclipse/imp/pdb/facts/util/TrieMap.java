@@ -1923,10 +1923,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						return nestedResult;
 					} else {
 						// inline value (move to front)
-						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+						final int valIndex = valIndex(bitpos);
 
 						final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
-										valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
+										valIndex, subNodeNew.headKey(), subNodeNew.headVal());
 
 						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
 										bitmap, valmap | bitpos, editableNodes,
@@ -2035,10 +2035,10 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 						return nestedResult;
 					} else {
 						// inline value (move to front)
-						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+						final int valIndex = valIndex(bitpos);
 
 						final Object[] editableNodes = copyAndMoveToFrontPair(this.nodes, bitIndex,
-										valIndexNew, subNodeNew.headKey(), subNodeNew.headVal());
+										valIndex, subNodeNew.headKey(), subNodeNew.headVal());
 
 						final CompactMapNode<K, V> thisNew = CompactMapNode.<K, V> valNodeOf(mutator,
 										bitmap, valmap | bitpos, editableNodes,

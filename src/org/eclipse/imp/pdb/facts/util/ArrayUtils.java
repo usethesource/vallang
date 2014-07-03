@@ -77,11 +77,11 @@ public class ArrayUtils {
 		System.arraycopy(array, 0, arrayNew, 0, indexNew);
 		arrayNew[indexNew] = keyNew;
 		arrayNew[indexNew+1] = valNew;
-		System.arraycopy(array, indexNew, arrayNew, indexNew + 2, indexOld - indexNew); // TODO: test
-		System.arraycopy(array, indexOld + 1, arrayNew, indexOld + 1, array.length - indexOld - 1); // TODO: test
+		System.arraycopy(array, indexNew, arrayNew, indexNew + 2, indexOld - indexNew);
+		System.arraycopy(array, indexOld + 1, arrayNew, indexOld + 2, array.length - indexOld - 1);
 		return arrayNew;
 	}	
-	
+		
 	public static Object[] copyAndInsert(Object[] array, int index, Object elementNew) {
 		final Object[] arrayNew = new Object[array.length + 1];
 		System.arraycopy(array, 0, arrayNew, 0, index);

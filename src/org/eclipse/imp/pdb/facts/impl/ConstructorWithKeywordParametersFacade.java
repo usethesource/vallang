@@ -59,12 +59,11 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
   		  }
   	  }
   	  
-// TODO: this should be turned on again once __remove has been fixed.  	  
-//  	  if (content.getConstructorType().hasFieldNames()) {
-//		  for (String label : content.getConstructorType().getFieldNames()) {
-//			  env = env.__remove(label);
-//		  }
-//	  }
+  	  if (content.getConstructorType().hasFieldNames()) {
+		  for (String label : content.getConstructorType().getFieldNames()) {
+			  env = env.__remove(label);
+		  }
+	  }
   	  return env;
     }
 	

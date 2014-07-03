@@ -1493,10 +1493,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							return nestedResult;
 						} else {
 							// inline value (move to front)
-							final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+							final int valIndex = valIndex(bitpos);
 				
 							final Object[] editableNodes = copyAndMoveToFront(this.nodes, bitIndex,
-											valIndexNew, subNodeNew.headKey());
+											valIndex, subNodeNew.headKey());
 				
 							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap,
 											valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
@@ -1605,10 +1605,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 							return nestedResult;
 						} else {
 							// inline value (move to front)
-							final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+							final int valIndex = valIndex(bitpos);
 				
 							final Object[] editableNodes = copyAndMoveToFront(this.nodes, bitIndex,
-											valIndexNew, subNodeNew.headKey());
+											valIndex, subNodeNew.headKey());
 				
 							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap,
 											valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
