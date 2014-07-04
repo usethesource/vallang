@@ -2835,7 +2835,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			 */
 			outerLoop: for (SupplierIterator<?, ?> it = that.payloadIterator(); it.hasNext();) {
 				final Object otherKey = it.next();
-				final Object otherVal = it.next();
+				final Object otherVal = it.get();
 
 				for (int i = 0; i < keys.length; i++) {
 					final K key = keys[i];
