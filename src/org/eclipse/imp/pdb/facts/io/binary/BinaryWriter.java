@@ -128,9 +128,8 @@ public class BinaryWriter{
 	private void doSerialize(IValue value) throws IOException{
 		// This special cases the hashing logic: if we have a constructor with
 		// at least one location annotation, don't try to hash it
-		boolean tryHashing = false;
+		boolean tryHashing = true;
 		
-		/*
 		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.asAnnotatable().hasAnnotations()) {
@@ -153,7 +152,6 @@ public class BinaryWriter{
 				return;
 			}
 		}
-		*/
 		
 		// This sucks and is order dependent :-/.
 		if(value instanceof IBool){
