@@ -18,10 +18,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
@@ -59,6 +61,9 @@ public class BinaryWriter{
 	private final static int SET_HEADER = 0x0d;
 	private final static int MAP_HEADER = 0x0f;
 	private final static int RATIONAL_HEADER = 0x11;
+	private final static int KEYWORDED_NODE_HEADER = 0x12;
+	private final static int KEYWORDED_CONSTRUCTOR_HEADER = 0x13;
+
 
 	private final static int VALUE_TYPE_HEADER = 0x01;
 	private final static int VOID_TYPE_HEADER = 0x02;
@@ -81,6 +86,7 @@ public class BinaryWriter{
 	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
 	private final static int RATIONAL_TYPE_HEADER = 0x15;
 	private final static int NUM_TYPE_HEADER = 0x16;
+	private final static int KEYWORDED_CONSTRUCTOR_TYPE_HEADER = 0x17;
 	
 	private final static int SHARED_FLAG = 0x80;
 	private final static int TYPE_SHARED_FLAG = 0x40;
@@ -122,8 +128,9 @@ public class BinaryWriter{
 	private void doSerialize(IValue value) throws IOException{
 		// This special cases the hashing logic: if we have a constructor with
 		// at least one location annotation, don't try to hash it
-		boolean tryHashing = true;
+		boolean tryHashing = false;
 		
+		/*
 		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.asAnnotatable().hasAnnotations()) {
@@ -146,6 +153,7 @@ public class BinaryWriter{
 				return;
 			}
 		}
+		*/
 		
 		// This sucks and is order dependent :-/.
 		if(value instanceof IBool){
@@ -166,21 +174,25 @@ public class BinaryWriter{
 			writeTuple((ITuple) value);
 		}else if(value instanceof IConstructor){
 			IConstructor constructor = (IConstructor) value;
-			if((constructor.mayHaveKeywordParameters() && constructor.asWithKeywordParameters().hasParameters())
-			  || !constructor.asAnnotatable().hasAnnotations()) {
-				writeConstructor(constructor);
+			if (constructor.mayHaveKeywordParameters() && constructor.asWithKeywordParameters().hasParameters()) {
+				writeKeywordedConstructor(constructor);
+			}
+			else if (!constructor.mayHaveKeywordParameters() && constructor.asAnnotatable().hasAnnotations()) {
+				writeAnnotatedConstructor(constructor);
 			}
 			else {
-				writeAnnotatedConstructor(constructor);
+				writeConstructor(constructor);
 			}
 		}else if(value instanceof INode){
 			INode node = (INode) value;
-			if ((node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) 
-				|| !node.asAnnotatable().hasAnnotations()) {
-				writeNode(node);
+			if (node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) {
+				writeKeywordedNode(node);
+			}
+			else if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
+				writeAnnotatedNode(node);
 			}
 			else {
-				writeAnnotatedNode(node);
+				writeNode(node);
 			}
 		}else if(value instanceof IList){
 			writeList((IList) value);
@@ -518,6 +530,43 @@ public class BinaryWriter{
 		}
 	}
 	
+	private void writeKeywordedNode(INode node) throws IOException{
+		String nodeName = node.getName();
+		int nodeNameId = sharedNames.store(nodeName);
+		
+		if(nodeNameId == -1){
+			out.write(KEYWORDED_NODE_HEADER);
+			
+			byte[] nodeData = nodeName.getBytes(CharEncoding);
+			printInteger(nodeData.length);
+			out.write(nodeData);
+		}else{
+			out.write(KEYWORDED_NODE_HEADER | NAME_SHARED_FLAG);
+			
+			printInteger(nodeNameId);
+		}
+		
+		int arity = node.arity();
+		printInteger(arity);
+		
+		for(int i = 0; i < arity; i++){
+			doSerialize(node.get(i));
+		}
+		
+		Map<String, IValue> kwParams = node.asWithKeywordParameters().getParameters();
+		
+		printInteger(kwParams.size());
+		
+		for (Map.Entry<String, IValue> param : kwParams.entrySet()) {
+			String label = param.getKey();
+			byte[] labelData = label.getBytes(CharEncoding);
+			printInteger(labelData.length);
+			out.write(labelData);
+			
+			IValue value = param.getValue();
+			doSerialize(value);
+		}
+	}
 	private void writeAnnotatedNode(INode node) throws IOException{
 		String nodeName = node.getName();
 		int nodeNameId = sharedNames.store(nodeName);
@@ -579,6 +628,44 @@ public class BinaryWriter{
 		
 		for(int i = 0; i < arity; i++){
 			doSerialize(constructor.get(i));
+		}
+	}
+
+	private void writeKeywordedConstructor(IConstructor constructor) throws IOException{
+		Type constructorType = constructor.getConstructorType();
+		int constructorTypeId = sharedTypes.get(constructorType);
+		
+		if(constructorTypeId == -1){
+			out.write(KEYWORDED_CONSTRUCTOR_HEADER);
+			
+			doWriteType(constructorType);
+			
+			sharedTypes.store(constructorType);
+		}else{
+			out.write(KEYWORDED_CONSTRUCTOR_HEADER | TYPE_SHARED_FLAG);
+			
+			printInteger(constructorTypeId);
+		}
+		
+		int arity = constructor.arity();
+		printInteger(arity);
+		
+		for(int i = 0; i < arity; i++){
+			doSerialize(constructor.get(i));
+		}
+		
+		Map<String, IValue> kwParams = constructor.asWithKeywordParameters().getParameters();
+		
+		printInteger(kwParams.size());
+		
+		for (Map.Entry<String, IValue> param: kwParams.entrySet()) {
+			String label = param.getKey();
+			byte[] labelData = label.getBytes(CharEncoding);
+			printInteger(labelData.length);
+			out.write(labelData);
+			
+			IValue value = param.getValue();
+			doSerialize(value);
 		}
 	}
 	
@@ -737,6 +824,10 @@ public class BinaryWriter{
 	}
 	
 	private void writeNodeType(Type nodeType) throws IOException{
+		if (nodeType.hasKeywordParameters()) {
+			out.write(NODE_TYPE_HEADER);
+			return;
+		}
 		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(nodeType);
 		if(declaredAnnotations.isEmpty()){
 			out.write(NODE_TYPE_HEADER);
@@ -851,6 +942,24 @@ public class BinaryWriter{
 	}
 	
 	private void writeConstructorType(Type constructorType) throws IOException{
+		if (constructorType.hasKeywordParameters()) {
+			out.write(KEYWORDED_CONSTRUCTOR_TYPE_HEADER);
+			writeTupleType(constructorType.getKeywordParameterTypes());
+			printInteger(constructorType.getKeywordParameterInitializers().size());
+			for (Entry<String, IKeywordParameterInitializer> e: constructorType.getKeywordParameterInitializers().entrySet()) {
+				String name = e.getKey();
+				byte[] nameData = name.getBytes(CharEncoding);
+				printInteger(nameData.length);
+				out.write(nameData);
+				IKeywordParameterInitializer paramInit = e.getValue();
+				if (!(paramInit instanceof ConstantKeywordParameterInitializer)) {
+					throw new RuntimeException("We cannot write constructors with keyword parameters which contain expressions");
+				}
+				IValue actualParamInit = ((ConstantKeywordParameterInitializer)paramInit).initialize(null);
+				doSerialize(actualParamInit);
+			}
+			return;
+		}
 		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(constructorType);
 		if(declaredAnnotations.isEmpty()){
 			out.write(CONSTRUCTOR_TYPE_HEADER);

@@ -17,13 +17,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -73,6 +76,8 @@ public class BinaryReader{
 	private final static int RELATION_HEADER = 0x0e;
 	private final static int MAP_HEADER = 0x0f;
 	private final static int RATIONAL_HEADER = 0x11;
+	private final static int KEYWORDED_NODE_HEADER = 0x12;
+	private final static int KEYWORDED_CONSTRUCTOR_HEADER = 0x13;
 	
 	private final static int VALUE_TYPE_HEADER = 0x01;
 	private final static int VOID_TYPE_HEADER = 0x02;
@@ -97,6 +102,7 @@ public class BinaryReader{
 	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
 	private final static int RATIONAL_TYPE_HEADER = 0x15;
 	private final static int NUM_TYPE_HEADER = 0x16;
+	private final static int KEYWORDED_CONSTRUCTOR_TYPE_HEADER = 0x17;
 	
 	private final static int TYPE_MASK = 0x1f;
 	
@@ -205,6 +211,12 @@ public class BinaryReader{
 				break;
 			case RATIONAL_HEADER:
 				value = readRational();
+				break;
+			case KEYWORDED_NODE_HEADER:
+				value = readKeywordedNode(header);
+				break;
+			case KEYWORDED_CONSTRUCTOR_HEADER:
+				value = readKeywordedConstructor(header);
 				break;
 			default:
 				throw new RuntimeException("Unknow value type: "+valueType);
@@ -322,6 +334,9 @@ public class BinaryReader{
 			case NUM_TYPE_HEADER:
 			  type = readNumType();
 			  break;
+			case KEYWORDED_CONSTRUCTOR_TYPE_HEADER:
+				type = readKeywordedConstructorType();
+				break;
 			default:
 				throw new RuntimeException("Unkown type type: "+typeType);
 		}
@@ -502,6 +517,45 @@ public class BinaryReader{
 		
 		return valueFactory.node(nodeName, content);
 	}
+	private INode readKeywordedNode(int header) throws IOException{
+		String nodeName;
+		if((header & NAME_SHARED_FLAG) == NAME_SHARED_FLAG){
+			nodeName = sharedNames.get(parseInteger());
+		}else{
+			int nodeNameLength = parseInteger();
+			
+			byte[] data = new byte[nodeNameLength];
+			for(int i = 0; i < nodeNameLength; i++){
+				data[i] = (byte) read();
+			}
+			nodeName = new String(data, BinaryWriter.CharEncoding);
+
+			sharedNames.set(nodeName, currentSharedNamesId++);
+		}
+		
+		int arity = parseInteger();
+		
+		IValue[] content = new IValue[arity];
+		for(int i = 0; i < arity; i++){
+			content[i] = deserialize();
+		}
+		
+		int numberOfKeywordParameters = parseInteger();
+		
+		ShareableHashMap<String, IValue> kwParams = new ShareableHashMap<>();
+		for(int i = numberOfKeywordParameters - 1; i >= 0; i--){
+			int nameLength = parseInteger();
+			byte[] nameData = new byte[nameLength];
+			read(nameData);
+			String name = new String(nameData, BinaryWriter.CharEncoding);
+			
+			IValue value = deserialize();
+			
+			kwParams.put(name, value);
+		}
+		
+		return valueFactory.node(nodeName, content, kwParams);
+	}
 	
 	private INode readAnnotatedNode(int header) throws IOException{
 		String nodeName;
@@ -555,6 +609,33 @@ public class BinaryReader{
 		}
 		
 		return valueFactory.constructor(constructorType, content);
+	}
+
+	private IConstructor readKeywordedConstructor(int header) throws IOException{
+		Type constructorType = readType(header);
+		
+		int arity = parseInteger();
+		
+		IValue[] content = new IValue[arity];
+		for(int i = 0; i < arity; i++){
+			content[i] = deserialize();
+		}
+		
+		int numberOfKeywordParams = parseInteger();
+		
+		ShareableHashMap<String, IValue> kwParams = new ShareableHashMap<>();
+		for(int i = numberOfKeywordParams - 1; i >= 0; i--){
+			int nameLength = parseInteger();
+			byte[] nameData = new byte[nameLength];
+			read(nameData);
+			String name = new String(nameData, BinaryWriter.CharEncoding);
+			
+			IValue value = deserialize();
+			
+			kwParams.put(name, value);
+		}
+		
+		return valueFactory.constructor(constructorType, content, kwParams);
 	}
 	
 	private IConstructor readAnnotatedConstructor(int header) throws IOException{
@@ -683,7 +764,7 @@ public class BinaryReader{
 	private Type readNodeType(){
 		return tf.nodeType();
 	}
-	
+
 	private Type readAnnotatedNodeType() throws IOException{
 		Type nodeType = tf.nodeType();
 		
@@ -810,6 +891,33 @@ public class BinaryReader{
 		Type adtType = doReadType();
 		
 		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
+	}
+
+	private Type readKeywordedConstructorType() throws IOException{
+		int nameLength = parseInteger();
+		byte[] nameData = new byte[nameLength];
+		read(nameData);
+		String name = new String(nameData, BinaryWriter.CharEncoding);
+		
+		Type fieldTypes = doReadType();
+		
+		Type adtType = doReadType();
+		
+		Type kwParamType = doReadType();
+		int amountOfInitializers = parseInteger();
+		Map<String, IKeywordParameterInitializer> kwParamInit = new HashMap<>(amountOfInitializers);
+		for (int i =0; i < amountOfInitializers; i++) {
+			int paramNameLength = parseInteger();
+			byte[] paramNameData = new byte[paramNameLength];
+			read(paramNameData);
+			String paramName = new String(paramNameData, BinaryWriter.CharEncoding);
+			
+			IValue initializerValue = deserialize();
+			IKeywordParameterInitializer initializer = new ConstantKeywordParameterInitializer(initializerValue);
+			kwParamInit.put(paramName, initializer);
+		}
+		
+		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes, kwParamType,kwParamInit);
 	}
 	
 	private Type readAnnotatedConstructorType() throws IOException{
