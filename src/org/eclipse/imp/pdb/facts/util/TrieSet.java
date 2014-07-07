@@ -1962,7 +1962,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(nodes, 0, payloadArity);
+			return ArraySupplierIterator.of(nodes, 0, payloadArity);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -2073,7 +2073,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(keys);
+			return ArraySupplierIterator.of(keys);
 		}
 
 		@Override
@@ -4807,7 +4807,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1 });
 		}
 
 		@Override
@@ -5162,7 +5162,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1 });
 		}
 
 		@Override
@@ -5642,7 +5642,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1 });
 		}
 
 		@Override
@@ -6240,7 +6240,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1 });
 		}
 
 		@Override
@@ -6600,7 +6600,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2 });
 		}
 
 		@Override
@@ -7037,7 +7037,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2 });
 		}
 
 		@Override
@@ -7601,7 +7601,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2 });
 		}
 
 		@Override
@@ -7992,7 +7992,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
 		}
 
 		@Override
@@ -8506,7 +8506,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
 		}
 
 		@Override
@@ -8957,7 +8957,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3, key4,
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3, key3, key4,
 							key4 });
 		}
 

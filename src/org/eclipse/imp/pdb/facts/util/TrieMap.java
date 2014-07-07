@@ -2473,7 +2473,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(nodes, 0, 2 * payloadArity);
+			return ArrayKeyValueSupplierIterator.of(nodes, 0, 2 * payloadArity);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -2630,7 +2630,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				keysAndVals[2 * i + 1] = vals[i];
 			}
 
-			return ArrayKeyValueIterator.of(keysAndVals);
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
 		}
 
 		@Override
@@ -5781,7 +5781,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1 });
 		}
 
 		@Override
@@ -6189,7 +6189,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1 });
 		}
 
 		@Override
@@ -6735,7 +6735,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1 });
 		}
 
 		@Override
@@ -7412,7 +7412,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1 });
 		}
 
 		@Override
@@ -7830,7 +7830,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1, key2, val2 });
 		}
 
 		@Override
@@ -8351,7 +8351,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1, key2, val2 });
 		}
 
 		@Override
@@ -9019,7 +9019,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1, key2, val2 });
 		}
 
 		@Override
@@ -9506,7 +9506,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
 		}
 
 		@Override
@@ -10138,7 +10138,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1, key2, val2, key3, val3 });
 		}
 
 		@Override
@@ -10710,7 +10710,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, val1, key2, val2, key3, val3, key4,
 							val4 });
 		}
 
