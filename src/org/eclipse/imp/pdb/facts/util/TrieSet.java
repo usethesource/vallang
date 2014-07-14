@@ -650,9 +650,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		abstract CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node);
 
-		abstract CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator,
-						final byte bitpos);
-
 		abstract CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node);
 
@@ -1237,11 +1234,30 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
+					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node
+						 * will a) either become the new root returned, or b)
+						 * unwrapped and inlined during returning.
+						 */
+						final CompactSetNode<K> thisNew;
+						final byte newDataMap = (shift == 0) ? (byte) (dataMap() ^ bitpos)
+										: (byte) (1L << (keyHash & BIT_PARTITION_MASK));
 
-					final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos);
+						if (dataIndex(bitpos) == 0) {
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(1));
+						} else {
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(0));
+						}
 
-					return Result.modified(thisNew);
+						return Result.modified(thisNew);
+					} else {
+						final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos);
 
+						return Result.modified(thisNew);
+					}
 				} else {
 					return Result.unchanged(this);
 				}
@@ -1256,15 +1272,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				final CompactSetNode<K> subNodeNew = nestedResult.getNode();
 
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-
-					// remove node
-					final CompactSetNode<K> thisNew = copyAndRemoveNode(mutator, bitpos);
-
-					return Result.modified(thisNew);
-
+				if (subNodeNew.sizePredicate() == 0) {
+					throw new IllegalStateException("Sub-node must have at least one element.");
 				}
+				assert subNodeNew.sizePredicate() > 0;
+
+				switch (subNodeNew.sizePredicate()) {
 				case 1: {
 					// inline value (move to front)
 					final CompactSetNode<K> thisNew = copyAndMigrateFromNodeToInline(mutator,
@@ -1292,11 +1305,30 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
+					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node
+						 * will a) either become the new root returned, or b)
+						 * unwrapped and inlined during returning.
+						 */
+						final CompactSetNode<K> thisNew;
+						final byte newDataMap = (shift == 0) ? (byte) (dataMap() ^ bitpos)
+										: (byte) (1L << (keyHash & BIT_PARTITION_MASK));
 
-					final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos);
+						if (dataIndex(bitpos) == 0) {
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(1));
+						} else {
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(0));
+						}
 
-					return Result.modified(thisNew);
+						return Result.modified(thisNew);
+					} else {
+						final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos);
 
+						return Result.modified(thisNew);
+					}
 				} else {
 					return Result.unchanged(this);
 				}
@@ -1311,15 +1343,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 				final CompactSetNode<K> subNodeNew = nestedResult.getNode();
 
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-
-					// remove node
-					final CompactSetNode<K> thisNew = copyAndRemoveNode(mutator, bitpos);
-
-					return Result.modified(thisNew);
-
+				if (subNodeNew.sizePredicate() == 0) {
+					throw new IllegalStateException("Sub-node must have at least one element.");
 				}
+				assert subNodeNew.sizePredicate() > 0;
+
+				switch (subNodeNew.sizePredicate()) {
 				case 1: {
 					// inline value (move to front)
 					final CompactSetNode<K> thisNew = copyAndMigrateFromNodeToInline(mutator,
@@ -1753,11 +1782,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
 						CompactSetNode<K> node) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -2279,7 +2303,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			 */
 			@Override
 			public void remove() {
-				transientTrieSet.__remove(lastKey);
+				boolean success = transientTrieSet.__remove(lastKey);
+
+				if (!success) {
+					throw new IllegalStateException("Key from iteration couldn't be deleted.");
+				}
 			}
 		}
 
@@ -2403,11 +2431,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
 						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -2550,21 +2573,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -2750,23 +2758,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -2972,25 +2963,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -3215,27 +3187,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -3481,29 +3432,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -3769,31 +3697,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5, node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5, node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5, node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5, node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4086,33 +3989,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5, node6, node7);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5, node6, node7);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5, node6, node7);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5, node6, node7);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node6, node7);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node7);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4427,43 +4303,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5, node6, node7,
-								node8);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5, node6, node7,
-								node8);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5, node6, node7,
-								node8);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5, node6, node7,
-								node8);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node6, node7,
-								node8);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node7,
-								node8);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node8);
-			case 7:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			throw new IllegalStateException("Index out of range.");
@@ -4746,11 +4585,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -4941,21 +4775,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5187,23 +5006,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5459,25 +5261,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5757,27 +5540,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6083,29 +5845,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6446,31 +6185,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node2, node3, node4, node5, node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node3, node4, node5, node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node4, node5, node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node5, node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6842,40 +6556,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node2, node3, node4, node5, node6,
-								node7);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node3, node4, node5, node6,
-								node7);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node4, node5, node6,
-								node7);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node5, node6,
-								node7);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node6,
-								node7);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node7);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -7218,11 +6898,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -7435,21 +7110,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7708,23 +7368,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8011,25 +7654,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8347,27 +7971,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8717,29 +8320,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9136,37 +8716,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node2, node3, node4, node5,
-								node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node3, node4, node5,
-								node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node4, node5,
-								node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node5,
-								node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -9548,11 +9097,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -9787,21 +9331,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10087,23 +9616,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10420,25 +9932,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10795,27 +10288,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11218,34 +10690,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
 								node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node2, node3, node4,
-								node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node3, node4,
-								node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node4,
-								node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11661,11 +11105,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -11925,21 +11364,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12252,23 +11676,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12622,25 +12029,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13045,31 +12433,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
 								node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node2, node3,
-								node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node3,
-								node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13500,11 +12863,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -13786,21 +13144,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14145,23 +13488,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14555,25 +13881,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
 								node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15008,11 +14315,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -15323,21 +14625,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15701,23 +14988,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node1,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16151,11 +15421,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactSetNode<K> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -16465,21 +15730,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16854,11 +16104,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
 						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 

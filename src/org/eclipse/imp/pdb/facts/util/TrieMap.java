@@ -27,7 +27,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SuppressWarnings("rawtypes")
 public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
@@ -769,9 +768,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		abstract CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node);
 
-		abstract CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator,
-						final byte bitpos);
-
 		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
 						AtomicReference<Thread> mutator, final byte bitpos,
 						CompactMapNode<K, V> node);
@@ -1426,11 +1422,30 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
+					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node
+						 * will a) either become the new root returned, or b)
+						 * unwrapped and inlined during returning.
+						 */
+						final CompactMapNode<K, V> thisNew;
+						final byte newDataMap = (shift == 0) ? (byte) (dataMap() ^ bitpos)
+										: (byte) (1L << (keyHash & BIT_PARTITION_MASK));
 
-					final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
+						if (dataIndex(bitpos) == 0) {
+							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(1), getValue(1));
+						} else {
+							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(0), getValue(0));
+						}
 
-					return Result.modified(thisNew);
+						return Result.modified(thisNew);
+					} else {
+						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
 
+						return Result.modified(thisNew);
+					}
 				} else {
 					return Result.unchanged(this);
 				}
@@ -1445,15 +1460,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
 
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-
-					// remove node
-					final CompactMapNode<K, V> thisNew = copyAndRemoveNode(mutator, bitpos);
-
-					return Result.modified(thisNew);
-
+				if (subNodeNew.sizePredicate() == 0) {
+					throw new IllegalStateException("Sub-node must have at least one element.");
 				}
+				assert subNodeNew.sizePredicate() > 0;
+
+				switch (subNodeNew.sizePredicate()) {
 				case 1: {
 					// inline value (move to front)
 					final CompactMapNode<K, V> thisNew = copyAndMigrateFromNodeToInline(mutator,
@@ -1481,11 +1493,30 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
+					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node
+						 * will a) either become the new root returned, or b)
+						 * unwrapped and inlined during returning.
+						 */
+						final CompactMapNode<K, V> thisNew;
+						final byte newDataMap = (shift == 0) ? (byte) (dataMap() ^ bitpos)
+										: (byte) (1L << (keyHash & BIT_PARTITION_MASK));
 
-					final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
+						if (dataIndex(bitpos) == 0) {
+							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(1), getValue(1));
+						} else {
+							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (byte) 0, newDataMap,
+											getKey(0), getValue(0));
+						}
 
-					return Result.modified(thisNew);
+						return Result.modified(thisNew);
+					} else {
+						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
 
+						return Result.modified(thisNew);
+					}
 				} else {
 					return Result.unchanged(this);
 				}
@@ -1500,15 +1531,12 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
 
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-
-					// remove node
-					final CompactMapNode<K, V> thisNew = copyAndRemoveNode(mutator, bitpos);
-
-					return Result.modified(thisNew);
-
+				if (subNodeNew.sizePredicate() == 0) {
+					throw new IllegalStateException("Sub-node must have at least one element.");
 				}
+				assert subNodeNew.sizePredicate() > 0;
+
+				switch (subNodeNew.sizePredicate()) {
 				case 1: {
 					// inline value (move to front)
 					final CompactMapNode<K, V> thisNew = copyAndMigrateFromNodeToInline(mutator,
@@ -2049,11 +2077,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
 						CompactMapNode<K, V> node) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -2668,7 +2691,11 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			 */
 			@Override
 			public void remove() {
-				transientTrieMap.__remove(lastKey);
+				boolean success = transientTrieMap.__remove(lastKey);
+
+				if (!success) {
+					throw new IllegalStateException("Key from iteration couldn't be deleted.");
+				}
 			}
 		}
 
@@ -2813,11 +2840,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
 						CompactMapNode<K, V> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -2981,21 +3003,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -3203,23 +3210,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -3447,25 +3437,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -3712,27 +3683,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4001,29 +3951,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4311,31 +4238,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5, node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5, node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5, node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5, node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -4656,33 +4558,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5, node6, node7);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5, node6, node7);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5, node6, node7);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5, node6, node7);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node6, node7);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node7);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5019,43 +4894,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node2, node3, node4, node5, node6, node7,
-								node8);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node3, node4, node5, node6, node7,
-								node8);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node4, node5, node6, node7,
-								node8);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node5, node6, node7,
-								node8);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node6, node7,
-								node8);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node7,
-								node8);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node8);
-			case 7:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
@@ -5382,11 +5220,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -5624,21 +5457,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5918,23 +5736,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6238,25 +6039,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6586,27 +6368,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6973,29 +6734,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7395,37 +7133,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
 								node5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node2, node3, node4, node5,
-								node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node3, node4, node5,
-								node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node4, node5,
-								node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node5,
-								node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7846,40 +7553,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node2, node3, node4, node5,
-								node6, node7);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node3, node4, node5,
-								node6, node7);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node4, node5,
-								node6, node7);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node5,
-								node6, node7);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node6, node7);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node7);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -8277,11 +7950,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -8553,21 +8221,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8888,23 +8541,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9259,25 +8895,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9668,31 +9285,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
 								node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node2, node3,
-								node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node3,
-								node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10127,34 +9719,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
 								node3, node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node2, node3,
-								node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node3,
-								node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10606,37 +10170,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
 								node3, node4, node5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node2, node3,
-								node4, node5, node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node3,
-								node4, node5, node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node4, node5, node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node5, node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11095,11 +10628,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -11409,21 +10937,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11792,23 +11305,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
 								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12225,28 +11721,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
 								node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node2,
-								node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12703,31 +12177,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
 								node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node2,
-								node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13204,34 +12653,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
 								node2, node3, node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node2,
-								node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13734,11 +13155,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -14092,22 +13508,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14529,25 +13929,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15015,28 +14396,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15527,31 +14886,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16087,11 +15421,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -16487,22 +15816,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key5, val5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16968,25 +16281,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key5, val5, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17478,28 +16772,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key5, val5, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18053,11 +17325,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -18491,22 +17758,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key5, val5, key6, val6, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18987,25 +18238,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key5, val5, key6, val6, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19564,11 +18796,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
 						final byte bitpos, CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
@@ -20008,22 +19235,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
 								val4, key5, val5, key6, val6, key7, val7, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int bitIndex = nodeIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap());
-
-			switch (bitIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20537,11 +19748,6 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
 						CompactMapNode<K, V> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final byte bitpos) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
