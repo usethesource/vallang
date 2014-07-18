@@ -945,12 +945,15 @@ public class BinaryWriter{
 	private void writeConstructorType(Type constructorType) throws IOException{
 		if (constructorType.hasKeywordParameters()) {
 			out.write(KEYWORDED_CONSTRUCTOR_TYPE_HEADER);
+
 			String name = constructorType.getName();
 			byte[] nameData = name.getBytes(CharEncoding);
 			printInteger(nameData.length);
 			out.write(nameData);
+
 			writeType(constructorType.getFieldTypes());
 			writeType(constructorType.getAbstractDataType());
+
 			writeTupleType(constructorType.getKeywordParameterTypes());
 			printInteger(constructorType.getKeywordParameterInitializers().size());
 			ImmutableMap<String, IValue> env = AbstractSpecialisedImmutableMap.mapOf(new HashMap<String,IValue>());

@@ -903,7 +903,7 @@ public class BinaryReader{
 		
 		Type adtType = doReadType();
 		
-		Type kwParamType = doReadType();
+		Type kwParamType = readTupleType(read());
 		int amountOfInitializers = parseInteger();
 		Map<String, IKeywordParameterInitializer> kwParamInit = new HashMap<>(amountOfInitializers);
 		for (int i =0; i < amountOfInitializers; i++) {
