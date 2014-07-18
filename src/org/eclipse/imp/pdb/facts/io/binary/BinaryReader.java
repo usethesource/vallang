@@ -226,7 +226,7 @@ public class BinaryReader{
 		
 		if (value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
-			if (consValue.asAnnotatable().hasAnnotations()) {
+			if (!(consValue.mayHaveKeywordParameters() && consValue.asWithKeywordParameters().hasParameters()) &&  consValue.asAnnotatable().hasAnnotations()) {
 				Map<String,IValue> amap = consValue.asAnnotatable().getAnnotations();
 				for (Entry<String, IValue> aEntry : amap.entrySet()) {
 					Type aType = aEntry.getValue().getType();
