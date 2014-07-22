@@ -90,30 +90,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		return hash == targetHash && size == targetSize;
 	}
 
-	// returns 0 <= mask <= 7
-	static byte recoverMask(byte map, byte i_th) {
-		assert 1 <= i_th && i_th <= 8;
-
-		byte cnt1 = 0;
-		byte mask = 0;
-
-		while (mask < 8) {
-			if ((map & 0x01) == 0x01) {
-				cnt1 += 1;
-
-				if (cnt1 == i_th) {
-					return mask;
-				}
-			}
-
-			map = (byte) (map >> 1);
-			mask += 1;
-		}
-
-		assert cnt1 != i_th;
-		throw new RuntimeException("Called with invalid arguments.");
-	}
-
 	@Override
 	public TrieSet<K> __insert(final K key) {
 		final int keyHash = key.hashCode();
@@ -356,7 +332,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	 */
 	protected int[][] arityCombinationsHistogram() {
 		final Iterator<AbstractSetNode<K>> it = nodeIterator();
-		final int[][] sumArityCombinations = new int[9][9];
+		final int[][] sumArityCombinations = new int[17][17];
 
 		while (it.hasNext()) {
 			final AbstractSetNode<K> node = it.next();
@@ -371,9 +347,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	 */
 	protected int[] arityHistogram() {
 		final int[][] sumArityCombinations = arityCombinationsHistogram();
-		final int[] sumArity = new int[9];
+		final int[] sumArity = new int[17];
 
-		final int maxArity = 8; // TODO: factor out constant
+		final int maxArity = 16; // TODO: factor out constant
 
 		for (int j = 0; j <= maxArity; j++) {
 			for (int maxRestArity = maxArity - j, k = 0; k <= maxRestArity - j; k++) {
@@ -392,14 +368,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		final int[] sumArity = arityHistogram();
 		final int sumNodes = getNodeCount();
 
-		final int[] cumsumArity = new int[9];
-		for (int cumsum = 0, i = 0; i < 9; i++) {
+		final int[] cumsumArity = new int[17];
+		for (int cumsum = 0, i = 0; i < 17; i++) {
 			cumsum += sumArity[i];
 			cumsumArity[i] = cumsum;
 		}
 
 		final float threshhold = 0.01f; // for printing results
-		for (int i = 0; i < 9; i++) {
+		for (int i = 0; i < 17; i++) {
 			float arityPercentage = (float) (sumArity[i]) / sumNodes;
 			float cumsumArityPercentage = (float) (cumsumArity[i]) / sumNodes;
 
@@ -524,6 +500,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	protected static abstract class AbstractSetNode<K> extends AbstractNode<K, java.lang.Void> {
 
+		static final int TUPLE_LENGTH = 1;
+
 		abstract boolean containsKey(final K key, int keyHash, int shift);
 
 		abstract boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp);
@@ -566,6 +544,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		abstract int payloadArity();
 
+		abstract java.lang.Object getSlot(int index);
+
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
@@ -591,14 +571,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	private static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
 
-		protected static final int BIT_PARTITION_SIZE = 3;
-		protected static final int BIT_PARTITION_MASK = 0b111;
+		protected static final int BIT_PARTITION_SIZE = 4;
+		protected static final int BIT_PARTITION_MASK = 0b1111;
 
-		byte nodeMap() {
+		short nodeMap() {
 			throw new UnsupportedOperationException();
 		}
 
-		byte dataMap() {
+		short dataMap() {
 			throw new UnsupportedOperationException();
 		}
 
@@ -642,19 +622,32 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		abstract CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final byte bitpos, final K key);
+						final short bitpos, final K key);
 
 		abstract CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator,
-						final byte bitpos);
+						final short bitpos);
 
 		abstract CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node);
+						final short bitpos, CompactSetNode<K> node);
 
-		abstract CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node);
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			throw new UnsupportedOperationException();
+		}
 
-		abstract CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node);
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			throw new UnsupportedOperationException();
+		}
+
+		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new UnsupportedOperationException();
+		}
+
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new UnsupportedOperationException();
+		}
 
 		@SuppressWarnings("unchecked")
 		static final <K> CompactSetNode<K> mergeNodes(final K key0, int keyHash0, final K key1,
@@ -670,20 +663,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final byte dataMap = (byte) (1L << mask0 | 1L << mask1);
+				final short dataMap = (short) (1L << mask0 | 1L << mask1);
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (byte) 0, dataMap, key0, key1);
+					return nodeOf(null, (short) 0, dataMap, key0, key1);
 				} else {
-					return nodeOf(null, (byte) 0, dataMap, key1, key0);
+					return nodeOf(null, (short) 0, dataMap, key1, key0);
 				}
 			} else {
 				// values fit on next level
 				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final byte nodeMap = (byte) (1L << mask0);
-				return nodeOf(null, nodeMap, (byte) 0, node);
+				final short nodeMap = (short) (1L << mask0);
+				return nodeOf(null, nodeMap, (short) 0, node);
 			}
 		}
 
@@ -694,8 +687,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final byte nodeMap = (byte) (1L << mask0);
-				final byte dataMap = (byte) (1L << mask1);
+				final short nodeMap = (short) (1L << mask0);
+				final short dataMap = (short) (1L << mask1);
 
 				// store values before node
 				return nodeOf(null, nodeMap, dataMap, key1, node0);
@@ -704,368 +697,204 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final byte nodeMap = (byte) (1L << mask0);
-				return nodeOf(null, nodeMap, (byte) 0, node);
+				final short nodeMap = (short) (1L << mask0);
+				return nodeOf(null, nodeMap, (short) 0, node);
 			}
 		}
 
 		static final CompactSetNode EMPTY_NODE;
 
 		static {
-			EMPTY_NODE = new Set0To0Node<>(null, (byte) 0, (byte) 0);
+			EMPTY_NODE = new Set0To0Node<>(null, (short) 0, (short) 0);
 		};
 
 		// TODO: consolidate and remove
 		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator) {
-			return nodeOf(mutator, (byte) 0, (byte) 0);
+			return nodeOf(mutator, (short) 0, (short) 0);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap) {
+						final short nodeMap, final short dataMap) {
 			return EMPTY_NODE;
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1) {
-			return new Set0To1Node<>(mutator, nodeMap, dataMap, node1);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0) {
+			return new Set0To1Node<>(mutator, nodeMap, dataMap, slot0);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2) {
-			return new Set0To2Node<>(mutator, nodeMap, dataMap, node1, node2);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1) {
+			return new Set0To2Node<>(mutator, nodeMap, dataMap, slot0, slot1);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3) {
-			return new Set0To3Node<>(mutator, nodeMap, dataMap, node1, node2, node3);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2) {
+			return new Set0To3Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4) {
-			return new Set0To4Node<>(mutator, nodeMap, dataMap, node1, node2, node3, node4);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3) {
+			return new Set0To4Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4, final CompactSetNode<K> node5) {
-			return new Set0To5Node<>(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4) {
+			return new Set0To5Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4, final CompactSetNode<K> node5,
-						final CompactSetNode<K> node6) {
-			return new Set0To6Node<>(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-							node6);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5) {
+			return new Set0To6Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4, final CompactSetNode<K> node5,
-						final CompactSetNode<K> node6, final CompactSetNode<K> node7) {
-			return new Set0To7Node<>(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-							node6, node7);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6) {
+			return new Set0To7Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4, final CompactSetNode<K> node5,
-						final CompactSetNode<K> node6, final CompactSetNode<K> node7,
-						final CompactSetNode<K> node8) {
-			return new Set0To8Node<>(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-							node6, node7, node8);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7) {
+			return new Set0To8Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1) {
-			return new Set1To0Node<>(mutator, nodeMap, dataMap, key1);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8) {
+			return new Set0To9Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1,
-						final CompactSetNode<K> node1) {
-			return new Set1To1Node<>(mutator, nodeMap, dataMap, key1, node1);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9) {
+			return new Set0To10Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8, slot9);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			return new Set1To2Node<>(mutator, nodeMap, dataMap, key1, node1, node2);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10) {
+			return new Set0To11Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8, slot9, slot10);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3) {
-			return new Set1To3Node<>(mutator, nodeMap, dataMap, key1, node1, node2, node3);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11) {
+			return new Set0To12Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8, slot9, slot10, slot11);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4) {
-			return new Set1To4Node<>(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12) {
+			return new Set0To13Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5) {
-			return new Set1To5Node<>(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-							node5);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12,
+						final java.lang.Object slot13) {
+			return new Set0To14Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6) {
-			return new Set1To6Node<>(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-							node5, node6);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12,
+						final java.lang.Object slot13, final java.lang.Object slot14) {
+			return new Set0To15Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+							slot14);
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6,
-						final CompactSetNode<K> node7) {
-			return new Set1To7Node<>(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-							node5, node6, node7);
+						final short nodeMap, final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12,
+						final java.lang.Object slot13, final java.lang.Object slot14,
+						final java.lang.Object slot15) {
+			return new Set0To16Node<>(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4,
+							slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+							slot14, slot15);
 		}
 
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2) {
-			return new Set2To0Node<>(mutator, nodeMap, dataMap, key1, key2);
+		final int dataIndex(final short bitpos) {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF) & (bitpos - 1));
 		}
 
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final CompactSetNode<K> node1) {
-			return new Set2To1Node<>(mutator, nodeMap, dataMap, key1, key2, node1);
+		final int nodeIndex(final short bitpos) {
+			return java.lang.Integer.bitCount((int) (nodeMap() & 0xFFFF) & (bitpos - 1));
 		}
 
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			return new Set2To2Node<>(mutator, nodeMap, dataMap, key1, key2, node1, node2);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3) {
-			return new Set2To3Node<>(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4) {
-			return new Set2To4Node<>(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-							node4);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5) {
-			return new Set2To5Node<>(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-							node4, node5);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6) {
-			return new Set2To6Node<>(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-							node4, node5, node6);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3) {
-			return new Set3To0Node<>(mutator, nodeMap, dataMap, key1, key2, key3);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final CompactSetNode<K> node1) {
-			return new Set3To1Node<>(mutator, nodeMap, dataMap, key1, key2, key3, node1);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			return new Set3To2Node<>(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3) {
-			return new Set3To3Node<>(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2,
-							node3);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4) {
-			return new Set3To4Node<>(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2,
-							node3, node4);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5) {
-			return new Set3To5Node<>(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2,
-							node3, node4, node5);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4) {
-			return new Set4To0Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final CompactSetNode<K> node1) {
-			return new Set4To1Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2) {
-			return new Set4To2Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1,
-							node2);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3) {
-			return new Set4To3Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1,
-							node2, node3);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4) {
-			return new Set4To4Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1,
-							node2, node3, node4);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5) {
-			return new Set5To0Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final CompactSetNode<K> node1) {
-			return new Set5To1Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2) {
-			return new Set5To2Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5,
-							node1, node2);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3) {
-			return new Set5To3Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5,
-							node1, node2, node3);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final K key6) {
-			return new Set6To0Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final K key6,
-						final CompactSetNode<K> node1) {
-			return new Set6To1Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-							node1);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final K key6,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			return new Set6To2Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-							node1, node2);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final K key6, final K key7) {
-			return new Set7To0Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-							key7);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final K key6, final K key7,
-						final CompactSetNode<K> node1) {
-			return new Set7To1Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-							key7, node1);
-		}
-
-		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final byte nodeMap, final byte dataMap, final K key1, final K key2,
-						final K key3, final K key4, final K key5, final K key6, final K key7,
-						final K key8) {
-			return new Set8To0Node<>(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-							key7, key8);
-		}
-
-		final int dataIndex(final byte bitpos) {
-			return java.lang.Integer.bitCount((int) (dataMap() & 0xFF) & (bitpos - 1));
-		}
-
-		final int nodeIndex(final byte bitpos) {
-			return java.lang.Integer.bitCount((int) (nodeMap() & 0xFF) & (bitpos - 1));
-		}
-
-		K keyAt(final byte bitpos) {
+		K keyAt(final short bitpos) {
 			return getKey(dataIndex(bitpos));
 		}
 
-		CompactSetNode<K> nodeAt(final byte bitpos) {
+		CompactSetNode<K> nodeAt(final short bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
 		@Override
 		boolean containsKey(final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return keyAt(bitpos).equals(key);
@@ -1081,7 +910,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return cmp.compare(keyAt(bitpos), key) == 0;
@@ -1097,7 +926,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		Optional<K> findByKey(final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -1121,7 +950,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		Optional<K> findByKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -1146,7 +975,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final K currentKey = keyAt(bitpos);
@@ -1157,8 +986,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					final CompactSetNode<K> nodeNew = mergeNodes(keyAt(bitpos), keyAt(bitpos)
 									.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
-					final CompactSetNode<K> thisNew = copyAndMigrateFromInlineToNode(mutator,
-									bitpos, nodeNew);
+					// final CompactSetNode<K> thisNew =
+					// copyAndMigrateFromInlineToNode(mutator, bitpos, nodeNew);
+					final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos)
+									.copyAndInsertNode(mutator, bitpos, nodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -1188,7 +1019,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final K currentKey = keyAt(bitpos);
@@ -1199,8 +1030,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					final CompactSetNode<K> nodeNew = mergeNodes(keyAt(bitpos), keyAt(bitpos)
 									.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
-					final CompactSetNode<K> thisNew = copyAndMigrateFromInlineToNode(mutator,
-									bitpos, nodeNew);
+					// final CompactSetNode<K> thisNew =
+					// copyAndMigrateFromInlineToNode(mutator, bitpos, nodeNew);
+					final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos)
+									.copyAndInsertNode(mutator, bitpos, nodeNew);
 
 					return Result.modified(thisNew);
 				}
@@ -1230,7 +1063,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -1241,14 +1074,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						 * unwrapped and inlined during returning.
 						 */
 						final CompactSetNode<K> thisNew;
-						final byte newDataMap = (shift == 0) ? (byte) (dataMap() ^ bitpos)
-										: (byte) (1L << (keyHash & BIT_PARTITION_MASK));
+						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
+										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
 
 						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
 											getKey(1));
 						} else {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
 											getKey(0));
 						}
 
@@ -1280,8 +1113,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				switch (subNodeNew.sizePredicate()) {
 				case 1: {
 					// inline value (move to front)
-					final CompactSetNode<K> thisNew = copyAndMigrateFromNodeToInline(mutator,
-									bitpos, subNodeNew);
+					// final CompactSetNode<K> thisNew =
+					// copyAndMigrateFromNodeToInline(mutator, bitpos,
+					// subNodeNew);
+					final CompactSetNode<K> thisNew = copyAndRemoveNode(mutator, bitpos)
+									.copyAndInsertValue(mutator, bitpos, subNodeNew.getKey(0));
 
 					return Result.modified(thisNew);
 				}
@@ -1301,7 +1137,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final byte bitpos = (byte) (1L << mask);
+			final short bitpos = (short) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -1312,14 +1148,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						 * unwrapped and inlined during returning.
 						 */
 						final CompactSetNode<K> thisNew;
-						final byte newDataMap = (shift == 0) ? (byte) (dataMap() ^ bitpos)
-										: (byte) (1L << (keyHash & BIT_PARTITION_MASK));
+						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
+										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
 
 						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
 											getKey(1));
 						} else {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (byte) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
 											getKey(0));
 						}
 
@@ -1351,8 +1187,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				switch (subNodeNew.sizePredicate()) {
 				case 1: {
 					// inline value (move to front)
-					final CompactSetNode<K> thisNew = copyAndMigrateFromNodeToInline(mutator,
-									bitpos, subNodeNew);
+					// final CompactSetNode<K> thisNew =
+					// copyAndMigrateFromNodeToInline(mutator, bitpos,
+					// subNodeNew);
+					final CompactSetNode<K> thisNew = copyAndRemoveNode(mutator, bitpos)
+									.copyAndInsertValue(mutator, bitpos, subNodeNew.getKey(0));
 
 					return Result.modified(thisNew);
 				}
@@ -1368,26 +1207,83 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return Result.unchanged(this);
 		}
 
+		/**
+		 * @return 0 <= mask <= 2^BIT_PARTITION_SIZE - 1
+		 */
+		static byte recoverMask(short map, byte i_th) {
+			assert 1 <= i_th && i_th <= 16;
+
+			byte cnt1 = 0;
+			byte mask = 0;
+
+			while (mask < 16) {
+				if ((map & 0x01) == 0x01) {
+					cnt1 += 1;
+
+					if (cnt1 == i_th) {
+						return mask;
+					}
+				}
+
+				map = (short) (map >> 1);
+				mask += 1;
+			}
+
+			assert cnt1 != i_th;
+			throw new RuntimeException("Called with invalid arguments.");
+		}
+
+		@Override
+		public String toString() {
+			final StringBuilder bldr = new StringBuilder();
+			bldr.append('[');
+
+			for (byte i = 0; i < payloadArity(); i++) {
+				final byte pos = recoverMask(dataMap(), (byte) (i + 1));
+				bldr.append(String.format("@%d: ", pos, getKey(i)));
+
+				if (!((i + 1) == payloadArity())) {
+					bldr.append(", ");
+				}
+			}
+
+			if (payloadArity() > 0 && nodeArity() > 0) {
+				bldr.append(", ");
+			}
+
+			for (byte i = 0; i < nodeArity(); i++) {
+				final byte pos = recoverMask(nodeMap(), (byte) (i + 1));
+				bldr.append(String.format("@%d: %s", pos, getNode(i)));
+
+				if (!((i + 1) == nodeArity())) {
+					bldr.append(", ");
+				}
+			}
+
+			bldr.append(']');
+			return bldr.toString();
+		}
+
 	}
 
 	private static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
 
-		private final byte nodeMap;
-		private final byte dataMap;
+		private final short nodeMap;
+		private final short dataMap;
 
-		CompactMixedSetNode(final AtomicReference<Thread> mutator, final byte nodeMap,
-						final byte dataMap) {
+		CompactMixedSetNode(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
 
 		@Override
-		public byte nodeMap() {
+		public short nodeMap() {
 			return nodeMap;
 		}
 
 		@Override
-		public byte dataMap() {
+		public short dataMap() {
 			return dataMap;
 		}
 
@@ -1395,20 +1291,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	private static abstract class CompactNodesOnlySetNode<K> extends CompactSetNode<K> {
 
-		private final byte nodeMap;
+		private final short nodeMap;
 
-		CompactNodesOnlySetNode(final AtomicReference<Thread> mutator, final byte nodeMap,
-						final byte dataMap) {
+		CompactNodesOnlySetNode(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap) {
 			this.nodeMap = nodeMap;
 		}
 
 		@Override
-		public byte nodeMap() {
+		public short nodeMap() {
 			return nodeMap;
 		}
 
 		@Override
-		public byte dataMap() {
+		public short dataMap() {
 			return 0;
 		}
 
@@ -1416,20 +1312,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	private static abstract class CompactValuesOnlySetNode<K> extends CompactSetNode<K> {
 
-		private final byte dataMap;
+		private final short dataMap;
 
-		CompactValuesOnlySetNode(final AtomicReference<Thread> mutator, final byte nodeMap,
-						final byte dataMap) {
+		CompactValuesOnlySetNode(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap) {
 			this.dataMap = dataMap;
 		}
 
 		@Override
-		public byte nodeMap() {
+		public short nodeMap() {
 			return 0;
 		}
 
 		@Override
-		public byte dataMap() {
+		public short dataMap() {
 			return dataMap;
 		}
 
@@ -1437,17 +1333,17 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	private static abstract class CompactEmptySetNode<K> extends CompactSetNode<K> {
 
-		CompactEmptySetNode(final AtomicReference<Thread> mutator, final byte nodeMap,
-						final byte dataMap) {
+		CompactEmptySetNode(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap) {
 		}
 
 		@Override
-		public byte nodeMap() {
+		public short nodeMap() {
 			return 0;
 		}
 
 		@Override
-		public byte dataMap() {
+		public short dataMap() {
 			return 0;
 		}
 
@@ -1718,6 +1614,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
+		java.lang.Object getSlot(int index) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
@@ -1769,31 +1670,31 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
 						final K key) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
 						CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
+						final short bitpos, CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
+						final short bitpos, CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -1804,7 +1705,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	private static abstract class AbstractSetIterator<K> {
 
 		// TODO: verify maximum deepness
-		private static final int MAX_DEPTH = 12;
+		private static final int MAX_DEPTH = 10;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
@@ -2339,11 +2240,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public String toString() {
-			return rootNode.toString();
-		}
-
-		@Override
 		public ImmutableSet<K> freeze() {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
@@ -2354,27 +2250,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	private static final class Set0To0Node<K> extends CompactEmptySetNode<K> {
+	private static final class Set0To0Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap) {
+		Set0To0Node(final AtomicReference<Thread> mutator, final short nodeMap, final short dataMap) {
 			super(mutator, nodeMap, dataMap);
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
 		}
 
 		@Override
@@ -2383,39 +2264,82 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[0 - offset];
+
+			for (int i = offset; i < 0 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 0;
+		}
+
+		@Override
+		int nodeArity() {
+			return 0 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
 						final K key) {
-			final int valIndex = dataIndex(bitpos);
+			final int idx = dataIndex(bitpos);
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
 
-			switch (valIndex) {
+			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key);
 			default:
@@ -2424,31 +2348,65 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
 						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
+						final short bitpos, CompactSetNode<K> node) {
 			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_EMPTY;
 		}
 
 		@Override
@@ -2473,37 +2431,18 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			return true;
 		}
 
-		@Override
-		public String toString() {
-			return "[]";
-		}
-
 	}
 
-	private static final class Set0To1Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
+	private static final class Set0To1Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1) {
+		private final java.lang.Object slot0;
+
+		Set0To1Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
+			this.slot0 = slot0;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
 		}
 
 		@Override
@@ -2512,65 +2451,120 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[1 - offset];
+
+			for (int i = offset; i < 1 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 1;
+		}
+
+		@Override
+		int nodeArity() {
+			return 1 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, node1);
+				return nodeOf(mutator, nodeMap, dataMap);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
 						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
 
-			switch (index) {
+			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node);
 			default:
@@ -2579,38 +2573,42 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
 
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
+			switch (idx) {
 			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -2619,9 +2617,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
+			result = prime * result + slot0.hashCode();
 			return result;
 		}
 
@@ -2645,46 +2641,28 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
 
 			return true;
 		}
 
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s]", recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
 	}
 
-	private static final class Set0To2Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
+	private static final class Set0To2Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To2Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+
+		Set0To2Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
-			this.node2 = node2;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 2;
 		}
 
 		@Override
@@ -2693,116 +2671,176 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
 			case 1:
-				return node2;
+				return slot1;
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
+			return (K) getSlot(TUPLE_LENGTH * index);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[2 - offset];
 
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
+			for (int i = offset; i < 2 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
 			}
+
+			return (Iterator) ArrayIterator.of(nodes);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 2;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int nodeArity() {
+			return 2 - TUPLE_LENGTH * payloadArity();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasPayload() {
+			return payloadArity() != 0;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
 		}
 
 		@Override
 		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -2811,11 +2849,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
 			return result;
 		}
 
@@ -2839,53 +2874,33 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-			if (!(node2.equals(that.node2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
 
 			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s]", recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2);
 		}
 
 	}
 
-	private static final class Set0To3Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
+	private static final class Set0To3Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To3Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+
+		Set0To3Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 3;
 		}
 
 		@Override
@@ -2894,127 +2909,188 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
 			case 1:
-				return node2;
+				return slot1;
 			case 2:
-				return node3;
+				return slot2;
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
+			return (K) getSlot(TUPLE_LENGTH * index);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[3 - offset];
 
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
+			for (int i = offset; i < 3 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
 			}
+
+			return (Iterator) ArrayIterator.of(nodes);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 3;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int nodeArity() {
+			return 3 - TUPLE_LENGTH * payloadArity();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasPayload() {
+			return payloadArity() != 0;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
 		}
 
 		@Override
 		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -3023,13 +3099,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
 			return result;
 		}
 
@@ -3053,59 +3125,39 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-			if (!(node2.equals(that.node2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-			if (!(node3.equals(that.node3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
 
 			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", recoverMask(nodeMap(), (byte) 1),
-							node1, recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3);
 		}
 
 	}
 
-	private static final class Set0To4Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
+	private static final class Set0To4Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To4Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+
+		Set0To4Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 4;
 		}
 
 		@Override
@@ -3114,138 +3166,200 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
 			case 1:
-				return node2;
+				return slot1;
 			case 2:
-				return node3;
+				return slot2;
 			case 3:
-				return node4;
+				return slot3;
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
+			return (K) getSlot(TUPLE_LENGTH * index);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[4 - offset];
 
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
+			for (int i = offset; i < 4 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
 			}
+
+			return (Iterator) ArrayIterator.of(nodes);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 4;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int nodeArity() {
+			return 4 - TUPLE_LENGTH * payloadArity();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasPayload() {
+			return payloadArity() != 0;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
 		}
 
 		@Override
 		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -3254,15 +3368,10 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
 			return result;
 		}
 
@@ -3286,67 +3395,44 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-			if (!(node2.equals(that.node2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-			if (!(node3.equals(that.node3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
-			if (!(node4.equals(that.node4))) {
+			if (!(slot3.equals(that.slot3))) {
 				return false;
 			}
 
 			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4);
 		}
 
 	}
 
-	private static final class Set0To5Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
+	private static final class Set0To5Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To5Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+
+		Set0To5Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 5;
 		}
 
 		@Override
@@ -3355,149 +3441,212 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
 			case 1:
-				return node2;
+				return slot1;
 			case 2:
-				return node3;
+				return slot2;
 			case 3:
-				return node4;
+				return slot3;
 			case 4:
-				return node5;
+				return slot4;
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
+			return (K) getSlot(TUPLE_LENGTH * index);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[5 - offset];
 
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node5);
-			default:
-				throw new IllegalStateException("Index out of range.");
+			for (int i = offset; i < 5 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
 			}
+
+			return (Iterator) ArrayIterator.of(nodes);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 5;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int nodeArity() {
+			return 5 - TUPLE_LENGTH * payloadArity();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasPayload() {
+			return payloadArity() != 0;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3, node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3, node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
 		}
 
 		@Override
 		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -3506,17 +3655,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
 			return result;
 		}
 
@@ -3540,73 +3683,50 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-			if (!(node2.equals(that.node2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-			if (!(node3.equals(that.node3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
-			if (!(node4.equals(that.node4))) {
+			if (!(slot3.equals(that.slot3))) {
 				return false;
 			}
-			if (!(node5.equals(that.node5))) {
+			if (!(slot4.equals(that.slot4))) {
 				return false;
 			}
 
 			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5);
 		}
 
 	}
 
-	private static final class Set0To6Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-		private final CompactSetNode<K> node6;
+	private static final class Set0To6Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To6Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+
+		Set0To6Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-			this.node6 = node6;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5, node6);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 6;
 		}
 
 		@Override
@@ -3615,161 +3735,238 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
 			case 1:
-				return node2;
+				return slot1;
 			case 2:
-				return node3;
+				return slot2;
 			case 3:
-				return node4;
+				return slot3;
 			case 4:
-				return node5;
+				return slot4;
 			case 5:
-				return node6;
+				return slot5;
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
+			return (K) getSlot(TUPLE_LENGTH * index);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[6 - offset];
 
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node5,
-								node6);
-			default:
-				throw new IllegalStateException("Index out of range.");
+			for (int i = offset; i < 6 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
 			}
+
+			return (Iterator) ArrayIterator.of(nodes);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 6;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int nodeArity() {
+			return 6 - TUPLE_LENGTH * payloadArity();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasPayload() {
+			return payloadArity() != 0;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3, node4, node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3, node4, node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node4, node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
 		}
 
 		@Override
 		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -3778,19 +3975,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			result = prime * result + node6.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
 			return result;
 		}
 
@@ -3814,80 +4004,55 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-			if (!(node2.equals(that.node2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-			if (!(node3.equals(that.node3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
-			if (!(node4.equals(that.node4))) {
+			if (!(slot3.equals(that.slot3))) {
 				return false;
 			}
-			if (!(node5.equals(that.node5))) {
+			if (!(slot4.equals(that.slot4))) {
 				return false;
 			}
-			if (!(node6.equals(that.node6))) {
+			if (!(slot5.equals(that.slot5))) {
 				return false;
 			}
 
 			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5,
-							recoverMask(nodeMap(), (byte) 6), node6);
 		}
 
 	}
 
-	private static final class Set0To7Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-		private final CompactSetNode<K> node6;
-		private final CompactSetNode<K> node7;
+	private static final class Set0To7Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To7Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6,
-						final CompactSetNode<K> node7) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+
+		Set0To7Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-			this.node6 = node6;
-			this.node7 = node7;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5, node6, node7);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 7;
 		}
 
 		@Override
@@ -3896,98 +4061,184 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
 			case 1:
-				return node2;
+				return slot1;
 			case 2:
-				return node3;
+				return slot2;
 			case 3:
-				return node4;
+				return slot3;
 			case 4:
-				return node5;
+				return slot4;
 			case 5:
-				return node6;
+				return slot5;
 			case 6:
-				return node7;
+				return slot6;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[7 - offset];
+
+			for (int i = offset; i < 7 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 7;
+		}
+
+		@Override
+		int nodeArity() {
+			return 7 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node5,
-								node6, node7);
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
 						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
 
-			switch (index) {
+			switch (idx) {
 			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7);
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6);
 			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6);
 			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6);
 			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6);
 			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6);
 			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6);
 			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
 								node);
 			default:
 				throw new IllegalStateException("Index out of range.");
@@ -3995,87 +4246,74 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
 
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
+			switch (idx) {
 			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3, node4, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6);
 			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3, node4, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6);
 			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node4, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6);
 			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6);
 			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6);
 			case 5:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6);
 			case 6:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -4084,21 +4322,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			result = prime * result + node6.hashCode();
-
-			result = prime * result + node7.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
 			return result;
 		}
 
@@ -4122,86 +4352,61 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-			if (!(node2.equals(that.node2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-			if (!(node3.equals(that.node3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
-			if (!(node4.equals(that.node4))) {
+			if (!(slot3.equals(that.slot3))) {
 				return false;
 			}
-			if (!(node5.equals(that.node5))) {
+			if (!(slot4.equals(that.slot4))) {
 				return false;
 			}
-			if (!(node6.equals(that.node6))) {
+			if (!(slot5.equals(that.slot5))) {
 				return false;
 			}
-			if (!(node7.equals(that.node7))) {
+			if (!(slot6.equals(that.slot6))) {
 				return false;
 			}
 
 			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5,
-							recoverMask(nodeMap(), (byte) 6), node6,
-							recoverMask(nodeMap(), (byte) 7), node7);
 		}
 
 	}
 
-	private static final class Set0To8Node<K> extends CompactNodesOnlySetNode<K> {
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-		private final CompactSetNode<K> node6;
-		private final CompactSetNode<K> node7;
-		private final CompactSetNode<K> node8;
+	private static final class Set0To8Node<K> extends CompactMixedSetNode<K> {
 
-		Set0To8Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6,
-						final CompactSetNode<K> node7, final CompactSetNode<K> node8) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+
+		Set0To8Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7) {
 			super(mutator, nodeMap, dataMap);
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-			this.node6 = node6;
-			this.node7 = node7;
-			this.node8 = node8;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
 
 			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5, node6, node7, node8);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 8;
 		}
 
 		@Override
@@ -4210,188 +4415,290 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean hasPayload() {
-			return false;
-		}
-
-		@Override
-		int payloadArity() {
-			return 0;
-		}
-
-		@Override
 		K headKey() {
 			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return node1;
+				return slot0;
 			case 1:
-				return node2;
+				return slot1;
 			case 2:
-				return node3;
+				return slot2;
 			case 3:
-				return node4;
+				return slot3;
 			case 4:
-				return node5;
+				return slot4;
 			case 5:
-				return node6;
+				return slot5;
 			case 6:
-				return node7;
+				return slot6;
 			case 7:
-				return node8;
+				return slot7;
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(int index) {
-			throw new IllegalStateException("Index out of range.");
+			return (K) getSlot(TUPLE_LENGTH * index);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			throw new IllegalStateException("Index out of range.");
-		}
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[8 - offset];
 
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7, node8);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7, node8);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7, node8);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7, node8);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7, node8);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7, node8);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node, node8);
-			case 7:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
+			for (int i = offset; i < 8 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
 			}
+
+			return (Iterator) ArrayIterator.of(nodes);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 8;
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
+		int nodeArity() {
+			return 8 - TUPLE_LENGTH * payloadArity();
+		}
 
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
 
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3, node4, node5,
-									node6, node7, node8);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3, node4, node5,
-									node6, node7, node8);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node4, node5,
-									node6, node7, node8);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node5,
-									node6, node7, node8);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node6, node7, node8);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node7, node8);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 6:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node6, node8);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 7:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
 		}
 
 		@Override
 		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -4400,23 +4707,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			result = prime * result + node6.hashCode();
-
-			result = prime * result + node7.hashCode();
-
-			result = prime * result + node8.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
 			return result;
 		}
 
@@ -4440,10947 +4738,3087 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(node1.equals(that.node1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-			if (!(node2.equals(that.node2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-			if (!(node3.equals(that.node3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
-			if (!(node4.equals(that.node4))) {
+			if (!(slot3.equals(that.slot3))) {
 				return false;
 			}
-			if (!(node5.equals(that.node5))) {
+			if (!(slot4.equals(that.slot4))) {
 				return false;
 			}
-			if (!(node6.equals(that.node6))) {
+			if (!(slot5.equals(that.slot5))) {
 				return false;
 			}
-			if (!(node7.equals(that.node7))) {
+			if (!(slot6.equals(that.slot6))) {
 				return false;
 			}
-			if (!(node8.equals(that.node8))) {
+			if (!(slot7.equals(that.slot7))) {
 				return false;
 			}
 
 			return true;
 		}
 
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5,
-							recoverMask(nodeMap(), (byte) 6), node6,
-							recoverMask(nodeMap(), (byte) 7), node7,
-							recoverMask(nodeMap(), (byte) 8), node8);
-		}
-
 	}
 
-	private static final class Set1To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
+	private static final class Set0To9Node<K> extends CompactMixedSetNode<K> {
 
-		Set1To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+
+		Set0To9Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
 
 			assert nodeInvariant();
 		}
 
 		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
+			return EmptySupplierIterator.emptyIterator();
 		}
 
 		@Override
 		K headKey() {
-			return key1;
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1);
+				return slot0;
 			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To0Node<?> that = (Set1To0Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s]", recoverMask(dataMap(), (byte) 1), key1);
-		}
-
-	}
-
-	private static final class Set1To1Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final CompactSetNode<K> node1;
-
-		Set1To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final CompactSetNode<K> node1) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.node1 = node1;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To1Node<?> that = (Set1To1Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s]", recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
-	}
-
-	private static final class Set1To2Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-
-		Set1To2Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.node1 = node1;
-			this.node2 = node2;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 2;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To2Node<?> that = (Set1To2Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", recoverMask(dataMap(), (byte) 1),
-							key1, recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2);
-		}
-
-	}
-
-	private static final class Set1To3Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-
-		Set1To3Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 3;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
+				return slot1;
 			case 2:
-				return node3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To3Node<?> that = (Set1To3Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3);
-		}
-
-	}
-
-	private static final class Set1To4Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-
-		Set1To4Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 4;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
+				return slot2;
 			case 3:
-				return node4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To4Node<?> that = (Set1To4Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4);
-		}
-
-	}
-
-	private static final class Set1To5Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-
-		Set1To5Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 5;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
+				return slot3;
 			case 4:
-				return node5;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-								node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-								node5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3, node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2, node3, node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2, node3, node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node3, node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node3, node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To5Node<?> that = (Set1To5Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-			if (!(node5.equals(that.node5))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5);
-		}
-
-	}
-
-	private static final class Set1To6Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-		private final CompactSetNode<K> node6;
-
-		Set1To6Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-			this.node6 = node6;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5, node6);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 6;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			case 4:
-				return node5;
+				return slot4;
 			case 5:
-				return node6;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-								node5, node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-								node5, node6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2, node3, node4, node5,
-								node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3, node4, node5,
-								node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node4, node5,
-								node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node, node5,
-								node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node,
-								node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2, node3, node4, node5,
-									node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2, node3, node4, node5,
-									node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node3, node4, node5,
-									node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node3, node4, node5,
-									node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node4, node5,
-									node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node4, node5,
-									node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node5,
-									node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node5,
-									node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			result = prime * result + node6.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To6Node<?> that = (Set1To6Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-			if (!(node5.equals(that.node5))) {
-				return false;
-			}
-			if (!(node6.equals(that.node6))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5,
-							recoverMask(nodeMap(), (byte) 6), node6);
-		}
-
-	}
-
-	private static final class Set1To7Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-		private final CompactSetNode<K> node6;
-		private final CompactSetNode<K> node7;
-
-		Set1To7Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4,
-						final CompactSetNode<K> node5, final CompactSetNode<K> node6,
-						final CompactSetNode<K> node7) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-			this.node6 = node6;
-			this.node7 = node7;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5, node6, node7);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 7;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 1;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			case 4:
-				return node5;
-			case 5:
-				return node6;
+				return slot5;
 			case 6:
-				return node7;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2, node3, node4, node5,
-								node6, node7);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3, node4, node5,
-								node6, node7);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node4, node5,
-								node6, node7);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node, node5,
-								node6, node7);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node,
-								node6, node7);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node, node7);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node6, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6, node7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6, node7);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6, node7);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6, node7);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6, node7);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6, node7);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node, node7);
-				case 7:
-					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node7, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2, node3, node4, node5,
-									node6, node7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2, node3, node4, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node3, node4, node5,
-									node6, node7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node3, node4, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node4, node5,
-									node6, node7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node4, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node5,
-									node6, node7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node5,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node6, node7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node6, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node5, node7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node5, node7);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 6:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			result = prime * result + node6.hashCode();
-
-			result = prime * result + node7.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set1To7Node<?> that = (Set1To7Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-			if (!(node5.equals(that.node5))) {
-				return false;
-			}
-			if (!(node6.equals(that.node6))) {
-				return false;
-			}
-			if (!(node7.equals(that.node7))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5,
-							recoverMask(nodeMap(), (byte) 6), node6,
-							recoverMask(nodeMap(), (byte) 7), node7);
-		}
-
-	}
-
-	private static final class Set2To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
-		private final K key2;
-
-		Set2To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 2;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set2To0Node<?> that = (Set2To0Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s]", recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2);
-		}
-
-	}
-
-	private static final class Set2To1Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final CompactSetNode<K> node1;
-
-		Set2To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final CompactSetNode<K> node1) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.node1 = node1;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 2;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set2To1Node<?> that = (Set2To1Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", recoverMask(dataMap(), (byte) 1),
-							key1, recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
-	}
-
-	private static final class Set2To2Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-
-		Set2To2Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.node1 = node1;
-			this.node2 = node2;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 2;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 2;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set2To2Node<?> that = (Set2To2Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2);
-		}
-
-	}
-
-	private static final class Set2To3Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-
-		Set2To3Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 3;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 2;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set2To3Node<?> that = (Set2To3Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3);
-		}
-
-	}
-
-	private static final class Set2To4Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-
-		Set2To4Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 4;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 2;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-								node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-								node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-								node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1, node2, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node, node2, node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node, node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1, node2, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node2, node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node2, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node2, node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node2, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set2To4Node<?> that = (Set2To4Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4);
-		}
-
-	}
-
-	private static final class Set2To5Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-
-		Set2To5Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4, final CompactSetNode<K> node5) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 5;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 2;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			case 4:
-				return node5;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-								node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-								node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-								node4, node5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2, node3, node4,
-								node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node3, node4,
-								node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node4,
-								node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-								node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1, node2, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node, node2, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node, node3,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node,
-									node4, node5);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node, node5);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1, node2, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node2, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node3,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node,
-									node4, node5);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node, node5);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node2, node3, node4,
-									node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node2, node3, node4,
-									node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node2, node3, node4,
-									node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node3, node4,
-									node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node3, node4,
-									node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node3, node4,
-									node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node4,
-									node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node4,
-									node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node4,
-									node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set2To5Node<?> that = (Set2To5Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-			if (!(node5.equals(that.node5))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5);
-		}
-
-	}
-
-	private static final class Set2To6Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-		private final CompactSetNode<K> node6;
-
-		Set2To6Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4, final CompactSetNode<K> node5,
-						final CompactSetNode<K> node6) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-			this.node6 = node6;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5, node6);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 6;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 2;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			case 4:
-				return node5;
-			case 5:
-				return node6;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4, node5,
-								node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node6);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2, node3, node4,
-								node5, node6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node3, node4,
-								node5, node6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node4,
-								node5, node6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-								node5, node6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node, node6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1, node2, node3,
-									node4, node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node, node2, node3,
-									node4, node5, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node, node3,
-									node4, node5, node6);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node,
-									node4, node5, node6);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node, node5, node6);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node5, node, node6);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node5, node6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1, node2, node3,
-									node4, node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node2, node3,
-									node4, node5, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node3,
-									node4, node5, node6);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node,
-									node4, node5, node6);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node, node5, node6);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node5, node, node6);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node5, node6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node2, node3, node4,
-									node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node2, node3, node4,
-									node5, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node2, node3, node4,
-									node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node3, node4,
-									node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node3, node4,
-									node5, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node3, node4,
-									node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node4,
-									node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node4,
-									node5, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node4,
-									node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node5, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node5, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node5, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node4, node6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node4, node6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node4, node6);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			result = prime * result + node6.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set2To6Node<?> that = (Set2To6Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-			if (!(node5.equals(that.node5))) {
-				return false;
-			}
-			if (!(node6.equals(that.node6))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5,
-							recoverMask(nodeMap(), (byte) 6), node6);
-		}
-
-	}
-
-	private static final class Set3To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-
-		Set3To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 3;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set3To0Node<?> that = (Set3To0Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", recoverMask(dataMap(), (byte) 1),
-							key1, recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3);
-		}
-
-	}
-
-	private static final class Set3To1Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final CompactSetNode<K> node1;
-
-		Set3To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final CompactSetNode<K> node1) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.node1 = node1;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 3;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set3To1Node<?> that = (Set3To1Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
-	}
-
-	private static final class Set3To2Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-
-		Set3To2Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.node1 = node1;
-			this.node2 = node2;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 2;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 3;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node2);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set3To2Node<?> that = (Set3To2Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2);
-		}
-
-	}
-
-	private static final class Set3To3Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-
-		Set3To3Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 3;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 3;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2, node3);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node1, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node2, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set3To3Node<?> that = (Set3To3Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3);
-		}
-
-	}
-
-	private static final class Set3To4Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-
-		Set3To4Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 4;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 3;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-								node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-								node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-								node3, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-								node3, node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node2, node3,
-								node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node3,
-								node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-								node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node, node1, node2, node3,
-									node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node, node2, node3,
-									node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node, node3,
-									node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node,
-									node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3,
-									node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node, node1, node2, node3,
-									node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node, node2, node3,
-									node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node, node3,
-									node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node,
-									node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3,
-									node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node1, node2, node3,
-									node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node2, node3,
-									node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node3,
-									node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-									node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-									node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node2, node3,
-									node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node2, node3,
-									node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node2, node3,
-									node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node2, node3,
-									node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node3,
-									node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node3,
-									node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node3,
-									node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node3,
-									node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set3To4Node<?> that = (Set3To4Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4);
-		}
-
-	}
-
-	private static final class Set3To5Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-		private final CompactSetNode<K> node5;
-
-		Set3To5Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final CompactSetNode<K> node1,
-						final CompactSetNode<K> node2, final CompactSetNode<K> node3,
-						final CompactSetNode<K> node4, final CompactSetNode<K> node5) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-			this.node5 = node5;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4, node5);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 5;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 3;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			case 4:
-				return node5;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node4,
-								node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node4,
-								node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node2, node3,
-								node4, node5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node3,
-								node4, node5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-								node4, node5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node, node5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node, node1, node2, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node, node2, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node, node3,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node,
-									node4, node5);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3,
-									node4, node, node5);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3,
-									node4, node5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node, node1, node2, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node, node2, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node, node3,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node,
-									node4, node5);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3,
-									node4, node, node5);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3,
-									node4, node5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node1, node2, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node2, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node3,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-									node4, node5);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-									node4, node, node5);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-									node4, node5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node2, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node2, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node2, node3,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node2, node3,
-									node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node3,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node3,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node3,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node3,
-									node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node4, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node4, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node4, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node4, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node3, node5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node3, node5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node3, node5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node3, node5);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			result = prime * result + node5.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set3To5Node<?> that = (Set3To5Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-			if (!(node5.equals(that.node5))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4,
-							recoverMask(nodeMap(), (byte) 5), node5);
-		}
-
-	}
-
-	private static final class Set4To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-
-		Set4To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 4;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set4To0Node<?> that = (Set4To0Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4);
-		}
-
-	}
-
-	private static final class Set4To1Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final CompactSetNode<K> node1;
-
-		Set4To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4,
-						final CompactSetNode<K> node1) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.node1 = node1;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 4;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set4To1Node<?> that = (Set4To1Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
-	}
-
-	private static final class Set4To2Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-
-		Set4To2Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.node1 = node1;
-			this.node2 = node2;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 2;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 4;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1, node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1, node2);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1, node2);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node2);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node2);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set4To2Node<?> that = (Set4To2Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2);
-		}
-
-	}
-
-	private static final class Set4To3Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-
-		Set4To3Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 3;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 4;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1, node2,
-								node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1, node2,
-								node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1, node2,
-								node3);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1, node2,
-								node3);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1, node2,
-								node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node2, node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node, node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node, node1, node2,
-									node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node, node2,
-									node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node,
-									node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node, node1, node2,
-									node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node, node2,
-									node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node,
-									node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node, node1, node2,
-									node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node, node2,
-									node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node,
-									node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node1, node2,
-									node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node2,
-									node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-									node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node2,
-									node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node2,
-									node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node2,
-									node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node2,
-									node3);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node2,
-									node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node3);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node2);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node2);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set4To3Node<?> that = (Set4To3Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3);
-		}
-
-	}
-
-	private static final class Set4To4Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-		private final CompactSetNode<K> node4;
-
-		Set4To4Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3, final CompactSetNode<K> node4) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-			this.node4 = node4;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3, node4);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 4;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 4;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			case 3:
-				return node4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-								node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-								node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-								node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node2,
-								node3, node4);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node,
-								node3, node4);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node, node4);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node3, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node, node1, node2,
-									node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node, node2,
-									node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node,
-									node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-									node, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-									node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node, node1, node2,
-									node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node, node2,
-									node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node,
-									node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-									node, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-									node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node, node1, node2,
-									node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node, node2,
-									node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node,
-									node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-									node, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-									node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node1, node2,
-									node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node2,
-									node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-									node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-									node, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-									node4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node2,
-									node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node2,
-									node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node2,
-									node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node2,
-									node3, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node2,
-									node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node3, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node3, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node3, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node3, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node3, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node2, node4);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node2, node4);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node2, node4);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node2, node4);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node2, node4);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node2, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node2, node3);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			result = prime * result + node4.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set4To4Node<?> that = (Set4To4Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-			if (!(node4.equals(that.node4))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3,
-							recoverMask(nodeMap(), (byte) 4), node4);
-		}
-
-	}
-
-	private static final class Set5To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-
-		Set5To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 5;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set5To0Node<?> that = (Set5To0Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5);
-		}
-
-	}
-
-	private static final class Set5To1Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final CompactSetNode<K> node1;
-
-		Set5To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final CompactSetNode<K> node1) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.node1 = node1;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 5;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, node1);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, node1);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set5To1Node<?> that = (Set5To1Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
-	}
-
-	private static final class Set5To2Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-
-		Set5To2Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.node1 = node1;
-			this.node2 = node2;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 2;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 5;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, node1,
-								node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, node1,
-								node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, node1,
-								node2);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, node1,
-								node2);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, node1,
-								node2);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, node1,
-								node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node, node1,
-									node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node,
-									node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node, node1,
-									node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node,
-									node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node, node1,
-									node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node,
-									node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node, node1,
-									node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node,
-									node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node1,
-									node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node,
-									node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node2);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node2);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node2);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node1);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node1);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node1);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node1);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node1);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set5To2Node<?> that = (Set5To2Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2);
-		}
-
-	}
-
-	private static final class Set5To3Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-		private final CompactSetNode<K> node3;
-
-		Set5To3Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final CompactSetNode<K> node1, final CompactSetNode<K> node2,
-						final CompactSetNode<K> node3) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.node1 = node1;
-			this.node2 = node2;
-			this.node3 = node3;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2, node3);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 3;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 5;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			case 2:
-				return node3;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-								node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-								node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-								node3);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-								node3);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node3);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node, node2,
-								node3);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1, node,
-								node3);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-								node2, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node, node1,
-									node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node,
-									node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-									node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-									node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node, node1,
-									node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node,
-									node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-									node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-									node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node, node1,
-									node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node,
-									node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-									node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-									node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node, node1,
-									node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node,
-									node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-									node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-									node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node1,
-									node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node,
-									node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-									node, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-									node3, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node2, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node2, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node2, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node2, node3);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node2, node3);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node2, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node1, node3);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node1, node3);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node1, node3);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node1, node3);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node1, node3);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node1, node3);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node1, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node1, node2);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node1, node2);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node1, node2);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node1, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			result = prime * result + node3.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set5To3Node<?> that = (Set5To3Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-			if (!(node3.equals(that.node3))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2,
-							recoverMask(nodeMap(), (byte) 3), node3);
-		}
-
-	}
-
-	private static final class Set6To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final K key6;
-
-		Set6To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final K key6) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.key6 = key6;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5, key6, key6 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 6;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			case 5:
-				return key6;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + key6.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set6To0Node<?> that = (Set6To0Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			if (!(key6.equals(that.key6))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(dataMap(), (byte) 6), key6);
-		}
-
-	}
-
-	private static final class Set6To1Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final K key6;
-		private final CompactSetNode<K> node1;
-
-		Set6To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final K key6, final CompactSetNode<K> node1) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.key6 = key6;
-			this.node1 = node1;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5, key6, key6 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 6;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			case 5:
-				return key6;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6,
-								node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6,
-								node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6,
-								node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6,
-								node1);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6,
-								node1);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6,
-								node1);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key,
-								node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node,
-									node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node,
-									node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node,
-									node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node,
-									node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node,
-									node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node,
-									node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + key6.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set6To1Node<?> that = (Set6To1Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			if (!(key6.equals(that.key6))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(dataMap(), (byte) 6), key6,
-							recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
-	}
-
-	private static final class Set6To2Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final K key6;
-		private final CompactSetNode<K> node1;
-		private final CompactSetNode<K> node2;
-
-		Set6To2Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final K key6, final CompactSetNode<K> node1, final CompactSetNode<K> node2) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.key6 = key6;
-			this.node1 = node1;
-			this.node2 = node2;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1, node2);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 2;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5, key6, key6 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 6;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			case 1:
-				return node2;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			case 5:
-				return key6;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1, node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1, node2);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1, node2);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1, node2);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1, node2);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1, node2);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
-						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
-
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
-
-			switch (index) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node,
-								node2);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node1,
-								node);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node,
-									node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1,
-									node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1,
-									node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node,
-									node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1,
-									node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1,
-									node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node,
-									node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1,
-									node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1,
-									node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node,
-									node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1,
-									node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1,
-									node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node,
-									node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1,
-									node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1,
-									node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 5:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node,
-									node1, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-									node, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-									node2, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6, node2);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6, node2);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6, node2);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6, node2);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6, node2);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6, node2);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key, node2);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			case 1:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6, node1);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6, node1);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6, node1);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6, node1);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6, node1);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key, node1);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + key6.hashCode();
-
-			result = prime * result + node1.hashCode();
-
-			result = prime * result + node2.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set6To2Node<?> that = (Set6To2Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			if (!(key6.equals(that.key6))) {
-				return false;
-			}
-
-			if (!(node1.equals(that.node1))) {
-				return false;
-			}
-			if (!(node2.equals(that.node2))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(dataMap(), (byte) 6), key6,
-							recoverMask(nodeMap(), (byte) 1), node1,
-							recoverMask(nodeMap(), (byte) 2), node2);
-		}
-
-	}
-
-	private static final class Set7To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final K key6;
-		private final K key7;
-
-		Set7To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final K key6, final K key7) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.key6 = key6;
-			this.key7 = key7;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5, key6, key6, key7, key7 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 7;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			case 5:
-				return key6;
-			case 6:
-				return key7;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6,
-								key7);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6,
-								key7);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6,
-								key7);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6,
-								key7);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6,
-								key7);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6,
-								key7);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key,
-								key7);
+				return slot6;
 			case 7:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
+				return slot7;
+			case 8:
+				return slot8;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[9 - offset];
+
+			for (int i = offset; i < 9 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 9;
+		}
+
+		@Override
+		int nodeArity() {
+			return 9 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7, slot8);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7, slot8);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7, slot8);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7, slot8);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key, slot8);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7, slot8);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7, slot8);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7, slot8);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7, slot8);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7, slot8);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot8);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Set0To9Node<?> that = (Set0To9Node<?>) other;
+
+			if (nodeMap() != that.nodeMap()) {
+				return false;
+			}
+			if (dataMap() != that.dataMap()) {
+				return false;
+			}
+
+			if (!(slot0.equals(that.slot0))) {
+				return false;
+			}
+			if (!(slot1.equals(that.slot1))) {
+				return false;
+			}
+			if (!(slot2.equals(that.slot2))) {
+				return false;
+			}
+			if (!(slot3.equals(that.slot3))) {
+				return false;
+			}
+			if (!(slot4.equals(that.slot4))) {
+				return false;
+			}
+			if (!(slot5.equals(that.slot5))) {
+				return false;
+			}
+			if (!(slot6.equals(that.slot6))) {
+				return false;
+			}
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+
+			return true;
+		}
+
+	}
+
+	private static final class Set0To10Node<K> extends CompactMixedSetNode<K> {
+
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+		private final java.lang.Object slot9;
+
+		Set0To10Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
+			this.slot9 = slot9;
+
+			assert nodeInvariant();
+		}
+
+		@Override
+		SupplierIterator<K, K> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		java.lang.Object getSlot(int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			case 1:
+				return slot1;
+			case 2:
+				return slot2;
+			case 3:
+				return slot3;
+			case 4:
+				return slot4;
+			case 5:
+				return slot5;
+			case 6:
+				return slot6;
+			case 7:
+				return slot7;
+			case 8:
+				return slot8;
+			case 9:
+				return slot9;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[10 - offset];
+
+			for (int i = offset; i < 10 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 10;
+		}
+
+		@Override
+		int nodeArity() {
+			return 10 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7, slot8, slot9);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7, slot8, slot9);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7, slot8, slot9);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key, slot8, slot9);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, key, slot9);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8, slot9);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8, slot9);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8, slot9);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8, slot9);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8, slot9);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot9);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7, slot8, slot9);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7, slot8, slot9);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7, slot8, slot9);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7, slot8, slot9);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot8, slot9);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot9);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			result = prime * result + slot9.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Set0To10Node<?> that = (Set0To10Node<?>) other;
+
+			if (nodeMap() != that.nodeMap()) {
+				return false;
+			}
+			if (dataMap() != that.dataMap()) {
+				return false;
+			}
+
+			if (!(slot0.equals(that.slot0))) {
+				return false;
+			}
+			if (!(slot1.equals(that.slot1))) {
+				return false;
+			}
+			if (!(slot2.equals(that.slot2))) {
+				return false;
+			}
+			if (!(slot3.equals(that.slot3))) {
+				return false;
+			}
+			if (!(slot4.equals(that.slot4))) {
+				return false;
+			}
+			if (!(slot5.equals(that.slot5))) {
+				return false;
+			}
+			if (!(slot6.equals(that.slot6))) {
+				return false;
+			}
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+			if (!(slot9.equals(that.slot9))) {
+				return false;
+			}
+
+			return true;
+		}
+
+	}
+
+	private static final class Set0To11Node<K> extends CompactMixedSetNode<K> {
+
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+		private final java.lang.Object slot9;
+		private final java.lang.Object slot10;
+
+		Set0To11Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
+			this.slot9 = slot9;
+			this.slot10 = slot10;
+
+			assert nodeInvariant();
+		}
+
+		@Override
+		SupplierIterator<K, K> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		java.lang.Object getSlot(int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			case 1:
+				return slot1;
+			case 2:
+				return slot2;
+			case 3:
+				return slot3;
+			case 4:
+				return slot4;
+			case 5:
+				return slot5;
+			case 6:
+				return slot6;
+			case 7:
+				return slot7;
+			case 8:
+				return slot8;
+			case 9:
+				return slot9;
+			case 10:
+				return slot10;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[11 - offset];
+
+			for (int i = offset; i < 11 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 11;
+		}
+
+		@Override
+		int nodeArity() {
+			return 11 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7, slot8, slot9, slot10);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7, slot8, slot9, slot10);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key, slot8, slot9, slot10);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, key, slot9, slot10);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, key, slot10);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8, slot9, slot10);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8, slot9, slot10);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8, slot9, slot10);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8, slot9, slot10);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot9, slot10);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot10);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7, slot8, slot9, slot10);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7, slot8, slot9, slot10);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7, slot8, slot9, slot10);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot8, slot9, slot10);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot9, slot10);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot10);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			result = prime * result + slot9.hashCode();
+			result = prime * result + slot10.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Set0To11Node<?> that = (Set0To11Node<?>) other;
+
+			if (nodeMap() != that.nodeMap()) {
+				return false;
+			}
+			if (dataMap() != that.dataMap()) {
+				return false;
+			}
+
+			if (!(slot0.equals(that.slot0))) {
+				return false;
+			}
+			if (!(slot1.equals(that.slot1))) {
+				return false;
+			}
+			if (!(slot2.equals(that.slot2))) {
+				return false;
+			}
+			if (!(slot3.equals(that.slot3))) {
+				return false;
+			}
+			if (!(slot4.equals(that.slot4))) {
+				return false;
+			}
+			if (!(slot5.equals(that.slot5))) {
+				return false;
+			}
+			if (!(slot6.equals(that.slot6))) {
+				return false;
+			}
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+			if (!(slot9.equals(that.slot9))) {
+				return false;
+			}
+			if (!(slot10.equals(that.slot10))) {
+				return false;
+			}
+
+			return true;
+		}
+
+	}
+
+	private static final class Set0To12Node<K> extends CompactMixedSetNode<K> {
+
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+		private final java.lang.Object slot9;
+		private final java.lang.Object slot10;
+		private final java.lang.Object slot11;
+
+		Set0To12Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
+			this.slot9 = slot9;
+			this.slot10 = slot10;
+			this.slot11 = slot11;
+
+			assert nodeInvariant();
+		}
+
+		@Override
+		SupplierIterator<K, K> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		java.lang.Object getSlot(int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			case 1:
+				return slot1;
+			case 2:
+				return slot2;
+			case 3:
+				return slot3;
+			case 4:
+				return slot4;
+			case 5:
+				return slot5;
+			case 6:
+				return slot6;
+			case 7:
+				return slot7;
+			case 8:
+				return slot8;
+			case 9:
+				return slot9;
+			case 10:
+				return slot10;
+			case 11:
+				return slot11;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[12 - offset];
+
+			for (int i = offset; i < 12 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 12;
+		}
+
+		@Override
+		int nodeArity() {
+			return 12 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7, slot8, slot9, slot10, slot11);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key, slot8, slot9, slot10, slot11);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, key, slot9, slot10, slot11);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, key, slot10, slot11);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, key, slot11);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8, slot9, slot10, slot11);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8, slot9, slot10, slot11);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot9, slot10, slot11);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot10, slot11);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot11);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7, slot8, slot9, slot10, slot11);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7, slot8, slot9, slot10, slot11);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot8, slot9, slot10, slot11);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot9, slot10, slot11);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot10, slot11);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot11);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			result = prime * result + slot9.hashCode();
+			result = prime * result + slot10.hashCode();
+			result = prime * result + slot11.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Set0To12Node<?> that = (Set0To12Node<?>) other;
+
+			if (nodeMap() != that.nodeMap()) {
+				return false;
+			}
+			if (dataMap() != that.dataMap()) {
+				return false;
+			}
+
+			if (!(slot0.equals(that.slot0))) {
+				return false;
+			}
+			if (!(slot1.equals(that.slot1))) {
+				return false;
+			}
+			if (!(slot2.equals(that.slot2))) {
+				return false;
+			}
+			if (!(slot3.equals(that.slot3))) {
+				return false;
+			}
+			if (!(slot4.equals(that.slot4))) {
+				return false;
+			}
+			if (!(slot5.equals(that.slot5))) {
+				return false;
+			}
+			if (!(slot6.equals(that.slot6))) {
+				return false;
+			}
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+			if (!(slot9.equals(that.slot9))) {
+				return false;
+			}
+			if (!(slot10.equals(that.slot10))) {
+				return false;
+			}
+			if (!(slot11.equals(that.slot11))) {
+				return false;
+			}
+
+			return true;
+		}
+
+	}
+
+	private static final class Set0To13Node<K> extends CompactMixedSetNode<K> {
+
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+		private final java.lang.Object slot9;
+		private final java.lang.Object slot10;
+		private final java.lang.Object slot11;
+		private final java.lang.Object slot12;
+
+		Set0To13Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
+			this.slot9 = slot9;
+			this.slot10 = slot10;
+			this.slot11 = slot11;
+			this.slot12 = slot12;
+
+			assert nodeInvariant();
+		}
+
+		@Override
+		SupplierIterator<K, K> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		java.lang.Object getSlot(int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			case 1:
+				return slot1;
+			case 2:
+				return slot2;
+			case 3:
+				return slot3;
+			case 4:
+				return slot4;
+			case 5:
+				return slot5;
+			case 6:
+				return slot6;
+			case 7:
+				return slot7;
+			case 8:
+				return slot8;
+			case 9:
+				return slot9;
+			case 10:
+				return slot10;
+			case 11:
+				return slot11;
+			case 12:
+				return slot12;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[13 - offset];
+
+			for (int i = offset; i < 13 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 13;
+		}
+
+		@Override
+		int nodeArity() {
+			return 13 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key, slot8, slot9, slot10, slot11, slot12);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, key, slot9, slot10, slot11, slot12);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, key, slot10, slot11, slot12);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, key, slot11, slot12);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, key, slot12);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8, slot9, slot10, slot11, slot12);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot9, slot10, slot11, slot12);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot10, slot11, slot12);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot11, slot12);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot12);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7, slot8, slot9, slot10, slot11, slot12);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot8, slot9, slot10, slot11, slot12);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot9, slot10, slot11, slot12);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot10, slot11, slot12);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot11, slot12);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node, slot12);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			result = prime * result + slot9.hashCode();
+			result = prime * result + slot10.hashCode();
+			result = prime * result + slot11.hashCode();
+			result = prime * result + slot12.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Set0To13Node<?> that = (Set0To13Node<?>) other;
+
+			if (nodeMap() != that.nodeMap()) {
+				return false;
+			}
+			if (dataMap() != that.dataMap()) {
+				return false;
+			}
+
+			if (!(slot0.equals(that.slot0))) {
+				return false;
+			}
+			if (!(slot1.equals(that.slot1))) {
+				return false;
+			}
+			if (!(slot2.equals(that.slot2))) {
+				return false;
+			}
+			if (!(slot3.equals(that.slot3))) {
+				return false;
+			}
+			if (!(slot4.equals(that.slot4))) {
+				return false;
+			}
+			if (!(slot5.equals(that.slot5))) {
+				return false;
+			}
+			if (!(slot6.equals(that.slot6))) {
+				return false;
+			}
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+			if (!(slot9.equals(that.slot9))) {
+				return false;
+			}
+			if (!(slot10.equals(that.slot10))) {
+				return false;
+			}
+			if (!(slot11.equals(that.slot11))) {
+				return false;
+			}
+			if (!(slot12.equals(that.slot12))) {
+				return false;
+			}
+
+			return true;
+		}
+
+	}
+
+	private static final class Set0To14Node<K> extends CompactMixedSetNode<K> {
+
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+		private final java.lang.Object slot9;
+		private final java.lang.Object slot10;
+		private final java.lang.Object slot11;
+		private final java.lang.Object slot12;
+		private final java.lang.Object slot13;
+
+		Set0To14Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12,
+						final java.lang.Object slot13) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
+			this.slot9 = slot9;
+			this.slot10 = slot10;
+			this.slot11 = slot11;
+			this.slot12 = slot12;
+			this.slot13 = slot13;
+
+			assert nodeInvariant();
+		}
+
+		@Override
+		SupplierIterator<K, K> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		java.lang.Object getSlot(int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			case 1:
+				return slot1;
+			case 2:
+				return slot2;
+			case 3:
+				return slot3;
+			case 4:
+				return slot4;
+			case 5:
+				return slot5;
+			case 6:
+				return slot6;
+			case 7:
+				return slot7;
+			case 8:
+				return slot8;
+			case 9:
+				return slot9;
+			case 10:
+				return slot10;
+			case 11:
+				return slot11;
+			case 12:
+				return slot12;
+			case 13:
+				return slot13;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[14 - offset];
+
+			for (int i = offset; i < 14 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 14;
+		}
+
+		@Override
+		int nodeArity() {
+			return 14 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, key, slot9, slot10, slot11, slot12, slot13);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, key, slot10, slot11, slot12, slot13);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, key, slot11, slot12, slot13);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, key, slot12, slot13);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, key, slot13);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, key);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+			final int valIndex = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
+
+			switch (valIndex) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12, slot13);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12, slot13);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12, slot13);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12, slot13);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot13);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot9, slot10, slot11, slot12, slot13);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot10, slot11, slot12, slot13);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot11, slot12, slot13);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot12, slot13);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node, slot13);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot9, slot10, slot11, slot12, slot13);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot10, slot11, slot12, slot13);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot11, slot12, slot13);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node, slot12, slot13);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, node, slot13);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12, slot13);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12, slot13);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12, slot13);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12, slot13);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12, slot13);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot13);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((int) nodeMap());
+			result = prime * result + ((int) dataMap());
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			result = prime * result + slot9.hashCode();
+			result = prime * result + slot10.hashCode();
+			result = prime * result + slot11.hashCode();
+			result = prime * result + slot12.hashCode();
+			result = prime * result + slot13.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (null == other) {
+				return false;
+			}
+			if (this == other) {
+				return true;
+			}
+			if (getClass() != other.getClass()) {
+				return false;
+			}
+			Set0To14Node<?> that = (Set0To14Node<?>) other;
+
+			if (nodeMap() != that.nodeMap()) {
+				return false;
+			}
+			if (dataMap() != that.dataMap()) {
+				return false;
+			}
+
+			if (!(slot0.equals(that.slot0))) {
+				return false;
+			}
+			if (!(slot1.equals(that.slot1))) {
+				return false;
+			}
+			if (!(slot2.equals(that.slot2))) {
+				return false;
+			}
+			if (!(slot3.equals(that.slot3))) {
+				return false;
+			}
+			if (!(slot4.equals(that.slot4))) {
+				return false;
+			}
+			if (!(slot5.equals(that.slot5))) {
+				return false;
+			}
+			if (!(slot6.equals(that.slot6))) {
+				return false;
+			}
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+			if (!(slot9.equals(that.slot9))) {
+				return false;
+			}
+			if (!(slot10.equals(that.slot10))) {
+				return false;
+			}
+			if (!(slot11.equals(that.slot11))) {
+				return false;
+			}
+			if (!(slot12.equals(that.slot12))) {
+				return false;
+			}
+			if (!(slot13.equals(that.slot13))) {
+				return false;
+			}
+
+			return true;
+		}
+
+	}
+
+	private static final class Set0To15Node<K> extends CompactMixedSetNode<K> {
+
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+		private final java.lang.Object slot9;
+		private final java.lang.Object slot10;
+		private final java.lang.Object slot11;
+		private final java.lang.Object slot12;
+		private final java.lang.Object slot13;
+		private final java.lang.Object slot14;
+
+		Set0To15Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12,
+						final java.lang.Object slot13, final java.lang.Object slot14) {
+			super(mutator, nodeMap, dataMap);
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
+			this.slot9 = slot9;
+			this.slot10 = slot10;
+			this.slot11 = slot11;
+			this.slot12 = slot12;
+			this.slot13 = slot13;
+			this.slot14 = slot14;
+
+			assert nodeInvariant();
+		}
+
+		@Override
+		SupplierIterator<K, K> payloadIterator() {
+			return EmptySupplierIterator.emptyIterator();
+		}
+
+		@Override
+		K headKey() {
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
+		}
+
+		@Override
+		java.lang.Object getSlot(int index) {
+			switch (index) {
+			case 0:
+				return slot0;
+			case 1:
+				return slot1;
+			case 2:
+				return slot2;
+			case 3:
+				return slot3;
+			case 4:
+				return slot4;
+			case 5:
+				return slot5;
+			case 6:
+				return slot6;
+			case 7:
+				return slot7;
+			case 8:
+				return slot8;
+			case 9:
+				return slot9;
+			case 10:
+				return slot10;
+			case 11:
+				return slot11;
+			case 12:
+				return slot12;
+			case 13:
+				return slot13;
+			case 14:
+				return slot14;
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[15 - offset];
+
+			for (int i = offset; i < 15 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 15;
+		}
+
+		@Override
+		int nodeArity() {
+			return 15 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+						final K key) {
+			final int idx = dataIndex(bitpos);
+
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() | bitpos);
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, key, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, key, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, key, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, key, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, key, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, key,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								key, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, key, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, key, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, key, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, key, slot10, slot11, slot12, slot13,
+								slot14);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, key, slot11, slot12, slot13,
+								slot14);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, key, slot12, slot13,
+								slot14);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, key, slot13,
+								slot14);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, key,
+								slot14);
+			case 15:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
 								key);
 			default:
 				throw new IllegalStateException("Index out of range.");
@@ -15388,347 +7826,194 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7);
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12, slot13, slot14);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12, slot13, slot14);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12, slot13, slot14);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot13, slot14);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot14);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
 						CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
 
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
+			switch (idx) {
 			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 5:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 6:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot10, slot11, slot12, slot13, slot14);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot11, slot12, slot13, slot14);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot12, slot13, slot14);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node, slot13, slot14);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, node, slot14);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((int) nodeMap());
-			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + key6.hashCode();
-
-			result = prime * result + key7.hashCode();
-
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			Set7To0Node<?> that = (Set7To0Node<?>) other;
-
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-
-			if (!(key1.equals(that.key1))) {
-				return false;
-			}
-
-			if (!(key2.equals(that.key2))) {
-				return false;
-			}
-
-			if (!(key3.equals(that.key3))) {
-				return false;
-			}
-
-			if (!(key4.equals(that.key4))) {
-				return false;
-			}
-
-			if (!(key5.equals(that.key5))) {
-				return false;
-			}
-
-			if (!(key6.equals(that.key6))) {
-				return false;
-			}
-
-			if (!(key7.equals(that.key7))) {
-				return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(dataMap(), (byte) 6), key6,
-							recoverMask(dataMap(), (byte) 7), key7);
-		}
-
-	}
-
-	private static final class Set7To1Node<K> extends CompactMixedSetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final K key6;
-		private final K key7;
-		private final CompactSetNode<K> node1;
-
-		Set7To1Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final K key6, final K key7, final CompactSetNode<K> node1) {
-			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.key6 = key6;
-			this.key7 = key7;
-			this.node1 = node1;
-
-			assert nodeInvariant();
-		}
-
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.of(node1);
-		}
-
-		@Override
-		boolean hasNodes() {
-			return true;
-		}
-
-		@Override
-		int nodeArity() {
-			return 1;
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5, key6, key6, key7, key7 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 7;
-		}
-
-		@Override
-		K headKey() {
-			return key1;
-		}
-
-		@Override
-		CompactSetNode<K> getNode(int index) {
-			switch (index) {
-			case 0:
-				return node1;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		K getKey(int index) {
-			switch (index) {
-			case 0:
-				return key1;
-			case 1:
-				return key2;
-			case 2:
-				return key3;
-			case 3:
-				return key4;
-			case 4:
-				return key5;
-			case 5:
-				return key6;
-			case 6:
-				return key7;
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
-						final K key) {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
-
-			switch (valIndex) {
-			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7, node1);
-			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7, node1);
-			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7, node1);
-			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7, node1);
-			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7, node1);
-			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7, node1);
-			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node1);
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
 						CompactSetNode<K> node) {
-			final int index = nodeIndex(bitpos);
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-			final byte nodeMap = this.nodeMap();
-			final byte dataMap = this.dataMap();
+			final short nodeMap = (short) (this.nodeMap() | bitpos);
+			final short dataMap = (short) (this.dataMap());
 
-			switch (index) {
+			switch (idx) {
 			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
+				return nodeOf(mutator, nodeMap, dataMap, node, slot0, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot1, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot2, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot3, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot4,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot5, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot7, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot8, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot9, slot10, slot11, slot12, slot13,
+								slot14);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot10, slot11, slot12, slot13,
+								slot14);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot11, slot12, slot13,
+								slot14);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node, slot12, slot13,
+								slot14);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, node, slot13,
+								slot14);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, node,
+								slot14);
+			case 15:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
 								node);
 			default:
 				throw new IllegalStateException("Index out of range.");
@@ -15736,92 +8021,58 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
 
-			switch (valIndex) {
+			switch (idx) {
 			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 5:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			case 6:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									node, node1);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									node1, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12, slot13, slot14);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12, slot13, slot14);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12, slot13, slot14);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12, slot13, slot14);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot13, slot14);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot14);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15829,53 +8080,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
-
-			final byte nodeMap = (byte) (this.nodeMap() ^ bitpos);
-			final byte dataMap = (byte) (this.dataMap() | bitpos);
-
-			final K key = node.headKey();
-
-			switch (bitIndex) {
-			case 0:
-				switch (valIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6, key7);
-				case 1:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6, key7);
-				case 2:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6, key7);
-				case 3:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6, key7);
-				case 4:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6, key7);
-				case 5:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6, key7);
-				case 6:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key, key7);
-				case 7:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key7, key);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
-			default:
-				throw new IllegalStateException("Index out of range.");
-			}
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
+						final short bitpos, CompactSetNode<K> node) {
+			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
@@ -15884,23 +8090,21 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + key6.hashCode();
-
-			result = prime * result + key7.hashCode();
-
-			result = prime * result + node1.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			result = prime * result + slot9.hashCode();
+			result = prime * result + slot10.hashCode();
+			result = prime * result + slot11.hashCode();
+			result = prime * result + slot12.hashCode();
+			result = prime * result + slot13.hashCode();
+			result = prime * result + slot14.hashCode();
 			return result;
 		}
 
@@ -15915,7 +8119,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			Set7To1Node<?> that = (Set7To1Node<?>) other;
+			Set0To15Node<?> that = (Set0To15Node<?>) other;
 
 			if (nodeMap() != that.nodeMap()) {
 				return false;
@@ -15924,263 +8128,422 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(key1.equals(that.key1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-
-			if (!(key2.equals(that.key2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-
-			if (!(key3.equals(that.key3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
-
-			if (!(key4.equals(that.key4))) {
+			if (!(slot3.equals(that.slot3))) {
 				return false;
 			}
-
-			if (!(key5.equals(that.key5))) {
+			if (!(slot4.equals(that.slot4))) {
 				return false;
 			}
-
-			if (!(key6.equals(that.key6))) {
+			if (!(slot5.equals(that.slot5))) {
 				return false;
 			}
-
-			if (!(key7.equals(that.key7))) {
+			if (!(slot6.equals(that.slot6))) {
 				return false;
 			}
-
-			if (!(node1.equals(that.node1))) {
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+			if (!(slot9.equals(that.slot9))) {
+				return false;
+			}
+			if (!(slot10.equals(that.slot10))) {
+				return false;
+			}
+			if (!(slot11.equals(that.slot11))) {
+				return false;
+			}
+			if (!(slot12.equals(that.slot12))) {
+				return false;
+			}
+			if (!(slot13.equals(that.slot13))) {
+				return false;
+			}
+			if (!(slot14.equals(that.slot14))) {
 				return false;
 			}
 
 			return true;
 		}
 
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(dataMap(), (byte) 6), key6,
-							recoverMask(dataMap(), (byte) 7), key7,
-							recoverMask(nodeMap(), (byte) 1), node1);
-		}
-
 	}
 
-	private static final class Set8To0Node<K> extends CompactValuesOnlySetNode<K> {
-		private final K key1;
-		private final K key2;
-		private final K key3;
-		private final K key4;
-		private final K key5;
-		private final K key6;
-		private final K key7;
-		private final K key8;
+	private static final class Set0To16Node<K> extends CompactMixedSetNode<K> {
 
-		Set8To0Node(final AtomicReference<Thread> mutator, final byte nodeMap, final byte dataMap,
-						final K key1, final K key2, final K key3, final K key4, final K key5,
-						final K key6, final K key7, final K key8) {
+		private final java.lang.Object slot0;
+		private final java.lang.Object slot1;
+		private final java.lang.Object slot2;
+		private final java.lang.Object slot3;
+		private final java.lang.Object slot4;
+		private final java.lang.Object slot5;
+		private final java.lang.Object slot6;
+		private final java.lang.Object slot7;
+		private final java.lang.Object slot8;
+		private final java.lang.Object slot9;
+		private final java.lang.Object slot10;
+		private final java.lang.Object slot11;
+		private final java.lang.Object slot12;
+		private final java.lang.Object slot13;
+		private final java.lang.Object slot14;
+		private final java.lang.Object slot15;
+
+		Set0To16Node(final AtomicReference<Thread> mutator, final short nodeMap,
+						final short dataMap, final java.lang.Object slot0,
+						final java.lang.Object slot1, final java.lang.Object slot2,
+						final java.lang.Object slot3, final java.lang.Object slot4,
+						final java.lang.Object slot5, final java.lang.Object slot6,
+						final java.lang.Object slot7, final java.lang.Object slot8,
+						final java.lang.Object slot9, final java.lang.Object slot10,
+						final java.lang.Object slot11, final java.lang.Object slot12,
+						final java.lang.Object slot13, final java.lang.Object slot14,
+						final java.lang.Object slot15) {
 			super(mutator, nodeMap, dataMap);
-			this.key1 = key1;
-			this.key2 = key2;
-			this.key3 = key3;
-			this.key4 = key4;
-			this.key5 = key5;
-			this.key6 = key6;
-			this.key7 = key7;
-			this.key8 = key8;
+			this.slot0 = slot0;
+			this.slot1 = slot1;
+			this.slot2 = slot2;
+			this.slot3 = slot3;
+			this.slot4 = slot4;
+			this.slot5 = slot5;
+			this.slot6 = slot6;
+			this.slot7 = slot7;
+			this.slot8 = slot8;
+			this.slot9 = slot9;
+			this.slot10 = slot10;
+			this.slot11 = slot11;
+			this.slot12 = slot12;
+			this.slot13 = slot13;
+			this.slot14 = slot14;
+			this.slot15 = slot15;
 
 			assert nodeInvariant();
 		}
 
 		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			return Collections.<CompactSetNode<K>> emptyIterator();
-		}
-
-		@Override
-		boolean hasNodes() {
-			return false;
-		}
-
-		@Override
-		int nodeArity() {
-			return 0;
-		}
-
-		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(new Object[] { key1, key1, key2, key2, key3, key3,
-							key4, key4, key5, key5, key6, key6, key7, key7, key8, key8 });
-		}
-
-		@Override
-		boolean hasPayload() {
-			return true;
-		}
-
-		@Override
-		int payloadArity() {
-			return 8;
+			return EmptySupplierIterator.emptyIterator();
 		}
 
 		@Override
 		K headKey() {
-			return key1;
+			throw new UnsupportedOperationException("Node does not directly contain a key.");
 		}
 
 		@Override
-		CompactSetNode<K> getNode(int index) {
-			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		K getKey(int index) {
+		java.lang.Object getSlot(int index) {
 			switch (index) {
 			case 0:
-				return key1;
+				return slot0;
 			case 1:
-				return key2;
+				return slot1;
 			case 2:
-				return key3;
+				return slot2;
 			case 3:
-				return key4;
+				return slot3;
 			case 4:
-				return key5;
+				return slot4;
 			case 5:
-				return key6;
+				return slot5;
 			case 6:
-				return key7;
+				return slot6;
 			case 7:
-				return key8;
+				return slot7;
+			case 8:
+				return slot8;
+			case 9:
+				return slot9;
+			case 10:
+				return slot10;
+			case 11:
+				return slot11;
+			case 12:
+				return slot12;
+			case 13:
+				return slot13;
+			case 14:
+				return slot14;
+			case 15:
+				return slot15;
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final byte bitpos,
+		K getKey(int index) {
+			return (K) getSlot(TUPLE_LENGTH * index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public CompactSetNode<K> getNode(int index) {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			return (CompactSetNode<K>) getSlot(offset + index);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<CompactSetNode<K>> nodeIterator() {
+			final int offset = TUPLE_LENGTH * payloadArity();
+			final Object[] nodes = new Object[16 - offset];
+
+			for (int i = offset; i < 16 - offset; i++) {
+				// assert ((getSlot(i) instanceof AbstractSetNode) == true);
+				nodes[i - offset] = getSlot(i);
+			}
+
+			return (Iterator) ArrayIterator.of(nodes);
+		}
+
+		@Override
+		boolean hasNodes() {
+			return TUPLE_LENGTH * payloadArity() != 16;
+		}
+
+		@Override
+		int nodeArity() {
+			return 16 - TUPLE_LENGTH * payloadArity();
+		}
+
+		@Override
+		boolean hasPayload() {
+			return payloadArity() != 0;
+		}
+
+		@Override
+		int payloadArity() {
+			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+		}
+
+		@Override
+		byte sizePredicate() {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+				return SIZE_EMPTY;
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+				return SIZE_ONE;
+			} else {
+				return SIZE_MORE_THAN_ONE;
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
 						final K key) {
 			throw new IllegalStateException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final byte bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
-			final byte nodeMap = (byte) (this.nodeMap());
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
+			final short nodeMap = (short) (this.nodeMap());
+			final short dataMap = (short) (this.dataMap() ^ bitpos);
 
 			switch (valIndex) {
 			case 0:
-				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7, key8);
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 1:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7, key8);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 2:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7, key8);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 3:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7, key8);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 4:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7, key8);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 5:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7, key8);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 6:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key8);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 7:
-				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7);
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12, slot13, slot14, slot15);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12, slot13, slot14, slot15);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12, slot13, slot14, slot15);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot13, slot14, slot15);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot14, slot15);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot15);
+			case 15:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final byte bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+						CompactSetNode<K> node) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+
+			final short nodeMap = this.nodeMap();
+			final short dataMap = this.dataMap();
+
+			switch (idx) {
+			case 0:
+				return nodeOf(mutator, nodeMap, dataMap, node, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 1:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, node, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 2:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, node, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 3:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, node, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 4:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, node, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 5:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, node,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 6:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								node, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 7:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, node, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, node, slot9, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, node, slot10, slot11, slot12, slot13, slot14,
+								slot15);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, node, slot11, slot12, slot13, slot14,
+								slot15);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, node, slot12, slot13, slot14,
+								slot15);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, node, slot13, slot14,
+								slot15);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, node, slot14,
+								slot15);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, node,
+								slot15);
+			case 15:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14,
+								node);
+			default:
+				throw new IllegalStateException("Index out of range.");
+			}
+		}
+
+		@Override
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
 						CompactSetNode<K> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
-			final int bitIndex = nodeIndex(bitpos);
-			final int valIndex = dataIndex(bitpos);
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
 
-			final byte nodeMap = (byte) (this.nodeMap() | bitpos);
-			final byte dataMap = (byte) (this.dataMap() ^ bitpos);
+			final short nodeMap = (short) (this.nodeMap() ^ bitpos);
+			final short dataMap = (short) (this.dataMap());
 
-			switch (valIndex) {
+			switch (idx) {
 			case 0:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									key8, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot1, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 1:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									key8, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot2, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 2:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									key8, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot3, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 3:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									key8, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot4, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 4:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									key8, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot5, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 5:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									key8, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot6,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 6:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key8, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
 			case 7:
-				switch (bitIndex) {
-				case 0:
-					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key7, node);
-				default:
-					throw new IllegalStateException("Index out of range.");
-				}
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot8, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
+			case 8:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot9, slot10, slot11, slot12, slot13, slot14, slot15);
+			case 9:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot10, slot11, slot12, slot13, slot14, slot15);
+			case 10:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot11, slot12, slot13, slot14, slot15);
+			case 11:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot12, slot13, slot14, slot15);
+			case 12:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot13, slot14, slot15);
+			case 13:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot14, slot15);
+			case 14:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot15);
+			case 15:
+				return nodeOf(mutator, nodeMap, dataMap, slot0, slot1, slot2, slot3, slot4, slot5,
+								slot6, slot7, slot8, slot9, slot10, slot11, slot12, slot13, slot14);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16188,13 +8551,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final byte bitpos, CompactSetNode<K> node) {
+						final short bitpos, CompactSetNode<K> node) {
 			throw new IllegalStateException("Index out of range.");
-		}
-
-		@Override
-		byte sizePredicate() {
-			return SIZE_MORE_THAN_ONE;
 		}
 
 		@Override
@@ -16203,23 +8561,22 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			int result = 1;
 			result = prime * result + ((int) nodeMap());
 			result = prime * result + ((int) dataMap());
-
-			result = prime * result + key1.hashCode();
-
-			result = prime * result + key2.hashCode();
-
-			result = prime * result + key3.hashCode();
-
-			result = prime * result + key4.hashCode();
-
-			result = prime * result + key5.hashCode();
-
-			result = prime * result + key6.hashCode();
-
-			result = prime * result + key7.hashCode();
-
-			result = prime * result + key8.hashCode();
-
+			result = prime * result + slot0.hashCode();
+			result = prime * result + slot1.hashCode();
+			result = prime * result + slot2.hashCode();
+			result = prime * result + slot3.hashCode();
+			result = prime * result + slot4.hashCode();
+			result = prime * result + slot5.hashCode();
+			result = prime * result + slot6.hashCode();
+			result = prime * result + slot7.hashCode();
+			result = prime * result + slot8.hashCode();
+			result = prime * result + slot9.hashCode();
+			result = prime * result + slot10.hashCode();
+			result = prime * result + slot11.hashCode();
+			result = prime * result + slot12.hashCode();
+			result = prime * result + slot13.hashCode();
+			result = prime * result + slot14.hashCode();
+			result = prime * result + slot15.hashCode();
 			return result;
 		}
 
@@ -16234,7 +8591,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			Set8To0Node<?> that = (Set8To0Node<?>) other;
+			Set0To16Node<?> that = (Set0To16Node<?>) other;
 
 			if (nodeMap() != that.nodeMap()) {
 				return false;
@@ -16243,53 +8600,56 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (!(key1.equals(that.key1))) {
+			if (!(slot0.equals(that.slot0))) {
 				return false;
 			}
-
-			if (!(key2.equals(that.key2))) {
+			if (!(slot1.equals(that.slot1))) {
 				return false;
 			}
-
-			if (!(key3.equals(that.key3))) {
+			if (!(slot2.equals(that.slot2))) {
 				return false;
 			}
-
-			if (!(key4.equals(that.key4))) {
+			if (!(slot3.equals(that.slot3))) {
 				return false;
 			}
-
-			if (!(key5.equals(that.key5))) {
+			if (!(slot4.equals(that.slot4))) {
 				return false;
 			}
-
-			if (!(key6.equals(that.key6))) {
+			if (!(slot5.equals(that.slot5))) {
 				return false;
 			}
-
-			if (!(key7.equals(that.key7))) {
+			if (!(slot6.equals(that.slot6))) {
 				return false;
 			}
-
-			if (!(key8.equals(that.key8))) {
+			if (!(slot7.equals(that.slot7))) {
+				return false;
+			}
+			if (!(slot8.equals(that.slot8))) {
+				return false;
+			}
+			if (!(slot9.equals(that.slot9))) {
+				return false;
+			}
+			if (!(slot10.equals(that.slot10))) {
+				return false;
+			}
+			if (!(slot11.equals(that.slot11))) {
+				return false;
+			}
+			if (!(slot12.equals(that.slot12))) {
+				return false;
+			}
+			if (!(slot13.equals(that.slot13))) {
+				return false;
+			}
+			if (!(slot14.equals(that.slot14))) {
+				return false;
+			}
+			if (!(slot15.equals(that.slot15))) {
 				return false;
 			}
 
 			return true;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(
-							"[@%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s, @%d: %s]",
-							recoverMask(dataMap(), (byte) 1), key1,
-							recoverMask(dataMap(), (byte) 2), key2,
-							recoverMask(dataMap(), (byte) 3), key3,
-							recoverMask(dataMap(), (byte) 4), key4,
-							recoverMask(dataMap(), (byte) 5), key5,
-							recoverMask(dataMap(), (byte) 6), key6,
-							recoverMask(dataMap(), (byte) 7), key7,
-							recoverMask(dataMap(), (byte) 8), key8);
 		}
 
 	}
