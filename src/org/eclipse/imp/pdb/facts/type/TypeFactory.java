@@ -17,6 +17,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -488,6 +489,17 @@ public class TypeFactory {
     }
 
     return result;
+  }
+  
+  /**
+   * Make a Keyword Parameter Initializer with a constant value
+   * @param constant 
+   * 	the value to return
+   * @return a KeywordParameterInitializer
+   */
+  public IKeywordParameterInitializer constantKeywordParameterInitializer(IValue constant) {
+	  checkNull(constant);
+	  return new ConstantKeywordParameterInitializer(constant);
   }
 
   /**

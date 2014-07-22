@@ -956,14 +956,16 @@ public class BinaryWriter{
 
 			writeTupleType(constructorType.getKeywordParameterTypes());
 			printInteger(constructorType.getKeywordParameterInitializers().size());
-			ImmutableMap<String, IValue> env = AbstractSpecialisedImmutableMap.mapOf(new HashMap<String,IValue>());
 			for (Entry<String, IKeywordParameterInitializer> e: constructorType.getKeywordParameterInitializers().entrySet()) {
 				name = e.getKey();
 				nameData = name.getBytes(CharEncoding);
 				printInteger(nameData.length);
 				out.write(nameData);
 				IKeywordParameterInitializer paramInit = e.getValue();
-				doSerialize(paramInit.initialize(env));
+				if (!(paramInit instanceof ConstantKeywordParameterInitializer)) {
+					throw new RuntimeException("We cannot write constructors with keyword parameters which contain expressions");
+				}
+				doSerialize(paramInit.initialize(null));
 			}
 			return;
 		}
