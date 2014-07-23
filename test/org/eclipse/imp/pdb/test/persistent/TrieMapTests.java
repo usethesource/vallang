@@ -34,7 +34,7 @@ public class TrieMapTests {
 			map = res;
 		}
 		
-//		map.printStats(); // TODO: reimplement printStats()
+		map.printStatistics();
 	}
 	
 	@Test
@@ -53,7 +53,7 @@ public class TrieMapTests {
 			map = res;
 		}
 		
-//		map.printStats(); // TODO: reimplement printStats()
+		map.printStatistics();
 	}
 	
 	
