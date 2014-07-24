@@ -124,7 +124,19 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	@Override
 	public boolean isEqual(IValue other) {
 	  if (!(other instanceof ConstructorWithKeywordParametersFacade)) {
-	    return false;
+		  if (other instanceof IConstructor) {
+			  IConstructor oc = ((IConstructor)other);
+			  if (content.isEqual(oc) && oc.mayHaveKeywordParameters()) {
+				  IWithKeywordParameters<IConstructor> ocw = oc.asWithKeywordParameters();
+				  return ocw.getParameters().equals(parameters);
+			  }
+			  else {
+				  return false;
+			  }
+		  }
+		  else {
+			  return false;
+		  }
 	  }
 	  
 	  // TODO: the equals here should be isEqual

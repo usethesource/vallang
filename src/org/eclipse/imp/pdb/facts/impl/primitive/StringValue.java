@@ -30,9 +30,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
 	/*package*/ static IString newString(String value) {
+		if (value ==null) value = "";
 		return newString(value, containsSurrogatePairs(value));
 	}
 	/*package*/ static IString newString(String value, boolean fullUnicode) {
+		if (value ==null) value = "";
 		if (fullUnicode) {
 			return new FullUnicodeString(value);
 		}
@@ -40,6 +42,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	private static boolean containsSurrogatePairs(String str) {
+		if (str == null) {
+			return false;
+		}
 		int len = str.length(); 
 		for (int i = 1; i < len; i++) {
 			if (Character.isSurrogatePair(str.charAt(i - 1), str.charAt(i))) {
