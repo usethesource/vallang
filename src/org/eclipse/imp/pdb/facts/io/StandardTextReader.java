@@ -827,7 +827,7 @@ public class StandardTextReader extends AbstractTextReader {
 		private Reader wrapped;
 		int offset;
 		boolean inString = false;
-		int prev = -1;
+		boolean escaping = false;
 	
 		public NoWhiteSpaceReader(Reader wrapped) {
 			this.wrapped = wrapped;
@@ -854,12 +854,19 @@ public class StandardTextReader extends AbstractTextReader {
 				inString = true;
 			}
 			else if (inString) {
-				if (prev != '\\' && r == '\"') {
+				if (escaping) {
+					// previous was escaping, so no interpretation of current char.
+					escaping = false;
+				}
+				else if (r == '\\') {
+					escaping = true;
+				}
+				else if (r == '"') {
+					// if we were not escaped, a double quote exits a string
 					inString = false;
 				}
 			}
 			
-			prev = r;
 			return r;
 		}
 		

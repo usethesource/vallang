@@ -17,6 +17,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
@@ -506,7 +507,7 @@ public class TypeFactory {
    *           , UndeclaredAbstractDataTypeException,
    *           RedeclaredFieldNameException, RedeclaredConstructorException
    */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, int positionalArity)
+  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Type keywordParameters, Map<String,IKeywordParameterInitializer> initializers)
       throws FactTypeDeclarationException {
     checkNull(store, adt, name, tupleType);
 
@@ -514,7 +515,7 @@ public class TypeFactory {
       throw new IllegalIdentifierException(name);
     }
 
-    Type result = getFromCache(new ConstructorType(name, tupleType, adt, positionalArity));
+    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters, initializers));
 
     Type params = adt.getTypeParameters();
 

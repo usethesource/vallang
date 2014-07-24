@@ -42,42 +42,10 @@ public interface INode extends IValue, Iterable<IValue> {
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException;
 	
 	/**
-	 * 
-	 * @return true when this node has keyword arguments
-	 */
-	public boolean hasKeywordArguments();
-	
-	/**
-	 * 
-	 * @return the (ordered) names of keyword arguments of this node (maybe null)
-	 */
-	public String[] getKeywordArgumentNames();
-	
-	/**
-	 * Return the child index of a named keyword parameter (maybe -1);
-	 * @param name
-	 * @return its index (or -1 when absent)
-	 */
-	int getKeywordIndex(String name);
-	
-	/**
-	 * Return the value of a keyword argument name 
-	 * @param name of the keyword argument
-	 * @return its value or null when it is absent
-	 */
-	public IValue getKeywordArgumentValue(String name);
-	
-	/**
-	 * @return the (fixed) number of children of this node (including keyword arguments)
+	 * @return the (fixed) number of children of this node (excluding keyword arguments)
 	 */
 
 	public int arity();
-	
-	/**
-	 * 
-	 * @return the number of positional children of this node.
-	 */
-	public int positionalArity();
 	
 	/**
 	 * @return the name of this node (an identifier)
@@ -114,5 +82,10 @@ public interface INode extends IValue, Iterable<IValue> {
      * @see org.eclipse.imp.pdb.facts.IValue#asAnnotatable()
      */
     public IAnnotatable<? extends INode> asAnnotatable();
-
+    
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.imp.pdb.facts.IValue#asWithKeywordParameters()
+     */
+    public IWithKeywordParameters<? extends INode> asWithKeywordParameters();
 }

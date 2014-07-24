@@ -15,6 +15,7 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -99,12 +100,59 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    * @return type of the field at index i
    * @throws FactTypeUseException
    *           when the type has no field labels (tuples and relations
-   *           optionally have field labels).
+   *           optionally have field labels).          
    */
   public Type getFieldType(String fieldName) throws FactTypeUseException {
     throw new IllegalOperationException("getFieldType", this);
   }
 
+  public boolean hasKeywordParameter(String label) {
+    throw new IllegalOperationException("hasKeywordParameter", this);
+  }
+  
+  public boolean hasKeywordParameter(String fieldName, TypeStore store) {
+    throw new IllegalOperationException("hasKeywordParameter", this);
+  }
+  
+  /**
+   * Retrieve the type of a keyword parameter
+   * @param parameter label
+   * @return the associated type
+   */
+  public Type getKeywordParameterType(String label) {
+    throw new IllegalOperationException("getDefaultValue", this);
+  }
+  
+  /**
+   * Return an array with names of the keyword parameters
+   * @return array of strings
+   */
+  public String[] getKeywordParameters() {
+    throw new IllegalOperationException("getKeywordParameters", this);
+  }
+  
+  /**
+   * @return the initializers for the keyword parameters
+   */
+  public IKeywordParameterInitializer getKeywordParameterInitializer(String label) {
+    throw new IllegalOperationException("getKeywordParameterInitializer", this);
+  }
+  
+  /**
+   * @return the initializers for the keyword parameters
+   */
+  public Map<String,IKeywordParameterInitializer> getKeywordParameterInitializers() {
+    throw new IllegalOperationException("getKeywordParameterInitializer", this);
+  }
+  
+  /**
+   * Retrieve the keyword parameter types of a constructor, represented as a tuple type
+   * @return the types for the keyword parameters
+   */
+  public Type getKeywordParameterTypes() {
+    throw new IllegalOperationException("getKeywordParameterTypes", this);
+  }
+  
   /**
    * Retrieve the field types of a tree node type or a relation, represented as
    * a tuple type.
@@ -526,12 +574,8 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     return 0;
   }
 
-  public boolean hasKeywordArguments() {
+  public boolean hasKeywordParameters() {
     return false;
-  }
-
-  public int getPositionalArity() {
-    throw new IllegalOperationException("getIndexOfFirstDefault", this);
   }
 
   protected boolean isSubtypeOfParameter(Type type) {

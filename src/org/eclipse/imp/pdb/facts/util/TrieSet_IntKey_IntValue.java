@@ -2793,7 +2793,7 @@ public class TrieSet_IntKey_IntValue extends AbstractImmutableSet<java.lang.Inte
 				keysAndVals[2 * i + 1] = keys[i];
 			}
 
-			return ArrayKeyValueIterator.of(keysAndVals);
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
 		}
 
 		@Override

@@ -30,16 +30,20 @@ import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
+import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.io.IValueBinaryReader;
 import org.eclipse.imp.pdb.facts.io.IValueBinaryWriter;
 import org.eclipse.imp.pdb.facts.io.IValueTextReader;
 import org.eclipse.imp.pdb.facts.io.IValueTextWriter;
-import org.eclipse.imp.pdb.facts.io.BinaryValueReader;
-import org.eclipse.imp.pdb.facts.io.BinaryValueWriter;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.test.random.*;
+import org.eclipse.imp.pdb.test.random.DataGenerator;
+import org.eclipse.imp.pdb.test.random.RandomIntegerGenerator;
+import org.eclipse.imp.pdb.test.random.RandomNumberGenerator;
+import org.eclipse.imp.pdb.test.random.RandomRationalGenerator;
+import org.eclipse.imp.pdb.test.random.RandomRealGenerator;
 
 
 /**

@@ -1,5 +1,6 @@
 package org.eclipse.imp.pdb.facts.impl.reference;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,14 +8,18 @@ import java.util.Map.Entry;
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UnexpectedChildTypeException;
 import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
+import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -83,7 +88,7 @@ public class Constructor extends Node implements IConstructor {
     }
     
     return fType;
-	}
+	} 
 
 	public IValue get(String label) {
 		return super.get(fType.getFieldIndex(label));
@@ -166,7 +171,6 @@ public class Constructor extends Node implements IConstructor {
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<IConstructor>(this) {
-
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
@@ -175,4 +179,33 @@ public class Constructor extends Node implements IConstructor {
 		};
 	}
 	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, ConstructorWithKeywordParametersFacade.computeKeywordParameters(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf())) {
+		  @Override
+		  protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+			  return new ConstructorWithKeywordParametersFacade(content, parameters);
+		  }
+
+		  @Override
+		  public boolean hasParameters() {
+			  return content.getConstructorType().hasKeywordParameters();
+		  }
+
+		  @Override
+		  public String[] getParameterNames() {
+			  return content.getConstructorType().getKeywordParameters();
+		  }
+
+		  @Override
+		  public Map<String, IValue> getParameters() {
+			  return Collections.unmodifiableMap(parameters);
+		  }
+    };
+	}
 }

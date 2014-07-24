@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,17 +21,17 @@ import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
-public class AnnotatedNodeFacade implements INode {
-
+public class NodeWithKeywordParametersFacade implements INode {
 	protected final INode content;
-	protected final ImmutableMap<String, IValue> annotations;
+	protected final ImmutableMap<String, IValue> parameters;
 	
-	public AnnotatedNodeFacade(final INode content, final ImmutableMap<String, IValue> annotations) {
+	public NodeWithKeywordParametersFacade(final INode content, final ImmutableMap<String, IValue> parameters) {
 		this.content = content;
-		this.annotations = annotations;
+		this.parameters = parameters;
 	}
 	
 	public Type getType() {
@@ -48,7 +48,7 @@ public class AnnotatedNodeFacade implements INode {
 	
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		INode newContent = content.set(i, newChild);
-		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
+		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
 	public int arity() {
@@ -74,7 +74,7 @@ public class AnnotatedNodeFacade implements INode {
 	public INode replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		INode newContent = content.replace(first, second, end, repl);
-		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
+		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
 	}
 
 	public boolean equals(Object o) {
@@ -82,17 +82,29 @@ public class AnnotatedNodeFacade implements INode {
 		if(o == null) return false;
 		
 		if(o.getClass() == getClass()){
-			AnnotatedNodeFacade other = (AnnotatedNodeFacade) o;
+			NodeWithKeywordParametersFacade other = (NodeWithKeywordParametersFacade) o;
 		
 			return content.equals(other.content) &&
-					annotations.equals(other.annotations);
+					parameters.equals(other.parameters);
 		}
 		
 		return false;
 	}
 
+	@Override
 	public boolean isEqual(IValue other) {
-		return content.isEqual(other);
+	  if (!other.mayHaveKeywordParameters()) {
+	    return false;
+	  }
+
+	  if (other instanceof NodeWithKeywordParametersFacade) {
+		  NodeWithKeywordParametersFacade o = (NodeWithKeywordParametersFacade) other;
+		  
+		  // TODO: this equals is fishy
+		  return content.isEqual(o.content) && o.parameters.equals(parameters);
+	  }
+	  
+	  return false;
 	}
 	
 	@Override
@@ -102,28 +114,27 @@ public class AnnotatedNodeFacade implements INode {
 	
 	@Override
 	public boolean isAnnotatable() {
-		return true;
+		return false;
 	}
 	
 	@Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
-		return new AbstractDefaultAnnotatable<INode>(content, annotations) {
-
+		throw new UnsupportedOperationException("can not annotate a constructor which already has keyword parameters");
+	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+		return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
 			@Override
-			protected INode wrap(INode content,
-					ImmutableMap<String, IValue> annotations) {
-				return new AnnotatedNodeFacade(content, annotations);
+			protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
+				return new NodeWithKeywordParametersFacade(content, parameters);
 			}
 		};
 	}
-
-  @Override
-  public boolean mayHaveKeywordParameters() {
-    return false;
-  }
-
-  @Override
-  public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
-    throw new UnsupportedOperationException("can not add keyword parameters to a node which already has annotations");
-  }
+	
 }

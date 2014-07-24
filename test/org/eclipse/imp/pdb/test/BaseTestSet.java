@@ -12,6 +12,8 @@
 
 package org.eclipse.imp.pdb.test;
 
+import static org.eclipse.imp.pdb.facts.impl.fast.RelationalFunctionsOnSet.arity;
+
 import java.util.Iterator;
 
 import junit.framework.TestCase;
@@ -22,8 +24,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-
-import static org.eclipse.imp.pdb.facts.impl.fast.RelationalFunctionsOnSet.*;
 
 public abstract class BaseTestSet extends TestCase {
 	private IValueFactory vf;

@@ -14,11 +14,9 @@ package org.eclipse.imp.pdb.facts.impl;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-
-import java.io.IOException;
-import java.io.StringWriter;
 
 public abstract class AbstractValue implements IValue {
 
@@ -27,12 +25,7 @@ public abstract class AbstractValue implements IValue {
 	}
 
 	public String toString() {
-		try(StringWriter stream = new StringWriter()) {
-			new StandardTextWriter().write(this, stream);
-			return stream.toString();
-		} catch (IOException ioex) {
-			throw new RuntimeException("Should have never happened.", ioex);
-		}
+		return StandardTextWriter.valueToString(this);
 	}
 
 	@Override
@@ -46,4 +39,14 @@ public abstract class AbstractValue implements IValue {
 				"Cannot be viewed as annotatable.", getType());
 	}
 	
+	 @Override
+	  public boolean mayHaveKeywordParameters() {
+	    return false;
+	  }
+
+	  @Override
+	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	    throw new IllegalOperationException(
+	        "Cannot be viewed as with keyword parameters.", getType());
+	  }
 }

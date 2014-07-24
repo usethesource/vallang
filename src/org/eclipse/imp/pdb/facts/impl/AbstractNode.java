@@ -16,9 +16,11 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.func.NodeFunctions;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
@@ -30,25 +32,6 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 
 	protected abstract IValueFactory getValueFactory();
 
-	@Override
-	public boolean hasKeywordArguments() {
-		return NodeFunctions.hasKeywordArguments(getValueFactory(), this);
-	}
-
-	@Override
-	public int getKeywordIndex(String name) {
-		return NodeFunctions.getKeywordIndex(getValueFactory(), this, name);
-	}
-
-	@Override
-	public IValue getKeywordArgumentValue(String name) {
-		return NodeFunctions.getKeywordArgumentValue(getValueFactory(), this, name);
-	}
-
-	@Override
-	public int positionalArity() {
-		return NodeFunctions.positionalArity(getValueFactory(), this);
-	}
 
 	@Override
 	public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException, IndexOutOfBoundsException {
@@ -68,13 +51,26 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 	@Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<INode>(this) {
-
 			@Override
-			protected INode wrap(INode content,
-					ImmutableMap<String, IValue> annotations) {
+			protected INode wrap(INode content, ImmutableMap<String, IValue> annotations) {
 				return new AnnotatedNodeFacade(content, annotations);
 			}
 		};
+	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<INode>(this, AbstractSpecialisedImmutableMap.<String, IValue>mapOf()) {
+	    @Override
+	    protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
+	      return new NodeWithKeywordParametersFacade(content, parameters);
+	    }
+    };
 	}
 
 }

@@ -1427,7 +1427,7 @@ public class TrieSetSpecializationWithUntypedVariables<K> extends AbstractImmuta
 				keysAndVals[2 * i + 1] = keys[i];
 			}
 
-			return ArrayKeyValueIterator.of(keysAndVals);
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
 		}
 
 		@Override

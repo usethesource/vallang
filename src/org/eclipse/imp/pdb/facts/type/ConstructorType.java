@@ -11,9 +11,11 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.type;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 
@@ -37,25 +39,36 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
-	private int positionalArity;
+	private final Type fKeywordParameters;
+	private final Map<String,IKeywordParameterInitializer> fKeywordParameterDefaults;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 	  super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
-		this.positionalArity = childrenTypes.getArity();
+		fKeywordParameterDefaults = null;
+		fKeywordParameters = null;
 	}
 	
-	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, int positionalArity) {
-		this(name,childrenTypes,adt);
-		if(positionalArity > childrenTypes.getArity()){
-			throw new UnsupportedOperationException("postional arity exceeds number of fields for constructor " + getName());
+	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Type keywordParameters, Map<String,IKeywordParameterInitializer> defaults) {
+		super(adt.getName(), adt.getTypeParameters());
+		fName = name.intern();
+		fChildrenTypes = childrenTypes;
+		fADT = adt;
+
+
+		if (keywordParameters == null || keywordParameters.isBottom() || keywordParameters.getArity() == 0) {
+			fKeywordParameterDefaults = null;
+			fKeywordParameters = null;
 		}
-		this.positionalArity = positionalArity;
+		else {
+			fKeywordParameters = keywordParameters;
+			fKeywordParameterDefaults = Collections.unmodifiableMap(defaults);
+		}
 	}
 
-	@Override
+  @Override
 	public Type carrier() {
 		return fChildrenTypes.carrier();
 	}
@@ -64,19 +77,50 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	public int hashCode() {
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
+		(fKeywordParameters == null ? 0 : 19 * fKeywordParameters.hashCode()) +
 		354767453 * fADT.hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof ConstructorType) {
-			return ((fName == null) ? ((ConstructorType) o).fName == null : fName == (((ConstructorType) o).fName)) // fName is interned.
-					&& fChildrenTypes == ((ConstructorType) o).fChildrenTypes
-					&& fADT == ((ConstructorType) o).fADT;
-		}
-		return false;
+	  if (o instanceof ConstructorType) {
+	    ConstructorType other = (ConstructorType) o;
+	    
+	    if (fName != other.fName) { // fName is interned
+	      return false;
+	    }
+	    
+	    if (fChildrenTypes != other.fChildrenTypes) {
+	      return false;
+	    }
+	    
+	    if (fADT != other.fADT) {
+	      return false;
+	    }
+
+	  
+	    if (fKeywordParameters != null) {
+	    	if (other.fKeywordParameters == null) {
+	    		return false;
+	    	}
+
+	    	if (fKeywordParameters != other.fKeywordParameters) {
+	    		return false;
+	    	}
+
+	    	if (fKeywordParameterDefaults.equals(((ConstructorType) o).fKeywordParameterDefaults)) {
+	    		return false;
+	    	}
+	    }
+
+	    // nothing is different
+	    return true;
+	  }
+	  
+	  // not a constructor type
+	  return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -85,13 +129,32 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		builder.append(fName);
 		builder.append("(");
 
+		boolean withNormalParams = false;
 		Iterator<Type> iter = fChildrenTypes.iterator();
 		while(iter.hasNext()) {
+			withNormalParams = true;
 			builder.append(iter.next());
 
 			if (iter.hasNext()) {
-				builder.append(",");
+				builder.append(',');
 			}
+		}
+		
+		if (hasKeywordParameters()) {
+		  if (withNormalParams) {
+		    builder.append(',');
+		  }
+		  
+		  String[] names = fKeywordParameters.getFieldNames();
+		  for (int i = 0; i < names.length; i++) {
+			  builder.append(fKeywordParameters.getFieldType(i));
+			  builder.append(' ');
+			  builder.append(names[i]);
+			  
+			  if (i < names.length - 1) {
+				  builder.append(',');
+			  }
+		  }
 		}
 		builder.append(")");
 
@@ -275,13 +338,43 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	}
 	
 	@Override
-	public boolean hasKeywordArguments(){
-		return positionalArity < fChildrenTypes.getArity();
+	public boolean hasKeywordParameters() {
+		return fKeywordParameters != null;
+	}
+
+	@Override
+	public boolean hasKeywordParameter(String label) {
+	  return fKeywordParameters != null && fKeywordParameters.hasField(label);
 	}
 	
 	@Override
-	public int getPositionalArity(){
-		return positionalArity;
+	public boolean hasKeywordParameter(String label, TypeStore store) {
+	  return hasKeywordParameter(label);
 	}
 	
+	
+	@Override
+	public Type getKeywordParameterTypes() {
+	  return fKeywordParameters != null ? fKeywordParameters : TypeFactory.getInstance().voidType();
+	}
+	
+	@Override
+	public IKeywordParameterInitializer getKeywordParameterInitializer(String label) {
+	  return fKeywordParameterDefaults.get(label);
+	}
+	
+	@Override
+	public Map<String,IKeywordParameterInitializer> getKeywordParameterInitializers() {
+	  return fKeywordParameterDefaults;
+	}
+	
+	@Override
+	public Type getKeywordParameterType(String label) {
+	  return fKeywordParameters != null ? fKeywordParameters.getFieldType(label) : null;
+	}
+	
+	@Override
+	public String[] getKeywordParameters() {
+	  return fKeywordParameters != null ? fKeywordParameters.getFieldNames() : new String[0];
+	}
 }

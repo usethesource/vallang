@@ -12,16 +12,21 @@
 
 package org.eclipse.imp.pdb.test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -222,6 +227,33 @@ public abstract class BaseTestAnnotations extends TestCase {
 		assertTrue(a.hashCode() == b.hashCode());		
 	}
 	
+
+	public void testNoKeywordParametersOnAnnotatedNode() {
+	   try {
+	     vf.node("hallo")
+	     .asAnnotatable()
+	     .setAnnotation("a", vf.integer(1))
+	     .asWithKeywordParameters()
+	     .setParameter("b", vf.integer(2));
+	   }
+	   catch (UnsupportedOperationException e) {
+	     assertTrue(true);
+	   }
+	}
+	
+	public void testAnnotationsOnNodeWithKeywordParameters() {
+    try {
+      vf.node("hallo")
+      .asWithKeywordParameters()
+      .setParameter("b", vf.integer(2))
+      .asAnnotatable()
+      .setAnnotation("a", vf.integer(1));
+    }
+    catch (UnsupportedOperationException e) {
+      assertTrue(true);
+    }
+ }
+	
 	public void testNodeAnnotation() {
 		ts.declareAnnotation(tf.nodeType(), "foo", tf.boolType());
 		INode n = vf.node("hello");
@@ -238,4 +270,35 @@ public abstract class BaseTestAnnotations extends TestCase {
 		ts.declareAnnotation(N, "b", tf.boolType());
 		assertTrue(!ts.getAnnotations(E).equals(ts.getAnnotations(N)));
 	}
+	
+	
+	public void testNodeKeywordParameter() {
+    INode n = vf.node("hello");
+    INode na = n.asWithKeywordParameters().setParameter("foo", vf.bool(true));
+    
+    assertTrue(na.asWithKeywordParameters().getParameter("foo").getType().isBool());
+    assertTrue(na.asWithKeywordParameters().getParameter("foo").equals(vf.bool(true)));
+  }
+	
+	public void testConstructorKeywordParameter() {
+	  TypeStore ts = new TypeStore();
+	  Type adt = tf.abstractDataType(ts, "adt");
+	  Map<String,IKeywordParameterInitializer> defaults = new HashMap<>();
+	  Type paramTypes = tf.tupleType(tf.boolType(), "foo");
+	  defaults.put("foo", new ConstantKeywordParameterInitializer(vf.bool(true)));
+	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes, defaults);
+
+	  IConstructor n1 = vf.constructor(cons);
+	  
+	  // defaults work
+	  assertTrue(n1.asWithKeywordParameters().getParameter("foo").isEqual(vf.bool(true)));
+    
+	  // overrides work
+	  IConstructor n2 = n1.asWithKeywordParameters().setParameter("foo", vf.bool(false));
+	  assertTrue(n2.asWithKeywordParameters().getParameter("foo").isEqual(vf.bool(false)));
+
+	  // keywordparameters work on equality:
+	  assertFalse(n1.isEqual(n2));
+  }
+	
 }

@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
@@ -20,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -67,22 +66,6 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well			
 	}
 
-	public boolean hasKeywordArguments() {
-		return content.hasKeywordArguments();
-	}
-
-	public String[] getKeywordArgumentNames() {
-		return content.getKeywordArgumentNames();
-	}
-
-	public int getKeywordIndex(String name) {
-		return content.getKeywordIndex(name);
-	}
-
-	public IValue getKeywordArgumentValue(String name) {
-		return content.getKeywordArgumentValue(name);
-	}
-
 	public int arity() {
 		return content.arity();
 	}
@@ -92,16 +75,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	}
 
 	public String toString() {
-		try(StringWriter stream = new StringWriter()) {
-			new StandardTextWriter().write(this, stream);
-			return stream.toString();
-		} catch (IOException ioex) {
-			throw new RuntimeException("Should have never happened.", ioex);
-		}
-	}
-
-	public int positionalArity() {
-		return content.positionalArity();
+		return StandardTextWriter.valueToString(this);
 	}
 
 	public IConstructor set(int index, IValue newChild)
@@ -175,4 +149,13 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		};
 	}
 	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return false;
+	}
+
+	@Override
+	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+	  throw new UnsupportedOperationException("can not add keyword parameters to a node which already has annotations");
+	}
 }

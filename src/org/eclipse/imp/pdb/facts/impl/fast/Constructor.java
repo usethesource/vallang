@@ -10,22 +10,26 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
+import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.impl.AbstractValue;
 import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
+import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
 import org.eclipse.imp.pdb.facts.util.ArrayIterator;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -37,7 +41,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Constructor extends AbstractValue implements IConstructor{
+/*package*/ class Constructor extends AbstractValue implements IConstructor {
 	protected final Type constructorType;
 	protected final IValue[] children;
 
@@ -46,14 +50,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
-	  IValue[] allChildren = new IValue[children.length + kwParams.size()];
-	  System.arraycopy(children, 0, allChildren, 0, children.length);
+	  IConstructor r = new Constructor(constructorType, children);
 	  
-	  for (Entry<String,IValue> entry : kwParams.entrySet()) {
-	    allChildren[constructorType.getFieldIndex(entry.getKey())] = entry.getValue();
+	  if (kwParams != null && !kwParams.isEmpty()) {
+	    return r.asWithKeywordParameters().setParameters(kwParams);
 	  }
-
-	  return new Constructor(constructorType, allChildren);
+	  
+	  return r;
 	}
 	
 	private Constructor(Type constructorType, IValue[] children){
@@ -213,11 +216,24 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				if (it1.next().isEqual(it2.next()) == false) {
 					return false;
 				}
-			}
+			}  
 
-			// TODO: if keyword parameters are better supported with default values, 
-			// this can become 'true' again.
-			return (!it1.hasNext() && !it2.hasNext());
+			// TODO: this can be optimized when annotations are removed
+			if (mayHaveKeywordParameters() && otherTree.mayHaveKeywordParameters()) {
+			  return asWithKeywordParameters().equalParameters(otherTree.asWithKeywordParameters());
+			}
+			
+			// TODO: this can be optimized when annotations are removed
+			if (mayHaveKeywordParameters() && asWithKeywordParameters().hasParameters()) {
+			  return false;
+			}
+			
+			// TODO: this can be optimized when annotations are removed
+			if (otherTree.mayHaveKeywordParameters() && otherTree.asWithKeywordParameters().hasParameters()) {
+			  return false;
+			}
+			
+			return true;
 		}
 		
 		return false;
@@ -235,31 +251,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		throw new UnsupportedOperationException("Replace not supported on constructor.");
 	}
 	
-	@Override
-	public IValue getKeywordArgumentValue(String name) {
-		throw new UnsupportedOperationException("getKeyArgValue not supported on constructor.");
-	}
-
-	@Override
-	public boolean hasKeywordArguments() {
-		return constructorType.hasKeywordArguments();
-	}
-
-	@Override
-	public String[] getKeywordArgumentNames() {
-		return constructorType.getFieldNames();
-	}
-
-	@Override
-	public int getKeywordIndex(String name) {
-		return constructorType.getFieldIndex(name);
-	}
-
-	@Override
-	public int positionalArity() {
-		return constructorType.getPositionalArity();
-	}
-	
 	/**
 	 * TODO: Create and move to {@link AbstractConstructor}.
 	 */
@@ -272,9 +263,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	 * TODO: Create and move to {@link AbstractConstructor}.
 	 */
 	@Override
-	public IAnnotatable<? extends IConstructor> asAnnotatable() {
+	public IAnnotatable<IConstructor> asAnnotatable() {
 		return new AbstractDefaultAnnotatable<IConstructor>(this) {
-
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
@@ -283,4 +273,34 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		};
 	}
 	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, ConstructorWithKeywordParametersFacade.computeKeywordParameters(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf())) {
+	    @Override
+	    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+	      return new ConstructorWithKeywordParametersFacade(content, parameters);
+	    }
+	    
+	    @Override
+	    public boolean hasParameters() {
+	    	return content.getConstructorType().hasKeywordParameters();
+	    }
+
+	    @Override
+	    public String[] getParameterNames() {
+	    	return content.getConstructorType().getKeywordParameters();
+	    }
+
+	    @Override
+	    public Map<String, IValue> getParameters() {
+	    	return Collections.unmodifiableMap(parameters);
+	    }
+	  }; 
+	}
+
 }

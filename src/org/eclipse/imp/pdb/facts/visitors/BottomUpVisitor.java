@@ -11,15 +11,15 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.visitors;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -55,7 +55,7 @@ public class BottomUpVisitor<T, E extends Throwable> extends VisitorAdapter<T, E
 	
 	@Override
 	public T visitList(IList o) throws E {
-		IListWriter w = fFactory.listWriter(o.getElementType());
+		IListWriter w = fFactory.listWriter();
 		for (IValue elem : o) {
 			elem.accept(this);
 		}
@@ -65,7 +65,7 @@ public class BottomUpVisitor<T, E extends Throwable> extends VisitorAdapter<T, E
 	
 	@Override
 	public T visitSet(ISet o) throws E {
-		ISetWriter w = fFactory.setWriter(o.getElementType());
+		ISetWriter w = fFactory.setWriter();
 		for (IValue elem : o) {
 			elem.accept(this);
 		}
@@ -75,7 +75,7 @@ public class BottomUpVisitor<T, E extends Throwable> extends VisitorAdapter<T, E
 	
 	@Override
 	public T visitMap(IMap o) throws E {
-		IMapWriter w = fFactory.mapWriter(o.getKeyType(), o.getValueType());
+		IMapWriter w = fFactory.mapWriter();
 		for (IValue elem : o) {
 			elem.accept(this);
 			o.get(elem).accept(this);
@@ -86,7 +86,7 @@ public class BottomUpVisitor<T, E extends Throwable> extends VisitorAdapter<T, E
 
 	@Override
 	public T visitRelation(ISet o) throws E {
-		ISetWriter w = fFactory.relationWriter(o.getType().getFieldTypes());
+		ISetWriter w = fFactory.setWriter();
 		
 		for (IValue tuple : o) {
 			tuple.accept(this);
@@ -109,7 +109,7 @@ public class BottomUpVisitor<T, E extends Throwable> extends VisitorAdapter<T, E
 	}
 
 	public T visitListRelation(IList o) throws E {
-		IListWriter w = fFactory.listWriter(o.getType().getFieldTypes());
+		IListWriter w = fFactory.listWriter();
 		
 		for (IValue tuple : o) {
 			tuple.accept(this);

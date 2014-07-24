@@ -38,7 +38,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	protected final Type fType;
 	protected final IValue[] fChildren;
-    protected final String fName;
+	protected final String fName;
 	protected int fHash = 0;
 	protected final String[] keyArgNames;
 	
@@ -146,11 +146,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new IndexOutOfBoundsException("Node node does not have child at pos " + i);
 		}
-	}
-
-	@Override
-	public String[] getKeywordArgumentNames() {
-		return keyArgNames;
 	}
 
 	@Override

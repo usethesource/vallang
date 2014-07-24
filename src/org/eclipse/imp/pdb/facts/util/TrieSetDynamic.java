@@ -1255,7 +1255,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity);
+			return ArrayKeyValueSupplierIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1467,7 +1467,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 				keysAndVals[2 * i + 1] = keys[i];
 			}
 
-			return ArrayKeyValueIterator.of(keysAndVals);
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
 		}
 
 		@Override

@@ -1410,7 +1410,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity());
+			return ArrayKeyValueSupplierIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity());
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1655,7 +1655,7 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 				keysAndVals[2 * i + 1] = vals[i];
 			}
 
-			return ArrayKeyValueIterator.of(keysAndVals);
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
 		}
 
 		@Override

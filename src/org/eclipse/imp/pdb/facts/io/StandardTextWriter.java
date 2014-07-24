@@ -11,6 +11,7 @@
 package org.eclipse.imp.pdb.facts.io;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,6 +31,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -54,6 +56,15 @@ public class StandardTextWriter implements IValueTextWriter {
 	public StandardTextWriter(boolean indent, int tabSize) {
 		this.indent = indent;
 		this.tabSize = tabSize;
+	}
+	
+	public static String valueToString(IValue value) {
+		try(StringWriter stream = new StringWriter()) {
+			new StandardTextWriter().write(value, stream);
+			return stream.toString();
+		} catch (IOException ioex) {
+			throw new RuntimeException("Should have never happened.", ioex);
+		}
 	}
 	
 	public void write(IValue value, java.io.Writer stream) throws IOException {
@@ -187,13 +198,8 @@ public class StandardTextWriter implements IValueTextWriter {
 			tab();
 			indent(indent);
 			Iterator<IValue> it = o.iterator();
-			int posArity = o.positionalArity();
-			String[] keyArgNames = o.getKeywordArgumentNames();
 			int k = 0;
 			while (it.hasNext()) {
-			  if(k >= posArity && keyArgNames != null){
-          append(keyArgNames[k - posArity] + "=");
-        }
 				it.next().accept(this);
 				if (it.hasNext()) {
 					append(',');
@@ -201,9 +207,32 @@ public class StandardTextWriter implements IValueTextWriter {
 				}
 				k++;
 			}
+			
+			if (o.mayHaveKeywordParameters()) {
+			  IWithKeywordParameters<? extends IConstructor> wkw = o.asWithKeywordParameters();
+			  if (wkw.hasParameters()) {
+			    if (k > 0) {
+			      append(',');
+			    }
+			    
+			    Iterator<Entry<String, IValue>> iterator = wkw.getParameters().entrySet().iterator();
+			    while (iterator.hasNext()) {
+			      Entry<String,IValue> e = iterator.next();
+			      
+			      append(e.getKey());
+			      append('=');
+			      e.getValue().accept(this);
+			      
+			      if (iterator.hasNext()) {
+			        append(',');
+			      }
+			    }
+			  }
+			}
+	      
 			append(')');
 			untab();
-			if (o.asAnnotatable().hasAnnotations()) {
+			if (o.isAnnotatable() && o.asAnnotatable().hasAnnotations()) {
 				append('[');
 				tab();
 				indent();
@@ -621,13 +650,8 @@ public class StandardTextWriter implements IValueTextWriter {
     	tab();
     	indent(indent);
     	Iterator<IValue> it = o.iterator();
-    	int posArity = o.positionalArity();
-    	String[] keyArgNames = o.getKeywordArgumentNames();
     	int k = 0;
     	while (it.hasNext()) {
-    		if(k >= posArity && keyArgNames != null){
-    			append(keyArgNames[k - posArity] + "=");
-    		}
     		it.next().accept(this);
     		if (it.hasNext()) {
     			append(',');
@@ -635,9 +659,30 @@ public class StandardTextWriter implements IValueTextWriter {
     		}
     		k++;
     	}
+    
+    	
+    	IWithKeywordParameters<? extends INode> wkw = o.asWithKeywordParameters();
+    	if (wkw.hasParameters()) {
+    	  if (k > 0) {
+    	    append(',');
+    	  }
+    	    
+    	  Iterator<Entry<String,IValue>> kwIt = wkw.getParameters().entrySet().iterator();
+    	  while (kwIt.hasNext()) {
+    	    Entry<String, IValue> e = kwIt.next();
+    	    append(e.getKey());
+    	    append('=');
+    	    e.getValue().accept(this);
+    	    
+    	    if (kwIt.hasNext()) {
+    	      append(',');
+    	    }
+    	    
+    	  }
+    	}
     	append(')');
     	untab();
-    	if (o.asAnnotatable().hasAnnotations()) {
+    	if (o.isAnnotatable() && o.asAnnotatable().hasAnnotations()) {
     		append('[');
     		tab();
     		indent();

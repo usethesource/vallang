@@ -1900,7 +1900,7 @@ public class TrieMapSpecializationWithUntypedVariables<K, V> extends AbstractImm
 				keysAndVals[2 * i + 1] = vals[i];
 			}
 
-			return ArrayKeyValueIterator.of(keysAndVals);
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
 		}
 
 		@Override

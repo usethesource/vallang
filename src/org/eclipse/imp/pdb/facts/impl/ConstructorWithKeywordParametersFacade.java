@@ -1,0 +1,216 @@
+/*******************************************************************************
+ * Copyright (c) 2013 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *******************************************************************************/
+package org.eclipse.imp.pdb.facts.impl;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.eclipse.imp.pdb.facts.IAnnotatable;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
+import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+
+public class ConstructorWithKeywordParametersFacade implements IConstructor {
+	protected final IConstructor content;
+	protected final ImmutableMap<String, IValue> parameters;
+	
+	public ConstructorWithKeywordParametersFacade(final IConstructor content, final ImmutableMap<String, IValue> parameters) {
+		this.content = content;
+		this.parameters = computeKeywordParameters(content, parameters);
+	}
+	
+    public static ImmutableMap<String, IValue> computeKeywordParameters(IConstructor content, Map<String,IValue> params) {
+  	  ImmutableMap<String, IValue> env = AbstractSpecialisedImmutableMap.mapOf(params);
+  	  
+  	  if (content.getConstructorType().hasFieldNames()) {
+  		  for (String label : content.getConstructorType().getFieldNames()) {
+  			  env = env.__put(label, content.get(label));
+  		  }
+  	  }
+
+  	  if (content.getConstructorType().hasKeywordParameters()) {
+  		  for (String label : content.getConstructorType().getKeywordParameters()) {
+  			  if (params.containsKey(label)) {
+  				  env = env.__put(label, params.get(label));
+  			  }
+  			  else {
+  				  env = env.__put(label, content.getConstructorType().getKeywordParameterInitializer(label).initialize(env));
+  			  }
+  		  }
+  	  }
+  	  
+  	  if (content.getConstructorType().hasFieldNames()) {
+		  for (String label : content.getConstructorType().getFieldNames()) {
+			  env = env.__remove(label);
+		  }
+	  }
+  	  return env;
+    }
+	
+	public Type getType() {
+		return content.getType();
+	}
+
+	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+		return v.visitConstructor(this);
+	}
+
+	public IValue get(int i) throws IndexOutOfBoundsException {
+		return content.get(i);
+	}
+	
+	public IConstructor set(int i, IValue newChild) throws IndexOutOfBoundsException {
+		IConstructor newContent = content.set(i, newChild);
+		return new ConstructorWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
+	}
+
+	public int arity() {
+		return content.arity();
+	}
+
+	public String toString() {
+		return StandardTextWriter.valueToString(this);
+	}
+
+	public String getName() {
+		return content.getName();
+	}
+
+	public Iterable<IValue> getChildren() {
+		return content.getChildren();
+	}
+
+	public Iterator<IValue> iterator() {
+		return content.iterator();
+	}
+	
+	public IConstructor replace(int first, int second, int end, IList repl)
+			throws FactTypeUseException, IndexOutOfBoundsException {
+	  throw new UnsupportedOperationException("Replace not supported on constructor.");
+	}
+
+	public boolean equals(Object o) {
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o.getClass() == getClass()){
+			ConstructorWithKeywordParametersFacade other = (ConstructorWithKeywordParametersFacade) o;
+		
+			return content.equals(other.content) &&
+					parameters.equals(other.parameters);
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean isEqual(IValue other) {
+	  if (!(other instanceof ConstructorWithKeywordParametersFacade)) {
+	    return false;
+	  }
+	  
+	  // TODO: the equals here should be isEqual
+	  ConstructorWithKeywordParametersFacade o = (ConstructorWithKeywordParametersFacade) other;
+	  
+	  return content.isEqual(o.content) && o.parameters.equals(parameters);
+	}
+	
+	@Override
+	public int hashCode() {
+		return content.hashCode();
+	}
+	
+	@Override
+	public boolean isAnnotatable() {
+		return false;
+	}
+	
+	@Override
+	public IAnnotatable<? extends IConstructor> asAnnotatable() {
+		throw new UnsupportedOperationException("can not annotate a constructor which already has keyword parameters");
+	}
+	
+	@Override
+	public boolean mayHaveKeywordParameters() {
+	  return true;
+	}
+	
+	@Override
+	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
+      @Override
+      protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+        return new ConstructorWithKeywordParametersFacade(content, parameters);
+      }
+      
+      @Override
+      public boolean hasParameters() {
+        return content.getConstructorType().hasKeywordParameters();
+      }
+      
+      @Override
+      public String[] getParameterNames() {
+        return content.getConstructorType().getKeywordParameters();
+      }
+      
+      @Override
+      public Map<String, IValue> getParameters() {
+        return Collections.unmodifiableMap(parameters);
+      }
+    };
+	}
+
+  @Override
+  public Type getConstructorType() {
+    return content.getConstructorType();
+  }
+
+  @Override
+  public Type getUninstantiatedConstructorType() {
+    return content.getUninstantiatedConstructorType();
+  }
+
+  @Override
+  public IValue get(String label) {
+    return content.get(label);
+  }
+
+  @Override
+  public IConstructor set(String label, IValue newChild) throws FactTypeUseException {
+    return new ConstructorWithKeywordParametersFacade(content.set(label, newChild), parameters);
+  }
+
+  @Override
+  public boolean has(String label) {
+    return content.has(label);
+  }
+
+  
+  @Override
+  public Type getChildrenTypes() {
+    return content.getChildrenTypes();
+  }
+
+  @Override
+  public boolean declaresAnnotation(TypeStore store, String label) {
+    return content.declaresAnnotation(store, label);
+  }
+}
