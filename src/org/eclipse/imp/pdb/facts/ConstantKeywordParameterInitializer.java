@@ -24,4 +24,8 @@ public class ConstantKeywordParameterInitializer implements IKeywordParameterIni
 	public int hashCode() {
 		return constant.hashCode();
 	}
+	@Override
+	public String toString() {
+		return constant.toString();
+	}
 }
