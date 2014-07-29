@@ -34,8 +34,9 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					CompactSetNode.EMPTY_INPLACE_INDEX_NODE, 0, 0);
 
 	private static final boolean USE_SPECIALIAZIONS = true;
-	private static final boolean USE_STACK_ITERATOR = true; // does not effect TransientSet
-	
+	private static final boolean USE_STACK_ITERATOR = true; // does not effect
+															// TransientSet
+
 	private final AbstractSetNode<K> rootNode;
 	private final int hashCode;
 	private final int cachedSize;
@@ -44,7 +45,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
-		assert invariant();
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -55,30 +56,30 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 	@SuppressWarnings("unchecked")
 	public static final <K> ImmutableSet<K> of(K... keys) {
 		ImmutableSet<K> result = TrieSetGPCE0To4.EMPTY_INPLACE_INDEX_SET;
-		
+
 		for (K item : keys) {
 			result = result.__insert(item);
 		}
-		
+
 		return result;
-	}		
-	
+	}
+
 	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf() {
 		return TrieSetGPCE0To4.EMPTY_INPLACE_INDEX_SET.asTransient();
 	}
-	
+
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf(K... keys) {
-		final TransientSet<K> result = TrieSetGPCE0To4.EMPTY_INPLACE_INDEX_SET.asTransient();		
-		
+		final TransientSet<K> result = TrieSetGPCE0To4.EMPTY_INPLACE_INDEX_SET.asTransient();
+
 		for (K item : keys) {
 			result.__insert(item);
 		}
-		
+
 		return result;
-	}		
+	}
 
 	@SuppressWarnings("unchecked")
 	protected static final <K> Comparator<K> equalityComparator() {
@@ -345,7 +346,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.rootNode = TrieSet.rootNode;
 			this.hashCode = TrieSet.hashCode;
 			this.cachedSize = TrieSet.cachedSize;
-			assert invariant();
+
 		}
 
 		// TODO: merge with TrieSet invariant (as function)
@@ -380,7 +381,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 			return true;
 		}
-		
+
 		@Override
 		public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
 			for (Object item : c) {
@@ -389,8 +390,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				}
 			}
 			return true;
-		}		
-		
+		}
+
 		@Override
 		public K get(Object key) {
 			return getEquivalent(key, equalityComparator());
@@ -428,11 +429,9 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				hashCode += keyHash;
 				cachedSize += 1;
 
-				assert invariant();
 				return true;
 			}
 
-			assert invariant();
 			return false;
 		}
 
@@ -480,11 +479,9 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				hashCode -= keyHash;
 				cachedSize -= 1;
 
-				assert invariant();
 				return true;
 			}
 
-			assert invariant();
 			return false;
 		}
 
@@ -523,8 +520,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		@Override
 		public int size() {
 			return cachedSize;
-		}		
-		
+		}
+
 		@Override
 		public Iterator<K> iterator() {
 			return keyIterator();
@@ -679,10 +676,10 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 		}
 	}
-	
+
 	protected static abstract class AbstractNode<K, V> {
-		
-	}	
+
+	}
 
 	protected static abstract class AbstractSetNode<K> extends AbstractNode<K, Void> {
 
@@ -699,7 +696,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		abstract Result<K, Void, ? extends AbstractSetNode<K>> updated(
 						AtomicReference<Thread> mutator, K key, int keyHash, Void val, int shift);
-		
+
 		abstract Result<K, Void, ? extends AbstractSetNode<K>> updated(
 						AtomicReference<Thread> mutator, K key, int keyHash, Void val, int shift,
 						Comparator<Object> cmp);
@@ -709,7 +706,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		abstract Result<K, Void, ? extends AbstractSetNode<K>> removed(
 						AtomicReference<Thread> mutator, K key, int keyHash, int shift,
-						Comparator<Object> cmp);		
+						Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
@@ -762,19 +759,21 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		@Override
 		abstract Result<K, Void, ? extends CompactSetNode<K>> updated(
 						AtomicReference<Thread> mutator, K key, int keyHash, Void val, int shift);
-		
-		@Override
-		abstract Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
-						K key, int keyHash, Void val, int shift, Comparator<Object> cmp);
 
 		@Override
-		abstract Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
-						K key, int hash, int shift);
+		abstract Result<K, Void, ? extends CompactSetNode<K>> updated(
+						AtomicReference<Thread> mutator, K key, int keyHash, Void val, int shift,
+						Comparator<Object> cmp);
 
 		@Override
-		abstract Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
-						K key, int hash, int shift, Comparator<Object> cmp);
-		
+		abstract Result<K, Void, ? extends CompactSetNode<K>> removed(
+						AtomicReference<Thread> mutator, K key, int hash, int shift);
+
+		@Override
+		abstract Result<K, Void, ? extends CompactSetNode<K>> removed(
+						AtomicReference<Thread> mutator, K key, int hash, int shift,
+						Comparator<Object> cmp);
+
 		/**
 		 * Abstract predicate over a node's size. Value can be either
 		 * {@value #SIZE_EMPTY}, {@value #SIZE_ONE}, or
@@ -814,13 +813,13 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				EMPTY_INPLACE_INDEX_NODE = new BitmapIndexedSetNode<>(null, 0, 0, new Object[] {},
 								(byte) 0);
 			}
-		};		
-		
+		};
+
 		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, int bitmap,
 						int valmap, Object[] nodes, byte valueArity) {
 			return new BitmapIndexedSetNode<>(mutator, bitmap, valmap, nodes, valueArity);
-		}		
-		
+		}
+
 		static final <K> CompactSetNode<K> valNodeOf(AtomicReference<Thread> mutator, byte pos,
 						CompactSetNode<K> node) {
 			switch (pos) {
@@ -899,142 +898,204 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			return EMPTY_INPLACE_INDEX_NODE;
 		}
 
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2) {					
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2) {
 			return new Set0To2Node<>(mutator, npos1, node1, npos2, node2);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2, final byte npos3, final CompactSetNode<K> node3) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3) {
 			return new Set0To3Node<>(mutator, npos1, node1, npos2, node2, npos3, node3);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2, final byte npos3, final CompactSetNode<K> node3, final byte npos4, final CompactSetNode<K> node4) {					
-			return new Set0To4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4, node4);
-		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2, final byte npos3, final CompactSetNode<K> node3, final byte npos4, final CompactSetNode<K> node4, final byte npos5, final CompactSetNode<K> node5) {
-			final int bitmap = 0 | (1 << npos1) | (1 << npos2) | (1 << npos3) | (1 << npos4) | (1 << npos5) ;
-			final int valmap = 0  ;
-			final Object[] content = new Object[] { node1, node2, node3, node4, node5 } ;
 
-			
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new BitonicSorterForArbitraryN_Single();
-			BitonicSorterForArbitraryN_Single.sort(new int[] { npos1, npos2, npos3, npos4, npos5 }, content, 0);
-			
-
-			return valNodeOf(mutator, bitmap, valmap, content, (byte) 0);		
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3, final byte npos4,
+						final CompactSetNode<K> node4) {
+			return new Set0To4Node<>(mutator, npos1, node1, npos2, node2, npos3, node3, npos4,
+							node4);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte npos1, final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3, final byte npos4,
+						final CompactSetNode<K> node4, final byte npos5,
+						final CompactSetNode<K> node5) {
+			final int bitmap = 0 | (1 << npos1) | (1 << npos2) | (1 << npos3) | (1 << npos4)
+							| (1 << npos5);
+			final int valmap = 0;
+			final Object[] content = new Object[] { node1, node2, node3, node4, node5 };
+
+			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new
+			// BitonicSorterForArbitraryN_Single();
+			BitonicSorterForArbitraryN_Single.sort(new int[] { npos1, npos2, npos3, npos4, npos5 },
+							content, 0);
+
+			return valNodeOf(mutator, bitmap, valmap, content, (byte) 0);
+		}
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1) {
 			return new Set1To0Node<>(mutator, pos1, key1);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte npos1, final CompactSetNode<K> node1) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte npos1,
+						final CompactSetNode<K> node1) {
 			return new Set1To1Node<>(mutator, pos1, key1, npos1, node1);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte npos1,
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2) {
 			return new Set1To2Node<>(mutator, pos1, key1, npos1, node1, npos2, node2);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2, final byte npos3, final CompactSetNode<K> node3) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte npos1,
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3) {
 			return new Set1To3Node<>(mutator, pos1, key1, npos1, node1, npos2, node2, npos3, node3);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2, final byte npos3, final CompactSetNode<K> node3, final byte npos4, final CompactSetNode<K> node4) {
-			final int bitmap = 0 | (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3) | (1 << npos4) ;
-			final int valmap = 0 | (1 << pos1) ;
-			final Object[] content = new Object[] { key1, node1, node2, node3, node4 } ;
 
-			
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new BitonicSorterForArbitraryN_Single();
-			BitonicSorterForArbitraryN_Single.sort(new int[] { npos1, npos2, npos3, npos4 }, content, 1);
-			
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte npos1,
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3, final byte npos4,
+						final CompactSetNode<K> node4) {
+			final int bitmap = 0 | (1 << pos1) | (1 << npos1) | (1 << npos2) | (1 << npos3)
+							| (1 << npos4);
+			final int valmap = 0 | (1 << pos1);
+			final Object[] content = new Object[] { key1, node1, node2, node3, node4 };
 
-			return valNodeOf(mutator, bitmap, valmap, content, (byte) 1);		
+			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new
+			// BitonicSorterForArbitraryN_Single();
+			BitonicSorterForArbitraryN_Single.sort(new int[] { npos1, npos2, npos3, npos4 },
+							content, 1);
+
+			return valNodeOf(mutator, bitmap, valmap, content, (byte) 1);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2) {
 			return new Set2To0Node<>(mutator, pos1, key1, pos2, key2);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte npos1, final CompactSetNode<K> node1) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte npos1, final CompactSetNode<K> node1) {
 			return new Set2To1Node<>(mutator, pos1, key1, pos2, key2, npos1, node1);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte npos1, final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2) {
 			return new Set2To2Node<>(mutator, pos1, key1, pos2, key2, npos1, node1, npos2, node2);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2, final byte npos3, final CompactSetNode<K> node3) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2) | (1 << npos3) ;
-			final int valmap = 0 | (1 << pos1) | (1 << pos2) ;
-			final Object[] content = new Object[] { key1, key2, node1, node2, node3 } ;
 
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterPayload = new BitonicSorterForArbitraryN_Single();
-			BitonicSorterForArbitraryN_Single.sort(new int[] { pos1, pos2 }, content, 0);			
-			
-			
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new BitonicSorterForArbitraryN_Single();
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte npos1, final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << npos1) | (1 << npos2)
+							| (1 << npos3);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2);
+			final Object[] content = new Object[] { key1, key2, node1, node2, node3 };
+
+			// final BitonicSorterForArbitraryN_Single sorterPayload = new
+			// BitonicSorterForArbitraryN_Single();
+			BitonicSorterForArbitraryN_Single.sort(new int[] { pos1, pos2 }, content, 0);
+
+			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new
+			// BitonicSorterForArbitraryN_Single();
 			BitonicSorterForArbitraryN_Single.sort(new int[] { npos1, npos2, npos3 }, content, 2);
-			
 
-			return valNodeOf(mutator, bitmap, valmap, content, (byte) 2);		
+			return valNodeOf(mutator, bitmap, valmap, content, (byte) 2);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte pos3, final K key3) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte pos3, final K key3) {
 			return new Set3To0Node<>(mutator, pos1, key1, pos2, key2, pos3, key3);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte pos3, final K key3, final byte npos1, final CompactSetNode<K> node1) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte pos3, final K key3, final byte npos1,
+						final CompactSetNode<K> node1) {
 			return new Set3To1Node<>(mutator, pos1, key1, pos2, key2, pos3, key3, npos1, node1);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte pos3, final K key3, final byte npos1, final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1) | (1 << npos2) ;
-			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) ;
-			final Object[] content = new Object[] { key1, key2, key3, node1, node2 } ;
 
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterPayload = new BitonicSorterForArbitraryN_Single();
-			BitonicSorterForArbitraryN_Single.sort(new int[] { pos1, pos2, pos3 }, content, 0);			
-			
-			
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new BitonicSorterForArbitraryN_Single();
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte pos3, final K key3, final byte npos1,
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << npos1)
+							| (1 << npos2);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3);
+			final Object[] content = new Object[] { key1, key2, key3, node1, node2 };
+
+			// final BitonicSorterForArbitraryN_Single sorterPayload = new
+			// BitonicSorterForArbitraryN_Single();
+			BitonicSorterForArbitraryN_Single.sort(new int[] { pos1, pos2, pos3 }, content, 0);
+
+			// final BitonicSorterForArbitraryN_Single sorterSubnodes = new
+			// BitonicSorterForArbitraryN_Single();
 			BitonicSorterForArbitraryN_Single.sort(new int[] { npos1, npos2 }, content, 3);
-			
 
-			return valNodeOf(mutator, bitmap, valmap, content, (byte) 3);		
+			return valNodeOf(mutator, bitmap, valmap, content, (byte) 3);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte pos3, final K key3, final byte pos4, final K key4) {					
+
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte pos3, final K key3, final byte pos4, final K key4) {
 			return new Set4To0Node<>(mutator, pos1, key1, pos2, key2, pos3, key3, pos4, key4);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte pos3, final K key3, final byte pos4, final K key4, final byte npos1, final CompactSetNode<K> node1) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << npos1) ;
-			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) ;
-			final Object[] content = new Object[] { key1, key2, key3, key4, node1 } ;
 
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterPayload = new BitonicSorterForArbitraryN_Single();
-			BitonicSorterForArbitraryN_Single.sort(new int[] { pos1, pos2, pos3, pos4 }, content, 0);			
-			
-			
-			
-			
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte pos3, final K key3, final byte pos4, final K key4,
+						final byte npos1, final CompactSetNode<K> node1) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
+							| (1 << npos1);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4);
+			final Object[] content = new Object[] { key1, key2, key3, key4, node1 };
 
-			return valNodeOf(mutator, bitmap, valmap, content, (byte) 4);		
+			// final BitonicSorterForArbitraryN_Single sorterPayload = new
+			// BitonicSorterForArbitraryN_Single();
+			BitonicSorterForArbitraryN_Single
+							.sort(new int[] { pos1, pos2, pos3, pos4 }, content, 0);
+
+			return valNodeOf(mutator, bitmap, valmap, content, (byte) 4);
 		}
-		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator, final byte pos1, final K key1, final byte pos2, final K key2, final byte pos3, final K key3, final byte pos4, final K key4, final byte pos5, final K key5) {
-			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5) ;
-			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4) | (1 << pos5) ;
-			final Object[] content = new Object[] { key1, key2, key3, key4, key5 } ;
 
-			
-			
-			// final BitonicSorterForArbitraryN_Single sorterPayload = new BitonicSorterForArbitraryN_Single();
-			BitonicSorterForArbitraryN_Single.sort(new int[] { pos1, pos2, pos3, pos4, pos5 }, content, 0);			
-			
-			
-			
-			
+		static final <K> CompactSetNode<K> valNodeOf(final AtomicReference<Thread> mutator,
+						final byte pos1, final K key1, final byte pos2, final K key2,
+						final byte pos3, final K key3, final byte pos4, final K key4,
+						final byte pos5, final K key5) {
+			final int bitmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
+							| (1 << pos5);
+			final int valmap = 0 | (1 << pos1) | (1 << pos2) | (1 << pos3) | (1 << pos4)
+							| (1 << pos5);
+			final Object[] content = new Object[] { key1, key2, key3, key4, key5 };
 
-			return valNodeOf(mutator, bitmap, valmap, content, (byte) 5);		
+			// final BitonicSorterForArbitraryN_Single sorterPayload = new
+			// BitonicSorterForArbitraryN_Single();
+			BitonicSorterForArbitraryN_Single.sort(new int[] { pos1, pos2, pos3, pos4, pos5 },
+							content, 0);
+
+			return valNodeOf(mutator, bitmap, valmap, content, (byte) 5);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1124,8 +1185,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		final private int valmap;
 		final private byte payloadArity;
 
-		BitmapIndexedSetNode(AtomicReference<Thread> mutator, int bitmap, int valmap, Object[] nodes,
-						byte payloadArity) {
+		BitmapIndexedSetNode(AtomicReference<Thread> mutator, int bitmap, int valmap,
+						Object[] nodes, byte payloadArity) {
 			assert (Integer.bitCount(valmap) + Integer.bitCount(bitmap ^ valmap) == nodes.length);
 
 			this.mutator = mutator;
@@ -1137,7 +1198,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 			assert (payloadArity == Integer.bitCount(valmap));
 			assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-															// SIZE_MORE_THAN_ONE
+																// SIZE_MORE_THAN_ONE
 
 			// for (int i = 0; i < valueArity; i++)
 			// assert ((nodes[i] instanceof CompactSetNode) == false);
@@ -1146,7 +1207,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			// assert ((nodes[i] instanceof CompactSetNode) == true);
 
 			// assert invariant
-			assert nodeInvariant();
+
 		}
 
 		final int bitIndex(int bitpos) {
@@ -1173,8 +1234,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 
 			return false;
-		}		
-		
+		}
+
 		@SuppressWarnings("unchecked")
 		@Override
 		boolean containsKey(Object key, int hash, int shift, Comparator<Object> cmp) {
@@ -1217,8 +1278,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 
 			return Optional.empty();
-		}		
-		
+		}
+
 		@Override
 		@SuppressWarnings("unchecked")
 		Optional<K> findByKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
@@ -1315,7 +1376,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				return Result.modified(thisNew);
 			}
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
@@ -1387,228 +1448,230 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 		}
 
-		@SuppressWarnings("unchecked")	
+		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-				final int bitpos = (1 << mask);
-			
-				if ((valmap & bitpos) != 0) { // inplace value
-					final int valIndex = valIndex(bitpos);
-			
-					if (nodes[valIndex].equals(key)) {			
-						if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
-							/*
-							 * Create new node with remaining pair. The new node
-							 * will a) either become the new root returned, or b)
-							 * unwrapped and inlined during returning.
-							 */
-							final CompactSetNode<K> thisNew;
-							final int newValmap = (shift == 0) ? this.valmap & ~bitpos
-											: 1 << (keyHash & BIT_PARTITION_MASK);
-			
-							if (valIndex == 0) {
-								thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap,
-												newValmap, new Object[] { nodes[2], nodes[3] },
-												(byte) (1));
-							} else {
-								thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap,
-												newValmap, new Object[] { nodes[0], nodes[1] },
-												(byte) (1));
-							}
-			
-							return Result.modified(thisNew);
-						} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-							return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (nodes[valIndex].equals(key)) {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node
+						 * will a) either become the new root returned, or b)
+						 * unwrapped and inlined during returning.
+						 */
+						final CompactSetNode<K> thisNew;
+						final int newValmap = (shift == 0) ? this.valmap & ~bitpos
+										: 1 << (keyHash & BIT_PARTITION_MASK);
+
+						if (valIndex == 0) {
+							thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[2], nodes[3] }, (byte) (1));
 						} else {
-							final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
-				
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-											this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
-											(byte) (payloadArity - 1));
-				
-							return Result.modified(thisNew);
+							thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[0], nodes[1] }, (byte) (1));
 						}
-					} else {		
-						return Result.unchanged(this);
+
+						return Result.modified(thisNew);
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
+						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask,
+										bitpos));
+					} else {
+						final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										this.bitmap & ~bitpos, this.valmap & ~bitpos,
+										editableNodes, (byte) (payloadArity - 1));
+
+						return Result.modified(thisNew);
 					}
-				} else if ((bitmap & bitpos) != 0) { // node (not value)
-					final int bitIndex = bitIndex(bitpos);
-					final CompactSetNode<K> subNode = (CompactSetNode<K>) nodes[bitIndex];
-					final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.removed(
-									mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-			
-					if (!nestedResult.isModified()) {
-						return Result.unchanged(this);
-					}
-			
-					final CompactSetNode<K> subNodeNew = nestedResult.getNode();
-			
-					switch (subNodeNew.sizePredicate()) {
-					case 0: {
-						if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-							// escalate (singleton or empty) result
-							return nestedResult;
-						} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-							return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
-						} else {
-							// remove node
-							final Object[] editableNodes = copyAndRemove(this.nodes, bitIndex);
-			
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-											bitmap & ~bitpos, valmap, editableNodes, payloadArity);
-			
-							return Result.modified(thisNew);
-						}
-					}
-					case 1: {
-						if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-							// escalate (singleton or empty) result
-							return nestedResult;
-						} else {
-							// inline value (move to front)
-							final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-				
-							final Object[] editableNodes = copyAndMoveToFront(this.nodes, bitIndex,
-											valIndexNew, subNodeNew.headKey());
-				
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap,
-											valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
-				
-							return Result.modified(thisNew);
-						}
-					}
-					default: {
-						// modify current node (set replacement node)
-						if (isAllowedToEdit(this.mutator, mutator)) {
-							// no copying if already editable
-							this.nodes[bitIndex] = subNodeNew;
-							return Result.modified(this);
-						} else {
-							final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
-			
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-											bitmap, valmap, editableNodes, payloadArity);
-			
-							return Result.modified(thisNew);
-						}
-					}
-					}		
+				} else {
+					return Result.unchanged(this);
 				}
-			
-				return Result.unchanged(this);
+			} else if ((bitmap & bitpos) != 0) { // node (not value)
+				final int bitIndex = bitIndex(bitpos);
+				final CompactSetNode<K> subNode = (CompactSetNode<K>) nodes[bitIndex];
+				final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
+
+				if (!nestedResult.isModified()) {
+					return Result.unchanged(this);
+				}
+
+				final CompactSetNode<K> subNodeNew = nestedResult.getNode();
+
+				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
+						return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
+					} else {
+						// remove node
+						final Object[] editableNodes = copyAndRemove(this.nodes, bitIndex);
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										bitmap & ~bitpos, valmap, editableNodes, payloadArity);
+
+						return Result.modified(thisNew);
+					}
+				}
+				case 1: {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else {
+						// inline value (move to front)
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+
+						final Object[] editableNodes = copyAndMoveToFront(this.nodes, bitIndex,
+										valIndexNew, subNodeNew.headKey());
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										bitmap, valmap | bitpos, editableNodes,
+										(byte) (payloadArity + 1));
+
+						return Result.modified(thisNew);
+					}
+				}
+				default: {
+					// modify current node (set replacement node)
+					if (isAllowedToEdit(this.mutator, mutator)) {
+						// no copying if already editable
+						this.nodes[bitIndex] = subNodeNew;
+						return Result.modified(this);
+					} else {
+						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										bitmap, valmap, editableNodes, payloadArity);
+
+						return Result.modified(thisNew);
+					}
+				}
+				}
+			}
+
+			return Result.unchanged(this);
 		}
 
-		@SuppressWarnings("unchecked")	
+		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key, int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-				final int bitpos = (1 << mask);
-			
-				if ((valmap & bitpos) != 0) { // inplace value
-					final int valIndex = valIndex(bitpos);
-			
-					if (cmp.compare(nodes[valIndex], key) == 0) {			
-						if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
-							/*
-							 * Create new node with remaining pair. The new node
-							 * will a) either become the new root returned, or b)
-							 * unwrapped and inlined during returning.
-							 */
-							final CompactSetNode<K> thisNew;
-							final int newValmap = (shift == 0) ? this.valmap & ~bitpos
-											: 1 << (keyHash & BIT_PARTITION_MASK);
-			
-							if (valIndex == 0) {
-								thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap,
-												newValmap, new Object[] { nodes[2], nodes[3] },
-												(byte) (1));
-							} else {
-								thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap,
-												newValmap, new Object[] { nodes[0], nodes[1] },
-												(byte) (1));
-							}
-			
-							return Result.modified(thisNew);
-						} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-							return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask, bitpos));
+			final int bitpos = (1 << mask);
+
+			if ((valmap & bitpos) != 0) { // inplace value
+				final int valIndex = valIndex(bitpos);
+
+				if (cmp.compare(nodes[valIndex], key) == 0) {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 2 && this.nodeArity() == 0) {
+						/*
+						 * Create new node with remaining pair. The new node
+						 * will a) either become the new root returned, or b)
+						 * unwrapped and inlined during returning.
+						 */
+						final CompactSetNode<K> thisNew;
+						final int newValmap = (shift == 0) ? this.valmap & ~bitpos
+										: 1 << (keyHash & BIT_PARTITION_MASK);
+
+						if (valIndex == 0) {
+							thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[2], nodes[3] }, (byte) (1));
 						} else {
-							final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
-				
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-											this.bitmap & ~bitpos, this.valmap & ~bitpos, editableNodes,
-											(byte) (payloadArity - 1));
-				
-							return Result.modified(thisNew);
+							thisNew = CompactSetNode.<K> valNodeOf(mutator, newValmap, newValmap,
+											new Object[] { nodes[0], nodes[1] }, (byte) (1));
 						}
-					} else {		
-						return Result.unchanged(this);
+
+						return Result.modified(thisNew);
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
+						return Result.modified(removeInplaceValueAndConvertSpecializedNode(mask,
+										bitpos));
+					} else {
+						final Object[] editableNodes = copyAndRemove(this.nodes, valIndex);
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										this.bitmap & ~bitpos, this.valmap & ~bitpos,
+										editableNodes, (byte) (payloadArity - 1));
+
+						return Result.modified(thisNew);
 					}
-				} else if ((bitmap & bitpos) != 0) { // node (not value)
-					final int bitIndex = bitIndex(bitpos);
-					final CompactSetNode<K> subNode = (CompactSetNode<K>) nodes[bitIndex];
-					final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.removed(
-									mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			
-					if (!nestedResult.isModified()) {
-						return Result.unchanged(this);
-					}
-			
-					final CompactSetNode<K> subNodeNew = nestedResult.getNode();
-			
-					switch (subNodeNew.sizePredicate()) {
-					case 0: {
-						if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-							// escalate (singleton or empty) result
-							return nestedResult;
-						} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
-							return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
-						} else {
-							// remove node
-							final Object[] editableNodes = copyAndRemove(this.nodes, bitIndex);
-			
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-											bitmap & ~bitpos, valmap, editableNodes, payloadArity);
-			
-							return Result.modified(thisNew);
-						}
-					}
-					case 1: {
-						if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
-							// escalate (singleton or empty) result
-							return nestedResult;
-						} else {
-							// inline value (move to front)
-							final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
-				
-							final Object[] editableNodes = copyAndMoveToFront(this.nodes, bitIndex,
-											valIndexNew, subNodeNew.headKey());
-				
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator, bitmap,
-											valmap | bitpos, editableNodes, (byte) (payloadArity + 1));
-				
-							return Result.modified(thisNew);
-						}
-					}
-					default: {
-						// modify current node (set replacement node)
-						if (isAllowedToEdit(this.mutator, mutator)) {
-							// no copying if already editable
-							this.nodes[bitIndex] = subNodeNew;
-							return Result.modified(this);
-						} else {
-							final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
-			
-							final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
-											bitmap, valmap, editableNodes, payloadArity);
-			
-							return Result.modified(thisNew);
-						}
-					}
-					}		
+				} else {
+					return Result.unchanged(this);
 				}
-			
-				return Result.unchanged(this);
+			} else if ((bitmap & bitpos) != 0) { // node (not value)
+				final int bitIndex = bitIndex(bitpos);
+				final CompactSetNode<K> subNode = (CompactSetNode<K>) nodes[bitIndex];
+				final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.removed(
+								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+
+				if (!nestedResult.isModified()) {
+					return Result.unchanged(this);
+				}
+
+				final CompactSetNode<K> subNodeNew = nestedResult.getNode();
+
+				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else if (USE_SPECIALIAZIONS && this.arity() == 5) {
+						return Result.modified(removeSubNodeAndConvertSpecializedNode(mask, bitpos));
+					} else {
+						// remove node
+						final Object[] editableNodes = copyAndRemove(this.nodes, bitIndex);
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										bitmap & ~bitpos, valmap, editableNodes, payloadArity);
+
+						return Result.modified(thisNew);
+					}
+				}
+				case 1: {
+					if (!USE_SPECIALIAZIONS && this.payloadArity() == 0 && this.nodeArity() == 1) {
+						// escalate (singleton or empty) result
+						return nestedResult;
+					} else {
+						// inline value (move to front)
+						final int valIndexNew = Integer.bitCount((valmap | bitpos) & (bitpos - 1));
+
+						final Object[] editableNodes = copyAndMoveToFront(this.nodes, bitIndex,
+										valIndexNew, subNodeNew.headKey());
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										bitmap, valmap | bitpos, editableNodes,
+										(byte) (payloadArity + 1));
+
+						return Result.modified(thisNew);
+					}
+				}
+				default: {
+					// modify current node (set replacement node)
+					if (isAllowedToEdit(this.mutator, mutator)) {
+						// no copying if already editable
+						this.nodes[bitIndex] = subNodeNew;
+						return Result.modified(this);
+					} else {
+						final Object[] editableNodes = copyAndSet(this.nodes, bitIndex, subNodeNew);
+
+						final CompactSetNode<K> thisNew = CompactSetNode.<K> valNodeOf(mutator,
+										bitmap, valmap, editableNodes, payloadArity);
+
+						return Result.modified(thisNew);
+					}
+				}
+				}
+			}
+
+			return Result.unchanged(this);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1751,7 +1814,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			default: {
 				throw new IllegalStateException();
 			}
-			}				
+			}
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1893,10 +1956,10 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 			default: {
 				throw new IllegalStateException();
-			}			
+			}
 			}
 		}
-		
+
 		// returns 0 <= mask <= 31
 		static byte recoverMask(int map, byte i_th) {
 			assert 1 <= i_th && i_th <= 32;
@@ -2076,8 +2139,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				}
 			}
 			return false;
-		}		
-		
+		}
+
 		@Override
 		public boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			if (this.hash == keyHash) {
@@ -2095,8 +2158,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		 * always returns a new immutable {@link TrieSetGPCE0To4} instance.
 		 */
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				return Result.modified(mergeNodes(this, this.hash, key, keyHash, shift));
 			}
@@ -2116,8 +2179,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
 				if (cmp.compare(keys[i], key) == 0) {
 					if (this.arity() == 1) {
@@ -2239,8 +2302,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				}
 			}
 			return Optional.empty();
-		}		
-		
+		}
+
 		@Override
 		Optional<K> findByKey(Object key, int hash, int shift, Comparator<Object> cmp) {
 			for (int i = 0; i < keys.length; i++) {
@@ -2251,21 +2314,23 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 			return Optional.empty();
 		}
-		
+
 		// TODO: generate instead of delegate
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
-			return updated(mutator, key, keyHash, val, shift, EqualityUtils.getDefaultEqualityComparator());
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
+			return updated(mutator, key, keyHash, val, shift,
+							EqualityUtils.getDefaultEqualityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
+			return removed(mutator, key, keyHash, shift,
+							EqualityUtils.getDefaultEqualityComparator());
 		}
-		
+
 	}
 
 	@Override
@@ -2303,7 +2368,7 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		AbstractSingletonSetNode(CompactSetNode<K> node1) {
 			this.node1 = node1;
-			assert nodeInvariant();
+
 		}
 
 		@Override
@@ -2327,8 +2392,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			// no value
 			final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, key, npos1(), node1);
 			return Result.modified(thisNew);
-		}		
-		
+		}
+
 		@Override
 		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
 						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
@@ -2353,8 +2418,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1()) {
@@ -2384,11 +2449,11 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 
 			return Result.unchanged(this);
-		}	
-		
+		}
+
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 
 			if (mask == npos1()) {
@@ -2429,8 +2494,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 
 			return false;
-		}	
-		
+		}
+
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
@@ -2451,8 +2516,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			}
 
 			return Optional.empty();
-		}		
-		
+		}
+
 		@Override
 		Optional<K> findByKey(Object key, int keyHash, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
@@ -2974,33 +3039,32 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		Set0To0Node(final AtomicReference<Thread> mutator) {
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			return Result.modified(valNodeOf(mutator, mask, key));
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			return Result.modified(valNodeOf(mutator, mask, key));
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			return Result.unchanged(this);
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			return Result.unchanged(this);
 		}
 
@@ -3091,7 +3155,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		private final CompactSetNode<K> node2;
 
 		Set0To2Node(final AtomicReference<Thread> mutator, final byte npos1,
-						final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2) {
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2) {
 
 			this.npos1 = npos1;
 			this.node1 = node1;
@@ -3099,13 +3164,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos2 = npos2;
 			this.node2 = node2;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -3114,8 +3178,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, nestedResult.getNode(),
-									npos2, node2);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
+									nestedResult.getNode(), npos2, node2);
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -3142,14 +3206,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -3164,8 +3228,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos2,
-										node2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos2, node2));
 
 						break;
 
@@ -3191,8 +3255,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos1,
-										node1));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos1, node1));
 
 						break;
 
@@ -3215,8 +3279,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3333,8 +3397,9 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		private final CompactSetNode<K> node3;
 
 		Set0To3Node(final AtomicReference<Thread> mutator, final byte npos1,
-						final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2,
-						final byte npos3, final CompactSetNode<K> node3) {
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3) {
 
 			this.npos1 = npos1;
 			this.node1 = node1;
@@ -3345,13 +3410,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos3 = npos3;
 			this.node3 = node3;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -3360,8 +3424,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, nestedResult.getNode(),
-									npos2, node2, npos3, node3);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
+									nestedResult.getNode(), npos2, node2, npos3, node3);
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -3382,8 +3446,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									mask, nestedResult.getNode());
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, mask, nestedResult.getNode());
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -3400,14 +3464,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -3422,15 +3486,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos2,
-										node2, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos2, node2, npos3, node3));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
-										npos3, node3));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2,
+										node2, npos3, node3));
 						break;
 
 					default:
@@ -3450,15 +3514,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos1,
-										node1, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos1, node1, npos3, node3));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
-										npos3, node3));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask,
+										updatedNode, npos3, node3));
 						break;
 
 					default:
@@ -3478,15 +3542,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos1,
-										node1, npos2, node2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos1, node1, npos2, node2));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										updatedNode));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+										mask, updatedNode));
 						break;
 
 					default:
@@ -3503,8 +3567,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3551,7 +3615,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2, node3 });
+			return ArrayIterator
+							.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -3631,8 +3696,9 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		private final CompactSetNode<K> node4;
 
 		Set0To4Node(final AtomicReference<Thread> mutator, final byte npos1,
-						final CompactSetNode<K> node1, final byte npos2, final CompactSetNode<K> node2,
-						final byte npos3, final CompactSetNode<K> node3, final byte npos4,
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3, final byte npos4,
 						final CompactSetNode<K> node4) {
 
 			this.npos1 = npos1;
@@ -3647,13 +3713,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos4 = npos4;
 			this.node4 = node4;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -3662,8 +3727,9 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask, nestedResult.getNode(),
-									npos2, node2, npos3, node3, npos4, node4);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, mask,
+									nestedResult.getNode(), npos2, node2, npos3, node3, npos4,
+									node4);
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -3684,8 +3750,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									mask, nestedResult.getNode(), npos4, node4);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, mask, nestedResult.getNode(), npos4, node4);
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -3695,8 +3761,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2, node2,
-									npos3, node3, mask, nestedResult.getNode());
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, npos1, node1, npos2,
+									node2, npos3, node3, mask, nestedResult.getNode());
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -3713,14 +3779,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -3735,15 +3801,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos2,
-										node2, npos3, node3, npos4, node4));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos2, node2, npos3, node3, npos4, node4));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2, node2,
-										npos3, node3, npos4, node4));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode, npos2,
+										node2, npos3, node3, npos4, node4));
 						break;
 
 					default:
@@ -3763,15 +3829,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos1,
-										node1, npos3, node3, npos4, node4));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos1, node1, npos3, node3, npos4, node4));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node2
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, updatedNode,
-										npos3, node3, npos4, node4));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask,
+										updatedNode, npos3, node3, npos4, node4));
 						break;
 
 					default:
@@ -3791,15 +3857,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos1,
-										node1, npos2, node2, npos4, node4));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos1, node1, npos2, node2, npos4, node4));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										updatedNode, npos4, node4));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+										mask, updatedNode, npos4, node4));
 						break;
 
 					default:
@@ -3819,15 +3885,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), npos1,
-										node1, npos2, node2, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										npos1, node1, npos2, node2, npos3, node3));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node4
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, updatedNode));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+										npos3, node3, mask, updatedNode));
 						break;
 
 					default:
@@ -3844,8 +3910,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3958,8 +4024,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", npos1, node1, npos2, node2,
-							npos3, node3, npos4, node4);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", npos1, node1, npos2,
+							node2, npos3, node3, npos4, node4);
 		}
 
 	}
@@ -3974,13 +4040,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.pos1 = pos1;
 			this.key1 = key1;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4005,14 +4070,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4031,8 +4096,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -4148,13 +4213,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos1 = npos1;
 			this.node1 = node1;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4194,14 +4258,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4223,8 +4287,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1));
 
 						break;
 
@@ -4247,8 +4311,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -4380,13 +4444,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos2 = npos2;
 			this.node2 = node2;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4399,14 +4462,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 									shift + BIT_PARTITION_SIZE);
 
 					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1, npos2,
-										node2));
+						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1,
+										npos2, node2));
 					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node, npos2,
-										node2));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node,
+										npos2, node2));
 					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										node));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+										mask, node));
 					}
 				}
 			} else if (mask == npos1) {
@@ -4434,8 +4497,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			} else {
 				// no value
 
-				result = Result.modified(valNodeOf(mutator, pos1, key1, mask, key, npos1, node1, npos2,
-								node2));
+				result = Result.modified(valNodeOf(mutator, pos1, key1, mask, key, npos1, node1,
+								npos2, node2));
 
 			}
 
@@ -4443,14 +4506,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4472,8 +4535,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, npos2, node2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, npos2, node2));
 
 						break;
 
@@ -4500,8 +4563,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, npos1, node1));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, npos1, node1));
 
 						break;
 
@@ -4525,8 +4588,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -4635,7 +4698,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", pos1, key1, npos1, node1, npos2, node2);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s]", pos1, key1, npos1, node1, npos2,
+							node2);
 		}
 
 	}
@@ -4656,7 +4720,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		Set1To3Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1,
 						final byte npos1, final CompactSetNode<K> node1, final byte npos2,
-						final CompactSetNode<K> node2, final byte npos3, final CompactSetNode<K> node3) {
+						final CompactSetNode<K> node2, final byte npos3,
+						final CompactSetNode<K> node3) {
 
 			this.pos1 = pos1;
 			this.key1 = key1;
@@ -4670,13 +4735,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos3 = npos3;
 			this.node3 = node3;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4689,17 +4753,17 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 									shift + BIT_PARTITION_SIZE);
 
 					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1, npos2,
-										node2, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, mask, node, npos1, node1,
+										npos2, node2, npos3, node3));
 					} else if (mask < npos2) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node, npos2,
-										node2, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, mask, node,
+										npos2, node2, npos3, node3));
 					} else if (mask < npos3) {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, mask,
-										node, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+										mask, node, npos3, node3));
 					} else {
-						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2, npos3,
-										node3, mask, node));
+						result = Result.modified(valNodeOf(mutator, npos1, node1, npos2, node2,
+										npos3, node3, mask, node));
 					}
 				}
 			} else if (mask == npos1) {
@@ -4738,8 +4802,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			} else {
 				// no value
 
-				result = Result.modified(valNodeOf(mutator, pos1, key1, mask, key, npos1, node1, npos2,
-								node2, npos3, node3));
+				result = Result.modified(valNodeOf(mutator, pos1, key1, mask, key, npos1, node1,
+								npos2, node2, npos3, node3));
 
 			}
 
@@ -4747,14 +4811,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -4777,8 +4841,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, npos2, node2, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, npos2, node2, npos3, node3));
 
 						break;
 
@@ -4805,8 +4869,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, npos1, node1, npos3, node3));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, npos1, node1, npos3, node3));
 
 						break;
 
@@ -4833,15 +4897,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, npos1, node1, npos2, node2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, npos1, node1, npos2, node2));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node3
-						result = Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1, npos2,
-										node2, mask, updatedNode));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1,
+										npos2, node2, mask, updatedNode));
 						break;
 
 					default:
@@ -4858,8 +4922,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -4910,7 +4974,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactSetNode<K>> nodeIterator() {
-			return ArrayIterator.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2, node3 });
+			return ArrayIterator
+							.<CompactSetNode<K>> of(new CompactSetNode[] { node1, node2, node3 });
 		}
 
 		@Override
@@ -4997,13 +5062,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.pos2 = pos2;
 			this.key2 = key2;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -5038,14 +5102,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -5053,7 +5117,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				if (key.equals(key1)) {
 					/*
 					 * Create node with element key2. This node will a) either
-					 * become the new root returned, or b) unwrapped and inlined.
+					 * become the new root returned, or b) unwrapped and
+					 * inlined.
 					 */
 					final byte pos2AtShiftZero = (shift == 0) ? pos2
 									: (byte) (keyHash & BIT_PARTITION_MASK);
@@ -5065,7 +5130,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 				if (key.equals(key2)) {
 					/*
 					 * Create node with element key1. This node will a) either
-					 * become the new root returned, or b) unwrapped and inlined.
+					 * become the new root returned, or b) unwrapped and
+					 * inlined.
 					 */
 					final byte pos1AtShiftZero = (shift == 0) ? pos1
 									: (byte) (keyHash & BIT_PARTITION_MASK);
@@ -5081,8 +5147,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -5199,7 +5265,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		private final CompactSetNode<K> node1;
 
 		Set2To1Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1,
-						final byte pos2, final K key2, final byte npos1, final CompactSetNode<K> node1) {
+						final byte pos2, final K key2, final byte npos1,
+						final CompactSetNode<K> node1) {
 
 			this.pos1 = pos1;
 			this.key1 = key1;
@@ -5210,13 +5277,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos1 = npos1;
 			this.node1 = node1;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -5257,8 +5323,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
-									nestedResult.getNode());
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+									mask, nestedResult.getNode());
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -5266,8 +5332,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			} else {
 				// no value
 
-				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, npos1,
-								node1));
+				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, mask, key,
+								npos1, node1));
 
 			}
 
@@ -5275,14 +5341,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -5311,8 +5377,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, pos2, key2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, pos2, key2));
 
 						break;
 
@@ -5336,8 +5402,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -5446,7 +5512,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2, npos1, node1);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2, npos1,
+							node1);
 		}
 
 	}
@@ -5466,8 +5533,9 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		private final CompactSetNode<K> node2;
 
 		Set2To2Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1,
-						final byte pos2, final K key2, final byte npos1, final CompactSetNode<K> node1,
-						final byte npos2, final CompactSetNode<K> node2) {
+						final byte pos2, final K key2, final byte npos1,
+						final CompactSetNode<K> node1, final byte npos2,
+						final CompactSetNode<K> node2) {
 
 			this.pos1 = pos1;
 			this.key1 = key1;
@@ -5481,13 +5549,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos2 = npos2;
 			this.node2 = node2;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -5506,8 +5573,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 						result = Result.modified(valNodeOf(mutator, pos2, key2, npos1, node1, mask,
 										node, npos2, node2));
 					} else {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, npos1, node1, npos2,
-										node2, mask, node));
+						result = Result.modified(valNodeOf(mutator, pos2, key2, npos1, node1,
+										npos2, node2, mask, node));
 					}
 				}
 			} else if (mask == pos2) {
@@ -5525,8 +5592,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 						result = Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1, mask,
 										node, npos2, node2));
 					} else {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1, npos2,
-										node2, mask, node));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1,
+										npos2, node2, mask, node));
 					}
 				}
 			} else if (mask == npos1) {
@@ -5534,8 +5601,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, mask,
-									nestedResult.getNode(), npos2, node2);
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+									mask, nestedResult.getNode(), npos2, node2);
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -5545,8 +5612,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, npos1,
-									node1, mask, nestedResult.getNode());
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+									npos1, node1, mask, nestedResult.getNode());
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -5554,8 +5621,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			} else {
 				// no value
 
-				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, mask, key, npos1,
-								node1, npos2, node2));
+				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, mask, key,
+								npos1, node1, npos2, node2));
 
 			}
 
@@ -5563,28 +5630,30 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
 			if (mask == pos1) {
 				if (key.equals(key1)) {
 					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, npos1, node1, npos2, node2));
+					result = Result.modified(valNodeOf(mutator, pos2, key2, npos1, node1, npos2,
+									node2));
 				} else {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == pos2) {
 				if (key.equals(key2)) {
 					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1, npos2, node2));
+					result = Result.modified(valNodeOf(mutator, pos1, key1, npos1, node1, npos2,
+									node2));
 				} else {
 					result = Result.unchanged(this);
 				}
@@ -5599,8 +5668,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, pos2, key2, npos2, node2));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, pos2, key2, npos2, node2));
 
 						break;
 
@@ -5627,8 +5696,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, pos2, key2, npos1, node1));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, pos2, key2, npos1, node1));
 
 						break;
 
@@ -5652,8 +5721,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -5768,8 +5837,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2, npos1,
-							node1, npos2, node2);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2,
+							npos1, node1, npos2, node2);
 		}
 
 	}
@@ -5797,13 +5866,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.pos3 = pos3;
 			this.key3 = key3;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -5840,8 +5908,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			} else {
 				// no value
 
-				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3, mask,
-								key));
+				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3,
+								mask, key));
 
 			}
 
@@ -5849,14 +5917,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -5889,8 +5957,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -5952,7 +6020,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3,
+							key3 });
 		}
 
 		@Override
@@ -6016,8 +6085,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		private final CompactSetNode<K> node1;
 
 		Set3To1Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1,
-						final byte pos2, final K key2, final byte pos3, final K key3, final byte npos1,
-						final CompactSetNode<K> node1) {
+						final byte pos2, final K key2, final byte pos3, final K key3,
+						final byte npos1, final CompactSetNode<K> node1) {
 
 			this.pos1 = pos1;
 			this.key1 = key1;
@@ -6031,13 +6100,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.npos1 = npos1;
 			this.node1 = node1;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -6050,8 +6118,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 									shift + BIT_PARTITION_SIZE);
 
 					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos2, key2, pos3, key3, mask, node,
-										npos1, node1));
+						result = Result.modified(valNodeOf(mutator, pos2, key2, pos3, key3, mask,
+										node, npos1, node1));
 					} else {
 						result = Result.modified(valNodeOf(mutator, pos2, key2, pos3, key3, npos1,
 										node1, mask, node));
@@ -6066,8 +6134,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 									shift + BIT_PARTITION_SIZE);
 
 					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, pos3, key3, mask, node,
-										npos1, node1));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, pos3, key3, mask,
+										node, npos1, node1));
 					} else {
 						result = Result.modified(valNodeOf(mutator, pos1, key1, pos3, key3, npos1,
 										node1, mask, node));
@@ -6082,8 +6150,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 									shift + BIT_PARTITION_SIZE);
 
 					if (mask < npos1) {
-						result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, mask, node,
-										npos1, node1));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, mask,
+										node, npos1, node1));
 					} else {
 						result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, npos1,
 										node1, mask, node));
@@ -6094,8 +6162,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 								mutator, key, keyHash, val, shift + BIT_PARTITION_SIZE);
 
 				if (nestedResult.isModified()) {
-					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
-									key3, mask, nestedResult.getNode());
+					final CompactSetNode<K> thisNew = valNodeOf(mutator, pos1, key1, pos2, key2,
+									pos3, key3, mask, nestedResult.getNode());
 					result = Result.modified(thisNew);
 				} else {
 					result = Result.unchanged(this);
@@ -6103,8 +6171,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			} else {
 				// no value
 
-				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3, mask,
-								key, npos1, node1));
+				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3,
+								mask, key, npos1, node1));
 
 			}
 
@@ -6112,35 +6180,38 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
 			if (mask == pos1) {
 				if (key.equals(key1)) {
 					// remove key1, val1
-					result = Result.modified(valNodeOf(mutator, pos2, key2, pos3, key3, npos1, node1));
+					result = Result.modified(valNodeOf(mutator, pos2, key2, pos3, key3, npos1,
+									node1));
 				} else {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == pos2) {
 				if (key.equals(key2)) {
 					// remove key2, val2
-					result = Result.modified(valNodeOf(mutator, pos1, key1, pos3, key3, npos1, node1));
+					result = Result.modified(valNodeOf(mutator, pos1, key1, pos3, key3, npos1,
+									node1));
 				} else {
 					result = Result.unchanged(this);
 				}
 			} else if (mask == pos3) {
 				if (key.equals(key3)) {
 					// remove key3, val3
-					result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, npos1, node1));
+					result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, npos1,
+									node1));
 				} else {
 					result = Result.unchanged(this);
 				}
@@ -6155,15 +6226,15 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 					case SIZE_ONE:
 						// inline sub-node value
 
-						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(), pos1,
-										key1, pos2, key2, pos3, key3));
+						result = Result.modified(valNodeOf(mutator, mask, updatedNode.headKey(),
+										pos1, key1, pos2, key2, pos3, key3));
 
 						break;
 
 					case SIZE_MORE_THAN_ONE:
 						// update node1
-						result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3,
-										mask, updatedNode));
+						result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3,
+										key3, mask, updatedNode));
 						break;
 
 					default:
@@ -6180,8 +6251,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -6247,7 +6318,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3, key3 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3,
+							key3 });
 		}
 
 		@Override
@@ -6296,8 +6368,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2, pos3,
-							key3, npos1, node1);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2,
+							pos3, key3, npos1, node1);
 		}
 
 	}
@@ -6317,8 +6389,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		private final K key4;
 
 		Set4To0Node(final AtomicReference<Thread> mutator, final byte pos1, final K key1,
-						final byte pos2, final K key2, final byte pos3, final K key3, final byte pos4,
-						final K key4) {
+						final byte pos2, final K key2, final byte pos3, final K key3,
+						final byte pos4, final K key4) {
 
 			this.pos1 = pos1;
 			this.key1 = key1;
@@ -6332,13 +6404,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			this.pos4 = pos4;
 			this.key4 = key4;
 
-			assert nodeInvariant();
 			assert USE_SPECIALIAZIONS;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -6389,8 +6460,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 			} else {
 				// no value
 
-				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3, pos4,
-								key4, mask, key));
+				result = Result.modified(valNodeOf(mutator, pos1, key1, pos2, key2, pos3, key3,
+								pos4, key4, mask, key));
 
 			}
 
@@ -6398,14 +6469,14 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
-						int keyHash, Void val, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
+						K key, int keyHash, Void val, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift) {
 			final byte mask = (byte) ((keyHash >>> shift) & BIT_PARTITION_MASK);
 			final Result<K, Void, ? extends CompactSetNode<K>> result;
 
@@ -6445,8 +6516,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
-						int keyHash, int shift, Comparator<Object> cmp) {
+		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
+						K key, int keyHash, int shift, Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -6512,8 +6583,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3, key3, key4,
-							key4 });
+			return ArrayKeyValueSupplierIterator.of(new Object[] { key1, key1, key2, key2, key3,
+							key3, key4, key4 });
 		}
 
 		@Override
@@ -6559,8 +6630,8 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		public String toString() {
-			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2, pos3,
-							key3, pos4, key4);
+			return String.format("[@%d: %s, @%d: %s, @%d: %s, @%d: %s]", pos1, key1, pos2, key2,
+							pos3, key3, pos4, key4);
 		}
 
 	}

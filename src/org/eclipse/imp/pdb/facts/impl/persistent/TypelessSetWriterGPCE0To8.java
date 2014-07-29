@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
-import org.eclipse.imp.pdb.facts.util.TrieSetGPCE0To8;
+import org.eclipse.imp.pdb.facts.util.TrieSet;
 
 class TypelessSetWriterGPCE0To8 implements ISetWriter {
 
@@ -33,7 +33,7 @@ class TypelessSetWriterGPCE0To8 implements ISetWriter {
 	TypelessSetWriterGPCE0To8() {
 		super();
 
-		setContent = TrieSetGPCE0To8.transientOf();
+		setContent = TrieSet.transientOf();
 		constructedSet = null;
 	}
 
