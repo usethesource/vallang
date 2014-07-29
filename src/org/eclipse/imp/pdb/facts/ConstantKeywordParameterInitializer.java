@@ -13,4 +13,15 @@ public class ConstantKeywordParameterInitializer implements IKeywordParameterIni
 	public IValue initialize(ImmutableMap<String,IValue> arguments) {
 		return constant;
 	}
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ConstantKeywordParameterInitializer)) {
+			return false;
+		}
+		return ((ConstantKeywordParameterInitializer)obj).constant.isEqual(constant);
+	}
+	@Override
+	public int hashCode() {
+		return constant.hashCode();
+	}
 }
