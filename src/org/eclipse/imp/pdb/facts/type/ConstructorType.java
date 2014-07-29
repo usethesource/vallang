@@ -78,6 +78,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
 		(fKeywordParameters == null ? 0 : 19 * fKeywordParameters.hashCode()) +
+		(fKeywordParameterDefaults == null ? 0 : 29 * fKeywordParameterDefaults.hashCode()) +
 		354767453 * fADT.hashCode();
 	}
 	
