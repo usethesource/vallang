@@ -109,9 +109,21 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	    		return false;
 	    	}
 
-	    	if (fKeywordParameterDefaults.equals(((ConstructorType) o).fKeywordParameterDefaults)) {
-	    		return false;
-	    	}
+	    	if ((fKeywordParameterDefaults != null && other.fKeywordParameterDefaults == null) || (fKeywordParameterDefaults == null && other.fKeywordParameterDefaults != null)) {
+				return false;
+			}
+			
+			if (fKeywordParameterDefaults.size() != other.fKeywordParameterDefaults.size()) {
+				return false;
+			}
+			
+			for (String key : fKeywordParameterDefaults.keySet()) {
+				IKeywordParameterInitializer oi = other.fKeywordParameterDefaults.get(key);
+				if (oi == null || !fKeywordParameterDefaults.get(key).equals(oi)) {
+					return false;
+				}
+				
+			}
 	    }
 
 	    // nothing is different
