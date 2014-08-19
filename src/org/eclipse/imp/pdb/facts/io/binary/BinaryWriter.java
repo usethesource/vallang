@@ -110,13 +110,18 @@ public class BinaryWriter{
 	private final IValue value;
 	private final OutputStream out;
 	private final TypeStore typeStore;
+	private final boolean compression;
 	
 	public BinaryWriter(IValue value, OutputStream outputStream, TypeStore typeStore){
+		this(value, outputStream, true, typeStore);
+	}
+	public BinaryWriter(IValue value, OutputStream outputStream, boolean compression, TypeStore typeStore){
 		super();
 		
 		this.value = value;
 		this.out = outputStream;
 		this.typeStore = typeStore;
+		this.compression = compression;
 		
 		sharedValues = new IndexedSet<>();
 		sharedTypes = new IndexedSet<>();
@@ -131,9 +136,9 @@ public class BinaryWriter{
 	private void doSerialize(IValue value) throws IOException{
 		// This special cases the hashing logic: if we have a constructor with
 		// at least one location annotation, don't try to hash it
-		boolean tryHashing = true;
+		boolean tryHashing = compression;
 		
-		if (value.getType().isAbstractData()) {
+		if (tryHashing && value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
 			if (consValue.asAnnotatable().hasAnnotations()) {
 				Map<String,IValue> amap = consValue.asAnnotatable().getAnnotations();

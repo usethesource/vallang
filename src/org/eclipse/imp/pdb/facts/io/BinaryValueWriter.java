@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.io.binary.BinaryWriter;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -47,7 +48,23 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 	 * @see IValueTextWriter#write(IValue, OutputStream)
 	 */
 	public void write(IValue value, OutputStream outputStream) throws IOException{
-		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, new TypeStore());
+		write(value, outputStream, true);
+	}
+	/**
+	 * Writes the given value to the given stream.
+	 * 
+	 * @param value
+	 *            The value to write.
+	 * @param outputStream
+	 *            The output stream to write to.
+	 * @param compression
+	 * 			If we want to enable maximal sharing compression
+	 * @throws IOException
+	 *            Thrown when something goes wrong.
+	 * @see IValueTextWriter#write(IValue, OutputStream)
+	 */
+	public void write(IValue value, OutputStream outputStream, boolean compression) throws IOException{
+		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, compression, new TypeStore());
 		binaryWriter.serialize();
 		outputStream.flush();
 	}
@@ -66,7 +83,25 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 	 * @see IValueTextWriter#write(IValue, OutputStream)
 	 */
 	public void write(IValue value, OutputStream outputStream, TypeStore typeStore) throws IOException{
-		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, typeStore);
+		write(value, outputStream, true, typeStore);
+	}
+	/**
+	 * Writes the given value to the given stream.
+	 * 
+	 * @param value
+	 *            The value to write.
+	 * @param outputStream
+	 *            The output stream to write to.
+	 * @param compression
+	 * 
+	 * @param typeStore
+	 *            The type store to use.
+	 * @throws IOException
+	 *            Thrown when something goes wrong.
+	 * @see IValueTextWriter#write(IValue, OutputStream)
+	 */
+	public void write(IValue value, OutputStream outputStream, boolean compression, TypeStore typeStore) throws IOException{
+		BinaryWriter binaryWriter = new BinaryWriter(value, outputStream, compression, typeStore);
 		binaryWriter.serialize();
 		outputStream.flush();
 	}
@@ -90,7 +125,7 @@ public class BinaryValueWriter implements IValueBinaryWriter{
 		try{
 			fos = new BufferedOutputStream(new FileOutputStream(file));
 			
-			BinaryWriter binaryWriter = new BinaryWriter(value, fos, typeStore);
+			BinaryWriter binaryWriter = new BinaryWriter(value, fos, true, typeStore);
 			binaryWriter.serialize();
 			fos.flush();
 		}finally{
