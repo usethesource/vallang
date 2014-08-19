@@ -14,7 +14,7 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/impulse-org/pdb.values.git</developerConnection>
+		<developerConnection>scm:git:https://github.com/cwi-swat/pdb.values.git</developerConnection>
 	</scm>
 
 	<properties>
