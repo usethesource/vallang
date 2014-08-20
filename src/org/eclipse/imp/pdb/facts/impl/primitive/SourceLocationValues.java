@@ -17,6 +17,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -90,7 +93,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}	
 	
-  @SuppressWarnings("serial")
+	private final static Lock locationCacheLock = new ReentrantLock(true);
+	@SuppressWarnings("serial")
 	private final static LinkedHashMap<URI,ISourceLocation>  locationCache = new LinkedHashMap<URI,ISourceLocation>(400*4/3, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<URI,ISourceLocation> eldest) {
@@ -98,8 +102,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
             }
         };
         
+	private final static Lock reverseLocationCacheLock = new ReentrantLock(true);
 	@SuppressWarnings("serial")
-  private final static LinkedHashMap<IURI,URI>  reverseLocationCache = new LinkedHashMap<IURI,URI>(400*4/3, 0.75f, true) {
+	private final static LinkedHashMap<IURI,URI>  reverseLocationCache = new LinkedHashMap<IURI,URI>(400*4/3, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<IURI, URI> eldest) {
                 return size() > 400;
@@ -107,12 +112,25 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
         };
 	
 	/*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
-		ISourceLocation result = locationCache.get(uri);
-		if (result == null) {
-			result = newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
-			locationCache.put(uri, result);
+		try {
+			// lock around the location cache, except if it takes to long to lock, then just skip the cache
+			if (locationCacheLock.tryLock(10, TimeUnit.MILLISECONDS)) {
+				try {
+					ISourceLocation result = locationCache.get(uri);
+					if (result == null) {
+						result = newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
+						locationCache.put(uri, result);
+					}
+					return result;
+				}
+				finally {
+					locationCacheLock.unlock();
+				}
+			}
+		} catch (InterruptedException e) {
 		}
-		return result;
+		// we couldn't get the lock, lets continue without cache
+		return newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
@@ -194,17 +212,35 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		@Override
 		public URI getURI() {
-			URI result = reverseLocationCache.get(uri);
-			if (result == null) {
-				result = uri.getURI();
-				try {
-					// assure correct encoding, side effect of JRE's implementation of URIs
-					 result = new URI(result.toASCIIString());
-				} catch (URISyntaxException e) {
-				} 
-				reverseLocationCache.put(uri, result);
+			try {
+				if (reverseLocationCacheLock.tryLock(10, TimeUnit.MILLISECONDS)) {
+					try {
+						URI result = reverseLocationCache.get(uri);
+						if (result == null) {
+							result = uri.getURI();
+							try {
+								// assure correct encoding, side effect of JRE's implementation of URIs
+								result = new URI(result.toASCIIString());
+							} catch (URISyntaxException e) {
+							} 
+							reverseLocationCache.put(uri, result);
+						}
+						return result; 
+					}
+					finally {
+						reverseLocationCacheLock.unlock();
+					}
+				}
+			} catch (InterruptedException e) {
 			}
-			return result; 
+			// we could not get the lock, the cache was to busy, lets continue
+			URI result = uri.getURI();
+			try {
+				// assure correct encoding, side effect of JRE's implementation of URIs
+				result = new URI(result.toASCIIString());
+			} catch (URISyntaxException e) {
+			} 
+			return result;
 		}
 		
 		@Override
