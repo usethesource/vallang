@@ -28,7 +28,7 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
  * @param <T> the interface over which this parameter wrapper closes
  */
 public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> implements IWithKeywordParameters<T> {
-  protected final T content;
+	protected final T content;
 	protected final ImmutableMap<String, IValue> parameters;
 	
 	/**

@@ -17,9 +17,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
@@ -283,16 +281,11 @@ public abstract class BaseTestAnnotations extends TestCase {
 	public void testConstructorKeywordParameter() {
 	  TypeStore ts = new TypeStore();
 	  Type adt = tf.abstractDataType(ts, "adt");
-	  Map<String,IKeywordParameterInitializer> defaults = new HashMap<>();
 	  Type paramTypes = tf.tupleType(tf.boolType(), "foo");
-	  defaults.put("foo", new ConstantKeywordParameterInitializer(vf.bool(true)));
-	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes, defaults);
+	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes);
 
 	  IConstructor n1 = vf.constructor(cons);
 	  
-	  // defaults work
-	  assertTrue(n1.asWithKeywordParameters().getParameter("foo").isEqual(vf.bool(true)));
-    
 	  // overrides work
 	  IConstructor n2 = n1.asWithKeywordParameters().setParameter("foo", vf.bool(false));
 	  assertTrue(n2.asWithKeywordParameters().getParameter("foo").isEqual(vf.bool(false)));
