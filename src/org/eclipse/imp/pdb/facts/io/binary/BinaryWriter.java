@@ -14,17 +14,14 @@ package org.eclipse.imp.pdb.facts.io.binary;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
@@ -38,8 +35,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.util.IndexedSet;
 
 // TODO Change this thing so it doesn't use recursion.
@@ -959,18 +954,6 @@ public class BinaryWriter{
 			writeType(constructorType.getAbstractDataType());
 
 			writeTupleType(constructorType.getKeywordParameterTypes());
-			printInteger(constructorType.getKeywordParameterInitializers().size());
-			for (Entry<String, IKeywordParameterInitializer> e: constructorType.getKeywordParameterInitializers().entrySet()) {
-				name = e.getKey();
-				nameData = name.getBytes(CharEncoding);
-				printInteger(nameData.length);
-				out.write(nameData);
-				IKeywordParameterInitializer paramInit = e.getValue();
-				if (!(paramInit instanceof ConstantKeywordParameterInitializer)) {
-					throw new RuntimeException("We cannot write constructors with keyword parameters which contain expressions");
-				}
-				doSerialize(paramInit.initialize(null));
-			}
 			return;
 		}
 		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(constructorType);

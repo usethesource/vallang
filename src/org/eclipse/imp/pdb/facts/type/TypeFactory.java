@@ -17,8 +17,6 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
@@ -492,17 +490,6 @@ public class TypeFactory {
   }
   
   /**
-   * Make a Keyword Parameter Initializer with a constant value
-   * @param constant 
-   * 	the value to return
-   * @return a KeywordParameterInitializer
-   */
-  public IKeywordParameterInitializer constantKeywordParameterInitializer(IValue constant) {
-	  checkNull(constant);
-	  return new ConstantKeywordParameterInitializer(constant);
-  }
-
-  /**
    * Make a new constructor type with defaults. A constructor type extends an
    * abstract data type such that it represents more values.
    * 
@@ -519,7 +506,7 @@ public class TypeFactory {
    *           , UndeclaredAbstractDataTypeException,
    *           RedeclaredFieldNameException, RedeclaredConstructorException
    */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Type keywordParameters, Map<String,IKeywordParameterInitializer> initializers)
+  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Type keywordParameters)
       throws FactTypeDeclarationException {
     checkNull(store, adt, name, tupleType);
 
@@ -527,7 +514,7 @@ public class TypeFactory {
       throw new IllegalIdentifierException(name);
     }
 
-    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters, initializers));
+    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters));
 
     Type params = adt.getTypeParameters();
 
