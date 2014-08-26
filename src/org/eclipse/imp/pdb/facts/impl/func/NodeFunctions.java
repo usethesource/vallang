@@ -100,14 +100,14 @@ public class NodeFunctions {
 	public static boolean isEqual(IValueFactory vf, INode node1, IValue value) {
 		if(value == node1) return true;
 		if(value == null) return false;
-		
+
 		if (node1.getType() != value.getType()) {
-		  return false;
+			return false;
 		}
-		
+
 		if (value instanceof INode) {
 			INode node2 = (INode) value;
-			
+
 			// Object equality ('==') is not applicable here
 			// because value is cast to {@link INode}.
 			if (!node1.getName().equals(node2.getName())) {
@@ -115,33 +115,33 @@ public class NodeFunctions {
 			}
 
 			if (node1.arity() != node2.arity()) {
-			  return false;
+				return false;
 			}
-			
+
 			Iterator<IValue> it1 = node1.iterator();
 			Iterator<IValue> it2 = node2.iterator();
-			
+
 			while (it1.hasNext()) {
-			  if (!it1.next().isEqual(it2.next())) {
-			    return false;
-			  }
+				if (!it1.next().isEqual(it2.next())) {
+					return false;
+				}
 			}
-			
+
 			if (node1.mayHaveKeywordParameters() && node2.mayHaveKeywordParameters()) {
-        return node1.asWithKeywordParameters().equalParameters(node2.asWithKeywordParameters());
-      }
-      
-      if (node1.mayHaveKeywordParameters() && node1.asWithKeywordParameters().hasParameters()) {
-        return false;
-      }
-      
-      if (node2.mayHaveKeywordParameters() && node2.asWithKeywordParameters().hasParameters()) {
-        return false;
-      }
-			
+				return node1.asWithKeywordParameters().equalParameters(node2.asWithKeywordParameters());
+			}
+
+			if (node1.mayHaveKeywordParameters() && node1.asWithKeywordParameters().hasParameters()) {
+				return false;
+			}
+
+			if (node2.mayHaveKeywordParameters() && node2.asWithKeywordParameters().hasParameters()) {
+				return false;
+			}
+
 			return true;
 		}
-		
+
 		return false;
 	}
 
