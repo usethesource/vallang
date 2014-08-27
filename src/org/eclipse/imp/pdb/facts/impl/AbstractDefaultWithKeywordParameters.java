@@ -149,7 +149,10 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 		for (String key : a) {
 			// TODO: isEqual should become equals when annotations have been removed.
 			IValue parameter = getParameter(key);
-			if ((parameter == null && o.getParameter(key) != null) || !parameter.isEqual(o.getParameter(key))) {
+			if (parameter == null && o.getParameter(key) != null) {
+				return false;
+			}
+			else if (parameter != null && !parameter.isEqual(o.getParameter(key))) {
 				return false;
 			}
 		}
