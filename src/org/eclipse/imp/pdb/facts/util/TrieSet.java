@@ -332,7 +332,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	 */
 	protected int[][] arityCombinationsHistogram() {
 		final Iterator<AbstractSetNode<K>> it = nodeIterator();
-		final int[][] sumArityCombinations = new int[17][17];
+		final int[][] sumArityCombinations = new int[65][65];
 
 		while (it.hasNext()) {
 			final AbstractSetNode<K> node = it.next();
@@ -347,9 +347,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	 */
 	protected int[] arityHistogram() {
 		final int[][] sumArityCombinations = arityCombinationsHistogram();
-		final int[] sumArity = new int[17];
+		final int[] sumArity = new int[65];
 
-		final int maxArity = 16; // TODO: factor out constant
+		final int maxArity = 64; // TODO: factor out constant
 
 		for (int j = 0; j <= maxArity; j++) {
 			for (int maxRestArity = maxArity - j, k = 0; k <= maxRestArity - j; k++) {
@@ -368,14 +368,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		final int[] sumArity = arityHistogram();
 		final int sumNodes = getNodeCount();
 
-		final int[] cumsumArity = new int[17];
-		for (int cumsum = 0, i = 0; i < 17; i++) {
+		final int[] cumsumArity = new int[65];
+		for (int cumsum = 0, i = 0; i < 65; i++) {
 			cumsum += sumArity[i];
 			cumsumArity[i] = cumsum;
 		}
 
 		final float threshhold = 0.01f; // for printing results
-		for (int i = 0; i < 17; i++) {
+		for (int i = 0; i < 65; i++) {
 			float arityPercentage = (float) (sumArity[i]) / sumNodes;
 			float cumsumArityPercentage = (float) (cumsumArity[i]) / sumNodes;
 
@@ -599,8 +599,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		abstract int payloadArity();
 
-		abstract java.lang.Object getSlot(int index);
-
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
@@ -624,16 +622,47 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	private static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
+	public static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
 
-		protected static final int BIT_PARTITION_SIZE = 4;
-		protected static final int BIT_PARTITION_MASK = 0b1111;
+		protected static int BIT_PARTITION_SIZE = 5;
+		protected static int BIT_PARTITION_MASK = 0b11111;
 
-		short nodeMap() {
+		public static void setBitPartitionSize(int bitPartitionSize) {
+			switch (bitPartitionSize) {
+			case 1:
+				BIT_PARTITION_SIZE = 1;
+				BIT_PARTITION_MASK = 0b1;
+				break;
+			case 2:
+				BIT_PARTITION_SIZE = 2;
+				BIT_PARTITION_MASK = 0b11;
+				break;
+			case 3:
+				BIT_PARTITION_SIZE = 3;
+				BIT_PARTITION_MASK = 0b111;
+				break;
+			case 4:
+				BIT_PARTITION_SIZE = 4;
+				BIT_PARTITION_MASK = 0b1111;
+				break;
+			case 5:
+				BIT_PARTITION_SIZE = 5;
+				BIT_PARTITION_MASK = 0b11111;
+				break;
+			case 6:
+				BIT_PARTITION_SIZE = 6;
+				BIT_PARTITION_MASK = 0b111111;
+				break;
+			default:
+				throw new IllegalStateException();
+			}
+		}
+
+		long nodeMap() {
 			throw new UnsupportedOperationException();
 		}
 
-		short dataMap() {
+		long dataMap() {
 			throw new UnsupportedOperationException();
 		}
 
@@ -683,30 +712,30 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		abstract CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final short bitpos, final K key);
+						final long bitpos, final K key);
 
 		abstract CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator,
-						final short bitpos);
+						final long bitpos);
 
 		abstract CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node);
+						final long bitpos, CompactSetNode<K> node);
 
-		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
+		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final long bitpos,
 						CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
+		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final long bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
+						final long bitpos, CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
+						final long bitpos, CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -724,20 +753,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final short dataMap = (short) (1L << mask0 | 1L << mask1);
+				final long dataMap = (long) (1L << mask0 | 1L << mask1);
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (short) 0, dataMap, new Object[] { key0, key1 }, (byte) 2);
+					return nodeOf(null, (long) 0, dataMap, new Object[] { key0, key1 }, (byte) 2);
 				} else {
-					return nodeOf(null, (short) 0, dataMap, new Object[] { key1, key0 }, (byte) 2);
+					return nodeOf(null, (long) 0, dataMap, new Object[] { key1, key0 }, (byte) 2);
 				}
 			} else {
 				// values fit on next level
 				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final short nodeMap = (short) (1L << mask0);
-				return nodeOf(null, nodeMap, (short) 0, new Object[] { node }, (byte) 0);
+				final long nodeMap = (long) (1L << mask0);
+				return nodeOf(null, nodeMap, (long) 0, new Object[] { node }, (byte) 0);
 			}
 		}
 
@@ -748,8 +777,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final short nodeMap = (short) (1L << mask0);
-				final short dataMap = (short) (1L << mask1);
+				final long nodeMap = (long) (1L << mask0);
+				final long dataMap = (long) (1L << mask1);
 
 				// store values before node
 				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, node0 }, (byte) 1);
@@ -758,20 +787,20 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final short nodeMap = (short) (1L << mask0);
-				return nodeOf(null, nodeMap, (short) 0, new Object[] { node }, (byte) 0);
+				final long nodeMap = (long) (1L << mask0);
+				return nodeOf(null, nodeMap, (long) 0, new Object[] { node }, (byte) 0);
 			}
 		}
 
 		static final CompactSetNode EMPTY_NODE;
 
 		static {
-			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (short) 0, (short) 0, new Object[] {},
+			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (long) 0, (long) 0, new Object[] {},
 							(byte) 0);
 		};
 
 		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator,
-						final short nodeMap, final short dataMap, Object[] nodes, byte payloadArity) {
+						final long nodeMap, final long dataMap, Object[] nodes, byte payloadArity) {
 			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes, payloadArity);
 		}
 
@@ -781,31 +810,31 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator,
-						final short nodeMap, final short dataMap, final K key) {
+						final long nodeMap, final long dataMap, final K key) {
 			assert nodeMap == 0;
-			return nodeOf(mutator, (short) 0, dataMap, new Object[] { key }, (byte) 1);
+			return nodeOf(mutator, (long) 0, dataMap, new Object[] { key }, (byte) 1);
 		}
 
-		final int dataIndex(final short bitpos) {
-			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF) & (bitpos - 1));
+		final int dataIndex(final long bitpos) {
+			return java.lang.Long.bitCount(dataMap() & (bitpos - 1));
 		}
 
-		final int nodeIndex(final short bitpos) {
-			return java.lang.Integer.bitCount((int) (nodeMap() & 0xFFFF) & (bitpos - 1));
+		final int nodeIndex(final long bitpos) {
+			return java.lang.Long.bitCount(nodeMap() & (bitpos - 1));
 		}
 
-		K keyAt(final short bitpos) {
+		K keyAt(final long bitpos) {
 			return getKey(dataIndex(bitpos));
 		}
 
-		CompactSetNode<K> nodeAt(final short bitpos) {
+		CompactSetNode<K> nodeAt(final long bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
 		@Override
 		boolean containsKey(final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return keyAt(bitpos).equals(key);
@@ -821,7 +850,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return cmp.compare(keyAt(bitpos), key) == 0;
@@ -837,7 +866,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		Optional<K> findByKey(final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -861,7 +890,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		Optional<K> findByKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -886,7 +915,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final K currentKey = keyAt(bitpos);
@@ -928,7 +957,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final K currentKey = keyAt(bitpos);
@@ -970,7 +999,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -981,14 +1010,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						 * unwrapped and inlined during returning.
 						 */
 						final CompactSetNode<K> thisNew;
-						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
-										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
+						final long newDataMap = (shift == 0) ? (long) (dataMap() ^ bitpos)
+										: (long) (1L << (keyHash & BIT_PARTITION_MASK));
 
 						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (long) 0, newDataMap,
 											getKey(1));
 						} else {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (long) 0, newDataMap,
 											getKey(0));
 						}
 
@@ -1050,7 +1079,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
 						final K key, int keyHash, int shift, Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final long bitpos = (long) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -1061,14 +1090,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 						 * unwrapped and inlined during returning.
 						 */
 						final CompactSetNode<K> thisNew;
-						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
-										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
+						final long newDataMap = (shift == 0) ? (long) (dataMap() ^ bitpos)
+										: (long) (1L << (keyHash & BIT_PARTITION_MASK));
 
 						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (long) 0, newDataMap,
 											getKey(1));
 						} else {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+							thisNew = CompactSetNode.<K> nodeOf(mutator, (long) 0, newDataMap,
 											getKey(0));
 						}
 
@@ -1129,13 +1158,13 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		/**
 		 * @return 0 <= mask <= 2^BIT_PARTITION_SIZE - 1
 		 */
-		static byte recoverMask(short map, byte i_th) {
-			assert 1 <= i_th && i_th <= 16;
+		static byte recoverMask(long map, byte i_th) {
+			assert 1 <= i_th && i_th <= 64;
 
 			byte cnt1 = 0;
 			byte mask = 0;
 
-			while (mask < 16) {
+			while (mask < 64) {
 				if ((map & 0x01) == 0x01) {
 					cnt1 += 1;
 
@@ -1144,7 +1173,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 					}
 				}
 
-				map = (short) (map >> 1);
+				map = (long) (map >> 1);
 				mask += 1;
 			}
 
@@ -1187,42 +1216,56 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	private static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
 
-		private final short nodeMap;
-		private final short dataMap;
+		private final long nodeMap;
+		private final long dataMap;
 
-		CompactMixedSetNode(final AtomicReference<Thread> mutator, final short nodeMap,
-						final short dataMap) {
+		CompactMixedSetNode(final AtomicReference<Thread> mutator, final long nodeMap,
+						final long dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
 
 		@Override
-		public short nodeMap() {
+		public long nodeMap() {
 			return nodeMap;
 		}
 
 		@Override
-		public short dataMap() {
+		public long dataMap() {
 			return dataMap;
 		}
 
 	}
 
-	private static final class BitmapIndexedSetNode<K> extends CompactMixedSetNode<K> {
+	public static final class BitmapIndexedSetNode<K> extends CompactMixedSetNode<K> {
 		private AtomicReference<Thread> mutator;
 
 		private Object[] nodes;
+		final private byte payloadArity;
 
-		BitmapIndexedSetNode(AtomicReference<Thread> mutator, final short nodeMap,
-						final short dataMap, Object[] nodes, byte payloadArity) {
+		BitmapIndexedSetNode(AtomicReference<Thread> mutator, final long nodeMap,
+						final long dataMap, Object[] nodes, byte payloadArity) {
 			super(mutator, nodeMap, dataMap);
 
-			assert (TUPLE_LENGTH * java.lang.Integer.bitCount((int) (dataMap & 0xFFFF))
-							+ java.lang.Integer.bitCount((int) (nodeMap & 0xFFFF)) == nodes.length);
+			assert (TUPLE_LENGTH * java.lang.Long.bitCount(dataMap)
+							+ java.lang.Long.bitCount(nodeMap) == nodes.length);
 
 			this.mutator = mutator;
-			this.nodes = nodes;
 
+			this.nodes = nodes;
+			this.payloadArity = payloadArity;
+
+			assert (payloadArity == java.lang.Long.bitCount(dataMap));
+			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
+			// // SIZE_MORE_THAN_ONE
+
+			// for (int i = 0; i < TUPLE_LENGTH * payloadArity; i++)
+			// assert ((nodes[i] instanceof CompactNode) == false);
+			//
+			// for (int i = TUPLE_LENGTH * payloadArity; i < nodes.length; i++)
+			// assert ((nodes[i] instanceof CompactNode) == true);
+
+			// assert invariant
 			assert nodeInvariant();
 		}
 
@@ -1235,19 +1278,19 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@SuppressWarnings("unchecked")
 		@Override
 		public CompactSetNode<K> getNode(int index) {
-			final int offset = TUPLE_LENGTH * payloadArity();
+			final int offset = TUPLE_LENGTH * payloadArity;
 			return (CompactSetNode<K>) nodes[offset + index];
 		}
 
 		@Override
 		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueSupplierIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity());
+			return ArrayKeyValueSupplierIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity);
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<CompactSetNode<K>> nodeIterator() {
-			final int offset = TUPLE_LENGTH * payloadArity();
+			final int offset = TUPLE_LENGTH * payloadArity;
 
 			for (int i = offset; i < nodes.length - offset; i++) {
 				assert ((nodes[i] instanceof AbstractSetNode) == true);
@@ -1265,27 +1308,22 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		boolean hasPayload() {
-			return payloadArity() != 0;
+			return payloadArity != 0;
 		}
 
 		@Override
 		int payloadArity() {
-			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF));
+			return payloadArity;
 		}
 
 		@Override
 		boolean hasNodes() {
-			return nodeArity() != 0;
+			return TUPLE_LENGTH * payloadArity != nodes.length;
 		}
 
 		@Override
 		int nodeArity() {
-			return java.lang.Integer.bitCount((int) (nodeMap() & 0xFFFF));
-		}
-
-		@Override
-		java.lang.Object getSlot(int index) {
-			throw new UnsupportedOperationException();
+			return nodes.length - TUPLE_LENGTH * payloadArity;
 		}
 
 		@Override
@@ -1324,9 +1362,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		byte sizePredicate() {
-			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
+			if (this.nodeArity() == 0 && this.payloadArity == 0) {
 				return SIZE_EMPTY;
-			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
+			} else if (this.nodeArity() == 0 && this.payloadArity == 1) {
 				return SIZE_ONE;
 			} else {
 				return SIZE_MORE_THAN_ONE;
@@ -1334,9 +1372,9 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final long bitpos,
 						CompactSetNode<K> node) {
-			final int idx = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+			final int idx = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				// no copying if already editable
@@ -1351,12 +1389,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, (byte) 0);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity);
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final long bitpos,
 						final K key) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
@@ -1369,11 +1407,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			dst[idx + 0] = key;
 			System.arraycopy(src, idx, dst, idx + 1, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (short) (dataMap() | bitpos), dst, (byte) 0);
+			return nodeOf(mutator, nodeMap(), (long) (dataMap() | bitpos), dst,
+							(byte) (payloadArity + 1));
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final long bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1384,14 +1423,15 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 1, dst, idx, src.length - idx - 1);
 
-			return nodeOf(mutator, nodeMap(), (short) (dataMap() ^ bitpos), dst, (byte) 0);
+			return nodeOf(mutator, nodeMap(), (long) (dataMap() ^ bitpos), dst,
+							(byte) (payloadArity - 1));
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
+						final long bitpos, CompactSetNode<K> node) {
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = TUPLE_LENGTH * (payloadArity() - 1) + nodeIndex(bitpos);
+			final int idxNew = TUPLE_LENGTH * (payloadArity - 1) + nodeIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = new Object[src.length - 1 + 1];
@@ -1404,14 +1444,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 1, dst, idxNew + 1, src.length - idxNew - 1);
 
-			return nodeOf(mutator, (short) (nodeMap() | bitpos), (short) (dataMap() ^ bitpos), dst,
-							(byte) 0);
+			return nodeOf(mutator, (long) (nodeMap() | bitpos), (long) (dataMap() ^ bitpos), dst,
+							(byte) (payloadArity - 1));
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
-			final int idxOld = TUPLE_LENGTH * payloadArity() + nodeIndex(bitpos);
+						final long bitpos, CompactSetNode<K> node) {
+			final int idxOld = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1425,8 +1465,8 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			System.arraycopy(src, idxNew, dst, idxNew + 1, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (short) (nodeMap() ^ bitpos), (short) (dataMap() | bitpos), dst,
-							(byte) 0);
+			return nodeOf(mutator, (long) (nodeMap() ^ bitpos), (long) (dataMap() | bitpos), dst,
+							(byte) (payloadArity + 1));
 		}
 	}
 
@@ -1679,11 +1719,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
@@ -1735,18 +1770,18 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final long bitpos,
 						final K key) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final long bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final long bitpos,
 						CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
@@ -1758,7 +1793,7 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 	private static abstract class AbstractSetIterator<K> {
 
 		// TODO: verify maximum deepness
-		private static final int MAX_DEPTH = 10;
+		private static final int MAX_DEPTH = 7;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
