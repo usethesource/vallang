@@ -11,11 +11,9 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.type;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 
@@ -40,18 +38,16 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	private final Type fADT;
 	private final String fName;
 	private final Type fKeywordParameters;
-	private final Map<String,IKeywordParameterInitializer> fKeywordParameterDefaults;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
 	  super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
-		fKeywordParameterDefaults = null;
 		fKeywordParameters = null;
 	}
 	
-	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Type keywordParameters, Map<String,IKeywordParameterInitializer> defaults) {
+	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Type keywordParameters) {
 		super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
@@ -59,12 +55,10 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 
 
 		if (keywordParameters == null || keywordParameters.isBottom() || keywordParameters.getArity() == 0) {
-			fKeywordParameterDefaults = null;
 			fKeywordParameters = null;
 		}
 		else {
 			fKeywordParameters = keywordParameters;
-			fKeywordParameterDefaults = Collections.unmodifiableMap(defaults);
 		}
 	}
 
@@ -78,7 +72,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
 		(fKeywordParameters == null ? 0 : 19 * fKeywordParameters.hashCode()) +
-		(fKeywordParameterDefaults == null ? 0 : 29 * fKeywordParameterDefaults.hashCode()) +
 		354767453 * fADT.hashCode();
 	}
 	
@@ -108,22 +101,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	    	if (fKeywordParameters != other.fKeywordParameters) {
 	    		return false;
 	    	}
-
-	    	if ((fKeywordParameterDefaults != null && other.fKeywordParameterDefaults == null) || (fKeywordParameterDefaults == null && other.fKeywordParameterDefaults != null)) {
-				return false;
-			}
-			
-			if (fKeywordParameterDefaults.size() != other.fKeywordParameterDefaults.size()) {
-				return false;
-			}
-			
-			for (String key : fKeywordParameterDefaults.keySet()) {
-				IKeywordParameterInitializer oi = other.fKeywordParameterDefaults.get(key);
-				if (oi == null || !fKeywordParameterDefaults.get(key).equals(oi)) {
-					return false;
-				}
-				
-			}
 	    }
 
 	    // nothing is different
@@ -369,16 +346,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	@Override
 	public Type getKeywordParameterTypes() {
 	  return fKeywordParameters != null ? fKeywordParameters : TypeFactory.getInstance().voidType();
-	}
-	
-	@Override
-	public IKeywordParameterInitializer getKeywordParameterInitializer(String label) {
-	  return fKeywordParameterDefaults.get(label);
-	}
-	
-	@Override
-	public Map<String,IKeywordParameterInitializer> getKeywordParameterInitializers() {
-	  return fKeywordParameterDefaults;
 	}
 	
 	@Override

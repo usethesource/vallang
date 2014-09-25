@@ -28,9 +28,9 @@ import org.eclipse.imp.pdb.facts.util.ImmutableMap;
  * @param <T> the interface over which this parameter wrapper closes
  */
 public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> implements IWithKeywordParameters<T> {
-  protected final T content;
+	protected final T content;
 	protected final ImmutableMap<String, IValue> parameters;
-	
+
 	/**
 	 * Creates an {@link IWithKeywordParameters} view on {@link #content} with already
 	 * provided {@link #parameters}.
@@ -44,7 +44,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 		this.content = content;
 		this.parameters = parameters;
 	}
-	
+
 	/**
 	 * Wraps {@link #content} with other parameters. This methods is mandatory
 	 * because of PDB's immutable value nature: Once parameters are modified, a
@@ -58,7 +58,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	 *         {@link #parameters}
 	 */
 	protected abstract T wrap(final T content, final ImmutableMap<String, IValue> parameters);
-	
+
 	@Override
 	public String toString() {
 		return content.toString();
@@ -77,7 +77,8 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	@Override
 	public boolean hasParameter(String label) throws FactTypeUseException {
 		return parameters.containsKey(label) 
-				|| (content.getType().hasKeywordParameters() && content.getType().hasKeywordParameter(label));
+				|| (content.getType().hasKeywordParameters() 
+						&& content.getType().hasKeywordParameter(label));
 	}
 
 	@Override
@@ -114,7 +115,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 		String[] a = getParameterNames();
 		String[] b = o.getParameterNames();
-		
+
 		if (!Arrays.equals(a, b)) {
 			return false;
 		}
@@ -148,7 +149,11 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 		for (String key : a) {
 			// TODO: isEqual should become equals when annotations have been removed.
-			if (!getParameter(key).isEqual(o.getParameter(key))) {
+			IValue parameter = getParameter(key);
+			if (parameter == null && o.getParameter(key) != null) {
+				return false;
+			}
+			else if (parameter != null && !parameter.isEqual(o.getParameter(key))) {
 				return false;
 			}
 		}
@@ -156,8 +161,8 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 		return true;
 	}
 
-  @Override
-  public T setParameters(Map<String, IValue> params) {
-    return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
-  }
+	@Override
+	public T setParameters(Map<String, IValue> params) {
+		return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
+	}
 }

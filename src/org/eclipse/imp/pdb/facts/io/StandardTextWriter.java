@@ -661,6 +661,7 @@ public class StandardTextWriter implements IValueTextWriter {
     	}
     
     	
+    	if (o.mayHaveKeywordParameters()) {
     	IWithKeywordParameters<? extends INode> wkw = o.asWithKeywordParameters();
     	if (wkw.hasParameters()) {
     	  if (k > 0) {
@@ -679,6 +680,7 @@ public class StandardTextWriter implements IValueTextWriter {
     	    }
     	    
     	  }
+    	}
     	}
     	append(')');
     	untab();
