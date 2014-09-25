@@ -322,8 +322,7 @@ public class BinaryWriter{
 
       @Override
       public Type visitExternal(Type type) {
-        // do nothing
-        return type;
+        throw new RuntimeException("Cannot serialize values defined using external (PDB extension) types: " + type.toString());
       }
 
       @Override
