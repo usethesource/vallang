@@ -146,12 +146,12 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
       
       @Override
       public boolean hasParameters() {
-        return content.getConstructorType().hasKeywordParameters();
+        return content.getConstructorType().hasKeywordParameters() || parameters != null;	// TODO: @jurgenv please review; is the constructorType even needed?
       }
       
       @Override
       public String[] getParameterNames() {
-        return content.getConstructorType().getKeywordParameters();
+        return content.getConstructorType().getKeywordParameters();							// TODO: what to do here?
       }
       
       @Override
