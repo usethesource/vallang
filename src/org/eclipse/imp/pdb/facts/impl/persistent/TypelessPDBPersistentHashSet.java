@@ -107,30 +107,11 @@ public final class TypelessPDBPersistentHashSet extends AbstractSet {
 		
 		if (other instanceof TypelessPDBPersistentHashSet) {
 			TypelessPDBPersistentHashSet that = (TypelessPDBPersistentHashSet) other;
-
-			if (this.getType() != that.getType())
-				return false;
 			
 			if (this.size() != that.size())
 				return false;
 
 			return content.equals(that.content);
-		}
-		
-		if (other instanceof ISet) {
-			ISet that = (ISet) other;
-
-			if (this.getType() != that.getType())
-				return false;
-			
-			if (this.size() != that.size())
-				return false;
-			
-			for (IValue e : that)
-	            if (!content.contains(e))
-	                return false;
-
-	        return true;			
 		}
 		
 		return false;

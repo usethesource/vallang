@@ -97,6 +97,9 @@ public final class TypelessPDBPersistentHashMap extends AbstractMap {
 		if (other instanceof TypelessPDBPersistentHashMap) {
 			TypelessPDBPersistentHashMap that = (TypelessPDBPersistentHashMap) other;
 
+			if (this.size() != that.size())
+				return false;
+			
 			return content.equals(that.content);
 		}
 		
