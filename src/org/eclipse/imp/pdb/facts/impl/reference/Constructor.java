@@ -186,7 +186,7 @@ public class Constructor extends Node implements IConstructor {
 	
 	@Override
 	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, ConstructorWithKeywordParametersFacade.computeKeywordParameters(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf())) {
+	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 		  @Override
 		  protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
 			  return new ConstructorWithKeywordParametersFacade(content, parameters);

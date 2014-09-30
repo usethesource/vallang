@@ -28,5 +28,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  */
 public interface IValueBinaryWriter {
 	 void write(IValue value, OutputStream stream) throws IOException;
+	 void write(IValue value, OutputStream stream, boolean compression) throws IOException;
 	 void write(IValue value, OutputStream stream, TypeStore typeStore) throws IOException;
+	 void write(IValue value, OutputStream stream, boolean compression, TypeStore typeStore) throws IOException;
 }

@@ -14,17 +14,14 @@ package org.eclipse.imp.pdb.facts.io.binary;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
@@ -38,8 +35,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
 import org.eclipse.imp.pdb.facts.util.IndexedSet;
 
 // TODO Change this thing so it doesn't use recursion.
@@ -110,13 +105,18 @@ public class BinaryWriter{
 	private final IValue value;
 	private final OutputStream out;
 	private final TypeStore typeStore;
+	private final boolean compression;
 	
 	public BinaryWriter(IValue value, OutputStream outputStream, TypeStore typeStore){
+		this(value, outputStream, true, typeStore);
+	}
+	public BinaryWriter(IValue value, OutputStream outputStream, boolean compression, TypeStore typeStore){
 		super();
 		
 		this.value = value;
 		this.out = outputStream;
 		this.typeStore = typeStore;
+		this.compression = compression;
 		
 		sharedValues = new IndexedSet<>();
 		sharedTypes = new IndexedSet<>();
@@ -131,11 +131,11 @@ public class BinaryWriter{
 	private void doSerialize(IValue value) throws IOException{
 		// This special cases the hashing logic: if we have a constructor with
 		// at least one location annotation, don't try to hash it
-		boolean tryHashing = true;
+		boolean tryHashing = compression;
 		
-		if (value.getType().isAbstractData()) {
+		if (tryHashing && value.getType().isAbstractData()) {
 			IConstructor consValue = (IConstructor)value;
-			if (consValue.asAnnotatable().hasAnnotations()) {
+			if (consValue.isAnnotatable() && consValue.asAnnotatable().hasAnnotations()) {
 				Map<String,IValue> amap = consValue.asAnnotatable().getAnnotations();
 				for (Entry<String, IValue> aEntry : amap.entrySet()) {
 					Type aType = aEntry.getValue().getType();
@@ -322,8 +322,7 @@ public class BinaryWriter{
 
       @Override
       public Type visitExternal(Type type) {
-        // do nothing
-        return type;
+        throw new RuntimeException("Cannot serialize values defined using external (PDB extension) types: " + type.toString());
       }
 
       @Override
@@ -955,18 +954,6 @@ public class BinaryWriter{
 			writeType(constructorType.getAbstractDataType());
 
 			writeTupleType(constructorType.getKeywordParameterTypes());
-			printInteger(constructorType.getKeywordParameterInitializers().size());
-			for (Entry<String, IKeywordParameterInitializer> e: constructorType.getKeywordParameterInitializers().entrySet()) {
-				name = e.getKey();
-				nameData = name.getBytes(CharEncoding);
-				printInteger(nameData.length);
-				out.write(nameData);
-				IKeywordParameterInitializer paramInit = e.getValue();
-				if (!(paramInit instanceof ConstantKeywordParameterInitializer)) {
-					throw new RuntimeException("We cannot write constructors with keyword parameters which contain expressions");
-				}
-				doSerialize(paramInit.initialize(null));
-			}
 			return;
 		}
 		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(constructorType);

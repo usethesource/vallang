@@ -17,16 +17,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.ConstantKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -904,20 +901,8 @@ public class BinaryReader{
 		Type adtType = doReadType();
 		
 		Type kwParamType = readTupleType(read());
-		int amountOfInitializers = parseInteger();
-		Map<String, IKeywordParameterInitializer> kwParamInit = new HashMap<>(amountOfInitializers);
-		for (int i =0; i < amountOfInitializers; i++) {
-			int paramNameLength = parseInteger();
-			byte[] paramNameData = new byte[paramNameLength];
-			read(paramNameData);
-			String paramName = new String(paramNameData, BinaryWriter.CharEncoding);
-			
-			IValue initializerValue = deserialize();
-			IKeywordParameterInitializer initializer = new ConstantKeywordParameterInitializer(initializerValue);
-			kwParamInit.put(paramName, initializer);
-		}
 		
-		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes, kwParamType,kwParamInit);
+		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes, kwParamType);
 	}
 	
 	private Type readAnnotatedConstructorType() throws IOException{

@@ -15,7 +15,6 @@ package org.eclipse.imp.pdb.facts.type;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IKeywordParameterInitializer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
@@ -129,20 +128,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
    */
   public String[] getKeywordParameters() {
     throw new IllegalOperationException("getKeywordParameters", this);
-  }
-  
-  /**
-   * @return the initializers for the keyword parameters
-   */
-  public IKeywordParameterInitializer getKeywordParameterInitializer(String label) {
-    throw new IllegalOperationException("getKeywordParameterInitializer", this);
-  }
-  
-  /**
-   * @return the initializers for the keyword parameters
-   */
-  public Map<String,IKeywordParameterInitializer> getKeywordParameterInitializers() {
-    throw new IllegalOperationException("getKeywordParameterInitializer", this);
   }
   
   /**
