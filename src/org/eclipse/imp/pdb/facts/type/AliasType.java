@@ -79,31 +79,6 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	}
 	
 	@Override
-	public String[] getKeywordParameters() {
-	  return fAliased.getKeywordParameters();
-	}
-	
-	@Override
-	public Type getKeywordParameterType(String label) {
-	  return fAliased.getKeywordParameterType(label);
-	}
-	
-	@Override
-	public Type getKeywordParameterTypes() {
-	  return fAliased.getKeywordParameterTypes();
-	}
-	
-	@Override
-	public boolean hasKeywordParameter(String label) {
-	  return fAliased.hasKeywordParameter(label);
-	}
-	
-	@Override
-	public boolean hasKeywordParameters() {
-	  return fAliased.hasKeywordParameters();
-	}
-	
-	@Override
 	public Type getAliased() {
 		return fAliased;
 	}

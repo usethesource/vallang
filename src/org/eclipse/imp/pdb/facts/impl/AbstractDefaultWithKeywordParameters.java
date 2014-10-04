@@ -11,9 +11,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
@@ -76,9 +76,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 	@Override
 	public boolean hasParameter(String label) throws FactTypeUseException {
-		return parameters.containsKey(label) 
-				|| (content.getType().hasKeywordParameters() 
-						&& content.getType().hasKeywordParameter(label));
+		return parameters.containsKey(label);
 	}
 
 	@Override
@@ -87,13 +85,8 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
-	public String[] getParameterNames() {
-		if (content.getType().hasKeywordParameters()) {
-			return content.getType().getKeywordParameters();
-		}
-		else {
-			return parameters.keySet().toArray(new String[parameters.keySet().size()]);
-		}
+	public Set<String> getParameterNames() {
+		return parameters.keySet();
 	}
 
 	@Override
@@ -113,14 +106,11 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 			return false;
 		}
 
-		String[] a = getParameterNames();
-		String[] b = o.getParameterNames();
-
-		if (!Arrays.equals(a, b)) {
+		if (parameters.size() != o.parameters.size()) {
 			return false;
 		}
 
-		for (String key : a) {
+		for (String key : parameters.keySet()) {
 			if (!getParameter(key).equals(o.getParameter(key))) {
 				return false;
 			}

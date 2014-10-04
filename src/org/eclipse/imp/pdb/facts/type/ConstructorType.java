@@ -37,29 +37,12 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	private final Type fChildrenTypes;
 	private final Type fADT;
 	private final String fName;
-	private final Type fKeywordParameters;
 	
 	/* package */ ConstructorType(String name, Type childrenTypes, Type adt) {
-	  super(adt.getName(), adt.getTypeParameters());
-		fName = name.intern();
-		fChildrenTypes = childrenTypes;
-		fADT = adt;
-		fKeywordParameters = null;
-	}
-	
-	/* package */ ConstructorType(String name, Type childrenTypes, Type adt, Type keywordParameters) {
 		super(adt.getName(), adt.getTypeParameters());
 		fName = name.intern();
 		fChildrenTypes = childrenTypes;
 		fADT = adt;
-
-
-		if (keywordParameters == null || keywordParameters.isBottom() || keywordParameters.getArity() == 0) {
-			fKeywordParameters = null;
-		}
-		else {
-			fKeywordParameters = keywordParameters;
-		}
 	}
 
   @Override
@@ -71,7 +54,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	public int hashCode() {
 		return 21 + 44927 * ((fName != null) ? fName.hashCode() : 1) + 
 		181 * fChildrenTypes.hashCode() + 
-		(fKeywordParameters == null ? 0 : 19 * fKeywordParameters.hashCode()) +
 		354767453 * fADT.hashCode();
 	}
 	
@@ -93,16 +75,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	    }
 
 	  
-	    if (fKeywordParameters != null) {
-	    	if (other.fKeywordParameters == null) {
-	    		return false;
-	    	}
-
-	    	if (fKeywordParameters != other.fKeywordParameters) {
-	    		return false;
-	    	}
-	    }
-
 	    // nothing is different
 	    return true;
 	  }
@@ -119,10 +91,8 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 		builder.append(fName);
 		builder.append("(");
 
-		boolean withNormalParams = false;
 		Iterator<Type> iter = fChildrenTypes.iterator();
 		while(iter.hasNext()) {
-			withNormalParams = true;
 			builder.append(iter.next());
 
 			if (iter.hasNext()) {
@@ -130,22 +100,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 			}
 		}
 		
-		if (hasKeywordParameters()) {
-		  if (withNormalParams) {
-		    builder.append(',');
-		  }
-		  
-		  String[] names = fKeywordParameters.getFieldNames();
-		  for (int i = 0; i < names.length; i++) {
-			  builder.append(fKeywordParameters.getFieldType(i));
-			  builder.append(' ');
-			  builder.append(names[i]);
-			  
-			  if (i < names.length - 1) {
-				  builder.append(',');
-			  }
-		  }
-		}
 		builder.append(")");
 
 		return builder.toString();
@@ -325,36 +279,5 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
 	@Override
 	public boolean isParameterized() {
 		return fADT.isParameterized();
-	}
-	
-	@Override
-	public boolean hasKeywordParameters() {
-		return fKeywordParameters != null;
-	}
-
-	@Override
-	public boolean hasKeywordParameter(String label) {
-	  return fKeywordParameters != null && fKeywordParameters.hasField(label);
-	}
-	
-	@Override
-	public boolean hasKeywordParameter(String label, TypeStore store) {
-	  return hasKeywordParameter(label);
-	}
-	
-	
-	@Override
-	public Type getKeywordParameterTypes() {
-	  return fKeywordParameters != null ? fKeywordParameters : TypeFactory.getInstance().voidType();
-	}
-	
-	@Override
-	public Type getKeywordParameterType(String label) {
-	  return fKeywordParameters != null ? fKeywordParameters.getFieldType(label) : null;
-	}
-	
-	@Override
-	public String[] getKeywordParameters() {
-	  return fKeywordParameters != null ? fKeywordParameters.getFieldNames() : new String[0];
 	}
 }

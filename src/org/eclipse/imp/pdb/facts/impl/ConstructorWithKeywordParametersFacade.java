@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.impl;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -146,12 +147,12 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
       
       @Override
       public boolean hasParameters() {
-        return content.getConstructorType().hasKeywordParameters() || parameters != null;	// TODO: @jurgenv please review; is the constructorType even needed?
+        return parameters != null && parameters.size() > 0;
       }
       
       @Override
-      public String[] getParameterNames() {
-        return content.getConstructorType().getKeywordParameters();							// TODO: what to do here?
+      public Set<String> getParameterNames() {
+        return parameters.keySet();		
       }
       
       @Override

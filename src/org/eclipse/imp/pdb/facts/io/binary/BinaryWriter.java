@@ -84,7 +84,6 @@ public class BinaryWriter{
 	private final static int ANNOTATED_CONSTRUCTOR_TYPE_HEADER = 0x13;
 	private final static int RATIONAL_TYPE_HEADER = 0x15;
 	private final static int NUM_TYPE_HEADER = 0x16;
-	private final static int KEYWORDED_CONSTRUCTOR_TYPE_HEADER = 0x17;
 	
 	private final static int SHARED_FLAG = 0x80;
 	private final static int TYPE_SHARED_FLAG = 0x40;
@@ -824,10 +823,6 @@ public class BinaryWriter{
 	}
 	
 	private void writeNodeType(Type nodeType) throws IOException{
-		if (nodeType.hasKeywordParameters()) {
-			out.write(NODE_TYPE_HEADER);
-			return;
-		}
 		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(nodeType);
 		if(declaredAnnotations.isEmpty()){
 			out.write(NODE_TYPE_HEADER);
@@ -942,20 +937,6 @@ public class BinaryWriter{
 	}
 	
 	private void writeConstructorType(Type constructorType) throws IOException{
-		if (constructorType.hasKeywordParameters()) {
-			out.write(KEYWORDED_CONSTRUCTOR_TYPE_HEADER);
-
-			String name = constructorType.getName();
-			byte[] nameData = name.getBytes(CharEncoding);
-			printInteger(nameData.length);
-			out.write(nameData);
-
-			writeType(constructorType.getFieldTypes());
-			writeType(constructorType.getAbstractDataType());
-
-			writeTupleType(constructorType.getKeywordParameterTypes());
-			return;
-		}
 		Map<String, Type> declaredAnnotations = typeStore.getAnnotations(constructorType);
 		if(declaredAnnotations.isEmpty()){
 			out.write(CONSTRUCTOR_TYPE_HEADER);
