@@ -12,9 +12,6 @@
 
 package org.eclipse.imp.pdb.test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -281,8 +278,7 @@ public abstract class BaseTestAnnotations extends TestCase {
 	public void testConstructorKeywordParameter() {
 	  TypeStore ts = new TypeStore();
 	  Type adt = tf.abstractDataType(ts, "adt");
-	  Type paramTypes = tf.tupleType(tf.boolType(), "foo");
-	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty(), paramTypes);
+	  Type cons = tf.constructorFromTuple(ts, adt, "cons", tf.tupleEmpty());
 
 	  IConstructor n1 = vf.constructor(cons);
 	  
