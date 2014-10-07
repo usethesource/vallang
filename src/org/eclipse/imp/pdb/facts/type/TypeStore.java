@@ -656,14 +656,16 @@ public class TypeStore {
 	}
 
 	/**
-	 * Declare that certain tree node types may have an annotation with a certain
-	 * label. The annotation with that label will have a specific type.
+	 * Declare that certain  constructor types may have an keyword parameter with a certain
+	 * label. The keyword parameter with that label will have a specific type. Note that we
+	 * do not store keyword parameters directly inside the constructor type because keyword 
+	 * parameter can be added externally and constructor types are final (like all other types).
 	 * 
-	 * @param onType the constructor type of values that carry this annotation
-	 * @param key    the label of the annotation
-	 * @param valueType the type of values that represent the annotation
-	 * @throws FactTypeDeclarationException when an attempt is made to define annotations for anything
-	 * but NamedTreeTypes orTreeNodeTypes.
+	 * @param onType the constructor type of values that carry this keyword parameter
+	 * @param key    the label of the keyword parameter
+	 * @param valueType the type of values that represent the keyword parameter
+	 * @throws IllegalKeywordParameterDeclarationException when an attempt is made to define keyword parameter for anything
+	 * but constructor types
 	 */
 	public void declareKeywordParameter(Type onType, String key, Type valueType) {
 	  if (!onType.isConstructor()) {
@@ -741,8 +743,7 @@ public class TypeStore {
 	}
 
 	/**
-	 * Locates all declared annotations for a type, including the annotations declared
-	 * for all the node type.
+	 * Locates all declared keyword parameters for a constructor.
 	 * 
 	 * @param onType 
 	 * @return a map of all annotations declared for onType
