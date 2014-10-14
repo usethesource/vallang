@@ -209,6 +209,11 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 	public IDateTime datetime(long instant) {
 		return DateTimeValues.newDateTime(instant);
 	}
+	
+	@Override
+	public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes) {
+		return DateTimeValues.newDateTime(instant, timezoneHours, timezoneMinutes);
+	}
 
 	@Override
 	public ISourceLocation sourceLocation(URI uri, int offset, int length) {

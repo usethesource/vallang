@@ -556,7 +556,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	/*package*/ static IDateTime newDateTime(long instant) {
-		return new DateTimeValues.DateTimeValue(instant);
+		return new DateTimeValues.DateTimeValue(instant, 0, 0);
+	}
+	
+	/*package*/ static IDateTime newDateTime(long instant, int timezoneHours, int timezoneMinutes) {
+		return new DateTimeValues.DateTimeValue(instant, timezoneHours, timezoneMinutes);
 	}
 	
 	private static class DateTimeValue extends AbstractValue implements IDateTime {
@@ -657,11 +661,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		 * scale (in milliseconds, based on the Java epoch).
 		 * 
 		 * @param instant The millisecond instant.
+		 * @param timezoneHours The hour offset for the new object's timezone 
+		 * @param timezoneMinutes The minute offset for the new object's timezone
 		 */
-		private DateTimeValue(long instant) {
+		private DateTimeValue(long instant, int timezoneHours, int timezoneMinutes) {
 			super();
 			
-			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(TimeValue.getTZString(timezoneHours, timezoneMinutes)),Locale.getDefault());
 			cal.setLenient(false);
 			cal.setTime(new Date(instant));
 			
@@ -672,8 +678,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.minute = cal.get(Calendar.MINUTE);
 			this.second = cal.get(Calendar.SECOND);
 			this.millisecond = cal.get(Calendar.MILLISECOND);
-			this.timezoneHours = cal.get(Calendar.ZONE_OFFSET) / TimeValue.millisInAnHour;
-			this.timezoneMinutes = cal.get(Calendar.ZONE_OFFSET) % TimeValue.millisInAnHour / TimeValue.millisInAMinute;			
+			this.timezoneHours = timezoneHours;
+			this.timezoneMinutes = timezoneMinutes;
 		}
 
 		@Override
