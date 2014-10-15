@@ -57,7 +57,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1, K key2, V val2, K key3, V val3,
 					K key4, V val4, K key5, V val5, K key6, V val6) {
-		final TransientMap<K, V> tmp = TrieMap.transientOf(key1, val1, key2, val2, key3, val3,
+		final TransientMap<K, V> tmp = DefaultTrieMap.transientOf(key1, val1, key2, val2, key3, val3,
 						key4, val4, key5, val5, key6, val6);
 		return tmp.freeze();
 	}
@@ -66,7 +66,7 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 		if (map instanceof ImmutableMap) {
 			return (ImmutableMap<K, V>) map;
 		} else {
-			final TransientMap<K, V> tmp = TrieMap.transientOf();
+			final TransientMap<K, V> tmp = DefaultTrieMap.transientOf();
 			tmp.__putAll(map);
 			return tmp.freeze();
 		}
@@ -278,7 +278,7 @@ class Map0<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf();
+		return DefaultTrieMap.transientOf();
 	}
 
 	@Override
@@ -460,7 +460,7 @@ class Map1<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1);
+		return DefaultTrieMap.transientOf(key1, val1);
 	}
 
 	@Override
@@ -678,7 +678,7 @@ class Map2<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2);
 	}
 
 	@Override
@@ -927,7 +927,7 @@ class Map3<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2, key3, val3);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2, key3, val3);
 	}
 
 	@Override
@@ -1209,7 +1209,7 @@ class Map4<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4);
 	}
 
 	@Override
@@ -1525,7 +1525,7 @@ class Map5<K, V> extends AbstractSpecialisedImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return TrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
+		return DefaultTrieMap.transientOf(key1, val1, key2, val2, key3, val3, key4, val4, key5, val5);
 	}
 
 	@Override

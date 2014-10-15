@@ -20,7 +20,7 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
-import org.eclipse.imp.pdb.facts.util.TrieMap;
+import org.eclipse.imp.pdb.facts.util.DefaultTrieMap;
 
 /*
  * Operates:
@@ -35,7 +35,7 @@ final class TypelessMapWriterCurrent implements IMapWriter {
 	TypelessMapWriterCurrent() {
 		super();
 
-		mapContent = TrieMap.transientOf();
+		mapContent = DefaultTrieMap.transientOf();
 		constructedMap = null;
 	}
 

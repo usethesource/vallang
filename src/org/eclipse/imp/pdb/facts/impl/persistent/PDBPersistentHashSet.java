@@ -24,7 +24,7 @@ import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet;
+import org.eclipse.imp.pdb.facts.util.DefaultTrieSet;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 	
@@ -39,7 +39,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	private PDBPersistentHashSet() {
 		this.elementTypeBag = AbstractTypeBag.of(); 
-		this.content = TrieSet.of();
+		this.content = DefaultTrieSet.of();
 	}
 
 	public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {

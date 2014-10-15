@@ -47,12 +47,12 @@ public abstract class AbstractImmutableSet<E> extends AbstractSet<E> implements 
 	public void clear() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public boolean isTransientSupported() {
 		return false;
 	}
-	
+
 	@Override
 	public TransientSet<E> asTransient() {
 		throw new UnsupportedOperationException();
@@ -67,7 +67,7 @@ public abstract class AbstractImmutableSet<E> extends AbstractSet<E> implements 
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
 		for (Object item : c) {
@@ -77,5 +77,5 @@ public abstract class AbstractImmutableSet<E> extends AbstractSet<E> implements 
 		}
 		return true;
 	}
-		
+
 }

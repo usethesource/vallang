@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
-import org.eclipse.imp.pdb.facts.util.TrieMap;
+import org.eclipse.imp.pdb.facts.util.TrieMap_5Bits;
 
 final class MapWriter implements IMapWriter {
 
@@ -51,7 +51,7 @@ final class MapWriter implements IMapWriter {
 
 		keyTypeBag = AbstractTypeBag.of();
 		valTypeBag = AbstractTypeBag.of();
-		mapContent = TrieMap.transientOf();
+		mapContent = TrieMap_5Bits.transientOf();
 		constructedMap = null;
 	}
 
@@ -70,7 +70,7 @@ final class MapWriter implements IMapWriter {
 			valTypeBag = AbstractTypeBag.of();
 		}
 
-		mapContent = TrieMap.transientOf();
+		mapContent = TrieMap_5Bits.transientOf();
 		constructedMap = null;
 	}
 

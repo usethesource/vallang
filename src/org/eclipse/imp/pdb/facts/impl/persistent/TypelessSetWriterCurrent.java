@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet;
+import org.eclipse.imp.pdb.facts.util.DefaultTrieSet;
 
 class TypelessSetWriterCurrent implements ISetWriter {
 
@@ -33,7 +33,7 @@ class TypelessSetWriterCurrent implements ISetWriter {
 	TypelessSetWriterCurrent() {
 		super();
 
-		setContent = TrieSet.transientOf();
+		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 

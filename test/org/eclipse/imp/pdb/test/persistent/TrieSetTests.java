@@ -25,7 +25,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
 import org.eclipse.imp.pdb.facts.util.ImmutableSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet;
+import org.eclipse.imp.pdb.facts.util.TrieSet_5Bits;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -84,7 +84,7 @@ public class TrieSetTests {
 		input.put(7, 7);
 		input.put(8, 7);
 		
-		ImmutableSet<DummyValue> set = TrieSet.of();
+		ImmutableSet<DummyValue> set = TrieSet_5Bits.of();
 		
 		for (Entry<Integer, Integer> entry : input.entrySet()) {
 			set = set.__insert(new DummyValue(entry.getKey(), entry.getValue()));	
@@ -107,7 +107,7 @@ public class TrieSetTests {
 		input.put(6, 5);
 		input.put(7, 7);
 		
-		ImmutableSet<DummyValue> set = TrieSet.of();
+		ImmutableSet<DummyValue> set = TrieSet_5Bits.of();
 		
 		for (Entry<Integer, Integer> entry : input.entrySet()) {
 			set = set.__insert(new DummyValue(entry.getKey(), entry.getValue()));	
@@ -130,7 +130,7 @@ public class TrieSetTests {
 		input.put(6, 5);
 		input.put(7, 7);
 		
-		ImmutableSet<DummyValue> set = TrieSet.of();
+		ImmutableSet<DummyValue> set = TrieSet_5Bits.of();
 		
 		for (Entry<Integer, Integer> entry : input.entrySet()) {
 			set = set.__insert(new DummyValue(entry.getKey(), entry.getValue()));	

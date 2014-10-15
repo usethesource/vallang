@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 
-import org.eclipse.imp.pdb.facts.util.TrieMap;
+import org.eclipse.imp.pdb.facts.util.TrieMap_5Bits;
 import org.junit.Test;
 
 public class TrieMapTests {
@@ -26,10 +26,10 @@ public class TrieMapTests {
 	public void testPrintStatsSequential() {
 //		int size = 128;
 
-		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
+		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
 		
 		for (int i = size; i > 0; i--) {
-			TrieMap<Integer, Integer> res = map.__put(i, i);
+			TrieMap_5Bits<Integer, Integer> res = map.__put(i, i);
 			assert res.containsKey(i);			
 			map = res;
 		}
@@ -41,14 +41,14 @@ public class TrieMapTests {
 	public void testPrintStatsRandom() {
 //		int size = 128;
 
-		TrieMap<Integer, Integer> map = (TrieMap) TrieMap.of();
+		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
 		
 		Random rand = new Random(13);
 		
 		for (int i = size; i > 0; i--) {
 			final int j = rand.nextInt(); 
 			
-			TrieMap<Integer, Integer> res = map.__put(j, j);
+			TrieMap_5Bits<Integer, Integer> res = map.__put(j, j);
 			assert res.containsKey(j);			
 			map = res;
 		}

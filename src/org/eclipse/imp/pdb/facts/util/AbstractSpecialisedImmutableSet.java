@@ -50,7 +50,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 	}
 	
 	public static <K> ImmutableSet<K> setOf(K key1, K key2, K key3, K key4, K key5, K key6) {
-		final TransientSet<K> tmp = TrieSet.transientOf(key1, key2, key3, key4, key5, key6);
+		final TransientSet<K> tmp = DefaultTrieSet.transientOf(key1, key2, key3, key4, key5, key6);
 		return tmp.freeze();
 	}
 	
@@ -58,7 +58,7 @@ public abstract class AbstractSpecialisedImmutableSet<K> extends AbstractImmutab
 		if (set instanceof AbstractSpecialisedImmutableSet) {
 			return (ImmutableSet<K>) set;
 		} else {
-			final TransientSet<K> tmp = TrieSet.transientOf();
+			final TransientSet<K> tmp = DefaultTrieSet.transientOf();
 			// TODO check interface definition of ImmutableSet.__insertAll()
 			for (K item : set) {
 				tmp.__insert(item);
@@ -263,7 +263,7 @@ class Set0<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf();
+		return DefaultTrieSet.transientOf();
 	}
 
 	@Override
@@ -410,7 +410,7 @@ class Set1<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1);
+		return DefaultTrieSet.transientOf(key1);
 	}
 
 	@Override
@@ -585,7 +585,7 @@ class Set2<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2);
+		return DefaultTrieSet.transientOf(key1, key2);
 	}
 
 	@Override
@@ -783,7 +783,7 @@ class Set3<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2, key3);
+		return DefaultTrieSet.transientOf(key1, key2, key3);
 	}
 
 	@Override
@@ -1005,7 +1005,7 @@ class Set4<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2, key3, key4);
+		return DefaultTrieSet.transientOf(key1, key2, key3, key4);
 	}
 
 	@Override
@@ -1252,7 +1252,7 @@ class Set5<K> extends AbstractSpecialisedImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return TrieSet.transientOf(key1, key2, key3, key4, key5);
+		return DefaultTrieSet.transientOf(key1, key2, key3, key4, key5);
 	}
 
 	@Override

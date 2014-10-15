@@ -22,8 +22,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet;
+import org.eclipse.imp.pdb.facts.util.DefaultTrieSet;
 
 class TypelessSetWriterGPCE0To12 implements ISetWriter {
 
@@ -37,7 +36,7 @@ class TypelessSetWriterGPCE0To12 implements ISetWriter {
 	TypelessSetWriterGPCE0To12() {
 		super();
 
-		setContent = TrieSet.transientOf();
+		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 
