@@ -67,6 +67,10 @@ public final class TypelessPDBPersistentHashMap extends AbstractMap {
 		return new TypelessPDBPersistentHashMap(content.__put(key, value));
 	}
 	
+	public IMap removeKey(IValue key) {
+		return new TypelessPDBPersistentHashMap(content.__remove(key));
+	}
+	
 	@Override
 	public boolean containsKey(IValue key) {
 		return content.containsKey(key);

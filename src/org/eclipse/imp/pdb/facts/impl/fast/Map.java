@@ -281,4 +281,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		return false;
 	}
+	
+	@Override
+	public IMap removeKey(IValue key) {
+		throw new UnsupportedOperationException();
+	}
+	
 }

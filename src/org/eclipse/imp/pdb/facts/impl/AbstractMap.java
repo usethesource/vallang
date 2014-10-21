@@ -109,5 +109,10 @@ public abstract class AbstractMap extends AbstractValue implements IMap {
 	public boolean isSubMap(IMap that) {
 		return MapFunctions.isSubMap(getValueFactory(), this, that);
 	}
-
+	
+	@Override
+	public IMap removeKey(IValue key) {
+		throw new UnsupportedOperationException();
+	}
+	
 }
