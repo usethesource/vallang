@@ -20,22 +20,22 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
-import org.eclipse.imp.pdb.facts.util.TrieMapDynamic;
+import org.eclipse.imp.pdb.facts.util.TrieMap_BleedingEdge;
 
 /*
  * Operates:
  * 		* without types
  * 		* with equals() instead of isEqual()
  */
-final class TypelessMapWriterDynamic implements IMapWriter {
+final class TypelessMapWriterBleedingEdge implements IMapWriter {
 
 	protected final TransientMap<IValue, IValue> mapContent;
 	protected IMap constructedMap;
 
-	TypelessMapWriterDynamic() {
+	TypelessMapWriterBleedingEdge() {
 		super();
 
-		mapContent = TrieMapDynamic.transientOf();
+		mapContent = TrieMap_BleedingEdge.transientOf();
 		constructedMap = null;
 	}
 

@@ -28,10 +28,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
+public class TrieMap_BleedingEdge<K, V> extends AbstractMap<K, V> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieMapDynamic EMPTY_MAP = new TrieMapDynamic(CompactMapNode.EMPTY_NODE, 0, 0);
+	private static final TrieMap_BleedingEdge EMPTY_MAP = new TrieMap_BleedingEdge(
+					CompactMapNode.EMPTY_NODE, 0, 0);
 
 	private static final boolean DEBUG = false;
 
@@ -39,7 +40,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	private final int hashCode;
 	private final int cachedSize;
 
-	TrieMapDynamic(AbstractMapNode<K, V> rootNode, int hashCode, int cachedSize) {
+	TrieMap_BleedingEdge(AbstractMapNode<K, V> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
@@ -50,7 +51,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> ImmutableMap<K, V> of() {
-		return TrieMapDynamic.EMPTY_MAP;
+		return TrieMap_BleedingEdge.EMPTY_MAP;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -60,7 +61,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 							"Length of argument list is uneven: no key/value pairs.");
 		}
 
-		ImmutableMap<K, V> result = TrieMapDynamic.EMPTY_MAP;
+		ImmutableMap<K, V> result = TrieMap_BleedingEdge.EMPTY_MAP;
 
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];
@@ -74,7 +75,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K, V> TransientMap<K, V> transientOf() {
-		return TrieMapDynamic.EMPTY_MAP.asTransient();
+		return TrieMap_BleedingEdge.EMPTY_MAP.asTransient();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -84,7 +85,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 							"Length of argument list is uneven: no key/value pairs.");
 		}
 
-		final TransientMap<K, V> result = TrieMapDynamic.EMPTY_MAP.asTransient();
+		final TransientMap<K, V> result = TrieMap_BleedingEdge.EMPTY_MAP.asTransient();
 
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final K key = (K) keyValuePairs[i];
@@ -113,23 +114,25 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMapDynamic<K, V> __put(final K key, final V val) {
+	public TrieMap_BleedingEdge<K, V> __put(final K key, final V val) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(null, key,
-						val, keyHash, 0);
+		final Result<K, V> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, keyHash, 0,
+						details);
 
-			if (result.hasReplacedValue()) {
-				final int valHashOld = result.getReplacedValue().hashCode();
+		if (details.isModified()) {
+
+			if (details.hasReplacedValue()) {
+				final int valHashOld = details.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMapDynamic<K, V>(result.getNode(), hashCode + (keyHash ^ valHashNew)
-								- (keyHash ^ valHashOld), cachedSize);
+				return new TrieMap_BleedingEdge<K, V>(newRootNode, hashCode
+								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMapDynamic<K, V>(result.getNode(), hashCode + (keyHash ^ valHash),
+			return new TrieMap_BleedingEdge<K, V>(newRootNode, hashCode + (keyHash ^ valHash),
 							cachedSize + 1);
 
 		}
@@ -138,23 +141,26 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMapDynamic<K, V> __putEquivalent(final K key, final V val, Comparator<Object> cmp) {
+	public TrieMap_BleedingEdge<K, V> __putEquivalent(final K key, final V val,
+					final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(null, key,
-						val, keyHash, 0, cmp);
+		final Result<K, V> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, keyHash, 0,
+						details, cmp);
 
-			if (result.hasReplacedValue()) {
-				final int valHashOld = result.getReplacedValue().hashCode();
+		if (details.isModified()) {
+
+			if (details.hasReplacedValue()) {
+				final int valHashOld = details.getReplacedValue().hashCode();
 				final int valHashNew = val.hashCode();
 
-				return new TrieMapDynamic<K, V>(result.getNode(), hashCode + (keyHash ^ valHashNew)
-								- (keyHash ^ valHashOld), cachedSize);
+				return new TrieMap_BleedingEdge<K, V>(newRootNode, hashCode
+								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
-			return new TrieMapDynamic<K, V>(result.getNode(), hashCode + (keyHash ^ valHash),
+			return new TrieMap_BleedingEdge<K, V>(newRootNode, hashCode + (keyHash ^ valHash),
 							cachedSize + 1);
 
 		}
@@ -163,35 +169,18 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map) {
-		TransientMap<K, V> tmp = asTransient();
-		tmp.__putAll(map);
-		return tmp.freeze();
-	}
-
-	@Override
-	public ImmutableMap<K, V> __putAllEquivalent(Map<? extends K, ? extends V> map,
-					Comparator<Object> cmp) {
-		TransientMap<K, V> tmp = asTransient();
-		tmp.__putAllEquivalent(map, cmp);
-		return tmp.freeze();
-	}
-
-	@Override
-	public TrieMapDynamic<K, V> __remove(final K key) {
+	public ImmutableMap<K, V> __remove(final K key) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(null, key,
-						keyHash, 0);
+		final Result<K, V> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, keyHash, 0, details);
 
-			// TODO: carry deleted value in result
-			// assert result.hasReplacedValue();
-			// final int valHash = result.getReplacedValue().hashCode();
+		if (details.isModified()) {
 
-			final int valHash = rootNode.findByKey(key, keyHash, 0).get().hashCode();
+			assert details.hasReplacedValue();
+			final int valHash = details.getReplacedValue().hashCode();
 
-			return new TrieMapDynamic<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
+			return new TrieMap_BleedingEdge<K, V>(newRootNode, hashCode - (keyHash ^ valHash),
 							cachedSize - 1);
 
 		}
@@ -200,20 +189,19 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public TrieMapDynamic<K, V> __removeEquivalent(final K key, Comparator<Object> cmp) {
+	public ImmutableMap<K, V> __removeEquivalent(final K key, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(null, key,
-						keyHash, 0, cmp);
+		final Result<K, V> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, keyHash, 0, details,
+						cmp);
 
-			// TODO: carry deleted value in result
-			// assert result.hasReplacedValue();
-			// final int valHash = result.getReplacedValue().hashCode();
+		if (details.isModified()) {
 
-			final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().hashCode();
+			assert details.hasReplacedValue();
+			final int valHash = details.getReplacedValue().hashCode();
 
-			return new TrieMapDynamic<K, V>(result.getNode(), hashCode - (keyHash ^ valHash),
+			return new TrieMap_BleedingEdge<K, V>(newRootNode, hashCode - (keyHash ^ valHash),
 							cachedSize - 1);
 
 		}
@@ -222,8 +210,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public boolean containsKey(Object o) {
+	public boolean containsKey(final java.lang.Object o) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			return rootNode.containsKey(key, key.hashCode(), 0);
 		} catch (ClassCastException unused) {
@@ -232,8 +221,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public boolean containsKeyEquivalent(Object o, Comparator<Object> cmp) {
+	public boolean containsKeyEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 		} catch (ClassCastException unused) {
@@ -242,7 +232,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public boolean containsValue(Object o) {
+	public boolean containsValue(final java.lang.Object o) {
 		for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
 			if (iterator.next().equals(o)) {
 				return true;
@@ -252,9 +242,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public boolean containsValueEquivalent(Object o, Comparator<Object> cmp) {
+	public boolean containsValueEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
 		for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
-			if (cmp.compare(iterator.next(), o) == 0) {
+			if (iterator.next().equals(o)) {
 				return true;
 			}
 		}
@@ -262,8 +252,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public V get(Object o) {
+	public V get(final java.lang.Object o) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0);
 
@@ -278,8 +269,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	}
 
 	@Override
-	public V getEquivalent(Object o, Comparator<Object> cmp) {
+	public V getEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
@@ -291,6 +283,41 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		} catch (ClassCastException unused) {
 			return null;
 		}
+	}
+
+	@Override
+	public ImmutableMap<K, V> __putAll(final Map<? extends K, ? extends V> map) {
+		TransientMap<K, V> tmp = asTransient();
+		tmp.__putAll(map);
+		return tmp.freeze();
+	}
+
+	@Override
+	public ImmutableMap<K, V> __putAllEquivalent(final Map<? extends K, ? extends V> map,
+					final Comparator<Object> cmp) {
+		TransientMap<K, V> tmp = asTransient();
+		tmp.__putAllEquivalent(map, cmp);
+		return tmp.freeze();
+	}
+
+	@Override
+	public V put(final K key, final V val) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public V remove(final java.lang.Object key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void putAll(final Map<? extends K, ? extends V> m) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -343,23 +370,22 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 				@Override
 				public int size() {
-					return TrieMapDynamic.this.size();
+					return TrieMap_BleedingEdge.this.size();
 				}
 
 				@Override
 				public boolean isEmpty() {
-					return TrieMapDynamic.this.isEmpty();
+					return TrieMap_BleedingEdge.this.isEmpty();
 				}
 
-				@SuppressWarnings("deprecation")
 				@Override
 				public void clear() {
-					TrieMapDynamic.this.clear();
+					TrieMap_BleedingEdge.this.clear();
 				}
 
 				@Override
 				public boolean contains(Object k) {
-					return TrieMapDynamic.this.containsKey(k);
+					return TrieMap_BleedingEdge.this.containsKey(k);
 				}
 			};
 		}
@@ -373,7 +399,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 	@Override
 	public TransientMap<K, V> asTransient() {
-		return new TransientTrieMap<K, V>(this);
+		return new TransientTrieMap_BleedingEdge<K, V>(this);
 	}
 
 	@Override
@@ -390,8 +416,8 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			return false;
 		}
 
-		if (other instanceof TrieMapDynamic) {
-			TrieMapDynamic<?, ?> that = (TrieMapDynamic<?, ?>) other;
+		if (other instanceof TrieMap_BleedingEdge) {
+			TrieMap_BleedingEdge<?, ?> that = (TrieMap_BleedingEdge<?, ?>) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -414,7 +440,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	 * For analysis purposes only.
 	 */
 	protected Iterator<AbstractMapNode<K, V>> nodeIterator() {
-		return new TrieMapNodeIterator<>(rootNode);
+		return new TrieMap_BleedingEdgeNodeIterator<>(rootNode);
 	}
 
 	/*
@@ -436,7 +462,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	 */
 	protected int[][] arityCombinationsHistogram() {
 		final Iterator<AbstractMapNode<K, V>> it = nodeIterator();
-		final int[][] sumArityCombinations = new int[17][17];
+		final int[][] sumArityCombinations = new int[33][33];
 
 		while (it.hasNext()) {
 			final AbstractMapNode<K, V> node = it.next();
@@ -451,9 +477,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	 */
 	protected int[] arityHistogram() {
 		final int[][] sumArityCombinations = arityCombinationsHistogram();
-		final int[] sumArity = new int[17];
+		final int[] sumArity = new int[33];
 
-		final int maxArity = 16; // TODO: factor out constant
+		final int maxArity = 32; // TODO: factor out constant
 
 		for (int j = 0; j <= maxArity; j++) {
 			for (int maxRestArity = maxArity - j, k = 0; k <= maxRestArity - j; k++) {
@@ -472,14 +498,14 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		final int[] sumArity = arityHistogram();
 		final int sumNodes = getNodeCount();
 
-		final int[] cumsumArity = new int[17];
-		for (int cumsum = 0, i = 0; i < 17; i++) {
+		final int[] cumsumArity = new int[33];
+		for (int cumsum = 0, i = 0; i < 33; i++) {
 			cumsum += sumArity[i];
 			cumsumArity[i] = cumsum;
 		}
 
 		final float threshhold = 0.01f; // for printing results
-		for (int i = 0; i < 17; i++) {
+		for (int i = 0; i < 33; i++) {
 			float arityPercentage = (float) (sumArity[i]) / sumNodes;
 			float cumsumArityPercentage = (float) (cumsumArity[i]) / sumNodes;
 
@@ -555,35 +581,28 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	static final class Result<T1, T2, N extends AbstractNode<T1, T2>> {
-		private final N result;
-		private final T2 replacedValue;
-		private final boolean isModified;
+	static final class Result<K, V> {
+		private V replacedValue;
+		private boolean isModified;
+		private boolean isReplaced;
 
 		// update: inserted/removed single element, element count changed
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> modified(N node) {
-			return new Result<>(node, null, true);
+		public void modified() {
+			this.isModified = true;
 		}
 
-		// update: replaced single mapping, but element count unchanged
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> updated(N node,
-						T2 replacedValue) {
-			return new Result<>(node, replacedValue, true);
+		public void updated(V replacedValue) {
+			this.replacedValue = replacedValue;
+			this.isModified = true;
+			this.isReplaced = true;
 		}
 
 		// update: neither element, nor element count changed
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> unchanged(N node) {
-			return new Result<>(node, null, false);
+		public static <K, V> Result<K, V> unchanged() {
+			return new Result<>();
 		}
 
-		private Result(N node, T2 replacedValue, boolean isMutated) {
-			this.result = node;
-			this.replacedValue = replacedValue;
-			this.isModified = isMutated;
-		}
-
-		public N getNode() {
-			return result;
+		private Result() {
 		}
 
 		public boolean isModified() {
@@ -591,10 +610,10 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		public boolean hasReplacedValue() {
-			return replacedValue != null;
+			return isReplaced;
 		}
 
-		public T2 getReplacedValue() {
+		public V getReplacedValue() {
 			return replacedValue;
 		}
 	}
@@ -606,42 +625,39 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 		static final int TUPLE_LENGTH = 2;
 
-		abstract boolean containsKey(final K key, int keyHash, int shift);
+		abstract boolean containsKey(final K key, final int keyHash, final int shift);
 
-		abstract boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp);
+		abstract boolean containsKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp);
 
-		abstract Optional<V> findByKey(final K key, int keyHash, int shift);
+		abstract Optional<V> findByKey(final K key, final int keyHash, final int shift);
 
-		abstract Optional<V> findByKey(final K key, int keyHash, int shift, Comparator<Object> cmp);
+		abstract Optional<V> findByKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(
-						AtomicReference<Thread> mutator, final K key, final V val, int keyHash,
-						int shift);
+		abstract CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+						final V val, final int keyHash, final int shift, final Result<K, V> details);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> updated(
-						AtomicReference<Thread> mutator, final K key, final V val, int keyHash,
-						int shift, Comparator<Object> cmp);
+		abstract CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+						final V val, final int keyHash, final int shift,
+						final Result<K, V> details, final Comparator<Object> cmp);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(
-						AtomicReference<Thread> mutator, final K key, int keyHash, int shift);
+		abstract CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K, V> details);
 
-		abstract Result<K, V, ? extends CompactMapNode<K, V>> removed(
-						AtomicReference<Thread> mutator, final K key, int keyHash, int shift,
-						Comparator<Object> cmp);
+		abstract CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K, V> details,
+						final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
-		abstract K getKey(int index);
-
-		abstract V getValue(int index);
-
-		abstract java.util.Map.Entry<K, V> getKeyValueEntry(int index);
-
-		abstract AbstractMapNode<K, V> getNode(int index);
+		abstract AbstractMapNode<K, V> getNode(final int index);
 
 		abstract boolean hasNodes();
+
+		abstract int nodeArity();
 
 		@Deprecated
 		Iterator<? extends AbstractMapNode<K, V>> nodeIterator() {
@@ -668,48 +684,17 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			};
 		}
 
-		abstract int nodeArity();
+		abstract K getKey(final int index);
+
+		abstract V getValue(final int index);
+
+		abstract java.util.Map.Entry<K, V> getKeyValueEntry(final int index);
 
 		abstract boolean hasPayload();
 
-		@Deprecated
-		SupplierIterator<K, V> payloadIterator() {
-			return new SupplierIterator<K, V>() {
-
-				int nextIndex = 0;
-
-				@Override
-				public V get() {
-					if (nextIndex == 0 || nextIndex > AbstractMapNode.this.payloadArity()) {
-						throw new NoSuchElementException();
-					}
-
-					return AbstractMapNode.this.getValue(nextIndex - 1);
-				}
-
-				@Override
-				public void remove() {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public K next() {
-					if (!hasNext())
-						throw new NoSuchElementException();
-					return AbstractMapNode.this.getKey(nextIndex++);
-				}
-
-				@Override
-				public boolean hasNext() {
-					return nextIndex < AbstractMapNode.this.payloadArity();
-				}
-			};
-		}
-
 		abstract int payloadArity();
 
-		abstract java.lang.Object getSlot(int index);
-
+		@Deprecated
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
@@ -731,20 +716,17 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 			return size;
 		}
+
 	}
 
 	private static abstract class CompactMapNode<K, V> extends AbstractMapNode<K, V> {
 
-		protected static final int BIT_PARTITION_SIZE = 4;
-		protected static final int BIT_PARTITION_MASK = 0b1111;
+		static final int BIT_PARTITION_SIZE = 5;
+		static final int BIT_PARTITION_MASK = 0b11111;
 
-		short nodeMap() {
-			throw new UnsupportedOperationException();
-		}
+		abstract int nodeMap();
 
-		short dataMap() {
-			throw new UnsupportedOperationException();
-		}
+		abstract int dataMap();
 
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
@@ -759,34 +741,8 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		 */
 		abstract byte sizePredicate();
 
-		/**
-		 * Returns the first key stored within this node.
-		 * 
-		 * @return first key
-		 */
-		@Deprecated
-		K headKey() {
-			return getKey(0);
-		}
-
-		/**
-		 * Returns the first value stored within this node.
-		 * 
-		 * @return first value
-		 */
-		@Deprecated
-		V headVal() {
-			return getValue(0);
-		}
-
 		@Override
-		abstract CompactMapNode<K, V> getNode(int index);
-
-		@Deprecated
-		@Override
-		Iterator<? extends CompactMapNode<K, V>> nodeIterator() {
-			throw new UnsupportedOperationException();
-		}
+		abstract CompactMapNode<K, V> getNode(final int index);
 
 		boolean nodeInvariant() {
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
@@ -802,35 +758,29 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		abstract CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator,
-						final short bitpos, final V val);
+						final int bitpos, final V val);
 
 		abstract CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final short bitpos, final K key, final V val);
+						final int bitpos, final K key, final V val);
 
 		abstract CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator,
-						final short bitpos);
+						final int bitpos);
 
 		abstract CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactMapNode<K, V> node);
+						final int bitpos, CompactMapNode<K, V> node);
 
-		CompactMapNode<K, V> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
-						CompactMapNode<K, V> node) {
-			throw new UnsupportedOperationException();
-		}
+		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
+						final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactMapNode<K, V> node);
 
-		CompactMapNode<K, V> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
-			throw new UnsupportedOperationException();
-		}
+		abstract CompactMapNode<K, V> copyAndMigrateFromNodeToInline(
+						final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactMapNode<K, V> node);
 
-		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactMapNode<K, V> node) {
-			throw new UnsupportedOperationException();
-		}
-
-		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final short bitpos, CompactMapNode<K, V> node) {
-			throw new UnsupportedOperationException();
-		}
+		/*
+		 * TODO: specialize removed(..) to remove this method from this
+		 * interface
+		 */
 
 		@SuppressWarnings("unchecked")
 		static final <K, V> CompactMapNode<K, V> mergeNodes(final K key0, final V val0,
@@ -838,8 +788,8 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			assert !(key0.equals(key1));
 
 			if (keyHash0 == keyHash1) {
-				return new HashCollisionMapNode<>(keyHash0, (K[]) new Object[] { key0, key1 },
-								(V[]) new Object[] { val0, val1 });
+				return new HashCollisionMapNode_BleedingEdge<>(keyHash0, (K[]) new Object[] { key0,
+								key1 }, (V[]) new Object[] { val0, val1 });
 			}
 
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
@@ -847,22 +797,20 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final short dataMap = (short) (1L << mask0 | 1L << mask1);
+				final int dataMap = (int) (1L << mask0 | 1L << mask1);
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (short) 0, dataMap,
-									new Object[] { key0, val0, key1, val1 }, (byte) 2);
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key0, val0, key1, val1 });
 				} else {
-					return nodeOf(null, (short) 0, dataMap,
-									new Object[] { key1, val1, key0, val0 }, (byte) 2);
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, val1, key0, val0 });
 				}
 			} else {
 				// values fit on next level
 				final CompactMapNode<K, V> node = mergeNodes(key0, val0, keyHash0, key1, val1,
 								keyHash1, shift + BIT_PARTITION_SIZE);
 
-				final short nodeMap = (short) (1L << mask0);
-				return nodeOf(null, nodeMap, (short) 0, new Object[] { node }, (byte) 0);
+				final int nodeMap = (int) (1L << mask0);
+				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
 			}
 		}
 
@@ -873,31 +821,32 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final short nodeMap = (short) (1L << mask0);
-				final short dataMap = (short) (1L << mask1);
+				final int nodeMap = (int) (1L << mask0);
+				final int dataMap = (int) (1L << mask1);
 
 				// store values before node
-				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, node0 }, (byte) 1);
+				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, val1, node0 });
 			} else {
 				// values fit on next level
 				final CompactMapNode<K, V> node = mergeNodes(node0, keyHash0, key1, val1, keyHash1,
 								shift + BIT_PARTITION_SIZE);
 
-				final short nodeMap = (short) (1L << mask0);
-				return nodeOf(null, nodeMap, (short) 0, new Object[] { node }, (byte) 0);
+				final int nodeMap = (int) (1L << mask0);
+				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
 			}
 		}
 
 		static final CompactMapNode EMPTY_NODE;
 
 		static {
-			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (short) 0, (short) 0, new Object[] {},
-							(byte) 0);
+
+			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (int) (0), (int) (0), new Object[] {});
+
 		};
 
-		static final <K, V> CompactMapNode<K, V> nodeOf(AtomicReference<Thread> mutator,
-						final short nodeMap, final short dataMap, Object[] nodes, byte payloadArity) {
-			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes, payloadArity);
+		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
+						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -906,35 +855,35 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(AtomicReference<Thread> mutator,
-						final short nodeMap, final short dataMap, final K key, final V val) {
+						final int nodeMap, final int dataMap, final K key, final V val) {
 			assert nodeMap == 0;
-			return nodeOf(mutator, (short) 0, dataMap, new Object[] { key, val }, (byte) 1);
+			return nodeOf(mutator, (int) (0), dataMap, new Object[] { key, val });
 		}
 
-		final int dataIndex(final short bitpos) {
-			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF) & (bitpos - 1));
+		int dataIndex(final int bitpos) {
+			return java.lang.Integer.bitCount(dataMap() & (bitpos - 1));
 		}
 
-		final int nodeIndex(final short bitpos) {
-			return java.lang.Integer.bitCount((int) (nodeMap() & 0xFFFF) & (bitpos - 1));
+		int nodeIndex(final int bitpos) {
+			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
-		K keyAt(final short bitpos) {
+		K keyAt(final int bitpos) {
 			return getKey(dataIndex(bitpos));
 		}
 
-		V valAt(final short bitpos) {
+		V valAt(final int bitpos) {
 			return getValue(dataIndex(bitpos));
 		}
 
-		CompactMapNode<K, V> nodeAt(final short bitpos) {
+		CompactMapNode<K, V> nodeAt(final int bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
 		@Override
-		boolean containsKey(final K key, int keyHash, int shift) {
+		boolean containsKey(final K key, final int keyHash, final int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return keyAt(bitpos).equals(key);
@@ -948,9 +897,10 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		boolean containsKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return cmp.compare(keyAt(bitpos), key) == 0;
@@ -964,9 +914,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Optional<V> findByKey(final K key, int keyHash, int shift) {
+		Optional<V> findByKey(final K key, final int keyHash, final int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -988,9 +938,10 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Optional<V> findByKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		Optional<V> findByKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -1012,287 +963,245 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						final K key, final V val, int keyHash, int shift) {
+		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+						final V val, final int keyHash, final int shift, final Result<K, V> details) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final K currentKey = keyAt(bitpos);
+				final int dataIndex = dataIndex(bitpos);
+				final K currentKey = getKey(dataIndex);
 
 				if (currentKey.equals(key)) {
-					final V currentVal = valAt(bitpos);
+					final V currentVal = getValue(dataIndex);
 
 					if (currentVal.equals(val)) {
-						return Result.unchanged(this);
+						return this;
+					} else {
+						// update mapping
+						details.updated(currentVal);
+						return copyAndSetValue(mutator, bitpos, val);
 					}
-
-					// update mapping
-					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, bitpos, val);
-
-					return Result.updated(thisNew, currentVal);
 				} else {
-					final CompactMapNode<K, V> nodeNew = mergeNodes(keyAt(bitpos), valAt(bitpos),
-									keyAt(bitpos).hashCode(), key, val, keyHash, shift
+					final V currentVal = getValue(dataIndex);
+					final CompactMapNode<K, V> subNodeNew = mergeNodes(currentKey, currentVal,
+									currentKey.hashCode(), key, val, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
-					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
-									bitpos, nodeNew);
+					details.modified();
+					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
 
-					return Result.modified(thisNew);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
+				final CompactMapNode<K, V> subNodeNew = subNode.updated(mutator, key, val, keyHash,
+								shift + BIT_PARTITION_SIZE, details);
 
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
-								mutator, key, val, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (details.isModified()) {
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
+				} else {
+					return this;
 				}
-
-				final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, bitpos,
-								nestedResult.getNode());
-
-				if (nestedResult.hasReplacedValue()) {
-					return Result.updated(thisNew, nestedResult.getReplacedValue());
-				}
-
-				return Result.modified(thisNew);
 			} else {
 				// no value
-				final CompactMapNode<K, V> thisNew = copyAndInsertValue(mutator, bitpos, key, val);
-
-				return Result.modified(thisNew);
+				details.modified();
+				return copyAndInsertValue(mutator, bitpos, key, val);
 			}
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						final K key, final V val, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+						final V val, final int keyHash, final int shift,
+						final Result<K, V> details, final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final K currentKey = keyAt(bitpos);
+				final int dataIndex = dataIndex(bitpos);
+				final K currentKey = getKey(dataIndex);
 
 				if (cmp.compare(currentKey, key) == 0) {
-					final V currentVal = valAt(bitpos);
+					final V currentVal = getValue(dataIndex);
 
 					if (cmp.compare(currentVal, val) == 0) {
-						return Result.unchanged(this);
+						return this;
+					} else {
+						// update mapping
+						details.updated(currentVal);
+						return copyAndSetValue(mutator, bitpos, val);
 					}
-
-					// update mapping
-					final CompactMapNode<K, V> thisNew = copyAndSetValue(mutator, bitpos, val);
-
-					return Result.updated(thisNew, currentVal);
 				} else {
-					final CompactMapNode<K, V> nodeNew = mergeNodes(keyAt(bitpos), valAt(bitpos),
-									keyAt(bitpos).hashCode(), key, val, keyHash, shift
+					final V currentVal = getValue(dataIndex);
+					final CompactMapNode<K, V> subNodeNew = mergeNodes(currentKey, currentVal,
+									currentKey.hashCode(), key, val, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
-					final CompactMapNode<K, V> thisNew = copyAndMigrateFromInlineToNode(mutator,
-									bitpos, nodeNew);
+					details.modified();
+					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
 
-					return Result.modified(thisNew);
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
+				final CompactMapNode<K, V> subNodeNew = subNode.updated(mutator, key, val, keyHash,
+								shift + BIT_PARTITION_SIZE, details, cmp);
 
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.updated(
-								mutator, key, val, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (details.isModified()) {
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
+				} else {
+					return this;
 				}
-
-				final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, bitpos,
-								nestedResult.getNode());
-
-				if (nestedResult.hasReplacedValue()) {
-					return Result.updated(thisNew, nestedResult.getReplacedValue());
-				}
-
-				return Result.modified(thisNew);
 			} else {
 				// no value
-				final CompactMapNode<K, V> thisNew = copyAndInsertValue(mutator, bitpos, key, val);
-
-				return Result.modified(thisNew);
+				details.modified();
+				return copyAndInsertValue(mutator, bitpos, key, val);
 			}
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift) {
+		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K, V> details) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (keyAt(bitpos).equals(key)) {
+				final int dataIndex = dataIndex(bitpos);
+
+				if (getKey(dataIndex).equals(key)) {
+					final V currentVal = getValue(dataIndex);
+					details.updated(currentVal);
+
 					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
 						/*
 						 * Create new node with remaining pair. The new node
 						 * will a) either become the new root returned, or b)
 						 * unwrapped and inlined during returning.
 						 */
-						final CompactMapNode<K, V> thisNew;
-						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
-										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
+						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
+										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
 
-						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (short) 0, newDataMap,
+						if (dataIndex == 0) {
+							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(1), getValue(1));
 						} else {
-							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (short) 0, newDataMap,
+							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(0), getValue(0));
 						}
-
-						return Result.modified(thisNew);
 					} else {
-						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
-
-						return Result.modified(thisNew);
+						return copyAndRemoveValue(mutator, bitpos);
 					}
 				} else {
-					return Result.unchanged(this);
+					return this;
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
+				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
+								shift + BIT_PARTITION_SIZE, details);
 
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (!details.isModified()) {
+					return this;
 				}
-
-				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
-
-				if (subNodeNew.sizePredicate() == 0) {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				assert subNodeNew.sizePredicate() > 0;
 
 				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					throw new IllegalStateException("Sub-node must have at least one element.");
+				}
 				case 1: {
 					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
 						// escalate (singleton or empty) result
-						return nestedResult;
+						return subNodeNew;
 					} else {
 						// inline value (move to front)
-						final CompactMapNode<K, V> thisNew = copyAndMigrateFromNodeToInline(
-										mutator, bitpos, subNodeNew);
-						// final CompactMapNode<K, V> thisNew =
-						// copyAndRemoveNode(mutator,
-						// bitpos).copyAndInsertValue(mutator, bitpos,
-						// subNodeNew.getKey(0), subNodeNew.getValue(0));
-
-						return Result.modified(thisNew);
+						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
 					}
 				}
 				default: {
 					// modify current node (set replacement node)
-					final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, bitpos, subNodeNew);
-
-					return Result.modified(thisNew);
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
 				}
 				}
 			}
 
-			return Result.unchanged(this);
+			return this;
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K, V> details,
+						final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (cmp.compare(keyAt(bitpos), key) == 0) {
+				final int dataIndex = dataIndex(bitpos);
+
+				if (cmp.compare(getKey(dataIndex), key) == 0) {
+					final V currentVal = getValue(dataIndex);
+					details.updated(currentVal);
+
 					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
 						/*
 						 * Create new node with remaining pair. The new node
 						 * will a) either become the new root returned, or b)
 						 * unwrapped and inlined during returning.
 						 */
-						final CompactMapNode<K, V> thisNew;
-						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
-										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
+						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
+										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
 
-						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (short) 0, newDataMap,
+						if (dataIndex == 0) {
+							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(1), getValue(1));
 						} else {
-							thisNew = CompactMapNode.<K, V> nodeOf(mutator, (short) 0, newDataMap,
+							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(0), getValue(0));
 						}
-
-						return Result.modified(thisNew);
 					} else {
-						final CompactMapNode<K, V> thisNew = copyAndRemoveValue(mutator, bitpos);
-
-						return Result.modified(thisNew);
+						return copyAndRemoveValue(mutator, bitpos);
 					}
 				} else {
-					return Result.unchanged(this);
+					return this;
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final Result<K, V, ? extends CompactMapNode<K, V>> nestedResult = subNode.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
+								shift + BIT_PARTITION_SIZE, details, cmp);
 
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (!details.isModified()) {
+					return this;
 				}
-
-				final CompactMapNode<K, V> subNodeNew = nestedResult.getNode();
-
-				if (subNodeNew.sizePredicate() == 0) {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				assert subNodeNew.sizePredicate() > 0;
 
 				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					throw new IllegalStateException("Sub-node must have at least one element.");
+				}
 				case 1: {
 					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
 						// escalate (singleton or empty) result
-						return nestedResult;
+						return subNodeNew;
 					} else {
 						// inline value (move to front)
-						final CompactMapNode<K, V> thisNew = copyAndMigrateFromNodeToInline(
-										mutator, bitpos, subNodeNew);
-						// final CompactMapNode<K, V> thisNew =
-						// copyAndRemoveNode(mutator,
-						// bitpos).copyAndInsertValue(mutator, bitpos,
-						// subNodeNew.getKey(0), subNodeNew.getValue(0));
-
-						return Result.modified(thisNew);
+						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
 					}
 				}
 				default: {
 					// modify current node (set replacement node)
-					final CompactMapNode<K, V> thisNew = copyAndSetNode(mutator, bitpos, subNodeNew);
-
-					return Result.modified(thisNew);
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
 				}
 				}
 			}
 
-			return Result.unchanged(this);
+			return this;
 		}
 
 		/**
 		 * @return 0 <= mask <= 2^BIT_PARTITION_SIZE - 1
 		 */
-		static byte recoverMask(short map, byte i_th) {
-			assert 1 <= i_th && i_th <= 16;
+		static byte recoverMask(int map, byte i_th) {
+			assert 1 <= i_th && i_th <= 32;
 
 			byte cnt1 = 0;
 			byte mask = 0;
 
-			while (mask < 16) {
+			while (mask < 32) {
 				if ((map & 0x01) == 0x01) {
 					cnt1 += 1;
 
@@ -1301,7 +1210,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 					}
 				}
 
-				map = (short) (map >> 1);
+				map = (int) (map >> 1);
 				mask += 1;
 			}
 
@@ -1344,138 +1253,97 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 	private static abstract class CompactMixedMapNode<K, V> extends CompactMapNode<K, V> {
 
-		private final short nodeMap;
-		private final short dataMap;
+		private final int nodeMap;
+		private final int dataMap;
 
-		CompactMixedMapNode(final AtomicReference<Thread> mutator, final short nodeMap,
-						final short dataMap) {
+		CompactMixedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
 
 		@Override
-		public short nodeMap() {
+		public int nodeMap() {
 			return nodeMap;
 		}
 
 		@Override
-		public short dataMap() {
+		public int dataMap() {
 			return dataMap;
 		}
 
 	}
 
 	private static final class BitmapIndexedMapNode<K, V> extends CompactMixedMapNode<K, V> {
-		private AtomicReference<Thread> mutator;
 
-		private Object[] nodes;
-		final private byte payloadArity;
+		final AtomicReference<Thread> mutator;
+		final java.lang.Object[] nodes;
 
-		BitmapIndexedMapNode(AtomicReference<Thread> mutator, final short nodeMap,
-						final short dataMap, Object[] nodes, byte payloadArity) {
+		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
-			assert (TUPLE_LENGTH * java.lang.Integer.bitCount((int) (dataMap & 0xFFFF))
-							+ java.lang.Integer.bitCount((int) (nodeMap & 0xFFFF)) == nodes.length);
-
 			this.mutator = mutator;
-
 			this.nodes = nodes;
-			this.payloadArity = payloadArity;
 
-			assert (payloadArity == java.lang.Integer.bitCount((int) (dataMap & 0xFFFF)));
-			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-			// // SIZE_MORE_THAN_ONE
+			if (DEBUG) {
 
-			// for (int i = 0; i < TUPLE_LENGTH * payloadArity; i++)
-			// assert ((nodes[i] instanceof CompactNode) == false);
-			//
-			// for (int i = TUPLE_LENGTH * payloadArity; i < nodes.length; i++)
-			// assert ((nodes[i] instanceof CompactNode) == true);
+				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
+								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
-			// assert invariant
+				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
+					assert ((nodes[i] instanceof CompactMapNode) == false);
+				}
+				for (int i = TUPLE_LENGTH * payloadArity(); i < nodes.length; i++) {
+					assert ((nodes[i] instanceof CompactMapNode) == true);
+				}
+			}
+
 			assert nodeInvariant();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		K getKey(int index) {
+		K getKey(final int index) {
 			return (K) nodes[TUPLE_LENGTH * index];
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		V getValue(int index) {
+		V getValue(final int index) {
 			return (V) nodes[TUPLE_LENGTH * index + 1];
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Map.Entry<K, V> getKeyValueEntry(int index) {
+		java.util.Map.Entry<K, V> getKeyValueEntry(final int index) {
 			return entryOf((K) nodes[TUPLE_LENGTH * index], (V) nodes[TUPLE_LENGTH * index + 1]);
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public CompactMapNode<K, V> getNode(int index) {
-			final int offset = TUPLE_LENGTH * payloadArity;
-			return (CompactMapNode<K, V>) nodes[offset + index];
-		}
-
-		@Override
-		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueSupplierIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			final int offset = TUPLE_LENGTH * payloadArity;
-
-			for (int i = offset; i < nodes.length - offset; i++) {
-				assert ((nodes[i] instanceof AbstractMapNode) == true);
-			}
-
-			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		K headKey() {
-			assert hasPayload();
-			return (K) nodes[0];
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		V headVal() {
-			assert hasPayload();
-			return (V) nodes[1];
+		CompactMapNode<K, V> getNode(final int index) {
+			return (CompactMapNode<K, V>) nodes[nodes.length - 1 - index];
 		}
 
 		@Override
 		boolean hasPayload() {
-			return payloadArity != 0;
+			return dataMap() != 0;
 		}
 
 		@Override
 		int payloadArity() {
-			return payloadArity;
+			return java.lang.Integer.bitCount(dataMap());
 		}
 
 		@Override
 		boolean hasNodes() {
-			return TUPLE_LENGTH * payloadArity != nodes.length;
+			return nodeMap() != 0;
 		}
 
 		@Override
 		int nodeArity() {
-			return nodes.length - TUPLE_LENGTH * payloadArity;
-		}
-
-		@Override
-		java.lang.Object getSlot(int index) {
-			throw new UnsupportedOperationException();
+			return java.lang.Integer.bitCount(nodeMap());
 		}
 
 		@Override
@@ -1489,7 +1357,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public boolean equals(final java.lang.Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -1514,9 +1382,9 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 		@Override
 		byte sizePredicate() {
-			if (this.nodeArity() == 0 && this.payloadArity == 0) {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
 				return SIZE_EMPTY;
-			} else if (this.nodeArity() == 0 && this.payloadArity == 1) {
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
 				return SIZE_ONE;
 			} else {
 				return SIZE_MORE_THAN_ONE;
@@ -1524,8 +1392,8 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final short bitpos,
-						final V val) {
+		CompactMapNode<K, V> copyAndSetValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final V val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos) + 1;
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1534,21 +1402,21 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 				return this;
 			} else {
 				final java.lang.Object[] src = this.nodes;
-				@SuppressWarnings("unchecked")
 				final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = val;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst);
 			}
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
-						CompactMapNode<K, V> node) {
-			final int idx = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactMapNode<K, V> copyAndSetNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+
+			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				// no copying if already editable
@@ -1556,24 +1424,22 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 				return this;
 			} else {
 				final java.lang.Object[] src = this.nodes;
-				@SuppressWarnings("unchecked")
 				final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst);
 			}
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final short bitpos, final K key, final V val) {
+		CompactMapNode<K, V> copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final K key, final V val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
-			@SuppressWarnings("unchecked")
 			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length + 2];
 
 			// copy 'src' and insert 2 element(s) at position 'idx'
@@ -1582,31 +1448,30 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			dst[idx + 1] = val;
 			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (short) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(final AtomicReference<Thread> mutator,
+						final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
-			@SuppressWarnings("unchecked")
 			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length - 2];
 
 			// copy 'src' and remove 2 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 2, dst, idx, src.length - idx - 2);
 
-			return nodeOf(mutator, nodeMap(), (short) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactMapNode<K, V> node) {
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = TUPLE_LENGTH * (payloadArity - 1) + nodeIndex(bitpos);
+			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = new Object[src.length - 2 + 1];
@@ -1619,14 +1484,14 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
 
-			return nodeOf(mutator, (short) (nodeMap() | bitpos), (short) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final short bitpos, CompactMapNode<K, V> node) {
-			final int idxOld = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+
+			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1636,22 +1501,22 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			// insert 2 element(s) at position 'idxNew' (TODO: carefully test)
 			assert idxOld >= idxNew;
 			System.arraycopy(src, 0, dst, 0, idxNew);
-			dst[idxNew + 0] = node.headKey();
-			dst[idxNew + 1] = node.headVal();
+			dst[idxNew + 0] = node.getKey(0);
+			dst[idxNew + 1] = node.getValue(0);
 			System.arraycopy(src, idxNew, dst, idxNew + 2, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 2, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (short) (nodeMap() ^ bitpos), (short) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst);
 		}
+
 	}
 
-	private static final class HashCollisionMapNode<K, V> extends CompactMapNode<K, V> {
+	private static final class HashCollisionMapNode_BleedingEdge<K, V> extends CompactMapNode<K, V> {
 		private final K[] keys;
 		private final V[] vals;
 		private final int hash;
 
-		HashCollisionMapNode(final int hash, final K[] keys, final V[] vals) {
+		HashCollisionMapNode_BleedingEdge(final int hash, final K[] keys, final V[] vals) {
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -1660,21 +1525,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		SupplierIterator<K, V> payloadIterator() {
-			// TODO: change representation of keys and values
-			assert keys.length == vals.length;
-
-			final Object[] keysAndVals = new Object[keys.length + vals.length];
-			for (int i = 0; i < keys.length; i++) {
-				keysAndVals[2 * i] = keys[i];
-				keysAndVals[2 * i + 1] = vals[i];
-			}
-
-			return ArrayKeyValueSupplierIterator.of(keysAndVals);
-		}
-
-		@Override
-		public boolean containsKey(final K key, int keyHash, int shift) {
+		boolean containsKey(final K key, final int keyHash, final int shift) {
 
 			if (this.hash == keyHash) {
 				for (K k : keys) {
@@ -1688,7 +1539,8 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		boolean containsKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 
 			if (this.hash == keyHash) {
 				for (K k : keys) {
@@ -1702,7 +1554,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Optional<V> findByKey(final K key, int hash, int shift) {
+		Optional<V> findByKey(final K key, final int keyHash, final int shift) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
@@ -1716,7 +1568,8 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Optional<V> findByKey(final K key, int hash, int shift, Comparator<Object> cmp) {
+		Optional<V> findByKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
@@ -1730,10 +1583,11 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						final K key, final V val, int keyHash, int shift) {
+		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+						final V val, final int keyHash, final int shift, final Result<K, V> details) {
 			if (this.hash != keyHash) {
-				return Result.modified(mergeNodes(this, this.hash, key, val, keyHash, shift));
+				details.modified();
+				return mergeNodes(this, this.hash, key, val, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1742,7 +1596,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 					final V currentVal = vals[idx];
 
 					if (currentVal.equals(val)) {
-						return Result.unchanged(this);
+						return this;
 					}
 
 					final V[] src = this.vals;
@@ -1753,10 +1607,11 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 					System.arraycopy(src, 0, dst, 0, src.length);
 					dst[idx + 0] = val;
 
-					final CompactMapNode<K, V> thisNew = new HashCollisionMapNode<>(this.hash,
-									this.keys, dst);
+					final CompactMapNode<K, V> thisNew = new HashCollisionMapNode_BleedingEdge<>(
+									this.hash, this.keys, dst);
 
-					return Result.updated(thisNew, currentVal);
+					details.updated(currentVal);
+					return thisNew;
 
 				}
 			}
@@ -1781,14 +1636,17 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
 							- vals.length);
 
-			return Result.modified(new HashCollisionMapNode<>(keyHash, keysNew, valsNew));
+			details.modified();
+			return new HashCollisionMapNode_BleedingEdge<>(keyHash, keysNew, valsNew);
 		}
 
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator,
-						final K key, final V val, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+						final V val, final int keyHash, final int shift,
+						final Result<K, V> details, final Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
-				return Result.modified(mergeNodes(this, this.hash, key, val, keyHash, shift));
+				details.modified();
+				return mergeNodes(this, this.hash, key, val, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1797,7 +1655,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 					final V currentVal = vals[idx];
 
 					if (cmp.compare(currentVal, val) == 0) {
-						return Result.unchanged(this);
+						return this;
 					}
 
 					final V[] src = this.vals;
@@ -1808,10 +1666,11 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 					System.arraycopy(src, 0, dst, 0, src.length);
 					dst[idx + 0] = val;
 
-					final CompactMapNode<K, V> thisNew = new HashCollisionMapNode<>(this.hash,
-									this.keys, dst);
+					final CompactMapNode<K, V> thisNew = new HashCollisionMapNode_BleedingEdge<>(
+									this.hash, this.keys, dst);
 
-					return Result.updated(thisNew, currentVal);
+					details.updated(currentVal);
+					return thisNew;
 
 				}
 			}
@@ -1836,18 +1695,21 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
 							- vals.length);
 
-			return Result.modified(new HashCollisionMapNode<>(keyHash, keysNew, valsNew));
+			details.modified();
+			return new HashCollisionMapNode_BleedingEdge<>(keyHash, keysNew, valsNew);
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift) {
+		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K, V> details) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
+					final V currentVal = vals[idx];
+					details.updated(currentVal);
+
 					if (this.arity() == 1) {
-						return Result.modified(CompactMapNode.<K, V> nodeOf(mutator));
+						return nodeOf(mutator);
 					} else if (this.arity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
@@ -1857,7 +1719,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (idx == 0) ? vals[1] : vals[0];
 						return CompactMapNode.<K, V> nodeOf(mutator).updated(mutator, theOtherKey,
-										theOtherVal, keyHash, 0);
+										theOtherVal, keyHash, 0, details);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -1877,23 +1739,26 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
 										- 1);
 
-						return Result.modified(new HashCollisionMapNode<>(keyHash, keysNew, valsNew));
+						return new HashCollisionMapNode_BleedingEdge<>(keyHash, keysNew, valsNew);
 					}
 				}
 			}
-			return Result.unchanged(this);
+			return this;
 
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K, V> details,
+						final Comparator<Object> cmp) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
+					final V currentVal = vals[idx];
+					details.updated(currentVal);
+
 					if (this.arity() == 1) {
-						return Result.modified(CompactMapNode.<K, V> nodeOf(mutator));
+						return nodeOf(mutator);
 					} else if (this.arity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
@@ -1903,7 +1768,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (idx == 0) ? vals[1] : vals[0];
 						return CompactMapNode.<K, V> nodeOf(mutator).updated(mutator, theOtherKey,
-										theOtherVal, keyHash, 0, cmp);
+										theOtherVal, keyHash, 0, details, cmp);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -1923,11 +1788,11 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
 										- 1);
 
-						return Result.modified(new HashCollisionMapNode<>(keyHash, keysNew, valsNew));
+						return new HashCollisionMapNode_BleedingEdge<>(keyHash, keysNew, valsNew);
 					}
 				}
 			}
-			return Result.unchanged(this);
+			return this;
 
 		}
 
@@ -1982,11 +1847,6 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
@@ -2008,7 +1868,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 				return false;
 			}
 
-			HashCollisionMapNode<K, V> that = (HashCollisionMapNode<K, V>) other;
+			HashCollisionMapNode_BleedingEdge<?, ?> that = (HashCollisionMapNode_BleedingEdge<?, ?>) other;
 
 			if (hash != that.hash) {
 				return false;
@@ -2021,14 +1881,13 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			/*
 			 * Linear scan for each key, because of arbitrary element order.
 			 */
-			outerLoop: for (SupplierIterator<K, V> it = that.payloadIterator(); it.hasNext();) {
-				final K otherKey = it.next();
-				@SuppressWarnings("deprecation")
-				final V otherVal = it.get();
+			outerLoop: for (int i = 0; i < that.payloadArity(); i++) {
+				final java.lang.Object otherKey = that.getKey(i);
+				final java.lang.Object otherVal = that.getValue(i);
 
-				for (int i = 0; i < keys.length; i++) {
-					final K key = keys[i];
-					final V val = vals[i];
+				for (int j = 0; j < keys.length; j++) {
+					final K key = keys[j];
+					final V val = vals[j];
 
 					if (key.equals(otherKey) && val.equals(otherVal)) {
 						continue outerLoop;
@@ -2041,27 +1900,50 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final short bitpos,
+		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
 						final V val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final short bitpos, final K key, final V val) {
+		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
+						final K key, final V val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactMapNode<K, V> node) {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int nodeMap() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int dataMap() {
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 	/**
@@ -2070,7 +1952,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	private static abstract class AbstractMapIterator<K, V> {
 
 		// TODO: verify maximum deepness
-		private static final int MAX_DEPTH = 10;
+		private static final int MAX_DEPTH = 8;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
@@ -2113,10 +1995,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 										.getNode(nodeCursor);
 						nodeCursorsAndLengths[currentCursorIndex]++;
 
-						final int nextValueLength = nextNode.payloadArity();
-						final int nextNodeLength = nextNode.nodeArity();
-
-						if (nextNodeLength > 0) {
+						if (nextNode.hasNodes()) {
 							/*
 							 * put node on next stack level for depth-first
 							 * traversal
@@ -2127,16 +2006,16 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 							nodes[nextStackLevel] = nextNode;
 							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
+							nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
 						}
 
-						if (nextValueLength != 0) {
+						if (nextNode.hasPayload()) {
 							/*
 							 * found for next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;
-							currentValueLength = nextValueLength;
+							currentValueLength = nextNode.payloadArity();
 							return true;
 						}
 					} else {
@@ -2223,11 +2102,12 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieMapNodeIterator<K, V> implements Iterator<AbstractMapNode<K, V>> {
+	private static class TrieMap_BleedingEdgeNodeIterator<K, V> implements
+					Iterator<AbstractMapNode<K, V>> {
 
 		final Deque<Iterator<? extends AbstractMapNode<K, V>>> nodeIteratorStack;
 
-		TrieMapNodeIterator(AbstractMapNode<K, V> rootNode) {
+		TrieMap_BleedingEdgeNodeIterator(AbstractMapNode<K, V> rootNode) {
 			nodeIteratorStack = new ArrayDeque<>();
 			nodeIteratorStack.push(Collections.singleton(rootNode).iterator());
 		}
@@ -2269,18 +2149,18 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 	}
 
-	static final class TransientTrieMap<K, V> extends AbstractMap<K, V> implements
+	static final class TransientTrieMap_BleedingEdge<K, V> extends AbstractMap<K, V> implements
 					TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
 		private int hashCode;
 		private int cachedSize;
 
-		TransientTrieMap(TrieMapDynamic<K, V> trieMap) {
+		TransientTrieMap_BleedingEdge(TrieMap_BleedingEdge<K, V> trieMap_BleedingEdge) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
-			this.rootNode = trieMap.rootNode;
-			this.hashCode = trieMap.hashCode;
-			this.cachedSize = trieMap.cachedSize;
+			this.rootNode = trieMap_BleedingEdge.rootNode;
+			this.hashCode = trieMap_BleedingEdge.hashCode;
+			this.cachedSize = trieMap_BleedingEdge.cachedSize;
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
@@ -2305,6 +2185,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public boolean containsKey(Object o) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				return rootNode.containsKey(key, key.hashCode(), 0);
 			} catch (ClassCastException unused) {
@@ -2315,6 +2196,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public boolean containsKeyEquivalent(Object o, Comparator<Object> cmp) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 			} catch (ClassCastException unused) {
@@ -2325,6 +2207,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public V get(Object o) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0);
 
@@ -2341,6 +2224,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		public V getEquivalent(Object o, Comparator<Object> cmp) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
@@ -2361,14 +2245,16 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(mutator,
-							key, val, keyHash, 0);
+			final Result<K, V> details = Result.unchanged();
 
-			if (result.isModified()) {
-				rootNode = result.getNode();
+			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val, keyHash,
+							0, details);
 
-				if (result.hasReplacedValue()) {
-					final V old = result.getReplacedValue();
+			if (details.isModified()) {
+				rootNode = newRootNode;
+
+				if (details.hasReplacedValue()) {
+					final V old = details.getReplacedValue();
 
 					final int valHashOld = old.hashCode();
 					final int valHashNew = val.hashCode();
@@ -2407,14 +2293,16 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.updated(mutator,
-							key, val, keyHash, 0, cmp);
+			final Result<K, V> details = Result.unchanged();
 
-			if (result.isModified()) {
-				rootNode = result.getNode();
+			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val, keyHash,
+							0, details, cmp);
 
-				if (result.hasReplacedValue()) {
-					final V old = result.getReplacedValue();
+			if (details.isModified()) {
+				rootNode = newRootNode;
+
+				if (details.hasReplacedValue()) {
+					final V old = details.getReplacedValue();
 
 					final int valHashOld = old.hashCode();
 					final int valHashNew = val.hashCode();
@@ -2487,18 +2375,17 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(mutator,
-							key, keyHash, 0);
+			final Result<K, V> details = Result.unchanged();
 
-			if (result.isModified()) {
+			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
+							details);
 
-				// TODO: carry deleted value in result
-				// assert result.hasReplacedValue();
-				// final int valHash = result.getReplacedValue().hashCode();
+			if (details.isModified()) {
 
-				final int valHash = rootNode.findByKey(key, keyHash, 0).get().hashCode();
+				assert details.hasReplacedValue();
+				final int valHash = details.getReplacedValue().hashCode();
 
-				rootNode = result.getNode();
+				rootNode = newRootNode;
 				hashCode -= keyHash ^ valHash;
 				cachedSize -= 1;
 
@@ -2522,18 +2409,17 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, V, ? extends CompactMapNode<K, V>> result = rootNode.removed(mutator,
-							key, keyHash, 0, cmp);
+			final Result<K, V> details = Result.unchanged();
 
-			if (result.isModified()) {
+			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
+							details, cmp);
 
-				// TODO: carry deleted value in result
-				// assert result.hasReplacedValue();
-				// final int valHash = result.getReplacedValue().hashCode();
+			if (details.isModified()) {
 
-				final int valHash = rootNode.findByKey(key, keyHash, 0, cmp).get().hashCode();
+				assert details.hasReplacedValue();
+				final int valHash = details.getReplacedValue().hashCode();
 
-				rootNode = result.getNode();
+				rootNode = newRootNode;
 				hashCode -= keyHash ^ valHash;
 				cachedSize -= 1;
 
@@ -2548,7 +2434,6 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
 			return false;
-
 		}
 
 		@Override
@@ -2581,22 +2466,22 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 
 					@Override
 					public int size() {
-						return TransientTrieMap.this.size();
+						return TransientTrieMap_BleedingEdge.this.size();
 					}
 
 					@Override
 					public boolean isEmpty() {
-						return TransientTrieMap.this.isEmpty();
+						return TransientTrieMap_BleedingEdge.this.isEmpty();
 					}
 
 					@Override
 					public void clear() {
-						TransientTrieMap.this.clear();
+						TransientTrieMap_BleedingEdge.this.clear();
 					}
 
 					@Override
 					public boolean contains(Object k) {
-						return TransientTrieMap.this.containsKey(k);
+						return TransientTrieMap_BleedingEdge.this.containsKey(k);
 					}
 				};
 			}
@@ -2634,12 +2519,13 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		private static class TransientMapKeyIterator<K, V> extends AbstractMapIterator<K, V>
 						implements SupplierIterator<K, V> {
 
-			final TransientTrieMap<K, V> transientTrieMap;
+			final TransientTrieMap_BleedingEdge<K, V> transientTrieMap_BleedingEdge;
 			K lastKey;
 
-			TransientMapKeyIterator(TransientTrieMap<K, V> transientTrieMap) {
-				super(transientTrieMap.rootNode);
-				this.transientTrieMap = transientTrieMap;
+			TransientMapKeyIterator(
+							TransientTrieMap_BleedingEdge<K, V> transientTrieMap_BleedingEdge) {
+				super(transientTrieMap_BleedingEdge.rootNode);
+				this.transientTrieMap_BleedingEdge = transientTrieMap_BleedingEdge;
 			}
 
 			@Override
@@ -2662,7 +2548,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			 */
 			@Override
 			public void remove() {
-				boolean success = transientTrieMap.__remove(lastKey);
+				boolean success = transientTrieMap_BleedingEdge.__remove(lastKey);
 
 				if (!success) {
 					throw new IllegalStateException("Key from iteration couldn't be deleted.");
@@ -2679,8 +2565,8 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 				return false;
 			}
 
-			if (other instanceof TransientTrieMap) {
-				TransientTrieMap<?, ?> that = (TransientTrieMap<?, ?>) other;
+			if (other instanceof TransientTrieMap_BleedingEdge) {
+				TransientTrieMap_BleedingEdge<?, ?> that = (TransientTrieMap_BleedingEdge<?, ?>) other;
 
 				if (this.size() != that.size()) {
 					return false;
@@ -2704,7 +2590,7 @@ public class TrieMapDynamic<K, V> extends AbstractImmutableMap<K, V> {
 			}
 
 			mutator.set(null);
-			return new TrieMapDynamic<K, V>(rootNode, hashCode, cachedSize);
+			return new TrieMap_BleedingEdge<K, V>(rootNode, hashCode, cachedSize);
 		}
 	}
 

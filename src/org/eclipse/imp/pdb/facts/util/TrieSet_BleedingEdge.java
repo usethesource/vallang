@@ -24,10 +24,11 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
+public class TrieSet_BleedingEdge<K> extends AbstractSet<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
-	private static final TrieSetDynamic EMPTY_SET = new TrieSetDynamic(CompactSetNode.EMPTY_NODE, 0, 0);
+	private static final TrieSet_BleedingEdge EMPTY_SET = new TrieSet_BleedingEdge(
+					CompactSetNode.EMPTY_NODE, 0, 0);
 
 	private static final boolean DEBUG = false;
 
@@ -35,7 +36,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	private final int hashCode;
 	private final int cachedSize;
 
-	TrieSetDynamic(AbstractSetNode<K> rootNode, int hashCode, int cachedSize) {
+	TrieSet_BleedingEdge(AbstractSetNode<K> rootNode, int hashCode, int cachedSize) {
 		this.rootNode = rootNode;
 		this.hashCode = hashCode;
 		this.cachedSize = cachedSize;
@@ -46,12 +47,12 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K> ImmutableSet<K> of() {
-		return TrieSetDynamic.EMPTY_SET;
+		return TrieSet_BleedingEdge.EMPTY_SET;
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K> ImmutableSet<K> of(K... keys) {
-		ImmutableSet<K> result = TrieSetDynamic.EMPTY_SET;
+		ImmutableSet<K> result = TrieSet_BleedingEdge.EMPTY_SET;
 
 		for (final K key : keys) {
 			result = result.__insert(key);
@@ -62,12 +63,12 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf() {
-		return TrieSetDynamic.EMPTY_SET.asTransient();
+		return TrieSet_BleedingEdge.EMPTY_SET.asTransient();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf(K... keys) {
-		final TransientSet<K> result = TrieSetDynamic.EMPTY_SET.asTransient();
+		final TransientSet<K> result = TrieSet_BleedingEdge.EMPTY_SET.asTransient();
 
 		for (final K key : keys) {
 			result.__insert(key);
@@ -91,14 +92,15 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public TrieSetDynamic<K> __insert(final K key) {
+	public TrieSet_BleedingEdge<K> __insert(final K key) {
 		final int keyHash = key.hashCode();
-		final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.updated(null, key,
-						keyHash, 0);
+		final Result<K> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details);
 
-			return new TrieSetDynamic<K>(result.getNode(), hashCode + keyHash, cachedSize + 1);
+		if (details.isModified()) {
+
+			return new TrieSet_BleedingEdge<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
 
 		}
 
@@ -106,14 +108,15 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public TrieSetDynamic<K> __insertEquivalent(final K key, Comparator<Object> cmp) {
+	public TrieSet_BleedingEdge<K> __insertEquivalent(final K key, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.updated(null, key,
-						keyHash, 0, cmp);
+		final Result<K> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details, cmp);
 
-			return new TrieSetDynamic<K>(result.getNode(), hashCode + keyHash, cachedSize + 1);
+		if (details.isModified()) {
+
+			return new TrieSet_BleedingEdge<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
 
 		}
 
@@ -121,59 +124,15 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAll(ImmutableSet<? extends K> set) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__insertAll(set);
-		return tmp.freeze();
-	}
-
-	@Override
-	public ImmutableSet<K> __insertAllEquivalent(ImmutableSet<? extends K> set,
-					Comparator<Object> cmp) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__insertAllEquivalent(set, cmp);
-		return tmp.freeze();
-	}
-
-	@Override
-	public ImmutableSet<K> __retainAll(ImmutableSet<? extends K> set) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__retainAll(set);
-		return tmp.freeze();
-	}
-
-	@Override
-	public ImmutableSet<K> __retainAllEquivalent(ImmutableSet<? extends K> set,
-					Comparator<Object> cmp) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__retainAllEquivalent(set, cmp);
-		return tmp.freeze();
-	}
-
-	@Override
-	public ImmutableSet<K> __removeAll(ImmutableSet<? extends K> set) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__removeAll(set);
-		return tmp.freeze();
-	}
-
-	@Override
-	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set,
-					Comparator<Object> cmp) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__removeAllEquivalent(set, cmp);
-		return tmp.freeze();
-	}
-
-	@Override
-	public TrieSetDynamic<K> __remove(final K key) {
+	public ImmutableSet<K> __remove(final K key) {
 		final int keyHash = key.hashCode();
-		final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.removed(null, key,
-						keyHash, 0);
+		final Result<K> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details);
 
-			return new TrieSetDynamic<K>(result.getNode(), hashCode - keyHash, cachedSize - 1);
+		if (details.isModified()) {
+
+			return new TrieSet_BleedingEdge<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
 
 		}
 
@@ -181,14 +140,15 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public TrieSetDynamic<K> __removeEquivalent(final K key, Comparator<Object> cmp) {
+	public ImmutableSet<K> __removeEquivalent(final K key, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.removed(null, key,
-						keyHash, 0, cmp);
+		final Result<K> details = Result.unchanged();
 
-		if (result.isModified()) {
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details, cmp);
 
-			return new TrieSetDynamic<K>(result.getNode(), hashCode - keyHash, cachedSize - 1);
+		if (details.isModified()) {
+
+			return new TrieSet_BleedingEdge<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
 
 		}
 
@@ -196,8 +156,9 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public boolean contains(Object o) {
+	public boolean contains(final java.lang.Object o) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			return rootNode.containsKey(key, key.hashCode(), 0);
 		} catch (ClassCastException unused) {
@@ -206,8 +167,9 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
+	public boolean containsEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 		} catch (ClassCastException unused) {
@@ -216,8 +178,9 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public K get(Object o) {
+	public K get(final java.lang.Object o) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
 
@@ -232,8 +195,9 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public K getEquivalent(Object o, Comparator<Object> cmp) {
+	public K getEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
 		try {
+			@SuppressWarnings("unchecked")
 			final K key = (K) o;
 			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
@@ -245,6 +209,101 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		} catch (ClassCastException unused) {
 			return null;
 		}
+	}
+
+	@Override
+	public ImmutableSet<K> __insertAll(final ImmutableSet<? extends K> set) {
+		TransientSet<K> tmp = asTransient();
+		tmp.__insertAll(set);
+		return tmp.freeze();
+	}
+
+	@Override
+	public ImmutableSet<K> __insertAllEquivalent(final ImmutableSet<? extends K> set,
+					final Comparator<Object> cmp) {
+		TransientSet<K> tmp = asTransient();
+		tmp.__insertAllEquivalent(set, cmp);
+		return tmp.freeze();
+	}
+
+	@Override
+	public ImmutableSet<K> __retainAll(final ImmutableSet<? extends K> set) {
+		TransientSet<K> tmp = asTransient();
+		tmp.__retainAll(set);
+		return tmp.freeze();
+	}
+
+	@Override
+	public ImmutableSet<K> __retainAllEquivalent(final ImmutableSet<? extends K> set,
+					final Comparator<Object> cmp) {
+		TransientSet<K> tmp = asTransient();
+		tmp.__retainAllEquivalent(set, cmp);
+		return tmp.freeze();
+	}
+
+	@Override
+	public ImmutableSet<K> __removeAll(final ImmutableSet<? extends K> set) {
+		TransientSet<K> tmp = asTransient();
+		tmp.__removeAll(set);
+		return tmp.freeze();
+	}
+
+	@Override
+	public ImmutableSet<K> __removeAllEquivalent(final ImmutableSet<? extends K> set,
+					final Comparator<Object> cmp) {
+		TransientSet<K> tmp = asTransient();
+		tmp.__removeAllEquivalent(set, cmp);
+		return tmp.freeze();
+	}
+
+	@Override
+	public boolean add(final K key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean remove(final java.lang.Object key) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean addAll(final Collection<? extends K> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean removeAll(final Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean retainAll(final Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean containsAll(final Collection<?> c) {
+		for (Object item : c) {
+			if (!contains(item)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean containsAllEquivalent(final Collection<?> c, final Comparator<Object> cmp) {
+		for (Object item : c) {
+			if (!containsEquivalent(item, cmp)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -269,7 +328,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 	@Override
 	public TransientSet<K> asTransient() {
-		return new TransientTrieSet<K>(this);
+		return new TransientTrieSet_BleedingEdge<K>(this);
 	}
 
 	@Override
@@ -286,8 +345,8 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			return false;
 		}
 
-		if (other instanceof TrieSetDynamic) {
-			TrieSetDynamic<?> that = (TrieSetDynamic<?>) other;
+		if (other instanceof TrieSet_BleedingEdge) {
+			TrieSet_BleedingEdge<?> that = (TrieSet_BleedingEdge<?>) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -310,7 +369,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	 * For analysis purposes only.
 	 */
 	protected Iterator<AbstractSetNode<K>> nodeIterator() {
-		return new TrieSetNodeIterator<>(rootNode);
+		return new TrieSet_BleedingEdgeNodeIterator<>(rootNode);
 	}
 
 	/*
@@ -332,7 +391,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	 */
 	protected int[][] arityCombinationsHistogram() {
 		final Iterator<AbstractSetNode<K>> it = nodeIterator();
-		final int[][] sumArityCombinations = new int[17][17];
+		final int[][] sumArityCombinations = new int[33][33];
 
 		while (it.hasNext()) {
 			final AbstractSetNode<K> node = it.next();
@@ -347,9 +406,9 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	 */
 	protected int[] arityHistogram() {
 		final int[][] sumArityCombinations = arityCombinationsHistogram();
-		final int[] sumArity = new int[17];
+		final int[] sumArity = new int[33];
 
-		final int maxArity = 16; // TODO: factor out constant
+		final int maxArity = 32; // TODO: factor out constant
 
 		for (int j = 0; j <= maxArity; j++) {
 			for (int maxRestArity = maxArity - j, k = 0; k <= maxRestArity - j; k++) {
@@ -368,14 +427,14 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		final int[] sumArity = arityHistogram();
 		final int sumNodes = getNodeCount();
 
-		final int[] cumsumArity = new int[17];
-		for (int cumsum = 0, i = 0; i < 17; i++) {
+		final int[] cumsumArity = new int[33];
+		for (int cumsum = 0, i = 0; i < 33; i++) {
 			cumsum += sumArity[i];
 			cumsumArity[i] = cumsum;
 		}
 
 		final float threshhold = 0.01f; // for printing results
-		for (int i = 0; i < 17; i++) {
+		for (int i = 0; i < 33; i++) {
 			float arityPercentage = (float) (sumArity[i]) / sumNodes;
 			float cumsumArityPercentage = (float) (cumsumArity[i]) / sumNodes;
 
@@ -451,35 +510,28 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	static final class Result<T1, T2, N extends AbstractNode<T1, T2>> {
-		private final N result;
-		private final T2 replacedValue;
-		private final boolean isModified;
+	static final class Result<K> {
+		private K replacedValue;
+		private boolean isModified;
+		private boolean isReplaced;
 
 		// update: inserted/removed single element, element count changed
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> modified(N node) {
-			return new Result<>(node, null, true);
+		public void modified() {
+			this.isModified = true;
 		}
 
-		// update: replaced single mapping, but element count unchanged
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> updated(N node,
-						T2 replacedValue) {
-			return new Result<>(node, replacedValue, true);
+		public void updated(K replacedValue) {
+			this.replacedValue = replacedValue;
+			this.isModified = true;
+			this.isReplaced = true;
 		}
 
 		// update: neither element, nor element count changed
-		public static <T1, T2, N extends AbstractNode<T1, T2>> Result<T1, T2, N> unchanged(N node) {
-			return new Result<>(node, null, false);
+		public static <K> Result<K> unchanged() {
+			return new Result<>();
 		}
 
-		private Result(N node, T2 replacedValue, boolean isMutated) {
-			this.result = node;
-			this.replacedValue = replacedValue;
-			this.isModified = isMutated;
-		}
-
-		public N getNode() {
-			return result;
+		private Result() {
 		}
 
 		public boolean isModified() {
@@ -487,10 +539,10 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		public boolean hasReplacedValue() {
-			return replacedValue != null;
+			return isReplaced;
 		}
 
-		public T2 getReplacedValue() {
+		public K getReplacedValue() {
 			return replacedValue;
 		}
 	}
@@ -502,37 +554,39 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 		static final int TUPLE_LENGTH = 1;
 
-		abstract boolean containsKey(final K key, int keyHash, int shift);
+		abstract boolean containsKey(final K key, final int keyHash, final int shift);
 
-		abstract boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp);
+		abstract boolean containsKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp);
 
-		abstract Optional<K> findByKey(final K key, int keyHash, int shift);
+		abstract Optional<K> findByKey(final K key, final int keyHash, final int shift);
 
-		abstract Optional<K> findByKey(final K key, int keyHash, int shift, Comparator<Object> cmp);
+		abstract Optional<K> findByKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp);
 
-		abstract Result<K, Void, ? extends CompactSetNode<K>> updated(
-						AtomicReference<Thread> mutator, final K key, int keyHash, int shift);
+		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details);
 
-		abstract Result<K, Void, ? extends CompactSetNode<K>> updated(
-						AtomicReference<Thread> mutator, final K key, int keyHash, int shift,
-						Comparator<Object> cmp);
+		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details,
+						final Comparator<Object> cmp);
 
-		abstract Result<K, Void, ? extends CompactSetNode<K>> removed(
-						AtomicReference<Thread> mutator, final K key, int keyHash, int shift);
+		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details);
 
-		abstract Result<K, Void, ? extends CompactSetNode<K>> removed(
-						AtomicReference<Thread> mutator, final K key, int keyHash, int shift,
-						Comparator<Object> cmp);
+		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details,
+						final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
-		abstract K getKey(int index);
-
-		abstract AbstractSetNode<K> getNode(int index);
+		abstract AbstractSetNode<K> getNode(final int index);
 
 		abstract boolean hasNodes();
+
+		abstract int nodeArity();
 
 		@Deprecated
 		Iterator<? extends AbstractSetNode<K>> nodeIterator() {
@@ -559,48 +613,13 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			};
 		}
 
-		abstract int nodeArity();
+		abstract K getKey(final int index);
 
 		abstract boolean hasPayload();
 
-		@Deprecated
-		SupplierIterator<K, K> payloadIterator() {
-			return new SupplierIterator<K, K>() {
-
-				int nextIndex = 0;
-
-				@Override
-				public K get() {
-					if (nextIndex == 0 || nextIndex > AbstractSetNode.this.payloadArity()) {
-						throw new NoSuchElementException();
-					}
-
-					return AbstractSetNode.this.getKey(nextIndex - 1);
-				}
-
-				@Override
-				public void remove() {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public K next() {
-					if (!hasNext())
-						throw new NoSuchElementException();
-					return AbstractSetNode.this.getKey(nextIndex++);
-				}
-
-				@Override
-				public boolean hasNext() {
-					return nextIndex < AbstractSetNode.this.payloadArity();
-				}
-			};
-		}
-
 		abstract int payloadArity();
 
-		abstract java.lang.Object getSlot(int index);
-
+		@Deprecated
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
@@ -622,20 +641,17 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 			return size;
 		}
+
 	}
 
 	private static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
 
-		protected static final int BIT_PARTITION_SIZE = 4;
-		protected static final int BIT_PARTITION_MASK = 0b1111;
+		static final int BIT_PARTITION_SIZE = 5;
+		static final int BIT_PARTITION_MASK = 0b11111;
 
-		short nodeMap() {
-			throw new UnsupportedOperationException();
-		}
+		abstract int nodeMap();
 
-		short dataMap() {
-			throw new UnsupportedOperationException();
-		}
+		abstract int dataMap();
 
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
@@ -650,24 +666,8 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		 */
 		abstract byte sizePredicate();
 
-		/**
-		 * Returns the first key stored within this node.
-		 * 
-		 * @return first key
-		 */
-		@Deprecated
-		K headKey() {
-			return getKey(0);
-		}
-
 		@Override
-		abstract CompactSetNode<K> getNode(int index);
-
-		@Deprecated
-		@Override
-		Iterator<? extends CompactSetNode<K>> nodeIterator() {
-			throw new UnsupportedOperationException();
-		}
+		abstract CompactSetNode<K> getNode(final int index);
 
 		boolean nodeInvariant() {
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
@@ -683,32 +683,26 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		abstract CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final short bitpos, final K key);
+						final int bitpos, final K key);
 
 		abstract CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator,
-						final short bitpos);
+						final int bitpos);
 
 		abstract CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node);
+						final int bitpos, CompactSetNode<K> node);
 
-		CompactSetNode<K> copyAndInsertNode(AtomicReference<Thread> mutator, final short bitpos,
-						CompactSetNode<K> node) {
-			throw new UnsupportedOperationException();
-		}
+		abstract CompactSetNode<K> copyAndMigrateFromInlineToNode(
+						final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactSetNode<K> node);
 
-		CompactSetNode<K> copyAndRemoveNode(AtomicReference<Thread> mutator, final short bitpos) {
-			throw new UnsupportedOperationException();
-		}
+		abstract CompactSetNode<K> copyAndMigrateFromNodeToInline(
+						final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactSetNode<K> node);
 
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
-			throw new UnsupportedOperationException();
-		}
-
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
-			throw new UnsupportedOperationException();
-		}
+		/*
+		 * TODO: specialize removed(..) to remove this method from this
+		 * interface
+		 */
 
 		@SuppressWarnings("unchecked")
 		static final <K> CompactSetNode<K> mergeNodes(final K key0, int keyHash0, final K key1,
@@ -716,7 +710,8 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			assert !(key0.equals(key1));
 
 			if (keyHash0 == keyHash1) {
-				return new HashCollisionSetNode<>(keyHash0, (K[]) new Object[] { key0, key1 });
+				return new HashCollisionSetNode_BleedingEdge<>(keyHash0, (K[]) new Object[] { key0,
+								key1 });
 			}
 
 			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
@@ -724,20 +719,20 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final short dataMap = (short) (1L << mask0 | 1L << mask1);
+				final int dataMap = (int) (1L << mask0 | 1L << mask1);
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (short) 0, dataMap, new Object[] { key0, key1 }, (byte) 2);
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key0, key1 });
 				} else {
-					return nodeOf(null, (short) 0, dataMap, new Object[] { key1, key0 }, (byte) 2);
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, key0 });
 				}
 			} else {
 				// values fit on next level
 				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final short nodeMap = (short) (1L << mask0);
-				return nodeOf(null, nodeMap, (short) 0, new Object[] { node }, (byte) 0);
+				final int nodeMap = (int) (1L << mask0);
+				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
 			}
 		}
 
@@ -748,31 +743,32 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final short nodeMap = (short) (1L << mask0);
-				final short dataMap = (short) (1L << mask1);
+				final int nodeMap = (int) (1L << mask0);
+				final int dataMap = (int) (1L << mask1);
 
 				// store values before node
-				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, node0 }, (byte) 1);
+				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, node0 });
 			} else {
 				// values fit on next level
 				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final short nodeMap = (short) (1L << mask0);
-				return nodeOf(null, nodeMap, (short) 0, new Object[] { node }, (byte) 0);
+				final int nodeMap = (int) (1L << mask0);
+				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
 			}
 		}
 
 		static final CompactSetNode EMPTY_NODE;
 
 		static {
-			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (short) 0, (short) 0, new Object[] {},
-							(byte) 0);
+
+			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (int) (0), (int) (0), new Object[] {});
+
 		};
 
-		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator,
-						final short nodeMap, final short dataMap, Object[] nodes, byte payloadArity) {
-			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes, payloadArity);
+		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
+						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -781,31 +777,31 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator,
-						final short nodeMap, final short dataMap, final K key) {
+						final int nodeMap, final int dataMap, final K key) {
 			assert nodeMap == 0;
-			return nodeOf(mutator, (short) 0, dataMap, new Object[] { key }, (byte) 1);
+			return nodeOf(mutator, (int) (0), dataMap, new Object[] { key });
 		}
 
-		final int dataIndex(final short bitpos) {
-			return java.lang.Integer.bitCount((int) (dataMap() & 0xFFFF) & (bitpos - 1));
+		int dataIndex(final int bitpos) {
+			return java.lang.Integer.bitCount(dataMap() & (bitpos - 1));
 		}
 
-		final int nodeIndex(final short bitpos) {
-			return java.lang.Integer.bitCount((int) (nodeMap() & 0xFFFF) & (bitpos - 1));
+		int nodeIndex(final int bitpos) {
+			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
-		K keyAt(final short bitpos) {
+		K keyAt(final int bitpos) {
 			return getKey(dataIndex(bitpos));
 		}
 
-		CompactSetNode<K> nodeAt(final short bitpos) {
+		CompactSetNode<K> nodeAt(final int bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
 		@Override
-		boolean containsKey(final K key, int keyHash, int shift) {
+		boolean containsKey(final K key, final int keyHash, final int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return keyAt(bitpos).equals(key);
@@ -819,9 +815,10 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		boolean containsKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return cmp.compare(keyAt(bitpos), key) == 0;
@@ -835,9 +832,9 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Optional<K> findByKey(final K key, int keyHash, int shift) {
+		Optional<K> findByKey(final K key, final int keyHash, final int shift) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -859,9 +856,10 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Optional<K> findByKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		Optional<K> findByKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -883,259 +881,225 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift) {
+		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final K currentKey = keyAt(bitpos);
+				final int dataIndex = dataIndex(bitpos);
+				final K currentKey = getKey(dataIndex);
 
 				if (currentKey.equals(key)) {
-					return Result.unchanged(this);
+					return this;
 				} else {
-					final CompactSetNode<K> nodeNew = mergeNodes(keyAt(bitpos), keyAt(bitpos)
-									.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
-					final CompactSetNode<K> thisNew = copyAndMigrateFromInlineToNode(mutator,
-									bitpos, nodeNew);
+					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
+									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
-					return Result.modified(thisNew);
+					details.modified();
+					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
+
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
+				final CompactSetNode<K> subNodeNew = subNode.updated(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, details);
 
-				final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.updated(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
-
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (details.isModified()) {
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
+				} else {
+					return this;
 				}
-
-				final CompactSetNode<K> thisNew = copyAndSetNode(mutator, bitpos,
-								nestedResult.getNode());
-
-				return Result.modified(thisNew);
 			} else {
 				// no value
-				final CompactSetNode<K> thisNew = copyAndInsertValue(mutator, bitpos, key);
-
-				return Result.modified(thisNew);
+				details.modified();
+				return copyAndInsertValue(mutator, bitpos, key);
 			}
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details,
+						final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				final K currentKey = keyAt(bitpos);
+				final int dataIndex = dataIndex(bitpos);
+				final K currentKey = getKey(dataIndex);
 
 				if (cmp.compare(currentKey, key) == 0) {
-					return Result.unchanged(this);
+					return this;
 				} else {
-					final CompactSetNode<K> nodeNew = mergeNodes(keyAt(bitpos), keyAt(bitpos)
-									.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
-					final CompactSetNode<K> thisNew = copyAndMigrateFromInlineToNode(mutator,
-									bitpos, nodeNew);
+					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
+									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
 
-					return Result.modified(thisNew);
+					details.modified();
+					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
+
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
+				final CompactSetNode<K> subNodeNew = subNode.updated(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, details, cmp);
 
-				final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.updated(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (details.isModified()) {
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
+				} else {
+					return this;
 				}
-
-				final CompactSetNode<K> thisNew = copyAndSetNode(mutator, bitpos,
-								nestedResult.getNode());
-
-				return Result.modified(thisNew);
 			} else {
 				// no value
-				final CompactSetNode<K> thisNew = copyAndInsertValue(mutator, bitpos, key);
-
-				return Result.modified(thisNew);
+				details.modified();
+				return copyAndInsertValue(mutator, bitpos, key);
 			}
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift) {
+		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (keyAt(bitpos).equals(key)) {
+				final int dataIndex = dataIndex(bitpos);
+
+				if (getKey(dataIndex).equals(key)) {
+					details.modified();
+
 					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
 						/*
 						 * Create new node with remaining pair. The new node
 						 * will a) either become the new root returned, or b)
 						 * unwrapped and inlined during returning.
 						 */
-						final CompactSetNode<K> thisNew;
-						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
-										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
+						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
+										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
 
-						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+						if (dataIndex == 0) {
+							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(1));
 						} else {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(0));
 						}
-
-						return Result.modified(thisNew);
 					} else {
-						final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos);
-
-						return Result.modified(thisNew);
+						return copyAndRemoveValue(mutator, bitpos);
 					}
 				} else {
-					return Result.unchanged(this);
+					return this;
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
-				final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE);
+				final CompactSetNode<K> subNodeNew = subNode.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, details);
 
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (!details.isModified()) {
+					return this;
 				}
-
-				final CompactSetNode<K> subNodeNew = nestedResult.getNode();
-
-				if (subNodeNew.sizePredicate() == 0) {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				assert subNodeNew.sizePredicate() > 0;
 
 				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					throw new IllegalStateException("Sub-node must have at least one element.");
+				}
 				case 1: {
 					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
 						// escalate (singleton or empty) result
-						return nestedResult;
+						return subNodeNew;
 					} else {
 						// inline value (move to front)
-						final CompactSetNode<K> thisNew = copyAndMigrateFromNodeToInline(mutator,
-										bitpos, subNodeNew);
-						// final CompactSetNode<K> thisNew =
-						// copyAndRemoveNode(mutator,
-						// bitpos).copyAndInsertValue(mutator, bitpos,
-						// subNodeNew.getKey(0));
-
-						return Result.modified(thisNew);
+						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
 					}
 				}
 				default: {
 					// modify current node (set replacement node)
-					final CompactSetNode<K> thisNew = copyAndSetNode(mutator, bitpos, subNodeNew);
-
-					return Result.modified(thisNew);
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
 				}
 				}
 			}
 
-			return Result.unchanged(this);
+			return this;
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details,
+						final Comparator<Object> cmp) {
 			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final short bitpos = (short) (1L << mask);
+			final int bitpos = (int) (1L << mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (cmp.compare(keyAt(bitpos), key) == 0) {
+				final int dataIndex = dataIndex(bitpos);
+
+				if (cmp.compare(getKey(dataIndex), key) == 0) {
+					details.modified();
+
 					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
 						/*
 						 * Create new node with remaining pair. The new node
 						 * will a) either become the new root returned, or b)
 						 * unwrapped and inlined during returning.
 						 */
-						final CompactSetNode<K> thisNew;
-						final short newDataMap = (shift == 0) ? (short) (dataMap() ^ bitpos)
-										: (short) (1L << (keyHash & BIT_PARTITION_MASK));
+						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
+										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
 
-						if (dataIndex(bitpos) == 0) {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+						if (dataIndex == 0) {
+							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(1));
 						} else {
-							thisNew = CompactSetNode.<K> nodeOf(mutator, (short) 0, newDataMap,
+							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
 											getKey(0));
 						}
-
-						return Result.modified(thisNew);
 					} else {
-						final CompactSetNode<K> thisNew = copyAndRemoveValue(mutator, bitpos);
-
-						return Result.modified(thisNew);
+						return copyAndRemoveValue(mutator, bitpos);
 					}
 				} else {
-					return Result.unchanged(this);
+					return this;
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
-				final Result<K, Void, ? extends CompactSetNode<K>> nestedResult = subNode.removed(
-								mutator, key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				final CompactSetNode<K> subNodeNew = subNode.removed(mutator, key, keyHash, shift
+								+ BIT_PARTITION_SIZE, details, cmp);
 
-				if (!nestedResult.isModified()) {
-					return Result.unchanged(this);
+				if (!details.isModified()) {
+					return this;
 				}
-
-				final CompactSetNode<K> subNodeNew = nestedResult.getNode();
-
-				if (subNodeNew.sizePredicate() == 0) {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				assert subNodeNew.sizePredicate() > 0;
 
 				switch (subNodeNew.sizePredicate()) {
+				case 0: {
+					throw new IllegalStateException("Sub-node must have at least one element.");
+				}
 				case 1: {
 					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
 						// escalate (singleton or empty) result
-						return nestedResult;
+						return subNodeNew;
 					} else {
 						// inline value (move to front)
-						final CompactSetNode<K> thisNew = copyAndMigrateFromNodeToInline(mutator,
-										bitpos, subNodeNew);
-						// final CompactSetNode<K> thisNew =
-						// copyAndRemoveNode(mutator,
-						// bitpos).copyAndInsertValue(mutator, bitpos,
-						// subNodeNew.getKey(0));
-
-						return Result.modified(thisNew);
+						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
 					}
 				}
 				default: {
 					// modify current node (set replacement node)
-					final CompactSetNode<K> thisNew = copyAndSetNode(mutator, bitpos, subNodeNew);
-
-					return Result.modified(thisNew);
+					return copyAndSetNode(mutator, bitpos, subNodeNew);
 				}
 				}
 			}
 
-			return Result.unchanged(this);
+			return this;
 		}
 
 		/**
 		 * @return 0 <= mask <= 2^BIT_PARTITION_SIZE - 1
 		 */
-		static byte recoverMask(short map, byte i_th) {
-			assert 1 <= i_th && i_th <= 16;
+		static byte recoverMask(int map, byte i_th) {
+			assert 1 <= i_th && i_th <= 32;
 
 			byte cnt1 = 0;
 			byte mask = 0;
 
-			while (mask < 16) {
+			while (mask < 32) {
 				if ((map & 0x01) == 0x01) {
 					cnt1 += 1;
 
@@ -1144,7 +1108,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 					}
 				}
 
-				map = (short) (map >> 1);
+				map = (int) (map >> 1);
 				mask += 1;
 			}
 
@@ -1187,119 +1151,85 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 	private static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
 
-		private final short nodeMap;
-		private final short dataMap;
+		private final int nodeMap;
+		private final int dataMap;
 
-		CompactMixedSetNode(final AtomicReference<Thread> mutator, final short nodeMap,
-						final short dataMap) {
+		CompactMixedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
 
 		@Override
-		public short nodeMap() {
+		public int nodeMap() {
 			return nodeMap;
 		}
 
 		@Override
-		public short dataMap() {
+		public int dataMap() {
 			return dataMap;
 		}
 
 	}
 
 	private static final class BitmapIndexedSetNode<K> extends CompactMixedSetNode<K> {
-		private AtomicReference<Thread> mutator;
 
-		private Object[] nodes;
-		final private byte payloadArity;
+		final AtomicReference<Thread> mutator;
+		final java.lang.Object[] nodes;
 
-		BitmapIndexedSetNode(AtomicReference<Thread> mutator, final short nodeMap,
-						final short dataMap, Object[] nodes, byte payloadArity) {
+		private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
-			assert (TUPLE_LENGTH * java.lang.Integer.bitCount((int) (dataMap & 0xFFFF))
-							+ java.lang.Integer.bitCount((int) (nodeMap & 0xFFFF)) == nodes.length);
-
 			this.mutator = mutator;
-
 			this.nodes = nodes;
-			this.payloadArity = payloadArity;
 
-			assert (payloadArity == java.lang.Integer.bitCount((int) (dataMap & 0xFFFF)));
-			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-			// // SIZE_MORE_THAN_ONE
+			if (DEBUG) {
 
-			// for (int i = 0; i < TUPLE_LENGTH * payloadArity; i++)
-			// assert ((nodes[i] instanceof CompactNode) == false);
-			//
-			// for (int i = TUPLE_LENGTH * payloadArity; i < nodes.length; i++)
-			// assert ((nodes[i] instanceof CompactNode) == true);
+				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
+								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
-			// assert invariant
+				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
+					assert ((nodes[i] instanceof CompactSetNode) == false);
+				}
+				for (int i = TUPLE_LENGTH * payloadArity(); i < nodes.length; i++) {
+					assert ((nodes[i] instanceof CompactSetNode) == true);
+				}
+			}
+
 			assert nodeInvariant();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		K getKey(int index) {
+		K getKey(final int index) {
 			return (K) nodes[TUPLE_LENGTH * index];
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public CompactSetNode<K> getNode(int index) {
-			final int offset = TUPLE_LENGTH * payloadArity;
-			return (CompactSetNode<K>) nodes[offset + index];
-		}
-
-		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArrayKeyValueSupplierIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			final int offset = TUPLE_LENGTH * payloadArity;
-
-			for (int i = offset; i < nodes.length - offset; i++) {
-				assert ((nodes[i] instanceof AbstractSetNode) == true);
-			}
-
-			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		K headKey() {
-			assert hasPayload();
-			return (K) nodes[0];
+		CompactSetNode<K> getNode(final int index) {
+			return (CompactSetNode<K>) nodes[nodes.length - 1 - index];
 		}
 
 		@Override
 		boolean hasPayload() {
-			return payloadArity != 0;
+			return dataMap() != 0;
 		}
 
 		@Override
 		int payloadArity() {
-			return payloadArity;
+			return java.lang.Integer.bitCount(dataMap());
 		}
 
 		@Override
 		boolean hasNodes() {
-			return TUPLE_LENGTH * payloadArity != nodes.length;
+			return nodeMap() != 0;
 		}
 
 		@Override
 		int nodeArity() {
-			return nodes.length - TUPLE_LENGTH * payloadArity;
-		}
-
-		@Override
-		java.lang.Object getSlot(int index) {
-			throw new UnsupportedOperationException();
+			return java.lang.Integer.bitCount(nodeMap());
 		}
 
 		@Override
@@ -1313,7 +1243,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public boolean equals(final java.lang.Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -1338,9 +1268,9 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 		@Override
 		byte sizePredicate() {
-			if (this.nodeArity() == 0 && this.payloadArity == 0) {
+			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
 				return SIZE_EMPTY;
-			} else if (this.nodeArity() == 0 && this.payloadArity == 1) {
+			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
 				return SIZE_ONE;
 			} else {
 				return SIZE_MORE_THAN_ONE;
@@ -1348,9 +1278,10 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
-						CompactSetNode<K> node) {
-			final int idx = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactSetNode<K> node) {
+
+			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				// no copying if already editable
@@ -1358,24 +1289,22 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 				return this;
 			} else {
 				final java.lang.Object[] src = this.nodes;
-				@SuppressWarnings("unchecked")
 				final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst);
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
-						final K key) {
+		CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final K key) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
-			@SuppressWarnings("unchecked")
 			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length + 1];
 
 			// copy 'src' and insert 1 element(s) at position 'idx'
@@ -1383,31 +1312,29 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			dst[idx + 0] = key;
 			System.arraycopy(src, idx, dst, idx + 1, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (short) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
-			@SuppressWarnings("unchecked")
 			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length - 1];
 
 			// copy 'src' and remove 1 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 1, dst, idx, src.length - idx - 1);
 
-			return nodeOf(mutator, nodeMap(), (short) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
+		CompactSetNode<K> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node) {
+
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = TUPLE_LENGTH * (payloadArity - 1) + nodeIndex(bitpos);
+			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = new Object[src.length - 1 + 1];
@@ -1420,14 +1347,14 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 1, dst, idxNew + 1, src.length - idxNew - 1);
 
-			return nodeOf(mutator, (short) (nodeMap() | bitpos), (short) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final short bitpos, CompactSetNode<K> node) {
-			final int idxOld = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node) {
+
+			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1437,21 +1364,21 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			// insert 1 element(s) at position 'idxNew' (TODO: carefully test)
 			assert idxOld >= idxNew;
 			System.arraycopy(src, 0, dst, 0, idxNew);
-			dst[idxNew + 0] = node.headKey();
+			dst[idxNew + 0] = node.getKey(0);
 			System.arraycopy(src, idxNew, dst, idxNew + 1, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (short) (nodeMap() ^ bitpos), (short) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst);
 		}
+
 	}
 
-	private static final class HashCollisionSetNode<K> extends CompactSetNode<K> {
+	private static final class HashCollisionSetNode_BleedingEdge<K> extends CompactSetNode<K> {
 		private final K[] keys;
 
 		private final int hash;
 
-		HashCollisionSetNode(final int hash, final K[] keys) {
+		HashCollisionSetNode_BleedingEdge(final int hash, final K[] keys) {
 			this.keys = keys;
 
 			this.hash = hash;
@@ -1460,18 +1387,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			final Object[] keysAndVals = new Object[2 * keys.length];
-			for (int i = 0; i < keys.length; i++) {
-				keysAndVals[2 * i] = keys[i];
-				keysAndVals[2 * i + 1] = keys[i];
-			}
-
-			return ArrayKeyValueSupplierIterator.of(keysAndVals);
-		}
-
-		@Override
-		public boolean containsKey(final K key, int keyHash, int shift) {
+		boolean containsKey(final K key, final int keyHash, final int shift) {
 
 			if (this.hash == keyHash) {
 				for (K k : keys) {
@@ -1485,7 +1401,8 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean containsKey(final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		boolean containsKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 
 			if (this.hash == keyHash) {
 				for (K k : keys) {
@@ -1499,7 +1416,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Optional<K> findByKey(final K key, int hash, int shift) {
+		Optional<K> findByKey(final K key, final int keyHash, final int shift) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
@@ -1512,7 +1429,8 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Optional<K> findByKey(final K key, int hash, int shift, Comparator<Object> cmp) {
+		Optional<K> findByKey(final K key, final int keyHash, final int shift,
+						final Comparator<Object> cmp) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
@@ -1525,16 +1443,17 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift) {
+		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details) {
 			if (this.hash != keyHash) {
-				return Result.modified(mergeNodes(this, this.hash, key, keyHash, shift));
+				details.modified();
+				return mergeNodes(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
 
-					return Result.unchanged(this);
+					return this;
 
 				}
 			}
@@ -1549,20 +1468,23 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
 							- keys.length);
 
-			return Result.modified(new HashCollisionSetNode<>(keyHash, keysNew));
+			details.modified();
+			return new HashCollisionSetNode_BleedingEdge<>(keyHash, keysNew);
 		}
 
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details,
+						final Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
-				return Result.modified(mergeNodes(this, this.hash, key, keyHash, shift));
+				details.modified();
+				return mergeNodes(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
 
-					return Result.unchanged(this);
+					return this;
 
 				}
 			}
@@ -1577,18 +1499,19 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
 							- keys.length);
 
-			return Result.modified(new HashCollisionSetNode<>(keyHash, keysNew));
+			details.modified();
+			return new HashCollisionSetNode_BleedingEdge<>(keyHash, keysNew);
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift) {
+		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
+
 					if (this.arity() == 1) {
-						return Result.modified(CompactSetNode.<K> nodeOf(mutator));
+						return nodeOf(mutator);
 					} else if (this.arity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
@@ -1598,7 +1521,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 
 						return CompactSetNode.<K> nodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, 0);
+										keyHash, 0, details);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -1609,23 +1532,24 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
 										- 1);
 
-						return Result.modified(new HashCollisionSetNode<>(keyHash, keysNew));
+						return new HashCollisionSetNode_BleedingEdge<>(keyHash, keysNew);
 					}
 				}
 			}
-			return Result.unchanged(this);
+			return this;
 
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator,
-						final K key, int keyHash, int shift, Comparator<Object> cmp) {
+		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
+						final int keyHash, final int shift, final Result<K> details,
+						final Comparator<Object> cmp) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
+
 					if (this.arity() == 1) {
-						return Result.modified(CompactSetNode.<K> nodeOf(mutator));
+						return nodeOf(mutator);
 					} else if (this.arity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
@@ -1635,7 +1559,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 
 						return CompactSetNode.<K> nodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, 0, cmp);
+										keyHash, 0, details, cmp);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -1646,11 +1570,11 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
 										- 1);
 
-						return Result.modified(new HashCollisionSetNode<>(keyHash, keysNew));
+						return new HashCollisionSetNode_BleedingEdge<>(keyHash, keysNew);
 					}
 				}
 			}
-			return Result.unchanged(this);
+			return this;
 
 		}
 
@@ -1695,11 +1619,6 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
@@ -1720,7 +1639,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			HashCollisionSetNode<K> that = (HashCollisionSetNode<K>) other;
+			HashCollisionSetNode_BleedingEdge<?> that = (HashCollisionSetNode_BleedingEdge<?>) other;
 
 			if (hash != that.hash) {
 				return false;
@@ -1733,11 +1652,11 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			/*
 			 * Linear scan for each key, because of arbitrary element order.
 			 */
-			outerLoop: for (SupplierIterator<K, K> it = that.payloadIterator(); it.hasNext();) {
-				final K otherKey = it.next();
+			outerLoop: for (int i = 0; i < that.payloadArity(); i++) {
+				final java.lang.Object otherKey = that.getKey(i);
 
-				for (int i = 0; i < keys.length; i++) {
-					final K key = keys[i];
+				for (int j = 0; j < keys.length; j++) {
+					final K key = keys[j];
 
 					if (key.equals(otherKey)) {
 						continue outerLoop;
@@ -1751,21 +1670,44 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final short bitpos,
+		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
 						final K key) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final short bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final short bitpos,
+		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
 						CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int nodeMap() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int dataMap() {
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 	/**
@@ -1774,7 +1716,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	private static abstract class AbstractSetIterator<K> {
 
 		// TODO: verify maximum deepness
-		private static final int MAX_DEPTH = 10;
+		private static final int MAX_DEPTH = 8;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
@@ -1817,10 +1759,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 										.getNode(nodeCursor);
 						nodeCursorsAndLengths[currentCursorIndex]++;
 
-						final int nextValueLength = nextNode.payloadArity();
-						final int nextNodeLength = nextNode.nodeArity();
-
-						if (nextNodeLength > 0) {
+						if (nextNode.hasNodes()) {
 							/*
 							 * put node on next stack level for depth-first
 							 * traversal
@@ -1831,16 +1770,16 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 
 							nodes[nextStackLevel] = nextNode;
 							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
+							nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
 						}
 
-						if (nextValueLength != 0) {
+						if (nextNode.hasPayload()) {
 							/*
 							 * found for next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;
-							currentValueLength = nextValueLength;
+							currentValueLength = nextNode.payloadArity();
 							return true;
 						}
 					} else {
@@ -1883,11 +1822,12 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieSetNodeIterator<K> implements Iterator<AbstractSetNode<K>> {
+	private static class TrieSet_BleedingEdgeNodeIterator<K> implements
+					Iterator<AbstractSetNode<K>> {
 
 		final Deque<Iterator<? extends AbstractSetNode<K>>> nodeIteratorStack;
 
-		TrieSetNodeIterator(AbstractSetNode<K> rootNode) {
+		TrieSet_BleedingEdgeNodeIterator(AbstractSetNode<K> rootNode) {
 			nodeIteratorStack = new ArrayDeque<>();
 			nodeIteratorStack.push(Collections.singleton(rootNode).iterator());
 		}
@@ -1929,17 +1869,18 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		}
 	}
 
-	static final class TransientTrieSet<K> extends AbstractSet<K> implements TransientSet<K> {
+	static final class TransientTrieSet_BleedingEdge<K> extends AbstractSet<K> implements
+					TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractSetNode<K> rootNode;
 		private int hashCode;
 		private int cachedSize;
 
-		TransientTrieSet(TrieSetDynamic<K> trieSet) {
+		TransientTrieSet_BleedingEdge(TrieSet_BleedingEdge<K> trieSet_BleedingEdge) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
-			this.rootNode = trieSet.rootNode;
-			this.hashCode = trieSet.hashCode;
-			this.cachedSize = trieSet.cachedSize;
+			this.rootNode = trieSet_BleedingEdge.rootNode;
+			this.hashCode = trieSet_BleedingEdge.hashCode;
+			this.cachedSize = trieSet_BleedingEdge.cachedSize;
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
@@ -1962,6 +1903,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		@Override
 		public boolean contains(Object o) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				return rootNode.containsKey(key, key.hashCode(), 0);
 			} catch (ClassCastException unused) {
@@ -1972,6 +1914,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		@Override
 		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 			} catch (ClassCastException unused) {
@@ -1982,6 +1925,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		@Override
 		public K get(Object o) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
 
@@ -1998,6 +1942,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		@Override
 		public K getEquivalent(Object o, Comparator<Object> cmp) {
 			try {
+				@SuppressWarnings("unchecked")
 				final K key = (K) o;
 				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
@@ -2018,11 +1963,13 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.updated(mutator,
-							key, keyHash, 0);
+			final Result<K> details = Result.unchanged();
 
-			if (result.isModified()) {
-				rootNode = result.getNode();
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash, 0,
+							details);
+
+			if (details.isModified()) {
+				rootNode = newRootNode;
 
 				hashCode += keyHash;
 				cachedSize += 1;
@@ -2046,11 +1993,13 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.updated(mutator,
-							key, keyHash, 0, cmp);
+			final Result<K> details = Result.unchanged();
 
-			if (result.isModified()) {
-				rootNode = result.getNode();
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash, 0,
+							details, cmp);
+
+			if (details.isModified()) {
+				rootNode = newRootNode;
 
 				hashCode += keyHash;
 				cachedSize += 1;
@@ -2121,12 +2070,14 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.removed(mutator,
-							key, keyHash, 0);
+			final Result<K> details = Result.unchanged();
 
-			if (result.isModified()) {
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
+							details);
 
-				rootNode = result.getNode();
+			if (details.isModified()) {
+
+				rootNode = newRootNode;
 				hashCode -= keyHash;
 				cachedSize -= 1;
 
@@ -2150,12 +2101,14 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K, Void, ? extends CompactSetNode<K>> result = rootNode.removed(mutator,
-							key, keyHash, 0, cmp);
+			final Result<K> details = Result.unchanged();
 
-			if (result.isModified()) {
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
+							details, cmp);
 
-				rootNode = result.getNode();
+			if (details.isModified()) {
+
+				rootNode = newRootNode;
 				hashCode -= keyHash;
 				cachedSize -= 1;
 
@@ -2170,7 +2123,6 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
 			return false;
-
 		}
 
 		@Override
@@ -2245,12 +2197,12 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 		private static class TransientSetKeyIterator<K> extends AbstractSetIterator<K> implements
 						SupplierIterator<K, K> {
 
-			final TransientTrieSet<K> transientTrieSet;
+			final TransientTrieSet_BleedingEdge<K> transientTrieSet_BleedingEdge;
 			K lastKey;
 
-			TransientSetKeyIterator(TransientTrieSet<K> transientTrieSet) {
-				super(transientTrieSet.rootNode);
-				this.transientTrieSet = transientTrieSet;
+			TransientSetKeyIterator(TransientTrieSet_BleedingEdge<K> transientTrieSet_BleedingEdge) {
+				super(transientTrieSet_BleedingEdge.rootNode);
+				this.transientTrieSet_BleedingEdge = transientTrieSet_BleedingEdge;
 			}
 
 			@Override
@@ -2273,7 +2225,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			 */
 			@Override
 			public void remove() {
-				boolean success = transientTrieSet.__remove(lastKey);
+				boolean success = transientTrieSet_BleedingEdge.__remove(lastKey);
 
 				if (!success) {
 					throw new IllegalStateException("Key from iteration couldn't be deleted.");
@@ -2290,8 +2242,8 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 				return false;
 			}
 
-			if (other instanceof TransientTrieSet) {
-				TransientTrieSet<?> that = (TransientTrieSet<?>) other;
+			if (other instanceof TransientTrieSet_BleedingEdge) {
+				TransientTrieSet_BleedingEdge<?> that = (TransientTrieSet_BleedingEdge<?>) other;
 
 				if (this.size() != that.size()) {
 					return false;
@@ -2315,7 +2267,7 @@ public class TrieSetDynamic<K> extends AbstractImmutableSet<K> {
 			}
 
 			mutator.set(null);
-			return new TrieSetDynamic<K>(rootNode, hashCode, cachedSize);
+			return new TrieSet_BleedingEdge<K>(rootNode, hashCode, cachedSize);
 		}
 	}
 

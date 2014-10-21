@@ -19,9 +19,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
-import org.eclipse.imp.pdb.facts.util.TrieSetDynamic;
+import org.eclipse.imp.pdb.facts.util.TrieSet_BleedingEdge;
 
-class TypelessSetWriterDynamic implements ISetWriter {
+class TypelessSetWriterBleedingEdge implements ISetWriter {
 
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils
@@ -30,10 +30,10 @@ class TypelessSetWriterDynamic implements ISetWriter {
 	protected final TransientSet<IValue> setContent;
 	protected ISet constructedSet;
 
-	TypelessSetWriterDynamic() {
+	TypelessSetWriterBleedingEdge() {
 		super();
 
-		setContent = TrieSetDynamic.transientOf();
+		setContent = TrieSet_BleedingEdge.transientOf();
 		constructedSet = null;
 	}
 

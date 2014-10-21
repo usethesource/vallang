@@ -19,34 +19,34 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-public class TypelessValueFactoryDynamic extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
+public class TypelessValueFactoryBleedingEdge extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
 
-	protected TypelessValueFactoryDynamic() {
+	protected TypelessValueFactoryBleedingEdge() {
 		super();
 	}
 
 	private static class InstanceKeeper {
-		public final static TypelessValueFactoryDynamic instance = new TypelessValueFactoryDynamic();
+		public final static TypelessValueFactoryBleedingEdge instance = new TypelessValueFactoryBleedingEdge();
 	}
 
-	public static TypelessValueFactoryDynamic getInstance() {
+	public static TypelessValueFactoryBleedingEdge getInstance() {
 		return InstanceKeeper.instance;
 	}
 
 	public ISetWriter setWriter(Type elementType) {
-		return new TypelessSetWriterDynamic();
+		return new TypelessSetWriterBleedingEdge();
 	}
 
 	public ISetWriter setWriter() {
-		return new TypelessSetWriterDynamic();
+		return new TypelessSetWriterBleedingEdge();
 	}
 
 	public ISetWriter relationWriter(Type tupleType) {
-		return new TypelessSetWriterDynamic();
+		return new TypelessSetWriterBleedingEdge();
 	}
 
 	public ISetWriter relationWriter() {
-		return new TypelessSetWriterDynamic();
+		return new TypelessSetWriterBleedingEdge();
 	}
 
 	public ISet set(Type elementType) {
@@ -74,12 +74,12 @@ public class TypelessValueFactoryDynamic extends org.eclipse.imp.pdb.facts.impl.
 
 	@Override
 	public IMapWriter mapWriter(Type mapType) {
-		return new TypelessMapWriterDynamic();
+		return new TypelessMapWriterBleedingEdge();
 	}
 
 	@Override
 	public IMapWriter mapWriter() {
-		return new TypelessMapWriterDynamic();
+		return new TypelessMapWriterBleedingEdge();
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class TypelessValueFactoryDynamic extends org.eclipse.imp.pdb.facts.impl.
 
 	@Override
 	public String toString() {
-		return "VF_PDB_PERSISTENT";
+		return "VF_PDB_PERSISTENT_BLEEDING_EDGE";
 	}
 
 }
