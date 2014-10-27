@@ -1,42 +1,65 @@
 package org.eclipse.imp.pdb.facts.util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 public class DefaultTrieSet {
 
-//	public static final <K> ImmutableSet<K> of() {
-//		return TrieSet_5Bits.of();
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	public static final <K> ImmutableSet<K> of(K... keys) {
-//		return TrieSet_5Bits.of(keys);
-//	}
-//
-//	public static final <K> TransientSet<K> transientOf() {
-//		return TrieSet_5Bits.transientOf();
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	public static final <K> TransientSet<K> transientOf(K... keys) {
-//		return TrieSet_5Bits.transientOf(keys);
-//	}
-	
-	
+	private static Class<?> target = TrieSet_5Bits.class;
+
+	private static Method persistentSetOfEmpty;
+	private static Method persistentSetOfKeyValuePairs;
+
+	private static Method transientSetOfEmpty;
+	private static Method transientSetOfKeyValuePairs;
+
+	static {
+		try {
+			persistentSetOfEmpty = target.getMethod("of");
+			persistentSetOfKeyValuePairs = target.getMethod("of", Object[].class);
+
+			transientSetOfEmpty = target.getMethod("transientOf");
+			transientSetOfKeyValuePairs = target.getMethod("transientOf", Object[].class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static final <K> ImmutableSet<K> of() {
-		return TrieSet_BleedingEdge.of();
+		try {
+			return (ImmutableSet<K>) persistentSetOfEmpty.invoke(null);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K> ImmutableSet<K> of(K... keys) {
-		return TrieSet_BleedingEdge.of(keys);
+		try {
+			return (ImmutableSet<K>) persistentSetOfKeyValuePairs.invoke(null, (Object) keys);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf() {
-		return TrieSet_BleedingEdge.transientOf();
+		try {
+			return (TransientSet<K>) transientSetOfEmpty.invoke(null);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public static final <K> TransientSet<K> transientOf(K... keys) {
-		return TrieSet_BleedingEdge.transientOf(keys);
-	}	
+		try {
+			return (TransientSet<K>) transientSetOfKeyValuePairs.invoke(null, (Object) keys);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }

@@ -22,7 +22,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
-import org.eclipse.imp.pdb.facts.util.TrieSet_5Bits;
+import org.eclipse.imp.pdb.facts.util.DefaultTrieSet;
 
 class SetWriter implements ISetWriter {
 
@@ -44,7 +44,7 @@ class SetWriter implements ISetWriter {
 		this.upperBoundType = upperBoundType;
 
 		elementTypeBag = AbstractTypeBag.of();
-		setContent = TrieSet_5Bits.transientOf();
+		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 
@@ -55,7 +55,7 @@ class SetWriter implements ISetWriter {
 		this.upperBoundType = null;
 
 		elementTypeBag = AbstractTypeBag.of();
-		setContent = TrieSet_5Bits.transientOf();
+		setContent = DefaultTrieSet.transientOf();
 		constructedSet = null;
 	}
 

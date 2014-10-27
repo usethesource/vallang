@@ -94,7 +94,7 @@ public class TypelessValueFactoryCurrent extends org.eclipse.imp.pdb.facts.impl.
 
 	@Override
 	public String toString() {
-		return "VF_PDB_PERSISTENT";
+		return "VF_PDB_PERSISTENT_CURRENT";
 	}
 
 }
