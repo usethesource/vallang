@@ -844,12 +844,14 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 		static final CompactMapNode EMPTY_NODE;
 
 		static {
+
 			EMPTY_NODE = new Map0To0Node_5Bits_Spec0To8<>(null, (int) 0, (int) 0);
+
 		};
 
-		static final <K, V> CompactMapNode<K, V> nodeOf(AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, Object[] nodes, byte payloadArity) {
-			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes, payloadArity);
+		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
+						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -930,7 +932,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
 						final CompactMapNode<K, V> node8, final CompactMapNode<K, V> node9) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { node1, node2, node3, node4,
-							node5, node6, node7, node8, node9 }, (byte) 0);
+							node5, node6, node7, node8, node9 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1002,7 +1004,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
 						final CompactMapNode<K, V> node7, final CompactMapNode<K, V> node8) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, node1, node2,
-							node3, node4, node5, node6, node7, node8 }, (byte) 1);
+							node3, node4, node5, node6, node7, node8 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1070,7 +1072,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
 						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3, node4, node5, node6, node7 }, (byte) 2);
+							node2, node3, node4, node5, node6, node7 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1131,7 +1133,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
 						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, node1, node2, node3, node4, node5, node6 }, (byte) 3);
+							val3, node1, node2, node3, node4, node5, node6 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1185,7 +1187,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, node1, node2, node3, node4, node5 }, (byte) 4);
+							val3, key4, val4, node1, node2, node3, node4, node5 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1229,7 +1231,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
 						final CompactMapNode<K, V> node4) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, node1, node2, node3, node4 }, (byte) 5);
+							val3, key4, val4, key5, val5, node1, node2, node3, node4 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1265,8 +1267,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
 						final CompactMapNode<K, V> node3) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 },
-							(byte) 6);
+							val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1294,8 +1295,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final K key7, final V val7, final CompactMapNode<K, V> node1,
 						final CompactMapNode<K, V> node2) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 },
-							(byte) 7);
+							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1316,8 +1316,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final CompactMapNode<K, V> node1) {
 			return nodeOf(mutator, nodeMap, dataMap,
 							new Object[] { key1, val1, key2, val2, key3, val3, key4, val4, key5,
-											val5, key6, val6, key7, val7, key8, val8, node1 },
-							(byte) 8);
+											val5, key6, val6, key7, val7, key8, val8, node1 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
@@ -1328,14 +1327,14 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 						final V val9) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
 							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, key9,
-							val9 }, (byte) 9);
+							val9 });
 		}
 
-		final int dataIndex(final int bitpos) {
+		int dataIndex(final int bitpos) {
 			return java.lang.Integer.bitCount(dataMap() & (bitpos - 1));
 		}
 
-		final int nodeIndex(final int bitpos) {
+		int nodeIndex(final int bitpos) {
 			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
@@ -1814,93 +1813,76 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 	}
 
 	private static final class BitmapIndexedMapNode<K, V> extends CompactMixedMapNode<K, V> {
-		private AtomicReference<Thread> mutator;
 
-		private Object[] nodes;
-		final private byte payloadArity;
+		final AtomicReference<Thread> mutator;
+		final java.lang.Object[] nodes;
 
-		BitmapIndexedMapNode(AtomicReference<Thread> mutator, final int nodeMap, final int dataMap,
-						Object[] nodes, byte payloadArity) {
+		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
-			assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-							+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
-
 			this.mutator = mutator;
-
 			this.nodes = nodes;
-			this.payloadArity = payloadArity;
 
-			assert (payloadArity == java.lang.Integer.bitCount(dataMap));
-			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-			// // SIZE_MORE_THAN_ONE
+			if (DEBUG) {
 
-			// for (int i = 0; i < TUPLE_LENGTH * payloadArity; i++)
-			// assert ((nodes[i] instanceof CompactNode) == false);
-			//
-			// for (int i = TUPLE_LENGTH * payloadArity; i < nodes.length; i++)
-			// assert ((nodes[i] instanceof CompactNode) == true);
+				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
+								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
-			// assert invariant
+				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
+					assert ((nodes[i] instanceof CompactMapNode) == false);
+				}
+				for (int i = TUPLE_LENGTH * payloadArity(); i < nodes.length; i++) {
+					assert ((nodes[i] instanceof CompactMapNode) == true);
+				}
+			}
+
 			assert arity() > 8;
 			assert nodeInvariant();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		K getKey(int index) {
+		K getKey(final int index) {
 			return (K) nodes[TUPLE_LENGTH * index];
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		V getValue(int index) {
+		V getValue(final int index) {
 			return (V) nodes[TUPLE_LENGTH * index + 1];
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		Map.Entry<K, V> getKeyValueEntry(int index) {
+		java.util.Map.Entry<K, V> getKeyValueEntry(final int index) {
 			return entryOf((K) nodes[TUPLE_LENGTH * index], (V) nodes[TUPLE_LENGTH * index + 1]);
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public CompactMapNode<K, V> getNode(int index) {
-			final int offset = TUPLE_LENGTH * payloadArity;
-			return (CompactMapNode<K, V>) nodes[offset + index];
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Iterator<CompactMapNode<K, V>> nodeIterator() {
-			final int offset = TUPLE_LENGTH * payloadArity;
-
-			for (int i = offset; i < nodes.length - offset; i++) {
-				assert ((nodes[i] instanceof AbstractMapNode) == true);
-			}
-
-			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
+		CompactMapNode<K, V> getNode(final int index) {
+			return (CompactMapNode<K, V>) nodes[nodes.length - 1 - index];
 		}
 
 		@Override
 		boolean hasPayload() {
-			return payloadArity != 0;
+			return dataMap() != 0;
 		}
 
 		@Override
 		int payloadArity() {
-			return payloadArity;
+			return java.lang.Integer.bitCount(dataMap());
 		}
 
 		@Override
 		boolean hasNodes() {
-			return TUPLE_LENGTH * payloadArity != nodes.length;
+			return nodeMap() != 0;
 		}
 
 		@Override
 		int nodeArity() {
-			return nodes.length - TUPLE_LENGTH * payloadArity;
+			return java.lang.Integer.bitCount(nodeMap());
 		}
 
 		@Override
@@ -1914,7 +1896,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public boolean equals(final java.lang.Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -1943,8 +1925,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+		CompactMapNode<K, V> copyAndSetValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final V val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos) + 1;
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1959,14 +1941,15 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = val;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst);
 			}
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
-			final int idx = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactMapNode<K, V> copyAndSetNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+
+			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				// no copying if already editable
@@ -1980,13 +1963,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst);
 			}
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+		CompactMapNode<K, V> copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final K key, final V val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1998,12 +1981,12 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 			dst[idx + 1] = val;
 			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
+		CompactMapNode<K, V> copyAndRemoveValue(final AtomicReference<Thread> mutator,
+						final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -2013,15 +1996,15 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 2, dst, idx, src.length - idx - 2);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final int bitpos, CompactMapNode<K, V> node) {
+		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = TUPLE_LENGTH * (payloadArity - 1) + nodeIndex(bitpos);
+			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = new Object[src.length - 2 + 1];
@@ -2034,14 +2017,14 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
 
-			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final int bitpos, CompactMapNode<K, V> node) {
-			final int idxOld = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K, V> node) {
+
+			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -2056,8 +2039,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 			System.arraycopy(src, idxNew, dst, idxNew + 2, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 2, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst);
 		}
 
 		@Override
@@ -3442,10 +3424,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 										.getNode(nodeCursor);
 						nodeCursorsAndLengths[currentCursorIndex]++;
 
-						final int nextValueLength = nextNode.payloadArity();
-						final int nextNodeLength = nextNode.nodeArity();
-
-						if (nextNodeLength > 0) {
+						if (nextNode.hasNodes()) {
 							/*
 							 * put node on next stack level for depth-first
 							 * traversal
@@ -3456,16 +3435,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements I
 
 							nodes[nextStackLevel] = nextNode;
 							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
+							nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
 						}
 
-						if (nextValueLength != 0) {
+						if (nextNode.hasPayload()) {
 							/*
 							 * found for next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;
-							currentValueLength = nextValueLength;
+							currentValueLength = nextNode.payloadArity();
 							return true;
 						}
 					} else {

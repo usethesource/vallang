@@ -774,12 +774,14 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		static final CompactSetNode EMPTY_NODE;
 
 		static {
+
 			EMPTY_NODE = new Set0To0Node_5Bits_Untyped_Spec0To8<>(null, (int) 0, (int) 0);
+
 		};
 
-		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, Object[] nodes, byte payloadArity) {
-			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes, payloadArity);
+		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
+						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -865,11 +867,11 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 							(byte) java.lang.Integer.bitCount(dataMap));
 		}
 
-		final int dataIndex(final int bitpos) {
+		int dataIndex(final int bitpos) {
 			return java.lang.Integer.bitCount(dataMap() & (bitpos - 1));
 		}
 
-		final int nodeIndex(final int bitpos) {
+		int nodeIndex(final int bitpos) {
 			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
@@ -1324,85 +1326,68 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 	}
 
 	private static final class BitmapIndexedSetNode<K> extends CompactMixedSetNode<K> {
-		private AtomicReference<Thread> mutator;
 
-		private Object[] nodes;
-		final private byte payloadArity;
+		final AtomicReference<Thread> mutator;
+		final java.lang.Object[] nodes;
 
-		BitmapIndexedSetNode(AtomicReference<Thread> mutator, final int nodeMap, final int dataMap,
-						Object[] nodes, byte payloadArity) {
+		private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
+						final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
-			assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-							+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
-
 			this.mutator = mutator;
-
 			this.nodes = nodes;
-			this.payloadArity = payloadArity;
 
-			assert (payloadArity == java.lang.Integer.bitCount(dataMap));
-			// assert (payloadArity() >= 2 || nodeArity() >= 1); // =
-			// // SIZE_MORE_THAN_ONE
+			if (DEBUG) {
 
-			// for (int i = 0; i < TUPLE_LENGTH * payloadArity; i++)
-			// assert ((nodes[i] instanceof CompactNode) == false);
-			//
-			// for (int i = TUPLE_LENGTH * payloadArity; i < nodes.length; i++)
-			// assert ((nodes[i] instanceof CompactNode) == true);
+				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
+								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
-			// assert invariant
+				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
+					assert ((nodes[i] instanceof CompactSetNode) == false);
+				}
+				for (int i = TUPLE_LENGTH * payloadArity(); i < nodes.length; i++) {
+					assert ((nodes[i] instanceof CompactSetNode) == true);
+				}
+			}
+
 			assert arity() > 8;
 			assert nodeInvariant();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		K getKey(int index) {
+		K getKey(final int index) {
 			return (K) nodes[TUPLE_LENGTH * index];
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public CompactSetNode<K> getNode(int index) {
-			final int offset = TUPLE_LENGTH * payloadArity;
-			return (CompactSetNode<K>) nodes[offset + index];
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		Iterator<CompactSetNode<K>> nodeIterator() {
-			final int offset = TUPLE_LENGTH * payloadArity;
-
-			for (int i = offset; i < nodes.length - offset; i++) {
-				assert ((nodes[i] instanceof AbstractSetNode) == true);
-			}
-
-			return (Iterator) ArrayIterator.of(nodes, offset, nodes.length - offset);
+		CompactSetNode<K> getNode(final int index) {
+			return (CompactSetNode<K>) nodes[nodes.length - 1 - index];
 		}
 
 		@Override
 		boolean hasPayload() {
-			return payloadArity != 0;
+			return dataMap() != 0;
 		}
 
 		@Override
 		int payloadArity() {
-			return payloadArity;
+			return java.lang.Integer.bitCount(dataMap());
 		}
 
 		@Override
 		boolean hasNodes() {
-			return TUPLE_LENGTH * payloadArity != nodes.length;
+			return nodeMap() != 0;
 		}
 
 		@Override
 		int nodeArity() {
-			return nodes.length - TUPLE_LENGTH * payloadArity;
+			return java.lang.Integer.bitCount(nodeMap());
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -1417,7 +1402,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public boolean equals(final java.lang.Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -1446,9 +1431,10 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode<K> node) {
-			final int idx = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactSetNode<K> node) {
+
+			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				// no copying if already editable
@@ -1462,13 +1448,13 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst);
 			}
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key) {
+		CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final K key) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1479,12 +1465,11 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			dst[idx + 0] = key;
 			System.arraycopy(src, idx, dst, idx + 1, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1494,15 +1479,15 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 1, dst, idx, src.length - idx - 1);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromInlineToNode(AtomicReference<Thread> mutator,
-						final int bitpos, CompactSetNode<K> node) {
+		CompactSetNode<K> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node) {
+
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = TUPLE_LENGTH * (payloadArity - 1) + nodeIndex(bitpos);
+			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = new Object[src.length - 1 + 1];
@@ -1515,14 +1500,14 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 1, dst, idxNew + 1, src.length - idxNew - 1);
 
-			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst,
-							(byte) (payloadArity - 1));
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst);
 		}
 
 		@Override
-		CompactSetNode<K> copyAndMigrateFromNodeToInline(AtomicReference<Thread> mutator,
-						final int bitpos, CompactSetNode<K> node) {
-			final int idxOld = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
+		CompactSetNode<K> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node) {
+
+			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1536,8 +1521,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			System.arraycopy(src, idxNew, dst, idxNew + 1, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst,
-							(byte) (payloadArity + 1));
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst);
 		}
 
 		@Override
@@ -2793,10 +2777,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 										.getNode(nodeCursor);
 						nodeCursorsAndLengths[currentCursorIndex]++;
 
-						final int nextValueLength = nextNode.payloadArity();
-						final int nextNodeLength = nextNode.nodeArity();
-
-						if (nextNodeLength > 0) {
+						if (nextNode.hasNodes()) {
 							/*
 							 * put node on next stack level for depth-first
 							 * traversal
@@ -2807,16 +2788,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 
 							nodes[nextStackLevel] = nextNode;
 							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNodeLength;
+							nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
 						}
 
-						if (nextValueLength != 0) {
+						if (nextNode.hasPayload()) {
 							/*
 							 * found for next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;
-							currentValueLength = nextValueLength;
+							currentValueLength = nextNode.payloadArity();
 							return true;
 						}
 					} else {
