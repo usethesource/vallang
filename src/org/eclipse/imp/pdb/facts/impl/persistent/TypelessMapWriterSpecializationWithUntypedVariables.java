@@ -20,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.util.TransientMap;
-import org.eclipse.imp.pdb.facts.util.TrieMapSpecializationWithUntypedVariables;
 
 /*
  * Operates:
@@ -35,7 +34,7 @@ final class TypelessMapWriterSpecializationWithUntypedVariables implements IMapW
 	TypelessMapWriterSpecializationWithUntypedVariables() {
 		super();
 
-		mapContent = TrieMapSpecializationWithUntypedVariables.transientOf();
+		mapContent = org.eclipse.imp.pdb.facts.util.TrieMap_5Bits_Untyped_Spec0To8.transientOf();
 		constructedMap = null;
 	}
 

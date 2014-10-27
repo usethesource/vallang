@@ -94,7 +94,7 @@ public class TypelessValueFactorySpecializationWithUntypedVariables extends org.
 
 	@Override
 	public String toString() {
-		return "VF_PDB_PERSISTENT";
+		return "VF_PDB_PERSISTENT_UNTYPED";
 	}
 
 }

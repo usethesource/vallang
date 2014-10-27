@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.TransientSet;
-import org.eclipse.imp.pdb.facts.util.TrieSetSpecializationWithUntypedVariables;
 
 class TypelessSetWriterSpecializationWithUntypedVariables implements ISetWriter {
 
@@ -33,7 +32,7 @@ class TypelessSetWriterSpecializationWithUntypedVariables implements ISetWriter 
 	TypelessSetWriterSpecializationWithUntypedVariables() {
 		super();
 
-		setContent = TrieSetSpecializationWithUntypedVariables.transientOf();
+		setContent = org.eclipse.imp.pdb.facts.util.TrieSet_5Bits_Untyped_Spec0To8.transientOf();
 		constructedSet = null;
 	}
 
