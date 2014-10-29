@@ -19,34 +19,34 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
-public class TypelessValueFactorySpecializationWithUntypedVariables extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
+public class TypelessValueFactorySpecialization extends org.eclipse.imp.pdb.facts.impl.fast.ValueFactory {
 
-	protected TypelessValueFactorySpecializationWithUntypedVariables() {
+	protected TypelessValueFactorySpecialization() {
 		super();
 	}
 
 	private static class InstanceKeeper {
-		public final static TypelessValueFactorySpecializationWithUntypedVariables instance = new TypelessValueFactorySpecializationWithUntypedVariables();
+		public final static TypelessValueFactorySpecialization instance = new TypelessValueFactorySpecialization();
 	}
 
-	public static TypelessValueFactorySpecializationWithUntypedVariables getInstance() {
+	public static TypelessValueFactorySpecialization getInstance() {
 		return InstanceKeeper.instance;
 	}
 
 	public ISetWriter setWriter(Type elementType) {
-		return new TypelessSetWriterSpecializationWithUntypedVariables();
+		return new TypelessSetWriterSpecialization();
 	}
 
 	public ISetWriter setWriter() {
-		return new TypelessSetWriterSpecializationWithUntypedVariables();
+		return new TypelessSetWriterSpecialization();
 	}
 
 	public ISetWriter relationWriter(Type tupleType) {
-		return new TypelessSetWriterSpecializationWithUntypedVariables();
+		return new TypelessSetWriterSpecialization();
 	}
 
 	public ISetWriter relationWriter() {
-		return new TypelessSetWriterSpecializationWithUntypedVariables();
+		return new TypelessSetWriterSpecialization();
 	}
 
 	public ISet set(Type elementType) {
@@ -74,12 +74,12 @@ public class TypelessValueFactorySpecializationWithUntypedVariables extends org.
 
 	@Override
 	public IMapWriter mapWriter(Type mapType) {
-		return new TypelessMapWriterSpecializationWithUntypedVariables();
+		return new TypelessMapWriterSpecialization();
 	}
 
 	@Override
 	public IMapWriter mapWriter() {
-		return new TypelessMapWriterSpecializationWithUntypedVariables();
+		return new TypelessMapWriterSpecialization();
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class TypelessValueFactorySpecializationWithUntypedVariables extends org.
 
 	@Override
 	public String toString() {
-		return "VF_PDB_PERSISTENT_UNTYPED_SPECIALIZED";
+		return "VF_PDB_PERSISTENT_SPECIALIZED";
 	}
 
 }

@@ -649,6 +649,18 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 		static final int BIT_PARTITION_SIZE = 5;
 		static final int BIT_PARTITION_MASK = 0b11111;
 
+		static final int mask(final int keyHash, final int shift) {
+			if (shift == 30) {
+				return keyHash & BIT_PARTITION_MASK;
+			} else {
+				return (keyHash >>> (27 - shift)) & BIT_PARTITION_MASK;
+			}
+		}
+
+		static final int bitpos(final int mask) {
+			return (int) (1L << mask);
+		}
+
 		abstract int nodeMap();
 
 		abstract int dataMap();
@@ -719,12 +731,12 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 								key0, key1 });
 			}
 
-			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
-			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+			final int mask0 = mask(keyHash0, shift);
+			final int mask1 = mask(keyHash1, shift);
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int dataMap = (int) (1L << mask0 | 1L << mask1);
+				final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
 
 				if (mask0 < mask1) {
 					return nodeOf(null, (int) 0, dataMap, key0, key1);
@@ -736,20 +748,20 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final int nodeMap = (int) (1L << mask0);
+				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
 			}
 		}
 
 		static final <K> CompactSetNode<K> mergeNodes(CompactSetNode<K> node0, int keyHash0,
 						final K key1, int keyHash1, int shift) {
-			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
-			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+			final int mask0 = mask(keyHash0, shift);
+			final int mask1 = mask(keyHash1, shift);
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int nodeMap = (int) (1L << mask0);
-				final int dataMap = (int) (1L << mask1);
+				final int nodeMap = bitpos(mask0);
+				final int dataMap = bitpos(mask1);
 
 				// store values before node
 				return nodeOf(null, nodeMap, dataMap, key1, node0);
@@ -758,7 +770,7 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final int nodeMap = (int) (1L << mask0);
+				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
 			}
 		}
@@ -1228,8 +1240,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return keyAt(bitpos).equals(key);
@@ -1245,8 +1257,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return cmp.compare(keyAt(bitpos), key) == 0;
@@ -1261,8 +1273,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 
 		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -1286,8 +1298,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -1311,8 +1323,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1356,8 +1368,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1400,8 +1412,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1416,7 +1428,7 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
+										: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
@@ -1465,8 +1477,8 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1481,7 +1493,7 @@ public class TrieSet_5Bits_Spec0To8<K> extends AbstractSet<K> implements Immutab
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
+										: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,

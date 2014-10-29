@@ -627,6 +627,10 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		@Deprecated
 		abstract java.lang.Object getSlot(final int index);
 
+		abstract boolean hasSlots();
+
+		abstract int slotArity();
+
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
@@ -656,6 +660,18 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 
 		static final int BIT_PARTITION_SIZE = 5;
 		static final int BIT_PARTITION_MASK = 0b11111;
+
+		static final int mask(final int keyHash, final int shift) {
+			if (shift == 30) {
+				return keyHash & BIT_PARTITION_MASK;
+			} else {
+				return (keyHash >>> (27 - shift)) & BIT_PARTITION_MASK;
+			}
+		}
+
+		static final int bitpos(final int mask) {
+			return (int) (1L << mask);
+		}
 
 		abstract int nodeMap();
 
@@ -727,12 +743,12 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 								(K[]) new Object[] { key0, key1 });
 			}
 
-			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
-			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+			final int mask0 = mask(keyHash0, shift);
+			final int mask1 = mask(keyHash1, shift);
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int dataMap = (int) (1L << mask0 | 1L << mask1);
+				final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
 
 				if (mask0 < mask1) {
 					return nodeOf(null, (int) 0, dataMap, key0, key1);
@@ -744,20 +760,20 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final int nodeMap = (int) (1L << mask0);
+				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
 			}
 		}
 
 		static final <K> CompactSetNode<K> mergeNodes(CompactSetNode<K> node0, int keyHash0,
 						final K key1, int keyHash1, int shift) {
-			final int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
-			final int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+			final int mask0 = mask(keyHash0, shift);
+			final int mask1 = mask(keyHash1, shift);
 
 			if (mask0 != mask1) {
 				// both nodes fit on same level
-				final int nodeMap = (int) (1L << mask0);
-				final int dataMap = (int) (1L << mask1);
+				final int nodeMap = bitpos(mask0);
+				final int dataMap = bitpos(mask1);
 
 				// store values before node
 				return nodeOf(null, nodeMap, dataMap, key1, node0);
@@ -766,7 +782,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
 								+ BIT_PARTITION_SIZE);
 
-				final int nodeMap = (int) (1L << mask0);
+				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
 			}
 		}
@@ -863,8 +879,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 						final java.lang.Object slot5, final java.lang.Object slot6,
 						final java.lang.Object slot7, final java.lang.Object slot8) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { slot0, slot1, slot2, slot3,
-							slot4, slot5, slot6, slot7, slot8 },
-							(byte) java.lang.Integer.bitCount(dataMap));
+							slot4, slot5, slot6, slot7, slot8 });
 		}
 
 		int dataIndex(final int bitpos) {
@@ -885,8 +900,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return keyAt(bitpos).equals(key);
@@ -902,8 +917,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) {
 				return cmp.compare(keyAt(bitpos), key) == 0;
@@ -918,8 +933,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 
 		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (keyAt(bitpos).equals(key)) {
@@ -943,8 +958,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				if (cmp.compare(keyAt(bitpos), key) == 0) {
@@ -968,8 +983,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1013,8 +1028,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1057,8 +1072,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1073,7 +1088,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
+										: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
@@ -1122,8 +1137,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details,
 						final Comparator<Object> cmp) {
-			final int mask = (keyHash >>> shift) & BIT_PARTITION_MASK;
-			final int bitpos = (int) (1L << mask);
+			final int mask = mask(keyHash, shift);
+			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
 				final int dataIndex = dataIndex(bitpos);
@@ -1138,7 +1153,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: (int) (1L << (keyHash & BIT_PARTITION_MASK));
+										: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
@@ -1389,6 +1404,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		@Override
 		java.lang.Object getSlot(final int index) {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return nodes.length != 0;
+		}
+
+		@Override
+		int slotArity() {
+			return nodes.length;
 		}
 
 		@Override
@@ -2626,7 +2651,17 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		boolean hasSlots() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int slotArity() {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3301,6 +3336,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 		}
 
 		@Override
+		boolean hasSlots() {
+			return false;
+		}
+
+		@Override
+		int slotArity() {
+			return 0;
+		}
+
+		@Override
 		java.lang.Object getSlot(int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
@@ -3473,6 +3518,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot0 = slot0;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 1;
 		}
 
 		@Override
@@ -3691,6 +3746,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot1 = slot1;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 2;
 		}
 
 		@Override
@@ -3939,6 +4004,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot2 = slot2;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 3;
 		}
 
 		@Override
@@ -4222,6 +4297,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot3 = slot3;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 4;
 		}
 
 		@Override
@@ -4541,6 +4626,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot4 = slot4;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 5;
 		}
 
 		@Override
@@ -4901,6 +4996,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot5 = slot5;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 6;
 		}
 
 		@Override
@@ -5331,6 +5436,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot6 = slot6;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 7;
 		}
 
 		@Override
@@ -5839,6 +5954,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
 			this.slot7 = slot7;
 
 			assert nodeInvariant();
+		}
+
+		@Override
+		boolean hasSlots() {
+			return true;
+		}
+
+		@Override
+		int slotArity() {
+			return 8;
 		}
 
 		@Override
