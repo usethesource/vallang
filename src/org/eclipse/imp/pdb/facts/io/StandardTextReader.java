@@ -95,7 +95,11 @@ public class StandardTextReader extends AbstractTextReader {
 				}
 			};
 			current = this.stream.read();
-			return readValue(type);
+			IValue result = readValue(type);
+			if (current != -1 || this.stream.read() != -1) {
+				unexpected();
+			}
+			return result;
 		}
 		finally {
 			sourceLocationCache.clear();
