@@ -286,9 +286,6 @@ public class StandardTextReader extends AbstractTextReader {
 	private IValue readTuple(Type expected) throws IOException {
 		ArrayList<IValue> arr = new ArrayList<>();
 		readFixed(expected, END_OF_TUPLE, arr, null);
-		if (arr.size() == 0) {
-			throw new FactParseError("Empty tuples are not valid", stream.offset);
-		}
 		IValue[] result = new IValue[arr.size()];
 		return factory.tuple(arr.toArray(result));
 	}
