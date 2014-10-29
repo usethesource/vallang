@@ -681,9 +681,15 @@ public class StandardTextReader extends AbstractTextReader {
 					builder.appendCodePoint(cp);
 					break;
 				default:
+					if (current == -1) {
+						throw new FactParseError("End of input before finding end of String", stream.offset);
+					}
 					builder.append(current);
 				}
 				current = stream.read();
+			}
+			else if (current == -1) {
+				throw new FactParseError("End of input before finding end of String", stream.offset);
 			}
 			else {
 				builder.appendCodePoint(current);
