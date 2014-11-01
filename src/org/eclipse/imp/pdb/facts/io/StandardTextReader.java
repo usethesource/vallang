@@ -303,6 +303,23 @@ public class StandardTextReader extends AbstractTextReader {
 		Type elemType = expected.isSubtypeOf(genericListType) ? expected.getElementType() : types.valueType();
 		return readList(elemType, factory.listWriter(), END_OF_LIST);
 	}
+	
+	private void checkMoreThenOnce(String input, char needle) {
+		boolean first = true;
+		for (int i=0; i < input.length(); i++)
+		{
+			if (input.charAt(i) == needle)
+			{
+				if (first) {
+					first = false;
+				}
+				else {
+					throw new FactParseError(needle +" occured for the second time", (this.stream.offset - input.length()) + i);
+				}
+			}
+		}
+	}
+	
 
 	private IValue readNumber(Type expected) throws IOException {
 		StringBuilder builder = new StringBuilder();
@@ -313,6 +330,10 @@ public class StandardTextReader extends AbstractTextReader {
 		} while(Character.isDigit(current) || current == RATIONAL_SEP || current == DOUBLE_DOT || current == 'E' || current == 'e' || current == '+' || current == '-');
 		
 		String val = builder.toString();
+		checkMoreThenOnce(val, RATIONAL_SEP);
+		checkMoreThenOnce(val, DOUBLE_DOT);
+		checkMoreThenOnce(val, 'E');
+		checkMoreThenOnce(val, 'e');
 		
 		try {
 			if (val.contains(".") || val.contains("E") || val.contains("e")) {
