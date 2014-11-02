@@ -304,7 +304,7 @@ public class StandardTextReader extends AbstractTextReader {
 		return readList(elemType, factory.listWriter(), END_OF_LIST);
 	}
 	
-	private void checkMoreThenOnce(String input, char needle) {
+	private void checkMoreThanOnce(String input, char needle) {
 		boolean first = true;
 		for (int i=0; i < input.length(); i++)
 		{
@@ -330,10 +330,10 @@ public class StandardTextReader extends AbstractTextReader {
 		} while(Character.isDigit(current) || current == RATIONAL_SEP || current == DOUBLE_DOT || current == 'E' || current == 'e' || current == '+' || current == '-');
 		
 		String val = builder.toString();
-		checkMoreThenOnce(val, RATIONAL_SEP);
-		checkMoreThenOnce(val, DOUBLE_DOT);
-		checkMoreThenOnce(val, 'E');
-		checkMoreThenOnce(val, 'e');
+		checkMoreThanOnce(val, RATIONAL_SEP);
+		checkMoreThanOnce(val, DOUBLE_DOT);
+		checkMoreThanOnce(val, 'E');
+		checkMoreThanOnce(val, 'e');
 		
 		try {
 			if (val.contains(".") || val.contains("E") || val.contains("e")) {
