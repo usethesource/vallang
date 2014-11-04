@@ -650,7 +650,11 @@ public class TrieSet_BleedingEdge<K> extends AbstractSet<K> implements Immutable
 		static final int BIT_PARTITION_MASK = 0b11111;
 
 		static final int mask(final int keyHash, final int shift) {
-			return (keyHash >>> (Math.max(0, 27 - shift))) & BIT_PARTITION_MASK;
+			if (shift == 30) {
+				return keyHash & BIT_PARTITION_MASK;
+			} else {
+				return (keyHash >>> (27 - shift)) & BIT_PARTITION_MASK;
+			}
 		}
 
 		static final int bitpos(final int mask) {
@@ -1783,7 +1787,7 @@ public class TrieSet_BleedingEdge<K> extends AbstractSet<K> implements Immutable
 
 						if (nextNode.hasPayload()) {
 							/*
-							 * found for next node that contains values
+							 * found next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;
