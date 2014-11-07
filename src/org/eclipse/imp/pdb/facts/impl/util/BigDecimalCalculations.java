@@ -444,6 +444,9 @@ public class BigDecimalCalculations {
 			// e^x
 			BigDecimal eToX = exp(x, sp1);
 			// (e^x - n)/e^x
+			if (eToX.compareTo(BigDecimal.ZERO) == 0) {
+				break;
+			}
 			term = eToX.subtract(n).divide(eToX, sp1, BigDecimal.ROUND_DOWN);
 			// x - (e^x - n)/e^x
 			x = x.subtract(term);
