@@ -493,6 +493,12 @@ public class BigDecimalCalculations {
 	}
 	
 	public static BigDecimal pow(BigDecimal a, BigDecimal b, int scale) {
+		if (a.signum() == -1) {
+			throw new ArithmeticException("x < 0");
+		}
+		if (a.equals(BigDecimal.ZERO)) {
+			return BigDecimal.ZERO;
+		}
 		scale = Math.max(Math.max(a.precision(), b.precision()), scale);
 		MathContext mc = new MathContext(scale, RoundingMode.HALF_UP);
 		BigDecimal remainer = b.remainder(BigDecimal.ONE, mc);
