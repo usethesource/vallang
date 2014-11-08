@@ -375,6 +375,17 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	public IReal pow(IInteger power) {
 		return newReal(value.pow(power.intValue()));
 	}
+	@Override
+	public IReal pow(IReal power, int precision) {
+		BigDecimal actualPower = null;
+		if (power instanceof BigDecimalValue) {
+			actualPower = ((BigDecimalValue)power).value;
+		}
+		else {
+			actualPower = new BigDecimal(power.getStringRepresentation());
+		}
+		return newReal(BigDecimalCalculations.pow(value, actualPower, precision));
+	}
 
 	@Override
 	public IReal tan(int precision) {

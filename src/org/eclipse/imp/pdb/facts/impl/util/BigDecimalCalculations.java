@@ -491,5 +491,17 @@ public class BigDecimalCalculations {
 
 		return new BigDecimal(ix, scale);
 	}
+	
+	public static BigDecimal pow(BigDecimal a, BigDecimal b, int scale) {
+		scale = Math.max(Math.max(a.precision(), b.precision()), scale);
+		MathContext mc = new MathContext(scale, RoundingMode.HALF_UP);
+		BigDecimal remainer = b.remainder(BigDecimal.ONE, mc);
+		if (remainer.equals(BigDecimal.ZERO)) {
+			return a.pow(b.intValue(), mc);
+		}
+		// else we have to do the more expansive route:
+		// a^b=exp(b*ln(a)) 
+		return exp(b.multiply(ln(a, scale), mc), scale);
+	}
 
 }
