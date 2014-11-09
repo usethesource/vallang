@@ -19,7 +19,6 @@ import java.math.RoundingMode;
 
 
 public class BigDecimalCalculations {
-	private static final int MAX_POWER = 999999999;
 	/**
 	 *  pi in 1000 decimals places 
 	 */
@@ -99,7 +98,6 @@ public class BigDecimalCalculations {
     private static BigDecimal sinTaylor(BigDecimal x, int scale)
     {
         int     sp1     = scale + 1;
-        MathContext mc1 = new MathContext(sp1, RoundingMode.HALF_EVEN);
         int     i       = 3;
         boolean addFlag = false;
 
@@ -114,9 +112,9 @@ public class BigDecimalCalculations {
         // (two successive approximations are within the tolerance).
         do {
             // x^i
-            power = power.multiply(x).multiply(x, mc1);
+            power = power.multiply(x).multiply(x).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
             // (x^i)/(i!)
-            term = power.divide(fac, mc1);
+            term = power.divide(fac, sp1,BigDecimal.ROUND_HALF_EVEN);
             // result = result +- (x^i)/(i!)
             result = addFlag ? result.add(term) : result.subtract(term);
             
@@ -154,7 +152,6 @@ public class BigDecimalCalculations {
     private static BigDecimal cosTaylor(BigDecimal x, int scale)
     {
         int     sp1     = scale + 1;
-        MathContext mc1 = new MathContext(sp1, RoundingMode.HALF_EVEN);
         int     i       = 2;
         boolean addFlag = false;
 
@@ -169,9 +166,9 @@ public class BigDecimalCalculations {
         // (two successive approximations are within the tolerance).
         do {
             // x^i
-            power = power.multiply(x).multiply(x, mc1);
+            power = power.multiply(x).multiply(x).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
             // (x^i)/(i!)
-            term = power.divide(fac, mc1);
+            term = power.divide(fac, sp1, BigDecimal.ROUND_HALF_EVEN);
             // result = result +- (x^i)/(i!)
             result = addFlag ? result.add(term) : result.subtract(term);
             
@@ -240,7 +237,25 @@ public class BigDecimalCalculations {
 	 * @return the result value
 	 */
 	private static BigDecimal intPower(BigDecimal x, long exponent, int scale) {
-		return x.pow((int)exponent, new MathContext(scale));
+		// If the exponent is negative, compute 1/(x^-exponent).
+		if (exponent < 0) {
+			return BigDecimal.valueOf(1).divide(intPower(x, -exponent, scale),
+					scale, BigDecimal.ROUND_HALF_EVEN);
+		}
+
+		BigDecimal power = BigDecimal.valueOf(1);
+		// Loop to compute value^exponent.
+		while (exponent > 0) {
+
+			// Is the rightmost bit a 1?
+			if ((exponent & 1) == 1) {
+				power = power.multiply(x).setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+			}
+			// Square x and shift exponent 1 bit to the right.
+			x = x.multiply(x).setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+			exponent >>= 1;
+		}
+		return power;
 	}
 
 	/**
@@ -262,7 +277,6 @@ public class BigDecimalCalculations {
 		}
 
 		int sp1 = scale + 1;
-		MathContext mc1 = new MathContext(sp1, RoundingMode.HALF_EVEN);
 		BigDecimal n = x;
 		BigDecimal i = BigDecimal.valueOf(index);
 		BigDecimal im1 = BigDecimal.valueOf(index - 1);
@@ -278,14 +292,14 @@ public class BigDecimalCalculations {
 			// x^(index-1)
 			BigDecimal xToIm1 = intPower(x, index - 1, sp1);
 			// x^index
-			BigDecimal xToI = x.multiply(xToIm1, mc1);
+			BigDecimal xToI = x.multiply(xToIm1).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
 			// n + (index-1)*(x^index)
-			BigDecimal numerator = n.add(im1.multiply(xToI,mc1), mc1);
+			BigDecimal numerator = n.add(im1.multiply(xToI)).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
 			// (index*(x^(index-1))
-			BigDecimal denominator = i.multiply(xToIm1, mc1);
+			BigDecimal denominator = i.multiply(xToIm1).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
 			// x = (n + (index-1)*(x^index)) / (index*(x^(index-1)))
 			xPrev = x;
-			x = numerator.divide(denominator, mc1);
+			x = numerator.divide(denominator, sp1, BigDecimal.ROUND_DOWN);
 
 		} while (x.subtract(xPrev).abs().compareTo(tolerance) > 0);
 
@@ -307,10 +321,10 @@ public class BigDecimalCalculations {
 		if (x.signum() == 0) {
 			return BigDecimal.valueOf(1);
 		}
-		MathContext mc = new MathContext(scale, RoundingMode.HALF_EVEN);
 		// If x is negative, return 1/(e^-x).
 		if (x.signum() == -1) {
-			return BigDecimal.valueOf(1).divide(exp(x.negate(), scale), mc);
+			return BigDecimal.valueOf(1).divide(exp(x.negate(), scale), 
+					scale, BigDecimal.ROUND_HALF_EVEN);
 		}
 
 		// Compute the whole part of x.
@@ -324,23 +338,26 @@ public class BigDecimalCalculations {
 		BigDecimal xFraction = x.subtract(xWhole);
 
 		// z = 1 + fraction/whole
-		BigDecimal z = BigDecimal.valueOf(1).add(xFraction.divide(xWhole, mc));
+		BigDecimal z = BigDecimal.valueOf(1).add(
+				xFraction.divide(xWhole, scale, BigDecimal.ROUND_HALF_EVEN));
 
 		// t = e^z
 		BigDecimal t = expTaylor(z, scale);
 
-		BigDecimal maxPow = BigDecimal.valueOf(MAX_POWER);
+		BigDecimal maxLong = BigDecimal.valueOf(Long.MAX_VALUE);
 		BigDecimal result = BigDecimal.valueOf(1);
 
 		// Compute and return t^whole using intPower().
 		// If whole > Long.MAX_VALUE, then first compute products
 		// of e^Long.MAX_VALUE.
-		while (xWhole.compareTo(maxPow) >= 0) {
-			result = result.multiply(intPower(t, MAX_POWER, scale), mc);
-			xWhole = xWhole.subtract(maxPow);
+		while (xWhole.compareTo(maxLong) >= 0) {
+			result = result.multiply(intPower(t, Long.MAX_VALUE, scale))
+					.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+			xWhole = xWhole.subtract(maxLong);
 
 		}
-		return result.multiply(intPower(t, xWhole.intValue(), scale), mc);
+		return result.multiply(intPower(t, xWhole.longValue(), scale))
+				.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
 	}
 
 	/**
@@ -356,7 +373,6 @@ public class BigDecimalCalculations {
 		BigDecimal factorial = BigDecimal.valueOf(1);
 		BigDecimal xPower = x;
 		BigDecimal sumPrev;
-		MathContext mc = new MathContext(scale, RoundingMode.HALF_EVEN);
 
 		// 1 + x
 		BigDecimal sum = x.add(BigDecimal.valueOf(1));
@@ -365,14 +381,14 @@ public class BigDecimalCalculations {
 		int i = 2;
 		do {
 			// x^i
-			xPower = xPower.multiply(x, mc);
+			xPower = xPower.multiply(x).setScale(scale, BigDecimal.ROUND_HALF_EVEN);
 			// i!
 			factorial = factorial.multiply(BigDecimal.valueOf(i));
 			// x^i/i!
-			BigDecimal term = xPower.divide(factorial, mc);
+			BigDecimal term = xPower.divide(factorial, scale, BigDecimal.ROUND_HALF_EVEN);
 			// sum = sum + x^i/i!
 			sumPrev = sum;
-			sum = sum.add(term,mc);
+			sum = sum.add(term);
 
 			++i;
 		} while (sum.compareTo(sumPrev) != 0);
@@ -406,7 +422,8 @@ public class BigDecimalCalculations {
 			// ln(x^(1/magnitude))
 			BigDecimal lnRoot = lnNewton(root, scale);
 			// magnitude*ln(x^(1/magnitude))
-			return BigDecimal.valueOf(magnitude).multiply(lnRoot, new MathContext(scale, RoundingMode.HALF_EVEN));
+			return BigDecimal.valueOf(magnitude).multiply(lnRoot)
+					.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
 		}
 	}
 
