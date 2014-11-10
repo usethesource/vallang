@@ -1,23 +1,18 @@
 package org.eclipse.imp.pdb.test;
 
-import java.math.BigDecimal;
-
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.junit.Test;
 
 public class BigDecimalOperations extends TestCase {
 
-	private static TypeStore ts = new TypeStore();
-	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
 
-	private static void assertClose(IReal param, IReal actual, double expected) {
+	private static void assertClose(INumber param, IReal actual, double expected) {
 		assertTrue("failed for "+param+" real:" + actual + "double: " + expected, Math.abs(actual.doubleValue() - expected) < 0.00001);
 	}
 
@@ -51,5 +46,61 @@ public class BigDecimalOperations extends TestCase {
 			assertClose(param, param.tan(vf.getPrecision()), Math.tan(param.doubleValue()));
 		}
 	}
+	
+	private static double log2(double x) {
+		return Math.log(x)/Math.log(2);
+	}
+	
+	public void testLog2Extensive() {
+		IReal start = vf.real(0);
+		IReal stop = vf.real(100);
+		IReal increments = vf.real("0.1");
+		start = start.add(increments);
+		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
+			assertClose(param, param.log(vf.integer(2), vf.getPrecision()), log2(param.doubleValue()));
+		}
+	}
+	public void testLog10Extensive() {
+		IReal start = vf.real(0);
+		IReal stop = vf.real(100);
+		IReal increments = vf.real("0.1");
+		start = start.add(increments);
+		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
+			assertClose(param, param.log(vf.integer(10), vf.getPrecision()), Math.log10(param.doubleValue()));
+		}
+	}
+	public void testLogEExtensive() {
+		IReal start = vf.real(0);
+		IReal stop = vf.real(100);
+		IReal increments = vf.real("0.1");
+		start = start.add(increments);
+		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
+			assertClose(param, param.log(vf.e(vf.getPrecision()), vf.getPrecision()), Math.log(param.doubleValue()));
+		}
+	}
+
+	public void testPowAllNumbers() {
+		IReal start = vf.real(-10);
+		IReal stop = start.negate();
+		IReal increments = vf.real("0.1");
+		IReal x = vf.pi(10);
+
+		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
+			assertClose(param, x.pow(param, vf.getPrecision()), Math.pow(x.doubleValue(), param.doubleValue()));
+		}
+	}
+	
+	public void testPowNaturalNumbers() {
+		IInteger start = vf.integer(-10);
+		IInteger stop = start.negate();
+		IInteger increments = vf.integer(1);
+		IReal x = vf.pi(10);
+
+		for (IInteger param = start; !stop.less(param).getValue(); param = param.add(increments)) {
+			assertClose(param, x.pow(param), Math.pow(x.doubleValue(), param.doubleValue()));
+		}
+	}
+	
+	
 
 }
