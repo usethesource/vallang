@@ -102,6 +102,15 @@ public class BigDecimalOperations extends TestCase {
 		}
 	}
 	
+	public void testExpExtensive() {
+		IReal start = vf.real(-100);
+		IReal stop = start.negate();
+		IReal increments = vf.real("0.1");
+		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
+			assertClose(param, param.exp(vf.getPrecision()), Math.exp(param.doubleValue()));
+		}
+	}	
+	
 	
 
 }
