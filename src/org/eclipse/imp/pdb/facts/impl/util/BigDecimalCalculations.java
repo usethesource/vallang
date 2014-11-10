@@ -373,7 +373,6 @@ public class BigDecimalCalculations {
 		BigDecimal factorial = BigDecimal.valueOf(1);
 		BigDecimal xPower = x;
 		BigDecimal sumPrev;
-		MathContext mc = new MathContext(scale + 1, RoundingMode.HALF_EVEN);
 
 		// 1 + x
 		BigDecimal sum = x.add(BigDecimal.valueOf(1));
@@ -389,7 +388,7 @@ public class BigDecimalCalculations {
 			BigDecimal term = xPower.divide(factorial, scale, BigDecimal.ROUND_HALF_EVEN);
 			// sum = sum + x^i/i!
 			sumPrev = sum;
-			sum = sum.add(term, mc);
+			sum = sum.add(term);
 
 			++i;
 		} while (sum.compareTo(sumPrev) != 0);
