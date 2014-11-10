@@ -163,7 +163,6 @@ public class BigDecimalOperations extends TestCase {
 		IReal increments = vf.real(10);
 		for (IReal param = start; stop.less(param).getValue(); param = param.divide(increments, vf.getPrecision())) {
 			final IReal currentParam = param;
-			System.out.println(param);
 			assertTakesLessThan(2, "ln(" + param + ")", new Runnable() {
 				@Override
 				public void run() {
