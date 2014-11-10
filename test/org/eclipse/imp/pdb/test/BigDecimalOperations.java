@@ -17,7 +17,7 @@ public class BigDecimalOperations extends TestCase {
 	}
 
 	public void testSinExtensive() {
-		IReal start = vf.real("-100");
+		IReal start = vf.real(-100);
 		IReal stop = start.negate();
 		IReal increments = vf.real("0.1");
 		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
@@ -26,7 +26,7 @@ public class BigDecimalOperations extends TestCase {
 	}
 
 	public void testCosExtensive() {
-		IReal start = vf.real("-100");
+		IReal start = vf.real(-100);
 		IReal stop = start.negate();
 		IReal increments = vf.real("0.1");
 		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
@@ -69,15 +69,16 @@ public class BigDecimalOperations extends TestCase {
 			assertClose(param, param.log(vf.integer(10), vf.getPrecision()), Math.log10(param.doubleValue()));
 		}
 	}
-	public void testLogEExtensive() {
+
+	public void testLnExtensive() {
 		IReal start = vf.real(0);
 		IReal stop = vf.real(100);
 		IReal increments = vf.real("0.1");
 		start = start.add(increments);
 		for (IReal param = start; !stop.less(param).getValue(); param = param.add(increments)) {
-			assertClose(param, param.log(vf.e(vf.getPrecision()), vf.getPrecision()), Math.log(param.doubleValue()));
+			assertClose(param, param.ln(vf.getPrecision()), Math.log(param.doubleValue()));
 		}
-	}
+	}	
 
 	public void testPowAllNumbers() {
 		IReal start = vf.real(-10);
