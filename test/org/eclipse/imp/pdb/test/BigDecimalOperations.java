@@ -1,5 +1,8 @@
 package org.eclipse.imp.pdb.test;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -111,6 +114,64 @@ public class BigDecimalOperations extends TestCase {
 		}
 	}	
 	
+
+	private void assertTakesLessThan(final int seconds, String call, final Runnable x) {
+		final Semaphore done = new Semaphore(0);
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					x.run();
+				} 
+				finally {
+					done.release();
+				}
+			}
+		});
+		try {
+			t.start();
+			if (!done.tryAcquire(seconds, TimeUnit.SECONDS)) {
+				t.interrupt();
+				assertTrue(call + " took more than 2 second.", false);
+			}
+		} catch (InterruptedException e) {
+		}
+	}
+
+	public void testExpPerformance() {
+		// exp(x) is small for negative x
+		IReal start = vf.pi(20).multiply(vf.real(10)); 
+		IReal stop = start.subtract(start.multiply(vf.real(100)));
+		IReal increments = vf.real(1);
+		for (IReal param = start; stop.less(param).getValue(); param = param.subtract(increments)) {
+			final IReal currentParam = param;
+			assertTakesLessThan(2, "exp(" + param + ")", new Runnable() {
+				@Override
+				public void run() {
+					currentParam.exp(vf.getPrecision());
+				}
+			});
+		}
+		
+	}
+
+
+	public void testLnPerformance() {
+		// ln(x) is small for low x
+		IReal start = vf.pi(50).multiply(vf.real(10).pow(vf.integer(8))); 
+		IReal stop = start.divide(vf.real(10).pow(vf.integer(30)), vf.getPrecision());
+		IReal increments = vf.real(10);
+		for (IReal param = start; stop.less(param).getValue(); param = param.divide(increments, vf.getPrecision())) {
+			final IReal currentParam = param;
+			System.out.println(param);
+			assertTakesLessThan(2, "ln(" + param + ")", new Runnable() {
+				@Override
+				public void run() {
+					currentParam.ln(vf.getPrecision());
+				}
+			});
+		}
+	}
 	
 
 }
