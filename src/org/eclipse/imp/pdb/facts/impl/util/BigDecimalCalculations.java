@@ -373,6 +373,7 @@ public class BigDecimalCalculations {
 		BigDecimal factorial = BigDecimal.valueOf(1);
 		BigDecimal xPower = x;
 		BigDecimal sumPrev;
+		MathContext mc = new MathContext(scale + 1, RoundingMode.HALF_EVEN);
 
 		// 1 + x
 		BigDecimal sum = x.add(BigDecimal.valueOf(1));
@@ -388,7 +389,7 @@ public class BigDecimalCalculations {
 			BigDecimal term = xPower.divide(factorial, scale, BigDecimal.ROUND_HALF_EVEN);
 			// sum = sum + x^i/i!
 			sumPrev = sum;
-			sum = sum.add(term);
+			sum = sum.add(term, mc);
 
 			++i;
 		} while (sum.compareTo(sumPrev) != 0);
@@ -499,7 +500,7 @@ public class BigDecimalCalculations {
 		if (a.equals(BigDecimal.ZERO)) {
 			return BigDecimal.ZERO;
 		}
-		scale = Math.max(Math.max(a.precision(), b.precision()), scale);
+		scale = Math.max(Math.max(a.precision(), b.precision()), scale) + 1;
 		MathContext mc = new MathContext(scale, RoundingMode.HALF_UP);
 		BigDecimal remainer = b.remainder(BigDecimal.ONE, mc);
 		if (remainer.equals(BigDecimal.ZERO)) {
@@ -507,7 +508,7 @@ public class BigDecimalCalculations {
 		}
 		// else we have to do the more expansive route:
 		// a^b=exp(b*ln(a)) 
-		return exp(b.multiply(ln(a, scale), mc), scale);
+		return exp(b.multiply(ln(a, scale), mc), scale).setScale(scale - 1, RoundingMode.HALF_EVEN);
 	}
 
 }

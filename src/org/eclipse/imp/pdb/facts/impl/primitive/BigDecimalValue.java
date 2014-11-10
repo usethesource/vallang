@@ -373,6 +373,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal pow(IInteger power) {
+		if (power.signum() < 0) {
+			// negative power is 1/(this^-power)
+			return newReal(
+						BigDecimal.ONE.divide(value.pow(power.negate().intValue()), value.precision(), RoundingMode.HALF_EVEN)
+				);
+		}
 		return newReal(value.pow(power.intValue()));
 	}
 	@Override
