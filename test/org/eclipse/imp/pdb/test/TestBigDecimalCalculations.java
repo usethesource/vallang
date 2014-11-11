@@ -19,7 +19,7 @@ public class TestBigDecimalCalculations extends TestCase {
 		assertTrue("failed for "+param+" real:" + actual + "double: " + expected, Math.abs(actual.doubleValue() - expected) < 0.00001);
 	}
 
-	public void testSinExtensive() {
+	public void testSinComparableToFloatingPoint() {
 		IReal start = vf.real(-100);
 		IReal stop = start.negate();
 		IReal increments = vf.real("0.1");
@@ -28,7 +28,7 @@ public class TestBigDecimalCalculations extends TestCase {
 		}
 	}
 
-	public void testCosExtensive() {
+	public void testCosComparableToFloatingPoint() {
 		IReal start = vf.real(-100);
 		IReal stop = start.negate();
 		IReal increments = vf.real("0.1");
@@ -37,7 +37,7 @@ public class TestBigDecimalCalculations extends TestCase {
 		}
 	}
 
-	public void testTanExtensive() {
+	public void testTanComparableToFloatingPoint() {
 		IReal start = vf.pi(vf.getPrecision()).divide(vf.real(2.0), vf.getPrecision()).negate();
 		IReal stop = start.negate();
 		IReal increments = vf.real("0.01");
@@ -54,7 +54,7 @@ public class TestBigDecimalCalculations extends TestCase {
 		return Math.log(x)/Math.log(2);
 	}
 	
-	public void testLog2Extensive() {
+	public void testLog2ComparableToFloatingPoint() {
 		IReal start = vf.real(0);
 		IReal stop = vf.real(100);
 		IReal increments = vf.real("0.1");
@@ -63,7 +63,7 @@ public class TestBigDecimalCalculations extends TestCase {
 			assertClose(param, param.log(vf.integer(2), vf.getPrecision()), log2(param.doubleValue()));
 		}
 	}
-	public void testLog10Extensive() {
+	public void testLog10ComparableToFloatingPoint() {
 		IReal start = vf.real(0);
 		IReal stop = vf.real(100);
 		IReal increments = vf.real("0.1");
@@ -73,7 +73,7 @@ public class TestBigDecimalCalculations extends TestCase {
 		}
 	}
 
-	public void testLnExtensive() {
+	public void testLnComparableToFloatingPoint() {
 		IReal start = vf.real(0);
 		IReal stop = vf.real(100);
 		IReal increments = vf.real("0.1");
@@ -105,7 +105,7 @@ public class TestBigDecimalCalculations extends TestCase {
 		}
 	}
 	
-	public void testExpExtensive() {
+	public void testExpComparableToFloatingPoint() {
 		IReal start = vf.real(-100);
 		IReal stop = start.negate();
 		IReal increments = vf.real("0.1");
