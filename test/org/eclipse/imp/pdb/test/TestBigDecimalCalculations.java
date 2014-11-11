@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 
-public class BigDecimalOperations extends TestCase {
+public class TestBigDecimalCalculations extends TestCase {
 
 	private static IValueFactory vf = ValueFactory.getInstance();
 
