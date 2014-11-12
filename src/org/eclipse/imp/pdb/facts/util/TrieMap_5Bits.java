@@ -707,13 +707,17 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		static final int BIT_PARTITION_SIZE = 5;
 		static final int BIT_PARTITION_MASK = 0b11111;
 
-		static final int mask(final int keyHash, final int shift) {
+		static final int mask(final int hash, final int shift) {
 			if (shift == 30) {
-				return keyHash & BIT_PARTITION_MASK;
+				return hash & BIT_PARTITION_MASK;
 			} else {
-				return (keyHash >>> (27 - shift)) & BIT_PARTITION_MASK;
+				return (hash >>> (27 - shift)) & BIT_PARTITION_MASK;
 			}
 		}
+		
+		static final int prefix(final int hash, final int shift) {
+			return (hash >>> (32 - shift)) << (32 - shift);
+		}		
 
 		static final int bitpos(final int mask) {
 			return (int) (1L << mask);
@@ -807,8 +811,8 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 //				return new BitmapIndexedMapNode<>(null, 0, dataMap, content, shift + shiftOffset);
 //			}
 			
-			return new BitmapIndexedMapNode<>(null, 0, dataMap, content, shift);			
-		}
+			return new BitmapIndexedMapNode<>(null, 0, dataMap, content, shift, prefix(keyHash0, shift));			
+		}	
 
 		static final <K, V> CompactMapNode<K, V> mergeNodeAndKeyValPair(CompactMapNode<K, V> node0,
 						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
@@ -833,14 +837,15 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 
 			// store values before node
 			return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] { key1, val1,
-							node0 }, shift);
+							node0 }, shift, prefix(keyHash0, shift));
 		}
 
 		static final CompactMapNode EMPTY_NODE;
 
 		static {
-			final int shiftOffset = 0;
-			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (int) (0), (int) (0), new Object[] {}, shiftOffset);
+			final int shiftLevel = 0;
+			final int hashPrefix = 0;
+			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (int) (0), (int) (0), new Object[] {}, shiftLevel, hashPrefix);
 		};
 
 		int dataIndex(final int bitpos) {
@@ -952,6 +957,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		final java.lang.Object[] nodes;
 
 		final int shiftLevel;
+		final int hashPrefix;
 
 //		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
 //						final int dataMap, final java.lang.Object[] nodes) {
@@ -964,7 +970,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 //		}
 
 		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes, int shiftOffset) {
+						final int dataMap, final java.lang.Object[] nodes, int shiftLevel, int hashPrefix) {
 			super(mutator, nodeMap, dataMap);
 
 			if (nodes.length == 1) {
@@ -974,7 +980,8 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			this.mutator = mutator;
 			this.nodes = nodes;
 
-			this.shiftLevel = shiftOffset;
+			this.shiftLevel = shiftLevel;
+			this.hashPrefix = hashPrefix;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1025,6 +1032,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
+			result = prime * result + ((int) hashPrefix);
 			result = prime * result + ((int) shiftLevel);
 			result = prime * result + ((int) dataMap());
 			result = prime * result + ((int) dataMap());
@@ -1044,6 +1052,9 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 				return false;
 			}
 			BitmapIndexedMapNode<?, ?> that = (BitmapIndexedMapNode<?, ?>) other;
+			if (hashPrefix != that.hashPrefix) {
+				return false;
+			}			
 			if (shiftLevel != that.shiftLevel) {
 				return false;
 			}			
@@ -1084,7 +1095,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			System.arraycopy(this.nodes, 0, dst, 0, this.nodes.length);
 			dst[TUPLE_LENGTH * dataIndex(bitpos) + 1] = val;
 
-			return new BitmapIndexedMapNode<>(mutator, nodeMap(), dataMap(), dst, shiftLevel);
+			return new BitmapIndexedMapNode<>(mutator, nodeMap(), dataMap(), dst, shiftLevel, hashPrefix);
 			// }
 		}
 
@@ -1106,7 +1117,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return new BitmapIndexedMapNode<>(mutator, nodeMap(), dataMap(), dst, shiftLevel);
+				return new BitmapIndexedMapNode<>(mutator, nodeMap(), dataMap(), dst, shiftLevel, hashPrefix);
 			}
 		}
 
@@ -1124,7 +1135,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			dst[idx + 1] = val;
 			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			return new BitmapIndexedMapNode<>(mutator, nodeMap(), (int) (dataMap() | bitpos), dst, shiftLevel);
+			return new BitmapIndexedMapNode<>(mutator, nodeMap(), (int) (dataMap() | bitpos), dst, shiftLevel, hashPrefix);
 		}
 
 		@Override
@@ -1139,7 +1150,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 2, dst, idx, src.length - idx - 2);
 
-			return new BitmapIndexedMapNode<>(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst, shiftLevel);
+			return new BitmapIndexedMapNode<>(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst, shiftLevel, hashPrefix);
 		}
 
 		@Override
@@ -1164,7 +1175,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 				System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
 
 				return new BitmapIndexedMapNode<>(mutator, (int) (nodeMap() | bitpos),
-								(int) (dataMap() ^ bitpos), dst, shiftLevel);
+								(int) (dataMap() ^ bitpos), dst, shiftLevel, hashPrefix);
 				
 //			}
 		}
@@ -1189,11 +1200,38 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 2, src.length - idxOld - 1);
 
 			return new BitmapIndexedMapNode<>(mutator, (int) (nodeMap() ^ bitpos),
-							(int) (dataMap() | bitpos), dst, shiftLevel);
+							(int) (dataMap() | bitpos), dst, shiftLevel, hashPrefix);
 		}
 
 		boolean containsKey(final K key, final int keyHash, int shift) {
-			final int mask = mask(keyHash, shiftLevel);
+		
+			// forward shift (maximally to shiftLevel)
+			if (shift != shiftLevel) {
+				if (hashPrefix != prefix(keyHash, shiftLevel)) {
+					return false;
+				} else {
+					shift = shiftLevel;
+				}
+			}
+			
+//			// forward shift (maximally to shiftLevel)
+//			if (shift != shiftLevel) {
+//				int mask0 = mask(hashPrefix, shift);
+//				int mask1 = mask(keyHash, shift);
+//
+//				while (mask0 == mask1 && shift < shiftLevel) {
+//					shift += BIT_PARTITION_SIZE;
+//
+//					mask0 = mask(hashPrefix, shift);
+//					mask1 = mask(keyHash, shift);
+//				}
+//
+//				if (shift != shiftLevel) {
+//					return false;
+//				}
+//			}
+						
+			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) {
@@ -1275,8 +1313,41 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 
 		@SuppressWarnings("unchecked")
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, int shift, final Result<K, V> details) {
-			final int mask = mask(keyHash, shiftLevel);
+						final V val, final int keyHash, int shift, final Result<K, V> details) {			
+			if (shift != shiftLevel) {
+				// forward shift (maximally to shiftLevel)
+				
+				int mask0 = mask(hashPrefix, shift);
+				int mask1 = mask(keyHash, shift);
+
+				while (mask0 == mask1 && shift < shiftLevel) {
+					shift += BIT_PARTITION_SIZE;
+
+					mask0 = mask(hashPrefix, shift);
+					mask1 = mask(keyHash, shift);
+				}
+
+				if (shift != shiftLevel) {
+					// merge value with current node
+					
+					details.modified();
+
+					// if (nodeHash == keyHash) {
+					// throw new IllegalStateException();
+					// }
+
+					// both nodes fit on same level
+					final int nodeMap = bitpos(mask0);
+					final int dataMap = bitpos(mask1);
+
+					// store values before node
+					return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] { key,
+									val, this }, shift, prefix(hashPrefix, shift));
+				}
+			}
+			
+			// shift == shiftLevel
+			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
@@ -1296,15 +1367,16 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final int currentKeyHash = currentKey.hashCode();
-					
-					// TODO: hash collision node has to have skip count as well
-//					if (keyHash == currentKeyHash) {
-//						return new HashCollisionMapNode_5Bits<>(keyHash, (K[]) new Object[] { key,
-//										currentKey }, (V[]) new Object[] { val, currentVal });
-//					} else {
+
+					/* TODO: hash collision node has to have skip count as well? */
+					if (keyHash == currentKeyHash) {
+						return new HashCollisionMapNode_5Bits<>(keyHash, (K[]) new Object[] { key,
+										currentKey }, (V[]) new Object[] { val, currentVal });
+					} else {
 						if (nodeMap() == 0 && this.nodes.length == TUPLE_LENGTH) {
 							final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-											currentVal, currentKeyHash, key, val, keyHash, shift + BIT_PARTITION_SIZE);
+											currentVal, currentKeyHash, key, val, keyHash, shift
+															+ BIT_PARTITION_SIZE);
 
 							details.modified();
 							return subNodeNew;
@@ -1314,12 +1386,12 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 							details.modified();
 							return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
 						}
-//					}
+					}
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 				final CompactMapNode<K, V> subNodeNew = subNode.updated(mutator, key, val, keyHash,
-								shiftLevel + BIT_PARTITION_SIZE, details);
+								shift + BIT_PARTITION_SIZE, details);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1329,42 +1401,8 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			} else {
 				// no value
 
-				if (shift == shiftLevel) {
-					// insert in this node
-
-					details.modified();
-					return copyAndInsertValue(mutator, bitpos, key, val);
-				} else {
-					// merge value with current node
-					// TODO: find more efficient way to recover hash code prefix
-					// (i.e. cache it?)
-					int nodeHash = new MapKeyIterator(this).next().hashCode();
-
-					// forward mask
-					int mask0 = mask(nodeHash, shift);
-					int mask1 = mask(keyHash, shift);
-
-					while (mask0 == mask1) {
-						shift += BIT_PARTITION_SIZE;
-
-						mask0 = mask(nodeHash, shift);
-						mask1 = mask(keyHash, shift);
-					}
-
-					if (shift == shiftLevel) {
-						// insert in this node
-
-						details.modified();
-						return copyAndInsertValue(mutator, bitpos, key, val);
-					} else {
-
-						final CompactMapNode<K, V> nodeNew = mergeNodeAndKeyValPair(this, nodeHash,
-										key, val, keyHash, shift);
-
-						details.modified();
-						return nodeNew;
-					}
-				}
+				details.modified();
+				return copyAndInsertValue(mutator, bitpos, key, val);
 			}
 		}
 
@@ -1457,10 +1495,10 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 
 						if (dataIndex == 0) {
 							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(1), getValue(1) }, shiftLevel);
+											new Object[] { getKey(1), getValue(1) }, shiftLevel, 0);
 						} else {
 							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(0), getValue(0) }, shiftLevel);
+											new Object[] { getKey(0), getValue(0) }, shiftLevel, 0);
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1526,10 +1564,10 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 
 						if (dataIndex == 0) {
 							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(1), getValue(1) }, shiftLevel);
+											new Object[] { getKey(1), getValue(1) }, shiftLevel, 0);
 						} else {
 							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(0), getValue(0) }, shiftLevel);
+											new Object[] { getKey(0), getValue(0) }, shiftLevel, 0);
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
