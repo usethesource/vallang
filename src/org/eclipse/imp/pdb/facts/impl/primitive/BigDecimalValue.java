@@ -16,6 +16,7 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
@@ -363,7 +364,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal nroot(IInteger n, int precision) {
-		return newReal(BigDecimalCalculations.intRoot(value, n.longValue(), precision));
+		return newReal(BigDecimalCalculations.intRoot(value, new BigInteger(n.getTwosComplementRepresentation()), precision));
 	}
 	
 	@Override

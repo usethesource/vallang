@@ -68,6 +68,9 @@ public class BigDecimalCalculations {
      */
     private static final BigDecimal sincosNormalizePoint = BigDecimal.valueOf(500);
     
+    private static BigInteger maxBigDecimalPowExp = BigInteger.valueOf(999999999); // maximum exponent for BigDecimal.pow
+	
+    
 	/**
      * Compute the sine of x to a given scale
      * @param x 
@@ -201,6 +204,55 @@ public class BigDecimalCalculations {
 	}
 	
 	
+	/**
+	 * Compute x^exponent to a given scale.
+	 * 
+	 * @param x
+	 *            the value x
+	 * @param exponent
+	 *            the exponent value
+	 * @param scale
+	 *            the desired scale of the result
+	 * @return the result value
+	 */
+	private static BigDecimal intPower(BigDecimal x, BigInteger exponent, int scale) {
+		boolean negativeExponent = exponent.signum() == -1;
+
+		if (negativeExponent) {
+			exponent = exponent.negate();
+		}
+
+		if (exponent.equals(BigInteger.ZERO)) {
+			return BigDecimal.ONE.setScale(scale);
+		}
+
+		MathContext mc = new MathContext(scale, RoundingMode.HALF_EVEN);
+		
+		if (exponent.equals(BigInteger.ONE)) {
+			if (negativeExponent) {
+				return BigDecimal.ONE.divide(x, mc);
+			}
+			return x.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+		}
+		
+		BigDecimal result = BigDecimal.valueOf(1);
+
+		if (exponent.compareTo(maxBigDecimalPowExp) >= 0) {
+			BigDecimal maxExpPow = x.pow(maxBigDecimalPowExp.intValue(), mc);
+			while (exponent.compareTo(maxBigDecimalPowExp) >= 0) {
+				result = result.multiply(maxExpPow);
+				exponent = exponent.subtract(maxBigDecimalPowExp);	
+			}
+		}
+		
+		result = result.multiply(x.pow(exponent.intValue(), mc));
+		
+		if (negativeExponent) {
+			return BigDecimal.ONE.divide(result, mc);
+		}
+		
+		return result.setScale(scale, RoundingMode.HALF_EVEN);
+	}	
 	
 	/**
 	 * The functions below this line are based on the Numerical implementations of
@@ -224,39 +276,6 @@ public class BigDecimalCalculations {
 	 * The only changes were the removal of call to Thread.yield(), switching to
 	 *  and formatting improvements
 	 */
-	
-	/**
-	 * Compute x^exponent to a given scale.
-	 * 
-	 * @param x
-	 *            the value x
-	 * @param exponent
-	 *            the exponent value
-	 * @param scale
-	 *            the desired scale of the result
-	 * @return the result value
-	 */
-	private static BigDecimal intPower(BigDecimal x, long exponent, int scale) {
-		// If the exponent is negative, compute 1/(x^-exponent).
-		if (exponent < 0) {
-			return BigDecimal.valueOf(1).divide(intPower(x, -exponent, scale),
-					scale, BigDecimal.ROUND_HALF_EVEN);
-		}
-
-		BigDecimal power = BigDecimal.valueOf(1);
-		// Loop to compute value^exponent.
-		while (exponent > 0) {
-
-			// Is the rightmost bit a 1?
-			if ((exponent & 1) == 1) {
-				power = power.multiply(x).setScale(scale, BigDecimal.ROUND_HALF_EVEN);
-			}
-			// Square x and shift exponent 1 bit to the right.
-			x = x.multiply(x).setScale(scale, BigDecimal.ROUND_HALF_EVEN);
-			exponent >>= 1;
-		}
-		return power;
-	}
 
 	/**
 	 * Compute the integral root of x to a given scale, x >= 0. Use Newton's
@@ -270,7 +289,7 @@ public class BigDecimalCalculations {
 	 *            the desired scale of the result
 	 * @return the result value
 	 */
-	public static BigDecimal intRoot(BigDecimal x, long index, int scale) {
+	public static BigDecimal intRoot(BigDecimal x, BigInteger index, int scale) {
 		// Check that x >= 0.
 		if (x.signum() < 0) {
 			throw new ArithmeticException("x < 0");
@@ -278,10 +297,11 @@ public class BigDecimalCalculations {
 
 		int sp1 = scale + 1;
 		BigDecimal n = x;
-		BigDecimal i = BigDecimal.valueOf(index);
-		BigDecimal im1 = BigDecimal.valueOf(index - 1);
+		BigDecimal i = new BigDecimal(index);
+		BigDecimal im1 = i.subtract(BigDecimal.ONE);
 		BigDecimal tolerance = BigDecimal.valueOf(5).movePointLeft(sp1);
 		BigDecimal xPrev;
+		BigInteger indexm1 = index.subtract(BigInteger.ONE);
 
 		// The initial approximation is x/index.
 		x = x.divide(i, scale, BigDecimal.ROUND_HALF_EVEN);
@@ -290,7 +310,7 @@ public class BigDecimalCalculations {
 		// (two successive approximations are equal after rounding).
 		do {
 			// x^(index-1)
-			BigDecimal xToIm1 = intPower(x, index - 1, sp1);
+			BigDecimal xToIm1 = intPower(x, indexm1, sp1);
 			// x^index
 			BigDecimal xToI = x.multiply(xToIm1).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
 			// n + (index-1)*(x^index)
@@ -321,43 +341,41 @@ public class BigDecimalCalculations {
 		if (x.signum() == 0) {
 			return BigDecimal.valueOf(1);
 		}
-		// If x is negative, return 1/(e^-x).
-		if (x.signum() == -1) {
-			return BigDecimal.valueOf(1).divide(exp(x.negate(), scale), 
-					scale, BigDecimal.ROUND_HALF_EVEN);
+		
+		boolean isNegative = x.signum() == -1;
+		
+		if (isNegative) {
+			x = x.negate();
 		}
-
+		
 		// Compute the whole part of x.
 		BigDecimal xWhole = x.setScale(0, BigDecimal.ROUND_DOWN);
 
+		BigDecimal result;
+		
 		// If there isn't a whole part, compute and return e^x.
-		if (xWhole.signum() == 0)
-			return expTaylor(x, scale);
-
-		// Compute the fraction part of x.
-		BigDecimal xFraction = x.subtract(xWhole);
-
-		// z = 1 + fraction/whole
-		BigDecimal z = BigDecimal.valueOf(1).add(
-				xFraction.divide(xWhole, scale, BigDecimal.ROUND_HALF_EVEN));
-
-		// t = e^z
-		BigDecimal t = expTaylor(z, scale);
-
-		BigDecimal maxLong = BigDecimal.valueOf(Long.MAX_VALUE);
-		BigDecimal result = BigDecimal.valueOf(1);
-
-		// Compute and return t^whole using intPower().
-		// If whole > Long.MAX_VALUE, then first compute products
-		// of e^Long.MAX_VALUE.
-		while (xWhole.compareTo(maxLong) >= 0) {
-			result = result.multiply(intPower(t, Long.MAX_VALUE, scale))
-					.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
-			xWhole = xWhole.subtract(maxLong);
-
+		if (xWhole.signum() == 0) {
+			result = expTaylor(x, scale);
 		}
-		return result.multiply(intPower(t, xWhole.longValue(), scale))
-				.setScale(scale, BigDecimal.ROUND_HALF_EVEN);
+		else {
+			// Compute the fraction part of x.
+			BigDecimal xFraction = x.subtract(xWhole);
+	
+			// z = 1 + fraction/whole
+			BigDecimal z = BigDecimal.valueOf(1).add(
+					xFraction.divide(xWhole, scale, BigDecimal.ROUND_HALF_EVEN));
+	
+			// t = e^z
+			BigDecimal t = expTaylor(z, scale);
+	
+			result = intPower(t, xWhole.toBigInteger(), scale);
+		}
+		
+		if (isNegative) {
+			return BigDecimal.ONE.divide(result, new MathContext(scale, RoundingMode.HALF_EVEN));
+		}
+		
+		return result;
 	}
 
 	/**
@@ -418,7 +436,7 @@ public class BigDecimalCalculations {
 		// Compute magnitude*ln(x^(1/magnitude)).
 		else {
 			// x^(1/magnitude)
-			BigDecimal root = intRoot(x, magnitude, scale);
+			BigDecimal root = intRoot(x, BigInteger.valueOf(magnitude), scale);
 			// ln(x^(1/magnitude))
 			BigDecimal lnRoot = lnNewton(root, scale);
 			// magnitude*ln(x^(1/magnitude))
