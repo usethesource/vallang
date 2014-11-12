@@ -16,7 +16,20 @@ public class TestBigDecimalCalculations extends TestCase {
 	private static IValueFactory vf = ValueFactory.getInstance();
 
 	private static void assertClose(INumber param, IReal actual, double expected) {
-		assertTrue("failed for "+param+" real:" + actual + "double: " + expected, Math.abs(actual.doubleValue() - expected) < 0.00001);
+		assertClose(param, actual, expected, 6);
+	}
+	
+	private static void assertClose(INumber param, IReal actual, double expected, int significantDigits) {
+		long order = 0;
+		
+		if (Math.abs(expected) > 0.00001) {
+			order = Math.round(Math.floor(Math.log10(Math.abs(expected))));
+		}
+		
+		double maxError = Math.pow(10, order - significantDigits);
+		
+		assertTrue("failed for "+param+" real:" + actual + " double: " + expected,
+				Math.abs(actual.doubleValue() - expected) < maxError);
 	}
 
 	public void testSinComparableToFloatingPoint() {
