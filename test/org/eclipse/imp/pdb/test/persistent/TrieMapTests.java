@@ -55,7 +55,43 @@ public class TrieMapTests {
 		
 		map.printStatistics();
 	}
-	
+		
+	@Test
+	public void testCheckPrefixConstruction() {
+//		int size = 128;
+
+		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		
+		TrieMap_5Bits<Integer, Integer> res1 = map
+						.__put(63, 63)
+						.__put(64, 64)					
+						.__put(32768, 32768)
+						.__put(2147483647, 2147483647)
+						.__put(65536, 65536);
+		
+		assert res1.containsKey(63);
+		assert res1.containsKey(64);
+		assert res1.containsKey(32768);
+		assert res1.containsKey(65536);
+		assert res1.containsKey(2147483647);
+
+		TrieMap_5Bits<Integer, Integer> res2 = map
+						.__put(2147483647, 2147483647)
+						.__put(32768, 32768)
+						.__put(63, 63)
+						.__put(64, 64)
+						.__put(65536, 65536);		
+
+		assert res2.containsKey(63);
+		assert res2.containsKey(64);
+		assert res2.containsKey(32768);
+		assert res2.containsKey(65536);
+		assert res2.containsKey(2147483647);
+		
+		assert res1.equals(res2);
+		
+		map.printStatistics();
+	}	
 	
 	@Test
 	public void testRecoverMask() {
