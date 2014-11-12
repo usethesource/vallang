@@ -1314,9 +1314,24 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		@SuppressWarnings("unchecked")
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
 						final V val, final int keyHash, int shift, final Result<K, V> details) {			
-			if (shift != shiftLevel) {
-				// forward shift (maximally to shiftLevel)
-				
+//			// forward shift (maximally to shiftLevel)
+//			if (shift != shiftLevel) {
+//				if (hashPrefix != prefix(keyHash, shiftLevel)) {
+//					// merge value with current node
+//								
+//					// if (nodeHash == keyHash) {
+//					// throw new IllegalStateException();
+//					// }
+//
+//					details.modified();
+//					return mergeNodeAndKeyValPair(this, hashPrefix, key, val, keyHash, shift);
+//				} else {
+//					shift = shiftLevel;
+//				}
+//			}
+			
+			// forward shift (maximally to shiftLevel)			
+			if (shift != shiftLevel) {				
 				int mask0 = mask(hashPrefix, shift);
 				int mask1 = mask(keyHash, shift);
 
