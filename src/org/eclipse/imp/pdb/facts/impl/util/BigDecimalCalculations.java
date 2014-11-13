@@ -319,7 +319,12 @@ public class BigDecimalCalculations {
 			BigDecimal denominator = i.multiply(xToIm1).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
 			// x = (n + (index-1)*(x^index)) / (index*(x^(index-1)))
 			xPrev = x;
-			x = numerator.divide(denominator, sp1, BigDecimal.ROUND_DOWN);
+			if (denominator.compareTo(BigDecimal.ZERO) == 0) {
+				x = BigDecimal.ZERO.setScale(sp1);
+			}
+			else {
+				x = numerator.divide(denominator, sp1, BigDecimal.ROUND_DOWN);
+			}
 
 		} while (x.subtract(xPrev).abs().compareTo(tolerance) > 0);
 
