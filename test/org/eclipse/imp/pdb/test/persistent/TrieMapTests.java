@@ -63,15 +63,19 @@ public class TrieMapTests {
 		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
 		
 		TrieMap_5Bits<Integer, Integer> res1 = map
+						.__put(1, 1)
+						.__put(32769, 32769)
+						.__put(32768, 32768)
 						.__put(63, 63)
 						.__put(64, 64)					
-						.__put(32768, 32768)
 						.__put(2147483647, 2147483647)
 						.__put(65536, 65536);
 		
+		assert res1.containsKey(1);
 		assert res1.containsKey(63);
 		assert res1.containsKey(64);
 		assert res1.containsKey(32768);
+		assert res1.containsKey(32769);
 		assert res1.containsKey(65536);
 		assert res1.containsKey(2147483647);
 
@@ -79,12 +83,16 @@ public class TrieMapTests {
 						.__put(2147483647, 2147483647)
 						.__put(32768, 32768)
 						.__put(63, 63)
+						.__put(1, 1)
 						.__put(64, 64)
-						.__put(65536, 65536);		
+						.__put(65536, 65536)
+						.__put(32769, 32769);		
 
+		assert res2.containsKey(1);
 		assert res2.containsKey(63);
 		assert res2.containsKey(64);
 		assert res2.containsKey(32768);
+		assert res2.containsKey(32769);
 		assert res2.containsKey(65536);
 		assert res2.containsKey(2147483647);
 		
