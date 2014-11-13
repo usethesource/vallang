@@ -620,22 +620,9 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 
 	private static abstract class CompactMapNode<K, V> {
 
-		private final int nodeMap;
-		private final int dataMap;
-
-		CompactMapNode(final AtomicReference<Thread> mutator, final int nodeMap, final int dataMap) {
-			this.nodeMap = nodeMap;
-			this.dataMap = dataMap;
-		}
-
-		public int nodeMap() {
-			return nodeMap;
-		}
-
-		public int dataMap() {
-			return dataMap;
-		}
-
+		abstract int nodeMap();
+		abstract int dataMap();
+		
 		static final int TUPLE_LENGTH = 2;
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
@@ -774,6 +761,8 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
 						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
 
+			int originalShift = shift;
+			
 			if (keyHash0 == keyHash1) {
 				throw new IllegalStateException();
 			}
@@ -805,17 +794,17 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			}
 
 //			// DONE: later on differentiate if we need compression (shiftOffset > 0) or not (shiftOffset == 0)			
-//			if (shiftOffset == 0) {
-//				return new BitmapIndexedMapNode<>(null, 0, dataMap, content, shift);
-//			} else {
-//				return new BitmapIndexedMapNode<>(null, 0, dataMap, content, shift + shiftOffset);
-//			}
-			
-			return new BitmapIndexedMapNode<>(null, 0, dataMap, content, shift, prefix(keyHash0, shift));			
+			if (shift != originalShift) {
+				return new PathCompressedBitmapIndexedMapNode_Mixed<>(null, 0, dataMap, content, shift, prefix(keyHash0, shift));
+			} else {
+				return new BitmapIndexedMapNode_Mixed<>(null, 0, dataMap, content);
+			}
 		}	
 
 		static final <K, V> CompactMapNode<K, V> mergeNodeAndKeyValPair(CompactMapNode<K, V> node0,
 						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
+			
+			int originalShift = shift;
 			
 			if (keyHash0 == keyHash1) {
 				throw new IllegalStateException();
@@ -836,16 +825,152 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			final int dataMap = bitpos(mask1);
 
 			// store values before node
-			return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] { key1, val1,
-							node0 }, shift, prefix(keyHash0, shift));
+			if (shift != originalShift) {
+				return new PathCompressedBitmapIndexedMapNode_Mixed<>(null, nodeMap, dataMap,
+								new Object[] { key1, val1, node0 }, shift, prefix(keyHash0, shift));
+
+			} else {
+				return new BitmapIndexedMapNode_Mixed<>(null, nodeMap, dataMap, new Object[] { key1,
+								val1, node0 });
+			}			
 		}
 
-		static final CompactMapNode EMPTY_NODE;
+		static final CompactMapNode EMPTY_NODE = new CompactMapNode() {
+			
+			@Override
+			public int nodeMap() {
+				return 0;
+			}
 
-		static {
-			final int shiftLevel = 0;
-			final int hashPrefix = 0;
-			EMPTY_NODE = new BitmapIndexedMapNode<>(null, (int) (0), (int) (0), new Object[] {}, shiftLevel, hashPrefix);
+			@Override
+			public int dataMap() {
+				return 0;
+			}
+
+			@Override
+			boolean hasNodes() {
+				return false;
+			}
+
+			@Override
+			int nodeArity() {
+				return 0;
+			}
+
+			@Override
+			Object getKey(int index) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			Object getValue(int index) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			java.util.Map.Entry<Object, Object> getKeyValueEntry(int index) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			boolean hasPayload() {
+				return false;
+			}
+
+			@Override
+			int payloadArity() {
+				return 0;
+			}
+
+			@Override
+			byte sizePredicate() {
+				return SIZE_EMPTY;
+			}
+
+			@Override
+			CompactMapNode copyAndSetValue(AtomicReference mutator, int bitpos, Object val) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			CompactMapNode copyAndInsertValue(AtomicReference mutator, int bitpos, Object key,
+							Object val) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			CompactMapNode copyAndRemoveValue(AtomicReference mutator, int bitpos) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			CompactMapNode copyAndSetNode(AtomicReference mutator, int bitpos, CompactMapNode node) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			CompactMapNode copyAndMigrateFromInlineToNode(AtomicReference mutator, int bitpos,
+							CompactMapNode node) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			CompactMapNode copyAndMigrateFromNodeToInline(AtomicReference mutator, int bitpos,
+							CompactMapNode node) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			CompactMapNode getNode(int index) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			boolean containsKey(Object key, int keyHash, int shift) {
+				return false;
+			}
+
+			@Override
+			boolean containsKey(Object key, int keyHash, int shift, Comparator cmp) {
+				return false;
+			}
+
+			@Override
+			Optional findByKey(Object key, int keyHash, int shift) {
+				return Optional.empty();
+			}
+
+			@Override
+			Optional findByKey(Object key, int keyHash, int shift, Comparator cmp) {
+				return Optional.empty();
+			}
+
+			@Override
+			CompactMapNode updated(AtomicReference mutator, Object key, Object val, int keyHash,
+							int shift, Result details) {
+				details.modified();
+				return new BitmapIndexedMapNode_ValuesOnly<>(mutator, bitpos(mask(keyHash, 0)), new Object[] { key, val });
+			}
+
+			@Override
+			CompactMapNode updated(AtomicReference mutator, Object key, Object val, int keyHash,
+							int shift, Result details, Comparator cmp) {
+				details.modified();
+				return new BitmapIndexedMapNode_ValuesOnly<>(mutator, bitpos(mask(keyHash, 0)), new Object[] { key, val });
+			}
+
+			@Override
+			CompactMapNode removed(AtomicReference mutator, Object key, int keyHash, int shift,
+							Result details) {
+				return this;
+			}
+
+			@Override
+			CompactMapNode removed(AtomicReference mutator, Object key, int keyHash, int shift,
+							Result details, Comparator cmp) {
+				return this;
+			}
+			
 		};
 
 		int dataIndex(final int bitpos) {
@@ -951,37 +1076,290 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 
 	}
 
-	private static final class BitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
+	private static final class PathCompressedBitmapIndexedMapNode_Mixed<K, V> extends AbstractBitmapIndexedMapNode<K, V> {
+
+		private final int nodeMap;
+		private final int dataMap;
+
+		@Override
+		public int nodeMap() {
+			return nodeMap;
+		}
+
+		@Override
+		public int dataMap() {
+			return dataMap;
+		}
+		
+		final int shiftLevel;
+		final int hashPrefix;
+		
+		@Override
+		boolean isPathCompressed() {
+			return true;
+		}
+
+		@Override
+		int shiftLevel() {		
+			return shiftLevel;
+		}
+
+		@Override
+		int hashPrefix() {
+			return hashPrefix;
+		}
+				
+		private PathCompressedBitmapIndexedMapNode_Mixed(final AtomicReference<Thread> mutator,
+						final int nodeMap, final int dataMap, final java.lang.Object[] nodes,
+						int shiftLevel, int hashPrefix) {
+			super(mutator, nodes);
+
+//			assert nodeMap != 0;
+//			assert dataMap != 0;
+			
+			this.nodeMap = nodeMap;
+			this.dataMap = dataMap;
+			
+			assert shiftLevel != 0;
+			
+			this.shiftLevel = shiftLevel;
+			this.hashPrefix = hashPrefix;
+		}
+				
+		boolean containsKey(final K key, final int keyHash, int shift) {
+			
+			// forward shift (maximally to shiftLevel)
+			if (isPathCompressed() && shift != shiftLevel()) {
+				if (hashPrefix() != prefix(keyHash, shiftLevel())) {
+					return false;
+				} else {
+					shift = shiftLevel();
+				}
+			}
+			
+//			// forward shift (maximally to shiftLevel)
+//			if (shift != shiftLevel) {
+//				int mask0 = mask(hashPrefix, shift);
+//				int mask1 = mask(keyHash, shift);
+//
+//				while (mask0 == mask1 && shift < shiftLevel) {
+//					shift += BIT_PARTITION_SIZE;
+//
+//					mask0 = mask(hashPrefix, shift);
+//					mask1 = mask(keyHash, shift);
+//				}
+//
+//				if (shift != shiftLevel) {
+//					return false;
+//				}
+//			}
+						
+			// shift == shiftLevel
+			return super.containsKey(key, keyHash, shift);
+		}
+		
+		
+		@Override
+		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+						final V val, final int keyHash, int shift, final Result<K, V> details) {			
+//			// forward shift (maximally to shiftLevel)
+//			if (shift != shiftLevel) {
+//				if (hashPrefix != prefix(keyHash, shiftLevel)) {
+//					// merge value with current node
+//								
+//					// if (nodeHash == keyHash) {
+//					// throw new IllegalStateException();
+//					// }
+//
+//					details.modified();
+//					return mergeNodeAndKeyValPair(this, hashPrefix, key, val, keyHash, shift);
+//				} else {
+//					shift = shiftLevel;
+//				}
+//			}
+
+			// forward shift (maximally to shiftLevel)
+//			if (isPathCompressed() && shift != shiftLevel()) {
+				int mask0 = mask(hashPrefix(), shift);
+				int mask1 = mask(keyHash, shift);
+
+				while (mask0 == mask1 && shift < shiftLevel()) {
+					shift += BIT_PARTITION_SIZE;
+
+					mask0 = mask(hashPrefix(), shift);
+					mask1 = mask(keyHash, shift);
+				}
+
+				if (shift != shiftLevel()) {
+					// merge value with current node
+
+					details.modified();
+
+					// if (nodeHash == keyHash) {
+					// throw new IllegalStateException();
+					// }
+
+					// both nodes fit on same level
+					final int nodeMap = bitpos(mask0);
+					final int dataMap = bitpos(mask1);
+
+					// store values before node
+					if (shift != 0) {
+						return new PathCompressedBitmapIndexedMapNode_Mixed<>(null, nodeMap, dataMap,
+										new Object[] { key, val, this }, shift, prefix(
+														hashPrefix(), shift));
+					} else {
+						return new BitmapIndexedMapNode_Mixed<>(null, nodeMap, dataMap, new Object[] {
+										key, val, this });
+					}
+				}
+//			}
+
+			// shift == shiftLevel
+			return super.updated(mutator, key, val, keyHash, shift, details);
+		}		
+		
+	}
+	
+	private static final class BitmapIndexedMapNode_Mixed<K, V> extends AbstractBitmapIndexedMapNode<K, V> {
+		
+		private final int nodeMap;
+		private final int dataMap;
+
+		@Override
+		public int nodeMap() {
+			return nodeMap;
+		}
+
+		@Override
+		public int dataMap() {
+			return dataMap;
+		}
+		
+		private BitmapIndexedMapNode_Mixed(final AtomicReference<Thread> mutator,
+						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+			super(mutator, nodes);
+
+//			assert nodeMap != 0;
+//			assert dataMap != 0;
+			
+			this.nodeMap = nodeMap;
+			this.dataMap = dataMap;
+		}
+		
+		@Override
+		boolean isPathCompressed() {
+			return false;
+		}
+
+		@Override
+		int shiftLevel() {		
+			return -1;
+		}
+
+		@Override
+		int hashPrefix() {
+			return -1;
+		}
+		
+	}	
+	
+	private static final class BitmapIndexedMapNode_NodesOnly<K, V> extends AbstractBitmapIndexedMapNode<K, V> {
+		
+		private final int nodeMap;
+
+		@Override
+		public int nodeMap() {
+			return nodeMap;
+		}
+
+		@Override
+		public int dataMap() {
+			return 0;
+		}
+		
+		private BitmapIndexedMapNode_NodesOnly(final AtomicReference<Thread> mutator,
+						final int nodeMap, final java.lang.Object[] nodes) {
+			super(mutator, nodes);
+
+//			assert nodeMap != 0;			
+			this.nodeMap = nodeMap;
+		}
+		
+		@Override
+		boolean isPathCompressed() {
+			return false;
+		}
+
+		@Override
+		int shiftLevel() {		
+			return -1;
+		}
+
+		@Override
+		int hashPrefix() {
+			return -1;
+		}
+		
+	}	
+	
+	private static final class BitmapIndexedMapNode_ValuesOnly<K, V> extends AbstractBitmapIndexedMapNode<K, V> {
+		
+		private final int dataMap;
+
+		@Override
+		public int nodeMap() {
+			return 0;
+		}
+
+		@Override
+		public int dataMap() {
+			return dataMap;
+		}
+		
+		private BitmapIndexedMapNode_ValuesOnly(final AtomicReference<Thread> mutator,
+						final int dataMap, final java.lang.Object[] nodes) {
+			super(mutator, nodes);
+
+//			assert dataMap != 0;			
+			this.dataMap = dataMap;
+		}
+		
+		@Override
+		boolean isPathCompressed() {
+			return false;
+		}
+
+		@Override
+		int shiftLevel() {		
+			return -1;
+		}
+
+		@Override
+		int hashPrefix() {
+			return -1;
+		}
+		
+	}	
+	
+	private static abstract class AbstractBitmapIndexedMapNode<K, V> extends CompactMapNode<K, V> {
 
 		final AtomicReference<Thread> mutator;
 		final java.lang.Object[] nodes;
 
-		final int shiftLevel;
-		final int hashPrefix;
+		abstract boolean isPathCompressed();		
+		abstract int shiftLevel();
+		abstract int hashPrefix();
 
-//		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-//						final int dataMap, final java.lang.Object[] nodes) {
-//			super(mutator, nodeMap, dataMap);
-//
-//			this.mutator = mutator;
-//			this.nodes = nodes;
-//
-//			shiftOffset = 0;
-//		}
-
-		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes, int shiftLevel, int hashPrefix) {
-			super(mutator, nodeMap, dataMap);
-
-			if (nodes.length == 1) {
-				throw new IllegalStateException();
-			}
+		private AbstractBitmapIndexedMapNode(final AtomicReference<Thread> mutator,
+						final java.lang.Object[] nodes) {
 			
+//			if (nodes.length == 1) {
+//				throw new IllegalStateException();
+//			}
+
 			this.mutator = mutator;
 			this.nodes = nodes;
-
-			this.shiftLevel = shiftLevel;
-			this.hashPrefix = hashPrefix;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1032,8 +1410,8 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
-			result = prime * result + ((int) hashPrefix);
-			result = prime * result + ((int) shiftLevel);
+			result = prime * result + ((int) hashPrefix());
+			result = prime * result + ((int) shiftLevel());
 			result = prime * result + ((int) dataMap());
 			result = prime * result + ((int) dataMap());
 			result = prime * result + Arrays.hashCode(nodes);
@@ -1051,11 +1429,11 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			if (getClass() != other.getClass()) {
 				return false;
 			}
-			BitmapIndexedMapNode<?, ?> that = (BitmapIndexedMapNode<?, ?>) other;
-			if (hashPrefix != that.hashPrefix) {
+			AbstractBitmapIndexedMapNode<?, ?> that = (AbstractBitmapIndexedMapNode<?, ?>) other;
+			if (hashPrefix() != that.hashPrefix()) {
 				return false;
 			}			
-			if (shiftLevel != that.shiftLevel) {
+			if (shiftLevel() != that.shiftLevel()) {
 				return false;
 			}			
 			if (nodeMap() != that.nodeMap()) {
@@ -1094,8 +1472,12 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			// copy 'src' and set 1 element(s) at position 'idx'
 			System.arraycopy(this.nodes, 0, dst, 0, this.nodes.length);
 			dst[TUPLE_LENGTH * dataIndex(bitpos) + 1] = val;
-
-			return new BitmapIndexedMapNode<>(mutator, nodeMap(), dataMap(), dst, shiftLevel, hashPrefix);
+			
+			if (isPathCompressed()) {
+				return new PathCompressedBitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), dataMap(), dst, shiftLevel(), hashPrefix());
+			} else {
+				return new BitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), dataMap(), dst);
+			}
 			// }
 		}
 
@@ -1117,7 +1499,11 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return new BitmapIndexedMapNode<>(mutator, nodeMap(), dataMap(), dst, shiftLevel, hashPrefix);
+				if (isPathCompressed()) {
+					return new PathCompressedBitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), dataMap(), dst, shiftLevel(), hashPrefix());
+				} else {
+					return new BitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), dataMap(), dst);
+				}
 			}
 		}
 
@@ -1135,7 +1521,11 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			dst[idx + 1] = val;
 			System.arraycopy(src, idx, dst, idx + 2, src.length - idx);
 
-			return new BitmapIndexedMapNode<>(mutator, nodeMap(), (int) (dataMap() | bitpos), dst, shiftLevel, hashPrefix);
+			if (isPathCompressed()) {
+				return new PathCompressedBitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), (int) (dataMap() | bitpos), dst, shiftLevel(), hashPrefix());
+			} else {
+				return new BitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
+			}
 		}
 
 		@Override
@@ -1150,7 +1540,11 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 2, dst, idx, src.length - idx - 2);
 
-			return new BitmapIndexedMapNode<>(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst, shiftLevel, hashPrefix);
+			if (isPathCompressed()) {
+				return new PathCompressedBitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst, shiftLevel(), hashPrefix());
+			} else {
+				return new BitmapIndexedMapNode_Mixed<>(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
+			}
 		}
 
 		@Override
@@ -1162,10 +1556,10 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 //			} else {
 				final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 				final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
-
+	
 				final java.lang.Object[] src = this.nodes;
 				final java.lang.Object[] dst = new Object[src.length - 2 + 1];
-
+	
 				// copy 'src' and remove 2 element(s) at position 'idxOld' and
 				// insert 1 element(s) at position 'idxNew' (TODO: carefully test)
 				assert idxOld <= idxNew;
@@ -1173,10 +1567,15 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 				System.arraycopy(src, idxOld + 2, dst, idxOld, idxNew - idxOld);
 				dst[idxNew + 0] = node;
 				System.arraycopy(src, idxNew + 2, dst, idxNew + 1, src.length - idxNew - 2);
-
-				return new BitmapIndexedMapNode<>(mutator, (int) (nodeMap() | bitpos),
-								(int) (dataMap() ^ bitpos), dst, shiftLevel, hashPrefix);
-				
+	
+				if (isPathCompressed()) {
+					return new PathCompressedBitmapIndexedMapNode_Mixed<>(mutator,
+									(int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst,
+									shiftLevel(), hashPrefix());
+				} else {
+					return new BitmapIndexedMapNode_Mixed<>(mutator, (int) (nodeMap() | bitpos),
+									(int) (dataMap() ^ bitpos), dst);
+				}
 //			}
 		}
 
@@ -1199,38 +1598,17 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 			System.arraycopy(src, idxNew, dst, idxNew + 2, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 2, src.length - idxOld - 1);
 
-			return new BitmapIndexedMapNode<>(mutator, (int) (nodeMap() ^ bitpos),
-							(int) (dataMap() | bitpos), dst, shiftLevel, hashPrefix);
+			if (isPathCompressed()) {
+				return new PathCompressedBitmapIndexedMapNode_Mixed<>(mutator,
+								(int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst,
+								shiftLevel(), hashPrefix());
+			} else {
+				return new BitmapIndexedMapNode_Mixed<>(mutator, (int) (nodeMap() ^ bitpos),
+								(int) (dataMap() | bitpos), dst);
+			}
 		}
 
 		boolean containsKey(final K key, final int keyHash, int shift) {
-		
-			// forward shift (maximally to shiftLevel)
-			if (shift != shiftLevel) {
-				if (hashPrefix != prefix(keyHash, shiftLevel)) {
-					return false;
-				} else {
-					shift = shiftLevel;
-				}
-			}
-			
-//			// forward shift (maximally to shiftLevel)
-//			if (shift != shiftLevel) {
-//				int mask0 = mask(hashPrefix, shift);
-//				int mask1 = mask(keyHash, shift);
-//
-//				while (mask0 == mask1 && shift < shiftLevel) {
-//					shift += BIT_PARTITION_SIZE;
-//
-//					mask0 = mask(hashPrefix, shift);
-//					mask1 = mask(keyHash, shift);
-//				}
-//
-//				if (shift != shiftLevel) {
-//					return false;
-//				}
-//			}
-						
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1246,122 +1624,78 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		}
 
 		boolean containsKey(final K key, final int keyHash, int shift, final Comparator<Object> cmp) {
-			final int mask = mask(keyHash, shiftLevel);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) {
-				return cmp.compare(keyAt(bitpos), key) == 0;
-			}
-
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, 0, cmp);
-			}
-
-			return false;
+//			final int mask = mask(keyHash, shiftLevel);
+//			final int bitpos = bitpos(mask);
+//
+//			if ((dataMap() & bitpos) != 0) {
+//				return cmp.compare(keyAt(bitpos), key) == 0;
+//			}
+//
+//			if ((nodeMap() & bitpos) != 0) {
+//				return nodeAt(bitpos).containsKey(key, keyHash, 0, cmp);
+//			}
+//
+//			return false;
+			
+			throw new UnsupportedOperationException();
 		}
 
 		Optional<V> findByKey(final K key, final int keyHash, int shift) {
-			shift += shiftLevel;
-
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (keyAt(bitpos).equals(key)) {
-					final V _val = valAt(bitpos);
-
-					return Optional.of(_val);
-				}
-
-				return Optional.empty();
-			}
-
-			if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-
-				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
-			}
-
-			return Optional.empty();
+//			shift += shiftLevel;
+//
+//			final int mask = mask(keyHash, shift);
+//			final int bitpos = bitpos(mask);
+//
+//			if ((dataMap() & bitpos) != 0) { // inplace value
+//				if (keyAt(bitpos).equals(key)) {
+//					final V _val = valAt(bitpos);
+//
+//					return Optional.of(_val);
+//				}
+//
+//				return Optional.empty();
+//			}
+//
+//			if ((nodeMap() & bitpos) != 0) { // node (not value)
+//				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
+//
+//				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+//			}
+//
+//			return Optional.empty();
+			throw new UnsupportedOperationException();
 		}
 
 		Optional<V> findByKey(final K key, final int keyHash, int shift,
 						final Comparator<Object> cmp) {
-			shift += shiftLevel;
-
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (cmp.compare(keyAt(bitpos), key) == 0) {
-					final V _val = valAt(bitpos);
-
-					return Optional.of(_val);
-				}
-
-				return Optional.empty();
-			}
-
-			if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-
-				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
-			}
-
-			return Optional.empty();
+//			shift += shiftLevel;
+//
+//			final int mask = mask(keyHash, shift);
+//			final int bitpos = bitpos(mask);
+//
+//			if ((dataMap() & bitpos) != 0) { // inplace value
+//				if (cmp.compare(keyAt(bitpos), key) == 0) {
+//					final V _val = valAt(bitpos);
+//
+//					return Optional.of(_val);
+//				}
+//
+//				return Optional.empty();
+//			}
+//
+//			if ((nodeMap() & bitpos) != 0) { // node (not value)
+//				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
+//
+//				return subNode.findByKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+//			}
+//
+//			return Optional.empty();
+			throw new UnsupportedOperationException();
 		}
 
 		@SuppressWarnings("unchecked")
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, int shift, final Result<K, V> details) {			
-//			// forward shift (maximally to shiftLevel)
-//			if (shift != shiftLevel) {
-//				if (hashPrefix != prefix(keyHash, shiftLevel)) {
-//					// merge value with current node
-//								
-//					// if (nodeHash == keyHash) {
-//					// throw new IllegalStateException();
-//					// }
-//
-//					details.modified();
-//					return mergeNodeAndKeyValPair(this, hashPrefix, key, val, keyHash, shift);
-//				} else {
-//					shift = shiftLevel;
-//				}
-//			}
-			
-			// forward shift (maximally to shiftLevel)			
-			if (shift != shiftLevel) {				
-				int mask0 = mask(hashPrefix, shift);
-				int mask1 = mask(keyHash, shift);
-
-				while (mask0 == mask1 && shift < shiftLevel) {
-					shift += BIT_PARTITION_SIZE;
-
-					mask0 = mask(hashPrefix, shift);
-					mask1 = mask(keyHash, shift);
-				}
-
-				if (shift != shiftLevel) {
-					// merge value with current node
-					
-					details.modified();
-
-					// if (nodeHash == keyHash) {
-					// throw new IllegalStateException();
-					// }
-
-					// both nodes fit on same level
-					final int nodeMap = bitpos(mask0);
-					final int dataMap = bitpos(mask1);
-
-					// store values before node
-					return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] { key,
-									val, this }, shift, prefix(hashPrefix, shift));
-				}
-			}
-			
-			// shift == shiftLevel
+						final V val, final int keyHash, int shift, final Result<K, V> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1390,8 +1724,7 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 					} else {
 						if (nodeMap() == 0 && this.nodes.length == TUPLE_LENGTH) {
 							final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-											currentVal, currentKeyHash, key, val, keyHash, shift
-															+ BIT_PARTITION_SIZE);
+											currentVal, currentKeyHash, key, val, keyHash, shift);
 
 							details.modified();
 							return subNodeNew;
@@ -1425,213 +1758,214 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
 						final V val, final int keyHash, int shift, final Result<K, V> details,
 						final Comparator<Object> cmp) {
-			shift += shiftLevel;
-
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
-				final K currentKey = getKey(dataIndex);
-
-				if (cmp.compare(currentKey, key) == 0) {
-					final V currentVal = getValue(dataIndex);
-
-					if (cmp.compare(currentVal, val) == 0) {
-						return this;
-					} else {
-						// update mapping
-						details.updated(currentVal);
-						return copyAndSetValue(mutator, bitpos, val);
-					}
-				} else {
-					final V currentVal = getValue(dataIndex);
-					final int currentKeyHash = currentKey.hashCode();
-
-					if (keyHash == currentKeyHash) {
-						return new HashCollisionMapNode_5Bits<>(keyHash, (K[]) new Object[] { key,
-										currentKey }, (V[]) new Object[] { val, currentVal });
-					} else {
-						if (nodeMap() == 0 && this.nodes.length == TUPLE_LENGTH) {
-							final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-											currentVal, currentKeyHash, key, val, keyHash, shift
-															+ BIT_PARTITION_SIZE);
-
-							details.modified();
-							return subNodeNew;
-						} else {
-							final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-											currentVal, currentKeyHash, key, val, keyHash, shift
-															+ BIT_PARTITION_SIZE);
-							details.modified();
-							return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
-						}
-					}
-				}
-			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final CompactMapNode<K, V> subNodeNew = subNode.updated(mutator, key, val, keyHash,
-								shift + BIT_PARTITION_SIZE, details, cmp);
-
-				if (details.isModified()) {
-					return copyAndSetNode(mutator, bitpos, subNodeNew);
-				} else {
-					return this;
-				}
-			} else {
-				// no value
-				details.modified();
-				return copyAndInsertValue(mutator, bitpos, key, val);
-			}
+//			shift += shiftLevel;
+//
+//			final int mask = mask(keyHash, shift);
+//			final int bitpos = bitpos(mask);
+//
+//			if ((dataMap() & bitpos) != 0) { // inplace value
+//				final int dataIndex = dataIndex(bitpos);
+//				final K currentKey = getKey(dataIndex);
+//
+//				if (cmp.compare(currentKey, key) == 0) {
+//					final V currentVal = getValue(dataIndex);
+//
+//					if (cmp.compare(currentVal, val) == 0) {
+//						return this;
+//					} else {
+//						// update mapping
+//						details.updated(currentVal);
+//						return copyAndSetValue(mutator, bitpos, val);
+//					}
+//				} else {
+//					final V currentVal = getValue(dataIndex);
+//					final int currentKeyHash = currentKey.hashCode();
+//
+//					if (keyHash == currentKeyHash) {
+//						return new HashCollisionMapNode_5Bits<>(keyHash, (K[]) new Object[] { key,
+//										currentKey }, (V[]) new Object[] { val, currentVal });
+//					} else {
+//						if (nodeMap() == 0 && this.nodes.length == TUPLE_LENGTH) {
+//							final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
+//											currentVal, currentKeyHash, key, val, keyHash, shift
+//															+ BIT_PARTITION_SIZE);
+//
+//							details.modified();
+//							return subNodeNew;
+//						} else {
+//							final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
+//											currentVal, currentKeyHash, key, val, keyHash, shift
+//															+ BIT_PARTITION_SIZE);
+//							details.modified();
+//							return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
+//						}
+//					}
+//				}
+//			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
+//				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
+//				final CompactMapNode<K, V> subNodeNew = subNode.updated(mutator, key, val, keyHash,
+//								shift + BIT_PARTITION_SIZE, details, cmp);
+//
+//				if (details.isModified()) {
+//					return copyAndSetNode(mutator, bitpos, subNodeNew);
+//				} else {
+//					return this;
+//				}
+//			} else {
+//				// no value
+//				details.modified();
+//				return copyAndInsertValue(mutator, bitpos, key, val);
+//			}
+			throw new UnsupportedOperationException();
 		}
 
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, int shift, final Result<K, V> details) {
-			shift += shiftLevel;
-
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
-
-				if (getKey(dataIndex).equals(key)) {
-					final V currentVal = getValue(dataIndex);
-					details.updated(currentVal);
-
-					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
-						/*
-						 * Create new node with remaining pair. The new node
-						 * will a) either become the new root returned, or b)
-						 * unwrapped and inlined during returning.
-						 */
-						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
-
-						if (dataIndex == 0) {
-							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(1), getValue(1) }, shiftLevel, 0);
-						} else {
-							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(0), getValue(0) }, shiftLevel, 0);
-						}
-					} else {
-						return copyAndRemoveValue(mutator, bitpos);
-					}
-				} else {
-					return this;
-				}
-			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
-								shift + BIT_PARTITION_SIZE, details);
-
-				if (!details.isModified()) {
-					return this;
-				}
-
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				case 1: {
-					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return subNodeNew;
-					} else {
-						// inline value (move to front)
-						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
-					}
-				}
-				default: {
-					// modify current node (set replacement node)
-					return copyAndSetNode(mutator, bitpos, subNodeNew);
-				}
-				}
-			}
-
-			return this;
+//			shift += shiftLevel;
+//
+//			final int mask = mask(keyHash, shift);
+//			final int bitpos = bitpos(mask);
+//
+//			if ((dataMap() & bitpos) != 0) { // inplace value
+//				final int dataIndex = dataIndex(bitpos);
+//
+//				if (getKey(dataIndex).equals(key)) {
+//					final V currentVal = getValue(dataIndex);
+//					details.updated(currentVal);
+//
+//					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+//						/*
+//						 * Create new node with remaining pair. The new node
+//						 * will a) either become the new root returned, or b)
+//						 * unwrapped and inlined during returning.
+//						 */
+//						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
+//										: bitpos(mask(keyHash, 0));
+//
+//						if (dataIndex == 0) {
+//							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
+//											new Object[] { getKey(1), getValue(1) }, shiftLevel, 0);
+//						} else {
+//							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
+//											new Object[] { getKey(0), getValue(0) }, shiftLevel, 0);
+//						}
+//					} else {
+//						return copyAndRemoveValue(mutator, bitpos);
+//					}
+//				} else {
+//					return this;
+//				}
+//			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
+//				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
+//				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
+//								shift + BIT_PARTITION_SIZE, details);
+//
+//				if (!details.isModified()) {
+//					return this;
+//				}
+//
+//				switch (subNodeNew.sizePredicate()) {
+//				case 0: {
+//					throw new IllegalStateException("Sub-node must have at least one element.");
+//				}
+//				case 1: {
+//					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
+//						// escalate (singleton or empty) result
+//						return subNodeNew;
+//					} else {
+//						// inline value (move to front)
+//						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
+//					}
+//				}
+//				default: {
+//					// modify current node (set replacement node)
+//					return copyAndSetNode(mutator, bitpos, subNodeNew);
+//				}
+//				}
+//			}
+//
+//			return this;
+			throw new UnsupportedOperationException();
 		}
 
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, int shift, final Result<K, V> details,
 						final Comparator<Object> cmp) {
-			shift += shiftLevel;
-
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-
-			if ((dataMap() & bitpos) != 0) { // inplace value
-				final int dataIndex = dataIndex(bitpos);
-
-				if (cmp.compare(getKey(dataIndex), key) == 0) {
-					final V currentVal = getValue(dataIndex);
-					details.updated(currentVal);
-
-					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
-						/*
-						 * Create new node with remaining pair. The new node
-						 * will a) either become the new root returned, or b)
-						 * unwrapped and inlined during returning.
-						 */
-						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
-
-						if (dataIndex == 0) {
-							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(1), getValue(1) }, shiftLevel, 0);
-						} else {
-							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
-											new Object[] { getKey(0), getValue(0) }, shiftLevel, 0);
-						}
-					} else {
-						return copyAndRemoveValue(mutator, bitpos);
-					}
-				} else {
-					return this;
-				}
-			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
-				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
-				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
-								shift + BIT_PARTITION_SIZE, details, cmp);
-
-				if (!details.isModified()) {
-					return this;
-				}
-
-				switch (subNodeNew.sizePredicate()) {
-				case 0: {
-					throw new IllegalStateException("Sub-node must have at least one element.");
-				}
-				case 1: {
-					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
-						// escalate (singleton or empty) result
-						return subNodeNew;
-					} else {
-						// inline value (move to front)
-						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
-					}
-				}
-				default: {
-					// modify current node (set replacement node)
-					return copyAndSetNode(mutator, bitpos, subNodeNew);
-				}
-				}
-			}
-
-			return this;
+//			shift += shiftLevel;
+//
+//			final int mask = mask(keyHash, shift);
+//			final int bitpos = bitpos(mask);
+//
+//			if ((dataMap() & bitpos) != 0) { // inplace value
+//				final int dataIndex = dataIndex(bitpos);
+//
+//				if (cmp.compare(getKey(dataIndex), key) == 0) {
+//					final V currentVal = getValue(dataIndex);
+//					details.updated(currentVal);
+//
+//					if (this.payloadArity() == 2 && this.nodeArity() == 0) {
+//						/*
+//						 * Create new node with remaining pair. The new node
+//						 * will a) either become the new root returned, or b)
+//						 * unwrapped and inlined during returning.
+//						 */
+//						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
+//										: bitpos(mask(keyHash, 0));
+//
+//						if (dataIndex == 0) {
+//							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
+//											new Object[] { getKey(1), getValue(1) }, shiftLevel, 0);
+//						} else {
+//							return new BitmapIndexedMapNode<>(mutator, (int) (0), newDataMap,
+//											new Object[] { getKey(0), getValue(0) }, shiftLevel, 0);
+//						}
+//					} else {
+//						return copyAndRemoveValue(mutator, bitpos);
+//					}
+//				} else {
+//					return this;
+//				}
+//			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
+//				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
+//				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
+//								shift + BIT_PARTITION_SIZE, details, cmp);
+//
+//				if (!details.isModified()) {
+//					return this;
+//				}
+//
+//				switch (subNodeNew.sizePredicate()) {
+//				case 0: {
+//					throw new IllegalStateException("Sub-node must have at least one element.");
+//				}
+//				case 1: {
+//					if (this.payloadArity() == 0 && this.nodeArity() == 1) {
+//						// escalate (singleton or empty) result
+//						return subNodeNew;
+//					} else {
+//						// inline value (move to front)
+//						return copyAndMigrateFromNodeToInline(mutator, bitpos, subNodeNew);
+//					}
+//				}
+//				default: {
+//					// modify current node (set replacement node)
+//					return copyAndSetNode(mutator, bitpos, subNodeNew);
+//				}
+//				}
+//			}
+//
+//			return this;
+			throw new UnsupportedOperationException();
 		}
 
 	}
-
+		
 	private static final class HashCollisionMapNode_5Bits<K, V> extends CompactMapNode<K, V> {
 		private final K[] keys;
 		private final V[] vals;
 		private final int hash;
 
 		HashCollisionMapNode_5Bits(final int hash, final K[] keys, final V[] vals) {
-			super(null, 0, 0);
-
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -2046,6 +2380,16 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
 						final int bitpos, final CompactMapNode<K, V> node) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int nodeMap() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int dataMap() {
 			throw new UnsupportedOperationException();
 		}
 	}
