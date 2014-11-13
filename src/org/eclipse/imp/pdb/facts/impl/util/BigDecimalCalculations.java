@@ -310,7 +310,7 @@ public class BigDecimalCalculations {
 		// (two successive approximations are equal after rounding).
 		do {
 			// x^(index-1)
-			BigDecimal xToIm1 = intPower(x, indexm1, sp1);
+			BigDecimal xToIm1 = intPower(x, indexm1, sp1 + 1);
 			// x^index
 			BigDecimal xToI = x.multiply(xToIm1);
 			// n + (index-1)*(x^index)
