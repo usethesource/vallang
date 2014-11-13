@@ -494,6 +494,9 @@ public class BigDecimalCalculations {
 		if (x.signum() < 0) {
 			throw new ArithmeticException("x < 0");
 		}
+		if (x.signum()==0) {
+			return BigDecimal.ZERO.setScale(scale);
+		}
 
 		// n = x*(10^(2*scale))
 		BigInteger n = x.movePointRight(scale << 1).toBigInteger();
