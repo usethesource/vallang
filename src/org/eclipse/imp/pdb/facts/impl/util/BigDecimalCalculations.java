@@ -312,11 +312,11 @@ public class BigDecimalCalculations {
 			// x^(index-1)
 			BigDecimal xToIm1 = intPower(x, indexm1, sp1);
 			// x^index
-			BigDecimal xToI = x.multiply(xToIm1).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
+			BigDecimal xToI = x.multiply(xToIm1);
 			// n + (index-1)*(x^index)
-			BigDecimal numerator = n.add(im1.multiply(xToI)).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
+			BigDecimal numerator = n.add(im1.multiply(xToI));
 			// (index*(x^(index-1))
-			BigDecimal denominator = i.multiply(xToIm1).setScale(sp1, BigDecimal.ROUND_HALF_EVEN);
+			BigDecimal denominator = i.multiply(xToIm1);
 			// x = (n + (index-1)*(x^index)) / (index*(x^(index-1)))
 			xPrev = x;
 			if (denominator.compareTo(BigDecimal.ZERO) == 0) {
@@ -328,7 +328,7 @@ public class BigDecimalCalculations {
 
 		} while (x.subtract(xPrev).abs().compareTo(tolerance) > 0);
 
-		return x;
+		return x.setScale(scale, RoundingMode.HALF_EVEN);
 	}
 
 	/**
