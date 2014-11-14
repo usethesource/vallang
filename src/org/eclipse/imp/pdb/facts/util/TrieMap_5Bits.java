@@ -18,6 +18,7 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -28,7 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableMap<K, V> {
+public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMap_5Bits EMPTY_MAP = new TrieMap_5Bits(CompactMapNode.EMPTY_NODE, 0,
@@ -326,6 +327,11 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return cachedSize == 0;
+	}
+
+	@Override
 	public SupplierIterator<K, V> keyIterator() {
 		return new MapKeyIterator<>(rootNode);
 	}
@@ -340,6 +346,18 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		return new MapEntryIterator<>(rootNode);
 	}
 
+	@Override
+	public Set<K> keySet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<V> values() {
+		// TODO Auto-generated method stub
+		return null;
+	}	
+		
 	@Override
 	public Set<java.util.Map.Entry<K, V>> entrySet() {
 		Set<java.util.Map.Entry<K, V>> entrySet = null;
@@ -695,15 +713,19 @@ public class TrieMap_5Bits<K, V> extends AbstractMap<K, V> implements ImmutableM
 		static final int BIT_PARTITION_MASK = 0b11111;
 
 		static final int mask(final int hash, final int shift) {
-			if (shift == 30) {
-				return hash & BIT_PARTITION_MASK;
-			} else {
-				return (hash >>> (27 - shift)) & BIT_PARTITION_MASK;
-			}
+//			if (shift == 30) {
+//				return hash & BIT_PARTITION_MASK;
+//			} else {
+//				return (hash >>> (27 - shift)) & BIT_PARTITION_MASK;
+//			}
+			
+			return (hash >>> shift) & BIT_PARTITION_MASK;
 		}
 		
 		static final int prefix(final int hash, final int shift) {
-			return (hash >>> (32 - shift)) << (32 - shift);
+			// return (hash >>> (32 - shift)) << (32 - shift);
+			
+			return (hash << (32 - shift)) >>> (32 - shift);
 		}		
 
 		static final int bitpos(final int mask) {
