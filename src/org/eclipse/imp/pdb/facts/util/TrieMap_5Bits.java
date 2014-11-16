@@ -857,6 +857,62 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			}			
 		}
 
+//		@SuppressWarnings("unchecked")
+//		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
+//						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
+//			assert !(key0.equals(key1));
+//
+//			if (keyHash0 == keyHash1) {
+//				return new HashCollisionMapNode_5Bits<>(keyHash0,
+//								(K[]) new Object[] { key0, key1 },
+//								(V[]) new Object[] { val0, val1 });
+//			}
+//
+//			final int mask0 = mask(keyHash0, shift);
+//			final int mask1 = mask(keyHash1, shift);
+//
+//			if (mask0 != mask1) {
+//				// both nodes fit on same level
+//				final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
+//
+//				if (mask0 < mask1) {
+//					return new BitmapIndexedMapNode_ValuesOnly(null, dataMap, new Object[] { key0, val0, key1, val1 });
+//				} else {
+//					return new BitmapIndexedMapNode_ValuesOnly(null, dataMap, new Object[] { key1, val1, key0, val0 });
+//				}
+//			} else {
+//				// values fit on next level
+//				final CompactMapNode<K, V> node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1, val1,
+//								keyHash1, shift + BIT_PARTITION_SIZE);
+//
+//				final int nodeMap = bitpos(mask0);
+//				return new BitmapIndexedMapNode_NodesOnly(null, nodeMap, new Object[] { node });
+//			}
+//		}
+//
+//		@SuppressWarnings("unchecked")
+//		static final <K, V> CompactMapNode<K, V> mergeNodeAndKeyValPair(CompactMapNode<K, V> node0,
+//						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
+//			final int mask0 = mask(keyHash0, shift);
+//			final int mask1 = mask(keyHash1, shift);
+//
+//			if (mask0 != mask1) {
+//				// both nodes fit on same level
+//				final int nodeMap = bitpos(mask0);
+//				final int dataMap = bitpos(mask1);
+//
+//				// store values before node
+//				return new BitmapIndexedMapNode_Mixed(null, nodeMap, dataMap, new Object[] { key1, val1, node0 });
+//			} else {
+//				// values fit on next level
+//				final CompactMapNode<K, V> node = mergeNodeAndKeyValPair(node0, keyHash0, key1, val1, keyHash1,
+//								shift + BIT_PARTITION_SIZE);
+//
+//				final int nodeMap = bitpos(mask0);
+//				return new BitmapIndexedMapNode_NodesOnly(null, nodeMap, new Object[] { node });
+//			}
+//		}
+				
 		static final CompactMapNode EMPTY_NODE = new CompactMapNode() {
 			
 			@Override
@@ -1395,20 +1451,20 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			return -1;
 		}
 		
-		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, int shift, final Result<K, V> details) {
-			final int mask = mask(keyHash, shift);
-			final int bitpos = bitpos(mask);
-			
-			if ((nodeMap() & bitpos) != 0) {
-				// node (not value)
-				return update_nodeMap(mutator, key, val, keyHash, shift, details, bitpos);
-			} else {
-				// no value
-				details.modified();
-				return copyAndInsertValue(mutator, bitpos, key, val);
-			}
-		}		
+//		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
+//						final V val, final int keyHash, int shift, final Result<K, V> details) {
+//			final int mask = mask(keyHash, shift);
+//			final int bitpos = bitpos(mask);
+//			
+//			if ((nodeMap() & bitpos) != 0) {
+//				// node (not value)
+//				return update_nodeMap(mutator, key, val, keyHash, shift, details, bitpos);
+//			} else {
+//				// no value
+//				details.modified();
+//				return copyAndInsertValue(mutator, bitpos, key, val);
+//			}
+//		}		
 		
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(final AtomicReference<Thread> mutator,
