@@ -667,11 +667,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		static final int BIT_PARTITION_MASK = 0b11111;
 
 		static final int mask(final int keyHash, final int shift) {
-			if (shift == 30) {
-				return keyHash & BIT_PARTITION_MASK;
-			} else {
-				return (keyHash >>> (27 - shift)) & BIT_PARTITION_MASK;
-			}
+			return (keyHash >>> shift) & BIT_PARTITION_MASK;
 		}
 
 		static final int bitpos(final int mask) {
