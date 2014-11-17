@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieSet_5Bits<K> extends AbstractSet<K> implements ImmutableSet<K> {
+public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieSet_5Bits EMPTY_SET = new TrieSet_5Bits(CompactSetNode.EMPTY_NODE, 0,
@@ -312,6 +312,11 @@ public class TrieSet_5Bits<K> extends AbstractSet<K> implements ImmutableSet<K> 
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return cachedSize == 0;
+	}
+
+	@Override
 	public Iterator<K> iterator() {
 		return keyIterator();
 	}
@@ -319,6 +324,18 @@ public class TrieSet_5Bits<K> extends AbstractSet<K> implements ImmutableSet<K> 
 	@Override
 	public SupplierIterator<K, K> keyIterator() {
 		return new SetKeyIterator<>(rootNode);
+	}
+
+	@Override
+	public java.lang.Object[] toArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> T[] toArray(final T[] a) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -1786,7 +1803,7 @@ public class TrieSet_5Bits<K> extends AbstractSet<K> implements ImmutableSet<K> 
 
 						if (nextNode.hasPayload()) {
 							/*
-							 * found for next node that contains values
+							 * found next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;

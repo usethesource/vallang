@@ -18,6 +18,7 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -28,8 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieMap_5Bits_Spec0To8_IntKey_IntValue extends
-				AbstractMap<java.lang.Integer, java.lang.Integer> implements
+public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				ImmutableMap<java.lang.Integer, java.lang.Integer> {
 
 	@SuppressWarnings("unchecked")
@@ -334,6 +334,11 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue extends
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return cachedSize == 0;
+	}
+
+	@Override
 	public SupplierIterator<java.lang.Integer, java.lang.Integer> keyIterator() {
 		return new MapKeyIterator(rootNode);
 	}
@@ -346,6 +351,18 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue extends
 	@Override
 	public Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> entryIterator() {
 		return new MapEntryIterator(rootNode);
+	}
+
+	@Override
+	public Set<java.lang.Integer> keySet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<java.lang.Integer> values() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -3466,7 +3483,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue extends
 
 						if (nextNode.hasPayload()) {
 							/*
-							 * found for next node that contains values
+							 * found next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;

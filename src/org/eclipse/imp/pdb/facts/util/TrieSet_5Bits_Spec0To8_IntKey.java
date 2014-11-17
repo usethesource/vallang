@@ -24,8 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieSet_5Bits_Spec0To8_IntKey extends AbstractSet<java.lang.Integer> implements
-				ImmutableSet<java.lang.Integer> {
+public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Integer> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieSet_5Bits_Spec0To8_IntKey EMPTY_SET = new TrieSet_5Bits_Spec0To8_IntKey(
@@ -326,6 +325,11 @@ public class TrieSet_5Bits_Spec0To8_IntKey extends AbstractSet<java.lang.Integer
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return cachedSize == 0;
+	}
+
+	@Override
 	public Iterator<java.lang.Integer> iterator() {
 		return keyIterator();
 	}
@@ -333,6 +337,18 @@ public class TrieSet_5Bits_Spec0To8_IntKey extends AbstractSet<java.lang.Integer
 	@Override
 	public SupplierIterator<java.lang.Integer, java.lang.Integer> keyIterator() {
 		return new SetKeyIterator(rootNode);
+	}
+
+	@Override
+	public java.lang.Object[] toArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> T[] toArray(final T[] a) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -3149,7 +3165,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey extends AbstractSet<java.lang.Integer
 
 						if (nextNode.hasPayload()) {
 							/*
-							 * found for next node that contains values
+							 * found next node that contains values
 							 */
 							currentValueNode = nextNode;
 							currentValueCursor = 0;
