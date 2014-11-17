@@ -550,6 +550,10 @@ public class TypeFactory {
     return constructorFromTuple(store, adt, name, tupleType(children));
   }
 
+  public Type constructor(TypeStore store, Type adt, String name) throws FactTypeDeclarationException {
+	    return constructorFromTuple(store, adt, name, tupleEmpty());
+	  }
+   
   /**
    * Make a new constructor type. A constructor type extends an abstract data
    * type such that it represents more values.

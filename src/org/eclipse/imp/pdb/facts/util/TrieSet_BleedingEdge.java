@@ -11,7 +11,10 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
+import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
+
 import java.text.DecimalFormat;
+import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -20,11 +23,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
-public class TrieSet_BleedingEdge<K> extends AbstractSet<K> implements ImmutableSet<K> {
+public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieSet_BleedingEdge EMPTY_SET = new TrieSet_BleedingEdge(
@@ -312,6 +317,11 @@ public class TrieSet_BleedingEdge<K> extends AbstractSet<K> implements Immutable
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return cachedSize == 0;
+	}
+
+	@Override
 	public Iterator<K> iterator() {
 		return keyIterator();
 	}
@@ -319,6 +329,18 @@ public class TrieSet_BleedingEdge<K> extends AbstractSet<K> implements Immutable
 	@Override
 	public SupplierIterator<K, K> keyIterator() {
 		return new SetKeyIterator<>(rootNode);
+	}
+
+	@Override
+	public java.lang.Object[] toArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T> T[] toArray(final T[] a) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
