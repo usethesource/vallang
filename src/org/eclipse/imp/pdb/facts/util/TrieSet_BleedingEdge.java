@@ -11,10 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
-import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
-
 import java.text.DecimalFormat;
-import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -23,9 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
