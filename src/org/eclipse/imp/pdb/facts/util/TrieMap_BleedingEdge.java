@@ -684,17 +684,6 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 
 		int payloadArity();
 
-		@Deprecated
-		/**
-		 * The arity of this trie node (i.e. number of values and nodes stored
-		 * on this level).
-		 * 
-		 * @return sum of nodes and values stored within
-		 */
-		int arity();
-
-		int size();
-
 	}
 
 	private static abstract class CompactMapNode<K, V> implements IMapNode<K, V> {
@@ -710,10 +699,14 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 			return 1 << mask;
 		}
 
-		static final int prefix(final int hash, final int shift) {
-			// return (hash >>> (32 - shift)) << (32 - shift);
-			return (hash << (32 - shift)) >>> (32 - shift);
-		}
+//		static final int prefix(final int hash, final int shift) {
+//			// return (hash >>> (32 - shift)) << (32 - shift);
+//			return (hash << (32 - shift)) >>> (32 - shift);
+//		}
+		
+		static final int commonPath(final int hash, final int shift, int commonLength) {
+			return ((hash >>> shift) << (32 - commonLength)) >>> (32 - commonLength);
+		}		
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
@@ -722,7 +715,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		@Deprecated
 		@Override
 		public Iterator<? extends IMapNode<K, V>> nodeIterator() {
-			return new Iterator<IMapNode<K, V>>() {
+			return new Iterator<CompactMapNode<K, V>>() {
 
 				int nextIndex = 0;
 
@@ -732,7 +725,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 				}
 
 				@Override
-				public IMapNode<K, V> next() {
+				public CompactMapNode<K, V> next() {
 					if (!hasNext())
 						throw new NoSuchElementException();
 					return CompactMapNode.this.getNode(nextIndex++);
@@ -744,28 +737,6 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 				}
 			};
 		}
-
-		@Override
-		public int arity() {
-			return payloadArity() + nodeArity();
-		}
-
-		@Override
-		public int size() {
-			final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
-
-			int size = 0;
-			while (it.hasNext()) {
-				size += 1;
-				it.next();
-			}
-
-			return size;
-		}
-
-		// abstract int nodeMap();
-		//
-		// abstract int dataMap();
 
 		static final byte SIZE_EMPTY = 0b00;
 		static final byte SIZE_ONE = 0b01;
@@ -783,50 +754,122 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		@Override
 		public abstract CompactMapNode<K, V> getNode(final int index);
 
-		boolean nodeInvariant() {
-			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
-			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
-			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
-							: true;
-			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
+//		boolean nodeInvariant() {
+//			int size = 0;
+//
+//			final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
+//			while (it.hasNext()) {
+//				size += 1;
+//				it.next();
+//			}
+//
+//			int arity = payloadArity() + nodeArity();
+//
+//			boolean inv1 = (size - payloadArity() >= 2 * (arity - payloadArity()));
+//			boolean inv2 = (arity == 0) ? sizePredicate() == SIZE_EMPTY : true;
+//			boolean inv3 = (arity == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE : true;
+//			boolean inv4 = (arity >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
+//
+//			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
+//							&& ((this.payloadArity() + this.nodeArity()) == arity);
+//
+//			return inv1 && inv2 && inv3 && inv4 && inv5;
+//		}
 
-			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
-							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
+		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
+						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
 
-			return inv1 && inv2 && inv3 && inv4 && inv5;
+			final int mask0 = mask(keyHash0, shift);
+			final int mask1 = mask(keyHash1, shift);
+
+			if (mask0 != mask1) {
+				// both nodes fit on same level
+				if (mask0 < mask1) {
+					return new BitmapIndexedMapNode<>(null, 0, bitpos(mask0) | bitpos(mask1),
+									new Object[] { key0, val0, key1, val1 });
+				} else {
+					return new BitmapIndexedMapNode<>(null, 0, bitpos(mask0) | bitpos(mask1),
+									new Object[] { key1, val1, key0, val0 });
+				}
+			} else {
+				// values fit on next level
+				final CompactMapNode<K, V> node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1,
+								val1, keyHash1, shift + BIT_PARTITION_SIZE);
+
+				return new BitmapIndexedMapNode<>(null, bitpos(mask0), 0, new Object[] { node });
+			}
 		}
 
-		// @SuppressWarnings("unchecked")
-		// static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K
-		// key0, final V val0,
+//		@SuppressWarnings("unchecked")
+//		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
+//						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
+//
+//			if (keyHash0 == keyHash1) {
+//				return new HashCollisionMapNode_BleedingEdge<>(keyHash0, (K[]) new Object[] { key0,
+//								key1 }, (V[]) new Object[] { val0, val1 });
+//			}
+//
+////			int originalShift = shift;
+////			
+////			// int mask0 = mask(keyHash0, shift);
+////			// int mask1 = mask(keyHash1, shift);
+////			int mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
+////			int mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+////
+////			while (mask0 == mask1) {
+////				shift += BIT_PARTITION_SIZE;
+////
+////				mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
+////				mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+////			}
+//						
+//			int originalShift = shift;
+//			int mask0 = 0;
+//			int mask1 = 0;
+//
+//			for (; mask0 == mask1; shift += BIT_PARTITION_SIZE) {
+//				mask0 = (keyHash0 >>> shift) & BIT_PARTITION_MASK;
+//				mask1 = (keyHash1 >>> shift) & BIT_PARTITION_MASK;
+//			}
+//			shift -= BIT_PARTITION_SIZE;
+//			
+//			final int dataMap = bitpos(mask0) | bitpos(mask1);
+//			final Object[] content;
+//
+//			if (mask0 < mask1) {
+//				content = new Object[] { key0, val0, key1, val1 };
+//			} else {
+//				content = new Object[] { key1, val1, key0, val0 };
+//			}
+//
+//			CompactMapNode<K, V> newLeafNode = new BitmapIndexedMapNode<>(null, 0, dataMap, content);
+//
+//			if (shift == originalShift) {
+//				return newLeafNode;
+//			} else {
+//				return new CompressedPathNode<>(null, shift - originalShift,
+//								commonPath(keyHash0, originalShift, shift - originalShift), newLeafNode);
+//			}
+//		}
+
+		// static final <K, V> CompactMapNode<K, V>
+		// mergeNodeAndKeyValPair(CompactMapNode<K, V> node0,
 		// int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
-		// assert !(key0.equals(key1));
-		//
-		// if (keyHash0 == keyHash1) {
-		// return new HashCollisionMapNode_BleedingEdge<>(keyHash0, (K[]) new
-		// Object[] { key0,
-		// key1 }, (V[]) new Object[] { val0, val1 });
-		// }
-		//
 		// final int mask0 = mask(keyHash0, shift);
 		// final int mask1 = mask(keyHash1, shift);
 		//
 		// if (mask0 != mask1) {
 		// // both nodes fit on same level
-		// final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
+		// final int nodeMap = bitpos(mask0);
+		// final int dataMap = bitpos(mask1);
 		//
-		// if (mask0 < mask1) {
-		// return new BitmapIndexedMapNode<>(null, (int) (0), dataMap, new
-		// Object[] {
-		// key0, val0, key1, val1 });
-		// } else {
-		// return new BitmapIndexedMapNode<>(null, (int) (0), dataMap, new
-		// Object[] {
-		// key1, val1, key0, val0 });
-		// }
+		// // store values before node
+		// return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new
+		// Object[] { key1,
+		// val1, node0 });
 		// } else {
 		// // values fit on next level
-		// final CompactMapNode<K, V> node = mergeTwoKeyValPairs(key0, val0,
+		// final CompactMapNode<K, V> node = mergeNodeAndKeyValPair(node0,
 		// keyHash0, key1,
 		// val1, keyHash1, shift + BIT_PARTITION_SIZE);
 		//
@@ -836,13 +879,11 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		// }
 		// }
 
-		@SuppressWarnings("unchecked")
-		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
+		static final <K, V> CompactMapNode<K, V> mergeNodeAndKeyValPair(CompactMapNode<K, V> node0,
 						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
 
 			if (keyHash0 == keyHash1) {
-				return new HashCollisionMapNode_BleedingEdge<>(keyHash0, (K[]) new Object[] { key0,
-								key1 }, (V[]) new Object[] { val0, val1 });
+				throw new IllegalStateException();
 			}
 
 			int originalShift = shift;
@@ -857,84 +898,20 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 				mask1 = mask(keyHash1, shift);
 			}
 
-			final int dataMap = bitpos(mask0) | bitpos(mask1);
-			final Object[] content;
+			// both nodes fit on same level
+			final int nodeMap = bitpos(mask0);
+			final int dataMap = bitpos(mask1);
 
-			if (mask0 < mask1) {
-				content = new Object[] { key0, val0, key1, val1 };
-			} else {
-				content = new Object[] { key1, val1, key0, val0 };
-			}
-
-			CompactMapNode<K, V> newLeafNode = new BitmapIndexedMapNode<>(null, 0, dataMap, content);
+			CompactMapNode<K, V> newLeafNode = new BitmapIndexedMapNode<>(null, nodeMap, dataMap,
+							new Object[] { key1, val1, node0 });
 
 			if (shift == originalShift) {
 				return newLeafNode;
 			} else {
 				return new CompressedPathNode<>(null, shift - originalShift,
-								prefix(keyHash0, shift), newLeafNode);
+								commonPath(keyHash0, shift, shift - originalShift), newLeafNode);
 			}
 		}
-
-		static final <K, V> CompactMapNode<K, V> mergeNodeAndKeyValPair(CompactMapNode<K, V> node0,
-						int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
-			final int mask0 = mask(keyHash0, shift);
-			final int mask1 = mask(keyHash1, shift);
-
-			if (mask0 != mask1) {
-				// both nodes fit on same level
-				final int nodeMap = bitpos(mask0);
-				final int dataMap = bitpos(mask1);
-
-				// store values before node
-				return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] { key1,
-								val1, node0 });
-			} else {
-				// values fit on next level
-				final CompactMapNode<K, V> node = mergeNodeAndKeyValPair(node0, keyHash0, key1,
-								val1, keyHash1, shift + BIT_PARTITION_SIZE);
-
-				final int nodeMap = bitpos(mask0);
-				return new BitmapIndexedMapNode<>(null, nodeMap, (int) (0), new Object[] { node });
-			}
-		}
-
-		// static final <K, V> CompactMapNode<K, V>
-		// mergeNodeAndKeyValPair(CompactMapNode<K, V> node0,
-		// int keyHash0, final K key1, final V val1, int keyHash1, int shift) {
-		//
-		// int originalShift = shift;
-		//
-		// if (keyHash0 == keyHash1) {
-		// throw new IllegalStateException();
-		// }
-		//
-		// int mask0 = mask(keyHash0, shift);
-		// int mask1 = mask(keyHash1, shift);
-		//
-		// while (mask0 == mask1) {
-		// shift += BIT_PARTITION_SIZE;
-		//
-		// mask0 = mask(keyHash0, shift);
-		// mask1 = mask(keyHash1, shift);
-		// }
-		//
-		// // both nodes fit on same level
-		// final int nodeMap = bitpos(mask0);
-		// final int dataMap = bitpos(mask1);
-		//
-		// // store values before node
-		// if (shift != originalShift) {
-		// return new PathCompressedBitmapIndexedMapNode_Mixed<>(null, nodeMap,
-		// dataMap,
-		// new Object[] { key1, val1, node0 }, shift, prefix(keyHash0, shift));
-		//
-		// } else {
-		// return new BitmapIndexedMapNode_Mixed<>(null, nodeMap, dataMap, new
-		// Object[] { key1,
-		// val1, node0 });
-		// }
-		// }
 
 		static final CompactMapNode EMPTY_NODE = new CompactMapNode() {
 
@@ -1040,55 +1017,34 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 			return EMPTY_NODE;
 		}
 
-		/**
-		 * @return 0 <= mask <= 2^BIT_PARTITION_SIZE - 1
-		 */
-		static byte recoverMask(int map, byte i_th) {
-			assert 1 <= i_th && i_th <= 32;
-
-			byte cnt1 = 0;
-			byte mask = 0;
-
-			while (mask < 32) {
-				if ((map & 0x01) == 0x01) {
-					cnt1 += 1;
-
-					if (cnt1 == i_th) {
-						return mask;
-					}
-				}
-
-				map = (int) (map >> 1);
-				mask += 1;
-			}
-
-			assert cnt1 != i_th;
-			throw new RuntimeException("Called with invalid arguments.");
-		}
-
 	}
 
 	private static final class CompressedPathNode<K, V> extends CompactMapNode<K, V> {
 
-		private final int shiftLevel;
-		private final int hashPrefix;
+		private final int pathLength;
+		private final int commonPath;
 
 		private final AtomicReference<Thread> mutator;
 		private final CompactMapNode<K, V> node;
 
-		private CompressedPathNode(final AtomicReference<Thread> mutator, final int shiftLevel,
-						final int hashPrefix, final CompactMapNode<K, V> node) {
+		private CompressedPathNode(final AtomicReference<Thread> mutator, final int pathLength,
+						final int commonPath, final CompactMapNode<K, V> node) {
 			this.mutator = mutator;
 			this.node = node;
 
-			this.shiftLevel = shiftLevel;
-			this.hashPrefix = hashPrefix;
+			this.pathLength = pathLength;
+			this.commonPath = commonPath;
 		}
 
 		@Override
 		public boolean containsKey(K key, int keyHash, int shift) {
-			// TODO Auto-generated method stub
-			return false;
+			// forward shift (maximally to shiftLevel)
+			if (commonPath != commonPath(keyHash, shift, pathLength)) {
+				return false;
+			} else {
+				// pathLength already included BIT_PARTITION_SIZE; pathLength >= BIT_PARTITION_SIZE
+				return node.containsKey(key, keyHash, shift + pathLength);
+			}
 		}
 
 		@Override
@@ -1112,8 +1068,75 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		@Override
 		public CompactMapNode<K, V> updated(AtomicReference<Thread> mutator, K key, V val,
 						int keyHash, int shift, Result<K, V> details) {
-			// TODO Auto-generated method stub
-			return null;
+
+			int originalShift = shift;
+			int mask0 = 0;
+			int mask1 = 0;
+
+			for (int delta = 0; mask0 == mask1 && shift <= originalShift + pathLength; shift += BIT_PARTITION_SIZE, delta += BIT_PARTITION_SIZE) {
+				mask0 = (commonPath >>> delta) & BIT_PARTITION_MASK;
+				mask1 = (keyHash >>> shift) & BIT_PARTITION_MASK;
+			}
+			shift -= BIT_PARTITION_SIZE;	
+			
+			if (shift == originalShift + pathLength) {
+				CompactMapNode<K, V> nodeNew = node.updated(mutator, key, val, keyHash,
+								originalShift + pathLength, details);
+
+				if (!details.isModified()) {
+					return this;
+				} else {
+					return new CompressedPathNode(mutator, pathLength, commonPath, nodeNew);
+				}
+
+			} else {
+				// insert somewhere in compressed path (TODO)
+		
+				details.modified();
+				
+				// both nodes fit on same level
+				final int nodeMap = bitpos(mask0);
+				final int dataMap = bitpos(mask1);
+				
+				// at begin of compression chain
+				if (shift == originalShift) {
+					if (pathLength == BIT_PARTITION_SIZE) {
+						// remove compression node
+						return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] {
+										key, val, node });
+					} else {
+						// shorten compression node
+						return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] {
+										key,
+										val,
+										new CompressedPathNode<>(mutator, pathLength
+														- BIT_PARTITION_SIZE,
+														commonPath >>> BIT_PARTITION_SIZE, node) });
+					}
+				} else {
+					// compress from root to new node and then if necessary further
+
+					
+					
+					throw new RuntimeException();
+					
+//					if (???) {
+//						new CompressedPathNode<>(mutator, shift - originalShift
+//										- BIT_PARTITION_SIZE,
+//										commonPath >>> BIT_PARTITION_SIZE, node) });					
+	//
+//						
+//						return new BitmapIndexedMapNode<>(null, nodeMap, dataMap, new Object[] {
+//										key,
+//										val,
+//					}
+//					
+//					return new PathCompressedBitmapIndexedMapNode_Mixed<>(null, nodeMap, dataMap,
+//									new Object[] { key, val, this }, shift, prefix(
+//													keyHash, shift));
+	//
+				}		
+			}
 		}
 
 		@Override
@@ -1139,56 +1162,51 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		public boolean hasNodes() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 
 		@Override
 		public int nodeArity() {
-			// TODO Auto-generated method stub
-			return 0;
+			return 1;
 		}
 
 		@Override
 		public K getKey(int index) {
-			// TODO Auto-generated method stub
-			return null;
+			throw new IllegalAccessError();
 		}
 
 		@Override
 		public V getValue(int index) {
-			// TODO Auto-generated method stub
-			return null;
+			throw new IllegalAccessError();
 		}
 
 		@Override
 		public java.util.Map.Entry<K, V> getKeyValueEntry(int index) {
-			// TODO Auto-generated method stub
-			return null;
+			throw new IllegalAccessError();
 		}
 
 		@Override
 		public boolean hasPayload() {
-			// TODO Auto-generated method stub
 			return false;
 		}
 
 		@Override
 		public int payloadArity() {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		@Override
 		byte sizePredicate() {
-			// TODO Auto-generated method stub
-			return 0;
+			return SIZE_MORE_THAN_ONE;
 		}
 
 		@Override
 		public CompactMapNode<K, V> getNode(int index) {
-			// TODO Auto-generated method stub
-			return null;
+			if (index == 0) {
+				return node;
+			} else {
+				throw new IllegalArgumentException();
+			}
 		}
 
 	}
@@ -1496,11 +1514,12 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap & bitpos) != 0) {
-				return keyAt(bitpos).equals(key);
+				return nodes[TUPLE_LENGTH * dataIndex(bitpos)].equals(key);
 			}
 
 			if ((nodeMap & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
+								shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
@@ -1565,15 +1584,24 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 
 					details.updated(currentVal);
 
-//					final java.lang.Object[] dst = arraycopyAndSetValue(mutator, nodes,
-//									tupleOffset + 1, val);
+					// final java.lang.Object[] dst =
+					// arraycopyAndSetValue(mutator, nodes,
+					// tupleOffset + 1, val);
 					return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap,
 									arraycopyAndSetValue(mutator, nodes, tupleOffset + 1, val));
 				} else {
+					final int currentKeyHash = currentKey.hashCode();
+					
+					if (currentKeyHash == keyHash) {
+						return new HashCollisionMapNode_BleedingEdge<>(currentKeyHash,
+										(K[]) new Object[] { currentKey, key }, (V[]) new Object[] {
+														currentVal, val });
+					}
+					
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, currentKey.hashCode(), key, val, keyHash, shift
+									currentVal, currentKeyHash, key, val, keyHash, shift
 													+ BIT_PARTITION_SIZE);
-
+					
 					// details.modified();
 					// return copyAndMigrateFromInlineToNode(mutator, bitpos,
 					// subNodeNew);
@@ -1600,22 +1628,22 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 					return this;
 				}
 
-				// return copyAndSetNodeWithIndex(mutator, nodeOffset,
-				// subNodeNew);
+				 return copyAndSetNodeWithIndex(mutator, nodeOffset,
+				 subNodeNew);
 
-				final java.lang.Object[] dst = arraycopyAndSetNode(mutator, nodes, nodeOffset,
-								subNodeNew);
-				return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, dst);
+//				final java.lang.Object[] dst = arraycopyAndSetNode(mutator, nodes, nodeOffset,
+//								subNodeNew);
+//				return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, dst);
 			}
 
 			/* no value */
-			// details.modified();
-			// return copyAndInsertValue(mutator, bitpos, key, val);
+			 details.modified();
+			 return copyAndInsertValue(mutator, bitpos, key, val);
 
-			details.modified();
-			final java.lang.Object[] dst = arraycopyAndInsertValue(mutator, nodes, TUPLE_LENGTH
-							* dataIndex(bitpos), key, val);
-			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap | bitpos, dst);
+//			details.modified();
+//			final java.lang.Object[] dst = arraycopyAndInsertValue(mutator, nodes, TUPLE_LENGTH
+//							* dataIndex(bitpos), key, val);
+//			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap | bitpos, dst);
 		}
 
 		@Override
@@ -1700,6 +1728,32 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 						final int keyHash, final int shift, final Result<K, V> details,
 						final Comparator<Object> cmp) {
 			throw new UnsupportedOperationException();
+		}
+
+		/**
+		 * @return 0 <= mask <= 2^BIT_PARTITION_SIZE - 1
+		 */
+		private static byte recoverMask(int map, byte i_th) {
+			assert 1 <= i_th && i_th <= 32;
+
+			byte cnt1 = 0;
+			byte mask = 0;
+
+			while (mask < 32) {
+				if ((map & 0x01) == 0x01) {
+					cnt1 += 1;
+
+					if (cnt1 == i_th) {
+						return mask;
+					}
+				}
+
+				map = (int) (map >> 1);
+				mask += 1;
+			}
+
+			assert cnt1 != i_th;
+			throw new RuntimeException("Called with invalid arguments.");
 		}
 
 		@Override
@@ -1932,9 +1986,9 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 					final V currentVal = vals[idx];
 					details.updated(currentVal);
 
-					if (this.arity() == 1) {
+					if (this.payloadArity() == 1) {
 						return emptyNode();
-					} else if (this.arity() == 2) {
+					} else if (this.payloadArity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
 						 * will be a) either be the new root returned, or b)
@@ -1981,9 +2035,9 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 					final V currentVal = vals[idx];
 					details.updated(currentVal);
 
-					if (this.arity() == 1) {
+					if (this.payloadArity() == 1) {
 						return emptyNode();
-					} else if (this.arity() == 2) {
+					} else if (this.payloadArity() == 2) {
 						/*
 						 * Create root node with singleton element. This node
 						 * will be a) either be the new root returned, or b)
@@ -2041,11 +2095,6 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		}
 
 		@Override
-		public int arity() {
-			return payloadArity();
-		}
-
-		@Override
 		public byte sizePredicate() {
 			return SIZE_MORE_THAN_ONE;
 		}
@@ -2098,7 +2147,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 				return false;
 			}
 
-			if (arity() != that.arity()) {
+			if (payloadArity() != that.payloadArity()) {
 				return false;
 			}
 
