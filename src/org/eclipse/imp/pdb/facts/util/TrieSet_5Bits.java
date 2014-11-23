@@ -91,12 +91,20 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		return hash == targetHash && size == targetSize;
 	}
 
+	private static int improve(final int hash) {
+		int h = hash + ~(hash << 9);
+		h = h ^ (h >>> 14);
+		h = h + (h << 4);
+		return h ^ (h >>> 10);
+	}
+
 	@Override
 	public TrieSet_5Bits<K> __insert(final K key) {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details);
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details);
 
 		if (details.isModified()) {
 
@@ -112,7 +120,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details, cmp);
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details, cmp);
 
 		if (details.isModified()) {
 
@@ -128,7 +137,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details);
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details);
 
 		if (details.isModified()) {
 
@@ -144,7 +154,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details, cmp);
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details, cmp);
 
 		if (details.isModified()) {
 
@@ -160,7 +171,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, key.hashCode(), 0);
+			return rootNode.containsKey(key, improve(key.hashCode()), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -171,7 +182,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, key.hashCode(), 0, cmp);
+			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -182,7 +193,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
+			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -199,7 +210,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
+			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -564,12 +575,10 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 	}
 
-	protected static abstract class AbstractNode<K, V> {
+	protected static interface INode<K, V> {
 	}
 
-	protected static abstract class AbstractSetNode<K> extends AbstractNode<K, java.lang.Void> {
-
-		static final int TUPLE_LENGTH = 1;
+	protected static abstract class AbstractSetNode<K> implements INode<K, java.lang.Void> {
 
 		abstract boolean containsKey(final K key, final int keyHash, final int shift);
 
@@ -667,11 +676,15 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		static final int BIT_PARTITION_MASK = 0b11111;
 
 		static final int mask(final int keyHash, final int shift) {
-			return (keyHash >>> shift) & BIT_PARTITION_MASK;
+			if (shift == 30) {
+				return keyHash & BIT_PARTITION_MASK;
+			} else {
+				return (keyHash >>> (27 - shift)) & BIT_PARTITION_MASK;
+			}
 		}
 
 		static final int bitpos(final int mask) {
-			return (int) (1L << mask);
+			return 1 << mask;
 		}
 
 		abstract int nodeMap();
@@ -730,8 +743,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		 */
 
 		@SuppressWarnings("unchecked")
-		static final <K> CompactSetNode<K> mergeNodes(final K key0, int keyHash0, final K key1,
-						int keyHash1, int shift) {
+		static final <K> CompactSetNode<K> mergeTwoKeyValPairs(final K key0, final int keyHash0,
+						final K key1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (keyHash0 == keyHash1) {
@@ -751,17 +764,17 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, key0 });
 				}
 			} else {
+				final CompactSetNode<K> node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
+								shift + BIT_PARTITION_SIZE);
 				// values fit on next level
-				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
-								+ BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
 			}
 		}
 
-		static final <K> CompactSetNode<K> mergeNodes(CompactSetNode<K> node0, int keyHash0,
-						final K key1, int keyHash1, int shift) {
+		static final <K> CompactSetNode<K> mergeNodeAndKeyValPair(final CompactSetNode<K> node0,
+						final int keyHash0, final K key1, final int keyHash1, final int shift) {
 			final int mask0 = mask(keyHash0, shift);
 			final int mask1 = mask(keyHash1, shift);
 
@@ -774,8 +787,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, node0 });
 			} else {
 				// values fit on next level
-				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
-								+ BIT_PARTITION_SIZE);
+				final CompactSetNode<K> node = mergeNodeAndKeyValPair(node0, keyHash0, key1,
+								keyHash1, shift + BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
@@ -918,8 +931,9 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 
-					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
-									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
+					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
+									improve(currentKey.hashCode()), key, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -957,8 +971,9 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 
-					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
-									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
+					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
+									improve(currentKey.hashCode()), key, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -1208,26 +1223,42 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			this.mutator = mutator;
 			this.nodes = nodes;
 
-			if (DEBUG) {
+			// if (DEBUG) {
+			//
+			// assert (java.lang.Integer.bitCount(dataMap)
+			// + java.lang.Integer.bitCount(nodeMap) == nodes.length);
+			//
+			// for (int i = 0; i < payloadArity(); i++) {
+			// assert ((nodes[i] instanceof CompactSetNode) == false);
+			// }
+			// for (int i = payloadArity(); i < nodes.length; i++) {
+			// assert ((nodes[i] instanceof CompactSetNode) == true);
+			// }
+			// }
+			//
+			// assert nodeInvariant();
+		}
 
-				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+		@Override
+		boolean containsKey(final K key, final int keyHash, final int shift) {
+			final int bitpos = bitpos(mask(keyHash, shift));
 
-				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
-					assert ((nodes[i] instanceof CompactSetNode) == false);
-				}
-				for (int i = TUPLE_LENGTH * payloadArity(); i < nodes.length; i++) {
-					assert ((nodes[i] instanceof CompactSetNode) == true);
-				}
+			if ((dataMap() & bitpos) != 0) {
+				return nodes[dataIndex(bitpos)].equals(key);
 			}
 
-			assert nodeInvariant();
+			if ((nodeMap() & bitpos) != 0) {
+				return getNode(nodeIndex(bitpos)).containsKey(key, keyHash,
+								shift + BIT_PARTITION_SIZE);
+			}
+
+			return false;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		K getKey(final int index) {
-			return (K) nodes[TUPLE_LENGTH * index];
+			return (K) nodes[index];
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1326,7 +1357,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		@Override
 		CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
 						final int bitpos, final K key) {
-			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
+			final int idx = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length + 1];
@@ -1341,7 +1372,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
-			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
+			final int idx = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length - 1];
@@ -1357,8 +1388,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
 						final int bitpos, final CompactSetNode<K> node) {
 
-			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
+			final int idxOld = dataIndex(bitpos);
+			final int idxNew = this.nodes.length - 1 - nodeIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = new Object[src.length - 1 + 1];
@@ -1471,7 +1502,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final int keyHash, final int shift, final Result<K> details) {
 			if (this.hash != keyHash) {
 				details.modified();
-				return mergeNodes(this, this.hash, key, keyHash, shift);
+				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1502,7 +1533,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				details.modified();
-				return mergeNodes(this, this.hash, key, keyHash, shift);
+				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
