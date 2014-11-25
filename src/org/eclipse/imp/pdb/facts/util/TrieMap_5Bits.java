@@ -114,20 +114,13 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		return hash == targetHash && size == targetSize;
 	}
 
-	private static int improve(final int hash) {
-		int h = hash + ~(hash << 9);
-		h = h ^ (h >>> 14);
-		h = h + (h << 4);
-		return h ^ (h >>> 10);
-	}
-
 	@Override
 	public TrieMap_5Bits<K, V> __put(final K key, final V val) {
 		final int keyHash = key.hashCode();
 		final Result<K, V> details = Result.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, improve(keyHash),
-						0, details);
+		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, keyHash, 0,
+						details);
 
 		if (details.isModified()) {
 
@@ -154,8 +147,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		final int keyHash = key.hashCode();
 		final Result<K, V> details = Result.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, improve(keyHash),
-						0, details, cmp);
+		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, keyHash, 0,
+						details, cmp);
 
 		if (details.isModified()) {
 
@@ -181,8 +174,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		final int keyHash = key.hashCode();
 		final Result<K, V> details = Result.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details);
+		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, keyHash, 0, details);
 
 		if (details.isModified()) {
 
@@ -202,8 +194,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		final int keyHash = key.hashCode();
 		final Result<K, V> details = Result.unchanged();
 
-		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, keyHash, 0, details,
+						cmp);
 
 		if (details.isModified()) {
 
@@ -223,7 +215,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0);
+			return rootNode.containsKey(key, key.hashCode(), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -234,7 +226,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+			return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -265,7 +257,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+			final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -282,7 +274,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
+			final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -751,7 +743,11 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		static final int BIT_PARTITION_MASK = 0b11111;
 
 		static final int mask(final int keyHash, final int shift) {
-			return (keyHash >>> shift) & BIT_PARTITION_MASK;
+			if (shift == 30) {
+				return keyHash & BIT_PARTITION_MASK;
+			} else {
+				return (keyHash >>> (27 - shift)) & BIT_PARTITION_MASK;
+			}
 		}
 
 		static final int bitpos(final int mask) {
@@ -1022,8 +1018,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
-									shift + BIT_PARTITION_SIZE);
+									currentVal, currentKey.hashCode(), key, val, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -1070,8 +1066,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
-									shift + BIT_PARTITION_SIZE);
+									currentVal, currentKey.hashCode(), key, val, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -2223,7 +2219,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0);
+				return rootNode.containsKey(key, key.hashCode(), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2234,7 +2230,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+				return rootNode.containsKey(key, key.hashCode(), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2245,7 +2241,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+				final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2262,7 +2258,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
+				final Optional<V> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -2283,8 +2279,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final int keyHash = key.hashCode();
 			final Result<K, V> details = Result.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details);
+			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val, keyHash,
+							0, details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -2331,8 +2327,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final int keyHash = key.hashCode();
 			final Result<K, V> details = Result.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val, keyHash,
+							0, details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -2413,8 +2409,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final int keyHash = key.hashCode();
 			final Result<K, V> details = Result.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key,
-							improve(keyHash), 0, details);
+			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
+							details);
 
 			if (details.isModified()) {
 
@@ -2447,8 +2443,8 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			final int keyHash = key.hashCode();
 			final Result<K, V> details = Result.unchanged();
 
-			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key,
-							improve(keyHash), 0, details, cmp);
+			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
+							details, cmp);
 
 			if (details.isModified()) {
 
