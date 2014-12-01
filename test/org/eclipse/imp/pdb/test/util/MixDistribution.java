@@ -1,6 +1,13 @@
 package org.eclipse.imp.pdb.test.util;
 
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+
+import javax.imageio.ImageIO;
 
 
 public class MixDistribution {
@@ -39,7 +46,51 @@ public class MixDistribution {
 		System.out.println(name + " root mean error:" + Math.sqrt(total / hashes.length));
 	}
 	
-	public static void main(String[] args) {
+	private static void createBitStatsPlot(String name, String category, int[] numbers, Mixer mixer) throws IOException {
+		int[][] bits = new int[32][32];
+		for (int input : numbers) {
+			int A = mixer.mix(input);
+			for (int sourceBit = 0; sourceBit < 32; sourceBit++) {
+				int flipped = input ^ BIT_OFFSET[sourceBit];
+				int B = mixer.mix(flipped);
+				for (int bit =0; bit < 32; bit++) {
+					int Abit = A & BIT_OFFSET[bit];
+					int Bbit = B & BIT_OFFSET[bit];
+					if (Abit != Bbit) {
+						bits[sourceBit][bit]++;
+					}
+				}
+			}
+		}
+		BufferedImage img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+		for (int x = 0; x < 32; x++) {
+			for (int y = 0; y < 32; y++) {
+				img.setRGB(x, y, getColor(Math.abs((numbers.length/2)-bits[x][y])/((double)numbers.length/2)));
+			}
+		}
+		ImageIO.write(img, "PNG", new File("avalanche-" + category +"-"+ name + ".png"));
+	}
+	
+	private static int getColor(double errorRate) {
+		double green = 0.0;
+		double red = 0.0;
+		if (0 <= errorRate && errorRate < 0.5 ) {
+			green = 1.0;
+			red = 2 * errorRate;
+		}
+		else {
+			red = 1.0;
+		    green = 1.0 - 2 * (errorRate-0.5);
+		}
+		return 
+			  (((int)Math.floor(red * 255)) << 16) 
+			| (((int)Math.floor(green * 255)) << 8)
+			;
+				
+		
+	}
+	
+	public static void main(String[] args) throws IOException {
 		Map<String, Mixer> mixers = new LinkedHashMap<>();
 		mixers.put("raw", new RawMix());
 		mixers.put("xxhash", new XXHashMix());
@@ -73,7 +124,10 @@ public class MixDistribution {
 		System.out.println("Random numbers");
 		for (String m : mixers.keySet()) {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
+			createBitStatsPlot(m, "random", data, mixers.get(m));
 		}
+		
+		
 		for (int i=0; i < data.length; i++) {
 			data[i] = rand.nextInt(512);
 		}
@@ -83,6 +137,7 @@ public class MixDistribution {
 		System.out.println("Random small numbers");
 		for (String m : mixers.keySet()) {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
+			createBitStatsPlot(m, "random_small", data, mixers.get(m));
 		}
 	}
 	
