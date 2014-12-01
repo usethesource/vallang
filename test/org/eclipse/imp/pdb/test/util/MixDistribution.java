@@ -43,6 +43,7 @@ public class MixDistribution {
 		mixers.put("xxhash2", new XXHashMix2());
 		mixers.put("murmur2", new MurmurHash2Mix());
 		mixers.put("murmur2-2", new MurmurHash2Mix2());
+		mixers.put("murmur2-3", new MurmurHash2Mix3());
 		mixers.put("murmur3", new MurmurHash3Mix());
 		mixers.put("murmur3-2", new MurmurHash3Mix2());
 		mixers.put("superfasthash", new SuperFastHashMix());
@@ -190,6 +191,19 @@ public class MixDistribution {
 			int h = n;
 			
 			h *= 0x5bd1e995;
+			h ^= h >>> 13;
+			h *= 0x5bd1e995;
+			h ^= h >>> 15;
+			
+			return h;
+		}
+
+	}
+	private static class MurmurHash2Mix3 implements Mixer {
+		@Override
+		public int mix(int n) {
+			int h = n ^ 0x85ebca6b;
+			
 			h ^= h >>> 13;
 			h *= 0x5bd1e995;
 			h ^= h >>> 15;
