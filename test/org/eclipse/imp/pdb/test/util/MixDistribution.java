@@ -4,17 +4,20 @@ import java.util.*;
 
 
 public class MixDistribution {
+	private static final int[] BIT_OFFSET = new int[32];
+	static {
+		for (int i=0; i < 32; i++) {
+			BIT_OFFSET[i] = 1 << i;
+		}
+	}
 
 	private static void reportHashDistribution(String name, int[] hashes) {
 		int[] counts = new int[32];
 		for (int h : hashes) {
-			int currentBit = 0;
-			while (h != 0 && currentBit < 32) {
-				h >>= 1;
-				if ((h & 1) == 1) {
-					counts[currentBit]++;	
+			for (int bit =0; bit < 32; bit++) {
+				if ((h & BIT_OFFSET[bit]) != 0) {
+					counts[bit]++;
 				}
-				currentBit++;
 			}
 		}
 		System.out.print(name);
