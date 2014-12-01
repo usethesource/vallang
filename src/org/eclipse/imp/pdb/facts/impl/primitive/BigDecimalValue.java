@@ -16,6 +16,7 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
@@ -363,7 +364,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal nroot(IInteger n, int precision) {
-		return newReal(BigDecimalCalculations.intRoot(value, n.longValue(), precision));
+		return newReal(BigDecimalCalculations.intRoot(value, new BigInteger(n.getTwosComplementRepresentation()), precision));
 	}
 	
 	@Override
@@ -373,7 +374,24 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public IReal pow(IInteger power) {
+		if (power.signum() < 0) {
+			// negative power is 1/(this^-power)
+			return newReal(
+						BigDecimal.ONE.divide(value.pow(power.negate().intValue()), value.precision(), RoundingMode.HALF_EVEN)
+				);
+		}
 		return newReal(value.pow(power.intValue()));
+	}
+	@Override
+	public IReal pow(IReal power, int precision) {
+		BigDecimal actualPower = null;
+		if (power instanceof BigDecimalValue) {
+			actualPower = ((BigDecimalValue)power).value;
+		}
+		else {
+			actualPower = new BigDecimal(power.getStringRepresentation());
+		}
+		return newReal(BigDecimalCalculations.pow(value, actualPower, precision));
 	}
 
 	@Override

@@ -834,4 +834,16 @@ public interface IValueFactory {
 	 */
 	public IDateTime datetime(long instant);
 
+	/**
+	 * Create a new DateTime representing the given instant.
+	 * 
+	 * @param instant
+	 *            the instant in time, according to the Java epoch
+	 * @param timezoneHours The hour offset for the new object's timezone 
+	 * @param timezoneMinutes The minute offset for the new object's timezone
+	 * 
+	 * @return a DateTime set to the given instant in time
+	 */
+	public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes);
+	
 }
