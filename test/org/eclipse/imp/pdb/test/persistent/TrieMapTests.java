@@ -93,6 +93,42 @@ public class TrieMapTests {
 		map.printStatistics();
 	}	
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testCheckCompactionFromBeginUponDelete() {
+
+		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		
+		TrieMap_5Bits<Integer, Integer> res1 = map
+						.__put(1, 1)
+						.__put(2, 2);					
+
+		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) res1
+						.__put(32769, 32769)
+						.__remove(2);		
+
+		assert res1.equals(res2);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void testCheckCompactionFromMiddleUponDelete() {
+
+		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
+		
+		TrieMap_5Bits<Integer, Integer> res1 = map
+						.__put(1, 1)
+						.__put(2, 2)
+						.__put(65, 65)
+						.__put(66, 66);					
+
+		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) res1
+						.__put(32769, 32769)
+						.__remove(66);		
+
+		assert res1.equals(res2);
+	}	
+	
 	@Test
 	public void testRecoverMask() {
 		byte mask = recoverMask(-2147483648, (byte) 1);
