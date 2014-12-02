@@ -521,11 +521,6 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public int size() {
-			return cachedSize;
-		}		
-		
-		@Override
 		public Iterator<K> iterator() {
 			return keyIterator();
 		}
@@ -565,6 +560,11 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 			}
 		}
 
+		@Override
+		public int size() {
+			return cachedSize;
+		}
+		
 		@Override
 		public boolean equals(Object o) {
 			return rootNode.equals(o);
