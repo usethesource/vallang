@@ -497,7 +497,14 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public int hashCode(){
-		return value;
+		int h = value ^ 0x85ebca6b;
+		// based on the final Avalanching phase of MurmurHash2
+		// providing a nice mix of bits even for small numbers.
+		h ^= h >>> 13;
+		h *= 0x5bd1e995;
+		h ^= h >>> 15;
+
+		return h;
 	}
 	
 	public boolean equals(Object o){
