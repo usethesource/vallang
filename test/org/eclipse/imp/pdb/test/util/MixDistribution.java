@@ -95,9 +95,11 @@ public class MixDistribution {
 		mixers.put("raw", new RawMix());
 		mixers.put("xxhash", new XXHashMix());
 		mixers.put("xxhash2", new XXHashMix2());
+		mixers.put("lookup3", new Lookup3Mix());
 		mixers.put("murmur2", new MurmurHash2Mix());
 		mixers.put("murmur2-2", new MurmurHash2Mix2());
 		mixers.put("murmur2-3", new MurmurHash2Mix3());
+		mixers.put("murmur2-4", new MurmurHash2Mix4());
 		mixers.put("murmur3", new MurmurHash3Mix());
 		mixers.put("murmur3-2", new MurmurHash3Mix2());
 		mixers.put("superfasthash", new SuperFastHashMix());
@@ -137,7 +139,6 @@ public class MixDistribution {
 		System.out.println("Random small numbers");
 		for (String m : mixers.keySet()) {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
-			createBitStatsPlot(m, "random_small", data, mixers.get(m));
 		}
 	}
 	
@@ -269,6 +270,40 @@ public class MixDistribution {
 			return h;
 		}
 
+	}
+	private static class MurmurHash2Mix4 implements Mixer {
+		@Override
+		public int mix(int n) {
+			int h = n ^ 0x85ebca6b;
+			
+			h ^= h >>> 13;
+			h *= 0x5bd1e995;
+			h ^= h >>> 15;
+
+			h += ( h >> 22 ) ^ ( h << 4 );
+			
+			return h;
+		}
+
+	}
+	
+	private static class Lookup3Mix implements Mixer {
+		@Override
+		public int mix(int n) {
+			int a,b,c;
+			a = b = c = 0xdeadbeef + (1<<2);
+			a += n;
+			{
+				c ^= b; c -= (b<<14)|(b>>>-14);
+				a ^= c; a -= (c<<11)|(c>>>-11);
+				b ^= a; b -= (a<<25)|(a>>>-25);
+				c ^= b; c -= (b<<16)|(b>>>-16);
+				a ^= c; a -= (c<<4)|(c>>>-4);
+				b ^= a; b -= (a<<14)|(a>>>-14);
+				c ^= b; c -= (b<<24)|(b>>>-24);
+			}
+			return c;
+		}
 	}
 	
 	private static class MurmurHash3Mix implements Mixer{
