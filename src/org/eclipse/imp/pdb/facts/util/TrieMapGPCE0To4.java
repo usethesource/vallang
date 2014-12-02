@@ -907,6 +907,11 @@ public class TrieMapGPCE0To4<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		public int size() {
+			return cachedSize;
+		}
+		
+		@Override
 		public boolean equals(Object o) {
 			return rootNode.equals(o);
 		}

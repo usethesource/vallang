@@ -21,14 +21,18 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
  * types. The least upper bound type of is calculated on basis of the map keys.
  */
 public abstract class AbstractTypeBag implements Cloneable {
-		
+
 	public abstract AbstractTypeBag increase(Type t);
 
 	public abstract AbstractTypeBag decrease(Type t);
 	
-	public abstract Type lub();
+	@Deprecated
+	public abstract AbstractTypeBag setLabel(String label);	
 	
+	@Deprecated
 	public abstract String getLabel();
+
+	public abstract Type lub();
 
 	public abstract AbstractTypeBag clone();
 	
@@ -111,6 +115,18 @@ public abstract class AbstractTypeBag implements Cloneable {
 			}			
 		}
 		
+		@Deprecated
+		@Override
+		public AbstractTypeBag setLabel(String label) {
+			return new TypeBag(label, countMap, cachedLub);
+		}
+		
+		@Deprecated
+		@Override
+		public String getLabel() {
+			return label;
+		}
+		
 		@Override
 		public Type lub() {
 			if (cachedLub == null) {			
@@ -122,11 +138,6 @@ public abstract class AbstractTypeBag implements Cloneable {
 			}
 			return cachedLub;
 		}	
-
-		@Override
-		public String getLabel() {
-			return label;
-		}
 
 		@Override
 		public AbstractTypeBag clone() {

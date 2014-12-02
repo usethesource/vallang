@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.util.AbstractTypeBag;
 import org.eclipse.imp.pdb.facts.util.EqualityUtils;
 import org.eclipse.imp.pdb.facts.util.ImmutableMap;
+import org.eclipse.imp.pdb.facts.util.TransientMap;
 
 public final class PDBPersistentHashMap extends AbstractMap {
 		
@@ -206,12 +207,80 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		return content.entryIterator();
 	}
 
+	@Deprecated
+	private static String mergeLabels(String one, String two) {
+		if (one != null && two != null && one.equals(two)) {
+			// both are the same
+			return one;
+		} else {
+			// only one is not null
+			return one != null ? one : two;
+		}
+	}	
+	
 	@Override
-	public IMap join(IMap that) {
-		// TODO Auto-generated method stub
-		return super.join(that);
-	}
+	public IMap join(IMap other) {
+		if (other instanceof PDBPersistentHashMap) {
+			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
 
+			final TransientMap<IValue, IValue> transientContent = content.asTransient();
+
+			boolean isModified = false;
+			int previousSize = size();
+
+			AbstractTypeBag keyBagNew = null;
+			if (that.keyTypeBag.getLabel() != null) {
+				keyBagNew = keyTypeBag.setLabel(mergeLabels(keyTypeBag.getLabel(),
+								that.keyTypeBag.getLabel()));
+
+				isModified |= (keyBagNew.getLabel() != keyTypeBag.getLabel());
+			} else {
+				keyBagNew = keyTypeBag;
+			}
+
+			AbstractTypeBag valBagNew = null;
+			if (that.valTypeBag.getLabel() != null) {
+				valBagNew = valTypeBag.setLabel(mergeLabels(valTypeBag.getLabel(),
+								that.valTypeBag.getLabel()));
+
+				isModified |= (valBagNew.getLabel() != valTypeBag.getLabel());
+			} else {
+				valBagNew = valTypeBag;
+			}
+
+			for (Iterator<Entry<IValue, IValue>> it = that.entryIterator(); it.hasNext();) {
+				Entry<IValue, IValue> tuple = it.next();
+				IValue key = tuple.getKey();
+				IValue value = tuple.getValue();
+
+				final IValue replaced = transientContent.__putEquivalent(key, value,
+								equivalenceComparator);
+
+				if (replaced != null) {
+					// value replaced
+					valBagNew = valBagNew.decrease(replaced.getType()).increase(value.getType());
+
+					isModified = true;
+				} else if (previousSize != transientContent.size()) {
+					// pair added
+					keyBagNew = keyBagNew.increase(key.getType());
+					valBagNew = valBagNew.increase(value.getType());
+
+					isModified = true;
+					previousSize++;
+				}
+			}
+
+			if (isModified) {
+				return new PDBPersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
+			} else {
+				return this;
+			}
+		} else {
+			return super.join(other);
+		}
+	}
+	
 	@Override
 	public IMap remove(IMap that) {
 		// TODO Auto-generated method stub
