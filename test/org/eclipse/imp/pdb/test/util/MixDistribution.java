@@ -1,20 +1,30 @@
 package org.eclipse.imp.pdb.test.util;
 
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+
+import javax.imageio.ImageIO;
 
 
 public class MixDistribution {
+	private static final int[] BIT_OFFSET = new int[32];
+	static {
+		for (int i=0; i < 32; i++) {
+			BIT_OFFSET[i] = 1 << i;
+		}
+	}
 
 	private static void reportHashDistribution(String name, int[] hashes) {
 		int[] counts = new int[32];
 		for (int h : hashes) {
-			int currentBit = 0;
-			while (h != 0 && currentBit < 32) {
-				h >>= 1;
-				if ((h & 1) == 1) {
-					counts[currentBit]++;	
+			for (int bit =0; bit < 32; bit++) {
+				if ((h & BIT_OFFSET[bit]) != 0) {
+					counts[bit]++;
 				}
-				currentBit++;
 			}
 		}
 		System.out.print(name);
@@ -36,13 +46,60 @@ public class MixDistribution {
 		System.out.println(name + " root mean error:" + Math.sqrt(total / hashes.length));
 	}
 	
-	public static void main(String[] args) {
+	private static void createBitStatsPlot(String name, String category, int[] numbers, Mixer mixer) throws IOException {
+		int[][] bits = new int[32][32];
+		for (int input : numbers) {
+			int A = mixer.mix(input);
+			for (int sourceBit = 0; sourceBit < 32; sourceBit++) {
+				int flipped = input ^ BIT_OFFSET[sourceBit];
+				int B = mixer.mix(flipped);
+				for (int bit =0; bit < 32; bit++) {
+					int Abit = A & BIT_OFFSET[bit];
+					int Bbit = B & BIT_OFFSET[bit];
+					if (Abit != Bbit) {
+						bits[sourceBit][bit]++;
+					}
+				}
+			}
+		}
+		BufferedImage img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+		for (int x = 0; x < 32; x++) {
+			for (int y = 0; y < 32; y++) {
+				img.setRGB(x, y, getColor(Math.abs((numbers.length/2)-bits[x][y])/((double)numbers.length/2)));
+			}
+		}
+		ImageIO.write(img, "PNG", new File("avalanche-" + category +"-"+ name + ".png"));
+	}
+	
+	private static int getColor(double errorRate) {
+		double green = 0.0;
+		double red = 0.0;
+		if (0 <= errorRate && errorRate < 0.5 ) {
+			green = 1.0;
+			red = 2 * errorRate;
+		}
+		else {
+			red = 1.0;
+		    green = 1.0 - 2 * (errorRate-0.5);
+		}
+		return 
+			  (((int)Math.floor(red * 255)) << 16) 
+			| (((int)Math.floor(green * 255)) << 8)
+			;
+				
+		
+	}
+	
+	public static void main(String[] args) throws IOException {
 		Map<String, Mixer> mixers = new LinkedHashMap<>();
 		mixers.put("raw", new RawMix());
 		mixers.put("xxhash", new XXHashMix());
 		mixers.put("xxhash2", new XXHashMix2());
+		mixers.put("lookup3", new Lookup3Mix());
 		mixers.put("murmur2", new MurmurHash2Mix());
 		mixers.put("murmur2-2", new MurmurHash2Mix2());
+		mixers.put("murmur2-3", new MurmurHash2Mix3());
+		mixers.put("murmur2-4", new MurmurHash2Mix4());
 		mixers.put("murmur3", new MurmurHash3Mix());
 		mixers.put("murmur3-2", new MurmurHash3Mix2());
 		mixers.put("superfasthash", new SuperFastHashMix());
@@ -69,7 +126,10 @@ public class MixDistribution {
 		System.out.println("Random numbers");
 		for (String m : mixers.keySet()) {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
+			createBitStatsPlot(m, "random", data, mixers.get(m));
 		}
+		
+		
 		for (int i=0; i < data.length; i++) {
 			data[i] = rand.nextInt(512);
 		}
@@ -197,6 +257,53 @@ public class MixDistribution {
 			return h;
 		}
 
+	}
+	private static class MurmurHash2Mix3 implements Mixer {
+		@Override
+		public int mix(int n) {
+			int h = n ^ 0x85ebca6b;
+			
+			h ^= h >>> 13;
+			h *= 0x5bd1e995;
+			h ^= h >>> 15;
+			
+			return h;
+		}
+
+	}
+	private static class MurmurHash2Mix4 implements Mixer {
+		@Override
+		public int mix(int n) {
+			int h = n ^ 0x85ebca6b;
+			
+			h ^= h >>> 13;
+			h *= 0x5bd1e995;
+			h ^= h >>> 15;
+
+			h += ( h >> 22 ) ^ ( h << 4 );
+			
+			return h;
+		}
+
+	}
+	
+	private static class Lookup3Mix implements Mixer {
+		@Override
+		public int mix(int n) {
+			int a,b,c;
+			a = b = c = 0xdeadbeef + (1<<2);
+			a += n;
+			{
+				c ^= b; c -= (b<<14)|(b>>>-14);
+				a ^= c; a -= (c<<11)|(c>>>-11);
+				b ^= a; b -= (a<<25)|(a>>>-25);
+				c ^= b; c -= (b<<16)|(b>>>-16);
+				a ^= c; a -= (c<<4)|(c>>>-4);
+				b ^= a; b -= (a<<14)|(a>>>-14);
+				c ^= b; c -= (b<<24)|(b>>>-24);
+			}
+			return c;
+		}
 	}
 	
 	private static class MurmurHash3Mix implements Mixer{
