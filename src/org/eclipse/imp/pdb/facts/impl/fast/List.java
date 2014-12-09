@@ -40,6 +40,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	protected final ShareableValuesList data;
 
+	private boolean hashCalculated = false;
 	protected int hashCode = 0;
 
 	/*package*/ static IList newList(Type elementType, ShareableValuesList data) {
@@ -58,7 +59,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				
 		this.data = data;
 		
-		this.hashCode = data.hashCode();
 	}
 	
 	/*package*/ static ListWriter createListWriter(Type eltType){
@@ -250,6 +250,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public int hashCode(){
+		if (!hashCalculated) {
+			hashCode = data.hashCode();
+			hashCalculated = true;
+		}
 		return hashCode;
 	}
 
@@ -262,7 +266,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 			if (getType() != otherList.getType()) return false;
 			
-			if (hashCode != otherList.hashCode) return false;
+			if (hashCode() != otherList.hashCode()) return false;
 			
 			if (listType != otherList.listType) return false;
 			

@@ -44,6 +44,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 /*package*/ class Constructor extends AbstractValue implements IConstructor {
 	protected final Type constructorType;
 	protected final IValue[] children;
+	private int hashCode = 0;
+	private boolean hashCalculated = false;
 
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
 		return new Constructor(constructorType, children); 
@@ -163,14 +165,16 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public int hashCode(){
-		int hash = constructorType.hashCode();
-		
-		for(int i = children.length - 1; i >= 0; i--){
-			hash = (hash << 23) + (hash >> 5);
-			hash ^= children[i].hashCode();
+		if (!hashCalculated) {
+			hashCode = constructorType.hashCode();
+			
+			for(int i = children.length - 1; i >= 0; i--){
+				hashCode = (hashCode << 23) + (hashCode >> 5);
+				hashCode ^= children[i].hashCode();
+			}
+			hashCalculated = true;
 		}
-		
-		return hash;
+		return hashCode;
 	}
 	
 	@Override
