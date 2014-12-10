@@ -91,12 +91,17 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		return hash == targetHash && size == targetSize;
 	}
 
+	private static int improve(final int hash) {
+		return hash; // return idendity
+	}
+
 	@Override
 	public TrieSet_BleedingEdge<K> __insert(final K key) {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details);
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details);
 
 		if (details.isModified()) {
 
@@ -112,7 +117,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details, cmp);
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details, cmp);
 
 		if (details.isModified()) {
 
@@ -128,7 +134,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details);
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details);
 
 		if (details.isModified()) {
 
@@ -144,7 +151,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details, cmp);
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details, cmp);
 
 		if (details.isModified()) {
 
@@ -160,7 +168,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, key.hashCode(), 0);
+			return rootNode.containsKey(key, improve(key.hashCode()), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -171,7 +179,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, key.hashCode(), 0, cmp);
+			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -182,7 +190,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
+			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -199,7 +207,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
+			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -323,7 +331,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 	@Override
 	public SupplierIterator<K, K> keyIterator() {
-		return new SetKeyIterator<>(rootNode);
+		return new TrieSet_BleedingEdgeIterator<>((CompactSetNode<K>) rootNode);
 	}
 
 	@Override
@@ -564,10 +572,10 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 	}
 
-	protected static abstract class AbstractNode<K, V> {
+	protected static interface INode<K, V> {
 	}
 
-	protected static abstract class AbstractSetNode<K> extends AbstractNode<K, java.lang.Void> {
+	protected static abstract class AbstractSetNode<K> implements INode<K, java.lang.Void> {
 
 		static final int TUPLE_LENGTH = 1;
 
@@ -610,6 +618,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			return new Iterator<AbstractSetNode<K>>() {
 
 				int nextIndex = 0;
+				final int nodeArity = AbstractSetNode.this.nodeArity();
 
 				@Override
 				public void remove() {
@@ -625,7 +634,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 				@Override
 				public boolean hasNext() {
-					return nextIndex < AbstractSetNode.this.nodeArity();
+					return nextIndex < nodeArity;
 				}
 			};
 		}
@@ -637,12 +646,53 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		abstract int payloadArity();
 
 		@Deprecated
+		SupplierIterator<K, K> payloadIterator() {
+			return new SupplierIterator<K, K>() {
+
+				int nextIndex = 0;
+				final int payloadArity = AbstractSetNode.this.payloadArity();
+
+				@Override
+				public K get() {
+					if (nextIndex == 0 || nextIndex > AbstractSetNode.this.payloadArity()) {
+						throw new NoSuchElementException();
+					}
+
+					return AbstractSetNode.this.getKey(nextIndex - 1);
+				}
+
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+
+				@Override
+				public K next() {
+					if (!hasNext())
+						throw new NoSuchElementException();
+					return AbstractSetNode.this.getKey(nextIndex++);
+				}
+
+				@Override
+				public boolean hasNext() {
+					return nextIndex < payloadArity;
+				}
+			};
+		}
+
+		abstract java.lang.Object getSlot(final int index);
+
+		abstract boolean hasSlots();
+
+		abstract int slotArity();
+
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
 		 * 
 		 * @return sum of nodes and values stored within
 		 */
+
 		int arity() {
 			return payloadArity() + nodeArity();
 		}
@@ -730,8 +780,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		 */
 
 		@SuppressWarnings("unchecked")
-		static final <K> CompactSetNode<K> mergeNodes(final K key0, int keyHash0, final K key1,
-						int keyHash1, int shift) {
+		static final <K> CompactSetNode<K> mergeTwoKeyValPairs(final K key0, final int keyHash0,
+						final K key1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (keyHash0 == keyHash1) {
@@ -752,17 +802,17 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, key0 });
 				}
 			} else {
+				final CompactSetNode<K> node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
+								shift + BIT_PARTITION_SIZE);
 				// values fit on next level
-				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
-								+ BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
 			}
 		}
 
-		static final <K> CompactSetNode<K> mergeNodes(CompactSetNode<K> node0, int keyHash0,
-						final K key1, int keyHash1, int shift) {
+		static final <K> CompactSetNode<K> mergeNodeAndKeyValPair(final CompactSetNode<K> node0,
+						final int keyHash0, final K key1, final int keyHash1, final int shift) {
 			final int mask0 = mask(keyHash0, shift);
 			final int mask1 = mask(keyHash1, shift);
 
@@ -775,8 +825,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, node0 });
 			} else {
 				// values fit on next level
-				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
-								+ BIT_PARTITION_SIZE);
+				final CompactSetNode<K> node = mergeNodeAndKeyValPair(node0, keyHash0, key1,
+								keyHash1, shift + BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
@@ -919,8 +969,9 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 
-					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
-									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
+					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
+									improve(currentKey.hashCode()), key, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -958,8 +1009,9 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 
-					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
-									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
+					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
+									improve(currentKey.hashCode()), key, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -1238,6 +1290,26 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
+		SupplierIterator<K, K> payloadIterator() {
+			return ArraySupplierIterator.of(nodes, 0, payloadArity());
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<? extends CompactSetNode<K>> nodeIterator() {
+			final int length = nodeArity();
+			final int offset = nodes.length - length;
+
+			if (DEBUG) {
+				for (int i = offset; i < offset + length; i++) {
+					assert ((nodes[i] instanceof AbstractSetNode) == true);
+				}
+			}
+
+			return (Iterator) ArrayIterator.of(nodes, offset, length);
+		}
+
+		@Override
 		boolean hasPayload() {
 			return dataMap() != 0;
 		}
@@ -1255,6 +1327,21 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		@Override
 		int nodeArity() {
 			return java.lang.Integer.bitCount(nodeMap());
+		}
+
+		@Override
+		java.lang.Object getSlot(final int index) {
+			return nodes[index];
+		}
+
+		@Override
+		boolean hasSlots() {
+			return nodes.length != 0;
+		}
+
+		@Override
+		int slotArity() {
+			return nodes.length;
 		}
 
 		@Override
@@ -1412,6 +1499,19 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
+		SupplierIterator<K, K> payloadIterator() {
+
+			final Object[] keysAndVals = new Object[2 * keys.length];
+			for (int i = 0; i < keys.length; i++) {
+				keysAndVals[2 * i] = keys[i];
+				keysAndVals[2 * i + 1] = keys[i];
+			}
+
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
+
+		}
+
+		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift) {
 
 			if (this.hash == keyHash) {
@@ -1472,7 +1572,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 						final int keyHash, final int shift, final Result<K> details) {
 			if (this.hash != keyHash) {
 				details.modified();
-				return mergeNodes(this, this.hash, key, keyHash, shift);
+				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1503,7 +1603,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 						final Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				details.modified();
-				return mergeNodes(this, this.hash, key, keyHash, shift);
+				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1644,6 +1744,21 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
+		java.lang.Object getSlot(final int index) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		boolean hasSlots() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int slotArity() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
@@ -1740,80 +1855,88 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 	 */
 	private static abstract class AbstractSetIterator<K> {
 
-		// TODO: verify maximum deepness
 		private static final int MAX_DEPTH = 8;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
 		protected AbstractSetNode<K> currentValueNode;
 
-		private int currentStackLevel;
+		private int currentStackLevel = -1;
 		private final int[] nodeCursorsAndLengths = new int[MAX_DEPTH * 2];
 
 		@SuppressWarnings("unchecked")
 		AbstractSetNode<K>[] nodes = new AbstractSetNode[MAX_DEPTH];
 
 		AbstractSetIterator(AbstractSetNode<K> rootNode) {
-			currentStackLevel = 0;
+			if (rootNode.hasNodes()) {
+				currentStackLevel = 0;
 
-			currentValueNode = rootNode;
-			currentValueCursor = 0;
-			currentValueLength = rootNode.payloadArity();
+				nodes[0] = rootNode;
+				nodeCursorsAndLengths[0] = 0;
+				nodeCursorsAndLengths[1] = rootNode.nodeArity();
+			}
 
-			nodes[0] = rootNode;
-			nodeCursorsAndLengths[0] = 0;
-			nodeCursorsAndLengths[1] = rootNode.nodeArity();
+			if (rootNode.hasPayload()) {
+				currentValueNode = rootNode;
+				currentValueCursor = 0;
+				currentValueLength = rootNode.payloadArity();
+
+			}
+		}
+
+		/*
+		 * search for next node that contains values
+		 */
+		private boolean searchNextValueNode() {
+			while (currentStackLevel >= 0) {
+				final int currentCursorIndex = currentStackLevel * 2;
+				final int currentLengthIndex = currentCursorIndex + 1;
+
+				final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
+				final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
+
+				if (nodeCursor < nodeLength) {
+					final AbstractSetNode<K> nextNode = nodes[currentStackLevel]
+									.getNode(nodeCursor);
+					nodeCursorsAndLengths[currentCursorIndex]++;
+
+					if (nextNode.hasNodes()) {
+						/*
+						 * put node on next stack level for depth-first
+						 * traversal
+						 */
+						final int nextStackLevel = ++currentStackLevel;
+						final int nextCursorIndex = nextStackLevel * 2;
+						final int nextLengthIndex = nextCursorIndex + 1;
+
+						nodes[nextStackLevel] = nextNode;
+						nodeCursorsAndLengths[nextCursorIndex] = 0;
+						nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
+					}
+
+					if (nextNode.hasPayload()) {
+						/*
+						 * found next node that contains values
+						 */
+						currentValueNode = nextNode;
+						currentValueCursor = 0;
+						currentValueLength = nextNode.payloadArity();
+						return true;
+					}
+				} else {
+					currentStackLevel--;
+				}
+			}
+
+			return false;
 		}
 
 		public boolean hasNext() {
 			if (currentValueCursor < currentValueLength) {
 				return true;
 			} else {
-				/*
-				 * search for next node that contains values
-				 */
-				while (currentStackLevel >= 0) {
-					final int currentCursorIndex = currentStackLevel * 2;
-					final int currentLengthIndex = currentCursorIndex + 1;
-
-					final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
-					final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
-
-					if (nodeCursor < nodeLength) {
-						final AbstractSetNode<K> nextNode = nodes[currentStackLevel]
-										.getNode(nodeCursor);
-						nodeCursorsAndLengths[currentCursorIndex]++;
-
-						if (nextNode.hasNodes()) {
-							/*
-							 * put node on next stack level for depth-first
-							 * traversal
-							 */
-							final int nextStackLevel = ++currentStackLevel;
-							final int nextCursorIndex = nextStackLevel * 2;
-							final int nextLengthIndex = nextCursorIndex + 1;
-
-							nodes[nextStackLevel] = nextNode;
-							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
-						}
-
-						if (nextNode.hasPayload()) {
-							/*
-							 * found next node that contains values
-							 */
-							currentValueNode = nextNode;
-							currentValueCursor = 0;
-							currentValueLength = nextNode.payloadArity();
-							return true;
-						}
-					} else {
-						currentStackLevel--;
-					}
-				}
+				return searchNextValueNode();
 			}
-
-			return false;
 		}
 
 		public void remove() {
@@ -1839,6 +1962,87 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 		@Override
 		public K get() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	/**
+	 * Iterator that first iterates over inlined-values and then continues depth
+	 * first recursively.
+	 */
+	private static class TrieSet_BleedingEdgeIterator<K> implements SupplierIterator<K, K> {
+
+		Iterator<? extends AbstractSetNode>[] nodeIteratorStack = null;
+		int peek = -1;
+
+		SupplierIterator<K, K> currentValueIterator = null;
+		Iterator<? extends AbstractSetNode> currentNodeIterator = null;
+
+		TrieSet_BleedingEdgeIterator(CompactSetNode<K> rootNode) {
+			if (rootNode.hasNodes()) {
+				nodeIteratorStack = new Iterator[8];
+
+				currentNodeIterator = rootNode.nodeIterator();
+				peek += 1;
+				nodeIteratorStack[peek] = currentNodeIterator;
+			}
+
+			if (rootNode.hasPayload()) {
+				currentValueIterator = rootNode.payloadIterator();
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (currentValueIterator != null && currentValueIterator.hasNext()) {
+				return true;
+			} else {
+				return searchNextValueIterator();
+			}
+		}
+
+		private boolean searchNextValueIterator() {
+			while (true) {
+				if (currentNodeIterator != null && currentNodeIterator.hasNext()) {
+					AbstractSetNode<K> innerNode = currentNodeIterator.next();
+
+					if (innerNode.hasNodes()) {
+						currentNodeIterator = innerNode.nodeIterator();
+						peek += 1;
+						nodeIteratorStack[peek] = currentNodeIterator;
+					}
+
+					if (innerNode.hasPayload()) {
+						currentValueIterator = innerNode.payloadIterator();
+						// return hasNext = true;
+						return true;
+					}
+				} else {
+					if (peek <= 0)
+						// return hasNext = false;
+						return false;
+
+					peek -= 1;
+					currentNodeIterator = nodeIteratorStack[peek];
+				}
+			}
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext())
+				throw new NoSuchElementException();
+
+			return currentValueIterator.next();
+		}
+
+		@Override
+		public K get() {
+			return currentValueIterator.get();
+		}
+
+		@Override
+		public void remove() {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -1930,7 +2134,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, key.hashCode(), 0);
+				return rootNode.containsKey(key, improve(key.hashCode()), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -1941,7 +2145,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, key.hashCode(), 0, cmp);
+				return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -1952,7 +2156,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
+				final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -1969,7 +2173,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
+				final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -1990,8 +2194,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash, 0,
-							details);
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
+							0, details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -2020,8 +2224,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash, 0,
-							details, cmp);
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
+							0, details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -2097,8 +2301,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
-							details);
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
+							0, details);
 
 			if (details.isModified()) {
 
@@ -2128,8 +2332,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
-							details, cmp);
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
+							0, details, cmp);
 
 			if (details.isModified()) {
 
