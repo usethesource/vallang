@@ -45,7 +45,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final Type constructorType;
 	protected final IValue[] children;
 	private int hashCode = 0;
-	private boolean hashCalculated = false;
 
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
 		return new Constructor(constructorType, children); 
@@ -165,14 +164,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public int hashCode(){
-		if (!hashCalculated) {
+		if (hashCode == 0) {
 			hashCode = constructorType.hashCode();
 			
 			for(int i = children.length - 1; i >= 0; i--){
 				hashCode = (hashCode << 23) + (hashCode >> 5);
 				hashCode ^= children[i].hashCode();
 			}
-			hashCalculated = true;
 		}
 		return hashCode;
 	}

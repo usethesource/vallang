@@ -40,7 +40,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	protected final ShareableValuesList data;
 
-	private boolean hashCalculated = false;
 	protected int hashCode = 0;
 
 	/*package*/ static IList newList(Type elementType, ShareableValuesList data) {
@@ -250,9 +249,8 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public int hashCode(){
-		if (!hashCalculated) {
+		if (hashCode == 0) {
 			hashCode = data.hashCode();
-			hashCalculated = true;
 		}
 		return hashCode;
 	}
