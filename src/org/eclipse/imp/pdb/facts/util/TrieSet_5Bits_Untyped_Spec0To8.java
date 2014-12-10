@@ -91,12 +91,17 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		return hash == targetHash && size == targetSize;
 	}
 
+	private static int improve(final int hash) {
+		return hash; // return idendity
+	}
+
 	@Override
 	public TrieSet_5Bits_Untyped_Spec0To8<K> __insert(final K key) {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details);
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details);
 
 		if (details.isModified()) {
 
@@ -114,7 +119,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, keyHash, 0, details, cmp);
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details, cmp);
 
 		if (details.isModified()) {
 
@@ -131,7 +137,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details);
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details);
 
 		if (details.isModified()) {
 
@@ -148,7 +155,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		final int keyHash = key.hashCode();
 		final Result<K> details = Result.unchanged();
 
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, keyHash, 0, details, cmp);
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details, cmp);
 
 		if (details.isModified()) {
 
@@ -165,7 +173,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, key.hashCode(), 0);
+			return rootNode.containsKey(key, improve(key.hashCode()), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -176,7 +184,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, key.hashCode(), 0, cmp);
+			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
@@ -187,7 +195,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
+			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -204,7 +212,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
+			final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -569,10 +577,10 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 	}
 
-	protected static abstract class AbstractNode<K, V> {
+	protected static interface INode<K, V> {
 	}
 
-	protected static abstract class AbstractSetNode<K> extends AbstractNode<K, java.lang.Void> {
+	protected static abstract class AbstractSetNode<K> implements INode<K, java.lang.Void> {
 
 		static final int TUPLE_LENGTH = 1;
 
@@ -615,6 +623,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			return new Iterator<AbstractSetNode<K>>() {
 
 				int nextIndex = 0;
+				final int nodeArity = AbstractSetNode.this.nodeArity();
 
 				@Override
 				public void remove() {
@@ -630,7 +639,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 
 				@Override
 				public boolean hasNext() {
-					return nextIndex < AbstractSetNode.this.nodeArity();
+					return nextIndex < nodeArity;
 				}
 			};
 		}
@@ -747,8 +756,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@SuppressWarnings("unchecked")
-		static final <K> CompactSetNode<K> mergeNodes(final K key0, int keyHash0, final K key1,
-						int keyHash1, int shift) {
+		static final <K> CompactSetNode<K> mergeTwoKeyValPairs(final K key0, final int keyHash0,
+						final K key1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (keyHash0 == keyHash1) {
@@ -769,17 +778,17 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 					return nodeOf(null, (int) 0, dataMap, key1, key0);
 				}
 			} else {
+				final CompactSetNode<K> node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
+								shift + BIT_PARTITION_SIZE);
 				// values fit on next level
-				final CompactSetNode<K> node = mergeNodes(key0, keyHash0, key1, keyHash1, shift
-								+ BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
 			}
 		}
 
-		static final <K> CompactSetNode<K> mergeNodes(CompactSetNode<K> node0, int keyHash0,
-						final K key1, int keyHash1, int shift) {
+		static final <K> CompactSetNode<K> mergeNodeAndKeyValPair(final CompactSetNode<K> node0,
+						final int keyHash0, final K key1, final int keyHash1, final int shift) {
 			final int mask0 = mask(keyHash0, shift);
 			final int mask1 = mask(keyHash1, shift);
 
@@ -792,8 +801,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 				return nodeOf(null, nodeMap, dataMap, key1, node0);
 			} else {
 				// values fit on next level
-				final CompactSetNode<K> node = mergeNodes(node0, keyHash0, key1, keyHash1, shift
-								+ BIT_PARTITION_SIZE);
+				final CompactSetNode<K> node = mergeNodeAndKeyValPair(node0, keyHash0, key1,
+								keyHash1, shift + BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
@@ -1007,8 +1016,9 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 
-					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
-									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
+					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
+									improve(currentKey.hashCode()), key, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					// final CompactSetNode<K> thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1052,8 +1062,9 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 					return this;
 				} else {
 
-					final CompactSetNode<K> subNodeNew = mergeNodes(currentKey,
-									currentKey.hashCode(), key, keyHash, shift + BIT_PARTITION_SIZE);
+					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
+									improve(currentKey.hashCode()), key, keyHash, shift
+													+ BIT_PARTITION_SIZE);
 
 					// final CompactSetNode<K> thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1416,7 +1427,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 
 		@Override
 		java.lang.Object getSlot(final int index) {
-			throw new UnsupportedOperationException();
+			return nodes[index];
 		}
 
 		@Override
@@ -2492,7 +2503,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 						final int keyHash, final int shift, final Result<K> details) {
 			if (this.hash != keyHash) {
 				details.modified();
-				return mergeNodes(this, this.hash, key, keyHash, shift);
+				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -2523,7 +2534,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 						final Comparator<Object> cmp) {
 			if (this.hash != keyHash) {
 				details.modified();
-				return mergeNodes(this, this.hash, key, keyHash, shift);
+				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
 			}
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -2781,80 +2792,88 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 	 */
 	private static abstract class AbstractSetIterator<K> {
 
-		// TODO: verify maximum deepness
 		private static final int MAX_DEPTH = 8;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
 		protected AbstractSetNode<K> currentValueNode;
 
-		private int currentStackLevel;
+		private int currentStackLevel = -1;
 		private final int[] nodeCursorsAndLengths = new int[MAX_DEPTH * 2];
 
 		@SuppressWarnings("unchecked")
 		AbstractSetNode<K>[] nodes = new AbstractSetNode[MAX_DEPTH];
 
 		AbstractSetIterator(AbstractSetNode<K> rootNode) {
-			currentStackLevel = 0;
+			if (rootNode.hasNodes()) {
+				currentStackLevel = 0;
 
-			currentValueNode = rootNode;
-			currentValueCursor = 0;
-			currentValueLength = rootNode.payloadArity();
+				nodes[0] = rootNode;
+				nodeCursorsAndLengths[0] = 0;
+				nodeCursorsAndLengths[1] = rootNode.nodeArity();
+			}
 
-			nodes[0] = rootNode;
-			nodeCursorsAndLengths[0] = 0;
-			nodeCursorsAndLengths[1] = rootNode.nodeArity();
+			if (rootNode.hasPayload()) {
+				currentValueNode = rootNode;
+				currentValueCursor = 0;
+				currentValueLength = rootNode.payloadArity();
+
+			}
+		}
+
+		/*
+		 * search for next node that contains values
+		 */
+		private boolean searchNextValueNode() {
+			while (currentStackLevel >= 0) {
+				final int currentCursorIndex = currentStackLevel * 2;
+				final int currentLengthIndex = currentCursorIndex + 1;
+
+				final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
+				final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
+
+				if (nodeCursor < nodeLength) {
+					final AbstractSetNode<K> nextNode = nodes[currentStackLevel]
+									.getNode(nodeCursor);
+					nodeCursorsAndLengths[currentCursorIndex]++;
+
+					if (nextNode.hasNodes()) {
+						/*
+						 * put node on next stack level for depth-first
+						 * traversal
+						 */
+						final int nextStackLevel = ++currentStackLevel;
+						final int nextCursorIndex = nextStackLevel * 2;
+						final int nextLengthIndex = nextCursorIndex + 1;
+
+						nodes[nextStackLevel] = nextNode;
+						nodeCursorsAndLengths[nextCursorIndex] = 0;
+						nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
+					}
+
+					if (nextNode.hasPayload()) {
+						/*
+						 * found next node that contains values
+						 */
+						currentValueNode = nextNode;
+						currentValueCursor = 0;
+						currentValueLength = nextNode.payloadArity();
+						return true;
+					}
+				} else {
+					currentStackLevel--;
+				}
+			}
+
+			return false;
 		}
 
 		public boolean hasNext() {
 			if (currentValueCursor < currentValueLength) {
 				return true;
 			} else {
-				/*
-				 * search for next node that contains values
-				 */
-				while (currentStackLevel >= 0) {
-					final int currentCursorIndex = currentStackLevel * 2;
-					final int currentLengthIndex = currentCursorIndex + 1;
-
-					final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
-					final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
-
-					if (nodeCursor < nodeLength) {
-						final AbstractSetNode<K> nextNode = nodes[currentStackLevel]
-										.getNode(nodeCursor);
-						nodeCursorsAndLengths[currentCursorIndex]++;
-
-						if (nextNode.hasNodes()) {
-							/*
-							 * put node on next stack level for depth-first
-							 * traversal
-							 */
-							final int nextStackLevel = ++currentStackLevel;
-							final int nextCursorIndex = nextStackLevel * 2;
-							final int nextLengthIndex = nextCursorIndex + 1;
-
-							nodes[nextStackLevel] = nextNode;
-							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
-						}
-
-						if (nextNode.hasPayload()) {
-							/*
-							 * found next node that contains values
-							 */
-							currentValueNode = nextNode;
-							currentValueCursor = 0;
-							currentValueLength = nextNode.payloadArity();
-							return true;
-						}
-					} else {
-						currentStackLevel--;
-					}
-				}
+				return searchNextValueNode();
 			}
-
-			return false;
 		}
 
 		public void remove() {
@@ -2972,7 +2991,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, key.hashCode(), 0);
+				return rootNode.containsKey(key, improve(key.hashCode()), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2983,7 +3002,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, key.hashCode(), 0, cmp);
+				return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -2994,7 +3013,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0);
+				final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3011,7 +3030,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				final Optional<K> result = rootNode.findByKey(key, key.hashCode(), 0, cmp);
+				final Optional<K> result = rootNode.findByKey(key, improve(key.hashCode()), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3032,8 +3051,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash, 0,
-							details);
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
+							0, details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3062,8 +3081,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, keyHash, 0,
-							details, cmp);
+			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
+							0, details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3139,8 +3158,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
-							details);
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
+							0, details);
 
 			if (details.isModified()) {
 
@@ -3170,8 +3189,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			final int keyHash = key.hashCode();
 			final Result<K> details = Result.unchanged();
 
-			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, keyHash, 0,
-							details, cmp);
+			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
+							0, details, cmp);
 
 			if (details.isModified()) {
 
@@ -3359,7 +3378,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -3544,7 +3563,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;
@@ -3772,7 +3791,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;
@@ -4030,7 +4049,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;
@@ -4323,7 +4342,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;
@@ -4652,7 +4671,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;
@@ -5022,7 +5041,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;
@@ -5462,7 +5481,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;
@@ -5980,7 +5999,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(int index) {
+		java.lang.Object getSlot(final int index) {
 			switch (index) {
 			case 0:
 				return slot0;

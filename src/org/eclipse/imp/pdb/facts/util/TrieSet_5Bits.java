@@ -618,6 +618,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			return new Iterator<AbstractSetNode<K>>() {
 
 				int nextIndex = 0;
+				final int nodeArity = AbstractSetNode.this.nodeArity();
 
 				@Override
 				public void remove() {
@@ -633,7 +634,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 				@Override
 				public boolean hasNext() {
-					return nextIndex < AbstractSetNode.this.nodeArity();
+					return nextIndex < nodeArity;
 				}
 			};
 		}
@@ -645,12 +646,19 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		abstract int payloadArity();
 
 		@Deprecated
+		abstract java.lang.Object getSlot(final int index);
+
+		abstract boolean hasSlots();
+
+		abstract int slotArity();
+
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
 		 * on this level).
 		 * 
 		 * @return sum of nodes and values stored within
 		 */
+
 		int arity() {
 			return payloadArity() + nodeArity();
 		}
@@ -1267,6 +1275,21 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		@Override
+		java.lang.Object getSlot(final int index) {
+			return nodes[index];
+		}
+
+		@Override
+		boolean hasSlots() {
+			return nodes.length != 0;
+		}
+
+		@Override
+		int slotArity() {
+			return nodes.length;
+		}
+
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
@@ -1653,6 +1676,21 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		@Override
+		java.lang.Object getSlot(final int index) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		boolean hasSlots() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		int slotArity() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 0;
@@ -1749,82 +1787,88 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	 */
 	private static abstract class AbstractSetIterator<K> {
 
-		// TODO: verify maximum deepness
 		private static final int MAX_DEPTH = 8;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
 		protected AbstractSetNode<K> currentValueNode;
 
-		private int currentStackLevel;
+		private int currentStackLevel = -1;
 		private final int[] nodeCursorsAndLengths = new int[MAX_DEPTH * 2];
-
-		protected boolean hasNext = false;
 
 		@SuppressWarnings("unchecked")
 		AbstractSetNode<K>[] nodes = new AbstractSetNode[MAX_DEPTH];
 
 		AbstractSetIterator(AbstractSetNode<K> rootNode) {
-			currentStackLevel = 0;
+			if (rootNode.hasNodes()) {
+				currentStackLevel = 0;
 
-			currentValueNode = rootNode;
-			currentValueCursor = 0;
-			currentValueLength = rootNode.payloadArity();
+				nodes[0] = rootNode;
+				nodeCursorsAndLengths[0] = 0;
+				nodeCursorsAndLengths[1] = rootNode.nodeArity();
+			}
 
-			nodes[0] = rootNode;
-			nodeCursorsAndLengths[0] = 0;
-			nodeCursorsAndLengths[1] = rootNode.nodeArity();
+			if (rootNode.hasPayload()) {
+				currentValueNode = rootNode;
+				currentValueCursor = 0;
+				currentValueLength = rootNode.payloadArity();
+
+			}
+		}
+
+		/*
+		 * search for next node that contains values
+		 */
+		private boolean searchNextValueNode() {
+			while (currentStackLevel >= 0) {
+				final int currentCursorIndex = currentStackLevel * 2;
+				final int currentLengthIndex = currentCursorIndex + 1;
+
+				final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
+				final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
+
+				if (nodeCursor < nodeLength) {
+					final AbstractSetNode<K> nextNode = nodes[currentStackLevel]
+									.getNode(nodeCursor);
+					nodeCursorsAndLengths[currentCursorIndex]++;
+
+					if (nextNode.hasNodes()) {
+						/*
+						 * put node on next stack level for depth-first
+						 * traversal
+						 */
+						final int nextStackLevel = ++currentStackLevel;
+						final int nextCursorIndex = nextStackLevel * 2;
+						final int nextLengthIndex = nextCursorIndex + 1;
+
+						nodes[nextStackLevel] = nextNode;
+						nodeCursorsAndLengths[nextCursorIndex] = 0;
+						nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
+					}
+
+					if (nextNode.hasPayload()) {
+						/*
+						 * found next node that contains values
+						 */
+						currentValueNode = nextNode;
+						currentValueCursor = 0;
+						currentValueLength = nextNode.payloadArity();
+						return true;
+					}
+				} else {
+					currentStackLevel--;
+				}
+			}
+
+			return false;
 		}
 
 		public boolean hasNext() {
 			if (currentValueCursor < currentValueLength) {
-				return hasNext = true;
+				return true;
 			} else {
-				/*
-				 * search for next node that contains values
-				 */
-				while (currentStackLevel >= 0) {
-					final int currentCursorIndex = currentStackLevel * 2;
-					final int currentLengthIndex = currentCursorIndex + 1;
-
-					final int nodeCursor = nodeCursorsAndLengths[currentCursorIndex];
-					final int nodeLength = nodeCursorsAndLengths[currentLengthIndex];
-
-					if (nodeCursor < nodeLength) {
-						final AbstractSetNode<K> nextNode = nodes[currentStackLevel]
-										.getNode(nodeCursor);
-						nodeCursorsAndLengths[currentCursorIndex]++;
-
-						if (nextNode.hasNodes()) {
-							/*
-							 * put node on next stack level for depth-first
-							 * traversal
-							 */
-							final int nextStackLevel = ++currentStackLevel;
-							final int nextCursorIndex = nextStackLevel * 2;
-							final int nextLengthIndex = nextCursorIndex + 1;
-
-							nodes[nextStackLevel] = nextNode;
-							nodeCursorsAndLengths[nextCursorIndex] = 0;
-							nodeCursorsAndLengths[nextLengthIndex] = nextNode.nodeArity();
-						}
-
-						if (nextNode.hasPayload()) {
-							/*
-							 * found next node that contains values
-							 */
-							currentValueNode = nextNode;
-							currentValueCursor = 0;
-							currentValueLength = nextNode.payloadArity();
-							return hasNext = true;
-						}
-					} else {
-						currentStackLevel--;
-					}
-				}
+				return searchNextValueNode();
 			}
-
-			return hasNext = false;
 		}
 
 		public void remove() {
@@ -1841,7 +1885,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		public K next() {
-			if (!hasNext) {
+			if (!hasNext()) {
 				throw new NoSuchElementException();
 			} else {
 				return currentValueNode.getKey(currentValueCursor++);
