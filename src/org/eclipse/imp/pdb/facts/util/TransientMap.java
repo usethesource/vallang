@@ -37,11 +37,13 @@ public interface TransientMap<K, V> extends Map<K, V> {
 
 	boolean __removeEquivalent(K k, Comparator<Object> cmp);
 
-	SupplierIterator<K, V> keyIterator();
+	Iterator<K> keyIterator();
 	
 	Iterator<V> valueIterator();
 	
 	Iterator<Map.Entry<K, V>> entryIterator();	
+
+//	SupplierIterator<K, V> supplierIterator();
 	
 	ImmutableMap<K, V> freeze();
 

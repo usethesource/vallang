@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.util;
 
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Set;
 
 public interface TransientSet<E> extends ImmutableCollection<E>, Set<E> {
@@ -44,7 +45,7 @@ public interface TransientSet<E> extends ImmutableCollection<E>, Set<E> {
 	
 	boolean __removeAllEquivalent(ImmutableSet<? extends E> set, Comparator<Object> cmp);
 	
-	SupplierIterator<E, E> keyIterator();
+	Iterator<E> keyIterator();
 	
 	ImmutableSet<E> freeze();
 	
