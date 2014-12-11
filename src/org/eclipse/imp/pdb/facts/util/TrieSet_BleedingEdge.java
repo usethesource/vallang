@@ -330,7 +330,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 	}
 
 	@Override
-	public SupplierIterator<K, K> keyIterator() {
+	public Iterator<K> keyIterator() {
 		return new TrieSet_BleedingEdgeIterator<>((CompactSetNode<K>) rootNode);
 	}
 
@@ -646,20 +646,11 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		abstract int payloadArity();
 
 		@Deprecated
-		SupplierIterator<K, K> payloadIterator() {
-			return new SupplierIterator<K, K>() {
+		Iterator<K> payloadIterator() {
+			return new Iterator<K>() {
 
 				int nextIndex = 0;
 				final int payloadArity = AbstractSetNode.this.payloadArity();
-
-				@Override
-				public K get() {
-					if (nextIndex == 0 || nextIndex > AbstractSetNode.this.payloadArity()) {
-						throw new NoSuchElementException();
-					}
-
-					return AbstractSetNode.this.getKey(nextIndex - 1);
-				}
 
 				@Override
 				public void remove() {
@@ -698,7 +689,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		int size() {
-			final SupplierIterator<K, K> it = new SetKeyIterator<>(this);
+			final Iterator<K> it = new SetKeyIterator<>(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -1290,8 +1281,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		SupplierIterator<K, K> payloadIterator() {
-			return ArraySupplierIterator.of(nodes, 0, payloadArity());
+		Iterator<K> payloadIterator() {
+			return (Iterator) ArrayIterator.of(nodes, 0, payloadArity());
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1499,7 +1490,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		SupplierIterator<K, K> payloadIterator() {
+		Iterator<K> payloadIterator() {
 
 			final Object[] keysAndVals = new Object[2 * keys.length];
 			for (int i = 0; i < keys.length; i++) {
@@ -1880,7 +1871,6 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 				currentValueNode = rootNode;
 				currentValueCursor = 0;
 				currentValueLength = rootNode.payloadArity();
-
 			}
 		}
 
@@ -1945,7 +1935,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 	}
 
 	private static final class SetKeyIterator<K> extends AbstractSetIterator<K> implements
-					SupplierIterator<K, K> {
+					Iterator<K> {
 
 		SetKeyIterator(AbstractSetNode<K> rootNode) {
 			super(rootNode);
@@ -1960,22 +1950,18 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			}
 		}
 
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieSet_BleedingEdgeIterator<K> implements SupplierIterator<K, K> {
+	private static class TrieSet_BleedingEdgeIterator<K> implements Iterator<K> {
 
 		Iterator<? extends AbstractSetNode>[] nodeIteratorStack = null;
 		int peek = -1;
 
-		SupplierIterator<K, K> currentValueIterator = null;
+		Iterator<K> currentValueIterator = null;
 		Iterator<? extends AbstractSetNode> currentNodeIterator = null;
 
 		TrieSet_BleedingEdgeIterator(CompactSetNode<K> rootNode) {
@@ -2034,11 +2020,6 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 				throw new NoSuchElementException();
 
 			return currentValueIterator.next();
-		}
-
-		@Override
-		public K get() {
-			return currentValueIterator.get();
 		}
 
 		@Override
@@ -2415,7 +2396,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public SupplierIterator<K, K> keyIterator() {
+		public Iterator<K> keyIterator() {
 			return new TransientSetKeyIterator<>(this);
 		}
 
@@ -2424,7 +2405,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		 * depth first recursively.
 		 */
 		private static class TransientSetKeyIterator<K> extends AbstractSetIterator<K> implements
-						SupplierIterator<K, K> {
+						Iterator<K> {
 
 			final TransientTrieSet_BleedingEdge<K> transientTrieSet_BleedingEdge;
 			K lastKey;
@@ -2442,11 +2423,6 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 					lastKey = currentValueNode.getKey(currentValueCursor++);
 					return lastKey;
 				}
-			}
-
-			@Override
-			public K get() {
-				throw new UnsupportedOperationException();
 			}
 
 			/*

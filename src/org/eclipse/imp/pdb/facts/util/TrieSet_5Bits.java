@@ -330,7 +330,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	}
 
 	@Override
-	public SupplierIterator<K, K> keyIterator() {
+	public Iterator<K> keyIterator() {
 		return new SetKeyIterator<>(rootNode);
 	}
 
@@ -664,7 +664,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		int size() {
-			final SupplierIterator<K, K> it = new SetKeyIterator<>(this);
+			final Iterator<K> it = new SetKeyIterator<>(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -1812,7 +1812,6 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				currentValueNode = rootNode;
 				currentValueCursor = 0;
 				currentValueLength = rootNode.payloadArity();
-
 			}
 		}
 
@@ -1877,7 +1876,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	}
 
 	private static final class SetKeyIterator<K> extends AbstractSetIterator<K> implements
-					SupplierIterator<K, K> {
+					Iterator<K> {
 
 		SetKeyIterator(AbstractSetNode<K> rootNode) {
 			super(rootNode);
@@ -1892,10 +1891,6 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			}
 		}
 
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	/**
@@ -2264,7 +2259,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public SupplierIterator<K, K> keyIterator() {
+		public Iterator<K> keyIterator() {
 			return new TransientSetKeyIterator<>(this);
 		}
 
@@ -2273,7 +2268,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		 * depth first recursively.
 		 */
 		private static class TransientSetKeyIterator<K> extends AbstractSetIterator<K> implements
-						SupplierIterator<K, K> {
+						Iterator<K> {
 
 			final TransientTrieSet_5Bits<K> transientTrieSet_5Bits;
 			K lastKey;
@@ -2291,11 +2286,6 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					lastKey = currentValueNode.getKey(currentValueCursor++);
 					return lastKey;
 				}
-			}
-
-			@Override
-			public K get() {
-				throw new UnsupportedOperationException();
 			}
 
 			/*

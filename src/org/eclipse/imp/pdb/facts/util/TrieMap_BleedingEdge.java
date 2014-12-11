@@ -337,7 +337,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 	}
 
 	@Override
-	public SupplierIterator<K, V> keyIterator() {
+	public Iterator<K> keyIterator() {
 		return new TrieMap_BleedingEdgeIterator<>((CompactMapNode<K, V>) rootNode);
 	}
 
@@ -719,20 +719,11 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		abstract int payloadArity();
 
 		@Deprecated
-		SupplierIterator<K, V> payloadIterator() {
-			return new SupplierIterator<K, V>() {
+		Iterator<K> payloadIterator() {
+			return new Iterator<K>() {
 
 				int nextIndex = 0;
 				final int payloadArity = AbstractMapNode.this.payloadArity();
-
-				@Override
-				public V get() {
-					if (nextIndex == 0 || nextIndex > AbstractMapNode.this.payloadArity()) {
-						throw new NoSuchElementException();
-					}
-
-					return AbstractMapNode.this.getValue(nextIndex - 1);
-				}
 
 				@Override
 				public void remove() {
@@ -771,7 +762,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		}
 
 		int size() {
-			final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
+			final Iterator<K> it = new MapKeyIterator<>(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -1402,8 +1393,8 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		}
 
 		@Override
-		SupplierIterator<K, V> payloadIterator() {
-			return ArrayKeyValueSupplierIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity());
+		Iterator<K> payloadIterator() {
+			return (Iterator) ArrayKeyValueIterator.of(nodes, 0, TUPLE_LENGTH * payloadArity());
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1635,7 +1626,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		}
 
 		@Override
-		SupplierIterator<K, V> payloadIterator() {
+		Iterator<K> payloadIterator() {
 
 			// TODO: change representation of keys and values
 			assert keys.length == vals.length;
@@ -2117,7 +2108,6 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 				currentValueNode = rootNode;
 				currentValueCursor = 0;
 				currentValueLength = rootNode.payloadArity();
-
 			}
 		}
 
@@ -2182,7 +2172,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class MapKeyIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<K, V> {
+					Iterator<K> {
 
 		MapKeyIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -2197,14 +2187,10 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		@Override
-		public V get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	private static final class MapValueIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<V, K> {
+					Iterator<V> {
 
 		MapValueIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -2219,14 +2205,10 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	private static final class MapEntryIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<Map.Entry<K, V>, K> {
+					Iterator<Map.Entry<K, V>> {
 
 		MapEntryIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -2241,22 +2223,18 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	/**
 	 * Iterator that first iterates over inlined-values and then continues depth
 	 * first recursively.
 	 */
-	private static class TrieMap_BleedingEdgeIterator<K, V> implements SupplierIterator<K, V> {
+	private static class TrieMap_BleedingEdgeIterator<K, V> implements Iterator<K> {
 
 		Iterator<? extends AbstractMapNode>[] nodeIteratorStack = null;
 		int peek = -1;
 
-		SupplierIterator<K, V> currentValueIterator = null;
+		Iterator<K> currentValueIterator = null;
 		Iterator<? extends AbstractMapNode> currentNodeIterator = null;
 
 		TrieMap_BleedingEdgeIterator(CompactMapNode<K, V> rootNode) {
@@ -2315,11 +2293,6 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 				throw new NoSuchElementException();
 
 			return currentValueIterator.next();
-		}
-
-		@Override
-		public V get() {
-			return currentValueIterator.get();
 		}
 
 		@Override
@@ -2724,7 +2697,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		}
 
 		@Override
-		public SupplierIterator<K, V> keyIterator() {
+		public Iterator<K> keyIterator() {
 			return new TransientMapKeyIterator<>(this);
 		}
 
@@ -2747,7 +2720,7 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		 * depth first recursively.
 		 */
 		private static class TransientMapKeyIterator<K, V> extends AbstractMapIterator<K, V>
-						implements SupplierIterator<K, V> {
+						implements Iterator<K> {
 
 			final TransientTrieMap_BleedingEdge<K, V> transientTrieMap_BleedingEdge;
 			K lastKey;
@@ -2766,11 +2739,6 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 					lastKey = currentValueNode.getKey(currentValueCursor++);
 					return lastKey;
 				}
-			}
-
-			@Override
-			public V get() {
-				throw new UnsupportedOperationException();
 			}
 
 			/*

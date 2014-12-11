@@ -337,7 +337,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 	}
 
 	@Override
-	public SupplierIterator<K, V> keyIterator() {
+	public Iterator<K> keyIterator() {
 		return new MapKeyIterator<>(rootNode);
 	}
 
@@ -737,7 +737,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		}
 
 		int size() {
-			final SupplierIterator<K, V> it = new MapKeyIterator<>(this);
+			final Iterator<K> it = new MapKeyIterator<>(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -2048,7 +2048,6 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				currentValueNode = rootNode;
 				currentValueCursor = 0;
 				currentValueLength = rootNode.payloadArity();
-
 			}
 		}
 
@@ -2113,7 +2112,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class MapKeyIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<K, V> {
+					Iterator<K> {
 
 		MapKeyIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -2128,14 +2127,10 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		@Override
-		public V get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	private static final class MapValueIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<V, K> {
+					Iterator<V> {
 
 		MapValueIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -2150,14 +2145,10 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	private static final class MapEntryIterator<K, V> extends AbstractMapIterator<K, V> implements
-					SupplierIterator<Map.Entry<K, V>, K> {
+					Iterator<Map.Entry<K, V>> {
 
 		MapEntryIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -2172,10 +2163,6 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 			}
 		}
 
-		@Override
-		public K get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	/**
@@ -2573,7 +2560,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		}
 
 		@Override
-		public SupplierIterator<K, V> keyIterator() {
+		public Iterator<K> keyIterator() {
 			return new TransientMapKeyIterator<>(this);
 		}
 
@@ -2596,7 +2583,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 		 * depth first recursively.
 		 */
 		private static class TransientMapKeyIterator<K, V> extends AbstractMapIterator<K, V>
-						implements SupplierIterator<K, V> {
+						implements Iterator<K> {
 
 			final TransientTrieMap_5Bits<K, V> transientTrieMap_5Bits;
 			K lastKey;
@@ -2614,11 +2601,6 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 					lastKey = currentValueNode.getKey(currentValueCursor++);
 					return lastKey;
 				}
-			}
-
-			@Override
-			public V get() {
-				throw new UnsupportedOperationException();
 			}
 
 			/*
