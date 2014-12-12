@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.test.persistent;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -198,5 +198,146 @@ public class TrieSetTests {
 		
 		assertTrue (equals);
 	}
+
+	@Test
+	public void CollisionEquals() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj2, hash98304_obj1);
+			
+		assertEquals(xs, ys);
+	}
+	
+	@Test
+	public void CollisionWithMergeInlineAbove1() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash268435456_obj3).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		
+		assertEquals(xs, ys);
+	}
+	
+	@Test
+	public void CollisionWithMergeInlineAbove1_2() {
+		DummyValue hash8_obj1 = new DummyValue(1, 8);
+		DummyValue hash8_obj2 = new DummyValue(2, 8);
+		
+		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash8_obj1, hash8_obj2, hash268435456_obj3).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash8_obj1, hash8_obj2);
+
+		assertEquals(xs, ys);
+	}	
+
+	@Test
+	public void CollisionWithMergeInlineAbove2() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3, hash98304_obj2).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+		
+		assertEquals(xs, ys);
+	}
+	
+	@Test
+	public void CollisionWithMergeInlineAbove2_2() {
+		DummyValue hash8_obj1 = new DummyValue(1, 8);
+		DummyValue hash8_obj2 = new DummyValue(2, 8);
+		
+		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash8_obj1, hash268435456_obj3, hash8_obj2).__remove(hash268435456_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash8_obj1, hash8_obj2);
+		
+		assertEquals(xs, ys);
+	}	
+	
+	@Test
+	public void CollisionWithMergeInlineAbove1RemoveOneCollisonNode() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash268435456_obj3).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3);
+
+		assertEquals(xs, ys);
+	}	
+	
+	@Test
+	public void CollisionWithMergeInlineAbove2RemoveOneCollisonNode() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash268435456_obj3 = new DummyValue(3, 268435456);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3, hash98304_obj2).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash268435456_obj3);
+
+		assertEquals(xs, ys);
+	}		
+	
+	@Test
+	public void CollisionWithMergeInlineBelow1() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash8_obj3 = new DummyValue(3, 8);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash8_obj3).__remove(hash8_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+
+		assertEquals(xs, ys);
+	}	
+	
+	@Test
+	public void CollisionWithMergeInlineBelow2() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash8_obj3 = new DummyValue(3, 8);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3, hash98304_obj2).__remove(hash8_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+
+		assertEquals(xs, ys);
+	}
+
+	@Test
+	public void CollisionWithMergeInlineBelowRemoveOneCollisonNode1() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash8_obj3 = new DummyValue(3, 8);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash8_obj3).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3);
+
+		assertEquals(xs, ys);
+	}
+	
+	@Test
+	public void CollisionWithMergeInlineBelowRemoveOneCollisonNode2() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		
+		DummyValue hash8_obj3 = new DummyValue(3, 8);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3, hash98304_obj2).__remove(hash98304_obj2);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash8_obj3);
+
+		assertEquals(xs, ys);
+	}	
 	
 }
