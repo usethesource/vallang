@@ -348,7 +348,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	@Override
-	public SupplierIterator<java.lang.Integer, java.lang.Integer> keyIterator() {
+	public Iterator<java.lang.Integer> keyIterator() {
 		return new MapKeyIterator(rootNode);
 	}
 
@@ -751,8 +751,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 
 		int size() {
-			final SupplierIterator<java.lang.Integer, java.lang.Integer> it = new MapKeyIterator(
-							this);
+			final Iterator<java.lang.Integer> it = new MapKeyIterator(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -766,6 +765,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static abstract class CompactMapNode extends AbstractMapNode {
+
+		static final int HASH_CODE_LENGTH = 32;
 
 		static final int BIT_PARTITION_SIZE = 5;
 		static final int BIT_PARTITION_MASK = 0b11111;
@@ -846,7 +847,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						final int shift) {
 			assert !(key0 == key1);
 
-			if (keyHash0 == keyHash1) {
+			if (shift >= HASH_CODE_LENGTH) {
 				return new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(keyHash0,
 								(int[]) new int[] { key0, key1 }, (int[]) new int[] { val0, val1 });
 			}
@@ -867,29 +868,6 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1, val1,
 								keyHash1, shift + BIT_PARTITION_SIZE);
 				// values fit on next level
-
-				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (int) 0, node);
-			}
-		}
-
-		static final CompactMapNode mergeNodeAndKeyValPair(final CompactMapNode node0,
-						final int keyHash0, final int key1, final int val1, final int keyHash1,
-						final int shift) {
-			final int mask0 = mask(keyHash0, shift);
-			final int mask1 = mask(keyHash1, shift);
-
-			if (mask0 != mask1) {
-				// both nodes fit on same level
-				final int nodeMap = bitpos(mask0);
-				final int dataMap = bitpos(mask1);
-
-				// store values before node
-				return nodeOf(null, nodeMap, dataMap, key1, val1, node0);
-			} else {
-				// values fit on next level
-				final CompactMapNode node = mergeNodeAndKeyValPair(node0, keyHash0, key1, val1,
-								keyHash1, shift + BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
@@ -3089,10 +3067,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		@Override
 		CompactMapNode updated(final AtomicReference<Thread> mutator, final int key, final int val,
 						final int keyHash, final int shift, final Result details) {
-			if (this.hash != keyHash) {
-				details.modified();
-				return mergeNodeAndKeyValPair(this, this.hash, key, val, keyHash, shift);
-			}
+			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -3146,10 +3121,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		CompactMapNode updated(final AtomicReference<Thread> mutator, final int key, final int val,
 						final int keyHash, final int shift, final Result details,
 						final Comparator<Object> cmp) {
-			if (this.hash != keyHash) {
-				details.modified();
-				return mergeNodeAndKeyValPair(this, this.hash, key, val, keyHash, shift);
-			}
+			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -3470,7 +3442,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	 */
 	private static abstract class AbstractMapIterator {
 
-		private static final int MAX_DEPTH = 8;
+		private static final int MAX_DEPTH = 7;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
@@ -3495,7 +3467,6 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				currentValueNode = rootNode;
 				currentValueCursor = 0;
 				currentValueLength = rootNode.payloadArity();
-
 			}
 		}
 
@@ -3559,7 +3530,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class MapKeyIterator extends AbstractMapIterator implements
-					SupplierIterator<java.lang.Integer, java.lang.Integer> {
+					Iterator<java.lang.Integer> {
 
 		MapKeyIterator(AbstractMapNode rootNode) {
 			super(rootNode);
@@ -3574,14 +3545,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			}
 		}
 
-		@Override
-		public java.lang.Integer get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	private static final class MapValueIterator extends AbstractMapIterator implements
-					SupplierIterator<java.lang.Integer, java.lang.Integer> {
+					Iterator<java.lang.Integer> {
 
 		MapValueIterator(AbstractMapNode rootNode) {
 			super(rootNode);
@@ -3596,15 +3563,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			}
 		}
 
-		@Override
-		public java.lang.Integer get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
-	private static final class MapEntryIterator extends AbstractMapIterator
-					implements
-					SupplierIterator<Map.Entry<java.lang.Integer, java.lang.Integer>, java.lang.Integer> {
+	private static final class MapEntryIterator extends AbstractMapIterator implements
+					Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> {
 
 		MapEntryIterator(AbstractMapNode rootNode) {
 			super(rootNode);
@@ -3619,10 +3581,6 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			}
 		}
 
-		@Override
-		public java.lang.Integer get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	/**
@@ -4032,7 +3990,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 
 		@Override
-		public SupplierIterator<java.lang.Integer, java.lang.Integer> keyIterator() {
+		public Iterator<java.lang.Integer> keyIterator() {
 			return new TransientMapKeyIterator(this);
 		}
 
@@ -4055,7 +4013,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		 * depth first recursively.
 		 */
 		private static class TransientMapKeyIterator extends AbstractMapIterator implements
-						SupplierIterator<java.lang.Integer, java.lang.Integer> {
+						Iterator<java.lang.Integer> {
 
 			final TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue transientTrieMap_5Bits_Spec0To8_IntKey_IntValue;
 			java.lang.Integer lastKey;
@@ -4074,11 +4032,6 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 					lastKey = currentValueNode.getKey(currentValueCursor++);
 					return lastKey;
 				}
-			}
-
-			@Override
-			public java.lang.Integer get() {
-				throw new UnsupportedOperationException();
 			}
 
 			/*

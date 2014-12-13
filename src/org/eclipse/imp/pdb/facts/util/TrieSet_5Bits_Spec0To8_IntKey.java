@@ -345,7 +345,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	}
 
 	@Override
-	public SupplierIterator<java.lang.Integer, java.lang.Integer> keyIterator() {
+	public Iterator<java.lang.Integer> keyIterator() {
 		return new SetKeyIterator(rootNode);
 	}
 
@@ -681,8 +681,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		}
 
 		int size() {
-			final SupplierIterator<java.lang.Integer, java.lang.Integer> it = new SetKeyIterator(
-							this);
+			final Iterator<java.lang.Integer> it = new SetKeyIterator(this);
 
 			int size = 0;
 			while (it.hasNext()) {
@@ -696,6 +695,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	}
 
 	private static abstract class CompactSetNode extends AbstractSetNode {
+
+		static final int HASH_CODE_LENGTH = 32;
 
 		static final int BIT_PARTITION_SIZE = 5;
 		static final int BIT_PARTITION_MASK = 0b11111;
@@ -772,7 +773,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 						final int key1, final int keyHash1, final int shift) {
 			assert !(key0 == key1);
 
-			if (keyHash0 == keyHash1) {
+			if (shift >= HASH_CODE_LENGTH) {
 				return new HashCollisionSetNode_5Bits_Spec0To8_IntKey(keyHash0, (int[]) new int[] {
 								key0, key1 });
 			}
@@ -793,28 +794,6 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
 								shift + BIT_PARTITION_SIZE);
 				// values fit on next level
-
-				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (int) 0, node);
-			}
-		}
-
-		static final CompactSetNode mergeNodeAndKeyValPair(final CompactSetNode node0,
-						final int keyHash0, final int key1, final int keyHash1, final int shift) {
-			final int mask0 = mask(keyHash0, shift);
-			final int mask1 = mask(keyHash1, shift);
-
-			if (mask0 != mask1) {
-				// both nodes fit on same level
-				final int nodeMap = bitpos(mask0);
-				final int dataMap = bitpos(mask1);
-
-				// store values before node
-				return nodeOf(null, nodeMap, dataMap, key1, node0);
-			} else {
-				// values fit on next level
-				final CompactSetNode node = mergeNodeAndKeyValPair(node0, keyHash0, key1, keyHash1,
-								shift + BIT_PARTITION_SIZE);
 
 				final int nodeMap = bitpos(mask0);
 				return nodeOf(null, nodeMap, (int) 0, node);
@@ -2864,10 +2843,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		@Override
 		CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
 						final int keyHash, final int shift, final Result details) {
-			if (this.hash != keyHash) {
-				details.modified();
-				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
-			}
+			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -2894,10 +2870,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
 						final int keyHash, final int shift, final Result details,
 						final Comparator<Object> cmp) {
-			if (this.hash != keyHash) {
-				details.modified();
-				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
-			}
+			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -3151,7 +3124,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	 */
 	private static abstract class AbstractSetIterator {
 
-		private static final int MAX_DEPTH = 8;
+		private static final int MAX_DEPTH = 7;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
@@ -3176,7 +3149,6 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				currentValueNode = rootNode;
 				currentValueCursor = 0;
 				currentValueLength = rootNode.payloadArity();
-
 			}
 		}
 
@@ -3240,7 +3212,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	}
 
 	private static final class SetKeyIterator extends AbstractSetIterator implements
-					SupplierIterator<java.lang.Integer, java.lang.Integer> {
+					Iterator<java.lang.Integer> {
 
 		SetKeyIterator(AbstractSetNode rootNode) {
 			super(rootNode);
@@ -3255,10 +3227,6 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			}
 		}
 
-		@Override
-		public java.lang.Integer get() {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	/**
@@ -3633,7 +3601,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		}
 
 		@Override
-		public SupplierIterator<java.lang.Integer, java.lang.Integer> keyIterator() {
+		public Iterator<java.lang.Integer> keyIterator() {
 			return new TransientSetKeyIterator(this);
 		}
 
@@ -3642,7 +3610,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		 * depth first recursively.
 		 */
 		private static class TransientSetKeyIterator extends AbstractSetIterator implements
-						SupplierIterator<java.lang.Integer, java.lang.Integer> {
+						Iterator<java.lang.Integer> {
 
 			final TransientTrieSet_5Bits_Spec0To8_IntKey transientTrieSet_5Bits_Spec0To8_IntKey;
 			java.lang.Integer lastKey;
@@ -3661,11 +3629,6 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 					lastKey = currentValueNode.getKey(currentValueCursor++);
 					return lastKey;
 				}
-			}
-
-			@Override
-			public java.lang.Integer get() {
-				throw new UnsupportedOperationException();
 			}
 
 			/*
