@@ -220,7 +220,7 @@ public class TrieSetTests {
 	}
 	
 	@Test
-	public void CollisionEquals() {
+	public void TwoCollisionsEquals() {
 		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
 		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
 
@@ -229,6 +229,29 @@ public class TrieSetTests {
 			
 		assertEquals(xs, ys);
 	}
+	
+	@Test
+	public void ThreeCollisionsEquals() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		DummyValue hash98304_obj3 = new DummyValue(3, 98304);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash98304_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj3, hash98304_obj2, hash98304_obj1);
+			
+		assertEquals(xs, ys);
+	}
+		
+	@Test
+	public void RemovalFromCollisonNodeEqualsSingelton() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2).__remove(hash98304_obj2);
+
+		assertEquals(xs, ys);
+	}	
 	
 	@Test
 	public void CollisionIterate() {
