@@ -806,6 +806,10 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
 		}
 
+		static final int index(final int bitmap, final int mask, final int bitpos) {
+			return (bitmap == -1) ? mask : index(bitmap, bitpos);
+		}
+
 		int dataIndex(final int bitpos) {
 			return java.lang.Integer.bitCount(dataMap() & (bitpos - 1));
 		}
@@ -829,13 +833,13 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 			final int dataMap = dataMap();
 			if ((dataMap & bitpos) != 0) {
-				final int index = (dataMap == -1) ? mask : index(dataMap, bitpos);
+				final int index = index(dataMap, mask, bitpos);
 				return getKey(index).equals(key);
 			}
 
 			final int nodeMap = nodeMap();
 			if ((nodeMap & bitpos) != 0) {
-				final int index = (nodeMap == -1) ? mask : index(nodeMap, bitpos);
+				final int index = index(nodeMap, mask, bitpos);
 				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
 
@@ -850,13 +854,13 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 			final int dataMap = dataMap();
 			if ((dataMap & bitpos) != 0) {
-				final int index = (dataMap == -1) ? mask : index(dataMap, bitpos);
+				final int index = index(dataMap, mask, bitpos);
 				return cmp.compare(getKey(index), key) == 0;
 			}
 
 			final int nodeMap = nodeMap();
 			if ((nodeMap & bitpos) != 0) {
-				final int index = (nodeMap == -1) ? mask : index(nodeMap, bitpos);
+				final int index = index(nodeMap, mask, bitpos);
 				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
