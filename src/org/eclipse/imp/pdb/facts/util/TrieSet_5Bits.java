@@ -14,13 +14,13 @@ package org.eclipse.imp.pdb.facts.util;
 import java.text.DecimalFormat;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -331,7 +331,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@Override
 	public Iterator<K> keyIterator() {
-		return new SetKeyIterator<>(rootNode);
+		return new TrieSet_5BitsIterator<>((CompactSetNode<K>) rootNode);
 	}
 
 	@Override
@@ -363,24 +363,21 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other == this) {
+		if (other == this)
 			return true;
-		}
-		if (other == null) {
+		if (other == null)
 			return false;
-		}
 
-		if (other instanceof TrieSet_5Bits) {
-			TrieSet_5Bits<?> that = (TrieSet_5Bits<?>) other;
+		if (other instanceof Set) {
+			Set that = (Set) other;
 
-			if (this.size() != that.size()) {
+			if (this.size() != that.size())
 				return false;
-			}
 
-			return rootNode.equals(that.rootNode);
+			return containsAll(that);
 		}
 
-		return super.equals(other);
+		return false;
 	}
 
 	/*
@@ -646,6 +643,31 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		abstract int payloadArity();
 
 		@Deprecated
+		Iterator<K> payloadIterator() {
+			return new Iterator<K>() {
+
+				int nextIndex = 0;
+				final int payloadArity = AbstractSetNode.this.payloadArity();
+
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+
+				@Override
+				public K next() {
+					if (!hasNext())
+						throw new NoSuchElementException();
+					return AbstractSetNode.this.getKey(nextIndex++);
+				}
+
+				@Override
+				public boolean hasNext() {
+					return nextIndex < payloadArity;
+				}
+			};
+		}
+
 		abstract java.lang.Object getSlot(final int index);
 
 		abstract boolean hasSlots();
@@ -1251,6 +1273,26 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		@Override
+		Iterator<K> payloadIterator() {
+			return (Iterator) ArrayIterator.of(nodes, 0, payloadArity());
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		Iterator<? extends CompactSetNode<K>> nodeIterator() {
+			final int length = nodeArity();
+			final int offset = nodes.length - length;
+
+			if (DEBUG) {
+				for (int i = offset; i < offset + length; i++) {
+					assert ((nodes[i] instanceof AbstractSetNode) == true);
+				}
+			}
+
+			return (Iterator) ArrayIterator.of(nodes, offset, length);
+		}
+
+		@Override
 		boolean hasPayload() {
 			return dataMap() != 0;
 		}
@@ -1283,40 +1325,6 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		@Override
 		int slotArity() {
 			return nodes.length;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 0;
-			result = prime * result + ((int) dataMap());
-			result = prime * result + ((int) dataMap());
-			result = prime * result + Arrays.hashCode(nodes);
-			return result;
-		}
-
-		@Override
-		public boolean equals(final java.lang.Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			BitmapIndexedSetNode<?> that = (BitmapIndexedSetNode<?>) other;
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-			if (!Arrays.equals(nodes, that.nodes)) {
-				return false;
-			}
-			return true;
 		}
 
 		@Override
@@ -1437,6 +1445,19 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			this.hash = hash;
 
 			assert payloadArity() >= 2;
+		}
+
+		@Override
+		Iterator<K> payloadIterator() {
+
+			final Object[] keysAndVals = new Object[2 * keys.length];
+			for (int i = 0; i < keys.length; i++) {
+				keysAndVals[2 * i] = keys[i];
+				keysAndVals[2 * i + 1] = keys[i];
+			}
+
+			return ArrayKeyValueSupplierIterator.of(keysAndVals);
+
 		}
 
 		@Override
@@ -1681,57 +1702,6 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 0;
-			result = prime * result + hash;
-			result = prime * result + Arrays.hashCode(keys);
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-
-			HashCollisionSetNode_5Bits<?> that = (HashCollisionSetNode_5Bits<?>) other;
-
-			if (hash != that.hash) {
-				return false;
-			}
-
-			if (arity() != that.arity()) {
-				return false;
-			}
-
-			/*
-			 * Linear scan for each key, because of arbitrary element order.
-			 */
-			outerLoop: for (int i = 0; i < that.payloadArity(); i++) {
-				final java.lang.Object otherKey = that.getKey(i);
-
-				for (int j = 0; j < keys.length; j++) {
-					final K key = keys[j];
-
-					if (key.equals(otherKey)) {
-						continue outerLoop;
-					}
-				}
-				return false;
-
-			}
-
-			return true;
-		}
-
-		@Override
 		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
 						final K key) {
 			throw new UnsupportedOperationException();
@@ -1881,6 +1851,82 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			}
 		}
 
+	}
+
+	/**
+	 * Iterator that first iterates over inlined-values and then continues depth
+	 * first recursively.
+	 */
+	private static class TrieSet_5BitsIterator<K> implements Iterator<K> {
+
+		Iterator<? extends AbstractSetNode>[] nodeIteratorStack = null;
+		int peek = -1;
+
+		Iterator<K> currentValueIterator = null;
+		Iterator<? extends AbstractSetNode> currentNodeIterator = null;
+
+		TrieSet_5BitsIterator(CompactSetNode<K> rootNode) {
+			if (rootNode.hasNodes()) {
+				nodeIteratorStack = new Iterator[8];
+
+				currentNodeIterator = rootNode.nodeIterator();
+				peek += 1;
+				nodeIteratorStack[peek] = currentNodeIterator;
+			}
+
+			if (rootNode.hasPayload()) {
+				currentValueIterator = rootNode.payloadIterator();
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			if (currentValueIterator != null && currentValueIterator.hasNext()) {
+				return true;
+			} else {
+				return searchNextValueIterator();
+			}
+		}
+
+		private boolean searchNextValueIterator() {
+			while (true) {
+				if (currentNodeIterator != null && currentNodeIterator.hasNext()) {
+					AbstractSetNode<K> innerNode = currentNodeIterator.next();
+
+					if (innerNode.hasNodes()) {
+						currentNodeIterator = innerNode.nodeIterator();
+						peek += 1;
+						nodeIteratorStack[peek] = currentNodeIterator;
+					}
+
+					if (innerNode.hasPayload()) {
+						currentValueIterator = innerNode.payloadIterator();
+						// return hasNext = true;
+						return true;
+					}
+				} else {
+					if (peek <= 0)
+						// return hasNext = false;
+						return false;
+
+					peek -= 1;
+					currentNodeIterator = nodeIteratorStack[peek];
+				}
+			}
+		}
+
+		@Override
+		public K next() {
+			if (!hasNext())
+				throw new NoSuchElementException();
+
+			return currentValueIterator.next();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	/**
@@ -2289,28 +2335,6 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					throw new IllegalStateException("Key from iteration couldn't be deleted.");
 				}
 			}
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (other == this) {
-				return true;
-			}
-			if (other == null) {
-				return false;
-			}
-
-			if (other instanceof TransientTrieSet_5Bits) {
-				TransientTrieSet_5Bits<?> that = (TransientTrieSet_5Bits<?>) other;
-
-				if (this.size() != that.size()) {
-					return false;
-				}
-
-				return rootNode.equals(that.rootNode);
-			}
-
-			return super.equals(other);
 		}
 
 		@Override

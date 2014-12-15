@@ -14,13 +14,13 @@ package org.eclipse.imp.pdb.facts.util;
 import java.text.DecimalFormat;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -363,24 +363,21 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other == this) {
+		if (other == this)
 			return true;
-		}
-		if (other == null) {
+		if (other == null)
 			return false;
-		}
 
-		if (other instanceof TrieSet_BleedingEdge) {
-			TrieSet_BleedingEdge<?> that = (TrieSet_BleedingEdge<?>) other;
+		if (other instanceof Set) {
+			Set that = (Set) other;
 
-			if (this.size() != that.size()) {
+			if (this.size() != that.size())
 				return false;
-			}
 
-			return rootNode.equals(that.rootNode);
+			return containsAll(that);
 		}
 
-		return super.equals(other);
+		return false;
 	}
 
 	/*
@@ -704,6 +701,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 	private static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
 
+		static final int HASH_CODE_LENGTH = 32;
+
 		static final int BIT_PARTITION_SIZE = 5;
 		static final int BIT_PARTITION_MASK = 0b11111;
 
@@ -775,7 +774,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 						final K key1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
-			if (keyHash0 == keyHash1) {
+			if (shift >= HASH_CODE_LENGTH) {
 				return new HashCollisionSetNode_BleedingEdge<>(keyHash0, (K[]) new Object[] { key0,
 								key1 });
 			}
@@ -788,9 +787,11 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 				final int dataMap = (int) (bitpos(mask0) | bitpos(mask1));
 
 				if (mask0 < mask1) {
-					return nodeOf(null, (int) (0), dataMap, new Object[] { key0, key1 });
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key0, key1 },
+									(byte) (2), (byte) (0));
 				} else {
-					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, key0 });
+					return nodeOf(null, (int) (0), dataMap, new Object[] { key1, key0 },
+									(byte) (2), (byte) (0));
 				}
 			} else {
 				final CompactSetNode<K> node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
@@ -798,29 +799,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
-			}
-		}
-
-		static final <K> CompactSetNode<K> mergeNodeAndKeyValPair(final CompactSetNode<K> node0,
-						final int keyHash0, final K key1, final int keyHash1, final int shift) {
-			final int mask0 = mask(keyHash0, shift);
-			final int mask1 = mask(keyHash1, shift);
-
-			if (mask0 != mask1) {
-				// both nodes fit on same level
-				final int nodeMap = bitpos(mask0);
-				final int dataMap = bitpos(mask1);
-
-				// store values before node
-				return nodeOf(null, nodeMap, dataMap, new Object[] { key1, node0 });
-			} else {
-				// values fit on next level
-				final CompactSetNode<K> node = mergeNodeAndKeyValPair(node0, keyHash0, key1,
-								keyHash1, shift + BIT_PARTITION_SIZE);
-
-				final int nodeMap = bitpos(mask0);
-				return nodeOf(null, nodeMap, (int) (0), new Object[] { node });
+				return nodeOf(null, nodeMap, (int) (0), new Object[] { node }, (byte) (0),
+								(byte) (1));
 			}
 		}
 
@@ -828,13 +808,16 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 		static {
 
-			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (int) (0), (int) (0), new Object[] {});
+			EMPTY_NODE = new BitmapIndexedSetNode<>(null, (int) (0), (int) (0), new Object[] {},
+							(byte) (0), (byte) (0));
 
 		};
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
-			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes);
+						final int nodeMap, final int dataMap, final java.lang.Object[] nodes,
+						final byte payloadArity, final byte nodeArity) {
+			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes, payloadArity,
+							nodeArity);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -845,7 +828,15 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator,
 						final int nodeMap, final int dataMap, final K key) {
 			assert nodeMap == 0;
-			return nodeOf(mutator, (int) (0), dataMap, new Object[] { key });
+			return nodeOf(mutator, (int) (0), dataMap, new Object[] { key }, (byte) (1), (byte) (0));
+		}
+
+		static final int index(final int bitmap, final int bitpos) {
+			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
+		}
+
+		static final int index(final int bitmap, final int mask, final int bitpos) {
+			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
 		int dataIndex(final int bitpos) {
@@ -869,12 +860,16 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return keyAt(bitpos).equals(key);
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return getKey(index).equals(key);
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
@@ -886,12 +881,16 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return cmp.compare(keyAt(bitpos), key) == 0;
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return cmp.compare(getKey(index), key) == 0;
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -1244,15 +1243,21 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 		final AtomicReference<Thread> mutator;
 		final java.lang.Object[] nodes;
+		final byte payloadArity;
+		final byte nodeArity;
 
 		private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes) {
+						final int dataMap, final java.lang.Object[] nodes, final byte payloadArity,
+						final byte nodeArity) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
 			this.nodes = nodes;
+			this.payloadArity = payloadArity;
+			this.nodeArity = nodeArity;
 
 			if (DEBUG) {
+				assert (payloadArity == java.lang.Integer.bitCount(dataMap));
 
 				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
 								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
@@ -1277,7 +1282,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		@SuppressWarnings("unchecked")
 		@Override
 		CompactSetNode<K> getNode(final int index) {
-			return (CompactSetNode<K>) nodes[nodes.length - 1 - index];
+			final int offset = TUPLE_LENGTH * payloadArity;
+			return (CompactSetNode<K>) nodes[offset + index];
 		}
 
 		@Override
@@ -1288,8 +1294,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		@SuppressWarnings("unchecked")
 		@Override
 		Iterator<? extends CompactSetNode<K>> nodeIterator() {
-			final int length = nodeArity();
-			final int offset = nodes.length - length;
+			final int offset = TUPLE_LENGTH * payloadArity;
+			final int length = nodeArity;
 
 			if (DEBUG) {
 				for (int i = offset; i < offset + length; i++) {
@@ -1302,22 +1308,22 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 
 		@Override
 		boolean hasPayload() {
-			return dataMap() != 0;
+			return payloadArity != 0;
 		}
 
 		@Override
 		int payloadArity() {
-			return java.lang.Integer.bitCount(dataMap());
+			return payloadArity;
 		}
 
 		@Override
 		boolean hasNodes() {
-			return nodeMap() != 0;
+			return nodeArity != 0;
 		}
 
 		@Override
 		int nodeArity() {
-			return java.lang.Integer.bitCount(nodeMap());
+			return nodeArity;
 		}
 
 		@Override
@@ -1336,40 +1342,6 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 0;
-			result = prime * result + ((int) dataMap());
-			result = prime * result + ((int) dataMap());
-			result = prime * result + Arrays.hashCode(nodes);
-			return result;
-		}
-
-		@Override
-		public boolean equals(final java.lang.Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-			BitmapIndexedSetNode<?> that = (BitmapIndexedSetNode<?>) other;
-			if (nodeMap() != that.nodeMap()) {
-				return false;
-			}
-			if (dataMap() != that.dataMap()) {
-				return false;
-			}
-			if (!Arrays.equals(nodes, that.nodes)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
 		byte sizePredicate() {
 			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
 				return SIZE_EMPTY;
@@ -1384,7 +1356,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
 						final CompactSetNode<K> node) {
 
-			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
+			final int idx = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
 				// no copying if already editable
@@ -1398,7 +1370,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 				System.arraycopy(src, 0, dst, 0, src.length);
 				dst[idx + 0] = node;
 
-				return nodeOf(mutator, nodeMap(), dataMap(), dst);
+				return nodeOf(mutator, nodeMap(), dataMap(), dst, payloadArity, nodeArity);
 			}
 		}
 
@@ -1415,7 +1387,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			dst[idx + 0] = key;
 			System.arraycopy(src, idx, dst, idx + 1, src.length - idx);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst);
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() | bitpos), dst,
+							(byte) (payloadArity + 1), nodeArity);
 		}
 
 		@Override
@@ -1429,7 +1402,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			System.arraycopy(src, 0, dst, 0, idx);
 			System.arraycopy(src, idx + 1, dst, idx, src.length - idx - 1);
 
-			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst);
+			return nodeOf(mutator, nodeMap(), (int) (dataMap() ^ bitpos), dst,
+							(byte) (payloadArity - 1), nodeArity);
 		}
 
 		@Override
@@ -1437,7 +1411,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 						final int bitpos, final CompactSetNode<K> node) {
 
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
-			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
+			final int idxNew = TUPLE_LENGTH * (payloadArity - 1) + nodeIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
 			final java.lang.Object[] dst = new Object[src.length - 1 + 1];
@@ -1450,14 +1424,15 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			dst[idxNew + 0] = node;
 			System.arraycopy(src, idxNew + 1, dst, idxNew + 1, src.length - idxNew - 1);
 
-			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst);
+			return nodeOf(mutator, (int) (nodeMap() | bitpos), (int) (dataMap() ^ bitpos), dst,
+							(byte) (payloadArity - 1), (byte) (nodeArity + 1));
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
 						final int bitpos, final CompactSetNode<K> node) {
 
-			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
+			final int idxOld = TUPLE_LENGTH * payloadArity + nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1471,7 +1446,8 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 			System.arraycopy(src, idxNew, dst, idxNew + 1, idxOld - idxNew);
 			System.arraycopy(src, idxOld + 1, dst, idxOld + 1, src.length - idxOld - 1);
 
-			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst);
+			return nodeOf(mutator, (int) (nodeMap() ^ bitpos), (int) (dataMap() | bitpos), dst,
+							(byte) (payloadArity + 1), (byte) (nodeArity - 1));
 		}
 
 	}
@@ -1561,10 +1537,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details) {
-			if (this.hash != keyHash) {
-				details.modified();
-				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
-			}
+			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
@@ -1592,10 +1565,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
 						final int keyHash, final int shift, final Result<K> details,
 						final Comparator<Object> cmp) {
-			if (this.hash != keyHash) {
-				details.modified();
-				return mergeNodeAndKeyValPair(this, this.hash, key, keyHash, shift);
-			}
+			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
@@ -1750,57 +1720,6 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 0;
-			result = prime * result + hash;
-			result = prime * result + Arrays.hashCode(keys);
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (null == other) {
-				return false;
-			}
-			if (this == other) {
-				return true;
-			}
-			if (getClass() != other.getClass()) {
-				return false;
-			}
-
-			HashCollisionSetNode_BleedingEdge<?> that = (HashCollisionSetNode_BleedingEdge<?>) other;
-
-			if (hash != that.hash) {
-				return false;
-			}
-
-			if (arity() != that.arity()) {
-				return false;
-			}
-
-			/*
-			 * Linear scan for each key, because of arbitrary element order.
-			 */
-			outerLoop: for (int i = 0; i < that.payloadArity(); i++) {
-				final java.lang.Object otherKey = that.getKey(i);
-
-				for (int j = 0; j < keys.length; j++) {
-					final K key = keys[j];
-
-					if (key.equals(otherKey)) {
-						continue outerLoop;
-					}
-				}
-				return false;
-
-			}
-
-			return true;
-		}
-
-		@Override
 		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
 						final K key) {
 			throw new UnsupportedOperationException();
@@ -1846,7 +1765,7 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 	 */
 	private static abstract class AbstractSetIterator<K> {
 
-		private static final int MAX_DEPTH = 8;
+		private static final int MAX_DEPTH = 7;
 
 		protected int currentValueCursor;
 		protected int currentValueLength;
@@ -2436,28 +2355,6 @@ public class TrieSet_BleedingEdge<K> implements ImmutableSet<K> {
 					throw new IllegalStateException("Key from iteration couldn't be deleted.");
 				}
 			}
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (other == this) {
-				return true;
-			}
-			if (other == null) {
-				return false;
-			}
-
-			if (other instanceof TransientTrieSet_BleedingEdge) {
-				TransientTrieSet_BleedingEdge<?> that = (TransientTrieSet_BleedingEdge<?>) other;
-
-				if (this.size() != that.size()) {
-					return false;
-				}
-
-				return rootNode.equals(that.rootNode);
-			}
-
-			return super.equals(other);
 		}
 
 		@Override
