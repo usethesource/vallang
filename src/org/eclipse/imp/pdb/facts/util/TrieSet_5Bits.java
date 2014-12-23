@@ -14,12 +14,14 @@ package org.eclipse.imp.pdb.facts.util;
 import java.text.DecimalFormat;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -336,14 +338,25 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@Override
 	public java.lang.Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+		Object[] array = new Object[cachedSize];
+
+		int idx = 0;
+		for (K key : this) {
+			array[idx++] = key;
+		}
+
+		return array;
 	}
 
 	@Override
 	public <T> T[] toArray(final T[] a) {
-		// TODO Auto-generated method stub
-		return null;
+		List<K> list = new ArrayList<K>(cachedSize);
+
+		for (K key : this) {
+			list.add(key);
+		}
+
+		return list.toArray(a);
 	}
 
 	@Override
@@ -1321,10 +1334,15 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		byte sizePredicate() {
-			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
-				return SIZE_EMPTY;
-			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
-				return SIZE_ONE;
+			if (this.nodeArity() == 0) {
+				switch (this.payloadArity()) {
+				case 0:
+					return SIZE_EMPTY;
+				case 1:
+					return SIZE_ONE;
+				default:
+					return SIZE_MORE_THAN_ONE;
+				}
 			} else {
 				return SIZE_MORE_THAN_ONE;
 			}

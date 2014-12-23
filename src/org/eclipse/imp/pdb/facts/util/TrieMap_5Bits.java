@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
 
 import java.text.DecimalFormat;
+import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
@@ -353,14 +354,74 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 	@Override
 	public Set<K> keySet() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<K> keySet = null;
+
+		if (keySet == null) {
+			keySet = new AbstractSet<K>() {
+				@Override
+				public Iterator<K> iterator() {
+					return TrieMap_5Bits.this.keyIterator();
+				}
+
+				@Override
+				public int size() {
+					return TrieMap_5Bits.this.size();
+				}
+
+				@Override
+				public boolean isEmpty() {
+					return TrieMap_5Bits.this.isEmpty();
+				}
+
+				@Override
+				public void clear() {
+					TrieMap_5Bits.this.clear();
+				}
+
+				@Override
+				public boolean contains(Object k) {
+					return TrieMap_5Bits.this.containsKey(k);
+				}
+			};
+		}
+
+		return keySet;
 	}
 
 	@Override
 	public Collection<V> values() {
-		// TODO Auto-generated method stub
-		return null;
+		Collection<V> values = null;
+
+		if (values == null) {
+			values = new AbstractCollection<V>() {
+				@Override
+				public Iterator<V> iterator() {
+					return TrieMap_5Bits.this.valueIterator();
+				}
+
+				@Override
+				public int size() {
+					return TrieMap_5Bits.this.size();
+				}
+
+				@Override
+				public boolean isEmpty() {
+					return TrieMap_5Bits.this.isEmpty();
+				}
+
+				@Override
+				public void clear() {
+					TrieMap_5Bits.this.clear();
+				}
+
+				@Override
+				public boolean contains(Object v) {
+					return TrieMap_5Bits.this.containsValue(v);
+				}
+			};
+		}
+
+		return values;
 	}
 
 	@Override
@@ -412,6 +473,7 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 				}
 			};
 		}
+
 		return entrySet;
 	}
 
@@ -1434,10 +1496,15 @@ public class TrieMap_5Bits<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		byte sizePredicate() {
-			if (this.nodeArity() == 0 && this.payloadArity() == 0) {
-				return SIZE_EMPTY;
-			} else if (this.nodeArity() == 0 && this.payloadArity() == 1) {
-				return SIZE_ONE;
+			if (this.nodeArity() == 0) {
+				switch (this.payloadArity()) {
+				case 0:
+					return SIZE_EMPTY;
+				case 1:
+					return SIZE_ONE;
+				default:
+					return SIZE_MORE_THAN_ONE;
+				}
 			} else {
 				return SIZE_MORE_THAN_ONE;
 			}
