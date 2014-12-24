@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
 
 /**
  * A AliasType is a named for a type, i.e. a type alias that can be
@@ -97,6 +98,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 	public boolean hasKeywordParameter(String label) {
 	  return fAliased.hasKeywordParameter(label);
 	}
+	
+	@Override
+	public boolean hasKeywordParameter(String fieldName, TypeStore store) {
+	  return fAliased.hasKeywordParameter(fieldName, store);
+	}	
 	
 	@Override
 	public boolean hasKeywordParameters() {

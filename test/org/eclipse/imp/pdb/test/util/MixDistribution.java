@@ -1,11 +1,14 @@
 package org.eclipse.imp.pdb.test.util;
 
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -16,6 +19,35 @@ public class MixDistribution {
 		for (int i=0; i < 32; i++) {
 			BIT_OFFSET[i] = 1 << i;
 		}
+	}
+	
+	private static void reportCollisions(String name, int[] data, Mixer mixer) {
+		Set<Integer> used = new HashSet<Integer>();
+		Set<Integer> seen = new HashSet<Integer>();
+		Set<Integer> seen16 = new HashSet<Integer>();
+		int collisions = 0;
+		int collisions16 = 0;
+		for (int d : data) {
+			if (used.contains(d)) {
+				continue;
+			}
+			used.add(d);
+			int m = mixer.mix(d);
+			if (seen.contains(m)) {
+				collisions++;
+				continue;
+			}
+			seen.add(m);
+			int m16l = m & 0x0000FFFF;
+			int m16h = m & 0xFFFF0000;
+			if (seen16.contains(m16l) || seen16.contains(m16h)) {
+				collisions16++;
+			}
+			seen16.add(m16l);
+			seen16.add(m16h);
+		}
+		System.out.println(name + " full collisions: " + collisions);
+		System.out.println(name + " 16-bit collisions: " + collisions16);
 	}
 
 	private static void reportHashDistribution(String name, int[] hashes) {
@@ -115,6 +147,7 @@ public class MixDistribution {
 		System.out.println("Numbers from 1-10000");
 		for (String m : mixers.keySet()) {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
+			reportCollisions(m, data, mixers.get(m));
 		}
 		Random rand = new Random();
 		for (int i=0; i < data.length; i++) {
@@ -126,6 +159,7 @@ public class MixDistribution {
 		System.out.println("Random numbers");
 		for (String m : mixers.keySet()) {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
+			reportCollisions(m, data, mixers.get(m));
 			createBitStatsPlot(m, "random", data, mixers.get(m));
 		}
 		
@@ -139,6 +173,7 @@ public class MixDistribution {
 		System.out.println("Random small numbers");
 		for (String m : mixers.keySet()) {
 			reportHashDistribution(m, mix(data, mixers.get(m)));
+			reportCollisions(m, data, mixers.get(m));
 		}
 	}
 	
