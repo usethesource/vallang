@@ -13,6 +13,8 @@ package org.eclipse.imp.pdb.test.persistent;
 
 import static org.junit.Assert.*;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -200,7 +202,25 @@ public class TrieSetTests {
 	}
 
 	@Test
-	public void CollisionEquals() {
+	public void IterateWithLastBitsDifferent() {
+		DummyValue hash_n2147483648_obj1 = new DummyValue(1, -2147483648);
+		DummyValue hash_p1073741824_obj2 = new DummyValue(2, 1073741824);
+
+		Set<DummyValue> todo = new HashSet<>();
+		todo.add(hash_n2147483648_obj1);
+		todo.add(hash_p1073741824_obj2);
+		
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash_n2147483648_obj1, hash_p1073741824_obj2);
+	
+		for (DummyValue x : xs) {
+			todo.remove(x);
+		}
+				
+		assertEquals(Collections.EMPTY_SET, todo);
+	}
+	
+	@Test
+	public void TwoCollisionsEquals() {
 		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
 		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
 
@@ -210,6 +230,47 @@ public class TrieSetTests {
 		assertEquals(xs, ys);
 	}
 	
+	@Test
+	public void ThreeCollisionsEquals() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+		DummyValue hash98304_obj3 = new DummyValue(3, 98304);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2, hash98304_obj3);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj3, hash98304_obj2, hash98304_obj1);
+			
+		assertEquals(xs, ys);
+	}
+		
+	@Test
+	public void RemovalFromCollisonNodeEqualsSingelton() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1);
+		ImmutableSet<DummyValue> ys = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2).__remove(hash98304_obj2);
+
+		assertEquals(xs, ys);
+	}	
+	
+	@Test
+	public void CollisionIterate() {
+		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
+		DummyValue hash98304_obj2 = new DummyValue(2, 98304);
+
+		Set<DummyValue> todo = new HashSet<>();
+		todo.add(hash98304_obj1);
+		todo.add(hash98304_obj2);
+		
+		ImmutableSet<DummyValue> xs = TrieSet_5Bits.of(hash98304_obj1, hash98304_obj2);
+	
+		for (DummyValue x : xs) {
+			todo.remove(x);
+		}
+				
+		assertEquals(Collections.EMPTY_SET, todo);
+	}
+		
 	@Test
 	public void CollisionWithMergeInlineAbove1() {
 		DummyValue hash98304_obj1 = new DummyValue(1, 98304);
