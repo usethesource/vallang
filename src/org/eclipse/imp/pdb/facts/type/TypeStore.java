@@ -92,10 +92,10 @@ public class TypeStore {
 	}
 	
 	/**
-	 * Retrieves all annotations declared in this TypeStore. Note that it does
+	 * Retrieves all keyword parameters declared in this TypeStore. Note that it does
 	 * not return the annotations of imported TypeStores.
 	 * 
-	 * @return a map of types for which annotations are declared to a map of names of these
+	 * @return a map of types for which keyword parameters are declared to a map of names of these
 	 * annotations to the types of the values that give access to these annotations.
 	 */
 	public Map<Type, Map<String, Type>> getKeywordParameters() {
@@ -746,9 +746,11 @@ public class TypeStore {
 	 * Locates all declared keyword parameters for a constructor.
 	 * 
 	 * @param onType 
-	 * @return a map of all annotations declared for onType
+	 * @return a map of all keyword parameters declared for the onType constructor
 	 */
 	public Map<String, Type> getKeywordParameters(Type onType) {
+		assert onType.isConstructor();
+		
 	  if (!onType.isConstructor()) {
 	    return Collections.<String,Type>emptyMap();
 	  }
@@ -795,13 +797,14 @@ public class TypeStore {
 	/**
 	 * Retrieve the type of values that are declared to be valid for a certain kind of 
 	 * keyword parameters on certain kinds of values
-	 * @param onType the type of values that this annotation can be found on
+	 * @param onType the constructor type that this keyword parameters can be found on
 	 * @param key    the label of the parameter to find the corresponding type of
 	 * @return the type of the requested parameter value or null if none exists
 	 */
 	public Type getKeywordParameterType(Type onType, String key) {
-	  Map<String, Type> kwParamsFor = getKeywordParameters(onType);
-	  return kwParamsFor != null ? kwParamsFor.get(key) : null;
+		assert onType.isConstructor();
+		Map<String, Type> kwParamsFor = getKeywordParameters(onType);
+		return kwParamsFor != null ? kwParamsFor.get(key) : null;
 	}
 
 	public Type getAlias(String name) {
