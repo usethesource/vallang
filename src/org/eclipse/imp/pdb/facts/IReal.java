@@ -169,7 +169,11 @@ public interface IReal extends INumber {
 	 * @return this<sup>power</sup>
 	 */
 	IReal pow(IInteger power);
-	
+
+	/**
+	 * @return this<sup>power<sup> but for non natural numbers 
+	 */
+	IReal pow(IReal power, int precision);
 	
 	/**
 	 * @return tan(this)
@@ -185,4 +189,5 @@ public interface IReal extends INumber {
 	 * @return cos(this)
 	 */
 	IReal cos(int precision);
+
 }

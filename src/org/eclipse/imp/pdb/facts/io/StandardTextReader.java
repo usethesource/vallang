@@ -95,7 +95,11 @@ public class StandardTextReader extends AbstractTextReader {
 				}
 			};
 			current = this.stream.read();
-			return readValue(type);
+			IValue result = readValue(type);
+			if (current != -1 || this.stream.read() != -1) {
+				unexpected();
+			}
+			return result;
 		}
 		finally {
 			sourceLocationCache.clear();
@@ -299,6 +303,23 @@ public class StandardTextReader extends AbstractTextReader {
 		Type elemType = expected.isSubtypeOf(genericListType) ? expected.getElementType() : types.valueType();
 		return readList(elemType, factory.listWriter(), END_OF_LIST);
 	}
+	
+	private void checkMoreThanOnce(String input, char needle) {
+		boolean first = true;
+		for (int i=0; i < input.length(); i++)
+		{
+			if (input.charAt(i) == needle)
+			{
+				if (first) {
+					first = false;
+				}
+				else {
+					throw new FactParseError(needle +" occured for the second time", (this.stream.offset - input.length()) + i);
+				}
+			}
+		}
+	}
+	
 
 	private IValue readNumber(Type expected) throws IOException {
 		StringBuilder builder = new StringBuilder();
@@ -309,6 +330,10 @@ public class StandardTextReader extends AbstractTextReader {
 		} while(Character.isDigit(current) || current == RATIONAL_SEP || current == DOUBLE_DOT || current == 'E' || current == 'e' || current == '+' || current == '-');
 		
 		String val = builder.toString();
+		checkMoreThanOnce(val, RATIONAL_SEP);
+		checkMoreThanOnce(val, DOUBLE_DOT);
+		checkMoreThanOnce(val, 'E');
+		checkMoreThanOnce(val, 'e');
 		
 		try {
 			if (val.contains(".") || val.contains("E") || val.contains("e")) {
@@ -681,9 +706,15 @@ public class StandardTextReader extends AbstractTextReader {
 					builder.appendCodePoint(cp);
 					break;
 				default:
+					if (current == -1) {
+						throw new FactParseError("End of input before finding end of String", stream.offset);
+					}
 					builder.append(current);
 				}
 				current = stream.read();
+			}
+			else if (current == -1) {
+				throw new FactParseError("End of input before finding end of String", stream.offset);
 			}
 			else {
 				builder.appendCodePoint(current);

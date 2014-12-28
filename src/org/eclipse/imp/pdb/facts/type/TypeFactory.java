@@ -509,6 +509,17 @@ public class TypeFactory {
     return constructorFromTuple(store, adt, name, tupleType(children));
   }
 
+	/**
+	 * Special case of @see TypeFactory#constructor(TypeStore, Type, String,
+	 * Type...) with without varargs. It is necessary because the Eclipse Luna
+	 * compiler reports an ambiguity onder Java 8 (whereas Oracle's compiler
+	 * does not).
+	 */
+  @Deprecated
+  public Type constructor(TypeStore store, Type adt, String name) throws FactTypeDeclarationException {
+    return constructorFromTuple(store, adt, name, tupleEmpty());
+  }
+  
   /**
    * Make a new constructor type. A constructor type extends an abstract data
    * type such that it represents more values.

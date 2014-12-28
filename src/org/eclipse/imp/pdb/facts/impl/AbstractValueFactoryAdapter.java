@@ -73,6 +73,10 @@ public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	public IDateTime datetime(long instant) {
 		return adapted.datetime(instant);
 	}
+	
+	public IDateTime datetime(long instant, int timezoneHours, int timezoneMinutes) {
+		return adapted.datetime(instant, timezoneHours, timezoneMinutes);
+	}
 
 	public IInteger integer(String i) throws NumberFormatException {
 		return adapted.integer(i);

@@ -2,6 +2,7 @@ package org.eclipse.imp.pdb.test;
 
 import junit.framework.TestCase;
 
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INumber;
 import org.eclipse.imp.pdb.facts.IReal;
@@ -163,5 +164,16 @@ abstract public class BaseTestBasicValues extends TestCase {
 		IReal maxDiff = vf.real("1E-6300");
 		IReal r9 = vf.real("9");
 		assertTrue(e100.subtract(e100.divide(r9,80*80).multiply(r9)).lessEqual(maxDiff).getValue());
+	}
+	
+	public void testDateTimeLongConversion() {
+		long l = 1156521600000L;
+		IDateTime dt = vf.datetime(l);
+		assertEqual(dt, vf.datetime(dt.getInstant()));
+	}
+	
+	public void testDateTimeLongConversionWithTimezone() {
+		IDateTime dt = vf.datetime(2014, 10, 13, 10, 7, 50, 1, 7, 0);
+		assertEqual(dt, vf.datetime(dt.getInstant(), dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
 	}
 }
