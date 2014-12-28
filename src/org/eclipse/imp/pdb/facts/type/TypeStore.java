@@ -765,10 +765,13 @@ public class TypeStore {
 	      }
 
 	      for (TypeStore s : fImports) {
-	        Map<String, Type> here = s.fkeywordParameters.get(onType);
-	        if (here != null) {
-	          result.putAll(here);
-	        }
+	    	  if (s.fkeywordParameters == null) {
+	    		  continue;
+	    	  }
+	    	  Map<String, Type> here = s.fkeywordParameters.get(onType);
+	    	  if (here != null) {
+	    		  result.putAll(here);
+	    	  }
 	      }
 
 	      return result;
@@ -805,6 +808,34 @@ public class TypeStore {
 		assert onType.isConstructor();
 		Map<String, Type> kwParamsFor = getKeywordParameters(onType);
 		return kwParamsFor != null ? kwParamsFor.get(key) : null;
+	}
+	
+	public boolean hasKeywordParameters(Type onType) {
+		if (!onType.isConstructor()) {
+			return false;
+		}
+
+		synchronized(fkeywordParameters) {
+			synchronized (fImports) {
+				Map<String, Type> local = fkeywordParameters.get(onType);
+				if (local != null && local.size() > 0) {
+					return true; 
+				}
+
+				for (TypeStore s : fImports) {
+					if (s.fkeywordParameters == null) {
+						continue;
+					}
+					
+					Map<String, Type> here = s.fkeywordParameters.get(onType);
+					if (here != null && here.size() > 0) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
 	}
 
 	public Type getAlias(String name) {
