@@ -668,7 +668,7 @@ public class TypeStore {
 	 * but constructor types
 	 */
 	public void declareKeywordParameter(Type onType, String key, Type valueType) {
-	  if (!onType.isConstructor() && onType.isAbstractData()) {
+	  if (!onType.isConstructor() && !onType.isAbstractData()) {
 	    throw new IllegalKeywordParameterDeclarationException(onType);
 	  }
 
