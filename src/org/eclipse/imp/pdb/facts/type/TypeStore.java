@@ -668,7 +668,7 @@ public class TypeStore {
 	 * but constructor types
 	 */
 	public void declareKeywordParameter(Type onType, String key, Type valueType) {
-	  if (!onType.isConstructor()) {
+	  if (!onType.isConstructor() && onType.isAbstractData()) {
 	    throw new IllegalKeywordParameterDeclarationException(onType);
 	  }
 
@@ -749,9 +749,7 @@ public class TypeStore {
 	 * @return a map of all keyword parameters declared for the onType constructor
 	 */
 	public Map<String, Type> getKeywordParameters(Type onType) {
-		assert onType.isConstructor();
-		
-	  if (!onType.isConstructor()) {
+	  if (!onType.isConstructor() && !onType.isAbstractData()) {
 	    return Collections.<String,Type>emptyMap();
 	  }
 
@@ -763,6 +761,13 @@ public class TypeStore {
 	      if (local != null) {
 	    	  result.putAll(local); 
 	      }
+	      
+	      if (onType.isConstructor()) {
+	    	  local = fkeywordParameters.get(onType.getAbstractDataType());
+	    	  if (local != null) {
+	    		  result.putAll(local);
+	    	  }
+	      }
 
 	      for (TypeStore s : fImports) {
 	    	  if (s.fkeywordParameters == null) {
@@ -772,6 +777,13 @@ public class TypeStore {
 	    	  if (here != null) {
 	    		  result.putAll(here);
 	    	  }
+	    	  
+	    	  if (onType.isConstructor()) {
+		    	  here = s.fkeywordParameters.get(onType.getAbstractDataType());
+		    	  if (here != null) {
+		    		  result.putAll(here);
+		    	  }
+		      }
 	      }
 
 	      return result;
