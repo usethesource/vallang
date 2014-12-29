@@ -14,13 +14,16 @@ package org.eclipse.imp.pdb.facts.util;
 import java.text.DecimalFormat;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -28,7 +31,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@SuppressWarnings("unchecked")
 	private static final TrieSet_5Bits_Spec0To8_IntKey EMPTY_SET = new TrieSet_5Bits_Spec0To8_IntKey(
-					CompactSetNode.EMPTY_NODE, 0, 0);
+			CompactSetNode.EMPTY_NODE, 0, 0);
 
 	private static final boolean DEBUG = false;
 
@@ -69,7 +72,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	@SuppressWarnings("unchecked")
 	public static final TransientSet<java.lang.Integer> transientOf(int... keys) {
 		final TransientSet<java.lang.Integer> result = TrieSet_5Bits_Spec0To8_IntKey.EMPTY_SET
-						.asTransient();
+				.asTransient();
 
 		for (final int key : keys) {
 			result.__insert(key);
@@ -102,12 +105,12 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		final Result details = Result.unchanged();
 
 		final CompactSetNode newRootNode = rootNode
-						.updated(null, key, improve(keyHash), 0, details);
+				.updated(null, key, improve(keyHash), 0, details);
 
 		if (details.isModified()) {
 
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode + keyHash,
-							cachedSize + 1);
+					cachedSize + 1);
 
 		}
 
@@ -116,17 +119,17 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public TrieSet_5Bits_Spec0To8_IntKey __insertEquivalent(final java.lang.Integer key,
-					final Comparator<Object> cmp) {
+			final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final Result details = Result.unchanged();
 
 		final CompactSetNode newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
-						details, cmp);
+				details, cmp);
 
 		if (details.isModified()) {
 
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode + keyHash,
-							cachedSize + 1);
+					cachedSize + 1);
 
 		}
 
@@ -139,12 +142,12 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		final Result details = Result.unchanged();
 
 		final CompactSetNode newRootNode = rootNode
-						.removed(null, key, improve(keyHash), 0, details);
+				.removed(null, key, improve(keyHash), 0, details);
 
 		if (details.isModified()) {
 
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode - keyHash,
-							cachedSize - 1);
+					cachedSize - 1);
 
 		}
 
@@ -153,17 +156,17 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public ImmutableSet<java.lang.Integer> __removeEquivalent(final java.lang.Integer key,
-					final Comparator<Object> cmp) {
+			final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final Result details = Result.unchanged();
 
 		final CompactSetNode newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+				details, cmp);
 
 		if (details.isModified()) {
 
 			return new TrieSet_5Bits_Spec0To8_IntKey(newRootNode, hashCode - keyHash,
-							cachedSize - 1);
+					cachedSize - 1);
 
 		}
 
@@ -198,7 +201,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
 			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0);
+					0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -216,7 +219,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
 			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0, cmp);
+					0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -230,7 +233,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public ImmutableSet<java.lang.Integer> __insertAll(
-					final ImmutableSet<? extends java.lang.Integer> set) {
+			final ImmutableSet<? extends java.lang.Integer> set) {
 		TransientSet<java.lang.Integer> tmp = asTransient();
 		tmp.__insertAll(set);
 		return tmp.freeze();
@@ -238,8 +241,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public ImmutableSet<java.lang.Integer> __insertAllEquivalent(
-					final ImmutableSet<? extends java.lang.Integer> set,
-					final Comparator<Object> cmp) {
+			final ImmutableSet<? extends java.lang.Integer> set, final Comparator<Object> cmp) {
 		TransientSet<java.lang.Integer> tmp = asTransient();
 		tmp.__insertAllEquivalent(set, cmp);
 		return tmp.freeze();
@@ -247,7 +249,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public ImmutableSet<java.lang.Integer> __retainAll(
-					final ImmutableSet<? extends java.lang.Integer> set) {
+			final ImmutableSet<? extends java.lang.Integer> set) {
 		TransientSet<java.lang.Integer> tmp = asTransient();
 		tmp.__retainAll(set);
 		return tmp.freeze();
@@ -255,8 +257,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public ImmutableSet<java.lang.Integer> __retainAllEquivalent(
-					final ImmutableSet<? extends java.lang.Integer> set,
-					final Comparator<Object> cmp) {
+			final ImmutableSet<? extends java.lang.Integer> set, final Comparator<Object> cmp) {
 		TransientSet<java.lang.Integer> tmp = asTransient();
 		tmp.__retainAllEquivalent(set, cmp);
 		return tmp.freeze();
@@ -264,7 +265,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public ImmutableSet<java.lang.Integer> __removeAll(
-					final ImmutableSet<? extends java.lang.Integer> set) {
+			final ImmutableSet<? extends java.lang.Integer> set) {
 		TransientSet<java.lang.Integer> tmp = asTransient();
 		tmp.__removeAll(set);
 		return tmp.freeze();
@@ -272,8 +273,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public ImmutableSet<java.lang.Integer> __removeAllEquivalent(
-					final ImmutableSet<? extends java.lang.Integer> set,
-					final Comparator<Object> cmp) {
+			final ImmutableSet<? extends java.lang.Integer> set, final Comparator<Object> cmp) {
 		TransientSet<java.lang.Integer> tmp = asTransient();
 		tmp.__removeAllEquivalent(set, cmp);
 		return tmp.freeze();
@@ -351,14 +351,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 	@Override
 	public java.lang.Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+		Object[] array = new Object[cachedSize];
+
+		int idx = 0;
+		for (java.lang.Integer key : this) {
+			array[idx++] = key;
+		}
+
+		return array;
 	}
 
 	@Override
 	public <T> T[] toArray(final T[] a) {
-		// TODO Auto-generated method stub
-		return null;
+		List<java.lang.Integer> list = new ArrayList<java.lang.Integer>(cachedSize);
+
+		for (java.lang.Integer key : this) {
+			list.add(key);
+		}
+
+		return list.toArray(a);
 	}
 
 	@Override
@@ -393,9 +404,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			}
 
 			return rootNode.equals(that.rootNode);
+		} else if (other instanceof Set) {
+			Set that = (Set) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return containsAll(that);
 		}
 
-		return super.equals(other);
+		return false;
 	}
 
 	/*
@@ -485,12 +503,12 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				for (int j = 0; j <= max; j++) {
 					for (int k = max - j; k <= max - j; k++) {
 						float arityCombinationsPercentage = (float) (sumArityCombinations[j][k])
-										/ sumNodes;
+								/ sumNodes;
 
 						if (arityCombinationsPercentage != 0
-										&& arityCombinationsPercentage >= threshhold) {
+								&& arityCombinationsPercentage >= threshhold) {
 							bldr.append(String.format("%d/%d: %s, ", j, k, new DecimalFormat(
-											"0.00%").format(arityCombinationsPercentage)));
+									"0.00%").format(arityCombinationsPercentage)));
 						}
 					}
 				}
@@ -498,9 +516,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 				// overview
 				System.out.println(String.format("%2d: %s\t[cumsum = %s]\t%s", i,
-								new DecimalFormat("0.00%").format(arityPercentage),
-								new DecimalFormat("0.00%").format(cumsumArityPercentage),
-								detailPercentages));
+						new DecimalFormat("0.00%").format(arityPercentage), new DecimalFormat(
+								"0.00%").format(cumsumArityPercentage), detailPercentages));
 			}
 		}
 	}
@@ -591,34 +608,34 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	}
 
 	protected static abstract class AbstractSetNode implements
-					INode<java.lang.Integer, java.lang.Void> {
+			INode<java.lang.Integer, java.lang.Void> {
 
 		static final int TUPLE_LENGTH = 1;
 
 		abstract boolean containsKey(final int key, final int keyHash, final int shift);
 
 		abstract boolean containsKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp);
+				final Comparator<Object> cmp);
 
 		abstract Optional<java.lang.Integer> findByKey(final int key, final int keyHash,
-						final int shift);
+				final int shift);
 
 		abstract Optional<java.lang.Integer> findByKey(final int key, final int keyHash,
-						final int shift, final Comparator<Object> cmp);
+				final int shift, final Comparator<Object> cmp);
 
 		abstract CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details);
+				final int keyHash, final int shift, final Result details);
 
 		abstract CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp);
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp);
 
 		abstract CompactSetNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details);
+				final int keyHash, final int shift, final Result details);
 
 		abstract CompactSetNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp);
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
@@ -733,30 +750,28 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
 			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
 			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
-							: true;
+					: true;
 			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
 			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
-							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
+					&& ((this.payloadArity() + this.nodeArity()) == this.arity());
 
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
 		abstract CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator,
-						final int bitpos, final int key);
+				final int bitpos, final int key);
 
 		abstract CompactSetNode copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos);
 
 		abstract CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node);
+				CompactSetNode node);
 
 		abstract CompactSetNode copyAndMigrateFromInlineToNode(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactSetNode node);
+				final AtomicReference<Thread> mutator, final int bitpos, final CompactSetNode node);
 
 		abstract CompactSetNode copyAndMigrateFromNodeToInline(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactSetNode node);
+				final AtomicReference<Thread> mutator, final int bitpos, final CompactSetNode node);
 
 		/*
 		 * TODO: specialize removed(..) to remove this method from this
@@ -764,18 +779,18 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		 */
 
 		CompactSetNode removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@SuppressWarnings("unchecked")
 		static final CompactSetNode mergeTwoKeyValPairs(final int key0, final int keyHash0,
-						final int key1, final int keyHash1, final int shift) {
+				final int key1, final int keyHash1, final int shift) {
 			assert !(key0 == key1);
 
 			if (shift >= HASH_CODE_LENGTH) {
 				return new HashCollisionSetNode_5Bits_Spec0To8_IntKey(keyHash0, (int[]) new int[] {
-								key0, key1 });
+						key0, key1 });
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -792,7 +807,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				}
 			} else {
 				final CompactSetNode node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
-								shift + BIT_PARTITION_SIZE);
+						shift + BIT_PARTITION_SIZE);
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
@@ -809,7 +824,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		};
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+				final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
 			return new BitmapIndexedSetNode(mutator, nodeMap, dataMap, nodes);
 		}
 
@@ -819,437 +834,422 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap) {
+				final int nodeMap, final int dataMap) {
 			return EMPTY_NODE;
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1) {
 			return new Set0To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2) {
 			return new Set0To2Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1, node2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3) {
 			return new Set0To3Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1, node2,
-							node3);
+					node3);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4) {
 			return new Set0To4Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1, node2,
-							node3, node4);
+					node3, node4);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5) {
 			return new Set0To5Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1, node2,
-							node3, node4, node5);
+					node3, node4, node5);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5,
-						final CompactSetNode node6) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6) {
 			return new Set0To6Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1, node2,
-							node3, node4, node5, node6);
+					node3, node4, node5, node6);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5,
-						final CompactSetNode node6, final CompactSetNode node7) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6, final CompactSetNode node7) {
 			return new Set0To7Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1, node2,
-							node3, node4, node5, node6, node7);
+					node3, node4, node5, node6, node7);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5,
-						final CompactSetNode node6, final CompactSetNode node7,
-						final CompactSetNode node8) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6, final CompactSetNode node7,
+				final CompactSetNode node8) {
 			return new Set0To8Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, node1, node2,
-							node3, node4, node5, node6, node7, node8);
+					node3, node4, node5, node6, node7, node8);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5,
-						final CompactSetNode node6, final CompactSetNode node7,
-						final CompactSetNode node8, final CompactSetNode node9) {
+				final int nodeMap, final int dataMap, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6, final CompactSetNode node7,
+				final CompactSetNode node8, final CompactSetNode node9) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { node1, node2, node3, node4,
-							node5, node6, node7, node8, node9 });
+					node5, node6, node7, node8, node9 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1) {
+				final int nodeMap, final int dataMap, final int key1) {
 			return new Set1To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1) {
 			return new Set1To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1, final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2) {
 			return new Set1To2Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, node1,
-							node2);
+					node2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3) {
 			return new Set1To3Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, node1,
-							node2, node3);
+					node2, node3);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4) {
 			return new Set1To4Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, node1,
-							node2, node3, node4);
+					node2, node3, node4);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5) {
 			return new Set1To5Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, node1,
-							node2, node3, node4, node5);
+					node2, node3, node4, node5);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6) {
 			return new Set1To6Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, node1,
-							node2, node3, node4, node5, node6);
+					node2, node3, node4, node5, node6);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6,
-						final CompactSetNode node7) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6, final CompactSetNode node7) {
 			return new Set1To7Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, node1,
-							node2, node3, node4, node5, node6, node7);
+					node2, node3, node4, node5, node6, node7);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6,
-						final CompactSetNode node7, final CompactSetNode node8) {
+				final int nodeMap, final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6, final CompactSetNode node7,
+				final CompactSetNode node8) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, node1, node2, node3,
-							node4, node5, node6, node7, node8 });
+					node4, node5, node6, node7, node8 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2) {
+				final int nodeMap, final int dataMap, final int key1, final int key2) {
 			return new Set2To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final CompactSetNode node1) {
 			return new Set2To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							node1);
+					node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final CompactSetNode node1, final CompactSetNode node2) {
 			return new Set2To2Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							node1, node2);
+					node1, node2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3) {
 			return new Set2To3Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							node1, node2, node3);
+					node1, node2, node3);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3,
+				final CompactSetNode node4) {
 			return new Set2To4Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							node1, node2, node3, node4);
+					node1, node2, node3, node4);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3,
+				final CompactSetNode node4, final CompactSetNode node5) {
 			return new Set2To5Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							node1, node2, node3, node4, node5);
+					node1, node2, node3, node4, node5);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3,
+				final CompactSetNode node4, final CompactSetNode node5, final CompactSetNode node6) {
 			return new Set2To6Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							node1, node2, node3, node4, node5, node6);
+					node1, node2, node3, node4, node5, node6);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6,
-						final CompactSetNode node7) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3,
+				final CompactSetNode node4, final CompactSetNode node5, final CompactSetNode node6,
+				final CompactSetNode node7) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, node1, node2,
-							node3, node4, node5, node6, node7 });
+					node3, node4, node5, node6, node7 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3) {
+				final int nodeMap, final int dataMap, final int key1, final int key2, final int key3) {
 			return new Set3To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3);
+					key3);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final CompactSetNode node1) {
 			return new Set3To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, node1);
+					key3, node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final CompactSetNode node1, final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final CompactSetNode node1, final CompactSetNode node2) {
 			return new Set3To2Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, node1, node2);
+					key3, node1, node2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3) {
 			return new Set3To3Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, node1, node2, node3);
+					key3, node1, node2, node3);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4) {
 			return new Set3To4Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, node1, node2, node3, node4);
+					key3, node1, node2, node3, node4);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4, final CompactSetNode node5) {
 			return new Set3To5Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, node1, node2, node3, node4, node5);
+					key3, node1, node2, node3, node4, node5);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4, final CompactSetNode node5,
+				final CompactSetNode node6) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, key3, node1, node2,
-							node3, node4, node5, node6 });
+					node3, node4, node5, node6 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4) {
 			return new Set4To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4);
+					key3, key4);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final CompactSetNode node1) {
 			return new Set4To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, node1);
+					key3, key4, node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final CompactSetNode node1,
-						final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final CompactSetNode node1,
+				final CompactSetNode node2) {
 			return new Set4To2Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, node1, node2);
+					key3, key4, node1, node2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3) {
 			return new Set4To3Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, node1, node2, node3);
+					key3, key4, node1, node2, node3);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4) {
 			return new Set4To4Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, node1, node2, node3, node4);
+					key3, key4, node1, node2, node3, node4);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, key3, key4, node1,
-							node2, node3, node4, node5 });
+					node2, node3, node4, node5 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5) {
 			return new Set5To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5);
+					key3, key4, key5);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final CompactSetNode node1) {
 			return new Set5To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, node1);
+					key3, key4, key5, node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final CompactSetNode node1,
-						final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final CompactSetNode node1,
+				final CompactSetNode node2) {
 			return new Set5To2Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, node1, node2);
+					key3, key4, key5, node1, node2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3) {
 			return new Set5To3Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, node1, node2, node3);
+					key3, key4, key5, node1, node2, node3);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, key3, key4, key5,
-							node1, node2, node3, node4 });
+					node1, node2, node3, node4 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6) {
 			return new Set6To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, key6);
+					key3, key4, key5, key6);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6,
+				final CompactSetNode node1) {
 			return new Set6To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, key6, node1);
+					key3, key4, key5, key6, node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final CompactSetNode node1, final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6,
+				final CompactSetNode node1, final CompactSetNode node2) {
 			return new Set6To2Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, key6, node1, node2);
+					key3, key4, key5, key6, node1, node2);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, key3, key4, key5,
-							key6, node1, node2, node3 });
+					key6, node1, node2, node3 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final int key7) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6, final int key7) {
 			return new Set7To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, key6, key7);
+					key3, key4, key5, key6, key7);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final int key7, final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6, final int key7,
+				final CompactSetNode node1) {
 			return new Set7To1Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, key6, key7, node1);
+					key3, key4, key5, key6, key7, node1);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final int key7, final CompactSetNode node1, final CompactSetNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6, final int key7,
+				final CompactSetNode node1, final CompactSetNode node2) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, key3, key4, key5,
-							key6, key7, node1, node2 });
+					key6, key7, node1, node2 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final int key7, final int key8) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6, final int key7,
+				final int key8) {
 			return new Set8To0Node_5Bits_Spec0To8_IntKey(mutator, nodeMap, dataMap, key1, key2,
-							key3, key4, key5, key6, key7, key8);
+					key3, key4, key5, key6, key7, key8);
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final int key7, final int key8, final CompactSetNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6, final int key7,
+				final int key8, final CompactSetNode node1) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, key3, key4, key5,
-							key6, key7, key8, node1 });
+					key6, key7, key8, node1 });
 		}
 
 		static final CompactSetNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int key2,
-						final int key3, final int key4, final int key5, final int key6,
-						final int key7, final int key8, final int key9) {
+				final int nodeMap, final int dataMap, final int key1, final int key2,
+				final int key3, final int key4, final int key5, final int key6, final int key7,
+				final int key8, final int key9) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, key2, key3, key4, key5,
-							key6, key7, key8, key9 });
+					key6, key7, key8, key9 });
+		}
+
+		static final int index(final int bitmap, final int bitpos) {
+			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
+		}
+
+		static final int index(final int bitmap, final int mask, final int bitpos) {
+			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
 		int dataIndex(final int bitpos) {
@@ -1273,12 +1273,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return keyAt(bitpos) == key;
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return getKey(index) == key;
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
@@ -1286,16 +1290,20 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		boolean containsKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return keyAt(bitpos) == key;
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return getKey(index) == key;
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -1327,7 +1335,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		Optional<java.lang.Integer> findByKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1352,7 +1360,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1365,8 +1373,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				} else {
 
 					final CompactSetNode subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve((int) currentKey), key, keyHash, shift
-													+ BIT_PARTITION_SIZE);
+							improve((int) currentKey), key, keyHash, shift + BIT_PARTITION_SIZE);
 
 					// final CompactSetNode thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1381,7 +1388,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode subNode = nodeAt(bitpos);
 				final CompactSetNode subNodeNew = subNode.updated(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details);
+						+ BIT_PARTITION_SIZE, details);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1397,8 +1404,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1411,8 +1418,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				} else {
 
 					final CompactSetNode subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve((int) currentKey), key, keyHash, shift
-													+ BIT_PARTITION_SIZE);
+							improve((int) currentKey), key, keyHash, shift + BIT_PARTITION_SIZE);
 
 					// final CompactSetNode thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1427,7 +1433,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode subNode = nodeAt(bitpos);
 				final CompactSetNode subNodeNew = subNode.updated(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details, cmp);
+						+ BIT_PARTITION_SIZE, details, cmp);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1443,7 +1449,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1460,7 +1466,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.nodeOf(mutator, (int) 0, newDataMap, getKey(1));
@@ -1478,7 +1484,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode subNode = nodeAt(bitpos);
 				final CompactSetNode subNodeNew = subNode.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details);
+						+ BIT_PARTITION_SIZE, details);
 
 				if (!details.isModified()) {
 					return this;
@@ -1505,8 +1511,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1523,7 +1529,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.nodeOf(mutator, (int) 0, newDataMap, getKey(1));
@@ -1541,7 +1547,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode subNode = nodeAt(bitpos);
 				final CompactSetNode subNodeNew = subNode.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details, cmp);
+						+ BIT_PARTITION_SIZE, details, cmp);
 
 				if (!details.isModified()) {
 					return this;
@@ -1631,7 +1637,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int dataMap;
 
 		CompactMixedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
@@ -1653,7 +1659,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int nodeMap;
 
 		CompactNodesOnlySetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.nodeMap = nodeMap;
 		}
 
@@ -1674,7 +1680,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int dataMap;
 
 		CompactValuesOnlySetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.dataMap = dataMap;
 		}
 
@@ -1693,7 +1699,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	private static abstract class CompactEmptySetNode extends CompactSetNode {
 
 		CompactEmptySetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 		}
 
 		@Override
@@ -1714,7 +1720,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		final java.lang.Object[] nodes;
 
 		private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes) {
+				final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
@@ -1723,7 +1729,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			if (DEBUG) {
 
 				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+						+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
 				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
 					assert ((nodes[i] instanceof CompactSetNode) == false);
@@ -1824,7 +1830,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactSetNode node) {
+				final CompactSetNode node) {
 
 			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
@@ -1846,7 +1852,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1876,7 +1882,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
@@ -1897,7 +1903,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
@@ -1918,7 +1924,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -1946,7 +1952,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node8 = getNode(7);
 
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 
 			}
 			case 2: {
@@ -1978,7 +1984,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node7 = getNode(6);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node6, node7);
+						node6, node7);
 
 			}
 			case 3: {
@@ -2022,7 +2028,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node6 = getNode(5);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 
 			}
 			case 4: {
@@ -2082,7 +2088,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node5 = getNode(4);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 
 			}
 			case 5: {
@@ -2162,7 +2168,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node4 = getNode(3);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node3, node4);
+						node3, node4);
 
 			}
 			case 6: {
@@ -2266,7 +2272,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node3 = getNode(2);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-								node2, node3);
+						node2, node3);
 
 			}
 			case 7: {
@@ -2398,7 +2404,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node2 = getNode(1);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node1,
-								node2);
+						node2);
 
 			}
 			case 8: {
@@ -2562,7 +2568,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				final CompactSetNode node1 = getNode(0);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
-								node1);
+						node1);
 
 			}
 			case 9: {
@@ -2761,7 +2767,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				}
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
-								key8);
+						key8);
 
 			}
 			default:
@@ -2800,7 +2806,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		boolean containsKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			if (this.hash == keyHash) {
 				for (int k : keys) {
@@ -2828,7 +2834,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		Optional<java.lang.Integer> findByKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final int _key = keys[i];
@@ -2842,7 +2848,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -2860,7 +2866,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			details.modified();
 			return new HashCollisionSetNode_5Bits_Spec0To8_IntKey(keyHash, keysNew);
@@ -2868,8 +2874,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -2887,7 +2893,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			details.modified();
 			return new HashCollisionSetNode_5Bits_Spec0To8_IntKey(keyHash, keysNew);
@@ -2895,7 +2901,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -2911,7 +2917,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 						final int theOtherKey = (idx == 0) ? keys[1] : keys[0];
 
 						return CompactSetNode.nodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, 0, details);
+								keyHash, 0, details);
 					} else {
 						final int[] keysNew = new int[this.keys.length - 1];
 
@@ -2919,7 +2925,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionSetNode_5Bits_Spec0To8_IntKey(keyHash, keysNew);
 					}
@@ -2931,8 +2937,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -2948,7 +2954,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 						final int theOtherKey = (idx == 0) ? keys[1] : keys[0];
 
 						return CompactSetNode.nodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, 0, details, cmp);
+								keyHash, 0, details, cmp);
 					} else {
 						final int[] keysNew = new int[this.keys.length - 1];
 
@@ -2956,7 +2962,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionSetNode_5Bits_Spec0To8_IntKey(keyHash, keysNew);
 					}
@@ -3074,7 +3080,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3085,25 +3091,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactSetNode removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3212,7 +3218,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	}
 
 	private static final class SetKeyIterator extends AbstractSetIterator implements
-					Iterator<java.lang.Integer> {
+			Iterator<java.lang.Integer> {
 
 		SetKeyIterator(AbstractSetNode rootNode) {
 			super(rootNode);
@@ -3234,7 +3240,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	 * first recursively.
 	 */
 	private static class TrieSet_5Bits_Spec0To8_IntKeyNodeIterator implements
-					Iterator<AbstractSetNode> {
+			Iterator<AbstractSetNode> {
 
 		final Deque<Iterator<? extends AbstractSetNode>> nodeIteratorStack;
 
@@ -3281,14 +3287,14 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	}
 
 	static final class TransientTrieSet_5Bits_Spec0To8_IntKey extends
-					AbstractSet<java.lang.Integer> implements TransientSet<java.lang.Integer> {
+			AbstractSet<java.lang.Integer> implements TransientSet<java.lang.Integer> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractSetNode rootNode;
 		private int hashCode;
 		private int cachedSize;
 
 		TransientTrieSet_5Bits_Spec0To8_IntKey(
-						TrieSet_5Bits_Spec0To8_IntKey trieSet_5Bits_Spec0To8_IntKey) {
+				TrieSet_5Bits_Spec0To8_IntKey trieSet_5Bits_Spec0To8_IntKey) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieSet_5Bits_Spec0To8_IntKey.rootNode;
 			this.hashCode = trieSet_5Bits_Spec0To8_IntKey.hashCode;
@@ -3340,7 +3346,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0);
+						improve((int) key), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3358,7 +3364,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0, cmp);
+						improve((int) key), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3380,7 +3386,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final Result details = Result.unchanged();
 
 			final CompactSetNode newRootNode = rootNode.updated(mutator, key, improve(keyHash), 0,
-							details);
+					details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3410,7 +3416,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final Result details = Result.unchanged();
 
 			final CompactSetNode newRootNode = rootNode.updated(mutator, key, improve(keyHash), 0,
-							details, cmp);
+					details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3443,7 +3449,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		public boolean __insertAllEquivalent(final ImmutableSet<? extends java.lang.Integer> set,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (final int key : set) {
@@ -3466,7 +3472,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		public boolean __removeAllEquivalent(final ImmutableSet<? extends java.lang.Integer> set,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (final int key : set) {
@@ -3487,7 +3493,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final Result details = Result.unchanged();
 
 			final CompactSetNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details);
+					details);
 
 			if (details.isModified()) {
 
@@ -3518,7 +3524,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			final Result details = Result.unchanged();
 
 			final CompactSetNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details, cmp);
+					details, cmp);
 
 			if (details.isModified()) {
 
@@ -3576,7 +3582,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		public boolean __retainAllEquivalent(ImmutableSet<? extends java.lang.Integer> set,
-						Comparator<Object> cmp) {
+				Comparator<Object> cmp) {
 			boolean modified = false;
 
 			Iterator<java.lang.Integer> thisIterator = iterator();
@@ -3610,13 +3616,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		 * depth first recursively.
 		 */
 		private static class TransientSetKeyIterator extends AbstractSetIterator implements
-						Iterator<java.lang.Integer> {
+				Iterator<java.lang.Integer> {
 
 			final TransientTrieSet_5Bits_Spec0To8_IntKey transientTrieSet_5Bits_Spec0To8_IntKey;
 			java.lang.Integer lastKey;
 
 			TransientSetKeyIterator(
-							TransientTrieSet_5Bits_Spec0To8_IntKey transientTrieSet_5Bits_Spec0To8_IntKey) {
+					TransientTrieSet_5Bits_Spec0To8_IntKey transientTrieSet_5Bits_Spec0To8_IntKey) {
 				super(transientTrieSet_5Bits_Spec0To8_IntKey.rootNode);
 				this.transientTrieSet_5Bits_Spec0To8_IntKey = transientTrieSet_5Bits_Spec0To8_IntKey;
 			}
@@ -3685,7 +3691,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 	private static final class Set0To0Node_5Bits_Spec0To8_IntKey extends CompactEmptySetNode {
 
 		Set0To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			super(mutator, nodeMap, dataMap);
 
 			assert nodeInvariant();
@@ -3749,7 +3755,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -3770,19 +3776,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -3815,7 +3821,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set0To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1) {
+				final int dataMap, final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 
@@ -3885,7 +3891,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -3906,7 +3912,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -3922,13 +3928,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -3998,7 +4004,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node2;
 
 		Set0To2Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1, final CompactSetNode node2) {
+				final int dataMap, final CompactSetNode node1, final CompactSetNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4071,7 +4077,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4092,7 +4098,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4110,13 +4116,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4198,8 +4204,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node3;
 
 		Set0To3Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4275,7 +4281,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4296,7 +4302,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4316,13 +4322,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4416,8 +4422,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node4;
 
 		Set0To4Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4) {
+				final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4496,7 +4502,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4517,7 +4523,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4539,13 +4545,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4651,9 +4657,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node5;
 
 		Set0To5Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5) {
+				final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4, final CompactSetNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4735,7 +4740,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4756,7 +4761,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4780,13 +4785,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4904,9 +4909,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node6;
 
 		Set0To6Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6) {
+				final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4, final CompactSetNode node5,
+				final CompactSetNode node6) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4991,7 +4996,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5000,7 +5005,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node5,
-								node6);
+						node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5013,7 +5018,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5039,13 +5044,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5175,10 +5180,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node7;
 
 		Set0To7Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6,
-						final CompactSetNode node7) {
+				final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4, final CompactSetNode node5,
+				final CompactSetNode node6, final CompactSetNode node7) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5266,7 +5270,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5275,7 +5279,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node5,
-								node6, node7);
+						node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5288,7 +5292,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5297,25 +5301,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7);
+						node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7);
+						node7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7);
+						node7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7);
+						node7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7);
+						node7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7);
+						node7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5323,13 +5327,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5343,7 +5347,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5351,7 +5355,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5359,7 +5363,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5367,7 +5371,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5375,7 +5379,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5383,7 +5387,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node7);
+							node5, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5391,7 +5395,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5478,10 +5482,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node8;
 
 		Set0To8Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6,
-						final CompactSetNode node7, final CompactSetNode node8) {
+				final int dataMap, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3, final CompactSetNode node4, final CompactSetNode node5,
+				final CompactSetNode node6, final CompactSetNode node7, final CompactSetNode node8) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5572,7 +5575,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5581,7 +5584,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4, node5,
-								node6, node7, node8);
+						node6, node7, node8);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5594,7 +5597,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5603,28 +5606,28 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7, node8);
+						node7, node8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7, node8);
+						node7, node8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node, node8);
+						node, node8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7, node);
+						node7, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5632,13 +5635,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5652,7 +5655,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node2, node3, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5660,7 +5663,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node3, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5668,7 +5671,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5676,7 +5679,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5684,7 +5687,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5692,7 +5695,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node7, node8);
+							node5, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5700,7 +5703,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node6, node8);
+							node5, node6, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5708,7 +5711,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, node1, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5792,7 +5795,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key1;
 
 		Set1To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1) {
+				final int dataMap, final int key1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 
@@ -5862,7 +5865,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5895,13 +5898,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5923,7 +5926,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -5975,7 +5978,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set1To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final CompactSetNode node1) {
+				final int dataMap, final int key1, final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.node1 = node1;
@@ -6051,7 +6054,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6084,7 +6087,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6100,7 +6103,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6124,7 +6127,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6202,8 +6205,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node2;
 
 		Set1To2Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final CompactSetNode node1,
-						final CompactSetNode node2) {
+				final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.node1 = node1;
@@ -6282,7 +6285,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6315,7 +6318,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6333,7 +6336,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6359,7 +6362,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6451,8 +6454,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node3;
 
 		Set1To3Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3) {
+				final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.node1 = node1;
@@ -6534,7 +6537,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6567,7 +6570,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6587,7 +6590,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6615,7 +6618,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6721,9 +6724,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node4;
 
 		Set1To4Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4) {
+				final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.node1 = node1;
@@ -6808,7 +6810,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6841,7 +6843,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6863,7 +6865,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6893,7 +6895,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7013,9 +7015,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node5;
 
 		Set1To5Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5) {
+				final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.node1 = node1;
@@ -7103,7 +7105,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7112,10 +7114,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-								node5);
+						node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7138,7 +7140,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7162,7 +7164,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7174,22 +7176,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5);
+							node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5);
+							node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5);
+							node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5);
+							node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7200,7 +7202,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7334,10 +7336,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node6;
 
 		Set1To6Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5,
-						final CompactSetNode node6) {
+				final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.node1 = node1;
@@ -7428,7 +7429,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7437,10 +7438,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7463,7 +7464,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7472,22 +7473,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2, node3, node4, node5,
-								node6);
+						node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3, node4, node5,
-								node6);
+						node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node4, node5,
-								node6);
+						node6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node, node5,
-								node6);
+						node6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node,
-								node6);
+						node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7495,7 +7496,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7507,25 +7508,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6);
+							node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6);
+							node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6);
+							node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node);
+							node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7536,7 +7537,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7550,10 +7551,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2, node3, node4, node5,
-									node6);
+							node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2, node3, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7561,10 +7562,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node3, node4, node5,
-									node6);
+							node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node3, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7572,10 +7573,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node4, node5,
-									node6);
+							node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7583,10 +7584,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node5,
-									node6);
+							node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7594,10 +7595,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node6);
+							node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7605,10 +7606,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node5);
+							node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7696,10 +7697,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node7;
 
 		Set1To7Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3,
-						final CompactSetNode node4, final CompactSetNode node5,
-						final CompactSetNode node6, final CompactSetNode node7) {
+				final int dataMap, final int key1, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6, final CompactSetNode node7) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.node1 = node1;
@@ -7793,7 +7793,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7802,10 +7802,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7821,7 +7821,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7);
+						node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7829,7 +7829,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7838,25 +7838,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node, node2, node3, node4, node5,
-								node6, node7);
+						node6, node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node3, node4, node5,
-								node6, node7);
+						node6, node7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node4, node5,
-								node6, node7);
+						node6, node7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node, node5,
-								node6, node7);
+						node6, node7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node,
-								node6, node7);
+						node6, node7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node, node7);
+						node, node7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node6, node);
+						node6, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7864,7 +7864,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7876,28 +7876,28 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6, node7);
+							node, node6, node7);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node, node7);
+							node6, node, node7);
 				case 7:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node7, node);
+							node6, node7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7908,7 +7908,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7922,10 +7922,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node2, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node2, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7933,10 +7933,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7944,10 +7944,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node4, node5,
-									node6, node7);
+							node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7955,10 +7955,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node5,
-									node6, node7);
+							node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7966,10 +7966,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node6, node7);
+							node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7977,10 +7977,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node5, node7);
+							node5, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node5, node7);
+							node5, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7988,10 +7988,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8077,7 +8077,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key2;
 
 		Set2To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2) {
+				final int dataMap, final int key1, final int key2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -8150,7 +8150,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8187,13 +8187,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8222,7 +8222,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -8279,8 +8279,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set2To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1) {
+				final int dataMap, final int key1, final int key2, final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -8359,7 +8358,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8396,7 +8395,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8412,7 +8411,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8445,7 +8444,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8530,8 +8529,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node2;
 
 		Set2To2Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2) {
+				final int dataMap, final int key1, final int key2, final CompactSetNode node1,
+				final CompactSetNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -8613,7 +8612,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8650,7 +8649,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8668,7 +8667,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8705,7 +8704,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8806,9 +8805,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node3;
 
 		Set2To3Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int dataMap, final int key1, final int key2, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -8893,7 +8891,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8930,7 +8928,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8950,7 +8948,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8991,7 +8989,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9108,9 +9106,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node4;
 
 		Set2To4Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4) {
+				final int dataMap, final int key1, final int key2, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -9198,7 +9195,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9207,13 +9204,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-								node4);
+						node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-								node4);
+						node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-								node4);
+						node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9238,7 +9235,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9260,7 +9257,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9305,7 +9302,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9438,10 +9435,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node5;
 
 		Set2To5Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5) {
+				final int dataMap, final int key1, final int key2, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -9532,7 +9528,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9541,13 +9537,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9572,7 +9568,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9581,19 +9577,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2, node3, node4,
-								node5);
+						node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node3, node4,
-								node5);
+						node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node4,
-								node5);
+						node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-								node5);
+						node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9601,7 +9597,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9613,22 +9609,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node, node5);
+							node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node5, node);
+							node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9636,22 +9632,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node, node5);
+							node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node5, node);
+							node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9662,7 +9658,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9676,13 +9672,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node2, node3, node4,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node2, node3, node4,
-									node5);
+							node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node2, node3, node4,
-									node5);
+							node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9690,13 +9686,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node3, node4,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node3, node4,
-									node5);
+							node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node3, node4,
-									node5);
+							node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9704,13 +9700,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node4,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node4,
-									node5);
+							node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node4,
-									node5);
+							node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9718,13 +9714,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node5);
+							node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node5);
+							node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9732,13 +9728,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9826,10 +9822,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node6;
 
 		Set2To6Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5, final CompactSetNode node6) {
+				final int dataMap, final int key1, final int key2, final CompactSetNode node1,
+				final CompactSetNode node2, final CompactSetNode node3, final CompactSetNode node4,
+				final CompactSetNode node5, final CompactSetNode node6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -9923,7 +9918,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9932,13 +9927,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-								node4, node5, node6);
+						node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-								node4, node5, node6);
+						node4, node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-								node4, node5, node6);
+						node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9954,10 +9949,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4, node5,
-								node6);
+						node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4, node5,
-								node6);
+						node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9965,7 +9960,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9974,22 +9969,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node4,
-								node5, node6);
+						node5, node6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-								node5, node6);
+						node5, node6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node, node6);
+						node, node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node5, node);
+						node5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9997,7 +9992,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10009,25 +10004,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node, node1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node, node5, node6);
+							node, node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node5, node, node6);
+							node5, node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key2, node1, node2, node3, node4,
-									node5, node6, node);
+							node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10035,25 +10030,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node, node1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node, node5, node6);
+							node, node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node5, node, node6);
+							node5, node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, node1, node2, node3, node4,
-									node5, node6, node);
+							node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10064,7 +10059,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10078,13 +10073,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10092,13 +10087,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node3, node4,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10106,13 +10101,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node4,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node4,
-									node5, node6);
+							node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node4,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10120,13 +10115,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node5, node6);
+							node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10134,13 +10129,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node4, node6);
+							node4, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node4, node6);
+							node4, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node4, node6);
+							node4, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10148,13 +10143,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10241,7 +10236,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key3;
 
 		Set3To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3) {
+				final int dataMap, final int key1, final int key2, final int key3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -10317,7 +10312,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10358,13 +10353,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10400,7 +10395,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -10462,8 +10457,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set3To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final CompactSetNode node1) {
+				final int dataMap, final int key1, final int key2, final int key3,
+				final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -10545,7 +10540,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10586,7 +10581,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10602,7 +10597,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10644,7 +10639,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10736,8 +10731,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node2;
 
 		Set3To2Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final CompactSetNode node1, final CompactSetNode node2) {
+				final int dataMap, final int key1, final int key2, final int key3,
+				final CompactSetNode node1, final CompactSetNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -10822,7 +10817,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10863,7 +10858,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10881,7 +10876,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10929,7 +10924,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11039,9 +11034,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node3;
 
 		Set3To3Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int dataMap, final int key1, final int key2, final int key3,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -11129,7 +11123,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -11170,7 +11164,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11190,7 +11184,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11244,7 +11238,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11372,9 +11366,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node4;
 
 		Set3To4Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4) {
+				final int dataMap, final int key1, final int key2, final int key3,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3,
+				final CompactSetNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -11465,7 +11459,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -11474,16 +11468,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-								node3, node4);
+						node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11510,7 +11504,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11519,16 +11513,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node2, node3,
-								node4);
+						node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node3,
-								node4);
+						node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-								node4);
+						node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11536,7 +11530,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11548,19 +11542,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node,
-									node4);
+							node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11568,19 +11562,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node,
-									node4);
+							node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11588,19 +11582,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-									node4);
+							node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11611,7 +11605,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11625,16 +11619,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node2, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node2, node3,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11642,16 +11636,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node3,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11659,16 +11653,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11676,16 +11670,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node3);
+							node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node3);
+							node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node3);
+							node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11773,10 +11767,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node5;
 
 		Set3To5Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4,
-						final CompactSetNode node5) {
+				final int dataMap, final int key1, final int key2, final int key3,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3,
+				final CompactSetNode node4, final CompactSetNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -11870,7 +11863,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -11879,16 +11872,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11904,13 +11897,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node4,
-								node5);
+						node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node4,
-								node5);
+						node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11918,7 +11911,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11927,19 +11920,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node2, node3,
-								node4, node5);
+						node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node3,
-								node4, node5);
+						node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-								node4, node5);
+						node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node, node5);
+						node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node4, node);
+						node4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11947,7 +11940,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11959,22 +11952,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3,
-									node4, node, node5);
+							node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, node1, node2, node3,
-									node4, node5, node);
+							node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11982,22 +11975,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3,
-									node4, node, node5);
+							node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, node1, node2, node3,
-									node4, node5, node);
+							node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12005,22 +11998,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-									node4, node, node5);
+							node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, node1, node2, node3,
-									node4, node5, node);
+							node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12031,7 +12024,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12045,16 +12038,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node2, node3,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12062,16 +12055,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node3,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12079,16 +12072,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12096,16 +12089,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node3, node5);
+							node3, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node3, node5);
+							node3, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node3, node5);
+							node3, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node3, node5);
+							node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12113,16 +12106,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, node1, node2,
-									node3, node4);
+							node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12210,8 +12203,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key4;
 
 		Set4To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -12290,7 +12282,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12335,13 +12327,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12384,7 +12376,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -12451,8 +12443,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set4To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final CompactSetNode node1) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -12537,7 +12529,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12582,7 +12574,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12598,7 +12590,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12649,7 +12641,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12748,8 +12740,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node2;
 
 		Set4To2Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final CompactSetNode node1, final CompactSetNode node2) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final CompactSetNode node1, final CompactSetNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -12837,7 +12829,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12882,7 +12874,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12900,7 +12892,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12959,7 +12951,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13078,9 +13070,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node3;
 
 		Set4To3Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -13171,7 +13162,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -13180,19 +13171,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1, node2,
-								node3);
+						node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1, node2,
-								node3);
+						node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1, node2,
-								node3);
+						node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1, node2,
-								node3);
+						node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1, node2,
-								node3);
+						node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13221,7 +13212,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13241,7 +13232,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13253,16 +13244,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node, node1, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node, node2,
-									node3);
+							node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node,
-									node3);
+							node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13270,16 +13261,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node, node1, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node, node2,
-									node3);
+							node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node,
-									node3);
+							node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13287,16 +13278,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node, node1, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node, node2,
-									node3);
+							node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node,
-									node3);
+							node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13304,16 +13295,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node1, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node2,
-									node3);
+							node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-									node3);
+							node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13324,7 +13315,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13338,19 +13329,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node2,
-									node3);
+							node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node2,
-									node3);
+							node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node2,
-									node3);
+							node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node2,
-									node3);
+							node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13358,19 +13349,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node3);
+							node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node3);
+							node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node3);
+							node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node3);
+							node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13378,19 +13369,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node2);
+							node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node2);
+							node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node2);
+							node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13478,9 +13469,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node4;
 
 		Set4To4Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final CompactSetNode node1, final CompactSetNode node2,
-						final CompactSetNode node3, final CompactSetNode node4) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final CompactSetNode node1, final CompactSetNode node2, final CompactSetNode node3,
+				final CompactSetNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -13574,7 +13565,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -13583,19 +13574,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1, node2,
-								node3, node4);
+						node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13611,16 +13602,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-								node4);
+						node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-								node4);
+						node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-								node4);
+						node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-								node4);
+						node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13628,7 +13619,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13637,16 +13628,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node,
-								node3, node4);
+						node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node, node4);
+						node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node3, node);
+						node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13654,7 +13645,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13666,19 +13657,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node, node2,
-									node3, node4);
+							node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node,
-									node3, node4);
+							node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-									node, node4);
+							node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13686,19 +13677,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node, node2,
-									node3, node4);
+							node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node,
-									node3, node4);
+							node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-									node, node4);
+							node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13706,19 +13697,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node, node2,
-									node3, node4);
+							node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node,
-									node3, node4);
+							node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-									node, node4);
+							node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13726,19 +13717,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node, node2,
-									node3, node4);
+							node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node,
-									node3, node4);
+							node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-									node, node4);
+							node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13749,7 +13740,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13763,19 +13754,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node2,
-									node3, node4);
+							node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node2,
-									node3, node4);
+							node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node2,
-									node3, node4);
+							node3, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node2,
-									node3, node4);
+							node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13783,19 +13774,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node3, node4);
+							node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node3, node4);
+							node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node3, node4);
+							node3, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node3, node4);
+							node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13803,19 +13794,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node2, node4);
+							node2, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node2, node4);
+							node2, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node2, node4);
+							node2, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node2, node4);
+							node2, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node2, node4);
+							node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13823,19 +13814,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, node1,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, node1,
-									node2, node3);
+							node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, node1,
-									node2, node3);
+							node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, node1,
-									node2, node3);
+							node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13924,8 +13915,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key5;
 
 		Set5To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -14007,7 +13998,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -14056,13 +14047,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14112,7 +14103,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -14184,8 +14175,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set5To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final CompactSetNode node1) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -14273,7 +14264,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -14322,7 +14313,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14338,7 +14329,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14398,7 +14389,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14504,9 +14495,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node2;
 
 		Set5To2Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final CompactSetNode node1,
-						final CompactSetNode node2) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final CompactSetNode node1, final CompactSetNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -14597,7 +14587,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -14606,22 +14596,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, node1,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, node1,
-								node2);
+						node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, node1,
-								node2);
+						node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, node1,
-								node2);
+						node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, node1,
-								node2);
+						node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, node1,
-								node2);
+						node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14652,7 +14642,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14670,7 +14660,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14682,13 +14672,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14696,13 +14686,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14710,13 +14700,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14724,13 +14714,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14738,13 +14728,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14755,7 +14745,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14769,22 +14759,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node2);
+							node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node2);
+							node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node2);
+							node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node2);
+							node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14792,22 +14782,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node1);
+							node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node1);
+							node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node1);
+							node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node1);
+							node1);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node1);
+							node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14895,9 +14885,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node3;
 
 		Set5To3Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final CompactSetNode node1,
-						final CompactSetNode node2, final CompactSetNode node3) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final CompactSetNode node1, final CompactSetNode node2,
+				final CompactSetNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -14991,7 +14981,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -15000,22 +14990,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, node1,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, node1,
-								node2, node3);
+						node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, node1,
-								node2, node3);
+						node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, node1,
-								node2, node3);
+						node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, node1,
-								node2, node3);
+						node2, node3);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, node1,
-								node2, node3);
+						node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15031,19 +15021,19 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-								node3);
+						node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-								node3);
+						node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-								node3);
+						node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-								node3);
+						node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-								node3);
+						node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15051,7 +15041,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15060,13 +15050,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node, node2,
-								node3);
+						node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1, node,
-								node3);
+						node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-								node2, node);
+						node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15074,7 +15064,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15086,16 +15076,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15103,16 +15093,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15120,16 +15110,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15137,16 +15127,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15154,16 +15144,16 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15174,7 +15164,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15188,22 +15178,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node2, node3);
+							node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node2, node3);
+							node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node2, node3);
+							node2, node3);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node2, node3);
+							node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15211,22 +15201,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node1, node3);
+							node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node1, node3);
+							node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node1, node3);
+							node1, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node1, node3);
+							node1, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node1, node3);
+							node1, node3);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node1, node3);
+							node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15234,22 +15224,22 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									node1, node2);
+							node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									node1, node2);
+							node1, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									node1, node2);
+							node1, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									node1, node2);
+							node1, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									node1, node2);
+							node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15339,8 +15329,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key6;
 
 		Set6To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final int key6) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final int key6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -15425,7 +15415,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -15478,13 +15468,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15541,7 +15531,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -15618,8 +15608,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set6To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final int key6, final CompactSetNode node1) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final int key6, final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -15710,7 +15700,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -15719,25 +15709,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6,
-								node1);
+						node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6,
-								node1);
+						node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6,
-								node1);
+						node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6,
-								node1);
+						node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6,
-								node1);
+						node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6,
-								node1);
+						node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key,
-								node1);
+						node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15770,7 +15760,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15786,7 +15776,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15798,10 +15788,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15809,10 +15799,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15820,10 +15810,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15831,10 +15821,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15842,10 +15832,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15853,10 +15843,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15867,7 +15857,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15881,25 +15871,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6);
+							key6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6);
+							key6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6);
+							key6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6);
+							key6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6);
+							key6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6);
+							key6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key);
+							key);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15987,9 +15977,9 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node2;
 
 		Set6To2Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final int key6, final CompactSetNode node1,
-						final CompactSetNode node2) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final int key6, final CompactSetNode node1,
+				final CompactSetNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -16083,7 +16073,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16092,25 +16082,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6,
-								node1, node2);
+						node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6,
-								node1, node2);
+						node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6,
-								node1, node2);
+						node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6,
-								node1, node2);
+						node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6,
-								node1, node2);
+						node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6,
-								node1, node2);
+						node1, node2);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key,
-								node1, node2);
+						node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16143,7 +16133,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16152,10 +16142,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, node1,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16163,7 +16153,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16175,13 +16165,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1,
-									node, node2);
+							node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, node1,
-									node2, node);
+							node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16189,13 +16179,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1,
-									node, node2);
+							node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, node1,
-									node2, node);
+							node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16203,13 +16193,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1,
-									node, node2);
+							node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, node1,
-									node2, node);
+							node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16217,13 +16207,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1,
-									node, node2);
+							node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, node1,
-									node2, node);
+							node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16231,13 +16221,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1,
-									node, node2);
+							node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, node1,
-									node2, node);
+							node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16245,13 +16235,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-									node, node2);
+							node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, node1,
-									node2, node);
+							node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16262,7 +16252,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16276,25 +16266,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6, node2);
+							key6, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6, node2);
+							key6, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6, node2);
+							key6, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6, node2);
+							key6, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6, node2);
+							key6, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6, node2);
+							key6, node2);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key, node2);
+							key, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16302,25 +16292,25 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6, node1);
+							key6, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6, node1);
+							key6, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6, node1);
+							key6, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6, node1);
+							key6, node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6, node1);
+							key6, node1);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6, node1);
+							key6, node1);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key, node1);
+							key, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16411,8 +16401,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key7;
 
 		Set7To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final int key6, final int key7) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final int key6, final int key7) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -16500,7 +16490,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16509,28 +16499,28 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6,
-								key7);
+						key7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6,
-								key7);
+						key7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6,
-								key7);
+						key7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6,
-								key7);
+						key7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6,
-								key7);
+						key7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6,
-								key7);
+						key7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key,
-								key7);
+						key7);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
-								key);
+						key);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16565,13 +16555,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16583,7 +16573,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16591,7 +16581,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16599,7 +16589,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16607,7 +16597,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16615,7 +16605,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16623,7 +16613,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16631,7 +16621,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16642,7 +16632,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -16724,9 +16714,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final CompactSetNode node1;
 
 		Set7To1Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final int key6, final int key7,
-						final CompactSetNode node1) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final int key6, final int key7, final CompactSetNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -16820,7 +16809,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16829,28 +16818,28 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6,
-								key7, node1);
+						key7, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6,
-								key7, node1);
+						key7, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6,
-								key7, node1);
+						key7, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6,
-								key7, node1);
+						key7, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6,
-								key7, node1);
+						key7, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6,
-								key7, node1);
+						key7, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key,
-								key7, node1);
+						key7, node1);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
-								key, node1);
+						key, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16885,7 +16874,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16894,7 +16883,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16902,7 +16891,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16914,10 +16903,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16925,10 +16914,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16936,10 +16925,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16947,10 +16936,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16958,10 +16947,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16969,10 +16958,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16980,10 +16969,10 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16994,7 +16983,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17008,28 +16997,28 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5,
-									key6, key7);
+							key6, key7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5,
-									key6, key7);
+							key6, key7);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5,
-									key6, key7);
+							key6, key7);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5,
-									key6, key7);
+							key6, key7);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5,
-									key6, key7);
+							key6, key7);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key,
-									key6, key7);
+							key6, key7);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key, key7);
+							key, key7);
 				case 7:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key7, key);
+							key7, key);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17121,9 +17110,8 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 		private final int key8;
 
 		Set8To0Node_5Bits_Spec0To8_IntKey(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final int key1, final int key2, final int key3,
-						final int key4, final int key5, final int key6, final int key7,
-						final int key8) {
+				final int dataMap, final int key1, final int key2, final int key3, final int key4,
+				final int key5, final int key6, final int key7, final int key8) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.key2 = key2;
@@ -17214,7 +17202,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key) {
+				final int key) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -17223,31 +17211,31 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, key1, key2, key3, key4, key5, key6,
-								key7, key8);
+						key7, key8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key, key2, key3, key4, key5, key6,
-								key7, key8);
+						key7, key8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key, key3, key4, key5, key6,
-								key7, key8);
+						key7, key8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key, key4, key5, key6,
-								key7, key8);
+						key7, key8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key, key5, key6,
-								key7, key8);
+						key7, key8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key, key6,
-								key7, key8);
+						key7, key8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key,
-								key7, key8);
+						key7, key8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
-								key, key8);
+						key, key8);
 			case 8:
 				return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6, key7,
-								key8, key);
+						key8, key);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17284,13 +17272,13 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode node) {
+				CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactSetNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17302,7 +17290,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, key3, key4, key5, key6, key7,
-									key8, node);
+							key8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17310,7 +17298,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key3, key4, key5, key6, key7,
-									key8, node);
+							key8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17318,7 +17306,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key4, key5, key6, key7,
-									key8, node);
+							key8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17326,7 +17314,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key5, key6, key7,
-									key8, node);
+							key8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17334,7 +17322,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key6, key7,
-									key8, node);
+							key8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17342,7 +17330,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key7,
-									key8, node);
+							key8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17350,7 +17338,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key8, node);
+							key8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17358,7 +17346,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, key2, key3, key4, key5, key6,
-									key7, node);
+							key7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17369,7 +17357,7 @@ public class TrieSet_5Bits_Spec0To8_IntKey implements ImmutableSet<java.lang.Int
 
 		@Override
 		CompactSetNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode node) {
+				final int bitpos, final CompactSetNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 

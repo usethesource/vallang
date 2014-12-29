@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
 
 import java.text.DecimalFormat;
+import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
@@ -30,11 +31,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
 public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
-				ImmutableMap<java.lang.Integer, java.lang.Integer> {
+		ImmutableMap<java.lang.Integer, java.lang.Integer> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMap_5Bits_Spec0To8_IntKey_IntValue EMPTY_MAP = new TrieMap_5Bits_Spec0To8_IntKey_IntValue(
-					CompactMapNode.EMPTY_NODE, 0, 0);
+			CompactMapNode.EMPTY_NODE, 0, 0);
 
 	private static final boolean DEBUG = false;
 
@@ -58,10 +59,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@SuppressWarnings("unchecked")
 	public static final ImmutableMap<java.lang.Integer, java.lang.Integer> of(
-					Object... keyValuePairs) {
+			Object... keyValuePairs) {
 		if (keyValuePairs.length % 2 != 0) {
 			throw new IllegalArgumentException(
-							"Length of argument list is uneven: no key/value pairs.");
+					"Length of argument list is uneven: no key/value pairs.");
 		}
 
 		ImmutableMap<java.lang.Integer, java.lang.Integer> result = TrieMap_5Bits_Spec0To8_IntKey_IntValue.EMPTY_MAP;
@@ -83,14 +84,14 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@SuppressWarnings("unchecked")
 	public static final TransientMap<java.lang.Integer, java.lang.Integer> transientOf(
-					Object... keyValuePairs) {
+			Object... keyValuePairs) {
 		if (keyValuePairs.length % 2 != 0) {
 			throw new IllegalArgumentException(
-							"Length of argument list is uneven: no key/value pairs.");
+					"Length of argument list is uneven: no key/value pairs.");
 		}
 
 		final TransientMap<java.lang.Integer, java.lang.Integer> result = TrieMap_5Bits_Spec0To8_IntKey_IntValue.EMPTY_MAP
-						.asTransient();
+				.asTransient();
 
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			final int key = (int) keyValuePairs[i];
@@ -107,7 +108,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		int size = 0;
 
 		for (Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> it = entryIterator(); it
-						.hasNext();) {
+				.hasNext();) {
 			final Map.Entry<java.lang.Integer, java.lang.Integer> entry = it.next();
 			final int key = entry.getKey();
 			final int val = entry.getValue();
@@ -125,12 +126,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@Override
 	public TrieMap_5Bits_Spec0To8_IntKey_IntValue __put(final java.lang.Integer key,
-					final java.lang.Integer val) {
+			final java.lang.Integer val) {
 		final int keyHash = key.hashCode();
 		final Result details = Result.unchanged();
 
 		final CompactMapNode newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details);
+				details);
 
 		if (details.isModified()) {
 
@@ -139,12 +140,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final int valHashNew = (int) val;
 
 				return new TrieMap_5Bits_Spec0To8_IntKey_IntValue(newRootNode, hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
+						+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = (int) val;
 			return new TrieMap_5Bits_Spec0To8_IntKey_IntValue(newRootNode, hashCode
-							+ (keyHash ^ valHash), cachedSize + 1);
+					+ (keyHash ^ valHash), cachedSize + 1);
 
 		}
 
@@ -153,12 +154,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@Override
 	public TrieMap_5Bits_Spec0To8_IntKey_IntValue __putEquivalent(final java.lang.Integer key,
-					final java.lang.Integer val, final Comparator<Object> cmp) {
+			final java.lang.Integer val, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final Result details = Result.unchanged();
 
 		final CompactMapNode newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details, cmp);
+				details, cmp);
 
 		if (details.isModified()) {
 
@@ -167,12 +168,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final int valHashNew = (int) val;
 
 				return new TrieMap_5Bits_Spec0To8_IntKey_IntValue(newRootNode, hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
+						+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = (int) val;
 			return new TrieMap_5Bits_Spec0To8_IntKey_IntValue(newRootNode, hashCode
-							+ (keyHash ^ valHash), cachedSize + 1);
+					+ (keyHash ^ valHash), cachedSize + 1);
 
 		}
 
@@ -185,7 +186,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		final Result details = Result.unchanged();
 
 		final CompactMapNode newRootNode = rootNode
-						.removed(null, key, improve(keyHash), 0, details);
+				.removed(null, key, improve(keyHash), 0, details);
 
 		if (details.isModified()) {
 
@@ -193,7 +194,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final int valHash = (int) details.getReplacedValue();
 
 			return new TrieMap_5Bits_Spec0To8_IntKey_IntValue(newRootNode, hashCode
-							- (keyHash ^ valHash), cachedSize - 1);
+					- (keyHash ^ valHash), cachedSize - 1);
 
 		}
 
@@ -202,12 +203,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@Override
 	public ImmutableMap<java.lang.Integer, java.lang.Integer> __removeEquivalent(
-					final java.lang.Integer key, final Comparator<Object> cmp) {
+			final java.lang.Integer key, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final Result details = Result.unchanged();
 
 		final CompactMapNode newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+				details, cmp);
 
 		if (details.isModified()) {
 
@@ -215,7 +216,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final int valHash = (int) details.getReplacedValue();
 
 			return new TrieMap_5Bits_Spec0To8_IntKey_IntValue(newRootNode, hashCode
-							- (keyHash ^ valHash), cachedSize - 1);
+					- (keyHash ^ valHash), cachedSize - 1);
 
 		}
 
@@ -270,7 +271,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
 			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0);
+					0);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -288,7 +289,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			@SuppressWarnings("unchecked")
 			final int key = (int) o;
 			final Optional<java.lang.Integer> result = rootNode.findByKey(key, improve((int) key),
-							0, cmp);
+					0, cmp);
 
 			if (result.isPresent()) {
 				return result.get();
@@ -302,7 +303,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@Override
 	public ImmutableMap<java.lang.Integer, java.lang.Integer> __putAll(
-					final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map) {
+			final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map) {
 		TransientMap<java.lang.Integer, java.lang.Integer> tmp = asTransient();
 		tmp.__putAll(map);
 		return tmp.freeze();
@@ -310,8 +311,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@Override
 	public ImmutableMap<java.lang.Integer, java.lang.Integer> __putAllEquivalent(
-					final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map,
-					final Comparator<Object> cmp) {
+			final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map,
+			final Comparator<Object> cmp) {
 		TransientMap<java.lang.Integer, java.lang.Integer> tmp = asTransient();
 		tmp.__putAllEquivalent(map, cmp);
 		return tmp.freeze();
@@ -364,14 +365,74 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 	@Override
 	public Set<java.lang.Integer> keySet() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<java.lang.Integer> keySet = null;
+
+		if (keySet == null) {
+			keySet = new AbstractSet<java.lang.Integer>() {
+				@Override
+				public Iterator<java.lang.Integer> iterator() {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.keyIterator();
+				}
+
+				@Override
+				public int size() {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.size();
+				}
+
+				@Override
+				public boolean isEmpty() {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.isEmpty();
+				}
+
+				@Override
+				public void clear() {
+					TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.clear();
+				}
+
+				@Override
+				public boolean contains(Object k) {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.containsKey(k);
+				}
+			};
+		}
+
+		return keySet;
 	}
 
 	@Override
 	public Collection<java.lang.Integer> values() {
-		// TODO Auto-generated method stub
-		return null;
+		Collection<java.lang.Integer> values = null;
+
+		if (values == null) {
+			values = new AbstractCollection<java.lang.Integer>() {
+				@Override
+				public Iterator<java.lang.Integer> iterator() {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.valueIterator();
+				}
+
+				@Override
+				public int size() {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.size();
+				}
+
+				@Override
+				public boolean isEmpty() {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.isEmpty();
+				}
+
+				@Override
+				public void clear() {
+					TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.clear();
+				}
+
+				@Override
+				public boolean contains(Object v) {
+					return TrieMap_5Bits_Spec0To8_IntKey_IntValue.this.containsValue(v);
+				}
+			};
+		}
+
+		return values;
 	}
 
 	@Override
@@ -423,6 +484,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				}
 			};
 		}
+
 		return entrySet;
 	}
 
@@ -458,9 +520,41 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			}
 
 			return rootNode.equals(that.rootNode);
+		} else if (other instanceof Map) {
+			Map that = (Map) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			for (@SuppressWarnings("unchecked")
+			Iterator<Entry> it = that.entrySet().iterator(); it.hasNext();) {
+				Entry entry = it.next();
+
+				try {
+					@SuppressWarnings("unchecked")
+					final int key = (java.lang.Integer) entry.getKey();
+					final Optional<java.lang.Integer> result = rootNode.findByKey(key,
+							improve((int) key), 0);
+
+					if (!result.isPresent()) {
+						return false;
+					} else {
+						@SuppressWarnings("unchecked")
+						final int val = (java.lang.Integer) entry.getValue();
+
+						if (!result.get().equals(val)) {
+							return false;
+						}
+					}
+				} catch (ClassCastException unused) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
-		return super.equals(other);
+		return false;
 	}
 
 	/*
@@ -550,12 +644,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				for (int j = 0; j <= max; j++) {
 					for (int k = max - j; k <= max - j; k++) {
 						float arityCombinationsPercentage = (float) (sumArityCombinations[j][k])
-										/ sumNodes;
+								/ sumNodes;
 
 						if (arityCombinationsPercentage != 0
-										&& arityCombinationsPercentage >= threshhold) {
+								&& arityCombinationsPercentage >= threshhold) {
 							bldr.append(String.format("%d/%d: %s, ", j, k, new DecimalFormat(
-											"0.00%").format(arityCombinationsPercentage)));
+									"0.00%").format(arityCombinationsPercentage)));
 						}
 					}
 				}
@@ -563,9 +657,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 				// overview
 				System.out.println(String.format("%2d: %s\t[cumsum = %s]\t%s", i,
-								new DecimalFormat("0.00%").format(arityPercentage),
-								new DecimalFormat("0.00%").format(cumsumArityPercentage),
-								detailPercentages));
+						new DecimalFormat("0.00%").format(arityPercentage), new DecimalFormat(
+								"0.00%").format(cumsumArityPercentage), detailPercentages));
 			}
 		}
 	}
@@ -656,34 +749,34 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	protected static abstract class AbstractMapNode implements
-					INode<java.lang.Integer, java.lang.Integer> {
+			INode<java.lang.Integer, java.lang.Integer> {
 
 		static final int TUPLE_LENGTH = 2;
 
 		abstract boolean containsKey(final int key, final int keyHash, final int shift);
 
 		abstract boolean containsKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp);
+				final Comparator<Object> cmp);
 
 		abstract Optional<java.lang.Integer> findByKey(final int key, final int keyHash,
-						final int shift);
+				final int shift);
 
 		abstract Optional<java.lang.Integer> findByKey(final int key, final int keyHash,
-						final int shift, final Comparator<Object> cmp);
+				final int shift, final Comparator<Object> cmp);
 
 		abstract CompactMapNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int val, final int keyHash, final int shift, final Result details);
+				final int val, final int keyHash, final int shift, final Result details);
 
 		abstract CompactMapNode updated(final AtomicReference<Thread> mutator, final int key,
-						final int val, final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp);
+				final int val, final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp);
 
 		abstract CompactMapNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details);
+				final int keyHash, final int shift, final Result details);
 
 		abstract CompactMapNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp);
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
@@ -726,7 +819,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		abstract int getValue(final int index);
 
 		abstract java.util.Map.Entry<java.lang.Integer, java.lang.Integer> getKeyValueEntry(
-						final int index);
+				final int index);
 
 		abstract boolean hasPayload();
 
@@ -803,33 +896,31 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
 			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
 			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
-							: true;
+					: true;
 			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
 			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
-							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
+					&& ((this.payloadArity() + this.nodeArity()) == this.arity());
 
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
 		abstract CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val);
+				final int val);
 
 		abstract CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator,
-						final int bitpos, final int key, final int val);
+				final int bitpos, final int key, final int val);
 
 		abstract CompactMapNode copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos);
 
 		abstract CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node);
+				CompactMapNode node);
 
 		abstract CompactMapNode copyAndMigrateFromInlineToNode(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactMapNode node);
+				final AtomicReference<Thread> mutator, final int bitpos, final CompactMapNode node);
 
 		abstract CompactMapNode copyAndMigrateFromNodeToInline(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactMapNode node);
+				final AtomicReference<Thread> mutator, final int bitpos, final CompactMapNode node);
 
 		/*
 		 * TODO: specialize removed(..) to remove this method from this
@@ -837,19 +928,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		 */
 
 		CompactMapNode removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@SuppressWarnings("unchecked")
 		static final CompactMapNode mergeTwoKeyValPairs(final int key0, final int val0,
-						final int keyHash0, final int key1, final int val1, final int keyHash1,
-						final int shift) {
+				final int keyHash0, final int key1, final int val1, final int keyHash1,
+				final int shift) {
 			assert !(key0 == key1);
 
 			if (shift >= HASH_CODE_LENGTH) {
 				return new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(keyHash0,
-								(int[]) new int[] { key0, key1 }, (int[]) new int[] { val0, val1 });
+						(int[]) new int[] { key0, key1 }, (int[]) new int[] { val0, val1 });
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -866,7 +957,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				}
 			} else {
 				final CompactMapNode node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1, val1,
-								keyHash1, shift + BIT_PARTITION_SIZE);
+						keyHash1, shift + BIT_PARTITION_SIZE);
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
@@ -883,7 +974,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		};
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+				final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
 			return new BitmapIndexedMapNode(mutator, nodeMap, dataMap, nodes);
 		}
 
@@ -893,488 +984,464 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap) {
+				final int nodeMap, final int dataMap) {
 			return EMPTY_NODE;
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1) {
 			return new Map0To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2) {
 			return new Map0To2Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1,
-							node2);
+					node2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3) {
 			return new Map0To3Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1,
-							node2, node3);
+					node2, node3);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4) {
 			return new Map0To4Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1,
-							node2, node3, node4);
+					node2, node3, node4);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5) {
 			return new Map0To5Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1,
-							node2, node3, node4, node5);
+					node2, node3, node4, node5);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6) {
 			return new Map0To6Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1,
-							node2, node3, node4, node5, node6);
+					node2, node3, node4, node5, node6);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6, final CompactMapNode node7) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6, final CompactMapNode node7) {
 			return new Map0To7Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1,
-							node2, node3, node4, node5, node6, node7);
+					node2, node3, node4, node5, node6, node7);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6, final CompactMapNode node7,
-						final CompactMapNode node8) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6, final CompactMapNode node7,
+				final CompactMapNode node8) {
 			return new Map0To8Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, node1,
-							node2, node3, node4, node5, node6, node7, node8);
+					node2, node3, node4, node5, node6, node7, node8);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6, final CompactMapNode node7,
-						final CompactMapNode node8, final CompactMapNode node9) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6, final CompactMapNode node7,
+				final CompactMapNode node8, final CompactMapNode node9) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { node1, node2, node3, node4,
-							node5, node6, node7, node8, node9 });
+					node5, node6, node7, node8, node9 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1) {
 			return new Map1To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1);
+					val1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1) {
 			return new Map1To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, node1);
+					val1, node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2) {
 			return new Map1To2Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, node1, node2);
+					val1, node1, node2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3) {
 			return new Map1To3Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, node1, node2, node3);
+					val1, node1, node2, node3);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4) {
 			return new Map1To4Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, node1, node2, node3, node4);
+					val1, node1, node2, node3, node4);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5) {
 			return new Map1To5Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, node1, node2, node3, node4, node5);
+					val1, node1, node2, node3, node4, node5);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5, final CompactMapNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5, final CompactMapNode node6) {
 			return new Map1To6Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, node1, node2, node3, node4, node5, node6);
+					val1, node1, node2, node3, node4, node5, node6);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5, final CompactMapNode node6,
-						final CompactMapNode node7) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5, final CompactMapNode node6,
+				final CompactMapNode node7) {
 			return new Map1To7Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, node1, node2, node3, node4, node5, node6, node7);
+					val1, node1, node2, node3, node4, node5, node6, node7);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5, final CompactMapNode node6,
-						final CompactMapNode node7, final CompactMapNode node8) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5, final CompactMapNode node6,
+				final CompactMapNode node7, final CompactMapNode node8) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, node1, node2,
-							node3, node4, node5, node6, node7, node8 });
+					node3, node4, node5, node6, node7, node8 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2) {
 			return new Map2To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2);
+					val1, key2, val2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1) {
 			return new Map2To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, node1);
+					val1, key2, val2, node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2) {
 			return new Map2To2Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, node1, node2);
+					val1, key2, val2, node1, node2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3) {
 			return new Map2To3Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, node1, node2, node3);
+					val1, key2, val2, node1, node2, node3);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4) {
 			return new Map2To4Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, node1, node2, node3, node4);
+					val1, key2, val2, node1, node2, node3, node4);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5) {
 			return new Map2To5Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, node1, node2, node3, node4, node5);
+					val1, key2, val2, node1, node2, node3, node4, node5);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6) {
 			return new Map2To6Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, node1, node2, node3, node4, node5, node6);
+					val1, key2, val2, node1, node2, node3, node4, node5, node6);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6, final CompactMapNode node7) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6, final CompactMapNode node7) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3, node4, node5, node6, node7 });
+					node2, node3, node4, node5, node6, node7 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3) {
 			return new Map3To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3);
+					val1, key2, val2, key3, val3);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1) {
 			return new Map3To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, node1);
+					val1, key2, val2, key3, val3, node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2) {
 			return new Map3To2Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, node1, node2);
+					val1, key2, val2, key3, val3, node1, node2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3) {
 			return new Map3To3Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, node1, node2, node3);
+					val1, key2, val2, key3, val3, node1, node2, node3);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4) {
 			return new Map3To4Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, node1, node2, node3, node4);
+					val1, key2, val2, key3, val3, node1, node2, node3, node4);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5) {
 			return new Map3To5Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, node1, node2, node3, node4, node5);
+					val1, key2, val2, key3, val3, node1, node2, node3, node4, node5);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5, final CompactMapNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5, final CompactMapNode node6) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, node1, node2, node3, node4, node5, node6 });
+					val3, node1, node2, node3, node4, node5, node6 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4) {
 			return new Map4To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4);
+					val1, key2, val2, key3, val3, key4, val4);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1) {
 			return new Map4To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, node1);
+					val1, key2, val2, key3, val3, key4, val4, node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1, final CompactMapNode node2) {
 			return new Map4To2Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, node1, node2);
+					val1, key2, val2, key3, val3, key4, val4, node1, node2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1, final CompactMapNode node2,
+				final CompactMapNode node3) {
 			return new Map4To3Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, node1, node2, node3);
+					val1, key2, val2, key3, val3, key4, val4, node1, node2, node3);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1, final CompactMapNode node2,
+				final CompactMapNode node3, final CompactMapNode node4) {
 			return new Map4To4Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, node1, node2, node3, node4);
+					val1, key2, val2, key3, val3, key4, val4, node1, node2, node3, node4);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1, final CompactMapNode node2,
+				final CompactMapNode node3, final CompactMapNode node4, final CompactMapNode node5) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, node1, node2, node3, node4, node5 });
+					val3, key4, val4, node1, node2, node3, node4, node5 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5) {
 			return new Map5To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final CompactMapNode node1) {
 			return new Map5To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, node1);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final CompactMapNode node1, final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final CompactMapNode node1,
+				final CompactMapNode node2) {
 			return new Map5To2Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, node1, node2);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, node1, node2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3) {
 			return new Map5To3Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, node1, node2,
-							node3);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, node1, node2, node3);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, node1, node2, node3, node4 });
+					val3, key4, val4, key5, val5, node1, node2, node3, node4 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6) {
 			return new Map6To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final CompactMapNode node1) {
 			return new Map6To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, node1);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final CompactMapNode node1, final CompactMapNode node2) {
 			return new Map6To2Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6,
-							node1, node2);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, node1, node2);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 });
+					val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7) {
 			return new Map7To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, key7,
-							val7);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7, final CompactMapNode node1) {
 			return new Map7To1Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, key7,
-							val7, node1);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7,
+					node1);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7,
-						final CompactMapNode node1, final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7, final CompactMapNode node1,
+				final CompactMapNode node2) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 });
+					val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 });
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7,
-						final int key8, final int val8) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7, final int key8, final int val8) {
 			return new Map8To0Node_5Bits_Spec0To8_IntKey_IntValue(mutator, nodeMap, dataMap, key1,
-							val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, key7,
-							val7, key8, val8);
+					val1, key2, val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7,
+					key8, val8);
 		}
 
 		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7,
-						final int key8, final int val8, final CompactMapNode node1) {
-			return nodeOf(mutator, nodeMap, dataMap,
-							new Object[] { key1, val1, key2, val2, key3, val3, key4, val4, key5,
-											val5, key6, val6, key7, val7, key8, val8, node1 });
-		}
-
-		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7,
-						final int key8, final int val8, final int key9, final int val9) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7, final int key8, final int val8,
+				final CompactMapNode node1) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, key9,
-							val9 });
+					val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, node1 });
+		}
+
+		static final CompactMapNode nodeOf(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7, final int key8, final int val8, final int key9,
+				final int val9) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, key9, val9 });
+		}
+
+		static final int index(final int bitmap, final int bitpos) {
+			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
+		}
+
+		static final int index(final int bitmap, final int mask, final int bitpos) {
+			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
 		int dataIndex(final int bitpos) {
@@ -1402,12 +1469,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return keyAt(bitpos) == key;
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return getKey(index) == key;
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
@@ -1415,16 +1486,20 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		boolean containsKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return keyAt(bitpos) == key;
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return getKey(index) == key;
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -1456,7 +1531,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		Optional<java.lang.Integer> findByKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1481,7 +1556,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode updated(final AtomicReference<Thread> mutator, final int key, final int val,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1502,8 +1577,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				} else {
 					final int currentVal = getValue(dataIndex);
 					final CompactMapNode subNodeNew = mergeTwoKeyValPairs(currentKey, currentVal,
-									improve((int) currentKey), key, val, keyHash, shift
-													+ BIT_PARTITION_SIZE);
+							improve((int) currentKey), key, val, keyHash, shift
+									+ BIT_PARTITION_SIZE);
 
 					// final CompactMapNode thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1518,7 +1593,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode subNode = nodeAt(bitpos);
 				final CompactMapNode subNodeNew = subNode.updated(mutator, key, val, keyHash, shift
-								+ BIT_PARTITION_SIZE, details);
+						+ BIT_PARTITION_SIZE, details);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1534,8 +1609,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode updated(final AtomicReference<Thread> mutator, final int key, final int val,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1556,8 +1631,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				} else {
 					final int currentVal = getValue(dataIndex);
 					final CompactMapNode subNodeNew = mergeTwoKeyValPairs(currentKey, currentVal,
-									improve((int) currentKey), key, val, keyHash, shift
-													+ BIT_PARTITION_SIZE);
+							improve((int) currentKey), key, val, keyHash, shift
+									+ BIT_PARTITION_SIZE);
 
 					// final CompactMapNode thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1572,7 +1647,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode subNode = nodeAt(bitpos);
 				final CompactMapNode subNodeNew = subNode.updated(mutator, key, val, keyHash, shift
-								+ BIT_PARTITION_SIZE, details, cmp);
+						+ BIT_PARTITION_SIZE, details, cmp);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1588,7 +1663,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1606,14 +1681,14 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactMapNode.nodeOf(mutator, (int) 0, newDataMap, getKey(1),
-											getValue(1));
+									getValue(1));
 						} else {
 							return CompactMapNode.nodeOf(mutator, (int) 0, newDataMap, getKey(0),
-											getValue(0));
+									getValue(0));
 						}
 					} else if (this.arity() == 9) {
 						return removeInplaceValueAndConvertToSpecializedNode(mutator, bitpos);
@@ -1626,7 +1701,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode subNode = nodeAt(bitpos);
 				final CompactMapNode subNodeNew = subNode.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details);
+						+ BIT_PARTITION_SIZE, details);
 
 				if (!details.isModified()) {
 					return this;
@@ -1653,8 +1728,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1672,14 +1747,14 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactMapNode.nodeOf(mutator, (int) 0, newDataMap, getKey(1),
-											getValue(1));
+									getValue(1));
 						} else {
 							return CompactMapNode.nodeOf(mutator, (int) 0, newDataMap, getKey(0),
-											getValue(0));
+									getValue(0));
 						}
 					} else if (this.arity() == 9) {
 						return removeInplaceValueAndConvertToSpecializedNode(mutator, bitpos);
@@ -1692,7 +1767,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode subNode = nodeAt(bitpos);
 				final CompactMapNode subNodeNew = subNode.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details, cmp);
+						+ BIT_PARTITION_SIZE, details, cmp);
 
 				if (!details.isModified()) {
 					return this;
@@ -1782,7 +1857,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int dataMap;
 
 		CompactMixedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
@@ -1804,7 +1879,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int nodeMap;
 
 		CompactNodesOnlyMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.nodeMap = nodeMap;
 		}
 
@@ -1825,7 +1900,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int dataMap;
 
 		CompactValuesOnlyMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.dataMap = dataMap;
 		}
 
@@ -1844,7 +1919,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	private static abstract class CompactEmptyMapNode extends CompactMapNode {
 
 		CompactEmptyMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 		}
 
 		@Override
@@ -1865,7 +1940,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		final java.lang.Object[] nodes;
 
 		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes) {
+				final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
@@ -1874,7 +1949,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			if (DEBUG) {
 
 				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+						+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
 				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
 					assert ((nodes[i] instanceof CompactMapNode) == false);
@@ -1985,7 +2060,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos) + 1;
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
@@ -2006,7 +2081,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactMapNode node) {
+				final CompactMapNode node) {
 
 			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
@@ -2028,7 +2103,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(final AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -2059,7 +2134,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
@@ -2080,7 +2155,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
@@ -2102,7 +2177,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -2130,7 +2205,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node8 = getNode(7);
 
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 
 			}
 			case 2: {
@@ -2163,7 +2238,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node7 = getNode(6);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 
 			}
 			case 3: {
@@ -2209,7 +2284,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node6 = getNode(5);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 
 			}
 			case 4: {
@@ -2272,7 +2347,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node5 = getNode(4);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 
 			}
 			case 5: {
@@ -2356,7 +2431,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node4 = getNode(3);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 
 			}
 			case 6: {
@@ -2465,7 +2540,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node3 = getNode(2);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 
 			}
 			case 7: {
@@ -2603,7 +2678,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node2 = getNode(1);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 
 			}
 			case 8: {
@@ -2774,7 +2849,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				final CompactMapNode node1 = getNode(0);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 
 			}
 			case 9: {
@@ -2981,7 +3056,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				}
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 
 			}
 			default:
@@ -2992,13 +3067,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMapNode {
+			CompactMapNode {
 		private final int[] keys;
 		private final int[] vals;
 		private final int hash;
 
 		HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(final int hash, final int[] keys,
-						final int[] vals) {
+				final int[] vals) {
 			this.keys = keys;
 			this.vals = vals;
 			this.hash = hash;
@@ -3022,7 +3097,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		boolean containsKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			if (this.hash == keyHash) {
 				for (int k : keys) {
@@ -3051,7 +3126,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		Optional<java.lang.Integer> findByKey(final int key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final int _key = keys[i];
@@ -3066,7 +3141,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode updated(final AtomicReference<Thread> mutator, final int key, final int val,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -3086,7 +3161,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 					dst[idx + 0] = val;
 
 					final CompactMapNode thisNew = new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(
-									this.hash, this.keys, dst);
+							this.hash, this.keys, dst);
 
 					details.updated(currentVal);
 					return thisNew;
@@ -3101,7 +3176,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			final int[] valsNew = new int[this.vals.length + 1];
 
@@ -3110,17 +3185,17 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			System.arraycopy(this.vals, 0, valsNew, 0, vals.length);
 			valsNew[vals.length + 0] = val;
 			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
-							- vals.length);
+					- vals.length);
 
 			details.modified();
 			return new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(keyHash, keysNew,
-							valsNew);
+					valsNew);
 		}
 
 		@Override
 		CompactMapNode updated(final AtomicReference<Thread> mutator, final int key, final int val,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -3140,7 +3215,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 					dst[idx + 0] = val;
 
 					final CompactMapNode thisNew = new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(
-									this.hash, this.keys, dst);
+							this.hash, this.keys, dst);
 
 					details.updated(currentVal);
 					return thisNew;
@@ -3155,7 +3230,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			final int[] valsNew = new int[this.vals.length + 1];
 
@@ -3164,16 +3239,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			System.arraycopy(this.vals, 0, valsNew, 0, vals.length);
 			valsNew[vals.length + 0] = val;
 			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
-							- vals.length);
+					- vals.length);
 
 			details.modified();
 			return new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(keyHash, keysNew,
-							valsNew);
+					valsNew);
 		}
 
 		@Override
 		CompactMapNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details) {
+				final int keyHash, final int shift, final Result details) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -3191,7 +3266,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						final int theOtherKey = (idx == 0) ? keys[1] : keys[0];
 						final int theOtherVal = (idx == 0) ? vals[1] : vals[0];
 						return CompactMapNode.nodeOf(mutator).updated(mutator, theOtherKey,
-										theOtherVal, keyHash, 0, details);
+								theOtherVal, keyHash, 0, details);
 					} else {
 						final int[] keysNew = new int[this.keys.length - 1];
 
@@ -3199,7 +3274,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						final int[] valsNew = new int[this.vals.length - 1];
 
@@ -3207,10 +3282,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						// 'idx'
 						System.arraycopy(this.vals, 0, valsNew, 0, idx);
 						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(keyHash,
-										keysNew, valsNew);
+								keysNew, valsNew);
 					}
 				}
 			}
@@ -3220,8 +3295,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode removed(final AtomicReference<Thread> mutator, final int key,
-						final int keyHash, final int shift, final Result details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result details,
+				final Comparator<Object> cmp) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx] == key) {
@@ -3239,7 +3314,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						final int theOtherKey = (idx == 0) ? keys[1] : keys[0];
 						final int theOtherVal = (idx == 0) ? vals[1] : vals[0];
 						return CompactMapNode.nodeOf(mutator).updated(mutator, theOtherKey,
-										theOtherVal, keyHash, 0, details, cmp);
+								theOtherVal, keyHash, 0, details, cmp);
 					} else {
 						final int[] keysNew = new int[this.keys.length - 1];
 
@@ -3247,7 +3322,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						final int[] valsNew = new int[this.vals.length - 1];
 
@@ -3255,10 +3330,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						// 'idx'
 						System.arraycopy(this.vals, 0, valsNew, 0, idx);
 						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionMapNode_5Bits_Spec0To8_IntKey_IntValue(keyHash,
-										keysNew, valsNew);
+								keysNew, valsNew);
 					}
 				}
 			}
@@ -3386,13 +3461,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3403,25 +3478,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3530,7 +3605,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class MapKeyIterator extends AbstractMapIterator implements
-					Iterator<java.lang.Integer> {
+			Iterator<java.lang.Integer> {
 
 		MapKeyIterator(AbstractMapNode rootNode) {
 			super(rootNode);
@@ -3548,7 +3623,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class MapValueIterator extends AbstractMapIterator implements
-					Iterator<java.lang.Integer> {
+			Iterator<java.lang.Integer> {
 
 		MapValueIterator(AbstractMapNode rootNode) {
 			super(rootNode);
@@ -3566,7 +3641,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class MapEntryIterator extends AbstractMapIterator implements
-					Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> {
+			Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> {
 
 		MapEntryIterator(AbstractMapNode rootNode) {
 			super(rootNode);
@@ -3588,7 +3663,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	 * first recursively.
 	 */
 	private static class TrieMap_5Bits_Spec0To8_IntKey_IntValueNodeIterator implements
-					Iterator<AbstractMapNode> {
+			Iterator<AbstractMapNode> {
 
 		final Deque<Iterator<? extends AbstractMapNode>> nodeIteratorStack;
 
@@ -3635,15 +3710,15 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	static final class TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue extends
-					AbstractMap<java.lang.Integer, java.lang.Integer> implements
-					TransientMap<java.lang.Integer, java.lang.Integer> {
+			AbstractMap<java.lang.Integer, java.lang.Integer> implements
+			TransientMap<java.lang.Integer, java.lang.Integer> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode rootNode;
 		private int hashCode;
 		private int cachedSize;
 
 		TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue(
-						TrieMap_5Bits_Spec0To8_IntKey_IntValue trieMap_5Bits_Spec0To8_IntKey_IntValue) {
+				TrieMap_5Bits_Spec0To8_IntKey_IntValue trieMap_5Bits_Spec0To8_IntKey_IntValue) {
 			this.mutator = new AtomicReference<Thread>(Thread.currentThread());
 			this.rootNode = trieMap_5Bits_Spec0To8_IntKey_IntValue.rootNode;
 			this.hashCode = trieMap_5Bits_Spec0To8_IntKey_IntValue.hashCode;
@@ -3658,7 +3733,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			int size = 0;
 
 			for (Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> it = entryIterator(); it
-							.hasNext();) {
+					.hasNext();) {
 				final Map.Entry<java.lang.Integer, java.lang.Integer> entry = it.next();
 				final int key = entry.getKey();
 				final int val = entry.getValue();
@@ -3698,7 +3773,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0);
+						improve((int) key), 0);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3716,7 +3791,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				@SuppressWarnings("unchecked")
 				final int key = (int) o;
 				final Optional<java.lang.Integer> result = rootNode.findByKey(key,
-								improve((int) key), 0, cmp);
+						improve((int) key), 0, cmp);
 
 				if (result.isPresent()) {
 					return result.get();
@@ -3738,7 +3813,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final Result details = Result.unchanged();
 
 			final CompactMapNode newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details);
+					improve(keyHash), 0, details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3778,7 +3853,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		public java.lang.Integer __putEquivalent(final java.lang.Integer key,
-						final java.lang.Integer val, final Comparator<Object> cmp) {
+				final java.lang.Integer val, final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
@@ -3787,7 +3862,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final Result details = Result.unchanged();
 
 			final CompactMapNode newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+					improve(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3827,11 +3902,11 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		public boolean __putAll(
-						final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map) {
+				final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map) {
 			boolean modified = false;
 
 			for (Entry<? extends java.lang.Integer, ? extends java.lang.Integer> entry : map
-							.entrySet()) {
+					.entrySet()) {
 				final boolean isPresent = containsKey(entry.getKey());
 				final java.lang.Integer replaced = __put(entry.getKey(), entry.getValue());
 
@@ -3845,15 +3920,15 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		public boolean __putAllEquivalent(
-						final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map,
-						final Comparator<Object> cmp) {
+				final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map,
+				final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (Entry<? extends java.lang.Integer, ? extends java.lang.Integer> entry : map
-							.entrySet()) {
+					.entrySet()) {
 				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
 				final java.lang.Integer replaced = __putEquivalent(entry.getKey(),
-								entry.getValue(), cmp);
+						entry.getValue(), cmp);
 
 				if (!isPresent || replaced != null) {
 					modified = true;
@@ -3874,7 +3949,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final Result details = Result.unchanged();
 
 			final CompactMapNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details);
+					details);
 
 			if (details.isModified()) {
 
@@ -3908,7 +3983,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			final Result details = Result.unchanged();
 
 			final CompactMapNode newRootNode = rootNode.removed(mutator, key, improve(keyHash), 0,
-							details, cmp);
+					details, cmp);
 
 			if (details.isModified()) {
 
@@ -4013,13 +4088,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		 * depth first recursively.
 		 */
 		private static class TransientMapKeyIterator extends AbstractMapIterator implements
-						Iterator<java.lang.Integer> {
+				Iterator<java.lang.Integer> {
 
 			final TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue transientTrieMap_5Bits_Spec0To8_IntKey_IntValue;
 			java.lang.Integer lastKey;
 
 			TransientMapKeyIterator(
-							TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue transientTrieMap_5Bits_Spec0To8_IntKey_IntValue) {
+					TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue transientTrieMap_5Bits_Spec0To8_IntKey_IntValue) {
 				super(transientTrieMap_5Bits_Spec0To8_IntKey_IntValue.rootNode);
 				this.transientTrieMap_5Bits_Spec0To8_IntKey_IntValue = transientTrieMap_5Bits_Spec0To8_IntKey_IntValue;
 			}
@@ -4086,10 +4161,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactEmptyMapNode {
+			CompactEmptyMapNode {
 
 		Map0To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap) {
+				final int nodeMap, final int dataMap) {
 			super(mutator, nodeMap, dataMap);
 
 			assert nodeInvariant();
@@ -4167,13 +4242,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4194,19 +4269,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -4235,12 +4310,12 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 
 		Map0To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 
@@ -4324,13 +4399,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4351,7 +4426,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4367,13 +4442,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4439,14 +4514,14 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To2Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 		private final CompactMapNode node2;
 
 		Map0To2Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4533,13 +4608,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4560,7 +4635,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4578,13 +4653,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4661,15 +4736,15 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To3Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 		private final CompactMapNode node2;
 		private final CompactMapNode node3;
 
 		Map0To3Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4759,13 +4834,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4786,7 +4861,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4806,13 +4881,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4900,7 +4975,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To4Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 		private final CompactMapNode node2;
@@ -4908,9 +4983,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node4;
 
 		Map0To4Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5003,13 +5077,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5030,7 +5104,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5052,13 +5126,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5157,7 +5231,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To5Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 		private final CompactMapNode node2;
@@ -5166,9 +5240,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node5;
 
 		Map0To5Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5264,13 +5338,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5279,7 +5353,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5292,7 +5366,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5316,13 +5390,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5432,7 +5506,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To6Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 		private final CompactMapNode node2;
@@ -5442,10 +5516,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node6;
 
 		Map0To6Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5544,13 +5617,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5559,7 +5632,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5572,7 +5645,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5598,13 +5671,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5619,7 +5692,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node2, node3, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5627,7 +5700,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node3, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5635,7 +5708,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5643,7 +5716,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5651,7 +5724,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5659,7 +5732,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5);
+							node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5731,7 +5804,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To7Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 		private final CompactMapNode node2;
@@ -5742,10 +5815,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node7;
 
 		Map0To7Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6, final CompactMapNode node7) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6, final CompactMapNode node7) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5847,13 +5919,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5862,7 +5934,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5875,7 +5947,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5884,25 +5956,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7);
+						node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7);
+						node7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7);
+						node7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7);
+						node7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7);
+						node7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7);
+						node7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5910,13 +5982,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5931,7 +6003,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node2, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5939,7 +6011,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5947,7 +6019,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5955,7 +6027,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5963,7 +6035,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5971,7 +6043,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node7);
+							node5, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5979,7 +6051,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6055,7 +6127,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map0To8Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactNodesOnlyMapNode {
+			CompactNodesOnlyMapNode {
 
 		private final CompactMapNode node1;
 		private final CompactMapNode node2;
@@ -6067,11 +6139,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node8;
 
 		Map0To8Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6, final CompactMapNode node7,
-						final CompactMapNode node8) {
+				final int nodeMap, final int dataMap, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6, final CompactMapNode node7,
+				final CompactMapNode node8) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -6176,13 +6247,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6191,7 +6262,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5, node6, node7, node8);
+						node5, node6, node7, node8);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6204,7 +6275,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6213,28 +6284,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7, node8);
+						node7, node8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7, node8);
+						node7, node8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node, node8);
+						node, node8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7, node);
+						node7, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6242,13 +6313,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6263,7 +6334,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node2, node3, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6271,7 +6342,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node3, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6279,7 +6350,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6287,7 +6358,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6295,7 +6366,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6303,7 +6374,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node7, node8);
+							node5, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6311,7 +6382,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node6, node8);
+							node5, node6, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6319,7 +6390,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6399,13 +6470,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
 
 		Map1To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6468,7 +6539,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6501,7 +6572,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6517,7 +6588,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6550,13 +6621,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6578,7 +6649,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -6629,15 +6700,15 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
 		private final CompactMapNode node1;
 
 		Map1To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6706,7 +6777,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6739,7 +6810,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6755,7 +6826,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6788,7 +6859,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6804,7 +6875,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6828,7 +6899,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6905,7 +6976,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To2Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -6913,8 +6984,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node2;
 
 		Map1To2Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6986,7 +7057,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7019,7 +7090,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7035,7 +7106,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7068,7 +7139,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7086,7 +7157,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7112,7 +7183,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7202,7 +7273,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To3Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -7211,9 +7282,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node3;
 
 		Map1To3Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -7288,7 +7358,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7321,7 +7391,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7337,7 +7407,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7370,7 +7440,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7390,7 +7460,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7418,7 +7488,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7521,7 +7591,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To4Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -7531,9 +7601,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node4;
 
 		Map1To4Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -7611,7 +7681,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7644,7 +7714,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7660,7 +7730,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7669,10 +7739,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4);
+						node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4);
+						node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7695,7 +7765,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7717,7 +7787,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7747,7 +7817,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7762,10 +7832,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7773,10 +7843,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7784,10 +7854,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7795,10 +7865,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3);
+							node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7871,7 +7941,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To5Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -7882,10 +7952,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node5;
 
 		Map1To5Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -7966,7 +8035,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7999,7 +8068,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8008,7 +8077,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8016,7 +8085,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8025,10 +8094,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8051,7 +8120,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8060,19 +8129,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node2, node3, node4,
-								node5);
+						node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node3, node4,
-								node5);
+						node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node4,
-								node5);
+						node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-								node5);
+						node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8080,7 +8149,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8092,22 +8161,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5);
+							node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5);
+							node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5);
+							node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5);
+							node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8118,7 +8187,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8133,10 +8202,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8144,10 +8213,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8155,10 +8224,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8166,10 +8235,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node5);
+							node3, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node5);
+							node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8177,10 +8246,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4);
+							node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8257,7 +8326,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To6Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -8269,10 +8338,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node6;
 
 		Map1To6Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5, final CompactMapNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5, final CompactMapNode node6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -8356,7 +8424,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8389,7 +8457,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8398,7 +8466,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8406,7 +8474,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8415,10 +8483,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4, node5, node6);
+						node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4, node5, node6);
+						node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8441,7 +8509,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8450,22 +8518,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node4,
-								node5, node6);
+						node5, node6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-								node5, node6);
+						node5, node6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node, node6);
+						node, node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node);
+						node5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8473,7 +8541,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8485,25 +8553,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6);
+							node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6);
+							node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6);
+							node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node);
+							node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8514,7 +8582,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8529,10 +8597,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8540,10 +8608,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8551,10 +8619,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4, node5, node6);
+							node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8562,10 +8630,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node5, node6);
+							node3, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node5, node6);
+							node3, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8573,10 +8641,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node6);
+							node3, node4, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node6);
+							node3, node4, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8584,10 +8652,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node5);
+							node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node5);
+							node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8668,7 +8736,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map1To7Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -8681,11 +8749,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node7;
 
 		Map1To7Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5, final CompactMapNode node6,
-						final CompactMapNode node7) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5, final CompactMapNode node6,
+				final CompactMapNode node7) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -8772,7 +8839,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8805,7 +8872,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8814,7 +8881,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8822,7 +8889,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8831,10 +8898,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4, node5, node6, node7);
+						node4, node5, node6, node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4, node5, node6, node7);
+						node4, node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8850,7 +8917,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7);
+						node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8858,7 +8925,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8867,25 +8934,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node, node6, node7);
+						node, node6, node7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node, node7);
+						node5, node, node7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node6, node);
+						node5, node6, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8893,7 +8960,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8905,28 +8972,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6, node7);
+							node, node6, node7);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node, node7);
+							node6, node, node7);
 				case 7:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node7, node);
+							node6, node7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8937,7 +9004,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8952,10 +9019,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8963,10 +9030,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8974,10 +9041,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8985,10 +9052,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node5, node6, node7);
+							node3, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node5, node6, node7);
+							node3, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8996,10 +9063,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node6, node7);
+							node3, node4, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node6, node7);
+							node3, node4, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9007,10 +9074,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node5, node7);
+							node3, node4, node5, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node5, node7);
+							node3, node4, node5, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9018,10 +9085,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node5, node6);
+							node3, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node5, node6);
+							node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9106,7 +9173,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map2To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -9114,8 +9181,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int val2;
 
 		Map2To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -9184,10 +9251,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9220,7 +9287,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9238,7 +9305,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9275,13 +9342,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9310,7 +9377,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -9369,7 +9436,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map2To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -9378,8 +9445,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node1;
 
 		Map2To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -9454,10 +9521,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9490,7 +9557,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9508,7 +9575,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9545,7 +9612,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9561,7 +9628,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9594,7 +9661,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9681,7 +9748,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map2To2Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -9691,9 +9758,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node2;
 
 		Map2To2Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -9771,10 +9838,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9807,7 +9874,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9825,7 +9892,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9834,13 +9901,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2);
+						node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2);
+						node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9865,7 +9932,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9883,7 +9950,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9920,7 +9987,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9935,13 +10002,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2);
+							node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9949,13 +10016,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1);
+							node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1);
+							node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10028,7 +10095,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map2To3Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -10039,9 +10106,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node3;
 
 		Map2To3Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10122,10 +10189,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10158,7 +10225,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10176,7 +10243,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10185,13 +10252,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3);
+						node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3);
+						node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10216,7 +10283,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10236,7 +10303,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10277,7 +10344,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10292,13 +10359,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3);
+							node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10306,13 +10373,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3);
+							node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3);
+							node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3);
+							node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10320,13 +10387,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2);
+							node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2);
+							node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10403,7 +10470,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map2To4Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -10415,10 +10482,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node4;
 
 		Map2To4Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10502,10 +10568,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10538,7 +10604,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10547,10 +10613,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, node1, node2,
-								node3, node4);
+						node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10558,7 +10624,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10567,13 +10633,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10598,7 +10664,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10607,16 +10673,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-								node3, node4);
+						node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node, node4);
+						node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node);
+						node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10624,7 +10690,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10636,19 +10702,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node,
-									node4);
+							node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10656,19 +10722,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-									node4);
+							node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10679,7 +10745,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10694,13 +10760,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3, node4);
+							node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10708,13 +10774,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3, node4);
+							node1, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3, node4);
+							node1, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3, node4);
+							node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10722,13 +10788,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node4);
+							node1, node2, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node4);
+							node1, node2, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node4);
+							node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10736,13 +10802,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3);
+							node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3);
+							node1, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3);
+							node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10823,7 +10889,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map2To5Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -10836,10 +10902,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node5;
 
 		Map2To5Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10926,10 +10992,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10962,7 +11028,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10971,10 +11037,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10982,7 +11048,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10991,13 +11057,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11013,10 +11079,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node4,
-								node5);
+						node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11024,7 +11090,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11033,19 +11099,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node, node4, node5);
+						node, node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node, node5);
+						node3, node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node);
+						node3, node4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11053,7 +11119,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11065,22 +11131,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node, node5);
+							node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node5, node);
+							node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11088,22 +11154,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node, node5);
+							node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node5, node);
+							node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11114,7 +11180,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11129,13 +11195,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11143,13 +11209,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3, node4, node5);
+							node1, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3, node4, node5);
+							node1, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3, node4, node5);
+							node1, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11157,13 +11223,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node4, node5);
+							node1, node2, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node4, node5);
+							node1, node2, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node4, node5);
+							node1, node2, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11171,13 +11237,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node5);
+							node1, node2, node3, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node5);
+							node1, node2, node3, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node5);
+							node1, node2, node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11185,13 +11251,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node4);
+							node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node4);
+							node1, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node4);
+							node1, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11276,7 +11342,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map2To6Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -11290,11 +11356,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node6;
 
 		Map2To6Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4, final CompactMapNode node5,
-						final CompactMapNode node6) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3, final CompactMapNode node4,
+				final CompactMapNode node5, final CompactMapNode node6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -11384,10 +11449,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11420,7 +11485,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11429,10 +11494,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, node1, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, node1, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11440,7 +11505,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -11449,13 +11514,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3, node4, node5, node6);
+						node2, node3, node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3, node4, node5, node6);
+						node2, node3, node4, node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3, node4, node5, node6);
+						node2, node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11471,10 +11536,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11482,7 +11547,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11491,22 +11556,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node, node4, node5, node6);
+						node, node4, node5, node6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node, node5, node6);
+						node3, node, node5, node6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node, node6);
+						node3, node4, node, node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node5, node);
+						node3, node4, node5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11514,7 +11579,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11526,25 +11591,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node, node1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node, node5, node6);
+							node4, node, node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node5, node, node6);
+							node4, node5, node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node5, node6, node);
+							node4, node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11552,25 +11617,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node, node5, node6);
+							node4, node, node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node5, node, node6);
+							node4, node5, node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node5, node6, node);
+							node4, node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11581,7 +11646,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11596,13 +11661,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3, node4, node5, node6);
+							node2, node3, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3, node4, node5, node6);
+							node2, node3, node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3, node4, node5, node6);
+							node2, node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11610,13 +11675,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3, node4, node5, node6);
+							node1, node3, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3, node4, node5, node6);
+							node1, node3, node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3, node4, node5, node6);
+							node1, node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11624,13 +11689,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node4, node5, node6);
+							node1, node2, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node4, node5, node6);
+							node1, node2, node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node4, node5, node6);
+							node1, node2, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11638,13 +11703,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node5, node6);
+							node1, node2, node3, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node5, node6);
+							node1, node2, node3, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node5, node6);
+							node1, node2, node3, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11652,13 +11717,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node4, node6);
+							node1, node2, node3, node4, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node4, node6);
+							node1, node2, node3, node4, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node4, node6);
+							node1, node2, node3, node4, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11666,13 +11731,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node4, node5);
+							node1, node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node4, node5);
+							node1, node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node4, node5);
+							node1, node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11761,7 +11826,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map3To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -11771,8 +11836,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int val3;
 
 		Map3To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -11847,13 +11912,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11886,7 +11951,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11906,7 +11971,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -11915,16 +11980,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3);
+						val3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3);
+						val3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3);
+						val3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val);
+						val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11951,13 +12016,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11993,7 +12058,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -12060,7 +12125,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map3To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -12071,9 +12136,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node1;
 
 		Map3To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12154,13 +12219,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12193,7 +12258,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12213,7 +12278,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12222,16 +12287,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1);
+						val3, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1);
+						val3, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1);
+						val3, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1);
+						val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12258,7 +12323,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12274,7 +12339,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12316,7 +12381,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12331,16 +12396,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3);
+							key3, val3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3);
+							key3, val3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3);
+							key3, val3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val);
+							key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12417,7 +12482,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map3To2Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -12429,9 +12494,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node2;
 
 		Map3To2Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12515,13 +12580,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12554,7 +12619,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12563,13 +12628,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2);
+						node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2);
+						node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12577,7 +12642,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12586,16 +12651,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2);
+						val3, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2);
+						val3, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2);
+						val3, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2);
+						val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12622,7 +12687,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12631,10 +12696,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12642,7 +12707,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12654,13 +12719,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12668,13 +12733,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12682,13 +12747,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12699,7 +12764,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12714,16 +12779,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2);
+							key3, val3, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2);
+							key3, val3, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2);
+							key3, val3, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2);
+							key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12731,16 +12796,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1);
+							key3, val3, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1);
+							key3, val3, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1);
+							key3, val3, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1);
+							key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12821,7 +12886,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map3To3Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -12834,10 +12899,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node3;
 
 		Map3To3Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12924,13 +12988,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12963,7 +13027,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12972,13 +13036,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2, node3);
+						node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2, node3);
+						node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12986,7 +13050,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12995,16 +13059,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2, node3);
+						val3, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2, node3);
+						val3, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2, node3);
+						val3, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2, node3);
+						val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13020,13 +13084,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-								node3);
+						node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-								node3);
+						node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3);
+						node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13034,7 +13098,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13043,13 +13107,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3);
+						node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node);
+						node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13057,7 +13121,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13069,16 +13133,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13086,16 +13150,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13103,16 +13167,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13123,7 +13187,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13138,16 +13202,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2, node3);
+							key3, val3, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2, node3);
+							key3, val3, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2, node3);
+							key3, val3, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2, node3);
+							key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13155,16 +13219,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node3);
+							key3, val3, node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node3);
+							key3, val3, node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node3);
+							key3, val3, node1, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node3);
+							key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13172,16 +13236,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2);
+							key3, val3, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2);
+							key3, val3, node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2);
+							key3, val3, node1, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2);
+							key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13266,7 +13330,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map3To4Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -13280,10 +13344,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node4;
 
 		Map3To4Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -13373,13 +13437,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13412,7 +13476,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13421,13 +13485,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13435,7 +13499,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -13444,16 +13508,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2, node3, node4);
+						val3, node1, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2, node3, node4);
+						val3, node1, node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2, node3, node4);
+						val3, node1, node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2, node3, node4);
+						val, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13469,13 +13533,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4);
+						node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13483,7 +13547,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13492,16 +13556,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3, node4);
+						node, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node, node4);
+						node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node);
+						node2, node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13509,7 +13573,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13521,19 +13585,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node, node3, node4);
+							node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node, node4);
+							node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node4, node);
+							node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13541,19 +13605,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node, node3, node4);
+							node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node, node4);
+							node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node4, node);
+							node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13561,19 +13625,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node, node3, node4);
+							node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node, node4);
+							node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node4, node);
+							node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13584,7 +13648,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13599,16 +13663,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2, node3, node4);
+							key3, val3, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2, node3, node4);
+							key3, val3, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2, node3, node4);
+							key3, val3, node2, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2, node3, node4);
+							key, val, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13616,16 +13680,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node3, node4);
+							key3, val3, node1, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node3, node4);
+							key3, val3, node1, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node3, node4);
+							key3, val3, node1, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node3, node4);
+							key, val, node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13633,16 +13697,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node4);
+							key3, val3, node1, node2, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node4);
+							key3, val3, node1, node2, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node4);
+							key3, val3, node1, node2, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node4);
+							key, val, node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13650,16 +13714,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node3);
+							key3, val3, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node3);
+							key3, val3, node1, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node3);
+							key3, val3, node1, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node3);
+							key, val, node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13748,7 +13812,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map3To5Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -13763,11 +13827,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node5;
 
 		Map3To5Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3, final CompactMapNode node4,
-						final CompactMapNode node5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3,
+				final CompactMapNode node1, final CompactMapNode node2, final CompactMapNode node3,
+				final CompactMapNode node4, final CompactMapNode node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -13860,13 +13923,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13899,7 +13962,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13908,13 +13971,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13922,7 +13985,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -13931,16 +13994,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2, node3, node4, node5);
+						val3, node1, node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2, node3, node4, node5);
+						val3, node1, node2, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2, node3, node4, node5);
+						val3, node1, node2, node3, node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2, node3, node4, node5);
+						val, node1, node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13956,13 +14019,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13970,7 +14033,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13979,19 +14042,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3, node4, node5);
+						node, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node, node4, node5);
+						node2, node, node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node, node5);
+						node2, node3, node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4, node);
+						node2, node3, node4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13999,7 +14062,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14011,22 +14074,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node, node3, node4, node5);
+							node, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node, node4, node5);
+							node3, node, node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node4, node, node5);
+							node3, node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node4, node5, node);
+							node3, node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14034,22 +14097,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node, node3, node4, node5);
+							node, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node, node4, node5);
+							node3, node, node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node4, node, node5);
+							node3, node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node4, node5, node);
+							node3, node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14057,22 +14120,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node, node3, node4, node5);
+							node, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node, node4, node5);
+							node3, node, node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node4, node, node5);
+							node3, node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node4, node5, node);
+							node3, node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14083,7 +14146,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14098,16 +14161,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2, node3, node4, node5);
+							key3, val3, node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2, node3, node4, node5);
+							key3, val3, node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2, node3, node4, node5);
+							key3, val3, node2, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2, node3, node4, node5);
+							key, val, node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14115,16 +14178,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node3, node4, node5);
+							key3, val3, node1, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node3, node4, node5);
+							key3, val3, node1, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node3, node4, node5);
+							key3, val3, node1, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node3, node4, node5);
+							key, val, node1, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14132,16 +14195,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node4, node5);
+							key3, val3, node1, node2, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node4, node5);
+							key3, val3, node1, node2, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node4, node5);
+							key3, val3, node1, node2, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node4, node5);
+							key, val, node1, node2, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14149,16 +14212,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node3, node5);
+							key3, val3, node1, node2, node3, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node3, node5);
+							key3, val3, node1, node2, node3, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node3, node5);
+							key3, val3, node1, node2, node3, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node3, node5);
+							key, val, node1, node2, node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14166,16 +14229,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node3, node4);
+							key3, val3, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node3, node4);
+							key3, val3, node1, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node3, node4);
+							key3, val3, node1, node2, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node3, node4);
+							key, val, node1, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14268,7 +14331,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map4To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -14280,9 +14343,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int val4;
 
 		Map4To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -14363,16 +14426,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14405,7 +14468,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14414,16 +14477,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4);
+						val4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4);
+						val4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4);
+						val4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val);
+						val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14431,7 +14494,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -14440,19 +14503,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4);
+						val3, key4, val4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4);
+						val3, key4, val4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4);
+						val3, key4, val4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4);
+						val, key4, val4);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val);
+						val4, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14481,13 +14544,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14499,7 +14562,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14507,7 +14570,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14515,7 +14578,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14523,7 +14586,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14534,7 +14597,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -14609,7 +14672,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map4To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -14622,9 +14685,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node1;
 
 		Map4To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -14711,16 +14774,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14753,7 +14816,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14762,16 +14825,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1);
+						val4, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1);
+						val4, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1);
+						val4, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1);
+						val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14779,7 +14842,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -14788,19 +14851,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1);
+						val3, key4, val4, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1);
+						val3, key4, val4, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1);
+						val3, key4, val4, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1);
+						val, key4, val4, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1);
+						val4, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14829,7 +14892,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14838,7 +14901,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node);
+						val4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14846,7 +14909,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14858,10 +14921,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14869,10 +14932,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14880,10 +14943,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14891,10 +14954,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14905,7 +14968,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14920,19 +14983,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4);
+							key3, val3, key4, val4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4);
+							key3, val3, key4, val4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4);
+							key3, val3, key4, val4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4);
+							key, val, key4, val4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val);
+							key4, val4, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15017,7 +15080,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map4To2Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -15031,10 +15094,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node2;
 
 		Map4To2Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1, final CompactMapNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -15124,16 +15186,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15166,7 +15228,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15175,16 +15237,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1, node2);
+						val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15192,7 +15254,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -15201,19 +15263,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1, node2);
+						val3, key4, val4, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1, node2);
+						val3, key4, val4, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1, node2);
+						val3, key4, val4, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1, node2);
+						val, key4, val4, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1, node2);
+						val4, key, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15229,16 +15291,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, node1,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, node1,
-								node2);
+						node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, node1,
-								node2);
+						node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2);
+						node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15246,7 +15308,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15255,10 +15317,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node, node2);
+						val4, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node);
+						val4, node1, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15266,7 +15328,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15278,13 +15340,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15292,13 +15354,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15306,13 +15368,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15320,13 +15382,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15337,7 +15399,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15352,19 +15414,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node2);
+							key3, val3, key4, val4, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node2);
+							key3, val3, key4, val4, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node2);
+							key3, val3, key4, val4, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node2);
+							key, val, key4, val4, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node2);
+							key4, val4, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15372,19 +15434,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1);
+							key3, val3, key4, val4, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1);
+							key3, val3, key4, val4, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1);
+							key3, val3, key4, val4, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1);
+							key, val, key4, val4, node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1);
+							key4, val4, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15473,7 +15535,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map4To3Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -15488,10 +15550,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node3;
 
 		Map4To3Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1, final CompactMapNode node2,
+				final CompactMapNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -15584,16 +15646,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15626,7 +15688,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15635,16 +15697,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1, node2, node3);
+						val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15652,7 +15714,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -15661,19 +15723,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3);
+						val3, key4, val4, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3);
+						val3, key4, val4, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1, node2, node3);
+						val3, key4, val4, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1, node2, node3);
+						val, key4, val4, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1, node2, node3);
+						val4, key, val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15689,16 +15751,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, node1,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, node1,
-								node2, node3);
+						node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, node1,
-								node2, node3);
+						node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3);
+						node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15706,7 +15768,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15715,13 +15777,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node, node2, node3);
+						val4, node, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node, node3);
+						val4, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node);
+						val4, node1, node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15729,7 +15791,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15741,16 +15803,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15758,16 +15820,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15775,16 +15837,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15792,16 +15854,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15812,7 +15874,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15827,19 +15889,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node2, node3);
+							key3, val3, key4, val4, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node2, node3);
+							key3, val3, key4, val4, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node2, node3);
+							key3, val3, key4, val4, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node2, node3);
+							key, val, key4, val4, node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node2, node3);
+							key4, val4, key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15847,19 +15909,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node3);
+							key3, val3, key4, val4, node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node3);
+							key3, val3, key4, val4, node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node3);
+							key3, val3, key4, val4, node1, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node3);
+							key, val, key4, val4, node1, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node3);
+							key4, val4, key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15867,19 +15929,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node2);
+							key3, val3, key4, val4, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node2);
+							key3, val3, key4, val4, node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node2);
+							key3, val3, key4, val4, node1, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node2);
+							key, val, key4, val4, node1, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node2);
+							key4, val4, key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15972,7 +16034,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map4To4Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -15988,11 +16050,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node4;
 
 		Map4To4Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final CompactMapNode node1,
-						final CompactMapNode node2, final CompactMapNode node3,
-						final CompactMapNode node4) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final CompactMapNode node1, final CompactMapNode node2,
+				final CompactMapNode node3, final CompactMapNode node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -16088,16 +16149,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16130,7 +16191,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16139,16 +16200,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1, node2, node3, node4);
+						val, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16156,7 +16217,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16165,19 +16226,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3, node4);
+						val3, key4, val4, node1, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3, node4);
+						val3, key4, val4, node1, node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1, node2, node3, node4);
+						val3, key4, val4, node1, node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1, node2, node3, node4);
+						val, key4, val4, node1, node2, node3, node4);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1, node2, node3, node4);
+						val4, key, val, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16193,16 +16254,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16210,7 +16271,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16219,16 +16280,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node, node2, node3, node4);
+						val4, node, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node, node3, node4);
+						val4, node1, node, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node, node4);
+						val4, node1, node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3, node);
+						val4, node1, node2, node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16236,7 +16297,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16248,19 +16309,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16268,19 +16329,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16288,19 +16349,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16308,19 +16369,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16331,7 +16392,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16346,19 +16407,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node2, node3, node4);
+							key3, val3, key4, val4, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node2, node3, node4);
+							key3, val3, key4, val4, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node2, node3, node4);
+							key3, val3, key4, val4, node2, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node2, node3, node4);
+							key, val, key4, val4, node2, node3, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node2, node3, node4);
+							key4, val4, key, val, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16366,19 +16427,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node3, node4);
+							key3, val3, key4, val4, node1, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node3, node4);
+							key3, val3, key4, val4, node1, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node3, node4);
+							key3, val3, key4, val4, node1, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node3, node4);
+							key, val, key4, val4, node1, node3, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node3, node4);
+							key4, val4, key, val, node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16386,19 +16447,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node2, node4);
+							key3, val3, key4, val4, node1, node2, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node2, node4);
+							key3, val3, key4, val4, node1, node2, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node2, node4);
+							key3, val3, key4, val4, node1, node2, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node2, node4);
+							key, val, key4, val4, node1, node2, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node2, node4);
+							key4, val4, key, val, node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16406,19 +16467,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node2, node3);
+							key3, val3, key4, val4, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node2, node3);
+							key3, val3, key4, val4, node1, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node2, node3);
+							key3, val3, key4, val4, node1, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node2, node3);
+							key, val, key4, val4, node1, node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node2, node3);
+							key4, val4, key, val, node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16515,7 +16576,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map5To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -16529,9 +16590,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int val5;
 
 		Map5To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -16618,19 +16679,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16663,7 +16724,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16672,19 +16733,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5);
+						val, key5, val5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val);
+						val4, key5, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16692,7 +16753,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16701,22 +16762,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5);
+						val3, key4, val4, key5, val5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5);
+						val3, key4, val4, key5, val5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5);
+						val3, key4, val4, key5, val5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5);
+						val, key4, val4, key5, val5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5);
+						val4, key, val, key5, val5);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val);
+						val4, key5, val5, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16732,19 +16793,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5);
+						val5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5);
+						val5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5);
+						val5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5);
+						val5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4);
+						val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16752,13 +16813,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16770,7 +16831,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16778,7 +16839,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16786,7 +16847,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16794,7 +16855,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16802,7 +16863,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node);
+							key4, val4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16813,7 +16874,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -16896,7 +16957,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map5To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -16911,10 +16972,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node1;
 
 		Map5To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -17007,19 +17067,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17052,7 +17112,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17061,19 +17121,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, node1);
+						val, key5, val5, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, node1);
+						val4, key5, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17081,7 +17141,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -17090,22 +17150,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1);
+						val3, key4, val4, key5, val5, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1);
+						val3, key4, val4, key5, val5, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, node1);
+						val3, key4, val4, key5, val5, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, node1);
+						val, key4, val4, key5, val5, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, node1);
+						val4, key, val, key5, val5, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, node1);
+						val4, key5, val5, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17121,19 +17181,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, node1);
+						val5, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, node1);
+						val5, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, node1);
+						val5, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, node1);
+						val5, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1);
+						val4, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17141,7 +17201,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17150,7 +17210,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node);
+						val4, key5, val5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17158,7 +17218,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17170,10 +17230,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17181,10 +17241,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17192,10 +17252,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17203,10 +17263,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17214,10 +17274,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node, node1);
+							key4, val4, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node);
+							key4, val4, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17228,7 +17288,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17243,22 +17303,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5);
+							key3, val3, key4, val4, key5, val5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5);
+							key3, val3, key4, val4, key5, val5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5);
+							key3, val3, key4, val4, key5, val5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5);
+							key, val, key4, val4, key5, val5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5);
+							key4, val4, key, val, key5, val5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val);
+							key4, val4, key5, val5, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17351,7 +17411,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map5To2Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -17367,10 +17427,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node2;
 
 		Map5To2Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final CompactMapNode node1, final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final CompactMapNode node1,
+				final CompactMapNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -17466,19 +17526,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17511,7 +17571,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17520,19 +17580,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, node1, node2);
+						val, key5, val5, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, node1, node2);
+						val4, key5, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17540,7 +17600,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -17549,22 +17609,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2);
+						val3, key4, val4, key5, val5, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2);
+						val3, key4, val4, key5, val5, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, node1, node2);
+						val3, key4, val4, key5, val5, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, node1, node2);
+						val, key4, val4, key5, val5, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, node1, node2);
+						val4, key, val, key5, val5, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, node1, node2);
+						val4, key5, val5, key, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17580,19 +17640,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17600,7 +17660,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17609,10 +17669,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node, node2);
+						val4, key5, val5, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node);
+						val4, key5, val5, node1, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17620,7 +17680,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17632,13 +17692,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17646,13 +17706,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17660,13 +17720,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17674,13 +17734,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17688,13 +17748,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node, node1, node2);
+							key4, val4, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node, node2);
+							key4, val4, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node2, node);
+							key4, val4, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17705,7 +17765,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17720,22 +17780,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2);
+							key3, val3, key4, val4, key5, val5, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2);
+							key3, val3, key4, val4, key5, val5, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node2);
+							key3, val3, key4, val4, key5, val5, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node2);
+							key, val, key4, val4, key5, val5, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node2);
+							key4, val4, key, val, key5, val5, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node2);
+							key4, val4, key5, val5, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17743,22 +17803,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1);
+							key3, val3, key4, val4, key5, val5, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1);
+							key3, val3, key4, val4, key5, val5, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node1);
+							key3, val3, key4, val4, key5, val5, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node1);
+							key, val, key4, val4, key5, val5, node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node1);
+							key4, val4, key, val, key5, val5, node1);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node1);
+							key4, val4, key5, val5, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17855,7 +17915,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map5To3Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -17872,11 +17932,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node3;
 
 		Map5To3Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final CompactMapNode node1, final CompactMapNode node2,
-						final CompactMapNode node3) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final CompactMapNode node1,
+				final CompactMapNode node2, final CompactMapNode node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -17975,19 +18034,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18020,7 +18079,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18029,19 +18088,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, node1, node2, node3);
+						val, key5, val5, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, node1, node2, node3);
+						val4, key5, val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18049,7 +18108,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -18058,22 +18117,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2, node3);
+						val3, key4, val4, key5, val5, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2, node3);
+						val3, key4, val4, key5, val5, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, node1, node2, node3);
+						val3, key4, val4, key5, val5, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, node1, node2, node3);
+						val, key4, val4, key5, val5, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, node1, node2, node3);
+						val4, key, val, key5, val5, node1, node2, node3);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, node1, node2, node3);
+						val4, key5, val5, key, val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18089,19 +18148,19 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18109,7 +18168,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18118,13 +18177,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node, node2, node3);
+						val4, key5, val5, node, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node, node3);
+						val4, key5, val5, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2, node);
+						val4, key5, val5, node1, node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18132,7 +18191,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -18144,16 +18203,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18161,16 +18220,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18178,16 +18237,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18195,16 +18254,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18212,16 +18271,16 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node, node1, node2, node3);
+							key4, val4, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node, node2, node3);
+							key4, val4, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node2, node, node3);
+							key4, val4, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node2, node3, node);
+							key4, val4, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18232,7 +18291,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -18247,22 +18306,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2, node3);
+							key3, val3, key4, val4, key5, val5, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2, node3);
+							key3, val3, key4, val4, key5, val5, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node2, node3);
+							key3, val3, key4, val4, key5, val5, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node2, node3);
+							key, val, key4, val4, key5, val5, node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node2, node3);
+							key4, val4, key, val, key5, val5, node2, node3);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node2, node3);
+							key4, val4, key5, val5, key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18270,22 +18329,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node3);
+							key3, val3, key4, val4, key5, val5, node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node3);
+							key3, val3, key4, val4, key5, val5, node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node1, node3);
+							key3, val3, key4, val4, key5, val5, node1, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node1, node3);
+							key, val, key4, val4, key5, val5, node1, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node1, node3);
+							key4, val4, key, val, key5, val5, node1, node3);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node1, node3);
+							key4, val4, key5, val5, key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18293,22 +18352,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node2);
+							key3, val3, key4, val4, key5, val5, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node2);
+							key3, val3, key4, val4, key5, val5, node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node1, node2);
+							key3, val3, key4, val4, key5, val5, node1, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node1, node2);
+							key, val, key4, val4, key5, val5, node1, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node1, node2);
+							key4, val4, key, val, key5, val5, node1, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node1, node2);
+							key4, val4, key5, val5, key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18409,7 +18468,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map6To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -18425,10 +18484,9 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int val6;
 
 		Map6To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -18521,22 +18579,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			case 5:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key6,
-								val6);
+						val6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18569,7 +18627,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18578,22 +18636,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6);
+						val, key5, val5, key6, val6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6);
+						val4, key5, val, key6, val6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val);
+						val4, key5, val5, key6, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18601,7 +18659,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -18610,25 +18668,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6);
+						val3, key4, val4, key5, val5, key6, val6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6);
+						val3, key4, val4, key5, val5, key6, val6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6);
+						val3, key4, val4, key5, val5, key6, val6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6);
+						val, key4, val4, key5, val5, key6, val6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6);
+						val4, key, val, key5, val5, key6, val6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6);
+						val4, key5, val5, key, val, key6, val6);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val);
+						val4, key5, val5, key6, val6, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18644,22 +18702,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6);
+						val4, key6, val6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18667,13 +18725,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -18685,7 +18743,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18693,7 +18751,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18701,7 +18759,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18709,7 +18767,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18717,7 +18775,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node);
+							key4, val4, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18725,7 +18783,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node);
+							key4, val4, key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18736,7 +18794,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -18827,7 +18885,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map6To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -18844,10 +18902,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node1;
 
 		Map6To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -18946,22 +19004,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			case 5:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key6,
-								val6);
+						val6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18994,7 +19052,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19003,22 +19061,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, node1);
+						val, key5, val5, key6, val6, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, node1);
+						val4, key5, val, key6, val6, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, node1);
+						val4, key5, val5, key6, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19026,7 +19084,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -19035,25 +19093,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1);
+						val3, key4, val4, key5, val5, key6, val6, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1);
+						val3, key4, val4, key5, val5, key6, val6, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1);
+						val3, key4, val4, key5, val5, key6, val6, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, node1);
+						val, key4, val4, key5, val5, key6, val6, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, node1);
+						val4, key, val, key5, val5, key6, val6, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, node1);
+						val4, key5, val5, key, val, key6, val6, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, node1);
+						val4, key5, val5, key6, val6, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19069,22 +19127,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, node1);
+						val4, key6, val6, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19092,7 +19150,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19101,7 +19159,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node);
+						val4, key5, val5, key6, val6, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19109,7 +19167,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19121,10 +19179,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19132,10 +19190,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19143,10 +19201,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19154,10 +19212,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19165,10 +19223,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node, node1);
+							key4, val4, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node1, node);
+							key4, val4, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19176,10 +19234,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node, node1);
+							key4, val4, key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node1, node);
+							key4, val4, key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19190,7 +19248,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19205,25 +19263,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6);
+							key3, val3, key4, val4, key5, val5, key6, val6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6);
+							key3, val3, key4, val4, key5, val5, key6, val6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6);
+							key3, val3, key4, val4, key5, val5, key6, val6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6);
+							key, val, key4, val4, key5, val5, key6, val6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6);
+							key4, val4, key, val, key5, val5, key6, val6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6);
+							key4, val4, key5, val5, key, val, key6, val6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val);
+							key4, val4, key5, val5, key6, val6, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19324,7 +19382,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map6To2Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -19342,11 +19400,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node2;
 
 		Map6To2Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final CompactMapNode node1,
-						final CompactMapNode node2) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final CompactMapNode node1, final CompactMapNode node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -19448,22 +19505,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			case 5:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key6,
-								val6);
+						val6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19496,7 +19553,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19505,22 +19562,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, node1, node2);
+						val, key5, val5, key6, val6, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, node1, node2);
+						val4, key5, val, key6, val6, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, node1, node2);
+						val4, key5, val5, key6, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19528,7 +19585,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -19537,25 +19594,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1, node2);
+						val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1, node2);
+						val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1, node2);
+						val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, node1, node2);
+						val, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, node1, node2);
+						val4, key, val, key5, val5, key6, val6, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, node1, node2);
+						val4, key5, val5, key, val, key6, val6, node1, node2);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, node1, node2);
+						val4, key5, val5, key6, val6, key, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19571,22 +19628,22 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, node1, node2);
+						val4, key6, val6, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19594,7 +19651,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19603,10 +19660,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node, node2);
+						val4, key5, val5, key6, val6, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node);
+						val4, key5, val5, key6, val6, node1, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19614,7 +19671,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19626,13 +19683,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19640,13 +19697,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19654,13 +19711,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19668,13 +19725,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19682,13 +19739,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node, node1, node2);
+							key4, val4, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node1, node, node2);
+							key4, val4, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node1, node2, node);
+							key4, val4, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19696,13 +19753,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node, node1, node2);
+							key4, val4, key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node1, node, node2);
+							key4, val4, key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node1, node2, node);
+							key4, val4, key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19713,7 +19770,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19728,25 +19785,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node2);
+							key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node2);
+							key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6, node2);
+							key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6, node2);
+							key, val, key4, val4, key5, val5, key6, val6, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6, node2);
+							key4, val4, key, val, key5, val5, key6, val6, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6, node2);
+							key4, val4, key5, val5, key, val, key6, val6, node2);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val, node2);
+							key4, val4, key5, val5, key6, val6, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19754,25 +19811,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node1);
+							key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node1);
+							key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6, node1);
+							key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6, node1);
+							key, val, key4, val4, key5, val5, key6, val6, node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6, node1);
+							key4, val4, key, val, key5, val5, key6, val6, node1);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6, node1);
+							key4, val4, key5, val5, key, val, key6, val6, node1);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val, node1);
+							key4, val4, key5, val5, key6, val6, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19877,7 +19934,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map7To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -19895,10 +19952,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int val7;
 
 		Map7To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -19997,25 +20054,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			case 5:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key6,
-								val6);
+						val6);
 			case 6:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key7,
-								val7);
+						val7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20048,7 +20105,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20057,25 +20114,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, key7, val7);
+						val, key5, val5, key6, val6, key7, val7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, key7, val7);
+						val4, key5, val, key6, val6, key7, val7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, key7, val7);
+						val4, key5, val5, key6, val, key7, val7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val);
+						val4, key5, val5, key6, val6, key7, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20083,7 +20140,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -20092,28 +20149,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, key7, val7);
+						val, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, key7, val7);
+						val4, key, val, key5, val5, key6, val6, key7, val7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, key7, val7);
+						val4, key5, val5, key, val, key6, val6, key7, val7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, key7, val7);
+						val4, key5, val5, key6, val6, key, val, key7, val7);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key, val);
+						val4, key5, val5, key6, val6, key7, val7, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20129,25 +20186,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, key7, val7);
+						val4, key6, val6, key7, val7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key7, val7);
+						val4, key5, val5, key7, val7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20155,13 +20212,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -20173,7 +20230,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20181,7 +20238,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20189,7 +20246,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20197,7 +20254,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20205,7 +20262,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, node);
+							key4, val4, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20213,7 +20270,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, node);
+							key4, val4, key5, val5, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20221,7 +20278,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, node);
+							key4, val4, key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20232,7 +20289,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -20331,7 +20388,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map7To1Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactMixedMapNode {
+			CompactMixedMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -20350,11 +20407,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final CompactMapNode node1;
 
 		Map7To1Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7,
-						final CompactMapNode node1) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7, final CompactMapNode node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -20459,25 +20515,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			case 5:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key6,
-								val6);
+						val6);
 			case 6:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key7,
-								val7);
+						val7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20510,7 +20566,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20519,25 +20575,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, key7, val7, node1);
+						val, key5, val5, key6, val6, key7, val7, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, key7, val7, node1);
+						val4, key5, val, key6, val6, key7, val7, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, key7, val7, node1);
+						val4, key5, val5, key6, val, key7, val7, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val, node1);
+						val4, key5, val5, key6, val6, key7, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20545,7 +20601,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -20554,28 +20610,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, key7, val7, node1);
+						val4, key, val, key5, val5, key6, val6, key7, val7, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, key7, val7, node1);
+						val4, key5, val5, key, val, key6, val6, key7, val7, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, key7, val7, node1);
+						val4, key5, val5, key6, val6, key, val, key7, val7, node1);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key, val, node1);
+						val4, key5, val5, key6, val6, key7, val7, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20591,25 +20647,25 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, key7, val7, node1);
+						val4, key6, val6, key7, val7, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key7, val7, node1);
+						val4, key5, val5, key7, val7, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20617,7 +20673,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20626,7 +20682,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node);
+						val4, key5, val5, key6, val6, key7, val7, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20634,7 +20690,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -20646,10 +20702,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20657,10 +20713,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20668,10 +20724,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20679,10 +20735,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20690,10 +20746,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, node, node1);
+							key4, val4, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, node1, node);
+							key4, val4, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20701,10 +20757,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, node, node1);
+							key4, val4, key5, val5, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, node1, node);
+							key4, val4, key5, val5, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20712,10 +20768,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, node, node1);
+							key4, val4, key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, node1, node);
+							key4, val4, key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20726,7 +20782,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -20741,28 +20797,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
+							key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
+							key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
+							key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6, key7, val7);
+							key, val, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6, key7, val7);
+							key4, val4, key, val, key5, val5, key6, val6, key7, val7);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6, key7, val7);
+							key4, val4, key5, val5, key, val, key6, val6, key7, val7);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val, key7, val7);
+							key4, val4, key5, val5, key6, val6, key, val, key7, val7);
 				case 7:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key7, val7, key, val);
+							key4, val4, key5, val5, key6, val6, key7, val7, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20871,7 +20927,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	private static final class Map8To0Node_5Bits_Spec0To8_IntKey_IntValue extends
-					CompactValuesOnlyMapNode {
+			CompactValuesOnlyMapNode {
 
 		private final int key1;
 		private final int val1;
@@ -20891,11 +20947,10 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		private final int val8;
 
 		Map8To0Node_5Bits_Spec0To8_IntKey_IntValue(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final int key1, final int val1,
-						final int key2, final int val2, final int key3, final int val3,
-						final int key4, final int val4, final int key5, final int val5,
-						final int key6, final int val6, final int key7, final int val7,
-						final int key8, final int val8) {
+				final int nodeMap, final int dataMap, final int key1, final int val1,
+				final int key2, final int val2, final int key3, final int val3, final int key4,
+				final int val4, final int key5, final int val5, final int key6, final int val6,
+				final int key7, final int val7, final int key8, final int val8) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -21000,28 +21055,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (index) {
 			case 0:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key1,
-								val1);
+						val1);
 			case 1:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key2,
-								val2);
+						val2);
 			case 2:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key3,
-								val3);
+						val3);
 			case 3:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key4,
-								val4);
+						val4);
 			case 4:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key5,
-								val5);
+						val5);
 			case 5:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key6,
-								val6);
+						val6);
 			case 6:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key7,
-								val7);
+						val7);
 			case 7:
 				return (java.util.Map.Entry<java.lang.Integer, java.lang.Integer>) entryOf(key8,
-								val8);
+						val8);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -21054,7 +21109,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int val) {
+				final int val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -21063,28 +21118,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, key7, val7, key8, val8);
+						val, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, key7, val7, key8, val8);
+						val4, key5, val, key6, val6, key7, val7, key8, val8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, key7, val7, key8, val8);
+						val4, key5, val5, key6, val, key7, val7, key8, val8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val, key8, val8);
+						val4, key5, val5, key6, val6, key7, val, key8, val8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val);
+						val4, key5, val5, key6, val6, key7, val7, key8, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -21092,7 +21147,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final int key, final int val) {
+				final int key, final int val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -21101,31 +21156,31 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key, val, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key, val, key6, val6, key7, val7, key8, val8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key, val, key7, val7, key8, val8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key, val, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key, val, key8, val8);
 			case 8:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8, key, val);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -21141,28 +21196,28 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, key7, val7, key8, val8);
+						val4, key6, val6, key7, val7, key8, val8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key7, val7, key8, val8);
+						val4, key5, val5, key7, val7, key8, val8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key8, val8);
+						val4, key5, val5, key6, val6, key8, val8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -21170,13 +21225,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode node) {
+				CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -21188,7 +21243,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21196,7 +21251,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21204,7 +21259,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21212,7 +21267,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21220,7 +21275,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, key8, val8, node);
+							key4, val4, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21228,7 +21283,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, key8, val8, node);
+							key4, val4, key5, val5, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21236,7 +21291,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key8, val8, node);
+							key4, val4, key5, val5, key6, val6, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21244,7 +21299,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key7, val7, node);
+							key4, val4, key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21255,7 +21310,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 
 		@Override
 		CompactMapNode copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode node) {
+				final int bitpos, final CompactMapNode node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
