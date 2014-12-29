@@ -23,6 +23,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -30,7 +31,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieSet_5Bits EMPTY_SET = new TrieSet_5Bits(CompactSetNode.EMPTY_NODE, 0,
-					0);
+			0);
 
 	private static final boolean DEBUG = false;
 
@@ -103,7 +104,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final Result<K> details = Result.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
-						details);
+				details);
 
 		if (details.isModified()) {
 
@@ -120,7 +121,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final Result<K> details = Result.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
-						details, cmp);
+				details, cmp);
 
 		if (details.isModified()) {
 
@@ -137,7 +138,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final Result<K> details = Result.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details);
+				details);
 
 		if (details.isModified()) {
 
@@ -154,7 +155,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final Result<K> details = Result.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+				details, cmp);
 
 		if (details.isModified()) {
 
@@ -230,7 +231,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@Override
 	public ImmutableSet<K> __insertAllEquivalent(final ImmutableSet<? extends K> set,
-					final Comparator<Object> cmp) {
+			final Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		tmp.__insertAllEquivalent(set, cmp);
 		return tmp.freeze();
@@ -245,7 +246,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@Override
 	public ImmutableSet<K> __retainAllEquivalent(final ImmutableSet<? extends K> set,
-					final Comparator<Object> cmp) {
+			final Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		tmp.__retainAllEquivalent(set, cmp);
 		return tmp.freeze();
@@ -260,7 +261,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	@Override
 	public ImmutableSet<K> __removeAllEquivalent(final ImmutableSet<? extends K> set,
-					final Comparator<Object> cmp) {
+			final Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		tmp.__removeAllEquivalent(set, cmp);
 		return tmp.freeze();
@@ -391,9 +392,16 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			}
 
 			return rootNode.equals(that.rootNode);
+		} else if (other instanceof Set) {
+			Set that = (Set) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			return containsAll(that);
 		}
 
-		return super.equals(other);
+		return false;
 	}
 
 	/*
@@ -483,12 +491,12 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				for (int j = 0; j <= max; j++) {
 					for (int k = max - j; k <= max - j; k++) {
 						float arityCombinationsPercentage = (float) (sumArityCombinations[j][k])
-										/ sumNodes;
+								/ sumNodes;
 
 						if (arityCombinationsPercentage != 0
-										&& arityCombinationsPercentage >= threshhold) {
+								&& arityCombinationsPercentage >= threshhold) {
 							bldr.append(String.format("%d/%d: %s, ", j, k, new DecimalFormat(
-											"0.00%").format(arityCombinationsPercentage)));
+									"0.00%").format(arityCombinationsPercentage)));
 						}
 					}
 				}
@@ -496,9 +504,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 				// overview
 				System.out.println(String.format("%2d: %s\t[cumsum = %s]\t%s", i,
-								new DecimalFormat("0.00%").format(arityPercentage),
-								new DecimalFormat("0.00%").format(cumsumArityPercentage),
-								detailPercentages));
+						new DecimalFormat("0.00%").format(arityPercentage), new DecimalFormat(
+								"0.00%").format(cumsumArityPercentage), detailPercentages));
 			}
 		}
 	}
@@ -595,26 +602,26 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		abstract boolean containsKey(final K key, final int keyHash, final int shift);
 
 		abstract boolean containsKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp);
+				final Comparator<Object> cmp);
 
 		abstract Optional<K> findByKey(final K key, final int keyHash, final int shift);
 
 		abstract Optional<K> findByKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp);
+				final Comparator<Object> cmp);
 
 		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details);
+				final int keyHash, final int shift, final Result<K> details);
 
 		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp);
+				final int keyHash, final int shift, final Result<K> details,
+				final Comparator<Object> cmp);
 
 		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details);
+				final int keyHash, final int shift, final Result<K> details);
 
 		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp);
+				final int keyHash, final int shift, final Result<K> details,
+				final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
@@ -729,31 +736,31 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
 			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
 			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
-							: true;
+					: true;
 			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
 			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
-							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
+					&& ((this.payloadArity() + this.nodeArity()) == this.arity());
 
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
 		abstract CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final int bitpos, final K key);
+				final int bitpos, final K key);
 
 		abstract CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator,
-						final int bitpos);
+				final int bitpos);
 
 		abstract CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
-						final int bitpos, CompactSetNode<K> node);
+				final int bitpos, CompactSetNode<K> node);
 
 		abstract CompactSetNode<K> copyAndMigrateFromInlineToNode(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactSetNode<K> node);
+				final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactSetNode<K> node);
 
 		abstract CompactSetNode<K> copyAndMigrateFromNodeToInline(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactSetNode<K> node);
+				final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactSetNode<K> node);
 
 		/*
 		 * TODO: specialize removed(..) to remove this method from this
@@ -762,7 +769,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@SuppressWarnings("unchecked")
 		static final <K> CompactSetNode<K> mergeTwoKeyValPairs(final K key0, final int keyHash0,
-						final K key1, final int keyHash1, final int shift) {
+				final K key1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (shift >= HASH_CODE_LENGTH) {
@@ -783,7 +790,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				}
 			} else {
 				final CompactSetNode<K> node = mergeTwoKeyValPairs(key0, keyHash0, key1, keyHash1,
-								shift + BIT_PARTITION_SIZE);
+						shift + BIT_PARTITION_SIZE);
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
@@ -800,7 +807,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		};
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+				final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
 			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
@@ -810,7 +817,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		static final <K> CompactSetNode<K> nodeOf(AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key) {
+				final int nodeMap, final int dataMap, final K key) {
 			assert nodeMap == 0;
 			return nodeOf(mutator, (int) (0), dataMap, new Object[] { key });
 		}
@@ -861,7 +868,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -906,7 +913,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -931,7 +938,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+				final int keyHash, final int shift, final Result<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -944,8 +951,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				} else {
 
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve(currentKey.hashCode()), key, keyHash, shift
-													+ BIT_PARTITION_SIZE);
+							improve(currentKey.hashCode()), key, keyHash, shift
+									+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -954,7 +961,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
 				final CompactSetNode<K> subNodeNew = subNode.updated(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details);
+						+ BIT_PARTITION_SIZE, details);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -970,8 +977,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result<K> details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -984,8 +991,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				} else {
 
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									improve(currentKey.hashCode()), key, keyHash, shift
-													+ BIT_PARTITION_SIZE);
+							improve(currentKey.hashCode()), key, keyHash, shift
+									+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
@@ -994,7 +1001,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
 				final CompactSetNode<K> subNodeNew = subNode.updated(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details, cmp);
+						+ BIT_PARTITION_SIZE, details, cmp);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1010,7 +1017,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+				final int keyHash, final int shift, final Result<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1027,14 +1034,14 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(1));
+									getKey(1));
 						} else {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(0));
+									getKey(0));
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1045,7 +1052,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
 				final CompactSetNode<K> subNodeNew = subNode.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details);
+						+ BIT_PARTITION_SIZE, details);
 
 				if (!details.isModified()) {
 					return this;
@@ -1076,8 +1083,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result<K> details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1094,14 +1101,14 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(1));
+									getKey(1));
 						} else {
 							return CompactSetNode.<K> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(0));
+									getKey(0));
 						}
 					} else {
 						return copyAndRemoveValue(mutator, bitpos);
@@ -1112,7 +1119,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
 				final CompactSetNode<K> subNodeNew = subNode.removed(mutator, key, keyHash, shift
-								+ BIT_PARTITION_SIZE, details, cmp);
+						+ BIT_PARTITION_SIZE, details, cmp);
 
 				if (!details.isModified()) {
 					return this;
@@ -1206,7 +1213,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		private final int dataMap;
 
 		CompactMixedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
@@ -1229,7 +1236,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		final java.lang.Object[] nodes;
 
 		private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes) {
+				final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
@@ -1238,7 +1245,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			if (DEBUG) {
 
 				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+						+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
 				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
 					assert ((nodes[i] instanceof CompactSetNode) == false);
@@ -1350,7 +1357,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactSetNode<K> node) {
+				final CompactSetNode<K> node) {
 
 			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
@@ -1372,7 +1379,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
-						final int bitpos, final K key) {
+				final int bitpos, final K key) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -1402,7 +1409,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode<K> node) {
+				final int bitpos, final CompactSetNode<K> node) {
 
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
@@ -1423,7 +1430,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode<K> node) {
+				final int bitpos, final CompactSetNode<K> node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
@@ -1473,7 +1480,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			if (this.hash == keyHash) {
 				for (K k : keys) {
@@ -1501,7 +1508,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
@@ -1515,7 +1522,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+				final int keyHash, final int shift, final Result<K> details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1534,7 +1541,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			details.modified();
 			return new HashCollisionSetNode_5Bits<>(keyHash, keysNew);
@@ -1542,8 +1549,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result<K> details,
+				final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1562,7 +1569,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			details.modified();
 			return new HashCollisionSetNode_5Bits<>(keyHash, keysNew);
@@ -1570,7 +1577,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+				final int keyHash, final int shift, final Result<K> details) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
@@ -1586,7 +1593,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 
 						return CompactSetNode.<K> nodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, 0, details);
+								keyHash, 0, details);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -1595,7 +1602,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionSetNode_5Bits<>(keyHash, keysNew);
 					}
@@ -1607,8 +1614,8 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result<K> details,
+				final Comparator<Object> cmp) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
@@ -1624,7 +1631,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 
 						return CompactSetNode.<K> nodeOf(mutator).updated(mutator, theOtherKey,
-										keyHash, 0, details, cmp);
+								keyHash, 0, details, cmp);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -1633,7 +1640,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionSetNode_5Bits<>(keyHash, keysNew);
 					}
@@ -1751,7 +1758,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key) {
+				final K key) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -1762,19 +1769,19 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode<K> node) {
+				CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode<K> node) {
+				final int bitpos, final CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactSetNode<K> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactSetNode<K> node) {
+				final int bitpos, final CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -1836,7 +1843,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 				if (nodeCursor < nodeLength) {
 					final AbstractSetNode<K> nextNode = nodes[currentStackLevel]
-									.getNode(nodeCursor);
+							.getNode(nodeCursor);
 					nodeCursorsAndLengths[currentCursorIndex]++;
 
 					if (nextNode.hasNodes()) {
@@ -1884,7 +1891,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	}
 
 	private static final class SetKeyIterator<K> extends AbstractSetIterator<K> implements
-					Iterator<K> {
+			Iterator<K> {
 
 		SetKeyIterator(AbstractSetNode<K> rootNode) {
 			super(rootNode);
@@ -2047,7 +2054,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final Result<K> details = Result.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
-							0, details);
+					0, details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -2077,7 +2084,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final Result<K> details = Result.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
-							0, details, cmp);
+					0, details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -2110,7 +2117,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		public boolean __insertAllEquivalent(final ImmutableSet<? extends K> set,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (final K key : set) {
@@ -2133,7 +2140,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		public boolean __removeAllEquivalent(final ImmutableSet<? extends K> set,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (final K key : set) {
@@ -2154,7 +2161,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final Result<K> details = Result.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
-							0, details);
+					0, details);
 
 			if (details.isModified()) {
 
@@ -2185,7 +2192,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			final Result<K> details = Result.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
-							0, details, cmp);
+					0, details, cmp);
 
 			if (details.isModified()) {
 
@@ -2276,7 +2283,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		 * depth first recursively.
 		 */
 		private static class TransientSetKeyIterator<K> extends AbstractSetIterator<K> implements
-						Iterator<K> {
+				Iterator<K> {
 
 			final TransientTrieSet_5Bits<K> transientTrieSet_5Bits;
 			K lastKey;

@@ -14,6 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.entryOf;
 
 import java.text.DecimalFormat;
+import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
@@ -33,7 +34,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 	@SuppressWarnings("unchecked")
 	private static final TrieMap_5Bits_Spec0To8 EMPTY_MAP = new TrieMap_5Bits_Spec0To8(
-					CompactMapNode.EMPTY_NODE, 0, 0);
+			CompactMapNode.EMPTY_NODE, 0, 0);
 
 	private static final boolean DEBUG = false;
 
@@ -59,7 +60,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	public static final <K, V> ImmutableMap<K, V> of(Object... keyValuePairs) {
 		if (keyValuePairs.length % 2 != 0) {
 			throw new IllegalArgumentException(
-							"Length of argument list is uneven: no key/value pairs.");
+					"Length of argument list is uneven: no key/value pairs.");
 		}
 
 		ImmutableMap<K, V> result = TrieMap_5Bits_Spec0To8.EMPTY_MAP;
@@ -83,7 +84,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	public static final <K, V> TransientMap<K, V> transientOf(Object... keyValuePairs) {
 		if (keyValuePairs.length % 2 != 0) {
 			throw new IllegalArgumentException(
-							"Length of argument list is uneven: no key/value pairs.");
+					"Length of argument list is uneven: no key/value pairs.");
 		}
 
 		final TransientMap<K, V> result = TrieMap_5Bits_Spec0To8.EMPTY_MAP.asTransient();
@@ -124,7 +125,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		final Result<K, V> details = Result.unchanged();
 
 		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, improve(keyHash),
-						0, details);
+				0, details);
 
 		if (details.isModified()) {
 
@@ -133,12 +134,12 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final int valHashNew = val.hashCode();
 
 				return new TrieMap_5Bits_Spec0To8<K, V>(newRootNode, hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
+						+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
 			return new TrieMap_5Bits_Spec0To8<K, V>(newRootNode, hashCode + (keyHash ^ valHash),
-							cachedSize + 1);
+					cachedSize + 1);
 
 		}
 
@@ -147,12 +148,12 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 	@Override
 	public TrieMap_5Bits_Spec0To8<K, V> __putEquivalent(final K key, final V val,
-					final Comparator<Object> cmp) {
+			final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
 		final Result<K, V> details = Result.unchanged();
 
 		final CompactMapNode<K, V> newRootNode = rootNode.updated(null, key, val, improve(keyHash),
-						0, details, cmp);
+				0, details, cmp);
 
 		if (details.isModified()) {
 
@@ -161,12 +162,12 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final int valHashNew = val.hashCode();
 
 				return new TrieMap_5Bits_Spec0To8<K, V>(newRootNode, hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
+						+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
 			}
 
 			final int valHash = val.hashCode();
 			return new TrieMap_5Bits_Spec0To8<K, V>(newRootNode, hashCode + (keyHash ^ valHash),
-							cachedSize + 1);
+					cachedSize + 1);
 
 		}
 
@@ -179,7 +180,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		final Result<K, V> details = Result.unchanged();
 
 		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details);
+				details);
 
 		if (details.isModified()) {
 
@@ -187,7 +188,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			final int valHash = details.getReplacedValue().hashCode();
 
 			return new TrieMap_5Bits_Spec0To8<K, V>(newRootNode, hashCode - (keyHash ^ valHash),
-							cachedSize - 1);
+					cachedSize - 1);
 
 		}
 
@@ -200,7 +201,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		final Result<K, V> details = Result.unchanged();
 
 		final CompactMapNode<K, V> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
+				details, cmp);
 
 		if (details.isModified()) {
 
@@ -208,7 +209,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			final int valHash = details.getReplacedValue().hashCode();
 
 			return new TrieMap_5Bits_Spec0To8<K, V>(newRootNode, hashCode - (keyHash ^ valHash),
-							cachedSize - 1);
+					cachedSize - 1);
 
 		}
 
@@ -300,7 +301,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 	@Override
 	public ImmutableMap<K, V> __putAllEquivalent(final Map<? extends K, ? extends V> map,
-					final Comparator<Object> cmp) {
+			final Comparator<Object> cmp) {
 		TransientMap<K, V> tmp = asTransient();
 		tmp.__putAllEquivalent(map, cmp);
 		return tmp.freeze();
@@ -353,14 +354,74 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 	@Override
 	public Set<K> keySet() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<K> keySet = null;
+
+		if (keySet == null) {
+			keySet = new AbstractSet<K>() {
+				@Override
+				public Iterator<K> iterator() {
+					return TrieMap_5Bits_Spec0To8.this.keyIterator();
+				}
+
+				@Override
+				public int size() {
+					return TrieMap_5Bits_Spec0To8.this.size();
+				}
+
+				@Override
+				public boolean isEmpty() {
+					return TrieMap_5Bits_Spec0To8.this.isEmpty();
+				}
+
+				@Override
+				public void clear() {
+					TrieMap_5Bits_Spec0To8.this.clear();
+				}
+
+				@Override
+				public boolean contains(Object k) {
+					return TrieMap_5Bits_Spec0To8.this.containsKey(k);
+				}
+			};
+		}
+
+		return keySet;
 	}
 
 	@Override
 	public Collection<V> values() {
-		// TODO Auto-generated method stub
-		return null;
+		Collection<V> values = null;
+
+		if (values == null) {
+			values = new AbstractCollection<V>() {
+				@Override
+				public Iterator<V> iterator() {
+					return TrieMap_5Bits_Spec0To8.this.valueIterator();
+				}
+
+				@Override
+				public int size() {
+					return TrieMap_5Bits_Spec0To8.this.size();
+				}
+
+				@Override
+				public boolean isEmpty() {
+					return TrieMap_5Bits_Spec0To8.this.isEmpty();
+				}
+
+				@Override
+				public void clear() {
+					TrieMap_5Bits_Spec0To8.this.clear();
+				}
+
+				@Override
+				public boolean contains(Object v) {
+					return TrieMap_5Bits_Spec0To8.this.containsValue(v);
+				}
+			};
+		}
+
+		return values;
 	}
 
 	@Override
@@ -412,6 +473,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				}
 			};
 		}
+
 		return entrySet;
 	}
 
@@ -447,9 +509,40 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			}
 
 			return rootNode.equals(that.rootNode);
+		} else if (other instanceof Map) {
+			Map that = (Map) other;
+
+			if (this.size() != that.size())
+				return false;
+
+			for (@SuppressWarnings("unchecked")
+			Iterator<Entry> it = that.entrySet().iterator(); it.hasNext();) {
+				Entry entry = it.next();
+
+				try {
+					@SuppressWarnings("unchecked")
+					final K key = (K) entry.getKey();
+					final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()), 0);
+
+					if (!result.isPresent()) {
+						return false;
+					} else {
+						@SuppressWarnings("unchecked")
+						final V val = (V) entry.getValue();
+
+						if (!result.get().equals(val)) {
+							return false;
+						}
+					}
+				} catch (ClassCastException unused) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
-		return super.equals(other);
+		return false;
 	}
 
 	/*
@@ -539,12 +632,12 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				for (int j = 0; j <= max; j++) {
 					for (int k = max - j; k <= max - j; k++) {
 						float arityCombinationsPercentage = (float) (sumArityCombinations[j][k])
-										/ sumNodes;
+								/ sumNodes;
 
 						if (arityCombinationsPercentage != 0
-										&& arityCombinationsPercentage >= threshhold) {
+								&& arityCombinationsPercentage >= threshhold) {
 							bldr.append(String.format("%d/%d: %s, ", j, k, new DecimalFormat(
-											"0.00%").format(arityCombinationsPercentage)));
+									"0.00%").format(arityCombinationsPercentage)));
 						}
 					}
 				}
@@ -552,9 +645,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 				// overview
 				System.out.println(String.format("%2d: %s\t[cumsum = %s]\t%s", i,
-								new DecimalFormat("0.00%").format(arityPercentage),
-								new DecimalFormat("0.00%").format(cumsumArityPercentage),
-								detailPercentages));
+						new DecimalFormat("0.00%").format(arityPercentage), new DecimalFormat(
+								"0.00%").format(cumsumArityPercentage), detailPercentages));
 			}
 		}
 	}
@@ -651,26 +743,26 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		abstract boolean containsKey(final K key, final int keyHash, final int shift);
 
 		abstract boolean containsKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp);
+				final Comparator<Object> cmp);
 
 		abstract Optional<V> findByKey(final K key, final int keyHash, final int shift);
 
 		abstract Optional<V> findByKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp);
+				final Comparator<Object> cmp);
 
 		abstract CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, final int shift, final Result<K, V> details);
+				final V val, final int keyHash, final int shift, final Result<K, V> details);
 
 		abstract CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, final int shift,
-						final Result<K, V> details, final Comparator<Object> cmp);
+				final V val, final int keyHash, final int shift, final Result<K, V> details,
+				final Comparator<Object> cmp);
 
 		abstract CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K, V> details);
+				final int keyHash, final int shift, final Result<K, V> details);
 
 		abstract CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K, V> details,
-						final Comparator<Object> cmp);
+				final int keyHash, final int shift, final Result<K, V> details,
+				final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
@@ -789,34 +881,34 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			boolean inv1 = (size() - payloadArity() >= 2 * (arity() - payloadArity()));
 			boolean inv2 = (this.arity() == 0) ? sizePredicate() == SIZE_EMPTY : true;
 			boolean inv3 = (this.arity() == 1 && payloadArity() == 1) ? sizePredicate() == SIZE_ONE
-							: true;
+					: true;
 			boolean inv4 = (this.arity() >= 2) ? sizePredicate() == SIZE_MORE_THAN_ONE : true;
 
 			boolean inv5 = (this.nodeArity() >= 0) && (this.payloadArity() >= 0)
-							&& ((this.payloadArity() + this.nodeArity()) == this.arity());
+					&& ((this.payloadArity() + this.nodeArity()) == this.arity());
 
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
 		abstract CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator,
-						final int bitpos, final V val);
+				final int bitpos, final V val);
 
 		abstract CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator,
-						final int bitpos, final K key, final V val);
+				final int bitpos, final K key, final V val);
 
 		abstract CompactMapNode<K, V> copyAndRemoveValue(AtomicReference<Thread> mutator,
-						final int bitpos);
+				final int bitpos);
 
 		abstract CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator,
-						final int bitpos, CompactMapNode<K, V> node);
+				final int bitpos, CompactMapNode<K, V> node);
 
 		abstract CompactMapNode<K, V> copyAndMigrateFromInlineToNode(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactMapNode<K, V> node);
+				final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode<K, V> node);
 
 		abstract CompactMapNode<K, V> copyAndMigrateFromNodeToInline(
-						final AtomicReference<Thread> mutator, final int bitpos,
-						final CompactMapNode<K, V> node);
+				final AtomicReference<Thread> mutator, final int bitpos,
+				final CompactMapNode<K, V> node);
 
 		/*
 		 * TODO: specialize removed(..) to remove this method from this
@@ -824,19 +916,18 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		 */
 
 		CompactMapNode<K, V> removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@SuppressWarnings("unchecked")
 		static final <K, V> CompactMapNode<K, V> mergeTwoKeyValPairs(final K key0, final V val0,
-						final int keyHash0, final K key1, final V val1, final int keyHash1,
-						final int shift) {
+				final int keyHash0, final K key1, final V val1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (shift >= HASH_CODE_LENGTH) {
 				return new HashCollisionMapNode_5Bits_Spec0To8<>(keyHash0, (K[]) new Object[] {
-								key0, key1 }, (V[]) new Object[] { val0, val1 });
+						key0, key1 }, (V[]) new Object[] { val0, val1 });
 			}
 
 			final int mask0 = mask(keyHash0, shift);
@@ -853,7 +944,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				}
 			} else {
 				final CompactMapNode<K, V> node = mergeTwoKeyValPairs(key0, val0, keyHash0, key1,
-								val1, keyHash1, shift + BIT_PARTITION_SIZE);
+						val1, keyHash1, shift + BIT_PARTITION_SIZE);
 				// values fit on next level
 
 				final int nodeMap = bitpos(mask0);
@@ -870,7 +961,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		};
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+				final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
 			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
@@ -880,474 +971,462 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap) {
+				final int nodeMap, final int dataMap) {
 			return EMPTY_NODE;
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1) {
 			return new Map0To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2) {
 			return new Map0To2Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			return new Map0To3Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4) {
 			return new Map0To4Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1, node2, node3,
-							node4);
+					node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			return new Map0To5Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1, node2, node3,
-							node4, node5);
+					node4, node5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6) {
 			return new Map0To6Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1, node2, node3,
-							node4, node5, node6);
+					node4, node5, node6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
 			return new Map0To7Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1, node2, node3,
-							node4, node5, node6, node7);
+					node4, node5, node6, node7);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
-						final CompactMapNode<K, V> node8) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
+				final CompactMapNode<K, V> node8) {
 			return new Map0To8Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, node1, node2, node3,
-							node4, node5, node6, node7, node8);
+					node4, node5, node6, node7, node8);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
-						final CompactMapNode<K, V> node8, final CompactMapNode<K, V> node9) {
+				final int nodeMap, final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
+				final CompactMapNode<K, V> node8, final CompactMapNode<K, V> node9) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { node1, node2, node3, node4,
-							node5, node6, node7, node8, node9 });
+					node5, node6, node7, node8, node9 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1) {
 			return new Map1To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1) {
 			return new Map1To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			return new Map1To2Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, node1,
-							node2);
+					node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3) {
 			return new Map1To3Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, node1,
-							node2, node3);
+					node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			return new Map1To4Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, node1,
-							node2, node3, node4);
+					node2, node3, node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5) {
 			return new Map1To5Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, node1,
-							node2, node3, node4, node5);
+					node2, node3, node4, node5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
 			return new Map1To6Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, node1,
-							node2, node3, node4, node5, node6);
+					node2, node3, node4, node5, node6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
-						final CompactMapNode<K, V> node7) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
+				final CompactMapNode<K, V> node7) {
 			return new Map1To7Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, node1,
-							node2, node3, node4, node5, node6, node7);
+					node2, node3, node4, node5, node6, node7);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
-						final CompactMapNode<K, V> node7, final CompactMapNode<K, V> node8) {
+				final int nodeMap, final int dataMap, final K key1, final V val1,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
+				final CompactMapNode<K, V> node7, final CompactMapNode<K, V> node8) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, node1, node2,
-							node3, node4, node5, node6, node7, node8 });
+					node3, node4, node5, node6, node7, node8 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2) {
 			return new Map2To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2);
+					val2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final CompactMapNode<K, V> node1) {
 			return new Map2To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, node1);
+					val2, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			return new Map2To2Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, node1, node2);
+					val2, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3) {
 			return new Map2To3Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, node1, node2, node3);
+					val2, node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			return new Map2To4Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, node1, node2, node3, node4);
+					val2, node1, node2, node3, node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5) {
 			return new Map2To5Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, node1, node2, node3, node4, node5);
+					val2, node1, node2, node3, node4, node5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
 			return new Map2To6Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, node1, node2, node3, node4, node5, node6);
+					val2, node1, node2, node3, node4, node5, node6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
+				final CompactMapNode<K, V> node7) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, node1,
-							node2, node3, node4, node5, node6, node7 });
+					node2, node3, node4, node5, node6, node7 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3) {
 			return new Map3To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3);
+					val2, key3, val3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3,
-						final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1) {
 			return new Map3To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, node1);
+					val2, key3, val3, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2) {
 			return new Map3To2Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, node1, node2);
+					val2, key3, val3, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			return new Map3To3Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, node1, node2, node3);
+					val2, key3, val3, node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4) {
 			return new Map3To4Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, node1, node2, node3, node4);
+					val2, key3, val3, node1, node2, node3, node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			return new Map3To5Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, node1, node2, node3, node4, node5);
+					val2, key3, val3, node1, node2, node3, node4, node5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, node1, node2, node3, node4, node5, node6 });
+					val3, node1, node2, node3, node4, node5, node6 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4) {
 			return new Map4To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4);
+					val2, key3, val3, key4, val4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1) {
 			return new Map4To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, node1);
+					val2, key3, val3, key4, val4, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			return new Map4To2Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, node1, node2);
+					val2, key3, val3, key4, val4, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3) {
 			return new Map4To3Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, node1, node2, node3);
+					val2, key3, val3, key4, val4, node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			return new Map4To4Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, node1, node2, node3, node4);
+					val2, key3, val3, key4, val4, node1, node2, node3, node4);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, node1, node2, node3, node4, node5 });
+					val3, key4, val4, node1, node2, node3, node4, node5 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5) {
 			return new Map5To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5);
+					val2, key3, val3, key4, val4, key5, val5);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final CompactMapNode<K, V> node1) {
 			return new Map5To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, node1);
+					val2, key3, val3, key4, val4, key5, val5, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			return new Map5To2Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, node1, node2);
+					val2, key3, val3, key4, val4, key5, val5, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3) {
 			return new Map5To3Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, node1, node2, node3);
+					val2, key3, val3, key4, val4, key5, val5, node1, node2, node3);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, node1, node2, node3, node4 });
+					val3, key4, val4, key5, val5, node1, node2, node3, node4 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6) {
 			return new Map6To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, key6, val6);
+					val2, key3, val3, key4, val4, key5, val5, key6, val6);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final CompactMapNode<K, V> node1) {
 			return new Map6To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, key6, val6, node1);
+					val2, key3, val3, key4, val4, key5, val5, key6, val6, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2) {
 			return new Map6To2Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, key6, val6, node1, node2);
+					val2, key3, val3, key4, val4, key5, val5, key6, val6, node1, node2);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 });
+					val3, key4, val4, key5, val5, key6, val6, node1, node2, node3 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final K key7, final V val7) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final K key7, final V val7) {
 			return new Map7To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
+					val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final K key7, final V val7, final CompactMapNode<K, V> node1) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final K key7, final V val7,
+				final CompactMapNode<K, V> node1) {
 			return new Map7To1Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+					val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final K key7, final V val7, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final K key7, final V val7,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 });
+					val3, key4, val4, key5, val5, key6, val6, key7, val7, node1, node2 });
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final K key7, final V val7, final K key8, final V val8) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final K key7, final V val7, final K key8,
+				final V val8) {
 			return new Map8To0Node_5Bits_Spec0To8<>(mutator, nodeMap, dataMap, key1, val1, key2,
-							val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7, key8,
-							val8);
+					val2, key3, val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 		}
 
 		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final K key7, final V val7, final K key8, final V val8,
-						final CompactMapNode<K, V> node1) {
-			return nodeOf(mutator, nodeMap, dataMap,
-							new Object[] { key1, val1, key2, val2, key3, val3, key4, val4, key5,
-											val5, key6, val6, key7, val7, key8, val8, node1 });
-		}
-
-		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final K key1, final V val1,
-						final K key2, final V val2, final K key3, final V val3, final K key4,
-						final V val4, final K key5, final V val5, final K key6, final V val6,
-						final K key7, final V val7, final K key8, final V val8, final K key9,
-						final V val9) {
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final K key7, final V val7, final K key8,
+				final V val8, final CompactMapNode<K, V> node1) {
 			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
-							val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, key9,
-							val9 });
+					val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, node1 });
+		}
+
+		static final <K, V> CompactMapNode<K, V> nodeOf(final AtomicReference<Thread> mutator,
+				final int nodeMap, final int dataMap, final K key1, final V val1, final K key2,
+				final V val2, final K key3, final V val3, final K key4, final V val4, final K key5,
+				final V val5, final K key6, final V val6, final K key7, final V val7, final K key8,
+				final V val8, final K key9, final V val9) {
+			return nodeOf(mutator, nodeMap, dataMap, new Object[] { key1, val1, key2, val2, key3,
+					val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8, key9, val9 });
+		}
+
+		static final int index(final int bitmap, final int bitpos) {
+			return java.lang.Integer.bitCount(bitmap & (bitpos - 1));
+		}
+
+		static final int index(final int bitmap, final int mask, final int bitpos) {
+			return (bitmap == -1) ? mask : index(bitmap, bitpos);
 		}
 
 		int dataIndex(final int bitpos) {
@@ -1375,12 +1454,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return keyAt(bitpos).equals(key);
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return getKey(index).equals(key);
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
@@ -1388,16 +1471,20 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
-			if ((dataMap() & bitpos) != 0) {
-				return cmp.compare(keyAt(bitpos), key) == 0;
+			final int dataMap = dataMap();
+			if ((dataMap & bitpos) != 0) {
+				final int index = index(dataMap, mask, bitpos);
+				return cmp.compare(getKey(index), key) == 0;
 			}
 
-			if ((nodeMap() & bitpos) != 0) {
-				return nodeAt(bitpos).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+			final int nodeMap = nodeMap();
+			if ((nodeMap & bitpos) != 0) {
+				final int index = index(nodeMap, mask, bitpos);
+				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
@@ -1429,7 +1516,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		Optional<V> findByKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1454,7 +1541,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, final int shift, final Result<K, V> details) {
+				final V val, final int keyHash, final int shift, final Result<K, V> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1475,8 +1562,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
-									shift + BIT_PARTITION_SIZE);
+							currentVal, improve(currentKey.hashCode()), key, val, keyHash, shift
+									+ BIT_PARTITION_SIZE);
 
 					// final CompactMapNode<K, V> thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1491,7 +1578,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 				final CompactMapNode<K, V> subNodeNew = subNode.updated(mutator, key, val, keyHash,
-								shift + BIT_PARTITION_SIZE, details);
+						shift + BIT_PARTITION_SIZE, details);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1507,8 +1594,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, final int shift,
-						final Result<K, V> details, final Comparator<Object> cmp) {
+				final V val, final int keyHash, final int shift, final Result<K, V> details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1529,8 +1616,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				} else {
 					final V currentVal = getValue(dataIndex);
 					final CompactMapNode<K, V> subNodeNew = mergeTwoKeyValPairs(currentKey,
-									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
-									shift + BIT_PARTITION_SIZE);
+							currentVal, improve(currentKey.hashCode()), key, val, keyHash, shift
+									+ BIT_PARTITION_SIZE);
 
 					// final CompactMapNode<K, V> thisNew =
 					// copyAndRemoveValue(mutator,
@@ -1545,7 +1632,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 				final CompactMapNode<K, V> subNodeNew = subNode.updated(mutator, key, val, keyHash,
-								shift + BIT_PARTITION_SIZE, details, cmp);
+						shift + BIT_PARTITION_SIZE, details, cmp);
 
 				if (details.isModified()) {
 					return copyAndSetNode(mutator, bitpos, subNodeNew);
@@ -1561,7 +1648,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K, V> details) {
+				final int keyHash, final int shift, final Result<K, V> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1579,14 +1666,14 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(1), getValue(1));
+									getKey(1), getValue(1));
 						} else {
 							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(0), getValue(0));
+									getKey(0), getValue(0));
 						}
 					} else if (this.arity() == 9) {
 						return removeInplaceValueAndConvertToSpecializedNode(mutator, bitpos);
@@ -1599,7 +1686,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
-								shift + BIT_PARTITION_SIZE, details);
+						shift + BIT_PARTITION_SIZE, details);
 
 				if (!details.isModified()) {
 					return this;
@@ -1626,8 +1713,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K, V> details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result<K, V> details,
+				final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1645,14 +1732,14 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						 * unwrapped and inlined during returning.
 						 */
 						final int newDataMap = (shift == 0) ? (int) (dataMap() ^ bitpos)
-										: bitpos(mask(keyHash, 0));
+								: bitpos(mask(keyHash, 0));
 
 						if (dataIndex == 0) {
 							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(1), getValue(1));
+									getKey(1), getValue(1));
 						} else {
 							return CompactMapNode.<K, V> nodeOf(mutator, (int) 0, newDataMap,
-											getKey(0), getValue(0));
+									getKey(0), getValue(0));
 						}
 					} else if (this.arity() == 9) {
 						return removeInplaceValueAndConvertToSpecializedNode(mutator, bitpos);
@@ -1665,7 +1752,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K, V> subNode = nodeAt(bitpos);
 				final CompactMapNode<K, V> subNodeNew = subNode.removed(mutator, key, keyHash,
-								shift + BIT_PARTITION_SIZE, details, cmp);
+						shift + BIT_PARTITION_SIZE, details, cmp);
 
 				if (!details.isModified()) {
 					return this;
@@ -1755,7 +1842,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final int dataMap;
 
 		CompactMixedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.nodeMap = nodeMap;
 			this.dataMap = dataMap;
 		}
@@ -1777,7 +1864,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final int nodeMap;
 
 		CompactNodesOnlyMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.nodeMap = nodeMap;
 		}
 
@@ -1798,7 +1885,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final int dataMap;
 
 		CompactValuesOnlyMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			this.dataMap = dataMap;
 		}
 
@@ -1817,7 +1904,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	private static abstract class CompactEmptyMapNode<K, V> extends CompactMapNode<K, V> {
 
 		CompactEmptyMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 		}
 
 		@Override
@@ -1838,7 +1925,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		final java.lang.Object[] nodes;
 
 		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes) {
+				final int dataMap, final java.lang.Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
@@ -1847,7 +1934,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			if (DEBUG) {
 
 				assert (TUPLE_LENGTH * java.lang.Integer.bitCount(dataMap)
-								+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
+						+ java.lang.Integer.bitCount(nodeMap) == nodes.length);
 
 				for (int i = 0; i < TUPLE_LENGTH * payloadArity(); i++) {
 					assert ((nodes[i] instanceof CompactMapNode) == false);
@@ -1961,7 +2048,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(final AtomicReference<Thread> mutator,
-						final int bitpos, final V val) {
+				final int bitpos, final V val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos) + 1;
 
 			if (isAllowedToEdit(this.mutator, mutator)) {
@@ -1982,7 +2069,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 
 			final int idx = this.nodes.length - 1 - nodeIndex(bitpos);
 
@@ -2004,7 +2091,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(final AtomicReference<Thread> mutator,
-						final int bitpos, final K key, final V val) {
+				final int bitpos, final K key, final V val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -2021,7 +2108,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndRemoveValue(final AtomicReference<Thread> mutator,
-						final int bitpos) {
+				final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
 			final java.lang.Object[] src = this.nodes;
@@ -2036,7 +2123,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
@@ -2057,7 +2144,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
@@ -2079,7 +2166,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -2107,7 +2194,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node8 = getNode(7);
 
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 
 			}
 			case 2: {
@@ -2140,7 +2227,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node7 = getNode(6);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 
 			}
 			case 3: {
@@ -2186,7 +2273,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node6 = getNode(5);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 
 			}
 			case 4: {
@@ -2249,7 +2336,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node5 = getNode(4);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 
 			}
 			case 5: {
@@ -2333,7 +2420,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node4 = getNode(3);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 
 			}
 			case 6: {
@@ -2442,7 +2529,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node3 = getNode(2);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 
 			}
 			case 7: {
@@ -2580,7 +2667,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node2 = getNode(1);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 
 			}
 			case 8: {
@@ -2751,7 +2838,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				final CompactMapNode<K, V> node1 = getNode(0);
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 
 			}
 			case 9: {
@@ -2958,7 +3045,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				}
 
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 
 			}
 			default:
@@ -2969,7 +3056,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class HashCollisionMapNode_5Bits_Spec0To8<K, V> extends
-					CompactMapNode<K, V> {
+			CompactMapNode<K, V> {
 		private final K[] keys;
 		private final V[] vals;
 		private final int hash;
@@ -2998,7 +3085,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			if (this.hash == keyHash) {
 				for (K k : keys) {
@@ -3027,7 +3114,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		Optional<V> findByKey(final K key, final int keyHash, final int shift,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
@@ -3042,7 +3129,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, final int shift, final Result<K, V> details) {
+				final V val, final int keyHash, final int shift, final Result<K, V> details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -3063,7 +3150,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 					dst[idx + 0] = val;
 
 					final CompactMapNode<K, V> thisNew = new HashCollisionMapNode_5Bits_Spec0To8<>(
-									this.hash, this.keys, dst);
+							this.hash, this.keys, dst);
 
 					details.updated(currentVal);
 					return thisNew;
@@ -3079,7 +3166,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			@SuppressWarnings("unchecked")
 			final V[] valsNew = (V[]) new Object[this.vals.length + 1];
@@ -3089,7 +3176,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			System.arraycopy(this.vals, 0, valsNew, 0, vals.length);
 			valsNew[vals.length + 0] = val;
 			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
-							- vals.length);
+					- vals.length);
 
 			details.modified();
 			return new HashCollisionMapNode_5Bits_Spec0To8<>(keyHash, keysNew, valsNew);
@@ -3097,8 +3184,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> updated(final AtomicReference<Thread> mutator, final K key,
-						final V val, final int keyHash, final int shift,
-						final Result<K, V> details, final Comparator<Object> cmp) {
+				final V val, final int keyHash, final int shift, final Result<K, V> details,
+				final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -3119,7 +3206,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 					dst[idx + 0] = val;
 
 					final CompactMapNode<K, V> thisNew = new HashCollisionMapNode_5Bits_Spec0To8<>(
-									this.hash, this.keys, dst);
+							this.hash, this.keys, dst);
 
 					details.updated(currentVal);
 					return thisNew;
@@ -3135,7 +3222,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			System.arraycopy(this.keys, 0, keysNew, 0, keys.length);
 			keysNew[keys.length + 0] = key;
 			System.arraycopy(this.keys, keys.length, keysNew, keys.length + 1, this.keys.length
-							- keys.length);
+					- keys.length);
 
 			@SuppressWarnings("unchecked")
 			final V[] valsNew = (V[]) new Object[this.vals.length + 1];
@@ -3145,7 +3232,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			System.arraycopy(this.vals, 0, valsNew, 0, vals.length);
 			valsNew[vals.length + 0] = val;
 			System.arraycopy(this.vals, vals.length, valsNew, vals.length + 1, this.vals.length
-							- vals.length);
+					- vals.length);
 
 			details.modified();
 			return new HashCollisionMapNode_5Bits_Spec0To8<>(keyHash, keysNew, valsNew);
@@ -3153,7 +3240,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K, V> details) {
+				final int keyHash, final int shift, final Result<K, V> details) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
@@ -3171,7 +3258,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (idx == 0) ? vals[1] : vals[0];
 						return CompactMapNode.<K, V> nodeOf(mutator).updated(mutator, theOtherKey,
-										theOtherVal, keyHash, 0, details);
+								theOtherVal, keyHash, 0, details);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -3180,7 +3267,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						@SuppressWarnings("unchecked")
 						final V[] valsNew = (V[]) new Object[this.vals.length - 1];
@@ -3189,7 +3276,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						// 'idx'
 						System.arraycopy(this.vals, 0, valsNew, 0, idx);
 						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionMapNode_5Bits_Spec0To8<>(keyHash, keysNew, valsNew);
 					}
@@ -3201,8 +3288,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K, V> details,
-						final Comparator<Object> cmp) {
+				final int keyHash, final int shift, final Result<K, V> details,
+				final Comparator<Object> cmp) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
@@ -3220,7 +3307,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						final K theOtherKey = (idx == 0) ? keys[1] : keys[0];
 						final V theOtherVal = (idx == 0) ? vals[1] : vals[0];
 						return CompactMapNode.<K, V> nodeOf(mutator).updated(mutator, theOtherKey,
-										theOtherVal, keyHash, 0, details, cmp);
+								theOtherVal, keyHash, 0, details, cmp);
 					} else {
 						@SuppressWarnings("unchecked")
 						final K[] keysNew = (K[]) new Object[this.keys.length - 1];
@@ -3229,7 +3316,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						// 'idx'
 						System.arraycopy(this.keys, 0, keysNew, 0, idx);
 						System.arraycopy(this.keys, idx + 1, keysNew, idx, this.keys.length - idx
-										- 1);
+								- 1);
 
 						@SuppressWarnings("unchecked")
 						final V[] valsNew = (V[]) new Object[this.vals.length - 1];
@@ -3238,7 +3325,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 						// 'idx'
 						System.arraycopy(this.vals, 0, valsNew, 0, idx);
 						System.arraycopy(this.vals, idx + 1, valsNew, idx, this.vals.length - idx
-										- 1);
+								- 1);
 
 						return new HashCollisionMapNode_5Bits_Spec0To8<>(keyHash, keysNew, valsNew);
 					}
@@ -3368,13 +3455,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3385,25 +3472,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		CompactMapNode<K, V> removeInplaceValueAndConvertToSpecializedNode(
-						final AtomicReference<Thread> mutator, final int bitpos) {
+				final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3465,7 +3552,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 				if (nodeCursor < nodeLength) {
 					final AbstractMapNode<K, V> nextNode = nodes[currentStackLevel]
-									.getNode(nodeCursor);
+							.getNode(nodeCursor);
 					nodeCursorsAndLengths[currentCursorIndex]++;
 
 					if (nextNode.hasNodes()) {
@@ -3513,7 +3600,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class MapKeyIterator<K, V> extends AbstractMapIterator<K, V> implements
-					Iterator<K> {
+			Iterator<K> {
 
 		MapKeyIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -3531,7 +3618,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class MapValueIterator<K, V> extends AbstractMapIterator<K, V> implements
-					Iterator<V> {
+			Iterator<V> {
 
 		MapValueIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -3549,7 +3636,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class MapEntryIterator<K, V> extends AbstractMapIterator<K, V> implements
-					Iterator<Map.Entry<K, V>> {
+			Iterator<Map.Entry<K, V>> {
 
 		MapEntryIterator(AbstractMapNode<K, V> rootNode) {
 			super(rootNode);
@@ -3571,7 +3658,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	 * first recursively.
 	 */
 	private static class TrieMap_5Bits_Spec0To8NodeIterator<K, V> implements
-					Iterator<AbstractMapNode<K, V>> {
+			Iterator<AbstractMapNode<K, V>> {
 
 		final Deque<Iterator<? extends AbstractMapNode<K, V>>> nodeIteratorStack;
 
@@ -3618,7 +3705,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	static final class TransientTrieMap_5Bits_Spec0To8<K, V> extends AbstractMap<K, V> implements
-					TransientMap<K, V> {
+			TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
 		private int hashCode;
@@ -3716,7 +3803,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			final Result<K, V> details = Result.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details);
+					improve(keyHash), 0, details);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3764,7 +3851,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			final Result<K, V> details = Result.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.updated(mutator, key, val,
-							improve(keyHash), 0, details, cmp);
+					improve(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 				rootNode = newRootNode;
@@ -3820,7 +3907,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		public boolean __putAllEquivalent(final Map<? extends K, ? extends V> map,
-						final Comparator<Object> cmp) {
+				final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
@@ -3846,7 +3933,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			final Result<K, V> details = Result.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key,
-							improve(keyHash), 0, details);
+					improve(keyHash), 0, details);
 
 			if (details.isModified()) {
 
@@ -3880,7 +3967,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			final Result<K, V> details = Result.unchanged();
 
 			final CompactMapNode<K, V> newRootNode = rootNode.removed(mutator, key,
-							improve(keyHash), 0, details, cmp);
+					improve(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
 
@@ -3985,13 +4072,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		 * depth first recursively.
 		 */
 		private static class TransientMapKeyIterator<K, V> extends AbstractMapIterator<K, V>
-						implements Iterator<K> {
+				implements Iterator<K> {
 
 			final TransientTrieMap_5Bits_Spec0To8<K, V> transientTrieMap_5Bits_Spec0To8;
 			K lastKey;
 
 			TransientMapKeyIterator(
-							TransientTrieMap_5Bits_Spec0To8<K, V> transientTrieMap_5Bits_Spec0To8) {
+					TransientTrieMap_5Bits_Spec0To8<K, V> transientTrieMap_5Bits_Spec0To8) {
 				super(transientTrieMap_5Bits_Spec0To8.rootNode);
 				this.transientTrieMap_5Bits_Spec0To8 = transientTrieMap_5Bits_Spec0To8;
 			}
@@ -4060,7 +4147,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	private static final class Map0To0Node_5Bits_Spec0To8<K, V> extends CompactEmptyMapNode<K, V> {
 
 		Map0To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap) {
+				final int dataMap) {
 			super(mutator, nodeMap, dataMap);
 
 			assert nodeInvariant();
@@ -4138,13 +4225,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4165,19 +4252,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -4206,12 +4293,12 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To1Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 
 		Map0To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1) {
+				final int dataMap, final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 
@@ -4295,13 +4382,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4322,7 +4409,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4338,13 +4425,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4410,14 +4497,14 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To2Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 
 		Map0To2Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4504,13 +4591,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4531,7 +4618,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4549,13 +4636,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4632,15 +4719,15 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To3Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
 		private final CompactMapNode<K, V> node3;
 
 		Map0To3Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+				final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4730,13 +4817,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -4757,7 +4844,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -4777,13 +4864,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -4871,7 +4958,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To4Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
@@ -4879,9 +4966,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node4;
 
 		Map0To4Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4) {
+				final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -4974,13 +5061,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5001,7 +5088,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5023,13 +5110,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5128,7 +5215,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To5Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
@@ -5137,9 +5224,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node5;
 
 		Map0To5Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+				final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5235,13 +5322,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5250,7 +5337,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5263,7 +5350,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5287,13 +5374,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5403,7 +5490,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To6Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
@@ -5413,10 +5500,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node6;
 
 		Map0To6Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6) {
+				final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5515,13 +5602,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5530,7 +5617,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5543,7 +5630,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5569,13 +5656,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5590,7 +5677,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node2, node3, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5598,7 +5685,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node3, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5606,7 +5693,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node4, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5614,7 +5701,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node5,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5622,7 +5709,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node6);
+							node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5630,7 +5717,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5);
+							node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5702,7 +5789,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To7Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
@@ -5713,10 +5800,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node7;
 
 		Map0To7Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
+				final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -5818,13 +5905,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -5833,7 +5920,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5846,7 +5933,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -5855,25 +5942,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7);
+						node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7);
+						node7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7);
+						node7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7);
+						node7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7);
+						node7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7);
+						node7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -5881,13 +5968,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -5902,7 +5989,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node2, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5910,7 +5997,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node3, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5918,7 +6005,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node4, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5926,7 +6013,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node5,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5934,7 +6021,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node6, node7);
+							node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5942,7 +6029,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node7);
+							node5, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -5950,7 +6037,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6026,7 +6113,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map0To8Node_5Bits_Spec0To8<K, V> extends
-					CompactNodesOnlyMapNode<K, V> {
+			CompactNodesOnlyMapNode<K, V> {
 
 		private final CompactMapNode<K, V> node1;
 		private final CompactMapNode<K, V> node2;
@@ -6038,11 +6125,11 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node8;
 
 		Map0To8Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
-						final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
-						final CompactMapNode<K, V> node8) {
+				final int dataMap, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7,
+				final CompactMapNode<K, V> node8) {
 			super(mutator, nodeMap, dataMap);
 			this.node1 = node1;
 			this.node2 = node2;
@@ -6147,13 +6234,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6162,7 +6249,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-								node5, node6, node7, node8);
+						node5, node6, node7, node8);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6175,7 +6262,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6184,28 +6271,28 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node, node2, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node, node3, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node4, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node5, node6,
-								node7, node8);
+						node7, node8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node, node6,
-								node7, node8);
+						node7, node8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node,
-								node7, node8);
+						node7, node8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node, node8);
+						node, node8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7, node);
+						node7, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -6213,13 +6300,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6234,7 +6321,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node2, node3, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6242,7 +6329,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node3, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6250,7 +6337,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node4, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6258,7 +6345,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node5,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6266,7 +6353,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node6, node7, node8);
+							node6, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6274,7 +6361,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node7, node8);
+							node5, node7, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6282,7 +6369,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node6, node8);
+							node5, node6, node8);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6290,7 +6377,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, node1, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -6370,13 +6457,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map1To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
 
 		Map1To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1) {
+				final int dataMap, final K key1, final V val1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6471,7 +6558,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6487,7 +6574,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6520,13 +6607,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6548,7 +6635,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -6605,8 +6692,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map1To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1) {
+				final int dataMap, final K key1, final V val1, final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6707,7 +6793,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6723,7 +6809,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -6756,7 +6842,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -6772,7 +6858,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6796,7 +6882,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -6880,8 +6966,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node2;
 
 		Map1To2Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+				final int dataMap, final K key1, final V val1, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -6985,7 +7071,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7001,7 +7087,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7034,7 +7120,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7052,7 +7138,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7078,7 +7164,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7176,9 +7262,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node3;
 
 		Map1To3Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3) {
+				final int dataMap, final K key1, final V val1, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -7285,7 +7370,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7301,7 +7386,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7334,7 +7419,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7354,7 +7439,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7382,7 +7467,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7494,9 +7579,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node4;
 
 		Map1To4Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+				final int dataMap, final K key1, final V val1, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -7606,7 +7691,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7622,7 +7707,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7631,10 +7716,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4);
+						node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4);
+						node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7657,7 +7742,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7679,7 +7764,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7709,7 +7794,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -7724,10 +7809,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7735,10 +7820,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7746,10 +7831,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4);
+							node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7757,10 +7842,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3);
+							node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3);
+							node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -7843,10 +7928,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node5;
 
 		Map1To5Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5) {
+				final int dataMap, final K key1, final V val1, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -7959,7 +8043,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -7968,7 +8052,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -7976,7 +8060,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -7985,10 +8069,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4, node5);
+						node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8011,7 +8095,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8020,19 +8104,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node2, node3, node4,
-								node5);
+						node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node3, node4,
-								node5);
+						node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node4,
-								node5);
+						node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-								node5);
+						node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8040,7 +8124,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8052,22 +8136,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5);
+							node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5);
+							node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5);
+							node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5);
+							node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5);
+							node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8078,7 +8162,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8093,10 +8177,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8104,10 +8188,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8115,10 +8199,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4, node5);
+							node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8126,10 +8210,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node5);
+							node3, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node5);
+							node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8137,10 +8221,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4);
+							node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4);
+							node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8228,10 +8312,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node6;
 
 		Map1To6Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
+				final int dataMap, final K key1, final V val1, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -8347,7 +8431,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8356,7 +8440,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8364,7 +8448,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8373,10 +8457,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4, node5, node6);
+						node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4, node5, node6);
+						node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8399,7 +8483,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8408,22 +8492,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node4,
-								node5, node6);
+						node5, node6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-								node5, node6);
+						node5, node6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node, node6);
+						node, node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node);
+						node5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8431,7 +8515,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8443,25 +8527,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6);
+							node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6);
+							node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6);
+							node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6);
+							node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node);
+							node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8472,7 +8556,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8487,10 +8571,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8498,10 +8582,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8509,10 +8593,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4, node5, node6);
+							node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8520,10 +8604,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node5, node6);
+							node3, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node5, node6);
+							node3, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8531,10 +8615,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node6);
+							node3, node4, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node6);
+							node3, node4, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8542,10 +8626,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node5);
+							node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node5);
+							node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8638,11 +8722,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node7;
 
 		Map1To7Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6,
-						final CompactMapNode<K, V> node7) {
+				final int dataMap, final K key1, final V val1, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5,
+				final CompactMapNode<K, V> node6, final CompactMapNode<K, V> node7) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -8761,7 +8844,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8770,7 +8853,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, node1, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8778,7 +8861,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -8787,10 +8870,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2, node3,
-								node4, node5, node6, node7);
+						node4, node5, node6, node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2, node3,
-								node4, node5, node6, node7);
+						node4, node5, node6, node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8806,7 +8889,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5, node6,
-								node7);
+						node7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8814,7 +8897,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -8823,25 +8906,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node2, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node3, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node4,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-								node5, node6, node7);
+						node5, node6, node7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node, node6, node7);
+						node, node6, node7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node, node7);
+						node5, node, node7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node6, node);
+						node5, node6, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -8849,7 +8932,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8861,28 +8944,28 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, node, node1, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node, node2, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node, node3, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node, node4,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node,
-									node5, node6, node7);
+							node5, node6, node7);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node, node6, node7);
+							node, node6, node7);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node, node7);
+							node6, node, node7);
 				case 7:
 					return nodeOf(mutator, nodeMap, dataMap, node1, node2, node3, node4, node5,
-									node6, node7, node);
+							node6, node7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8893,7 +8976,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -8908,10 +8991,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node2, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node2, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8919,10 +9002,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node3,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8930,10 +9013,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node4, node5, node6, node7);
+							node4, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8941,10 +9024,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node5, node6, node7);
+							node3, node5, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node5, node6, node7);
+							node3, node5, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8952,10 +9035,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node6, node7);
+							node3, node4, node6, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node6, node7);
+							node3, node4, node6, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8963,10 +9046,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node5, node7);
+							node3, node4, node5, node7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node5, node7);
+							node3, node4, node5, node7);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -8974,10 +9057,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, node1, node2,
-									node3, node4, node5, node6);
+							node3, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, node1, node2,
-									node3, node4, node5, node6);
+							node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9062,7 +9145,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map2To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
@@ -9070,7 +9153,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final V val2;
 
 		Map2To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -9173,7 +9256,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9191,7 +9274,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9228,13 +9311,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9263,7 +9346,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -9330,8 +9413,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map2To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final CompactMapNode<K, V> node1) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -9440,7 +9523,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9458,7 +9541,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9495,7 +9578,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9511,7 +9594,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9544,7 +9627,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9640,8 +9723,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node2;
 
 		Map2To2Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -9753,7 +9836,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9771,7 +9854,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -9780,13 +9863,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2);
+						node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2);
+						node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -9811,7 +9894,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -9829,7 +9912,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9866,7 +9949,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -9881,13 +9964,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2);
+							node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9895,13 +9978,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1);
+							node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1);
+							node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1);
+							node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -9984,9 +10067,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node3;
 
 		Map2To3Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10101,7 +10184,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10119,7 +10202,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10128,13 +10211,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3);
+						node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3);
+						node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10159,7 +10242,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10179,7 +10262,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10220,7 +10303,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10235,13 +10318,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3);
+							node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10249,13 +10332,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3);
+							node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3);
+							node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3);
+							node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10263,13 +10346,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2);
+							node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2);
+							node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2);
+							node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10357,9 +10440,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node4;
 
 		Map2To4Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10477,7 +10560,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10486,10 +10569,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, node1, node2,
-								node3, node4);
+						node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10497,7 +10580,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10506,13 +10589,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10537,7 +10620,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10546,16 +10629,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-								node3, node4);
+						node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node, node4);
+						node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node);
+						node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10563,7 +10646,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10575,19 +10658,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node,
-									node4);
+							node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10595,19 +10678,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node1, node2, node3,
-									node4);
+							node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node2, node3,
-									node4);
+							node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node3,
-									node4);
+							node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-									node4);
+							node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node);
+							node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10618,7 +10701,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -10633,13 +10716,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3, node4);
+							node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10647,13 +10730,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3, node4);
+							node1, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3, node4);
+							node1, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3, node4);
+							node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10661,13 +10744,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node4);
+							node1, node2, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node4);
+							node1, node2, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node4);
+							node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10675,13 +10758,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3);
+							node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3);
+							node1, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3);
+							node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -10774,10 +10857,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node5;
 
 		Map2To5Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -10898,7 +10981,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10907,10 +10990,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10918,7 +11001,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -10927,13 +11010,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10949,10 +11032,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node4,
-								node5);
+						node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5);
+						node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10960,7 +11043,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -10969,19 +11052,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node, node4, node5);
+						node, node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node, node5);
+						node3, node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node);
+						node3, node4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -10989,7 +11072,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11001,22 +11084,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node, node5);
+							node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node5, node);
+							node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11024,22 +11107,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node1, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node2, node3,
-									node4, node5);
+							node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node3,
-									node4, node5);
+							node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-									node4, node5);
+							node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node, node5);
+							node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node5, node);
+							node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11050,7 +11133,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11065,13 +11148,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11079,13 +11162,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3, node4, node5);
+							node1, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3, node4, node5);
+							node1, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3, node4, node5);
+							node1, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11093,13 +11176,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node4, node5);
+							node1, node2, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node4, node5);
+							node1, node2, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node4, node5);
+							node1, node2, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11107,13 +11190,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node5);
+							node1, node2, node3, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node5);
+							node1, node2, node3, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node5);
+							node1, node2, node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11121,13 +11204,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node4);
+							node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node4);
+							node1, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node4);
+							node1, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11225,10 +11308,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node6;
 
 		Map2To6Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
-						final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4,
+				final CompactMapNode<K, V> node5, final CompactMapNode<K, V> node6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -11352,7 +11435,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11361,10 +11444,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, node1, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, node1, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11372,7 +11455,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -11381,13 +11464,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, node1,
-								node2, node3, node4, node5, node6);
+						node2, node3, node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, node1,
-								node2, node3, node4, node5, node6);
+						node2, node3, node4, node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, node1,
-								node2, node3, node4, node5, node6);
+						node2, node3, node4, node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11403,10 +11486,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node4,
-								node5, node6);
+						node5, node6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11414,7 +11497,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11423,22 +11506,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node2,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-								node3, node4, node5, node6);
+						node3, node4, node5, node6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node, node4, node5, node6);
+						node, node4, node5, node6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node, node5, node6);
+						node3, node, node5, node6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node, node6);
+						node3, node4, node, node6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node5, node);
+						node3, node4, node5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11446,7 +11529,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11458,25 +11541,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node, node1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3, node,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node, node5, node6);
+							node4, node, node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node5, node, node6);
+							node4, node5, node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, node1, node2, node3,
-									node4, node5, node6, node);
+							node4, node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11484,25 +11567,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node, node1, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node, node2, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node, node3,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3, node,
-									node4, node5, node6);
+							node4, node5, node6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node, node5, node6);
+							node4, node, node5, node6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node5, node, node6);
+							node4, node5, node, node6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, node1, node2, node3,
-									node4, node5, node6, node);
+							node4, node5, node6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11513,7 +11596,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11528,13 +11611,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node2, node3, node4, node5, node6);
+							node2, node3, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node2, node3, node4, node5, node6);
+							node2, node3, node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node2, node3, node4, node5, node6);
+							node2, node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11542,13 +11625,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node3, node4, node5, node6);
+							node1, node3, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node3, node4, node5, node6);
+							node1, node3, node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node3, node4, node5, node6);
+							node1, node3, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11556,13 +11639,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node4, node5, node6);
+							node1, node2, node4, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node4, node5, node6);
+							node1, node2, node4, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node4, node5, node6);
+							node1, node2, node4, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11570,13 +11653,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node5, node6);
+							node1, node2, node3, node5, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node5, node6);
+							node1, node2, node3, node5, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node5, node6);
+							node1, node2, node3, node5, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11584,13 +11667,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node4, node6);
+							node1, node2, node3, node4, node6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node4, node6);
+							node1, node2, node3, node4, node6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node4, node6);
+							node1, node2, node3, node4, node6);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11598,13 +11681,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									node1, node2, node3, node4, node5);
+							node1, node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									node1, node2, node3, node4, node5);
+							node1, node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									node1, node2, node3, node4, node5);
+							node1, node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -11693,7 +11776,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map3To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
@@ -11703,8 +11786,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final V val3;
 
 		Map3To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -11815,7 +11898,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -11835,7 +11918,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -11844,16 +11927,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3);
+						val3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3);
+						val3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3);
+						val3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val);
+						val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -11880,13 +11963,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -11922,7 +12005,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -11999,8 +12082,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map3To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final CompactMapNode<K, V> node1) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12117,7 +12200,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12137,7 +12220,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12146,16 +12229,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1);
+						val3, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1);
+						val3, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1);
+						val3, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1);
+						val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12182,7 +12265,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12198,7 +12281,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12240,7 +12323,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12255,16 +12338,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3);
+							key3, val3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3);
+							key3, val3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3);
+							key3, val3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val);
+							key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12352,9 +12435,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node2;
 
 		Map3To2Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12474,7 +12557,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12483,13 +12566,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2);
+						node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2);
+						node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12497,7 +12580,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12506,16 +12589,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2);
+						val3, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2);
+						val3, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2);
+						val3, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2);
+						val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12542,7 +12625,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12551,10 +12634,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node);
+						node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12562,7 +12645,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12574,13 +12657,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12588,13 +12671,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12602,13 +12685,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2);
+							node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2);
+							node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12619,7 +12702,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12634,16 +12717,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2);
+							key3, val3, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2);
+							key3, val3, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2);
+							key3, val3, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2);
+							key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12651,16 +12734,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1);
+							key3, val3, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1);
+							key3, val3, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1);
+							key3, val3, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1);
+							key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -12753,9 +12836,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node3;
 
 		Map3To3Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -12878,7 +12961,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12887,13 +12970,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2, node3);
+						node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2, node3);
+						node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12901,7 +12984,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -12910,16 +12993,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2, node3);
+						val3, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2, node3);
+						val3, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2, node3);
+						val3, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2, node3);
+						val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12935,13 +13018,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-								node3);
+						node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-								node3);
+						node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3);
+						node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12949,7 +13032,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -12958,13 +13041,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3);
+						node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node);
+						node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -12972,7 +13055,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -12984,16 +13067,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13001,16 +13084,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13018,16 +13101,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2, node3);
+							node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2, node3);
+							node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node, node3);
+							node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node);
+							node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13038,7 +13121,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13053,16 +13136,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2, node3);
+							key3, val3, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2, node3);
+							key3, val3, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2, node3);
+							key3, val3, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2, node3);
+							key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13070,16 +13153,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node3);
+							key3, val3, node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node3);
+							key3, val3, node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node3);
+							key3, val3, node1, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node3);
+							key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13087,16 +13170,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2);
+							key3, val3, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2);
+							key3, val3, node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2);
+							key3, val3, node1, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2);
+							key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13194,10 +13277,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node4;
 
 		Map3To4Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -13323,7 +13406,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13332,13 +13415,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13346,7 +13429,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -13355,16 +13438,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2, node3, node4);
+						val3, node1, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2, node3, node4);
+						val3, node1, node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2, node3, node4);
+						val3, node1, node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2, node3, node4);
+						val, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13380,13 +13463,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-								node3, node4);
+						node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4);
+						node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13394,7 +13477,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13403,16 +13486,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3, node4);
+						node, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node, node4);
+						node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node);
+						node2, node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13420,7 +13503,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13432,19 +13515,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node, node3, node4);
+							node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node, node4);
+							node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node4, node);
+							node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13452,19 +13535,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node, node3, node4);
+							node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node, node4);
+							node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node4, node);
+							node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13472,19 +13555,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2, node3, node4);
+							node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node, node3, node4);
+							node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node, node4);
+							node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node4, node);
+							node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13495,7 +13578,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13510,16 +13593,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2, node3, node4);
+							key3, val3, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2, node3, node4);
+							key3, val3, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2, node3, node4);
+							key3, val3, node2, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2, node3, node4);
+							key, val, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13527,16 +13610,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node3, node4);
+							key3, val3, node1, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node3, node4);
+							key3, val3, node1, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node3, node4);
+							key3, val3, node1, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node3, node4);
+							key, val, node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13544,16 +13627,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node4);
+							key3, val3, node1, node2, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node4);
+							key3, val3, node1, node2, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node4);
+							key3, val3, node1, node2, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node4);
+							key, val, node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13561,16 +13644,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node3);
+							key3, val3, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node3);
+							key3, val3, node1, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node3);
+							key3, val3, node1, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node3);
+							key, val, node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13673,10 +13756,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node5;
 
 		Map3To5Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
-						final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3,
+				final CompactMapNode<K, V> node4, final CompactMapNode<K, V> node5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -13805,7 +13888,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13814,13 +13897,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, node1,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13828,7 +13911,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -13837,16 +13920,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, node1, node2, node3, node4, node5);
+						val3, node1, node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, node1, node2, node3, node4, node5);
+						val3, node1, node2, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, node1, node2, node3, node4, node5);
+						val3, node1, node2, node3, node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, node1, node2, node3, node4, node5);
+						val, node1, node2, node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13862,13 +13945,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-								node3, node4, node5);
+						node3, node4, node5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13876,7 +13959,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -13885,19 +13968,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node,
-								node2, node3, node4, node5);
+						node2, node3, node4, node5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node, node3, node4, node5);
+						node, node3, node4, node5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node, node4, node5);
+						node2, node, node4, node5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node, node5);
+						node2, node3, node, node5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4, node);
+						node2, node3, node4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -13905,7 +13988,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -13917,22 +14000,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node, node1,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node, node3, node4, node5);
+							node, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node, node4, node5);
+							node3, node, node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node4, node, node5);
+							node3, node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, node1, node2,
-									node3, node4, node5, node);
+							node3, node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13940,22 +14023,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node, node1,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node, node3, node4, node5);
+							node, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node, node4, node5);
+							node3, node, node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node4, node, node5);
+							node3, node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, node1, node2,
-									node3, node4, node5, node);
+							node3, node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13963,22 +14046,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node, node1,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node,
-									node2, node3, node4, node5);
+							node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node, node3, node4, node5);
+							node, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node, node4, node5);
+							node3, node, node4, node5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node4, node, node5);
+							node3, node4, node, node5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, node1, node2,
-									node3, node4, node5, node);
+							node3, node4, node5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -13989,7 +14072,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14004,16 +14087,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node2, node3, node4, node5);
+							key3, val3, node2, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node2, node3, node4, node5);
+							key3, val3, node2, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node2, node3, node4, node5);
+							key3, val3, node2, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node2, node3, node4, node5);
+							key, val, node2, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14021,16 +14104,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node3, node4, node5);
+							key3, val3, node1, node3, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node3, node4, node5);
+							key3, val3, node1, node3, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node3, node4, node5);
+							key3, val3, node1, node3, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node3, node4, node5);
+							key, val, node1, node3, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14038,16 +14121,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node4, node5);
+							key3, val3, node1, node2, node4, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node4, node5);
+							key3, val3, node1, node2, node4, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node4, node5);
+							key3, val3, node1, node2, node4, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node4, node5);
+							key, val, node1, node2, node4, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14055,16 +14138,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node3, node5);
+							key3, val3, node1, node2, node3, node5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node3, node5);
+							key3, val3, node1, node2, node3, node5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node3, node5);
+							key3, val3, node1, node2, node3, node5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node3, node5);
+							key, val, node1, node2, node3, node5);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14072,16 +14155,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, node1, node2, node3, node4);
+							key3, val3, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, node1, node2, node3, node4);
+							key3, val3, node1, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, node1, node2, node3, node4);
+							key3, val3, node1, node2, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, node1, node2, node3, node4);
+							key, val, node1, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14174,7 +14257,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map4To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
@@ -14186,8 +14269,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final V val4;
 
 		Map4To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -14306,7 +14389,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14315,16 +14398,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4);
+						val4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4);
+						val4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4);
+						val4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val);
+						val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14332,7 +14415,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -14341,19 +14424,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4);
+						val3, key4, val4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4);
+						val3, key4, val4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4);
+						val3, key4, val4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4);
+						val, key4, val4);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val);
+						val4, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14382,13 +14465,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14400,7 +14483,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14408,7 +14491,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14416,7 +14499,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14424,7 +14507,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node);
+							node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14435,7 +14518,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -14522,9 +14605,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map4To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -14649,7 +14732,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14658,16 +14741,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1);
+						val4, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1);
+						val4, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1);
+						val4, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1);
+						val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14675,7 +14758,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -14684,19 +14767,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1);
+						val3, key4, val4, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1);
+						val3, key4, val4, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1);
+						val3, key4, val4, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1);
+						val, key4, val4, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1);
+						val4, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14725,7 +14808,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -14734,7 +14817,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node);
+						val4, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -14742,7 +14825,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14754,10 +14837,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14765,10 +14848,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14776,10 +14859,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14787,10 +14870,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1);
+							node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node);
+							node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14801,7 +14884,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -14816,19 +14899,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4);
+							key3, val3, key4, val4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4);
+							key3, val3, key4, val4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4);
+							key3, val3, key4, val4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4);
+							key, val, key4, val4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val);
+							key4, val4, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -14926,9 +15009,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node2;
 
 		Map4To2Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -15056,7 +15139,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15065,16 +15148,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1, node2);
+						val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15082,7 +15165,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -15091,19 +15174,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1, node2);
+						val3, key4, val4, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1, node2);
+						val3, key4, val4, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1, node2);
+						val3, key4, val4, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1, node2);
+						val, key4, val4, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1, node2);
+						val4, key, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15119,16 +15202,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, node1,
-								node2);
+						node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, node1,
-								node2);
+						node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, node1,
-								node2);
+						node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2);
+						node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15136,7 +15219,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15145,10 +15228,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node, node2);
+						val4, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node);
+						val4, node1, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15156,7 +15239,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15168,13 +15251,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15182,13 +15265,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15196,13 +15279,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15210,13 +15293,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1, node2);
+							node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node, node2);
+							node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node);
+							node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15227,7 +15310,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15242,19 +15325,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node2);
+							key3, val3, key4, val4, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node2);
+							key3, val3, key4, val4, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node2);
+							key3, val3, key4, val4, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node2);
+							key, val, key4, val4, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node2);
+							key4, val4, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15262,19 +15345,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1);
+							key3, val3, key4, val4, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1);
+							key3, val3, key4, val4, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1);
+							key3, val3, key4, val4, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1);
+							key, val, key4, val4, node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1);
+							key4, val4, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15377,10 +15460,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node3;
 
 		Map4To3Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -15511,7 +15594,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15520,16 +15603,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1, node2, node3);
+						val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15537,7 +15620,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -15546,19 +15629,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3);
+						val3, key4, val4, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3);
+						val3, key4, val4, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1, node2, node3);
+						val3, key4, val4, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1, node2, node3);
+						val, key4, val4, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1, node2, node3);
+						val4, key, val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15574,16 +15657,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, node1,
-								node2, node3);
+						node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, node1,
-								node2, node3);
+						node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, node1,
-								node2, node3);
+						node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3);
+						node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15591,7 +15674,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -15600,13 +15683,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node, node2, node3);
+						val4, node, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node, node3);
+						val4, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node);
+						val4, node1, node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -15614,7 +15697,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15626,16 +15709,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15643,16 +15726,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15660,16 +15743,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15677,16 +15760,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1, node2, node3);
+							node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node, node2, node3);
+							node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node, node3);
+							node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node3, node);
+							node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15697,7 +15780,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -15712,19 +15795,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node2, node3);
+							key3, val3, key4, val4, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node2, node3);
+							key3, val3, key4, val4, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node2, node3);
+							key3, val3, key4, val4, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node2, node3);
+							key, val, key4, val4, node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node2, node3);
+							key4, val4, key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15732,19 +15815,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node3);
+							key3, val3, key4, val4, node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node3);
+							key3, val3, key4, val4, node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node3);
+							key3, val3, key4, val4, node1, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node3);
+							key, val, key4, val4, node1, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node3);
+							key4, val4, key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15752,19 +15835,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node2);
+							key3, val3, key4, val4, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node2);
+							key3, val3, key4, val4, node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node2);
+							key3, val3, key4, val4, node1, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node2);
+							key, val, key4, val4, node1, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node2);
+							key4, val4, key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -15872,10 +15955,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node4;
 
 		Map4To4Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4,
-						final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
-						final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3, final CompactMapNode<K, V> node4) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -16009,7 +16092,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16018,16 +16101,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, node1, node2, node3, node4);
+						val4, node1, node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, node1, node2, node3, node4);
+						val, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16035,7 +16118,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16044,19 +16127,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3, node4);
+						val3, key4, val4, node1, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, node1, node2, node3, node4);
+						val3, key4, val4, node1, node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, node1, node2, node3, node4);
+						val3, key4, val4, node1, node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, node1, node2, node3, node4);
+						val, key4, val4, node1, node2, node3, node4);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, node1, node2, node3, node4);
+						val4, key, val, node1, node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16072,16 +16155,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, node1,
-								node2, node3, node4);
+						node2, node3, node4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16089,7 +16172,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16098,16 +16181,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node, node2, node3, node4);
+						val4, node, node2, node3, node4);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node, node3, node4);
+						val4, node1, node, node3, node4);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node, node4);
+						val4, node1, node2, node, node4);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3, node);
+						val4, node1, node2, node3, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16115,7 +16198,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16127,19 +16210,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16147,19 +16230,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16167,19 +16250,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16187,19 +16270,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node, node1, node2, node3, node4);
+							node, node1, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node, node2, node3, node4);
+							node1, node, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node, node3, node4);
+							node1, node2, node, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node3, node, node4);
+							node1, node2, node3, node, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									node1, node2, node3, node4, node);
+							node1, node2, node3, node4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16210,7 +16293,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16225,19 +16308,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node2, node3, node4);
+							key3, val3, key4, val4, node2, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node2, node3, node4);
+							key3, val3, key4, val4, node2, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node2, node3, node4);
+							key3, val3, key4, val4, node2, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node2, node3, node4);
+							key, val, key4, val4, node2, node3, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node2, node3, node4);
+							key4, val4, key, val, node2, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16245,19 +16328,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node3, node4);
+							key3, val3, key4, val4, node1, node3, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node3, node4);
+							key3, val3, key4, val4, node1, node3, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node3, node4);
+							key3, val3, key4, val4, node1, node3, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node3, node4);
+							key, val, key4, val4, node1, node3, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node3, node4);
+							key4, val4, key, val, node1, node3, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16265,19 +16348,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node2, node4);
+							key3, val3, key4, val4, node1, node2, node4);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node2, node4);
+							key3, val3, key4, val4, node1, node2, node4);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node2, node4);
+							key3, val3, key4, val4, node1, node2, node4);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node2, node4);
+							key, val, key4, val4, node1, node2, node4);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node2, node4);
+							key4, val4, key, val, node1, node2, node4);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16285,19 +16368,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, node1, node2, node3);
+							key3, val3, key4, val4, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, node1, node2, node3);
+							key3, val3, key4, val4, node1, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, node1, node2, node3);
+							key3, val3, key4, val4, node1, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, node1, node2, node3);
+							key, val, key4, val4, node1, node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, node1, node2, node3);
+							key4, val4, key, val, node1, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16394,7 +16477,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map5To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
@@ -16408,9 +16491,8 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final V val5;
 
 		Map5To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -16537,7 +16619,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16546,19 +16628,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5);
+						val, key5, val5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val);
+						val4, key5, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16566,7 +16648,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16575,22 +16657,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5);
+						val3, key4, val4, key5, val5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5);
+						val3, key4, val4, key5, val5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5);
+						val3, key4, val4, key5, val5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5);
+						val, key4, val4, key5, val5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5);
+						val4, key, val, key5, val5);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val);
+						val4, key5, val5, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16606,19 +16688,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5);
+						val5);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5);
+						val5);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5);
+						val5);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5);
+						val5);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4);
+						val4);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16626,13 +16708,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -16644,7 +16726,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16652,7 +16734,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16660,7 +16742,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16668,7 +16750,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node);
+							key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16676,7 +16758,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node);
+							key4, val4, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -16687,7 +16769,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -16784,9 +16866,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map5To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final CompactMapNode<K, V> node1) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -16919,7 +17001,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -16928,19 +17010,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, node1);
+						val, key5, val5, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, node1);
+						val4, key5, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16948,7 +17030,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -16957,22 +17039,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1);
+						val3, key4, val4, key5, val5, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1);
+						val3, key4, val4, key5, val5, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, node1);
+						val3, key4, val4, key5, val5, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, node1);
+						val, key4, val4, key5, val5, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, node1);
+						val4, key, val, key5, val5, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, node1);
+						val4, key5, val5, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -16988,19 +17070,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, node1);
+						val5, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, node1);
+						val5, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, node1);
+						val5, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, node1);
+						val5, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1);
+						val4, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17008,7 +17090,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17017,7 +17099,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node);
+						val4, key5, val5, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17025,7 +17107,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17037,10 +17119,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17048,10 +17130,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17059,10 +17141,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17070,10 +17152,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node, node1);
+							key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node);
+							key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17081,10 +17163,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node, node1);
+							key4, val4, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node);
+							key4, val4, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17095,7 +17177,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17110,22 +17192,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5);
+							key3, val3, key4, val4, key5, val5);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5);
+							key3, val3, key4, val4, key5, val5);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5);
+							key3, val3, key4, val4, key5, val5);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5);
+							key, val, key4, val4, key5, val5);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5);
+							key4, val4, key, val, key5, val5);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val);
+							key4, val4, key5, val5, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17233,10 +17315,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node2;
 
 		Map5To2Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -17372,7 +17453,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17381,19 +17462,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, node1, node2);
+						val, key5, val5, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, node1, node2);
+						val4, key5, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17401,7 +17482,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -17410,22 +17491,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2);
+						val3, key4, val4, key5, val5, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2);
+						val3, key4, val4, key5, val5, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, node1, node2);
+						val3, key4, val4, key5, val5, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, node1, node2);
+						val, key4, val4, key5, val5, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, node1, node2);
+						val4, key, val, key5, val5, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, node1, node2);
+						val4, key5, val5, key, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17441,19 +17522,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, node1, node2);
+						val5, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2);
+						val4, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17461,7 +17542,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17470,10 +17551,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node, node2);
+						val4, key5, val5, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node);
+						val4, key5, val5, node1, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17481,7 +17562,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17493,13 +17574,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17507,13 +17588,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17521,13 +17602,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17535,13 +17616,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node, node1, node2);
+							key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node, node2);
+							key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node2, node);
+							key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17549,13 +17630,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node, node1, node2);
+							key4, val4, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node, node2);
+							key4, val4, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node2, node);
+							key4, val4, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17566,7 +17647,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17581,22 +17662,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2);
+							key3, val3, key4, val4, key5, val5, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2);
+							key3, val3, key4, val4, key5, val5, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node2);
+							key3, val3, key4, val4, key5, val5, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node2);
+							key, val, key4, val4, key5, val5, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node2);
+							key4, val4, key, val, key5, val5, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node2);
+							key4, val4, key5, val5, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17604,22 +17685,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1);
+							key3, val3, key4, val4, key5, val5, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1);
+							key3, val3, key4, val4, key5, val5, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node1);
+							key3, val3, key4, val4, key5, val5, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node1);
+							key, val, key4, val4, key5, val5, node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node1);
+							key4, val4, key, val, key5, val5, node1);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node1);
+							key4, val4, key5, val5, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -17732,10 +17813,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node3;
 
 		Map5To3Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2, final CompactMapNode<K, V> node3) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final CompactMapNode<K, V> node1, final CompactMapNode<K, V> node2,
+				final CompactMapNode<K, V> node3) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -17874,7 +17955,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17883,19 +17964,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, node1, node2, node3);
+						val4, key5, val5, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, node1, node2, node3);
+						val, key5, val5, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, node1, node2, node3);
+						val4, key5, val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17903,7 +17984,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -17912,22 +17993,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2, node3);
+						val3, key4, val4, key5, val5, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, node1, node2, node3);
+						val3, key4, val4, key5, val5, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, node1, node2, node3);
+						val3, key4, val4, key5, val5, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, node1, node2, node3);
+						val, key4, val4, key5, val5, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, node1, node2, node3);
+						val4, key, val, key5, val5, node1, node2, node3);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, node1, node2, node3);
+						val4, key5, val5, key, val, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17943,19 +18024,19 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, node1, node2, node3);
+						val5, node1, node2, node3);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, node1, node2, node3);
+						val4, node1, node2, node3);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17963,7 +18044,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -17972,13 +18053,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node, node2, node3);
+						val4, key5, val5, node, node2, node3);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node, node3);
+						val4, key5, val5, node1, node, node3);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2, node);
+						val4, key5, val5, node1, node2, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -17986,7 +18067,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -17998,16 +18079,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18015,16 +18096,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18032,16 +18113,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18049,16 +18130,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node, node1, node2, node3);
+							key5, val5, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node, node2, node3);
+							key5, val5, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node2, node, node3);
+							key5, val5, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, node1, node2, node3, node);
+							key5, val5, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18066,16 +18147,16 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node, node1, node2, node3);
+							key4, val4, node, node1, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node, node2, node3);
+							key4, val4, node1, node, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node2, node, node3);
+							key4, val4, node1, node2, node, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, node1, node2, node3, node);
+							key4, val4, node1, node2, node3, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18086,7 +18167,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -18101,22 +18182,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2, node3);
+							key3, val3, key4, val4, key5, val5, node2, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node2, node3);
+							key3, val3, key4, val4, key5, val5, node2, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node2, node3);
+							key3, val3, key4, val4, key5, val5, node2, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node2, node3);
+							key, val, key4, val4, key5, val5, node2, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node2, node3);
+							key4, val4, key, val, key5, val5, node2, node3);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node2, node3);
+							key4, val4, key5, val5, key, val, node2, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18124,22 +18205,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node3);
+							key3, val3, key4, val4, key5, val5, node1, node3);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node3);
+							key3, val3, key4, val4, key5, val5, node1, node3);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node1, node3);
+							key3, val3, key4, val4, key5, val5, node1, node3);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node1, node3);
+							key, val, key4, val4, key5, val5, node1, node3);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node1, node3);
+							key4, val4, key, val, key5, val5, node1, node3);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node1, node3);
+							key4, val4, key5, val5, key, val, node1, node3);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18147,22 +18228,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node2);
+							key3, val3, key4, val4, key5, val5, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, node1, node2);
+							key3, val3, key4, val4, key5, val5, node1, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, node1, node2);
+							key3, val3, key4, val4, key5, val5, node1, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, node1, node2);
+							key, val, key4, val4, key5, val5, node1, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, node1, node2);
+							key4, val4, key, val, key5, val5, node1, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, node1, node2);
+							key4, val4, key5, val5, key, val, node1, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18263,7 +18344,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map6To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
@@ -18279,9 +18360,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final V val6;
 
 		Map6To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final K key6, final V val6) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final K key6, final V val6) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -18416,7 +18497,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18425,22 +18506,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6);
+						val, key5, val5, key6, val6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6);
+						val4, key5, val, key6, val6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val);
+						val4, key5, val5, key6, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18448,7 +18529,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -18457,25 +18538,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6);
+						val3, key4, val4, key5, val5, key6, val6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6);
+						val3, key4, val4, key5, val5, key6, val6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6);
+						val3, key4, val4, key5, val5, key6, val6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6);
+						val, key4, val4, key5, val5, key6, val6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6);
+						val4, key, val, key5, val5, key6, val6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6);
+						val4, key5, val5, key, val, key6, val6);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val);
+						val4, key5, val5, key6, val6, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18491,22 +18572,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6);
+						val5, key6, val6);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6);
+						val4, key6, val6);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5);
+						val4, key5, val5);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18514,13 +18595,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -18532,7 +18613,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18540,7 +18621,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18548,7 +18629,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18556,7 +18637,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node);
+							key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18564,7 +18645,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node);
+							key4, val4, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18572,7 +18653,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node);
+							key4, val4, key5, val5, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18583,7 +18664,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -18690,9 +18771,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map6To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final K key6, final V val6, final CompactMapNode<K, V> node1) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final K key6, final V val6, final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -18833,7 +18914,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18842,22 +18923,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, node1);
+						val, key5, val5, key6, val6, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, node1);
+						val4, key5, val, key6, val6, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, node1);
+						val4, key5, val5, key6, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18865,7 +18946,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -18874,25 +18955,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1);
+						val3, key4, val4, key5, val5, key6, val6, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1);
+						val3, key4, val4, key5, val5, key6, val6, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1);
+						val3, key4, val4, key5, val5, key6, val6, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, node1);
+						val, key4, val4, key5, val5, key6, val6, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, node1);
+						val4, key, val, key5, val5, key6, val6, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, node1);
+						val4, key5, val5, key, val, key6, val6, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, node1);
+						val4, key5, val5, key6, val6, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18908,22 +18989,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, node1);
+						val5, key6, val6, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, node1);
+						val4, key6, val6, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1);
+						val4, key5, val5, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18931,7 +19012,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -18940,7 +19021,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node);
+						val4, key5, val5, key6, val6, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -18948,7 +19029,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -18960,10 +19041,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18971,10 +19052,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18982,10 +19063,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -18993,10 +19074,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node, node1);
+							key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node1, node);
+							key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19004,10 +19085,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node, node1);
+							key4, val4, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node1, node);
+							key4, val4, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19015,10 +19096,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node, node1);
+							key4, val4, key5, val5, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node1, node);
+							key4, val4, key5, val5, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19029,7 +19110,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19044,25 +19125,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6);
+							key3, val3, key4, val4, key5, val5, key6, val6);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6);
+							key3, val3, key4, val4, key5, val5, key6, val6);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6);
+							key3, val3, key4, val4, key5, val5, key6, val6);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6);
+							key, val, key4, val4, key5, val5, key6, val6);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6);
+							key4, val4, key, val, key5, val5, key6, val6);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6);
+							key4, val4, key5, val5, key, val, key6, val6);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val);
+							key4, val4, key5, val5, key6, val6, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19180,10 +19261,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node2;
 
 		Map6To2Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final K key6, final V val6, final CompactMapNode<K, V> node1,
-						final CompactMapNode<K, V> node2) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final K key6, final V val6, final CompactMapNode<K, V> node1,
+				final CompactMapNode<K, V> node2) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -19327,7 +19408,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19336,22 +19417,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, node1, node2);
+						val4, key5, val5, key6, val6, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, node1, node2);
+						val, key5, val5, key6, val6, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, node1, node2);
+						val4, key5, val, key6, val6, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, node1, node2);
+						val4, key5, val5, key6, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19359,7 +19440,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -19368,25 +19449,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1, node2);
+						val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1, node2);
+						val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, node1, node2);
+						val3, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, node1, node2);
+						val, key4, val4, key5, val5, key6, val6, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, node1, node2);
+						val4, key, val, key5, val5, key6, val6, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, node1, node2);
+						val4, key5, val5, key, val, key6, val6, node1, node2);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, node1, node2);
+						val4, key5, val5, key6, val6, key, val, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19402,22 +19483,22 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, node1, node2);
+						val5, key6, val6, node1, node2);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, node1, node2);
+						val4, key6, val6, node1, node2);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, node1, node2);
+						val4, key5, val5, node1, node2);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19425,7 +19506,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19434,10 +19515,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node, node2);
+						val4, key5, val5, key6, val6, node, node2);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1, node);
+						val4, key5, val5, key6, val6, node1, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19445,7 +19526,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19457,13 +19538,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19471,13 +19552,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19485,13 +19566,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19499,13 +19580,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node, node1, node2);
+							key5, val5, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node1, node, node2);
+							key5, val5, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, node1, node2, node);
+							key5, val5, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19513,13 +19594,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node, node1, node2);
+							key4, val4, key6, val6, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node1, node, node2);
+							key4, val4, key6, val6, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, node1, node2, node);
+							key4, val4, key6, val6, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19527,13 +19608,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node, node1, node2);
+							key4, val4, key5, val5, node, node1, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node1, node, node2);
+							key4, val4, key5, val5, node1, node, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, node1, node2, node);
+							key4, val4, key5, val5, node1, node2, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19544,7 +19625,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19559,25 +19640,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node2);
+							key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node2);
+							key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6, node2);
+							key3, val3, key4, val4, key5, val5, key6, val6, node2);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6, node2);
+							key, val, key4, val4, key5, val5, key6, val6, node2);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6, node2);
+							key4, val4, key, val, key5, val5, key6, val6, node2);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6, node2);
+							key4, val4, key5, val5, key, val, key6, val6, node2);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val, node2);
+							key4, val4, key5, val5, key6, val6, key, val, node2);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19585,25 +19666,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node1);
+							key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, node1);
+							key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6, node1);
+							key3, val3, key4, val4, key5, val5, key6, val6, node1);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6, node1);
+							key, val, key4, val4, key5, val5, key6, val6, node1);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6, node1);
+							key4, val4, key, val, key5, val5, key6, val6, node1);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6, node1);
+							key4, val4, key5, val5, key, val, key6, val6, node1);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val, node1);
+							key4, val4, key5, val5, key6, val6, key, val, node1);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -19708,7 +19789,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map7To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
@@ -19726,9 +19807,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final V val7;
 
 		Map7To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final K key6, final V val6, final K key7, final V val7) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final K key6, final V val6, final K key7, final V val7) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -19871,7 +19952,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -19880,25 +19961,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, key7, val7);
+						val, key5, val5, key6, val6, key7, val7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, key7, val7);
+						val4, key5, val, key6, val6, key7, val7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, key7, val7);
+						val4, key5, val5, key6, val, key7, val7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val);
+						val4, key5, val5, key6, val6, key7, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19906,7 +19987,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -19915,28 +19996,28 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, key7, val7);
+						val, key4, val4, key5, val5, key6, val6, key7, val7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, key7, val7);
+						val4, key, val, key5, val5, key6, val6, key7, val7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, key7, val7);
+						val4, key5, val5, key, val, key6, val6, key7, val7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, key7, val7);
+						val4, key5, val5, key6, val6, key, val, key7, val7);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key, val);
+						val4, key5, val5, key6, val6, key7, val7, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19952,25 +20033,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, key7, val7);
+						val5, key6, val6, key7, val7);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, key7, val7);
+						val4, key6, val6, key7, val7);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key7, val7);
+						val4, key5, val5, key7, val7);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6);
+						val4, key5, val5, key6, val6);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -19978,13 +20059,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -19996,7 +20077,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20004,7 +20085,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20012,7 +20093,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20020,7 +20101,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, node);
+							key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20028,7 +20109,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, node);
+							key4, val4, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20036,7 +20117,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, node);
+							key4, val4, key5, val5, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20044,7 +20125,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, node);
+							key4, val4, key5, val5, key6, val6, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20055,7 +20136,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
@@ -20172,10 +20253,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final CompactMapNode<K, V> node1;
 
 		Map7To1Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final K key6, final V val6, final K key7, final V val7,
-						final CompactMapNode<K, V> node1) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final K key6, final V val6, final K key7, final V val7,
+				final CompactMapNode<K, V> node1) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -20324,7 +20405,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20333,25 +20414,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, key7, val7, node1);
+						val4, key5, val5, key6, val6, key7, val7, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, key7, val7, node1);
+						val, key5, val5, key6, val6, key7, val7, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, key7, val7, node1);
+						val4, key5, val, key6, val6, key7, val7, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, key7, val7, node1);
+						val4, key5, val5, key6, val, key7, val7, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val, node1);
+						val4, key5, val5, key6, val6, key7, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20359,7 +20440,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -20368,28 +20449,28 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, key7, val7, node1);
+						val, key4, val4, key5, val5, key6, val6, key7, val7, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, key7, val7, node1);
+						val4, key, val, key5, val5, key6, val6, key7, val7, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, key7, val7, node1);
+						val4, key5, val5, key, val, key6, val6, key7, val7, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, key7, val7, node1);
+						val4, key5, val5, key6, val6, key, val, key7, val7, node1);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key, val, node1);
+						val4, key5, val5, key6, val6, key7, val7, key, val, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20405,25 +20486,25 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, key7, val7, node1);
+						val5, key6, val6, key7, val7, node1);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, key7, val7, node1);
+						val4, key6, val6, key7, val7, node1);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key7, val7, node1);
+						val4, key5, val5, key7, val7, node1);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, node1);
+						val4, key5, val5, key6, val6, node1);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20431,7 +20512,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			final int index = nodeIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20440,7 +20521,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (index) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, node);
+						val4, key5, val5, key6, val6, key7, val7, node);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20448,7 +20529,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -20460,10 +20541,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20471,10 +20552,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20482,10 +20563,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20493,10 +20574,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, node, node1);
+							key5, val5, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, node1, node);
+							key5, val5, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20504,10 +20585,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, node, node1);
+							key4, val4, key6, val6, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, node1, node);
+							key4, val4, key6, val6, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20515,10 +20596,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, node, node1);
+							key4, val4, key5, val5, key7, val7, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, node1, node);
+							key4, val4, key5, val5, key7, val7, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20526,10 +20607,10 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, node, node1);
+							key4, val4, key5, val5, key6, val6, node, node1);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, node1, node);
+							key4, val4, key5, val5, key6, val6, node1, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20540,7 +20621,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -20555,28 +20636,28 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (valIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
+							key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 1:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2,
-									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
+							key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 2:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val,
-									key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
+							key3, val3, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 3:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key, val, key4, val4, key5, val5, key6, val6, key7, val7);
+							key, val, key4, val4, key5, val5, key6, val6, key7, val7);
 				case 4:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key, val, key5, val5, key6, val6, key7, val7);
+							key4, val4, key, val, key5, val5, key6, val6, key7, val7);
 				case 5:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key, val, key6, val6, key7, val7);
+							key4, val4, key5, val5, key, val, key6, val6, key7, val7);
 				case 6:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key, val, key7, val7);
+							key4, val4, key5, val5, key6, val6, key, val, key7, val7);
 				case 7:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key7, val7, key, val);
+							key4, val4, key5, val5, key6, val6, key7, val7, key, val);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -20685,7 +20766,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 	}
 
 	private static final class Map8To0Node_5Bits_Spec0To8<K, V> extends
-					CompactValuesOnlyMapNode<K, V> {
+			CompactValuesOnlyMapNode<K, V> {
 
 		private final K key1;
 		private final V val1;
@@ -20705,10 +20786,9 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 		private final V val8;
 
 		Map8To0Node_5Bits_Spec0To8(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final K key1, final V val1, final K key2, final V val2,
-						final K key3, final V val3, final K key4, final V val4, final K key5,
-						final V val5, final K key6, final V val6, final K key7, final V val7,
-						final K key8, final V val8) {
+				final int dataMap, final K key1, final V val1, final K key2, final V val2,
+				final K key3, final V val3, final K key4, final V val4, final K key5, final V val5,
+				final K key6, final V val6, final K key7, final V val7, final K key8, final V val8) {
 			super(mutator, nodeMap, dataMap);
 			this.key1 = key1;
 			this.val1 = val1;
@@ -20859,7 +20939,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
-						final V val) {
+				final V val) {
 			final int idx = dataIndex(bitpos);
 
 			final int nodeMap = this.nodeMap();
@@ -20868,28 +20948,28 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (idx) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val, key5, val5, key6, val6, key7, val7, key8, val8);
+						val, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val, key6, val6, key7, val7, key8, val8);
+						val4, key5, val, key6, val6, key7, val7, key8, val8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val, key7, val7, key8, val8);
+						val4, key5, val5, key6, val, key7, val7, key8, val8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val, key8, val8);
+						val4, key5, val5, key6, val6, key7, val, key8, val8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val);
+						val4, key5, val5, key6, val6, key7, val7, key8, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20897,7 +20977,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final V val) {
+				final K key, final V val) {
 			final int valIndex = dataIndex(bitpos);
 
 			final int nodeMap = (int) (this.nodeMap());
@@ -20906,31 +20986,31 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key, val, key1, val1, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key, val, key2, val2, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key, val, key3,
-								val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val3, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key,
-								val, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
+						val, key4, val4, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key, val, key5, val5, key6, val6, key7, val7, key8, val8);
+						val4, key, val, key5, val5, key6, val6, key7, val7, key8, val8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key, val, key6, val6, key7, val7, key8, val8);
+						val4, key5, val5, key, val, key6, val6, key7, val7, key8, val8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key, val, key7, val7, key8, val8);
+						val4, key5, val5, key6, val6, key, val, key7, val7, key8, val8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key, val, key8, val8);
+						val4, key5, val5, key6, val6, key7, val7, key, val, key8, val8);
 			case 8:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7, key8, val8, key, val);
+						val4, key5, val5, key6, val6, key7, val7, key8, val8, key, val);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20946,28 +21026,28 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 			switch (valIndex) {
 			case 0:
 				return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 1:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 2:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 3:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key5,
-								val5, key6, val6, key7, val7, key8, val8);
+						val5, key6, val6, key7, val7, key8, val8);
 			case 4:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key6, val6, key7, val7, key8, val8);
+						val4, key6, val6, key7, val7, key8, val8);
 			case 5:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key7, val7, key8, val8);
+						val4, key5, val5, key7, val7, key8, val8);
 			case 6:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key8, val8);
+						val4, key5, val5, key6, val6, key8, val8);
 			case 7:
 				return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3, key4,
-								val4, key5, val5, key6, val6, key7, val7);
+						val4, key5, val5, key6, val6, key7, val7);
 			default:
 				throw new IllegalStateException("Index out of range.");
 			}
@@ -20975,13 +21055,13 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K, V> node) {
+				CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromInlineToNode(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			final int bitIndex = nodeIndex(bitpos);
 			final int valIndex = dataIndex(bitpos);
 
@@ -20993,7 +21073,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key2, val2, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21001,7 +21081,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key3, val3, key4, val4,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21009,7 +21089,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key4, val4,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21017,7 +21097,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key5, val5, key6, val6, key7, val7, key8, val8, node);
+							key5, val5, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21025,7 +21105,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key6, val6, key7, val7, key8, val8, node);
+							key4, val4, key6, val6, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21033,7 +21113,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key7, val7, key8, val8, node);
+							key4, val4, key5, val5, key7, val7, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21041,7 +21121,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key8, val8, node);
+							key4, val4, key5, val5, key6, val6, key8, val8, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21049,7 +21129,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 				switch (bitIndex) {
 				case 0:
 					return nodeOf(mutator, nodeMap, dataMap, key1, val1, key2, val2, key3, val3,
-									key4, val4, key5, val5, key6, val6, key7, val7, node);
+							key4, val4, key5, val5, key6, val6, key7, val7, node);
 				default:
 					throw new IllegalStateException("Index out of range.");
 				}
@@ -21060,7 +21140,7 @@ public class TrieMap_5Bits_Spec0To8<K, V> implements ImmutableMap<K, V> {
 
 		@Override
 		CompactMapNode<K, V> copyAndMigrateFromNodeToInline(final AtomicReference<Thread> mutator,
-						final int bitpos, final CompactMapNode<K, V> node) {
+				final int bitpos, final CompactMapNode<K, V> node) {
 			throw new IllegalStateException("Index out of range.");
 		}
 
