@@ -306,6 +306,11 @@ import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
   public String getFieldName(int i) {
     return null;
   }
+  
+  @Override
+	public String[] getFieldNames() {
+	  return new String[0];
+	}
 
   @Override
   public String getKeyLabel() {
