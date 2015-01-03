@@ -214,6 +214,7 @@ public class TypeFactory {
    *           when one of the labels is not a proper identifier or when the
    *           argument array does not contain alternating types and labels.
    */
+  @Deprecated
   public Type tupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
     int N = fieldTypesAndLabels.length;
     int arity = N / 2;
@@ -252,6 +253,7 @@ public class TypeFactory {
    *          the labels of the fields (in respective order)
    * @return a tuple type
    */
+  @Deprecated
   public Type tupleType(Type[] types, String[] labels) {
     checkNull((Object[]) types);
     checkNull((Object[]) labels);
