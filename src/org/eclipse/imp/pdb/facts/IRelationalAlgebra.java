@@ -12,6 +12,8 @@ public interface IRelationalAlgebra<R, A1 extends IRelationalAlgebra<R, A1>> {
 
 	int arity();
 	R project(int... fields);
+	
+	@Deprecated
 	R projectByFieldNames(String... fields);
 
 	R carrier();
