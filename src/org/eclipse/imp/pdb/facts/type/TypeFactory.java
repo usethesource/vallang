@@ -490,47 +490,6 @@ public class TypeFactory {
   }
   
   /**
-   * Make a new constructor type with defaults. A constructor type extends an
-   * abstract data type such that it represents more values.
-   * 
-   * @param store
-   *          to store the declared constructor in
-   * @param adt
-   *          the AbstractDataType this constructor builds
-   * @param name
-   *          the name of the node type
-   * @param children
-   *          the types of the children of the tree node type
-   * @return a tree node type
-   * @throws IllegalIdentifierException
-   *           , UndeclaredAbstractDataTypeException,
-   *           RedeclaredFieldNameException, RedeclaredConstructorException
-   */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Type keywordParameters)
-      throws FactTypeDeclarationException {
-    checkNull(store, adt, name, tupleType);
-
-    if (!isIdentifier(name)) {
-      throw new IllegalIdentifierException(name);
-    }
-
-    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters));
-
-    Type params = adt.getTypeParameters();
-
-    if (!params.equivalent(voidType())) {
-      if (params.isOpen()) { // only parametrized and not instantiated types
-                             // should be stored
-        store.declareConstructor(result);
-      }
-    } else {
-      store.declareConstructor(result);
-    }
-
-    return result;
-  }
-
-  /**
    * Make a new constructor type. A constructor type extends an abstract data
    * type such that it represents more values. Note that if you pass an array
    * for the children parameter, this array should NEVER be modified after or

@@ -25,9 +25,11 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalAnnotationDeclaration;
 import org.eclipse.imp.pdb.facts.exceptions.IllegalIdentifierException;
+import org.eclipse.imp.pdb.facts.exceptions.IllegalKeywordParameterDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredAnnotationException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException;
 import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
+import org.eclipse.imp.pdb.facts.exceptions.RedeclaredKeywordParameterException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 
 /**
@@ -47,6 +49,7 @@ public class TypeStore {
 	private final Map<String, Type> fADTs= new HashMap<>();
 	private final Map<Type, Set<Type>> fConstructors = new HashMap<>();
 	private final Map<Type, Map<String, Type>> fAnnotations = new HashMap<>();
+	private final Map<Type, Map<String, Type>> fkeywordParameters = new HashMap<>();
 	private final Set<TypeStore> fImports = new HashSet<>();
 
 	/**
@@ -84,6 +87,21 @@ public class TypeStore {
 	  Map<Type, Map<String,Type>> unmodifiableMap = new HashMap<>();
 	  for (Type key : fAnnotations.keySet()) {
 	    unmodifiableMap.put(key, Collections.unmodifiableMap(fAnnotations.get(key)));
+	  }
+	  return unmodifiableMap;
+	}
+	
+	/**
+	 * Retrieves all keyword parameters declared in this TypeStore. Note that it does
+	 * not return the annotations of imported TypeStores.
+	 * 
+	 * @return a map of types for which keyword parameters are declared to a map of names of these
+	 * annotations to the types of the values that give access to these annotations.
+	 */
+	public Map<Type, Map<String, Type>> getKeywordParameters() {
+	  Map<Type, Map<String,Type>> unmodifiableMap = new HashMap<>();
+	  for (Type key : fkeywordParameters.keySet()) {
+	    unmodifiableMap.put(key, Collections.unmodifiableMap(fkeywordParameters.get(key)));
 	  }
 	  return unmodifiableMap;
 	}
@@ -169,6 +187,10 @@ public class TypeStore {
 	  synchronized (fAnnotations) {
 	    fAnnotations.putAll(other.fAnnotations);
 	  }
+	  
+	  synchronized (fkeywordParameters) {
+		  fkeywordParameters.putAll(other.fkeywordParameters);
+		  }
 
 	  synchronized (fImports) {
 	    fImports.addAll(other.fImports);
@@ -634,6 +656,47 @@ public class TypeStore {
 	}
 
 	/**
+	 * Declare that certain  constructor types may have an keyword parameter with a certain
+	 * label. The keyword parameter with that label will have a specific type. Note that we
+	 * do not store keyword parameters directly inside the constructor type because keyword 
+	 * parameter can be added externally and constructor types are final (like all other types).
+	 * 
+	 * @param onType the constructor type of values that carry this keyword parameter
+	 * @param key    the label of the keyword parameter
+	 * @param valueType the type of values that represent the keyword parameter
+	 * @throws IllegalKeywordParameterDeclarationException when an attempt is made to define keyword parameter for anything
+	 * but constructor types
+	 */
+	public void declareKeywordParameter(Type onType, String key, Type valueType) {
+	  if (!onType.isConstructor() && !onType.isAbstractData()) {
+	    throw new IllegalKeywordParameterDeclarationException(onType);
+	  }
+
+	  synchronized (fkeywordParameters) {
+	    Map<String, Type> kwParamsForType = fkeywordParameters.get(onType);
+
+	    if (!factory.isIdentifier(key)) {
+	      throw new IllegalIdentifierException(key);
+	    }
+
+	    if (kwParamsForType == null) {
+	      kwParamsForType = new HashMap<>();
+	      fkeywordParameters.put(onType, kwParamsForType);
+	    }
+
+	    Map<String, Type> declaredEarlier = getKeywordParameters(onType);
+
+	    if (!declaredEarlier.containsKey(key)) {
+	      kwParamsForType.put(key, valueType);
+	    } 
+	    else if (!declaredEarlier.get(key).equivalent(valueType)) {
+	      throw new RedeclaredKeywordParameterException(key, declaredEarlier.get(key));
+	    }
+	    // otherwise its a safe re-declaration and we do nothing
+	  }
+	}
+	
+	/**
 	 * Locates all declared annotations for a type, including the annotations declared
 	 * for all the node type.
 	 * 
@@ -680,6 +743,55 @@ public class TypeStore {
 	}
 
 	/**
+	 * Locates all declared keyword parameters for a constructor.
+	 * 
+	 * @param onType 
+	 * @return a map of all keyword parameters declared for the onType constructor
+	 */
+	public Map<String, Type> getKeywordParameters(Type onType) {
+	  if (!onType.isConstructor() && !onType.isAbstractData()) {
+	    return Collections.<String,Type>emptyMap();
+	  }
+
+	  synchronized(fkeywordParameters) {
+	    synchronized (fImports) {
+	      Map<String, Type> result = new HashMap<>();
+
+	      Map<String, Type> local = fkeywordParameters.get(onType);
+	      if (local != null) {
+	    	  result.putAll(local); 
+	      }
+	      
+	      if (onType.isConstructor()) {
+	    	  local = fkeywordParameters.get(onType.getAbstractDataType());
+	    	  if (local != null) {
+	    		  result.putAll(local);
+	    	  }
+	      }
+
+	      for (TypeStore s : fImports) {
+	    	  if (s.fkeywordParameters == null) {
+	    		  continue;
+	    	  }
+	    	  Map<String, Type> here = s.fkeywordParameters.get(onType);
+	    	  if (here != null) {
+	    		  result.putAll(here);
+	    	  }
+	    	  
+	    	  if (onType.isConstructor()) {
+		    	  here = s.fkeywordParameters.get(onType.getAbstractDataType());
+		    	  if (here != null) {
+		    		  result.putAll(here);
+		    	  }
+		      }
+	      }
+
+	      return result;
+	    }
+	  }
+	}
+
+	/**
 	 * Retrieve the type of values that are declared to be valid for a certain kind of 
 	 * annotations on certain kinds of values
 	 * @param onType the type of values that this annotation can be found on
@@ -695,6 +807,47 @@ public class TypeStore {
 	  }
 
 	  return null;
+	}
+
+	/**
+	 * Retrieve the type of values that are declared to be valid for a certain kind of 
+	 * keyword parameters on certain kinds of values
+	 * @param onType the constructor type that this keyword parameters can be found on
+	 * @param key    the label of the parameter to find the corresponding type of
+	 * @return the type of the requested parameter value or null if none exists
+	 */
+	public Type getKeywordParameterType(Type onType, String key) {
+		assert onType.isConstructor();
+		Map<String, Type> kwParamsFor = getKeywordParameters(onType);
+		return kwParamsFor != null ? kwParamsFor.get(key) : null;
+	}
+	
+	public boolean hasKeywordParameters(Type onType) {
+		if (!onType.isConstructor()) {
+			return false;
+		}
+
+		synchronized(fkeywordParameters) {
+			synchronized (fImports) {
+				Map<String, Type> local = fkeywordParameters.get(onType);
+				if (local != null && local.size() > 0) {
+					return true; 
+				}
+
+				for (TypeStore s : fImports) {
+					if (s.fkeywordParameters == null) {
+						continue;
+					}
+					
+					Map<String, Type> here = s.fkeywordParameters.get(onType);
+					if (here != null && here.size() > 0) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
 	}
 
 	public Type getAlias(String name) {

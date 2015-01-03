@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
  * Note: this class is intended to be sub-classed. It should not be abstract because we want the compiler to 
  * check that it provides a facade for the full IValueFactory interface.
  */
+@SuppressWarnings("deprecation")
 public /*abstract*/ class AbstractValueFactoryAdapter implements IValueFactory {
 	protected final IValueFactory adapted;
 	
