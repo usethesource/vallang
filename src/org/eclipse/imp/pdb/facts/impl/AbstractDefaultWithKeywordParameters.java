@@ -73,6 +73,22 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	public T setParameter(String label, IValue newValue) throws FactTypeUseException {
 		return wrap(content, parameters.__put(label, newValue));
 	}
+	
+	@Override
+	public T unsetParameter(String label) {
+		ImmutableMap<String, IValue> removed = parameters.__remove(label);
+		
+		if (removed.size() == 0) {
+			return content;
+		} else {
+			return wrap(content, removed);
+		}
+	}
+	
+	@Override
+	public T unsetAll() {
+		return content;
+	}
 
 	@Override
 	public boolean hasParameter(String label) throws FactTypeUseException {
