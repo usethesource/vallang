@@ -664,11 +664,11 @@ public class BinaryReader{
 	}
 	
 	private IList readList(int header) throws IOException{
-		Type elementType = readType(header);
+		readType(header);
 		
 		int length = parseInteger();
 		
-		IListWriter listWriter = valueFactory.listWriter(elementType);
+		IListWriter listWriter = valueFactory.listWriter();
 		for(int i = 0; i < length; i++){
 			listWriter.append(deserialize());
 		}
@@ -677,11 +677,11 @@ public class BinaryReader{
 	}
 	
 	private ISet readSet(int header) throws IOException{
-		Type elementType = readType(header);
+		readType(header);
 		
 		int length = parseInteger();
 		
-		ISetWriter setWriter = valueFactory.setWriter(elementType);
+		ISetWriter setWriter = valueFactory.setWriter();
 		for(int i = 0; i < length; i++){
 			setWriter.insert(deserialize());
 		}
@@ -690,11 +690,11 @@ public class BinaryReader{
 	}
 	
 	private ISet readRelation(int header) throws IOException{
-		Type elementType = readType(header);
+		readType(header);
 		
 		int length = parseInteger();
 		
-		ISetWriter relationWriter = valueFactory.relationWriter(elementType);
+		ISetWriter relationWriter = valueFactory.setWriter();
 		for(int i = 0; i < length; i++){
 			relationWriter.insert(deserialize());
 		}
@@ -703,11 +703,11 @@ public class BinaryReader{
 	}
 	
 	private IMap readMap(int header) throws IOException{
-		Type mapType = readType(header);
+		readType(header);
 
 		int length = parseInteger();
 		
-		IMapWriter mapWriter = valueFactory.mapWriter(mapType);
+		IMapWriter mapWriter = valueFactory.mapWriter();
 		for(int i = 0; i < length; i++){
 			IValue key = deserialize();
 			IValue value = deserialize();
