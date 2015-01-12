@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013-2014 CWI
+ * Copyright (c) 2013-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,44 +17,39 @@ import java.util.Map;
 
 public interface ImmutableMap<K, V> extends Map<K, V> {
 
-    boolean containsKey(Object o);
-    
-	boolean containsKeyEquivalent(Object o, Comparator<Object> cmp);
+	boolean containsKey(final java.lang.Object o);
 
-    V get(Object o);
-    
-    V getEquivalent(Object o, Comparator<Object> cmp);
-	
-    boolean containsValue(Object o);
-    
-	boolean containsValueEquivalent(Object o, Comparator<Object> cmp);
-	
-//	boolean containsAll(Collection<?> c);
-//	
-//	boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp);
-	
-	ImmutableMap<K, V> __put(K key, V value);
+	boolean containsKeyEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
 
-	ImmutableMap<K, V> __putEquivalent(K key, V value, Comparator<Object> cmp);
-	
-	ImmutableMap<K, V> __putAll(Map<? extends K, ? extends V> map);
-	
-	ImmutableMap<K, V> __putAllEquivalent(Map<? extends K, ? extends V> map, Comparator<Object> cmp);
-	
-	ImmutableMap<K, V> __remove(K key);
-	
-	ImmutableMap<K, V> __removeEquivalent(K key, Comparator<Object> cmp);
+	V get(final java.lang.Object o);
+
+	V getEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
+
+	boolean containsValue(final java.lang.Object o);
+
+	boolean containsValueEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
+
+	ImmutableMap<K, V> __put(final K key, final V val);
+
+	ImmutableMap<K, V> __putEquivalent(final K key, final V val, final Comparator<Object> cmp);
+
+	ImmutableMap<K, V> __putAll(final Map<? extends K, ? extends V> map);
+
+	ImmutableMap<K, V> __putAllEquivalent(final Map<? extends K, ? extends V> map,
+					final Comparator<Object> cmp);
+
+	ImmutableMap<K, V> __remove(final K key);
+
+	ImmutableMap<K, V> __removeEquivalent(final K key, final Comparator<Object> cmp);
 
 	Iterator<K> keyIterator();
-	
-	Iterator<V> valueIterator();
-	
-	Iterator<Map.Entry<K, V>> entryIterator();
-	
-//	SupplierIterator<K, V> supplierIterator();
-	
-	public abstract TransientMap<K, V> asTransient();
 
-	public abstract boolean isTransientSupported();
-	
+	Iterator<V> valueIterator();
+
+	Iterator<Map.Entry<K, V>> entryIterator();
+
+	boolean isTransientSupported();
+
+	TransientMap<K, V> asTransient();
+
 }
