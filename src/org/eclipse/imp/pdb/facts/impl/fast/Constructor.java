@@ -290,12 +290,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	    
 	    @Override
 	    public boolean hasParameters() {
-	    	return content.getConstructorType().hasKeywordParameters();
+	    	return false;
 	    }
 
 	    @Override
-	    public String[] getParameterNames() {
-	    	return content.getConstructorType().getKeywordParameters();
+	    public java.util.Set<String> getParameterNames() {
+	    	return Collections.emptySet();
 	    }
 
 	    @Override

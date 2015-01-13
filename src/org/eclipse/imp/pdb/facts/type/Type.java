@@ -105,39 +105,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
     throw new IllegalOperationException("getFieldType", this);
   }
 
-  public boolean hasKeywordParameter(String label) {
-    throw new IllegalOperationException("hasKeywordParameter", this);
-  }
-  
-  public boolean hasKeywordParameter(String fieldName, TypeStore store) {
-    throw new IllegalOperationException("hasKeywordParameter", this);
-  }
-  
-  /**
-   * Retrieve the type of a keyword parameter
-   * @param parameter label
-   * @return the associated type
-   */
-  public Type getKeywordParameterType(String label) {
-    throw new IllegalOperationException("getDefaultValue", this);
-  }
-  
-  /**
-   * Return an array with names of the keyword parameters
-   * @return array of strings
-   */
-  public String[] getKeywordParameters() {
-    throw new IllegalOperationException("getKeywordParameters", this);
-  }
-  
-  /**
-   * Retrieve the keyword parameter types of a constructor, represented as a tuple type
-   * @return the types for the keyword parameters
-   */
-  public Type getKeywordParameterTypes() {
-    throw new IllegalOperationException("getKeywordParameterTypes", this);
-  }
-  
   /**
    * Retrieve the field types of a tree node type or a relation, represented as
    * a tuple type.
@@ -557,10 +524,6 @@ public abstract class Type implements Iterable<Type>, Comparable<Type> {
       return 1;
     }
     return 0;
-  }
-
-  public boolean hasKeywordParameters() {
-    return false;
   }
 
   protected boolean isSubtypeOfParameter(Type type) {

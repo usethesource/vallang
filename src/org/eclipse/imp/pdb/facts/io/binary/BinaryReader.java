@@ -900,9 +900,7 @@ public class BinaryReader{
 		
 		Type adtType = doReadType();
 		
-		Type kwParamType = readTupleType(read());
-		
-		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes, kwParamType);
+		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
 	}
 	
 	private Type readAnnotatedConstructorType() throws IOException{

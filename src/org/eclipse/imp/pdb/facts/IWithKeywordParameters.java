@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 
@@ -37,6 +38,22 @@ public interface IWithKeywordParameters<T extends IValue> {
 	public T setParameter(String label, IValue newValue) throws FactTypeUseException;
 
 	/**
+	 * Unset the value of an parameter
+	 * 
+	 * @param label identifies the parameter
+	 * @return a new node where the value of the parameter is not present anymore
+	 */
+	public T unsetParameter(String label);
+
+	/**
+	 * Unset the values of all parameters
+	 * 
+	 * @param label identifies the parameter
+	 * @return a new node where the value of all keyword parameters are unset
+	 */
+	public T unsetAll();
+	
+	/**
 	 * Check whether a certain parameter is set.
 	 * 
 	 * @param label identifies the parameter
@@ -51,9 +68,9 @@ public interface IWithKeywordParameters<T extends IValue> {
 	public boolean hasParameters();
 	
 	/**
-	 * @return an array of parameter names
+	 * @return a set of parameter names
 	 */
-	public String[] getParameterNames();
+	public Set<String> getParameterNames();
 
 	/**
 	 * @return an unmodifiable map for the keyword parameters

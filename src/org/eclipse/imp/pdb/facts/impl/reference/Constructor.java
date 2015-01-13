@@ -194,12 +194,12 @@ public class Constructor extends Node implements IConstructor {
 
 		  @Override
 		  public boolean hasParameters() {
-			  return content.getConstructorType().hasKeywordParameters();
+			  return parameters != null && parameters.size() > 0;
 		  }
 
 		  @Override
-		  public String[] getParameterNames() {
-			  return content.getConstructorType().getKeywordParameters();
+		  public java.util.Set<String> getParameterNames() {
+			  return parameters.keySet();
 		  }
 
 		  @Override

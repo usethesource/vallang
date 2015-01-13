@@ -214,6 +214,7 @@ public class TypeFactory {
    *           when one of the labels is not a proper identifier or when the
    *           argument array does not contain alternating types and labels.
    */
+  @Deprecated
   public Type tupleType(Object... fieldTypesAndLabels) throws FactTypeDeclarationException {
     int N = fieldTypesAndLabels.length;
     int arity = N / 2;
@@ -252,6 +253,7 @@ public class TypeFactory {
    *          the labels of the fields (in respective order)
    * @return a tuple type
    */
+  @Deprecated
   public Type tupleType(Type[] types, String[] labels) {
     checkNull((Object[]) types);
     checkNull((Object[]) labels);
@@ -489,47 +491,6 @@ public class TypeFactory {
     return result;
   }
   
-  /**
-   * Make a new constructor type with defaults. A constructor type extends an
-   * abstract data type such that it represents more values.
-   * 
-   * @param store
-   *          to store the declared constructor in
-   * @param adt
-   *          the AbstractDataType this constructor builds
-   * @param name
-   *          the name of the node type
-   * @param children
-   *          the types of the children of the tree node type
-   * @return a tree node type
-   * @throws IllegalIdentifierException
-   *           , UndeclaredAbstractDataTypeException,
-   *           RedeclaredFieldNameException, RedeclaredConstructorException
-   */
-  public Type constructorFromTuple(TypeStore store, Type adt, String name, Type tupleType, Type keywordParameters)
-      throws FactTypeDeclarationException {
-    checkNull(store, adt, name, tupleType);
-
-    if (!isIdentifier(name)) {
-      throw new IllegalIdentifierException(name);
-    }
-
-    Type result = getFromCache(new ConstructorType(name, tupleType, adt, keywordParameters));
-
-    Type params = adt.getTypeParameters();
-
-    if (!params.equivalent(voidType())) {
-      if (params.isOpen()) { // only parametrized and not instantiated types
-                             // should be stored
-        store.declareConstructor(result);
-      }
-    } else {
-      store.declareConstructor(result);
-    }
-
-    return result;
-  }
-
   /**
    * Make a new constructor type. A constructor type extends an abstract data
    * type such that it represents more values. Note that if you pass an array

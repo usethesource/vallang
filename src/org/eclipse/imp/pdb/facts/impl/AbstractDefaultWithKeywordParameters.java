@@ -11,9 +11,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
@@ -73,12 +73,26 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	public T setParameter(String label, IValue newValue) throws FactTypeUseException {
 		return wrap(content, parameters.__put(label, newValue));
 	}
+	
+	@Override
+	public T unsetParameter(String label) {
+		ImmutableMap<String, IValue> removed = parameters.__remove(label);
+		
+		if (removed.size() == 0) {
+			return content;
+		} else {
+			return wrap(content, removed);
+		}
+	}
+	
+	@Override
+	public T unsetAll() {
+		return content;
+	}
 
 	@Override
 	public boolean hasParameter(String label) throws FactTypeUseException {
-		return parameters.containsKey(label) 
-				|| (content.getType().hasKeywordParameters() 
-						&& content.getType().hasKeywordParameter(label));
+		return parameters.containsKey(label);
 	}
 
 	@Override
@@ -87,13 +101,8 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	}
 
 	@Override
-	public String[] getParameterNames() {
-		if (content.getType().hasKeywordParameters()) {
-			return content.getType().getKeywordParameters();
-		}
-		else {
-			return parameters.keySet().toArray(new String[parameters.keySet().size()]);
-		}
+	public Set<String> getParameterNames() {
+		return parameters.keySet();
 	}
 
 	@Override
@@ -113,14 +122,11 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 			return false;
 		}
 
-		String[] a = getParameterNames();
-		String[] b = o.getParameterNames();
-
-		if (!Arrays.equals(a, b)) {
+		if (parameters.size() != o.parameters.size()) {
 			return false;
 		}
 
-		for (String key : a) {
+		for (String key : parameters.keySet()) {
 			if (!getParameter(key).equals(o.getParameter(key))) {
 				return false;
 			}
@@ -137,17 +143,11 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 
 		AbstractDefaultWithKeywordParameters<? extends IValue> o = (AbstractDefaultWithKeywordParameters<?>) other;
 
-		// it is important to go through the public API here, since
-		// default parameters may be retrieved from the types instead
-		// of from the fields of the current wrapper class
-		String[] a = getParameterNames();
-		String[] b = o.getParameterNames();
-
-		if (!Arrays.equals(a, b)) {
+		if (parameters.size() != o.parameters.size()) {
 			return false;
 		}
 
-		for (String key : a) {
+		for (String key : parameters.keySet()) {
 			// TODO: isEqual should become equals when annotations have been removed.
 			IValue parameter = getParameter(key);
 			if (parameter == null && o.getParameter(key) != null) {
