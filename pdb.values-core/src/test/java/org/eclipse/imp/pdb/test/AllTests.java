@@ -27,8 +27,8 @@ public class AllTests {
 		TestSuite suite = new TestSuite(
 				"Test for org.eclipse.imp.pdb");
 	
-		suite.addTestSuite(TestType.class);
-		suite.addTestSuite(TestTypeFactory.class);
+//		suite.addTestSuite(TestType.class);
+//		suite.addTestSuite(TestTypeFactory.class);
 		suite.addTestSuite(TestIO.class);
 		suite.addTestSuite(TestBinaryIO.class);
 

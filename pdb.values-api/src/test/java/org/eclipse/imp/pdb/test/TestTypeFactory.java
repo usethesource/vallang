@@ -20,15 +20,12 @@ import junit.framework.TestCase;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public class TestTypeFactory extends TestCase {
 	private TypeFactory ft = TypeFactory.getInstance();
-
-	private ValueFactory ff = ValueFactory.getInstance();
 
 	private Type[] types = new Type[] { ft.integerType(), ft.realType(),
 			ft.sourceLocationType(),  ft.valueType(),
@@ -177,22 +174,24 @@ public class TestTypeFactory extends TestCase {
 	}
 
 	public void testTupleTypeOfIValueArray() {
-		// a and b shadow the 'types' field
-		try {
-			IValue[] a = new IValue[] { ff.integer(1), ff.real(1.0),
-					ff.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0) };
-			IValue[] b = new IValue[] { ff.integer(1), ff.real(1.0),
-					ff.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0) };
-			Type t = ft.tupleType(a);
+//		// a and b shadow the 'types' field
+//		try {
+//			IValue[] a = new IValue[] { ff.integer(1), ff.real(1.0),
+//					ff.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0) };
+//			IValue[] b = new IValue[] { ff.integer(1), ff.real(1.0),
+//					ff.sourceLocation(new URI("file://bla"), 0, 0, 0, 0, 0, 0) };
+//			Type t = ft.tupleType(a);
+//
+//			if (t != ft.tupleType(b)) {
+//				fail("tuples should be canonical");
+//			}
+//
+//			testTupleTypeOf(t, 3);
+//		} catch (URISyntaxException e) {
+//			fail(e.toString());
+//		}
 
-			if (t != ft.tupleType(b)) {
-				fail("tuples should be canonical");
-			}
-
-			testTupleTypeOf(t, 3);
-		} catch (URISyntaxException e) {
-			fail(e.toString());
-		}
+		fail("Test depends on IValueFactory implementation; TODO: make it independent from.");
 	}
 
 	public void testSetTypeOf() {

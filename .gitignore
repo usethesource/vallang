@@ -2,4 +2,5 @@ bin/
 target/
 
 .idea/
+*.iml
 eclipse-java-google-style.xml
