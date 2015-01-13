@@ -2,14 +2,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- <parent>
-		<relativePath>../imp.pom/pom.xml</relativePath>
+	<parent>
 		<groupId>org.eclipse.imp</groupId>
-		<artifactId>org.eclipse.imp.pom</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-	</parent> -->
+		<artifactId>pdb.values</artifactId>
+		<version>0.4.1-SNAPSHOT</version>
+	</parent>
 
- 	<groupId>org.eclipse.imp</groupId>
+	<groupId>org.eclipse.imp</groupId>
 	<artifactId>pdb.values-core</artifactId>
 	<version>0.4.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -34,6 +33,7 @@
 		</extensions>
 
 		<plugins>
+			<!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>wagon-maven-plugin</artifactId>
@@ -53,6 +53,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			-->
 
  			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
