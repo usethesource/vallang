@@ -100,6 +100,11 @@
 			<artifactId>pdb.values-api</artifactId>
 			<version>0.4.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.rascalmpl.foundation.collection</groupId>
+			<artifactId>trie-collections</artifactId>
+			<version>0.0.1-SNAPSHOT</version>			
+		</dependency>
 	</dependencies>
 
 </project>

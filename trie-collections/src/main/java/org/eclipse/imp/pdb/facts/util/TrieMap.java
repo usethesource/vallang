@@ -31,6 +31,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -117,6 +118,16 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		return this.hashCode == _hash && this.cachedSize == _count;
 	}
 
+	@SuppressWarnings("unchecked")
+	protected static final <K> Comparator<K> equalityComparator() {
+		return new Comparator() {
+			@Override
+			public int compare(Object a, Object b) {
+				return Objects.equals(a, b) ? 0 : -1;
+			}
+		};
+	}
+	
 	@Override
 	public TrieMap<K, V> __put(K key, V val) {
 		final int keyHash = key.hashCode();
@@ -2872,26 +2883,26 @@ public class TrieMap<K, V> extends AbstractImmutableMap<K, V> {
 		@Override
 		Result<K, V, ? extends CompactMapNode<K, V>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, V val, int shift) {
-			return updated(mutator, key, keyHash, val, shift, EqualityUtils.getDefaultEqualityComparator());
+			return updated(mutator, key, keyHash, val, shift, equalityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		Result<K, V, ? extends CompactMapNode<K, V>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+			return removed(mutator, key, keyHash, shift, equalityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		boolean containsKey(Object key, int keyHash, int shift) {
-			return containsKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+			return containsKey(key, keyHash, shift, equalityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		Optional<java.util.Map.Entry<K, V>> findByKey(Object key, int keyHash, int shift) {
-			return findByKey(key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+			return findByKey(key, keyHash, shift, equalityComparator());
 		}
 	}
 

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -82,7 +83,12 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 
 	@SuppressWarnings("unchecked")
 	protected static final <K> Comparator<K> equalityComparator() {
-		return EqualityUtils.getDefaultEqualityComparator();
+		return new Comparator() {
+			@Override
+			public int compare(Object a, Object b) {
+				return Objects.equals(a, b) ? 0 : -1;
+			}
+		};
 	}
 
 	private boolean invariant() {
@@ -2282,14 +2288,14 @@ public class TrieSet<K> extends AbstractImmutableSet<K> {
 		@Override
 		Result<K, Void, ? extends CompactSetNode<K>> updated(AtomicReference<Thread> mutator, K key,
 						int keyHash, Void val, int shift) {
-			return updated(mutator, key, keyHash, val, shift, EqualityUtils.getDefaultEqualityComparator());
+			return updated(mutator, key, keyHash, val, shift, equalityComparator());
 		}
 
 		// TODO: generate instead of delegate
 		@Override
 		Result<K, Void, ? extends CompactSetNode<K>> removed(AtomicReference<Thread> mutator, K key,
 						int keyHash, int shift) {
-			return removed(mutator, key, keyHash, shift, EqualityUtils.getDefaultEqualityComparator());
+			return removed(mutator, key, keyHash, shift, equalityComparator());
 		}
 		
 	}

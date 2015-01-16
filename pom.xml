@@ -17,6 +17,7 @@
 	<modules>
 		<module>pdb.values-api</module>
 		<module>pdb.values-core</module>
+		<module>trie-collections</module>
 	</modules>
 
 	<scm>
