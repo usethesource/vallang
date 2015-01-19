@@ -1,0 +1,38 @@
+/*******************************************************************************
+ * Copyright (c) 2015 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *******************************************************************************/
+package org.eclipse.imp.pdb.facts.util;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
+public interface Multimap<K, V> {
+
+	V put(final K key, final V val);
+
+	V remove(final java.lang.Object key, final java.lang.Object val);
+
+	void putAll(final Multimap<? extends K, ? extends V> multimap);
+
+	boolean containsValue(Object value);	
+	
+	Set<K> keySet();
+	Collection<V> values();	
+	Set<Map.Entry<K, V>> entrySet();	
+	
+	void clear();
+
+	int size();
+
+	boolean isEmpty();
+
+}
