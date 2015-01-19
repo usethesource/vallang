@@ -2283,6 +2283,11 @@ public class TrieMap_BleedingEdge<K, V> implements ImmutableMap<K, V> {
 		}
 
 		@Override
+		public boolean containsValueEquivalent(Object o, Comparator<Object> cmp) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public V get(Object o) {
 			try {
 				@SuppressWarnings("unchecked")

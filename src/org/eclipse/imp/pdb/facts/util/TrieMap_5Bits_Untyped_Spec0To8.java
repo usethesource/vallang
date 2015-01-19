@@ -15,7 +15,6 @@ import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.ent
 
 import java.text.DecimalFormat;
 import java.util.AbstractCollection;
-import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -431,8 +430,8 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 			entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
 				@Override
 				public Iterator<java.util.Map.Entry<K, V>> iterator() {
-					return new Iterator<Entry<K, V>>() {
-						private final Iterator<Entry<K, V>> i = entryIterator();
+					return new Iterator<Map.Entry<K, V>>() {
+						private final Iterator<Map.Entry<K, V>> i = entryIterator();
 
 						@Override
 						public boolean hasNext() {
@@ -440,7 +439,7 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 						}
 
 						@Override
-						public Entry<K, V> next() {
+						public Map.Entry<K, V> next() {
 							return i.next();
 						}
 
@@ -477,22 +476,7 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 	}
 
 	@Override
-	public boolean isTransientSupported() {
-		return true;
-	}
-
-	@Override
-	public TransientMap<K, V> asTransient() {
-		return new TransientTrieMap_5Bits_Untyped_Spec0To8<K, V>(this);
-	}
-
-	@Override
-	public int hashCode() {
-		return hashCode;
-	}
-
-	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final java.lang.Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -500,8 +484,8 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 			return false;
 		}
 
-		if (other instanceof TrieMap_5Bits_Untyped_Spec0To8) {
-			TrieMap_5Bits_Untyped_Spec0To8<?, ?> that = (TrieMap_5Bits_Untyped_Spec0To8<?, ?>) other;
+		if (other instanceof TransientTrieMap_5Bits_Untyped_Spec0To8) {
+			TransientTrieMap_5Bits_Untyped_Spec0To8<?, ?> that = (TransientTrieMap_5Bits_Untyped_Spec0To8<?, ?>) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -515,8 +499,8 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 				return false;
 
 			for (@SuppressWarnings("unchecked")
-			Iterator<Entry> it = that.entrySet().iterator(); it.hasNext();) {
-				Entry entry = it.next();
+			Iterator<Map.Entry> it = that.entrySet().iterator(); it.hasNext();) {
+				Map.Entry entry = it.next();
 
 				try {
 					@SuppressWarnings("unchecked")
@@ -542,6 +526,21 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 		}
 
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return hashCode;
+	}
+
+	@Override
+	public boolean isTransientSupported() {
+		return true;
+	}
+
+	@Override
+	public TransientMap<K, V> asTransient() {
+		return new TransientTrieMap_5Bits_Untyped_Spec0To8<K, V>(this);
 	}
 
 	/*
@@ -3456,8 +3455,7 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 		}
 	}
 
-	static final class TransientTrieMap_5Bits_Untyped_Spec0To8<K, V> extends AbstractMap<K, V>
-					implements TransientMap<K, V> {
+	static final class TransientTrieMap_5Bits_Untyped_Spec0To8<K, V> implements TransientMap<K, V> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode<K, V> rootNode;
 		private int hashCode;
@@ -3491,6 +3489,26 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 		}
 
 		@Override
+		public V put(final K key, final V val) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public V remove(final java.lang.Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void putAll(final Map<? extends K, ? extends V> m) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public boolean containsKey(Object o) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -3510,6 +3528,27 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 			} catch (ClassCastException unused) {
 				return false;
 			}
+		}
+
+		@Override
+		public boolean containsValue(final java.lang.Object o) {
+			for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+				if (iterator.next().equals(o)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public boolean containsValueEquivalent(final java.lang.Object o,
+						final Comparator<Object> cmp) {
+			for (Iterator<V> iterator = valueIterator(); iterator.hasNext();) {
+				if (iterator.next().equals(o)) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		@Override
@@ -3646,7 +3685,7 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 		public boolean __putAll(final Map<? extends K, ? extends V> map) {
 			boolean modified = false;
 
-			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+			for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
 				final boolean isPresent = containsKey(entry.getKey());
 				final V replaced = __put(entry.getKey(), entry.getValue());
 
@@ -3663,7 +3702,7 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 						final Comparator<Object> cmp) {
 			boolean modified = false;
 
-			for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+			for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
 				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
 				final V replaced = __putEquivalent(entry.getKey(), entry.getValue(), cmp);
 
@@ -3745,60 +3784,13 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 		}
 
 		@Override
-		public Set<java.util.Map.Entry<K, V>> entrySet() {
-			Set<java.util.Map.Entry<K, V>> entrySet = null;
-
-			if (entrySet == null) {
-				entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
-					@Override
-					public Iterator<java.util.Map.Entry<K, V>> iterator() {
-						return new Iterator<Entry<K, V>>() {
-							private final Iterator<Entry<K, V>> i = entryIterator();
-
-							@Override
-							public boolean hasNext() {
-								return i.hasNext();
-							}
-
-							@Override
-							public Entry<K, V> next() {
-								return i.next();
-							}
-
-							@Override
-							public void remove() {
-								i.remove();
-							}
-						};
-					}
-
-					@Override
-					public int size() {
-						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.size();
-					}
-
-					@Override
-					public boolean isEmpty() {
-						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.isEmpty();
-					}
-
-					@Override
-					public void clear() {
-						TransientTrieMap_5Bits_Untyped_Spec0To8.this.clear();
-					}
-
-					@Override
-					public boolean contains(Object k) {
-						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.containsKey(k);
-					}
-				};
-			}
-			return entrySet;
+		public int size() {
+			return cachedSize;
 		}
 
 		@Override
-		public int size() {
-			return cachedSize;
+		public boolean isEmpty() {
+			return cachedSize == 0;
 		}
 
 		@Override
@@ -3860,7 +3852,132 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public Set<K> keySet() {
+			Set<K> keySet = null;
+
+			if (keySet == null) {
+				keySet = new AbstractSet<K>() {
+					@Override
+					public Iterator<K> iterator() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.keyIterator();
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap_5Bits_Untyped_Spec0To8.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object k) {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.containsKey(k);
+					}
+				};
+			}
+
+			return keySet;
+		}
+
+		@Override
+		public Collection<V> values() {
+			Collection<V> values = null;
+
+			if (values == null) {
+				values = new AbstractCollection<V>() {
+					@Override
+					public Iterator<V> iterator() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.valueIterator();
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap_5Bits_Untyped_Spec0To8.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object v) {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.containsValue(v);
+					}
+				};
+			}
+
+			return values;
+		}
+
+		@Override
+		public Set<java.util.Map.Entry<K, V>> entrySet() {
+			Set<java.util.Map.Entry<K, V>> entrySet = null;
+
+			if (entrySet == null) {
+				entrySet = new AbstractSet<java.util.Map.Entry<K, V>>() {
+					@Override
+					public Iterator<java.util.Map.Entry<K, V>> iterator() {
+						return new Iterator<Map.Entry<K, V>>() {
+							private final Iterator<Map.Entry<K, V>> i = entryIterator();
+
+							@Override
+							public boolean hasNext() {
+								return i.hasNext();
+							}
+
+							@Override
+							public Map.Entry<K, V> next() {
+								return i.next();
+							}
+
+							@Override
+							public void remove() {
+								i.remove();
+							}
+						};
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap_5Bits_Untyped_Spec0To8.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object k) {
+						return TransientTrieMap_5Bits_Untyped_Spec0To8.this.containsKey(k);
+					}
+				};
+			}
+
+			return entrySet;
+		}
+
+		@Override
+		public boolean equals(final java.lang.Object other) {
 			if (other == this) {
 				return true;
 			}
@@ -3876,9 +3993,41 @@ public class TrieMap_5Bits_Untyped_Spec0To8<K, V> implements ImmutableMap<K, V> 
 				}
 
 				return rootNode.equals(that.rootNode);
+			} else if (other instanceof Map) {
+				Map that = (Map) other;
+
+				if (this.size() != that.size())
+					return false;
+
+				for (@SuppressWarnings("unchecked")
+				Iterator<Map.Entry> it = that.entrySet().iterator(); it.hasNext();) {
+					Map.Entry entry = it.next();
+
+					try {
+						@SuppressWarnings("unchecked")
+						final K key = (K) entry.getKey();
+						final Optional<V> result = rootNode.findByKey(key, improve(key.hashCode()),
+										0);
+
+						if (!result.isPresent()) {
+							return false;
+						} else {
+							@SuppressWarnings("unchecked")
+							final V val = (V) entry.getValue();
+
+							if (!result.get().equals(val)) {
+								return false;
+							}
+						}
+					} catch (ClassCastException unused) {
+						return false;
+					}
+				}
+
+				return true;
 			}
 
-			return super.equals(other);
+			return false;
 		}
 
 		@Override

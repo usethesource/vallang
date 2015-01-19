@@ -15,7 +15,6 @@ import static org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap.ent
 
 import java.text.DecimalFormat;
 import java.util.AbstractCollection;
-import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -444,8 +443,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			entrySet = new AbstractSet<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>>() {
 				@Override
 				public Iterator<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> iterator() {
-					return new Iterator<Entry<java.lang.Integer, java.lang.Integer>>() {
-						private final Iterator<Entry<java.lang.Integer, java.lang.Integer>> i = entryIterator();
+					return new Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>>() {
+						private final Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> i = entryIterator();
 
 						@Override
 						public boolean hasNext() {
@@ -453,7 +452,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						}
 
 						@Override
-						public Entry<java.lang.Integer, java.lang.Integer> next() {
+						public Map.Entry<java.lang.Integer, java.lang.Integer> next() {
 							return i.next();
 						}
 
@@ -490,22 +489,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 	}
 
 	@Override
-	public boolean isTransientSupported() {
-		return true;
-	}
-
-	@Override
-	public TransientMap<java.lang.Integer, java.lang.Integer> asTransient() {
-		return new TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue(this);
-	}
-
-	@Override
-	public int hashCode() {
-		return hashCode;
-	}
-
-	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final java.lang.Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -513,8 +497,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			return false;
 		}
 
-		if (other instanceof TrieMap_5Bits_Spec0To8_IntKey_IntValue) {
-			TrieMap_5Bits_Spec0To8_IntKey_IntValue that = (TrieMap_5Bits_Spec0To8_IntKey_IntValue) other;
+		if (other instanceof TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue) {
+			TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue that = (TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -528,8 +512,8 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				return false;
 
 			for (@SuppressWarnings("unchecked")
-			Iterator<Entry> it = that.entrySet().iterator(); it.hasNext();) {
-				Entry entry = it.next();
+			Iterator<Map.Entry> it = that.entrySet().iterator(); it.hasNext();) {
+				Map.Entry entry = it.next();
 
 				try {
 					@SuppressWarnings("unchecked")
@@ -556,6 +540,21 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return hashCode;
+	}
+
+	@Override
+	public boolean isTransientSupported() {
+		return true;
+	}
+
+	@Override
+	public TransientMap<java.lang.Integer, java.lang.Integer> asTransient() {
+		return new TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue(this);
 	}
 
 	/*
@@ -3745,8 +3744,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 	}
 
-	static final class TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue extends
-					AbstractMap<java.lang.Integer, java.lang.Integer> implements
+	static final class TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 					TransientMap<java.lang.Integer, java.lang.Integer> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractMapNode rootNode;
@@ -3782,6 +3780,26 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 
 		@Override
+		public java.lang.Integer put(final java.lang.Integer key, final java.lang.Integer val) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public java.lang.Integer remove(final java.lang.Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void putAll(final Map<? extends java.lang.Integer, ? extends java.lang.Integer> m) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public boolean containsKey(Object o) {
 			try {
 				@SuppressWarnings("unchecked")
@@ -3801,6 +3819,27 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 			} catch (ClassCastException unused) {
 				return false;
 			}
+		}
+
+		@Override
+		public boolean containsValue(final java.lang.Object o) {
+			for (Iterator<java.lang.Integer> iterator = valueIterator(); iterator.hasNext();) {
+				if (iterator.next().equals(o)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public boolean containsValueEquivalent(final java.lang.Object o,
+						final Comparator<Object> cmp) {
+			for (Iterator<java.lang.Integer> iterator = valueIterator(); iterator.hasNext();) {
+				if (iterator.next().equals(o)) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		@Override
@@ -3941,7 +3980,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						final Map<? extends java.lang.Integer, ? extends java.lang.Integer> map) {
 			boolean modified = false;
 
-			for (Entry<? extends java.lang.Integer, ? extends java.lang.Integer> entry : map
+			for (Map.Entry<? extends java.lang.Integer, ? extends java.lang.Integer> entry : map
 							.entrySet()) {
 				final boolean isPresent = containsKey(entry.getKey());
 				final java.lang.Integer replaced = __put(entry.getKey(), entry.getValue());
@@ -3960,7 +3999,7 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 						final Comparator<Object> cmp) {
 			boolean modified = false;
 
-			for (Entry<? extends java.lang.Integer, ? extends java.lang.Integer> entry : map
+			for (Map.Entry<? extends java.lang.Integer, ? extends java.lang.Integer> entry : map
 							.entrySet()) {
 				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
 				final java.lang.Integer replaced = __putEquivalent(entry.getKey(),
@@ -4044,60 +4083,13 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 
 		@Override
-		public Set<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> entrySet() {
-			Set<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> entrySet = null;
-
-			if (entrySet == null) {
-				entrySet = new AbstractSet<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>>() {
-					@Override
-					public Iterator<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> iterator() {
-						return new Iterator<Entry<java.lang.Integer, java.lang.Integer>>() {
-							private final Iterator<Entry<java.lang.Integer, java.lang.Integer>> i = entryIterator();
-
-							@Override
-							public boolean hasNext() {
-								return i.hasNext();
-							}
-
-							@Override
-							public Entry<java.lang.Integer, java.lang.Integer> next() {
-								return i.next();
-							}
-
-							@Override
-							public void remove() {
-								i.remove();
-							}
-						};
-					}
-
-					@Override
-					public int size() {
-						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.size();
-					}
-
-					@Override
-					public boolean isEmpty() {
-						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.isEmpty();
-					}
-
-					@Override
-					public void clear() {
-						TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.clear();
-					}
-
-					@Override
-					public boolean contains(Object k) {
-						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.containsKey(k);
-					}
-				};
-			}
-			return entrySet;
+		public int size() {
+			return cachedSize;
 		}
 
 		@Override
-		public int size() {
-			return cachedSize;
+		public boolean isEmpty() {
+			return cachedSize == 0;
 		}
 
 		@Override
@@ -4159,7 +4151,133 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public Set<java.lang.Integer> keySet() {
+			Set<java.lang.Integer> keySet = null;
+
+			if (keySet == null) {
+				keySet = new AbstractSet<java.lang.Integer>() {
+					@Override
+					public Iterator<java.lang.Integer> iterator() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.keyIterator();
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object k) {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.containsKey(k);
+					}
+				};
+			}
+
+			return keySet;
+		}
+
+		@Override
+		public Collection<java.lang.Integer> values() {
+			Collection<java.lang.Integer> values = null;
+
+			if (values == null) {
+				values = new AbstractCollection<java.lang.Integer>() {
+					@Override
+					public Iterator<java.lang.Integer> iterator() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.valueIterator();
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object v) {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this
+										.containsValue(v);
+					}
+				};
+			}
+
+			return values;
+		}
+
+		@Override
+		public Set<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> entrySet() {
+			Set<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> entrySet = null;
+
+			if (entrySet == null) {
+				entrySet = new AbstractSet<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>>() {
+					@Override
+					public Iterator<java.util.Map.Entry<java.lang.Integer, java.lang.Integer>> iterator() {
+						return new Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>>() {
+							private final Iterator<Map.Entry<java.lang.Integer, java.lang.Integer>> i = entryIterator();
+
+							@Override
+							public boolean hasNext() {
+								return i.hasNext();
+							}
+
+							@Override
+							public Map.Entry<java.lang.Integer, java.lang.Integer> next() {
+								return i.next();
+							}
+
+							@Override
+							public void remove() {
+								i.remove();
+							}
+						};
+					}
+
+					@Override
+					public int size() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.size();
+					}
+
+					@Override
+					public boolean isEmpty() {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.isEmpty();
+					}
+
+					@Override
+					public void clear() {
+						TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.clear();
+					}
+
+					@Override
+					public boolean contains(Object k) {
+						return TransientTrieMap_5Bits_Spec0To8_IntKey_IntValue.this.containsKey(k);
+					}
+				};
+			}
+
+			return entrySet;
+		}
+
+		@Override
+		public boolean equals(final java.lang.Object other) {
 			if (other == this) {
 				return true;
 			}
@@ -4175,9 +4293,41 @@ public class TrieMap_5Bits_Spec0To8_IntKey_IntValue implements
 				}
 
 				return rootNode.equals(that.rootNode);
+			} else if (other instanceof Map) {
+				Map that = (Map) other;
+
+				if (this.size() != that.size())
+					return false;
+
+				for (@SuppressWarnings("unchecked")
+				Iterator<Map.Entry> it = that.entrySet().iterator(); it.hasNext();) {
+					Map.Entry entry = it.next();
+
+					try {
+						@SuppressWarnings("unchecked")
+						final int key = (java.lang.Integer) entry.getKey();
+						final Optional<java.lang.Integer> result = rootNode.findByKey(key,
+										improve((int) key), 0);
+
+						if (!result.isPresent()) {
+							return false;
+						} else {
+							@SuppressWarnings("unchecked")
+							final int val = (java.lang.Integer) entry.getValue();
+
+							if (!result.get().equals(val)) {
+								return false;
+							}
+						}
+					} catch (ClassCastException unused) {
+						return false;
+					}
+				}
+
+				return true;
 			}
 
-			return super.equals(other);
+			return false;
 		}
 
 		@Override

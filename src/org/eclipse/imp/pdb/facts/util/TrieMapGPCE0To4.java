@@ -613,6 +613,11 @@ public class TrieMapGPCE0To4<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		public boolean containsValueEquivalent(Object o, Comparator<Object> cmp) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public V get(Object key) {
 			final Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(), 0);
 
@@ -910,7 +915,7 @@ public class TrieMapGPCE0To4<K, V> extends AbstractImmutableMap<K, V> {
 		public int size() {
 			return cachedSize;
 		}
-		
+
 		@Override
 		public boolean equals(Object o) {
 			return rootNode.equals(o);

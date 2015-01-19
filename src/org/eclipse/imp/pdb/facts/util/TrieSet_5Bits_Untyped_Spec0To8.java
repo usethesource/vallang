@@ -12,7 +12,6 @@
 package org.eclipse.imp.pdb.facts.util;
 
 import java.text.DecimalFormat;
-import java.util.AbstractSet;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -365,22 +364,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 	}
 
 	@Override
-	public boolean isTransientSupported() {
-		return true;
-	}
-
-	@Override
-	public TransientSet<K> asTransient() {
-		return new TransientTrieSet_5Bits_Untyped_Spec0To8<K>(this);
-	}
-
-	@Override
-	public int hashCode() {
-		return hashCode;
-	}
-
-	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final java.lang.Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -388,8 +372,8 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			return false;
 		}
 
-		if (other instanceof TrieSet_5Bits_Untyped_Spec0To8) {
-			TrieSet_5Bits_Untyped_Spec0To8<?> that = (TrieSet_5Bits_Untyped_Spec0To8<?>) other;
+		if (other instanceof TransientTrieSet_5Bits_Untyped_Spec0To8) {
+			TransientTrieSet_5Bits_Untyped_Spec0To8<?> that = (TransientTrieSet_5Bits_Untyped_Spec0To8<?>) other;
 
 			if (this.size() != that.size()) {
 				return false;
@@ -406,6 +390,21 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return hashCode;
+	}
+
+	@Override
+	public boolean isTransientSupported() {
+		return true;
+	}
+
+	@Override
+	public TransientSet<K> asTransient() {
+		return new TransientTrieSet_5Bits_Untyped_Spec0To8<K>(this);
 	}
 
 	/*
@@ -2959,8 +2958,7 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 	}
 
-	static final class TransientTrieSet_5Bits_Untyped_Spec0To8<K> extends AbstractSet<K> implements
-					TransientSet<K> {
+	static final class TransientTrieSet_5Bits_Untyped_Spec0To8<K> implements TransientSet<K> {
 		final private AtomicReference<Thread> mutator;
 		private AbstractSetNode<K> rootNode;
 		private int hashCode;
@@ -2989,6 +2987,36 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 			}
 
 			return hash == targetHash && size == targetSize;
+		}
+
+		@Override
+		public boolean add(final K key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean remove(final java.lang.Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean addAll(final Collection<? extends K> c) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean removeAll(final Collection<?> c) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean retainAll(final Collection<?> c) {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
@@ -3272,6 +3300,11 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
+		public boolean isEmpty() {
+			return cachedSize == 0;
+		}
+
+		@Override
 		public Iterator<K> iterator() {
 			return keyIterator();
 		}
@@ -3321,7 +3354,30 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public java.lang.Object[] toArray() {
+			Object[] array = new Object[cachedSize];
+
+			int idx = 0;
+			for (K key : this) {
+				array[idx++] = key;
+			}
+
+			return array;
+		}
+
+		@Override
+		public <T> T[] toArray(final T[] a) {
+			List<K> list = new ArrayList<K>(cachedSize);
+
+			for (K key : this) {
+				list.add(key);
+			}
+
+			return list.toArray(a);
+		}
+
+		@Override
+		public boolean equals(final java.lang.Object other) {
 			if (other == this) {
 				return true;
 			}
@@ -3337,9 +3393,16 @@ public class TrieSet_5Bits_Untyped_Spec0To8<K> implements ImmutableSet<K> {
 				}
 
 				return rootNode.equals(that.rootNode);
+			} else if (other instanceof Set) {
+				Set that = (Set) other;
+
+				if (this.size() != that.size())
+					return false;
+
+				return containsAll(that);
 			}
 
-			return super.equals(other);
+			return false;
 		}
 
 		@Override

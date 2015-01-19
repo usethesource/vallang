@@ -29,7 +29,7 @@ public class TrieMapTests {
 		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
 		
 		for (int i = size; i > 0; i--) {
-			TrieMap_5Bits<Integer, Integer> res = map.__put(i, i);
+			TrieMap_5Bits<Integer, Integer> res = (TrieMap_5Bits) map.__put(i, i);
 			assert res.containsKey(i);			
 			map = res;
 		}
@@ -48,7 +48,7 @@ public class TrieMapTests {
 		for (int i = size; i > 0; i--) {
 			final int j = rand.nextInt(); 
 			
-			TrieMap_5Bits<Integer, Integer> res = map.__put(j, j);
+			TrieMap_5Bits<Integer, Integer> res = (TrieMap_5Bits) map.__put(j, j);
 			assert res.containsKey(j);			
 			map = res;
 		}
@@ -62,7 +62,7 @@ public class TrieMapTests {
 
 		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
 		
-		TrieMap_5Bits<Integer, Integer> res1 = map
+		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map
 						.__put(63, 63)
 						.__put(64, 64)					
 						.__put(32768, 32768)
@@ -75,7 +75,7 @@ public class TrieMapTests {
 		assert res1.containsKey(65536);
 		assert res1.containsKey(2147483647);
 
-		TrieMap_5Bits<Integer, Integer> res2 = map
+		TrieMap_5Bits<Integer, Integer> res2 = (TrieMap_5Bits) map
 						.__put(2147483647, 2147483647)
 						.__put(32768, 32768)
 						.__put(63, 63)
@@ -99,7 +99,7 @@ public class TrieMapTests {
 
 		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
 		
-		TrieMap_5Bits<Integer, Integer> res1 = map
+		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map
 						.__put(1, 1)
 						.__put(2, 2);					
 
@@ -117,7 +117,7 @@ public class TrieMapTests {
 
 		TrieMap_5Bits<Integer, Integer> map = (TrieMap_5Bits) TrieMap_5Bits.of();
 		
-		TrieMap_5Bits<Integer, Integer> res1 = map
+		TrieMap_5Bits<Integer, Integer> res1 = (TrieMap_5Bits) map
 						.__put(1, 1)
 						.__put(2, 2)
 						.__put(65, 65)

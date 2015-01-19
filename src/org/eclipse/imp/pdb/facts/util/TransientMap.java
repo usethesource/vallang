@@ -25,6 +25,10 @@ public interface TransientMap<K, V> extends Map<K, V> {
 
 	V getEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
 
+	boolean containsValue(final java.lang.Object o);
+
+	boolean containsValueEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
+
 	V __put(final K key, final V val);
 
 	V __putEquivalent(final K key, final V val, final Comparator<Object> cmp);

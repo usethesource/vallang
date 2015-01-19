@@ -613,6 +613,11 @@ public class TrieMapGPCEDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
+		public boolean containsValueEquivalent(Object o, Comparator<Object> cmp) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public V get(Object key) {
 			final Optional<Map.Entry<K, V>> result = rootNode.findByKey(key, key.hashCode(), 0);
 
