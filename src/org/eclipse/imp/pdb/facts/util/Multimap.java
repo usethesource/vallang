@@ -12,6 +12,7 @@
 package org.eclipse.imp.pdb.facts.util;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +25,10 @@ public interface Multimap<K, V> {
 	void putAll(final Multimap<? extends K, ? extends V> multimap);
 
 	boolean containsValue(Object value);	
+
+	Set<V> get(final java.lang.Object o);
+
+	Set<V> getEquivalent(final java.lang.Object o, final Comparator<Object> cmp);	
 	
 	Set<K> keySet();
 	Collection<V> values();	
