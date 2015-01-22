@@ -100,7 +100,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	@Override
 	public ImmutableSet<K> __insert(final K key) {
 		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
+		final SetResult<K> details = SetResult.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
 						details);
@@ -117,7 +117,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	@Override
 	public ImmutableSet<K> __insertEquivalent(final K key, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
+		final SetResult<K> details = SetResult.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
 						details, cmp);
@@ -134,7 +134,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	@Override
 	public ImmutableSet<K> __remove(final K key) {
 		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
+		final SetResult<K> details = SetResult.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
 						details);
@@ -151,7 +151,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 	@Override
 	public ImmutableSet<K> __removeEquivalent(final K key, final Comparator<Object> cmp) {
 		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
+		final SetResult<K> details = SetResult.unchanged();
 
 		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
 						details, cmp);
@@ -555,7 +555,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 	}
 
-	static final class Result<K> {
+	static final class SetResult<K> {
 		private K replacedValue;
 		private boolean isModified;
 		private boolean isReplaced;
@@ -572,11 +572,11 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		// update: neither element, nor element count changed
-		public static <K> Result<K> unchanged() {
-			return new Result<>();
+		public static <K> SetResult<K> unchanged() {
+			return new SetResult<>();
 		}
 
-		private Result() {
+		private SetResult() {
 		}
 
 		public boolean isModified() {
@@ -610,17 +610,17 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 						final Comparator<Object> cmp);
 
 		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details);
+						final int keyHash, final int shift, final SetResult<K> details);
 
 		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp);
 
 		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details);
+						final int keyHash, final int shift, final SetResult<K> details);
 
 		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
@@ -697,7 +697,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	}
 
-	private static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
+	protected static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
 
 		static final int HASH_CODE_LENGTH = 32;
 
@@ -745,14 +745,14 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		abstract CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator,
+		abstract CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
 						final int bitpos, final K key);
 
-		abstract CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator,
+		abstract CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator,
 						final int bitpos);
 
-		abstract CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
-						final int bitpos, CompactSetNode<K> node);
+		abstract CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node);
 
 		abstract CompactSetNode<K> copyAndMigrateFromInlineToNode(
 						final AtomicReference<Thread> mutator, final int bitpos,
@@ -938,7 +938,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final SetResult<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -949,14 +949,12 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				if (currentKey.equals(key)) {
 					return this;
 				} else {
-
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
 									improve(currentKey.hashCode()), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
-
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
@@ -977,7 +975,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -989,14 +987,12 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 				if (cmp.compare(currentKey, key) == 0) {
 					return this;
 				} else {
-
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
 									improve(currentKey.hashCode()), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
-
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
@@ -1017,7 +1013,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final SetResult<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1083,7 +1079,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -1207,7 +1203,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 	}
 
-	private static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
+	protected static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
 
 		private final int nodeMap;
 		private final int dataMap;
@@ -1522,7 +1518,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final SetResult<K> details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1549,7 +1545,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
@@ -1577,7 +1573,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final SetResult<K> details) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
@@ -1614,7 +1610,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 
 		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
 
 			for (int idx = 0; idx < keys.length; idx++) {
@@ -1757,19 +1753,19 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key) {
+		CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final K key) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode<K> node) {
+		CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -2081,7 +2077,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
 							0, details);
@@ -2111,7 +2107,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
 							0, details, cmp);
@@ -2184,11 +2180,10 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		public boolean __remove(final K key) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
-
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
 							0, details);
@@ -2213,13 +2208,13 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean __removeEquivalent(final K key, Comparator<Object> cmp) {
+		public boolean __removeEquivalent(final K key, final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
 							0, details, cmp);
@@ -2349,6 +2344,7 @@ public class TrieSet_5Bits<K> implements ImmutableSet<K> {
 					throw new IllegalStateException("Key from iteration couldn't be deleted.");
 				}
 			}
+
 		}
 
 		@Override
