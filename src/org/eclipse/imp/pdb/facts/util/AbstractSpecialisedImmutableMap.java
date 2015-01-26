@@ -29,8 +29,9 @@ public abstract class AbstractSpecialisedImmutableMap<K, V> implements Immutable
 		return EMPTY_MAP;
 	}
 
-	public static final <K, V> Map.Entry<K, V> entryOf(final K key, final V val) {
-		return new MapEntry<K, V>(key, val);
+	@SuppressWarnings("unchecked")
+	public static final <K, V, T extends Map.Entry<K, V>> T entryOf(final K key, final V val) {
+		return (T) new MapEntry<K, V>(key, val);
 	}
 
 	public static <K, V> ImmutableMap<K, V> mapOf(K key1, V val1) {

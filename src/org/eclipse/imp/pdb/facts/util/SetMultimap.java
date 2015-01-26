@@ -16,13 +16,13 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
-public interface Multimap<K, V> {
+public interface SetMultimap<K, V> {
 
 	V put(final K key, final V val);
 
 	V remove(final java.lang.Object key, final java.lang.Object val);
 
-	void putAll(final Multimap<? extends K, ? extends V> multimap);
+	void putAll(final SetMultimap<? extends K, ? extends V> multimap);
 
 	boolean containsValue(Object value);	
 
