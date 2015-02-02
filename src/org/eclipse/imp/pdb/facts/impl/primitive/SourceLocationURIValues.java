@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 			throw new URISyntaxException(scheme, "scheme cannot be empty or null");
 		}
 		if (!schemePattern.matcher(scheme).matches()) {
-			throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
+			throw new URISyntaxException(scheme, scheme + " is not a valid scheme");
 		}
 		if (authority == null || authority.equals("")) {
 			if (path == null || path.equals("/")) {
@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
 			}
 			return new SourceLocationURIValues.FragmentQueryPathURI(scheme, path, query, fragment);
 		}
+		
 		if (path == null) {
 			if (query == null) {
 				if (fragment == null) {
@@ -69,15 +70,18 @@ import java.util.regex.Pattern;
 			}
 			return new SourceLocationURIValues.FragmentQueryAuthorityURI(scheme, authority, query, fragment);
 		}
+		
 		if (query == null) {
 			if (fragment == null) {
 				return new SourceLocationURIValues.PathAuthorityURI(scheme, authority, path);
 			}
 			return new SourceLocationURIValues.FragmentPathAuthorityURI(scheme, authority, path, fragment);
 		}
+		
 		if (fragment == null) {
 			return new SourceLocationURIValues.QueryPathAuthorityURI(scheme, authority, path, query);
 		}
+		
 		return new SourceLocationURIValues.FragmentQueryPathAuthorityURI(scheme, authority, path, query, fragment);
 	}
 	
@@ -120,7 +124,7 @@ import java.util.regex.Pattern;
 
 		@Override
 		public String getAuthority() {
-			throw new UnsupportedOperationException();
+			return "";
 		}
 
 		@Override
@@ -130,12 +134,12 @@ import java.util.regex.Pattern;
 
 		@Override
 		public String getFragment() {
-			throw new UnsupportedOperationException();
+			return "";
 		}
 
 		@Override
 		public String getQuery() {
-			throw new UnsupportedOperationException();
+			return "";
 		}
 
 		@Override
@@ -156,6 +160,33 @@ import java.util.regex.Pattern;
 		@Override
 		public Boolean hasQuery() {
 			return false;
+		}
+
+
+		@Override
+		public IURI setScheme(String scheme) throws URISyntaxException {
+			return SourceLocationURIValues.newURI(scheme, getAuthority(), getPath(), getQuery(), getFragment());
+		}
+
+		@Override
+		public IURI setAuthority(String authority) throws URISyntaxException {
+			return SourceLocationURIValues.newURI(getScheme(), authority, getPath(), getQuery(), getFragment());
+		}
+
+		@Override
+		public IURI setPath(String path) throws URISyntaxException {
+			return SourceLocationURIValues.newURI(getScheme(), getAuthority(), path, getQuery(), getFragment());
+		}
+
+		@Override
+		public IURI setFragment(String fragment) throws URISyntaxException {
+			return SourceLocationURIValues.newURI(getScheme(), getAuthority(), getPath(), getQuery(), fragment);
+		}
+
+
+		@Override
+		public IURI setQuery(String query) throws URISyntaxException {
+			return SourceLocationURIValues.newURI(getScheme(), getAuthority(), getPath(), query, getFragment());
 		}
 
 	}

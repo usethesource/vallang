@@ -13,6 +13,7 @@
 package org.eclipse.imp.pdb.facts;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Source locations point to (parts of) files that contain source code.
@@ -36,22 +37,39 @@ public interface ISourceLocation extends IValue {
 	String getPath() throws UnsupportedOperationException;
 	String getFragment() throws UnsupportedOperationException;
 	String getQuery() throws UnsupportedOperationException;
+	
 	Boolean hasAuthority();
 	Boolean hasPath();
 	Boolean hasFragment();
 	Boolean hasQuery();
     
+	ISourceLocation setScheme(String scheme) throws URISyntaxException;
+	ISourceLocation setAuthority(String authority) throws URISyntaxException;
+	ISourceLocation setPath(String path) throws URISyntaxException;
+	ISourceLocation setFragment(String fragment) throws URISyntaxException;
+	ISourceLocation setQuery(String query) throws URISyntaxException;
+    
+	/**
+	 * @return the source location without offset/length or line/column information
+	 */
+    ISourceLocation getTop();
     
     /**
      * @return true iff the source location has offset/length information stored with it.
      */
     public boolean hasOffsetLength();
     
+    
+    /**
+     * @return false if there is only an offset and the interpretation is from offset to end of stream
+     */
+    public boolean hasLength();
+    
     /**
      * @return true iff the source location has start/end line/column info. true implies that hasOffsetLength() will also 
      * return true.
      */
-    public boolean hasLineColumn();
+    public boolean hasLineColumn() throws IllegalArgumentException;
     
     /**
      * @return the character offset starting from the beginning of the file located 
@@ -59,30 +77,50 @@ public interface ISourceLocation extends IValue {
      */
     int getOffset() throws UnsupportedOperationException;
     
+    ISourceLocation setOffset(int offset) throws IllegalArgumentException;
+    
     /**
      * @return the character length of the location (the amount characters).
      */
-    int getLength() throws UnsupportedOperationException;;
+    int getLength() throws UnsupportedOperationException;
 
+    ISourceLocation setLength(int length) throws UnsupportedOperationException, IllegalArgumentException;
+    
     /**
      * @return the (inclusive) line number where the location begins. The first
      * line is always line number 1.
      */
-    int getBeginLine() throws UnsupportedOperationException;;
+    int getBeginLine() throws UnsupportedOperationException;
+
+    ISourceLocation setBeginLine(int line) throws IllegalArgumentException;
     
+  
     /**
      * @return the (exclusive) line where the location ends
      */
-    int getEndLine() throws UnsupportedOperationException;;
+    int getEndLine() throws UnsupportedOperationException;
 
+    ISourceLocation setEndLine(int line) throws IllegalArgumentException;
     /**
      * @return the (inclusive) column number where the location begins. The
      * first column is always column number 0 (zero).
      */
-    int getBeginColumn() throws UnsupportedOperationException;;
+    int getBeginColumn() throws UnsupportedOperationException;
+    
+    ISourceLocation setBeginColumn(int col) throws IllegalArgumentException, UnsupportedOperationException;
     
     /**
      * @return the (exclusive) column number where the location ends.
      */
-    int getEndColumn() throws UnsupportedOperationException;;
+    int getEndColumn() throws UnsupportedOperationException;
+    
+    ISourceLocation setEndColumn(int col) throws IllegalArgumentException, UnsupportedOperationException;
+    
+    ISourceLocation setBegin(int line, int col) throws IllegalArgumentException, UnsupportedOperationException;
+    ISourceLocation setEnd(int line, int col) throws IllegalArgumentException, UnsupportedOperationException;
+    
+    ISourceLocation setBeginEnd(int startLine, int endLine, int startCol, int endCol) throws IllegalArgumentException, UnsupportedOperationException;
+    ISourceLocation setOffsetLength(int offset, int length) throws IllegalArgumentException;
+    ISourceLocation setPosition(int offset, int length, int startLine, int endLine, int startCol, int endCol) throws IllegalArgumentException;
+    
 }
