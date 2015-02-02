@@ -280,6 +280,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		/*package*/ abstract ISourceLocation setURI(IURI newURI);
 		
 		@Override
+		public ISourceLocation getParent() {
+			// dropping the offsets intensionally
+			return SourceLocationValues.newSourceLocation(uri.getParent());
+		}
+		
+		@Override
+		public boolean hasParent() {
+			return uri.hasParent();
+		}
+		
+		public ISourceLocation makeChild(String child) throws URISyntaxException {
+			// dropping the offsets intensionally
+			return SourceLocationValues.newSourceLocation(uri.makeChild(child));
+		}
+		
+		@Override
 		public ISourceLocation setPosition(int offset, int length,
 				int startLine, int endLine, int startCol, int endCol)
 				throws IllegalArgumentException {

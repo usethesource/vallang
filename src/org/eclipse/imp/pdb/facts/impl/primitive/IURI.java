@@ -16,6 +16,10 @@ public interface IURI {
 	IURI setFragment(String fragment) throws URISyntaxException;
 	IURI setQuery(String query)  throws URISyntaxException;
 	
+	boolean hasParent();
+	IURI getParent() throws UnsupportedOperationException;
+	IURI makeChild(String child) throws URISyntaxException;
+	
 	Boolean hasAuthority();
 	Boolean hasPath();
 	Boolean hasFragment();

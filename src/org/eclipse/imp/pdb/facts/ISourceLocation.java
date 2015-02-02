@@ -49,6 +49,10 @@ public interface ISourceLocation extends IValue {
 	ISourceLocation setFragment(String fragment) throws URISyntaxException;
 	ISourceLocation setQuery(String query) throws URISyntaxException;
     
+	boolean hasParent();
+	ISourceLocation getParent() throws IllegalArgumentException;
+	ISourceLocation makeChild(String child) throws URISyntaxException;
+	
 	/**
 	 * @return the source location without offset/length or line/column information
 	 */

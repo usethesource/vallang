@@ -1,5 +1,6 @@
 package org.eclipse.imp.pdb.facts.impl.primitive;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
@@ -89,7 +90,6 @@ import java.util.regex.Pattern;
 	private static class BaseURI implements IURI {
 		protected final String scheme;
 		
-		
 		public BaseURI(String scheme)  {
 			this.scheme = scheme.intern();
 		}
@@ -101,6 +101,21 @@ import java.util.regex.Pattern;
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Internal state corrupted?", e);
 			}
+		}
+		
+		@Override
+		public IURI getParent() {
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public boolean hasParent() {
+			return false;
+		}
+		
+		@Override
+		public IURI makeChild(String child) throws URISyntaxException {
+			return setPath(child);
 		}
 		
 		@Override
@@ -253,7 +268,6 @@ import java.util.regex.Pattern;
 			return buildURIWithAuthority(scheme, authority, null,null,null);
 		}
 		
-
 		@Override
 		public Boolean hasPath() {
 			return false;
@@ -303,6 +317,30 @@ import java.util.regex.Pattern;
 		}
 		
 		@Override
+		public IURI makeChild(String child) throws URISyntaxException {
+			return setPath(new File(new File(path), child).toString());
+		}
+		
+		@Override
+		public boolean hasParent() {
+			return !"/".equals(path);
+		}
+		
+		@Override
+		public IURI getParent() {
+			if (!hasParent()) {
+				throw new UnsupportedOperationException();
+			}
+			
+			try {
+				return setPath(new File(path).getParent());
+			} catch (URISyntaxException e) {
+				assert false;
+				return this;
+			}
+		}
+		
+		@Override
 		public Boolean hasPath() {
 			return true;
 		}
@@ -338,6 +376,30 @@ import java.util.regex.Pattern;
 		@Override
 		public URI getURI() {
 			return buildURIWithAuthority(scheme, authority, path,null,null);
+		}
+		
+		@Override
+		public IURI makeChild(String child) throws URISyntaxException {
+			return setPath(new File(new File(path), child).toString());
+		}
+		
+		@Override
+		public boolean hasParent() {
+			return !"/".equals(path);
+		}
+		
+		@Override
+		public IURI getParent() {
+			if (!hasParent()) {
+				throw new UnsupportedOperationException();
+			}
+			
+			try {
+				return setPath(new File(path).getParent());
+			} catch (URISyntaxException e) {
+				assert false;
+				return this;
+			}
 		}
 		
 		@Override
