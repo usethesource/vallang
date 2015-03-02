@@ -17,17 +17,17 @@ import java.util.Map;
 
 public interface TransientMap<K, V> extends Map<K, V> {
 
-	boolean containsKey(final java.lang.Object o);
+	V get(final Object o);
 
-	boolean containsKeyEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
+	V getEquivalent(final Object o, final Comparator<Object> cmp);
 
-	V get(final java.lang.Object o);
+	boolean containsKey(final Object o);
 
-	V getEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
+	boolean containsKeyEquivalent(final Object o, final Comparator<Object> cmp);
 
-	boolean containsValue(final java.lang.Object o);
+	boolean containsValue(final Object o);
 
-	boolean containsValueEquivalent(final java.lang.Object o, final Comparator<Object> cmp);
+	boolean containsValueEquivalent(final Object o, final Comparator<Object> cmp);
 
 	V __put(final K key, final V val);
 
@@ -37,9 +37,9 @@ public interface TransientMap<K, V> extends Map<K, V> {
 
 	boolean __putAllEquivalent(final Map<? extends K, ? extends V> map, final Comparator<Object> cmp);
 
-	boolean __remove(final K key);
+	V __remove(final K key);
 
-	boolean __removeEquivalent(final K key, final Comparator<Object> cmp);
+	V __removeEquivalent(final K key, final Comparator<Object> cmp);
 
 	Iterator<K> keyIterator();
 
