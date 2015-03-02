@@ -14,7 +14,7 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 /*
@@ -22,8 +22,7 @@ import java.util.function.BiFunction;
  * 
  * Wrapping kev-value pair to tuple
  */
-public class ImmutableSetMultimapAsImmutableSetView<K, V, T extends Map.Entry<K, V>> implements
-				ImmutableSet<T> {
+public class ImmutableSetMultimapAsImmutableSetView<K, V, T> implements ImmutableSet<T> {
 
 	final ImmutableSetMultimap<K, V> multimap;
 
@@ -31,24 +30,24 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T extends Map.Entry<K,
 
 	final BiFunction<T, Integer, Object> tupleElementAt;
 
-	protected ImmutableSetMultimapAsImmutableSetView() {
-		multimap = TrieSetMultimap_BleedingEdge.<K, V> of();
+	// protected ImmutableSetMultimapAsImmutableSetView() {
+	// multimap = TrieSetMultimap_BleedingEdge.<K, V> of();
+	//
+	// tupleOf = AbstractSpecialisedImmutableMap::entryOf;
+	//
+	// tupleElementAt = (tuple, position) -> {
+	// switch (position) {
+	// case 0:
+	// return tuple.getKey();
+	// case 1:
+	// return tuple.getValue();
+	// default:
+	// throw new IllegalStateException();
+	// }
+	// };
+	// }
 
-		tupleOf = AbstractSpecialisedImmutableMap::entryOf;
-
-		tupleElementAt = (tuple, position) -> {
-			switch (position) {
-			case 0:
-				return tuple.getKey();
-			case 1:
-				return tuple.getValue();
-			default:
-				throw new IllegalStateException();
-			}
-		};
-	}
-
-	private ImmutableSetMultimapAsImmutableSetView(ImmutableSetMultimap<K, V> multimap,
+	public ImmutableSetMultimapAsImmutableSetView(ImmutableSetMultimap<K, V> multimap,
 					BiFunction<K, V, T> tupleOf, BiFunction<T, Integer, Object> tupleElementAt) {
 		this.multimap = multimap;
 		this.tupleOf = tupleOf;
@@ -67,7 +66,7 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T extends Map.Entry<K,
 
 	@Override
 	public Iterator<T> iterator() {
-		return this.keyIterator();
+		return multimap.tupleIterator(tupleOf);
 	}
 
 	@Override
@@ -114,14 +113,26 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T extends Map.Entry<K,
 
 	@Override
 	public boolean contains(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		T tuple = (T) o;
+
+		@SuppressWarnings("unchecked")
+		final K key = (K) tupleElementAt.apply(tuple, 0);
+		@SuppressWarnings("unchecked")
+		final V val = (V) tupleElementAt.apply(tuple, 1);
+
+		return multimap.containsEntry(key, val);
 	}
 
 	@Override
 	public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
-		// TODO Auto-generated method stub
-		return false;
+		T tuple = (T) o;
+
+		@SuppressWarnings("unchecked")
+		final K key = (K) tupleElementAt.apply(tuple, 0);
+		@SuppressWarnings("unchecked")
+		final V val = (V) tupleElementAt.apply(tuple, 1);
+
+		return multimap.containsEntryEquivalent(key, val, cmp);
 	}
 
 	@Override
@@ -157,24 +168,39 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T extends Map.Entry<K,
 
 		final ImmutableSetMultimap<K, V> multimapNew = multimap.__put(key, val);
 
-		return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf, tupleElementAt);
+		if (multimapNew == multimap) {
+			return this;
+		} else {
+			return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf,
+							tupleElementAt);
+		}
 	}
 
 	@Override
-	public ImmutableSet<T> __insertEquivalent(T key, Comparator<Object> cmp) {
+	public ImmutableSet<T> __insertEquivalent(T tuple, Comparator<Object> cmp) {
+		@SuppressWarnings("unchecked")
+		final K key = (K) tupleElementAt.apply(tuple, 0);
+		@SuppressWarnings("unchecked")
+		final V val = (V) tupleElementAt.apply(tuple, 1);
+
+		final ImmutableSetMultimap<K, V> multimapNew = multimap.__putEquivalent(key, val, cmp);
+
+		if (multimapNew == multimap) {
+			return this;
+		} else {
+			return new ImmutableSetMultimapAsImmutableSetView<>(multimapNew, tupleOf,
+							tupleElementAt);
+		}
+	}
+
+	@Override
+	public ImmutableSet<T> __insertAll(Set<? extends T> set) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ImmutableSet<T> __insertAll(ImmutableSet<? extends T> set) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ImmutableSet<T> __insertAllEquivalent(ImmutableSet<? extends T> set,
-					Comparator<Object> cmp) {
+	public ImmutableSet<T> __insertAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -198,26 +224,25 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T extends Map.Entry<K,
 	}
 
 	@Override
-	public ImmutableSet<T> __removeAll(ImmutableSet<? extends T> set) {
+	public ImmutableSet<T> __removeAll(Set<? extends T> set) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ImmutableSet<T> __removeAllEquivalent(ImmutableSet<? extends T> set,
-					Comparator<Object> cmp) {
+	public ImmutableSet<T> __removeAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ImmutableSet<T> __retainAll(ImmutableSet<? extends T> set) {
+	public ImmutableSet<T> __retainAll(Set<? extends T> set) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ImmutableSet<T> __retainAllEquivalent(ImmutableSet<? extends T> set,
+	public ImmutableSet<T> __retainAllEquivalent(TransientSet<? extends T> set,
 					Comparator<Object> cmp) {
 		// TODO Auto-generated method stub
 		return null;
@@ -230,14 +255,220 @@ public class ImmutableSetMultimapAsImmutableSetView<K, V, T extends Map.Entry<K,
 
 	@Override
 	public boolean isTransientSupported() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public TransientSet<T> asTransient() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TransientSetMultimapAsTransientSetView<>(multimap.asTransient(), tupleOf,
+						tupleElementAt);
+	}
+
+	static final class TransientSetMultimapAsTransientSetView<K, V, T> implements TransientSet<T> {
+
+		final TransientSetMultimap<K, V> multimap;
+
+		final BiFunction<K, V, T> tupleOf;
+
+		final BiFunction<T, Integer, Object> tupleElementAt;
+
+		public TransientSetMultimapAsTransientSetView(TransientSetMultimap<K, V> multimap,
+						BiFunction<K, V, T> tupleOf, BiFunction<T, Integer, Object> tupleElementAt) {
+			this.multimap = multimap;
+			this.tupleOf = tupleOf;
+			this.tupleElementAt = tupleElementAt;
+		}
+
+		@Override
+		public int size() {
+			return multimap.size();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return multimap.isEmpty();
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return multimap.tupleIterator(tupleOf);
+		}
+
+		@Override
+		public Object[] toArray() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public <T> T[] toArray(T[] a) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean add(T e) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean remove(Object o) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends T> c) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean retainAll(Collection<?> c) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> c) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public void clear() {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			T tuple = (T) o;
+
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
+
+			return multimap.containsEntry(key, val);
+		}
+
+		@Override
+		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
+			T tuple = (T) o;
+
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
+
+			return multimap.containsEntryEquivalent(key, val, cmp);
+		}
+
+		@Override
+		public boolean containsAll(Collection<?> c) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean containsAllEquivalent(Collection<?> c, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public T get(Object o) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public T getEquivalent(Object o, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean __insert(T tuple) {
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
+
+			return multimap.__put(key, val);
+		}
+
+		@Override
+		public boolean __insertEquivalent(T tuple, Comparator<Object> cmp) {
+			@SuppressWarnings("unchecked")
+			final K key = (K) tupleElementAt.apply(tuple, 0);
+			@SuppressWarnings("unchecked")
+			final V val = (V) tupleElementAt.apply(tuple, 1);
+
+			return multimap.__putEquivalent(key, val, cmp);
+		}
+
+		@Override
+		public boolean __insertAll(Set<? extends T> set) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __insertAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __remove(T key) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __removeEquivalent(T key, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __removeAll(Set<? extends T> set) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __removeAllEquivalent(Set<? extends T> set, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __retainAll(Set<? extends T> set) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean __retainAllEquivalent(TransientSet<? extends T> set, Comparator<Object> cmp) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public Iterator<T> keyIterator() {
+			return multimap.tupleIterator(tupleOf);
+		}
+
+		@Override
+		public ImmutableSet<T> freeze() {
+			return new ImmutableSetMultimapAsImmutableSetView<>(multimap.freeze(), tupleOf,
+							tupleElementAt);
+		}
+
 	}
 
 }
