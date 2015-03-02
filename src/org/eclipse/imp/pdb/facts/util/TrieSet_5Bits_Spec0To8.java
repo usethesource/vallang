@@ -97,98 +97,27 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		return hash; // return idendity
 	}
 
-	@Override
-	public ImmutableSet<K> __insert(final K key) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
-						details);
-
-		if (details.isModified()) {
-
-			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public ImmutableSet<K> __insertEquivalent(final K key, final Comparator<Object> cmp) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
-						details, cmp);
-
-		if (details.isModified()) {
-
-			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public ImmutableSet<K> __remove(final K key) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details);
-
-		if (details.isModified()) {
-
-			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public ImmutableSet<K> __removeEquivalent(final K key, final Comparator<Object> cmp) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
-
-		if (details.isModified()) {
-
-			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public boolean contains(final java.lang.Object o) {
+	public boolean contains(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0);
+			return rootNode.contains(key, improve(key.hashCode()), 0);
 		} catch (ClassCastException unused) {
 			return false;
 		}
 	}
 
-	@Override
-	public boolean containsEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
+	public boolean containsEquivalent(final Object o, final Comparator<Object> cmp) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
-			return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+			return rootNode.contains(key, improve(key.hashCode()), 0, cmp);
 		} catch (ClassCastException unused) {
 			return false;
 		}
 	}
 
-	@Override
-	public K get(final java.lang.Object o) {
+	public K get(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
@@ -204,8 +133,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 	}
 
-	@Override
-	public K getEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
+	public K getEquivalent(final Object o, final Comparator<Object> cmp) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
@@ -221,77 +149,121 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 	}
 
-	@Override
-	public ImmutableSet<K> __insertAll(final ImmutableSet<? extends K> set) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__insertAll(set);
-		return tmp.freeze();
+	public ImmutableSet<K> __insert(final K key) {
+		final int keyHash = key.hashCode();
+		final SetResult<K> details = SetResult.unchanged();
+
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details);
+
+		if (details.isModified()) {
+			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
+		}
+
+		return this;
 	}
 
-	@Override
-	public ImmutableSet<K> __insertAllEquivalent(final ImmutableSet<? extends K> set,
+	public ImmutableSet<K> __insertEquivalent(final K key, final Comparator<Object> cmp) {
+		final int keyHash = key.hashCode();
+		final SetResult<K> details = SetResult.unchanged();
+
+		final CompactSetNode<K> newRootNode = rootNode.updated(null, key, improve(keyHash), 0,
+						details, cmp);
+
+		if (details.isModified()) {
+			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode + keyHash, cachedSize + 1);
+		}
+
+		return this;
+	}
+
+	public ImmutableSet<K> __insertAll(final Set<? extends K> set) {
+		final TransientSet<K> tmpTransient = this.asTransient();
+		tmpTransient.__insertAll(set);
+		return tmpTransient.freeze();
+	}
+
+	public ImmutableSet<K> __insertAllEquivalent(final Set<? extends K> set,
 					final Comparator<Object> cmp) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__insertAllEquivalent(set, cmp);
-		return tmp.freeze();
+		final TransientSet<K> tmpTransient = this.asTransient();
+		tmpTransient.__insertAllEquivalent(set, cmp);
+		return tmpTransient.freeze();
 	}
 
-	@Override
-	public ImmutableSet<K> __retainAll(final ImmutableSet<? extends K> set) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__retainAll(set);
-		return tmp.freeze();
+	public ImmutableSet<K> __remove(final K key) {
+		final int keyHash = key.hashCode();
+		final SetResult<K> details = SetResult.unchanged();
+
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details);
+
+		if (details.isModified()) {
+			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
+		}
+
+		return this;
 	}
 
-	@Override
-	public ImmutableSet<K> __retainAllEquivalent(final ImmutableSet<? extends K> set,
+	public ImmutableSet<K> __removeEquivalent(final K key, final Comparator<Object> cmp) {
+		final int keyHash = key.hashCode();
+		final SetResult<K> details = SetResult.unchanged();
+
+		final CompactSetNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details, cmp);
+
+		if (details.isModified()) {
+			return new TrieSet_5Bits_Spec0To8<K>(newRootNode, hashCode - keyHash, cachedSize - 1);
+		}
+
+		return this;
+	}
+
+	public ImmutableSet<K> __removeAll(final Set<? extends K> set) {
+		final TransientSet<K> tmpTransient = this.asTransient();
+		tmpTransient.__removeAll(set);
+		return tmpTransient.freeze();
+	}
+
+	public ImmutableSet<K> __removeAllEquivalent(final Set<? extends K> set,
 					final Comparator<Object> cmp) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__retainAllEquivalent(set, cmp);
-		return tmp.freeze();
+		final TransientSet<K> tmpTransient = this.asTransient();
+		tmpTransient.__removeAllEquivalent(set, cmp);
+		return tmpTransient.freeze();
 	}
 
-	@Override
-	public ImmutableSet<K> __removeAll(final ImmutableSet<? extends K> set) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__removeAll(set);
-		return tmp.freeze();
+	public ImmutableSet<K> __retainAll(final Set<? extends K> set) {
+		final TransientSet<K> tmpTransient = this.asTransient();
+		tmpTransient.__retainAll(set);
+		return tmpTransient.freeze();
 	}
 
-	@Override
-	public ImmutableSet<K> __removeAllEquivalent(final ImmutableSet<? extends K> set,
+	public ImmutableSet<K> __retainAllEquivalent(final TransientSet<? extends K> transientSet,
 					final Comparator<Object> cmp) {
-		TransientSet<K> tmp = asTransient();
-		tmp.__removeAllEquivalent(set, cmp);
-		return tmp.freeze();
+		final TransientSet<K> tmpTransient = this.asTransient();
+		tmpTransient.__retainAllEquivalent(transientSet, cmp);
+		return tmpTransient.freeze();
 	}
 
-	@Override
 	public boolean add(final K key) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public void clear() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean remove(final java.lang.Object key) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public boolean addAll(final Collection<? extends K> c) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean remove(final Object key) {
+		throw new UnsupportedOperationException();
+	}
+
 	public boolean removeAll(final Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public boolean retainAll(final Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
@@ -316,28 +288,24 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		return true;
 	}
 
-	@Override
 	public int size() {
 		return cachedSize;
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return cachedSize == 0;
 	}
 
-	@Override
 	public Iterator<K> iterator() {
 		return keyIterator();
 	}
 
-	@Override
 	public Iterator<K> keyIterator() {
 		return new SetKeyIterator<>(rootNode);
 	}
 
 	@Override
-	public java.lang.Object[] toArray() {
+	public Object[] toArray() {
 		Object[] array = new Object[cachedSize];
 
 		int idx = 0;
@@ -360,7 +328,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 	}
 
 	@Override
-	public boolean equals(final java.lang.Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -555,7 +523,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 	}
 
-	static final class Result<K> {
+	static final class SetResult<K> {
 		private K replacedValue;
 		private boolean isModified;
 		private boolean isReplaced;
@@ -572,11 +540,11 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		// update: neither element, nor element count changed
-		public static <K> Result<K> unchanged() {
-			return new Result<>();
+		public static <K> SetResult<K> unchanged() {
+			return new SetResult<>();
 		}
 
-		private Result() {
+		private SetResult() {
 		}
 
 		public boolean isModified() {
@@ -599,9 +567,9 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 
 		static final int TUPLE_LENGTH = 1;
 
-		abstract boolean containsKey(final K key, final int keyHash, final int shift);
+		abstract boolean contains(final K key, final int keyHash, final int shift);
 
-		abstract boolean containsKey(final K key, final int keyHash, final int shift,
+		abstract boolean contains(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp);
 
 		abstract Optional<K> findByKey(final K key, final int keyHash, final int shift);
@@ -610,28 +578,28 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 						final Comparator<Object> cmp);
 
 		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details);
+						final int keyHash, final int shift, final SetResult<K> details);
 
 		abstract CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp);
 
 		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details);
+						final int keyHash, final int shift, final SetResult<K> details);
 
 		abstract CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
-		abstract AbstractSetNode<K> getNode(final int index);
-
 		abstract boolean hasNodes();
 
 		abstract int nodeArity();
+
+		abstract AbstractSetNode<K> getNode(final int index);
 
 		@Deprecated
 		Iterator<? extends AbstractSetNode<K>> nodeIterator() {
@@ -659,18 +627,18 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			};
 		}
 
-		abstract K getKey(final int index);
-
 		abstract boolean hasPayload();
 
 		abstract int payloadArity();
 
-		@Deprecated
-		abstract java.lang.Object getSlot(final int index);
+		abstract K getKey(final int index);
 
+		@Deprecated
 		abstract boolean hasSlots();
 
 		abstract int slotArity();
+
+		abstract Object getSlot(final int index);
 
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
@@ -694,10 +662,9 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 
 			return size;
 		}
-
 	}
 
-	private static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
+	protected static abstract class CompactSetNode<K> extends AbstractSetNode<K> {
 
 		static final int HASH_CODE_LENGTH = 32;
 
@@ -709,7 +676,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		static final int bitpos(final int mask) {
-			return (int) (1L << mask);
+			return (int) (1 << mask);
 		}
 
 		abstract int nodeMap();
@@ -745,14 +712,14 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		abstract CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator,
+		abstract CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
 						final int bitpos, final K key);
 
-		abstract CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator,
+		abstract CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator,
 						final int bitpos);
 
-		abstract CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
-						final int bitpos, CompactSetNode<K> node);
+		abstract CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactSetNode<K> node);
 
 		abstract CompactSetNode<K> copyAndMigrateFromInlineToNode(
 						final AtomicReference<Thread> mutator, final int bitpos,
@@ -762,22 +729,18 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 						final AtomicReference<Thread> mutator, final int bitpos,
 						final CompactSetNode<K> node);
 
-		/*
-		 * TODO: specialize removed(..) to remove this method from this
-		 * interface
-		 */
-
 		CompactSetNode<K> removeInplaceValueAndConvertToSpecializedNode(
 						final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
-		@SuppressWarnings("unchecked")
 		static final <K> CompactSetNode<K> mergeTwoKeyValPairs(final K key0, final int keyHash0,
 						final K key1, final int keyHash1, final int shift) {
 			assert !(key0.equals(key1));
 
 			if (shift >= HASH_CODE_LENGTH) {
+				// throw new
+				// IllegalStateException("Hash collision not yet fixed.");
 				return new HashCollisionSetNode_5Bits_Spec0To8<>(keyHash0, (K[]) new Object[] {
 								key0, key1 });
 			}
@@ -813,7 +776,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		};
 
 		static final <K> CompactSetNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+						final int nodeMap, final int dataMap, final Object[] nodes) {
 			return new BitmapIndexedSetNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
@@ -1267,16 +1230,11 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
-		K keyAt(final int bitpos) {
-			return getKey(dataIndex(bitpos));
-		}
-
 		CompactSetNode<K> nodeAt(final int bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
-		@Override
-		boolean containsKey(final K key, final int keyHash, final int shift) {
+		boolean contains(final K key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1289,14 +1247,13 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			final int nodeMap = nodeMap();
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE);
+				return getNode(index).contains(key, keyHash, shift + BIT_PARTITION_SIZE);
 			}
 
 			return false;
 		}
 
-		@Override
-		boolean containsKey(final K key, final int keyHash, final int shift,
+		boolean contains(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -1310,22 +1267,20 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			final int nodeMap = nodeMap();
 			if ((nodeMap & bitpos) != 0) {
 				final int index = index(nodeMap, mask, bitpos);
-				return getNode(index).containsKey(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
+				return getNode(index).contains(key, keyHash, shift + BIT_PARTITION_SIZE, cmp);
 			}
 
 			return false;
 		}
 
-		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (keyAt(bitpos).equals(key)) {
-					final K _key = keyAt(bitpos);
-
-					return Optional.of(_key);
+				final int index = dataIndex(bitpos);
+				if (getKey(index).equals(key)) {
+					return Optional.of(getKey(index));
 				}
 
 				return Optional.empty();
@@ -1340,17 +1295,15 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return Optional.empty();
 		}
 
-		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (cmp.compare(keyAt(bitpos), key) == 0) {
-					final K _key = keyAt(bitpos);
-
-					return Optional.of(_key);
+				final int index = dataIndex(bitpos);
+				if (cmp.compare(getKey(index), key) == 0) {
+					return Optional.of(getKey(index));
 				}
 
 				return Optional.empty();
@@ -1365,9 +1318,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return Optional.empty();
 		}
 
-		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final SetResult<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1378,20 +1330,12 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				if (currentKey.equals(key)) {
 					return this;
 				} else {
-
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
 									improve(currentKey.hashCode()), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
-					// final CompactSetNode<K> thisNew =
-					// copyAndRemoveValue(mutator,
-					// bitpos).copyAndInsertNode(mutator, bitpos, nodeNew);
-					// final CompactSetNode<K> thisNew =
-					// copyAndMigrateFromInlineToNode(mutator, bitpos, nodeNew);
-
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
-
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
@@ -1410,9 +1354,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			}
 		}
 
-		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -1424,20 +1367,12 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				if (cmp.compare(currentKey, key) == 0) {
 					return this;
 				} else {
-
 					final CompactSetNode<K> subNodeNew = mergeTwoKeyValPairs(currentKey,
 									improve(currentKey.hashCode()), key, keyHash, shift
 													+ BIT_PARTITION_SIZE);
 
-					// final CompactSetNode<K> thisNew =
-					// copyAndRemoveValue(mutator,
-					// bitpos).copyAndInsertNode(mutator, bitpos, nodeNew);
-					// final CompactSetNode<K> thisNew =
-					// copyAndMigrateFromInlineToNode(mutator, bitpos, nodeNew);
-
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
-
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactSetNode<K> subNode = nodeAt(bitpos);
@@ -1456,9 +1391,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			}
 		}
 
-		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final SetResult<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1520,9 +1454,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return this;
 		}
 
-		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -1644,7 +1577,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 
 	}
 
-	private static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
+	protected static abstract class CompactMixedSetNode<K> extends CompactSetNode<K> {
 
 		private final int nodeMap;
 		private final int dataMap;
@@ -1667,7 +1600,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 
 	}
 
-	private static abstract class CompactNodesOnlySetNode<K> extends CompactSetNode<K> {
+	protected static abstract class CompactNodesOnlySetNode<K> extends CompactSetNode<K> {
 
 		private final int nodeMap;
 
@@ -1688,7 +1621,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 
 	}
 
-	private static abstract class CompactValuesOnlySetNode<K> extends CompactSetNode<K> {
+	protected static abstract class CompactValuesOnlySetNode<K> extends CompactSetNode<K> {
 
 		private final int dataMap;
 
@@ -1709,7 +1642,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 
 	}
 
-	private static abstract class CompactEmptySetNode<K> extends CompactSetNode<K> {
+	protected static abstract class CompactEmptySetNode<K> extends CompactSetNode<K> {
 
 		CompactEmptySetNode(final AtomicReference<Thread> mutator, final int nodeMap,
 						final int dataMap) {
@@ -1730,10 +1663,10 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 	private static final class BitmapIndexedSetNode<K> extends CompactMixedSetNode<K> {
 
 		final AtomicReference<Thread> mutator;
-		final java.lang.Object[] nodes;
+		final Object[] nodes;
 
 		private BitmapIndexedSetNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes) {
+						final int dataMap, final Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
@@ -1789,7 +1722,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			return nodes[index];
 		}
 
@@ -1814,7 +1747,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -1853,8 +1786,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				this.nodes[idx] = node;
 				return this;
 			} else {
-				final java.lang.Object[] src = this.nodes;
-				final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length];
+				final Object[] src = this.nodes;
+				final Object[] dst = (Object[]) new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
@@ -1869,8 +1802,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 						final int bitpos, final K key) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length + 1];
+			final Object[] src = this.nodes;
+			final Object[] dst = (Object[]) new Object[src.length + 1];
 
 			// copy 'src' and insert 1 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
@@ -1884,8 +1817,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length - 1];
+			final Object[] src = this.nodes;
+			final Object[] dst = (Object[]) new Object[src.length - 1];
 
 			// copy 'src' and remove 1 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
@@ -1901,8 +1834,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = new Object[src.length - 1 + 1];
+			final Object[] src = this.nodes;
+			final Object[] dst = new Object[src.length - 1 + 1];
 
 			// copy 'src' and remove 1 element(s) at position 'idxOld' and
 			// insert 1 element(s) at position 'idxNew' (TODO: carefully test)
@@ -1922,8 +1855,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = new Object[src.length - 1 + 1];
+			final Object[] src = this.nodes;
+			final Object[] dst = new Object[src.length - 1 + 1];
 
 			// copy 'src' and remove 1 element(s) at position 'idxOld' and
 			// insert 1 element(s) at position 'idxNew' (TODO: carefully test)
@@ -2788,7 +2721,6 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
-
 	}
 
 	private static final class HashCollisionSetNode_5Bits_Spec0To8<K> extends CompactSetNode<K> {
@@ -2804,9 +2736,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			assert payloadArity() >= 2;
 		}
 
-		@Override
-		boolean containsKey(final K key, final int keyHash, final int shift) {
-
+		boolean contains(final K key, final int keyHash, final int shift) {
 			if (this.hash == keyHash) {
 				for (K k : keys) {
 					if (k.equals(key)) {
@@ -2815,13 +2745,10 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				}
 			}
 			return false;
-
 		}
 
-		@Override
-		boolean containsKey(final K key, final int keyHash, final int shift,
+		boolean contains(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-
 			if (this.hash == keyHash) {
 				for (K k : keys) {
 					if (cmp.compare(k, key) == 0) {
@@ -2830,12 +2757,9 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				}
 			}
 			return false;
-
 		}
 
-		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift) {
-
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
 				if (key.equals(_key)) {
@@ -2843,13 +2767,10 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				}
 			}
 			return Optional.empty();
-
 		}
 
-		@Override
 		Optional<K> findByKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
 				if (cmp.compare(key, _key) == 0) {
@@ -2857,19 +2778,15 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				}
 			}
 			return Optional.empty();
-
 		}
 
-		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final SetResult<K> details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
-
 					return this;
-
 				}
 			}
 
@@ -2887,17 +2804,14 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return new HashCollisionSetNode_5Bits_Spec0To8<>(keyHash, keysNew);
 		}
 
-		@Override
 		CompactSetNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
-
 					return this;
-
 				}
 			}
 
@@ -2915,10 +2829,8 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return new HashCollisionSetNode_5Bits_Spec0To8<>(keyHash, keysNew);
 		}
 
-		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
-
+						final int keyHash, final int shift, final SetResult<K> details) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
 
@@ -2949,14 +2861,11 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				}
 			}
 			return this;
-
 		}
 
-		@Override
 		CompactSetNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final SetResult<K> details,
 						final Comparator<Object> cmp) {
-
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
 
@@ -2987,7 +2896,6 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 				}
 			}
 			return this;
-
 		}
 
 		@Override
@@ -3021,7 +2929,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		K getKey(int index) {
+		K getKey(final int index) {
 			return keys[index];
 		}
 
@@ -3031,7 +2939,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3080,7 +2988,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			 * Linear scan for each key, because of arbitrary element order.
 			 */
 			outerLoop: for (int i = 0; i < that.payloadArity(); i++) {
-				final java.lang.Object otherKey = that.getKey(i);
+				final Object otherKey = that.getKey(i);
 
 				for (int j = 0; j < keys.length; j++) {
 					final K key = keys[j];
@@ -3097,19 +3005,19 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		CompactSetNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key) {
+		CompactSetNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final K key) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
+		CompactSetNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactSetNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactSetNode<K> node) {
+		CompactSetNode<K> copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactSetNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3236,8 +3144,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 	}
 
-	private static final class SetKeyIterator<K> extends AbstractSetIterator<K> implements
-					Iterator<K> {
+	protected static class SetKeyIterator<K> extends AbstractSetIterator<K> implements Iterator<K> {
 
 		SetKeyIterator(AbstractSetNode<K> rootNode) {
 			super(rootNode);
@@ -3335,53 +3242,45 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return hash == targetHash && size == targetSize;
 		}
 
-		@Override
 		public boolean add(final K key) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
-		public void clear() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean remove(final java.lang.Object key) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public boolean addAll(final Collection<? extends K> c) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		public boolean remove(final Object key) {
+			throw new UnsupportedOperationException();
+		}
+
 		public boolean removeAll(final Collection<?> c) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
 		public boolean retainAll(final Collection<?> c) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
-		public boolean contains(Object o) {
+		public boolean contains(final Object o) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0);
+				return rootNode.contains(key, improve(key.hashCode()), 0);
 			} catch (ClassCastException unused) {
 				return false;
 			}
 		}
 
-		@Override
-		public boolean containsEquivalent(Object o, Comparator<Object> cmp) {
+		public boolean containsEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
-				return rootNode.containsKey(key, improve(key.hashCode()), 0, cmp);
+				return rootNode.contains(key, improve(key.hashCode()), 0, cmp);
 			} catch (ClassCastException unused) {
 				return false;
 			}
@@ -3421,21 +3320,20 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			}
 		}
 
-		@Override
 		public boolean __insert(final K key) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
 							0, details);
 
 			if (details.isModified()) {
-				rootNode = newRootNode;
 
+				rootNode = newRootNode;
 				hashCode += keyHash;
 				cachedSize += 1;
 
@@ -3443,6 +3341,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 					assert checkHashCodeAndSize(hashCode, cachedSize);
 				}
 				return true;
+
 			}
 
 			if (DEBUG) {
@@ -3451,21 +3350,20 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return false;
 		}
 
-		@Override
 		public boolean __insertEquivalent(final K key, final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.updated(mutator, key, improve(keyHash),
 							0, details, cmp);
 
 			if (details.isModified()) {
-				rootNode = newRootNode;
 
+				rootNode = newRootNode;
 				hashCode += keyHash;
 				cachedSize += 1;
 
@@ -3473,6 +3371,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 					assert checkHashCodeAndSize(hashCode, cachedSize);
 				}
 				return true;
+
 			}
 
 			if (DEBUG) {
@@ -3481,113 +3380,133 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return false;
 		}
 
-		@Override
-		public boolean __insertAll(final ImmutableSet<? extends K> set) {
+		public boolean __insertAll(final Set<? extends K> set) {
 			boolean modified = false;
 
 			for (final K key : set) {
-				modified |= __insert(key);
+				modified |= this.__insert(key);
 			}
 
 			return modified;
 		}
 
-		@Override
-		public boolean __insertAllEquivalent(final ImmutableSet<? extends K> set,
+		public boolean __insertAllEquivalent(final Set<? extends K> set,
 						final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (final K key : set) {
-				modified |= __insertEquivalent(key, cmp);
+				modified |= this.__insertEquivalent(key, cmp);
 			}
 
 			return modified;
 		}
 
-		@Override
-		public boolean __removeAll(final ImmutableSet<? extends K> set) {
-			boolean modified = false;
-
-			for (final K key : set) {
-				modified |= __remove(key);
-			}
-
-			return modified;
-		}
-
-		@Override
-		public boolean __removeAllEquivalent(final ImmutableSet<? extends K> set,
-						final Comparator<Object> cmp) {
-			boolean modified = false;
-
-			for (final K key : set) {
-				modified |= __removeEquivalent(key, cmp);
-			}
-
-			return modified;
-		}
-
-		@Override
 		public boolean __remove(final K key) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
-
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
 							0, details);
 
 			if (details.isModified()) {
-
 				rootNode = newRootNode;
-				hashCode -= keyHash;
-				cachedSize -= 1;
+				hashCode = hashCode - keyHash;
+				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
 					assert checkHashCodeAndSize(hashCode, cachedSize);
 				}
 				return true;
-
 			}
 
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
+
 			return false;
 		}
 
-		@Override
-		public boolean __removeEquivalent(final K key, Comparator<Object> cmp) {
+		public boolean __removeEquivalent(final K key, final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final SetResult<K> details = SetResult.unchanged();
 
 			final CompactSetNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
 							0, details, cmp);
 
 			if (details.isModified()) {
-
 				rootNode = newRootNode;
-				hashCode -= keyHash;
-				cachedSize -= 1;
+				hashCode = hashCode - keyHash;
+				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
 					assert checkHashCodeAndSize(hashCode, cachedSize);
 				}
 				return true;
-
 			}
 
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
+
 			return false;
+		}
+
+		public boolean __removeAll(final Set<? extends K> set) {
+			boolean modified = false;
+
+			for (final K key : set) {
+				modified |= this.__remove(key);
+			}
+
+			return modified;
+		}
+
+		public boolean __removeAllEquivalent(final Set<? extends K> set,
+						final Comparator<Object> cmp) {
+			boolean modified = false;
+
+			for (final K key : set) {
+				modified |= this.__removeEquivalent(key, cmp);
+			}
+
+			return modified;
+		}
+
+		public boolean __retainAll(final Set<? extends K> set) {
+			boolean modified = false;
+
+			Iterator<K> thisIterator = iterator();
+			while (thisIterator.hasNext()) {
+				if (!set.contains(thisIterator.next())) {
+					thisIterator.remove();
+					modified = true;
+				}
+			}
+
+			return modified;
+		}
+
+		public boolean __retainAllEquivalent(final TransientSet<? extends K> transientSet,
+						final Comparator<Object> cmp) {
+			boolean modified = false;
+
+			Iterator<K> thisIterator = iterator();
+			while (thisIterator.hasNext()) {
+				if (!transientSet.containsEquivalent(thisIterator.next(), cmp)) {
+					thisIterator.remove();
+					modified = true;
+				}
+			}
+
+			return modified;
 		}
 
 		@Override
@@ -3610,97 +3529,43 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 			return true;
 		}
 
-		@Override
-		public boolean __retainAll(ImmutableSet<? extends K> set) {
-			boolean modified = false;
-
-			Iterator<K> thisIterator = iterator();
-			while (thisIterator.hasNext()) {
-				if (!set.contains(thisIterator.next())) {
-					thisIterator.remove();
-					modified = true;
-				}
-			}
-
-			return modified;
-		}
-
-		@Override
-		public boolean __retainAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp) {
-			boolean modified = false;
-
-			Iterator<K> thisIterator = iterator();
-			while (thisIterator.hasNext()) {
-				if (!set.containsEquivalent(thisIterator.next(), cmp)) {
-					thisIterator.remove();
-					modified = true;
-				}
-			}
-
-			return modified;
-		}
-
-		@Override
 		public int size() {
 			return cachedSize;
 		}
 
-		@Override
 		public boolean isEmpty() {
 			return cachedSize == 0;
 		}
 
-		@Override
 		public Iterator<K> iterator() {
 			return keyIterator();
 		}
 
-		@Override
 		public Iterator<K> keyIterator() {
 			return new TransientSetKeyIterator<>(this);
 		}
 
-		/**
-		 * Iterator that first iterates over inlined-values and then continues
-		 * depth first recursively.
-		 */
-		private static class TransientSetKeyIterator<K> extends AbstractSetIterator<K> implements
-						Iterator<K> {
-
-			final TransientTrieSet_5Bits_Spec0To8<K> transientTrieSet_5Bits_Spec0To8;
+		public static class TransientSetKeyIterator<K> extends SetKeyIterator<K> {
+			final TransientTrieSet_5Bits_Spec0To8<K> collection;
 			K lastKey;
 
-			TransientSetKeyIterator(
-							TransientTrieSet_5Bits_Spec0To8<K> transientTrieSet_5Bits_Spec0To8) {
-				super(transientTrieSet_5Bits_Spec0To8.rootNode);
-				this.transientTrieSet_5Bits_Spec0To8 = transientTrieSet_5Bits_Spec0To8;
+			public TransientSetKeyIterator(final TransientTrieSet_5Bits_Spec0To8<K> collection) {
+				super(collection.rootNode);
+				this.collection = collection;
 			}
 
-			@Override
 			public K next() {
-				if (!hasNext()) {
-					throw new NoSuchElementException();
-				} else {
-					lastKey = currentValueNode.getKey(currentValueCursor++);
-					return lastKey;
-				}
+				return lastKey = super.next();
 			}
 
-			/*
-			 * TODO: test removal with iteration rigorously
-			 */
-			@Override
 			public void remove() {
-				boolean success = transientTrieSet_5Bits_Spec0To8.__remove(lastKey);
-
-				if (!success) {
-					throw new IllegalStateException("Key from iteration couldn't be deleted.");
-				}
+				// TODO: test removal at iteration rigorously
+				collection.__remove(lastKey);
 			}
 		}
 
 		@Override
-		public java.lang.Object[] toArray() {
+		public Object[] toArray() {
 			Object[] array = new Object[cachedSize];
 
 			int idx = 0;
@@ -3723,7 +3588,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (other == this) {
 				return true;
 			}
@@ -3787,7 +3652,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -3879,7 +3744,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -3918,7 +3783,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -4049,7 +3914,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -4103,7 +3968,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -4246,7 +4111,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -4305,7 +4170,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -4460,7 +4325,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -4525,7 +4390,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -4692,7 +4557,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -4762,7 +4627,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -4941,7 +4806,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -5017,7 +4882,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -5209,7 +5074,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -5290,7 +5155,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -5508,7 +5373,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -5595,7 +5460,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -5827,7 +5692,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -5899,7 +5764,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -6030,7 +5895,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6083,7 +5948,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -6253,7 +6118,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6312,7 +6177,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -6498,7 +6363,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6562,7 +6427,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -6764,7 +6629,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6834,7 +6699,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -7052,7 +6917,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -7127,7 +6992,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -7369,7 +7234,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -7450,7 +7315,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -7727,7 +7592,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -7813,7 +7678,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -8111,7 +7976,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -8185,7 +8050,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -8330,7 +8195,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -8388,7 +8253,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -8576,7 +8441,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -8640,7 +8505,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -8848,7 +8713,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -8918,7 +8783,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -9146,7 +9011,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -9221,7 +9086,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -9472,7 +9337,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -9553,7 +9418,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -9856,7 +9721,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -9942,7 +9807,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -10273,7 +10138,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -10349,7 +10214,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -10508,7 +10373,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -10572,7 +10437,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -10778,7 +10643,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -10847,7 +10712,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -11077,7 +10942,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -11152,7 +11017,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -11406,7 +11271,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -11486,7 +11351,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -11803,7 +11668,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -11889,7 +11754,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -12241,7 +12106,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -12319,7 +12184,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -12492,7 +12357,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -12561,7 +12426,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -12785,7 +12650,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -12859,7 +12724,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -13111,7 +12976,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -13191,7 +13056,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -13507,7 +13372,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -13592,7 +13457,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -13953,7 +13818,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -14034,7 +13899,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -14221,7 +14086,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -14295,7 +14160,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -14537,7 +14402,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -14616,7 +14481,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -14923,7 +14788,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -15008,7 +14873,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -15366,7 +15231,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -15449,7 +15314,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -15650,7 +15515,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -15729,7 +15594,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -16015,7 +15880,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -16100,7 +15965,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -16437,7 +16302,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -16522,7 +16387,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -16752,7 +16617,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -16836,7 +16701,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -17145,7 +17010,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -17232,7 +17097,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = payloadArity();
 
 			if (index < boundary) {
@@ -17478,7 +17343,7 @@ public class TrieSet_5Bits_Spec0To8<K> implements ImmutableSet<K> {
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}

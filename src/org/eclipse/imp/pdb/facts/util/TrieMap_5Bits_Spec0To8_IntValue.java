@@ -119,106 +119,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		return hash; // return idendity
 	}
 
-	@Override
-	public ImmutableMap<K, java.lang.Integer> __put(final K key, final java.lang.Integer val) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details);
-
-		if (details.isModified()) {
-
-			if (details.hasReplacedValue()) {
-				final int valHashOld = (int) details.getReplacedValue();
-				final int valHashNew = (int) val;
-
-				return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
-			}
-
-			final int valHash = (int) val;
-			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
-							+ (keyHash ^ valHash), cachedSize + 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public ImmutableMap<K, java.lang.Integer> __putEquivalent(final K key,
-					final java.lang.Integer val, final Comparator<Object> cmp) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
-						details, cmp);
-
-		if (details.isModified()) {
-
-			if (details.hasReplacedValue()) {
-				final int valHashOld = (int) details.getReplacedValue();
-				final int valHashNew = (int) val;
-
-				return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
-								+ (keyHash ^ valHashNew) - (keyHash ^ valHashOld), cachedSize);
-			}
-
-			final int valHash = (int) val;
-			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
-							+ (keyHash ^ valHash), cachedSize + 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public ImmutableMap<K, java.lang.Integer> __remove(final K key) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactMapNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details);
-
-		if (details.isModified()) {
-
-			assert details.hasReplacedValue();
-			final int valHash = (int) details.getReplacedValue();
-
-			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
-							- (keyHash ^ valHash), cachedSize - 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public ImmutableMap<K, java.lang.Integer> __removeEquivalent(final K key,
-					final Comparator<Object> cmp) {
-		final int keyHash = key.hashCode();
-		final Result<K> details = Result.unchanged();
-
-		final CompactMapNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
-						details, cmp);
-
-		if (details.isModified()) {
-
-			assert details.hasReplacedValue();
-			final int valHash = (int) details.getReplacedValue();
-
-			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
-							- (keyHash ^ valHash), cachedSize - 1);
-
-		}
-
-		return this;
-	}
-
-	@Override
-	public boolean containsKey(final java.lang.Object o) {
+	public boolean containsKey(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
@@ -228,8 +129,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 	}
 
-	@Override
-	public boolean containsKeyEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
+	public boolean containsKeyEquivalent(final Object o, final Comparator<Object> cmp) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
@@ -239,8 +139,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 	}
 
-	@Override
-	public boolean containsValue(final java.lang.Object o) {
+	public boolean containsValue(final Object o) {
 		for (Iterator<java.lang.Integer> iterator = valueIterator(); iterator.hasNext();) {
 			if (iterator.next().equals(o)) {
 				return true;
@@ -249,18 +148,16 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		return false;
 	}
 
-	@Override
-	public boolean containsValueEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
+	public boolean containsValueEquivalent(final Object o, final Comparator<Object> cmp) {
 		for (Iterator<java.lang.Integer> iterator = valueIterator(); iterator.hasNext();) {
-			if (iterator.next().equals(o)) {
+			if (cmp.compare(iterator.next(), o) == 0) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	@Override
-	public java.lang.Integer get(final java.lang.Object o) {
+	public java.lang.Integer get(final Object o) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
@@ -277,8 +174,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 	}
 
-	@Override
-	public java.lang.Integer getEquivalent(final java.lang.Object o, final Comparator<Object> cmp) {
+	public java.lang.Integer getEquivalent(final Object o, final Comparator<Object> cmp) {
 		try {
 			@SuppressWarnings("unchecked")
 			final K key = (K) o;
@@ -295,64 +191,137 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 	}
 
-	@Override
-	public ImmutableMap<K, java.lang.Integer> __putAll(
-					final Map<? extends K, ? extends java.lang.Integer> map) {
-		TransientMap<K, java.lang.Integer> tmp = asTransient();
-		tmp.__putAll(map);
-		return tmp.freeze();
+	public ImmutableMap<K, java.lang.Integer> __put(final K key, final java.lang.Integer val) {
+		final int keyHash = key.hashCode();
+		final MapResult<K> details = MapResult.unchanged();
+
+		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
+						details);
+
+		if (details.isModified()) {
+			if (details.hasReplacedValue()) {
+				final int valHashOld = (int) details.getReplacedValue();
+				final int valHashNew = (int) val;
+
+				return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
+								+ ((keyHash ^ valHashNew)) - ((keyHash ^ valHashOld)), cachedSize);
+			}
+
+			final int valHash = (int) val;
+			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
+							+ ((keyHash ^ valHash)), cachedSize + 1);
+		}
+
+		return this;
 	}
 
-	@Override
+	public ImmutableMap<K, java.lang.Integer> __putEquivalent(final K key,
+					final java.lang.Integer val, final Comparator<Object> cmp) {
+		final int keyHash = key.hashCode();
+		final MapResult<K> details = MapResult.unchanged();
+
+		final CompactMapNode<K> newRootNode = rootNode.updated(null, key, val, improve(keyHash), 0,
+						details, cmp);
+
+		if (details.isModified()) {
+			if (details.hasReplacedValue()) {
+				final int valHashOld = (int) details.getReplacedValue();
+				final int valHashNew = (int) val;
+
+				return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
+								+ ((keyHash ^ valHashNew)) - ((keyHash ^ valHashOld)), cachedSize);
+			}
+
+			final int valHash = (int) val;
+			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
+							+ ((keyHash ^ valHash)), cachedSize + 1);
+		}
+
+		return this;
+	}
+
+	public ImmutableMap<K, java.lang.Integer> __putAll(
+					final Map<? extends K, ? extends java.lang.Integer> map) {
+		final TransientMap<K, java.lang.Integer> tmpTransient = this.asTransient();
+		tmpTransient.__putAll(map);
+		return tmpTransient.freeze();
+	}
+
 	public ImmutableMap<K, java.lang.Integer> __putAllEquivalent(
 					final Map<? extends K, ? extends java.lang.Integer> map,
 					final Comparator<Object> cmp) {
-		TransientMap<K, java.lang.Integer> tmp = asTransient();
-		tmp.__putAllEquivalent(map, cmp);
-		return tmp.freeze();
+		final TransientMap<K, java.lang.Integer> tmpTransient = this.asTransient();
+		tmpTransient.__putAllEquivalent(map, cmp);
+		return tmpTransient.freeze();
 	}
 
-	@Override
+	public ImmutableMap<K, java.lang.Integer> __remove(final K key) {
+		final int keyHash = key.hashCode();
+		final MapResult<K> details = MapResult.unchanged();
+
+		final CompactMapNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details);
+
+		if (details.isModified()) {
+			assert details.hasReplacedValue();
+			final int valHash = (int) details.getReplacedValue();
+			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
+							- ((keyHash ^ valHash)), cachedSize - 1);
+		}
+
+		return this;
+	}
+
+	public ImmutableMap<K, java.lang.Integer> __removeEquivalent(final K key,
+					final Comparator<Object> cmp) {
+		final int keyHash = key.hashCode();
+		final MapResult<K> details = MapResult.unchanged();
+
+		final CompactMapNode<K> newRootNode = rootNode.removed(null, key, improve(keyHash), 0,
+						details, cmp);
+
+		if (details.isModified()) {
+			assert details.hasReplacedValue();
+			final int valHash = (int) details.getReplacedValue();
+			return new TrieMap_5Bits_Spec0To8_IntValue<K>(newRootNode, hashCode
+							- ((keyHash ^ valHash)), cachedSize - 1);
+		}
+
+		return this;
+	}
+
 	public java.lang.Integer put(final K key, final java.lang.Integer val) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public void clear() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public java.lang.Integer remove(final java.lang.Object key) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void putAll(final Map<? extends K, ? extends java.lang.Integer> m) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
+
+	public java.lang.Integer remove(final Object key) {
+		throw new UnsupportedOperationException();
+	}
+
 	public int size() {
 		return cachedSize;
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return cachedSize == 0;
 	}
 
-	@Override
 	public Iterator<K> keyIterator() {
 		return new MapKeyIterator<>(rootNode);
 	}
 
-	@Override
 	public Iterator<java.lang.Integer> valueIterator() {
 		return new MapValueIterator<>(rootNode);
 	}
 
-	@Override
 	public Iterator<Map.Entry<K, java.lang.Integer>> entryIterator() {
 		return new MapEntryIterator<>(rootNode);
 	}
@@ -483,7 +452,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 	}
 
 	@Override
-	public boolean equals(final java.lang.Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
@@ -703,7 +672,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 	}
 
-	static final class Result<K> {
+	static final class MapResult<K> {
 		private int replacedValue;
 		private boolean isModified;
 		private boolean isReplaced;
@@ -720,11 +689,11 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		// update: neither element, nor element count changed
-		public static <K> Result<K> unchanged() {
-			return new Result<>();
+		public static <K> MapResult<K> unchanged() {
+			return new MapResult<>();
 		}
 
-		private Result() {
+		private MapResult() {
 		}
 
 		public boolean isModified() {
@@ -759,28 +728,29 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 						final int shift, final Comparator<Object> cmp);
 
 		abstract CompactMapNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int val, final int keyHash, final int shift, final Result<K> details);
+						final int val, final int keyHash, final int shift,
+						final MapResult<K> details);
 
 		abstract CompactMapNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int val, final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp);
+						final int val, final int keyHash, final int shift,
+						final MapResult<K> details, final Comparator<Object> cmp);
 
 		abstract CompactMapNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details);
+						final int keyHash, final int shift, final MapResult<K> details);
 
 		abstract CompactMapNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final MapResult<K> details,
 						final Comparator<Object> cmp);
 
 		static final boolean isAllowedToEdit(AtomicReference<Thread> x, AtomicReference<Thread> y) {
 			return x != null && y != null && (x == y || x.get() == y.get());
 		}
 
-		abstract AbstractMapNode<K> getNode(final int index);
-
 		abstract boolean hasNodes();
 
 		abstract int nodeArity();
+
+		abstract AbstractMapNode<K> getNode(final int index);
 
 		@Deprecated
 		Iterator<? extends AbstractMapNode<K>> nodeIterator() {
@@ -808,22 +778,22 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			};
 		}
 
-		abstract K getKey(final int index);
-
-		abstract int getValue(final int index);
-
-		abstract java.util.Map.Entry<K, java.lang.Integer> getKeyValueEntry(final int index);
-
 		abstract boolean hasPayload();
 
 		abstract int payloadArity();
 
-		@Deprecated
-		abstract java.lang.Object getSlot(final int index);
+		abstract K getKey(final int index);
 
+		abstract int getValue(final int index);
+
+		abstract Map.Entry<K, java.lang.Integer> getKeyValueEntry(final int index);
+
+		@Deprecated
 		abstract boolean hasSlots();
 
 		abstract int slotArity();
+
+		abstract Object getSlot(final int index);
 
 		/**
 		 * The arity of this trie node (i.e. number of values and nodes stored
@@ -847,10 +817,9 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 
 			return size;
 		}
-
 	}
 
-	private static abstract class CompactMapNode<K> extends AbstractMapNode<K> {
+	protected static abstract class CompactMapNode<K> extends AbstractMapNode<K> {
 
 		static final int HASH_CODE_LENGTH = 32;
 
@@ -862,7 +831,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		static final int bitpos(final int mask) {
-			return (int) (1L << mask);
+			return (int) (1 << mask);
 		}
 
 		abstract int nodeMap();
@@ -898,17 +867,17 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return inv1 && inv2 && inv3 && inv4 && inv5;
 		}
 
-		abstract CompactMapNode<K> copyAndSetValue(AtomicReference<Thread> mutator,
+		abstract CompactMapNode<K> copyAndSetValue(final AtomicReference<Thread> mutator,
 						final int bitpos, final int val);
 
-		abstract CompactMapNode<K> copyAndInsertValue(AtomicReference<Thread> mutator,
+		abstract CompactMapNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
 						final int bitpos, final K key, final int val);
 
-		abstract CompactMapNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator,
+		abstract CompactMapNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator,
 						final int bitpos);
 
-		abstract CompactMapNode<K> copyAndSetNode(AtomicReference<Thread> mutator,
-						final int bitpos, CompactMapNode<K> node);
+		abstract CompactMapNode<K> copyAndSetNode(final AtomicReference<Thread> mutator,
+						final int bitpos, final CompactMapNode<K> node);
 
 		abstract CompactMapNode<K> copyAndMigrateFromInlineToNode(
 						final AtomicReference<Thread> mutator, final int bitpos,
@@ -918,23 +887,19 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 						final AtomicReference<Thread> mutator, final int bitpos,
 						final CompactMapNode<K> node);
 
-		/*
-		 * TODO: specialize removed(..) to remove this method from this
-		 * interface
-		 */
-
 		CompactMapNode<K> removeInplaceValueAndConvertToSpecializedNode(
 						final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
-		@SuppressWarnings("unchecked")
 		static final <K> CompactMapNode<K> mergeTwoKeyValPairs(final K key0, final int val0,
 						final int keyHash0, final K key1, final int val1, final int keyHash1,
 						final int shift) {
 			assert !(key0.equals(key1));
 
 			if (shift >= HASH_CODE_LENGTH) {
+				// throw new
+				// IllegalStateException("Hash collision not yet fixed.");
 				return new HashCollisionMapNode_5Bits_Spec0To8_IntValue<>(keyHash0,
 								(K[]) new Object[] { key0, key1 }, (int[]) new int[] { val0, val1 });
 			}
@@ -970,7 +935,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		};
 
 		static final <K> CompactMapNode<K> nodeOf(final AtomicReference<Thread> mutator,
-						final int nodeMap, final int dataMap, final java.lang.Object[] nodes) {
+						final int nodeMap, final int dataMap, final Object[] nodes) {
 			return new BitmapIndexedMapNode<>(mutator, nodeMap, dataMap, nodes);
 		}
 
@@ -1471,19 +1436,10 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return java.lang.Integer.bitCount(nodeMap() & (bitpos - 1));
 		}
 
-		K keyAt(final int bitpos) {
-			return getKey(dataIndex(bitpos));
-		}
-
-		int valAt(final int bitpos) {
-			return getValue(dataIndex(bitpos));
-		}
-
 		CompactMapNode<K> nodeAt(final int bitpos) {
 			return getNode(nodeIndex(bitpos));
 		}
 
-		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -1503,7 +1459,6 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return false;
 		}
 
-		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
@@ -1524,16 +1479,16 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return false;
 		}
 
-		@Override
 		Optional<java.lang.Integer> findByKey(final K key, final int keyHash, final int shift) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (keyAt(bitpos).equals(key)) {
-					final int _val = valAt(bitpos);
+				final int index = dataIndex(bitpos);
+				if (getKey(index).equals(key)) {
+					final java.lang.Integer result = getValue(index);
 
-					return Optional.of(_val);
+					return Optional.of(result);
 				}
 
 				return Optional.empty();
@@ -1548,17 +1503,17 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return Optional.empty();
 		}
 
-		@Override
 		Optional<java.lang.Integer> findByKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
 			if ((dataMap() & bitpos) != 0) { // inplace value
-				if (cmp.compare(keyAt(bitpos), key) == 0) {
-					final int _val = valAt(bitpos);
+				final int index = dataIndex(bitpos);
+				if (cmp.compare(getKey(index), key) == 0) {
+					final java.lang.Integer result = getValue(index);
 
-					return Optional.of(_val);
+					return Optional.of(result);
 				}
 
 				return Optional.empty();
@@ -1573,9 +1528,9 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return Optional.empty();
 		}
 
-		@Override
 		CompactMapNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int val, final int keyHash, final int shift, final Result<K> details) {
+						final int val, final int keyHash, final int shift,
+						final MapResult<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1599,15 +1554,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
 									shift + BIT_PARTITION_SIZE);
 
-					// final CompactMapNode<K> thisNew =
-					// copyAndRemoveValue(mutator,
-					// bitpos).copyAndInsertNode(mutator, bitpos, nodeNew);
-					// final CompactMapNode<K> thisNew =
-					// copyAndMigrateFromInlineToNode(mutator, bitpos, nodeNew);
-
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
-
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K> subNode = nodeAt(bitpos);
@@ -1626,10 +1574,9 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			}
 		}
 
-		@Override
 		CompactMapNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int val, final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp) {
+						final int val, final int keyHash, final int shift,
+						final MapResult<K> details, final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1653,15 +1600,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 									currentVal, improve(currentKey.hashCode()), key, val, keyHash,
 									shift + BIT_PARTITION_SIZE);
 
-					// final CompactMapNode<K> thisNew =
-					// copyAndRemoveValue(mutator,
-					// bitpos).copyAndInsertNode(mutator, bitpos, nodeNew);
-					// final CompactMapNode<K> thisNew =
-					// copyAndMigrateFromInlineToNode(mutator, bitpos, nodeNew);
-
 					details.modified();
 					return copyAndMigrateFromInlineToNode(mutator, bitpos, subNodeNew);
-
 				}
 			} else if ((nodeMap() & bitpos) != 0) { // node (not value)
 				final CompactMapNode<K> subNode = nodeAt(bitpos);
@@ -1680,9 +1620,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			}
 		}
 
-		@Override
 		CompactMapNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
+						final int keyHash, final int shift, final MapResult<K> details) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
 
@@ -1745,9 +1684,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return this;
 		}
 
-		@Override
 		CompactMapNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final MapResult<K> details,
 						final Comparator<Object> cmp) {
 			final int mask = mask(keyHash, shift);
 			final int bitpos = bitpos(mask);
@@ -1870,7 +1808,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 
 	}
 
-	private static abstract class CompactMixedMapNode<K> extends CompactMapNode<K> {
+	protected static abstract class CompactMixedMapNode<K> extends CompactMapNode<K> {
 
 		private final int nodeMap;
 		private final int dataMap;
@@ -1893,7 +1831,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 
 	}
 
-	private static abstract class CompactNodesOnlyMapNode<K> extends CompactMapNode<K> {
+	protected static abstract class CompactNodesOnlyMapNode<K> extends CompactMapNode<K> {
 
 		private final int nodeMap;
 
@@ -1914,7 +1852,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 
 	}
 
-	private static abstract class CompactValuesOnlyMapNode<K> extends CompactMapNode<K> {
+	protected static abstract class CompactValuesOnlyMapNode<K> extends CompactMapNode<K> {
 
 		private final int dataMap;
 
@@ -1935,7 +1873,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 
 	}
 
-	private static abstract class CompactEmptyMapNode<K> extends CompactMapNode<K> {
+	protected static abstract class CompactEmptyMapNode<K> extends CompactMapNode<K> {
 
 		CompactEmptyMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
 						final int dataMap) {
@@ -1956,10 +1894,10 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 	private static final class BitmapIndexedMapNode<K> extends CompactMixedMapNode<K> {
 
 		final AtomicReference<Thread> mutator;
-		final java.lang.Object[] nodes;
+		final Object[] nodes;
 
 		private BitmapIndexedMapNode(final AtomicReference<Thread> mutator, final int nodeMap,
-						final int dataMap, final java.lang.Object[] nodes) {
+						final int dataMap, final Object[] nodes) {
 			super(mutator, nodeMap, dataMap);
 
 			this.mutator = mutator;
@@ -1993,8 +1931,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return (int) nodes[TUPLE_LENGTH * index + 1];
 		}
 
-		@Override
-		java.util.Map.Entry<K, java.lang.Integer> getKeyValueEntry(final int index) {
+		Map.Entry<K, java.lang.Integer> getKeyValueEntry(final int index) {
 			return entryOf((K) nodes[TUPLE_LENGTH * index], (int) nodes[TUPLE_LENGTH * index + 1]);
 		}
 
@@ -2025,7 +1962,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			return nodes[index];
 		}
 
@@ -2050,7 +1987,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -2088,8 +2025,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				this.nodes[idx] = val;
 				return this;
 			} else {
-				final java.lang.Object[] src = this.nodes;
-				final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length];
+				final Object[] src = this.nodes;
+				final Object[] dst = (Object[]) new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
@@ -2110,8 +2047,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				this.nodes[idx] = node;
 				return this;
 			} else {
-				final java.lang.Object[] src = this.nodes;
-				final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length];
+				final Object[] src = this.nodes;
+				final Object[] dst = (Object[]) new Object[src.length];
 
 				// copy 'src' and set 1 element(s) at position 'idx'
 				System.arraycopy(src, 0, dst, 0, src.length);
@@ -2126,8 +2063,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 						final int bitpos, final K key, final int val) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length + 2];
+			final Object[] src = this.nodes;
+			final Object[] dst = (Object[]) new Object[src.length + 2];
 
 			// copy 'src' and insert 2 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
@@ -2142,8 +2079,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		CompactMapNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			final int idx = TUPLE_LENGTH * dataIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = (java.lang.Object[]) new Object[src.length - 2];
+			final Object[] src = this.nodes;
+			final Object[] dst = (Object[]) new Object[src.length - 2];
 
 			// copy 'src' and remove 2 element(s) at position 'idx'
 			System.arraycopy(src, 0, dst, 0, idx);
@@ -2159,8 +2096,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			final int idxOld = TUPLE_LENGTH * dataIndex(bitpos);
 			final int idxNew = this.nodes.length - TUPLE_LENGTH - nodeIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = new Object[src.length - 2 + 1];
+			final Object[] src = this.nodes;
+			final Object[] dst = new Object[src.length - 2 + 1];
 
 			// copy 'src' and remove 2 element(s) at position 'idxOld' and
 			// insert 1 element(s) at position 'idxNew' (TODO: carefully test)
@@ -2180,8 +2117,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			final int idxOld = this.nodes.length - 1 - nodeIndex(bitpos);
 			final int idxNew = dataIndex(bitpos);
 
-			final java.lang.Object[] src = this.nodes;
-			final java.lang.Object[] dst = new Object[src.length - 1 + 2];
+			final Object[] src = this.nodes;
+			final Object[] dst = new Object[src.length - 1 + 2];
 
 			// copy 'src' and remove 1 element(s) at position 'idxOld' and
 			// insert 2 element(s) at position 'idxNew' (TODO: carefully test)
@@ -3083,7 +3020,6 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				throw new IllegalStateException("Index out of range.");
 			}
 		}
-
 	}
 
 	private static final class HashCollisionMapNode_5Bits_Spec0To8_IntValue<K> extends
@@ -3101,9 +3037,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			assert payloadArity() >= 2;
 		}
 
-		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift) {
-
 			if (this.hash == keyHash) {
 				for (K k : keys) {
 					if (k.equals(key)) {
@@ -3112,13 +3046,10 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				}
 			}
 			return false;
-
 		}
 
-		@Override
 		boolean containsKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-
 			if (this.hash == keyHash) {
 				for (K k : keys) {
 					if (cmp.compare(k, key) == 0) {
@@ -3127,65 +3058,57 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				}
 			}
 			return false;
-
 		}
 
-		@Override
 		Optional<java.lang.Integer> findByKey(final K key, final int keyHash, final int shift) {
-
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
 				if (key.equals(_key)) {
-					final int _val = vals[i];
-					return Optional.of(_val);
+					final int val = vals[i];
+					return Optional.of(val);
 				}
 			}
 			return Optional.empty();
-
 		}
 
-		@Override
 		Optional<java.lang.Integer> findByKey(final K key, final int keyHash, final int shift,
 						final Comparator<Object> cmp) {
-
 			for (int i = 0; i < keys.length; i++) {
 				final K _key = keys[i];
 				if (cmp.compare(key, _key) == 0) {
-					final int _val = vals[i];
-					return Optional.of(_val);
+					final int val = vals[i];
+					return Optional.of(val);
 				}
 			}
 			return Optional.empty();
-
 		}
 
-		@Override
 		CompactMapNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int val, final int keyHash, final int shift, final Result<K> details) {
+						final int val, final int keyHash, final int shift,
+						final MapResult<K> details) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
-
 					final int currentVal = vals[idx];
 
 					if (currentVal == val) {
 						return this;
+					} else {
+						// add new mapping
+						final int[] src = this.vals;
+						final int[] dst = new int[src.length];
+
+						// copy 'src' and set 1 element(s) at position 'idx'
+						System.arraycopy(src, 0, dst, 0, src.length);
+						dst[idx + 0] = val;
+
+						final CompactMapNode<K> thisNew = new HashCollisionMapNode_5Bits_Spec0To8_IntValue<>(
+										this.hash, this.keys, dst);
+
+						details.updated(currentVal);
+						return thisNew;
 					}
-
-					final int[] src = this.vals;
-					final int[] dst = new int[src.length];
-
-					// copy 'src' and set 1 element(s) at position 'idx'
-					System.arraycopy(src, 0, dst, 0, src.length);
-					dst[idx + 0] = val;
-
-					final CompactMapNode<K> thisNew = new HashCollisionMapNode_5Bits_Spec0To8_IntValue<>(
-									this.hash, this.keys, dst);
-
-					details.updated(currentVal);
-					return thisNew;
-
 				}
 			}
 
@@ -3212,34 +3135,32 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return new HashCollisionMapNode_5Bits_Spec0To8_IntValue<>(keyHash, keysNew, valsNew);
 		}
 
-		@Override
 		CompactMapNode<K> updated(final AtomicReference<Thread> mutator, final K key,
-						final int val, final int keyHash, final int shift, final Result<K> details,
-						final Comparator<Object> cmp) {
+						final int val, final int keyHash, final int shift,
+						final MapResult<K> details, final Comparator<Object> cmp) {
 			assert this.hash == keyHash;
 
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
-
 					final int currentVal = vals[idx];
 
 					if (currentVal == val) {
 						return this;
+					} else {
+						// add new mapping
+						final int[] src = this.vals;
+						final int[] dst = new int[src.length];
+
+						// copy 'src' and set 1 element(s) at position 'idx'
+						System.arraycopy(src, 0, dst, 0, src.length);
+						dst[idx + 0] = val;
+
+						final CompactMapNode<K> thisNew = new HashCollisionMapNode_5Bits_Spec0To8_IntValue<>(
+										this.hash, this.keys, dst);
+
+						details.updated(currentVal);
+						return thisNew;
 					}
-
-					final int[] src = this.vals;
-					final int[] dst = new int[src.length];
-
-					// copy 'src' and set 1 element(s) at position 'idx'
-					System.arraycopy(src, 0, dst, 0, src.length);
-					dst[idx + 0] = val;
-
-					final CompactMapNode<K> thisNew = new HashCollisionMapNode_5Bits_Spec0To8_IntValue<>(
-									this.hash, this.keys, dst);
-
-					details.updated(currentVal);
-					return thisNew;
-
 				}
 			}
 
@@ -3266,10 +3187,8 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return new HashCollisionMapNode_5Bits_Spec0To8_IntValue<>(keyHash, keysNew, valsNew);
 		}
 
-		@Override
 		CompactMapNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details) {
-
+						final int keyHash, final int shift, final MapResult<K> details) {
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (keys[idx].equals(key)) {
 					final int currentVal = vals[idx];
@@ -3311,14 +3230,11 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				}
 			}
 			return this;
-
 		}
 
-		@Override
 		CompactMapNode<K> removed(final AtomicReference<Thread> mutator, final K key,
-						final int keyHash, final int shift, final Result<K> details,
+						final int keyHash, final int shift, final MapResult<K> details,
 						final Comparator<Object> cmp) {
-
 			for (int idx = 0; idx < keys.length; idx++) {
 				if (cmp.compare(keys[idx], key) == 0) {
 					final int currentVal = vals[idx];
@@ -3360,7 +3276,6 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 				}
 			}
 			return this;
-
 		}
 
 		@Override
@@ -3394,17 +3309,16 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		K getKey(int index) {
+		K getKey(final int index) {
 			return keys[index];
 		}
 
 		@Override
-		int getValue(int index) {
+		int getValue(final int index) {
 			return vals[index];
 		}
 
-		@Override
-		Map.Entry<K, java.lang.Integer> getKeyValueEntry(int index) {
+		Map.Entry<K, java.lang.Integer> getKeyValueEntry(final int index) {
 			return entryOf(keys[index], vals[index]);
 		}
 
@@ -3414,7 +3328,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3464,7 +3378,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			 * Linear scan for each key, because of arbitrary element order.
 			 */
 			outerLoop: for (int i = 0; i < that.payloadArity(); i++) {
-				final java.lang.Object otherKey = that.getKey(i);
+				final Object otherKey = that.getKey(i);
 				final int otherVal = that.getValue(i);
 
 				for (int j = 0; j < keys.length; j++) {
@@ -3482,25 +3396,25 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		CompactMapNode<K> copyAndSetValue(AtomicReference<Thread> mutator, final int bitpos,
+		CompactMapNode<K> copyAndSetValue(final AtomicReference<Thread> mutator, final int bitpos,
 						final int val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K> copyAndInsertValue(AtomicReference<Thread> mutator, final int bitpos,
-						final K key, final int val) {
+		CompactMapNode<K> copyAndInsertValue(final AtomicReference<Thread> mutator,
+						final int bitpos, final K key, final int val) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K> copyAndRemoveValue(AtomicReference<Thread> mutator, final int bitpos) {
+		CompactMapNode<K> copyAndRemoveValue(final AtomicReference<Thread> mutator, final int bitpos) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		CompactMapNode<K> copyAndSetNode(AtomicReference<Thread> mutator, final int bitpos,
-						CompactMapNode<K> node) {
+		CompactMapNode<K> copyAndSetNode(final AtomicReference<Thread> mutator, final int bitpos,
+						final CompactMapNode<K> node) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3627,8 +3541,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 	}
 
-	private static final class MapKeyIterator<K> extends AbstractMapIterator<K> implements
-					Iterator<K> {
+	protected static class MapKeyIterator<K> extends AbstractMapIterator<K> implements Iterator<K> {
 
 		MapKeyIterator(AbstractMapNode<K> rootNode) {
 			super(rootNode);
@@ -3645,7 +3558,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 
 	}
 
-	private static final class MapValueIterator<K> extends AbstractMapIterator<K> implements
+	protected static class MapValueIterator<K> extends AbstractMapIterator<K> implements
 					Iterator<java.lang.Integer> {
 
 		MapValueIterator(AbstractMapNode<K> rootNode) {
@@ -3663,7 +3576,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 
 	}
 
-	private static final class MapEntryIterator<K> extends AbstractMapIterator<K> implements
+	protected static class MapEntryIterator<K> extends AbstractMapIterator<K> implements
 					Iterator<Map.Entry<K, java.lang.Integer>> {
 
 		MapEntryIterator(AbstractMapNode<K> rootNode) {
@@ -3766,28 +3679,23 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return hash == targetHash && size == targetSize;
 		}
 
-		@Override
 		public java.lang.Integer put(final K key, final java.lang.Integer val) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
-		public void clear() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public java.lang.Integer remove(final java.lang.Object key) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
 		public void putAll(final Map<? extends K, ? extends java.lang.Integer> m) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
-		public boolean containsKey(Object o) {
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		public java.lang.Integer remove(final Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		public boolean containsKey(final Object o) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
@@ -3797,8 +3705,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			}
 		}
 
-		@Override
-		public boolean containsKeyEquivalent(Object o, Comparator<Object> cmp) {
+		public boolean containsKeyEquivalent(final Object o, final Comparator<Object> cmp) {
 			try {
 				@SuppressWarnings("unchecked")
 				final K key = (K) o;
@@ -3808,8 +3715,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			}
 		}
 
-		@Override
-		public boolean containsValue(final java.lang.Object o) {
+		public boolean containsValue(final Object o) {
 			for (Iterator<java.lang.Integer> iterator = valueIterator(); iterator.hasNext();) {
 				if (iterator.next().equals(o)) {
 					return true;
@@ -3818,11 +3724,9 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return false;
 		}
 
-		@Override
-		public boolean containsValueEquivalent(final java.lang.Object o,
-						final Comparator<Object> cmp) {
+		public boolean containsValueEquivalent(final Object o, final Comparator<Object> cmp) {
 			for (Iterator<java.lang.Integer> iterator = valueIterator(); iterator.hasNext();) {
-				if (iterator.next().equals(o)) {
+				if (cmp.compare(iterator.next(), o) == 0) {
 					return true;
 				}
 			}
@@ -3865,39 +3769,35 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			}
 		}
 
-		@Override
 		public java.lang.Integer __put(final K key, final java.lang.Integer val) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final MapResult<K> details = MapResult.unchanged();
 
 			final CompactMapNode<K> newRootNode = rootNode.updated(mutator, key, val,
 							improve(keyHash), 0, details);
 
 			if (details.isModified()) {
-				rootNode = newRootNode;
-
 				if (details.hasReplacedValue()) {
 					final int old = details.getReplacedValue();
 
 					final int valHashOld = (int) old;
 					final int valHashNew = (int) val;
 
-					hashCode += keyHash ^ valHashNew;
-					hashCode -= keyHash ^ valHashOld;
-					// cachedSize remains same
+					rootNode = newRootNode;
+					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
 					}
-					return old;
+					return details.getReplacedValue();
 				} else {
 					final int valHashNew = (int) val;
-
-					hashCode += keyHash ^ valHashNew;
+					rootNode = newRootNode;
+					hashCode += (keyHash ^ valHashNew);
 					cachedSize += 1;
 
 					if (DEBUG) {
@@ -3913,7 +3813,6 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return null;
 		}
 
-		@Override
 		public java.lang.Integer __putEquivalent(final K key, final java.lang.Integer val,
 						final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
@@ -3921,32 +3820,29 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final MapResult<K> details = MapResult.unchanged();
 
 			final CompactMapNode<K> newRootNode = rootNode.updated(mutator, key, val,
 							improve(keyHash), 0, details, cmp);
 
 			if (details.isModified()) {
-				rootNode = newRootNode;
-
 				if (details.hasReplacedValue()) {
 					final int old = details.getReplacedValue();
 
 					final int valHashOld = (int) old;
 					final int valHashNew = (int) val;
 
-					hashCode += keyHash ^ valHashNew;
-					hashCode -= keyHash ^ valHashOld;
-					// cachedSize remains same
+					rootNode = newRootNode;
+					hashCode = hashCode + (keyHash ^ valHashNew) - (keyHash ^ valHashOld);
 
 					if (DEBUG) {
 						assert checkHashCodeAndSize(hashCode, cachedSize);
 					}
-					return old;
+					return details.getReplacedValue();
 				} else {
 					final int valHashNew = (int) val;
-
-					hashCode += keyHash ^ valHashNew;
+					rootNode = newRootNode;
+					hashCode += (keyHash ^ valHashNew);
 					cachedSize += 1;
 
 					if (DEBUG) {
@@ -3962,13 +3858,12 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return null;
 		}
 
-		@Override
 		public boolean __putAll(final Map<? extends K, ? extends java.lang.Integer> map) {
 			boolean modified = false;
 
 			for (Map.Entry<? extends K, ? extends java.lang.Integer> entry : map.entrySet()) {
-				final boolean isPresent = containsKey(entry.getKey());
-				final java.lang.Integer replaced = __put(entry.getKey(), entry.getValue());
+				final boolean isPresent = this.containsKey(entry.getKey());
+				final java.lang.Integer replaced = this.__put(entry.getKey(), entry.getValue());
 
 				if (!isPresent || replaced != null) {
 					modified = true;
@@ -3978,14 +3873,13 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return modified;
 		}
 
-		@Override
 		public boolean __putAllEquivalent(final Map<? extends K, ? extends java.lang.Integer> map,
 						final Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (Map.Entry<? extends K, ? extends java.lang.Integer> entry : map.entrySet()) {
-				final boolean isPresent = containsKeyEquivalent(entry.getKey(), cmp);
-				final java.lang.Integer replaced = __putEquivalent(entry.getKey(),
+				final boolean isPresent = this.containsKeyEquivalent(entry.getKey(), cmp);
+				final java.lang.Integer replaced = this.__putEquivalent(entry.getKey(),
 								entry.getValue(), cmp);
 
 				if (!isPresent || replaced != null) {
@@ -3996,140 +3890,143 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 			return modified;
 		}
 
-		@Override
-		public boolean __remove(final K key) {
+		public java.lang.Integer __remove(final K key) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
-
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final MapResult<K> details = MapResult.unchanged();
 
 			final CompactMapNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
 							0, details);
 
 			if (details.isModified()) {
-
 				assert details.hasReplacedValue();
 				final int valHash = (int) details.getReplacedValue();
 
 				rootNode = newRootNode;
-				hashCode -= keyHash ^ valHash;
-				cachedSize -= 1;
+				hashCode = hashCode - (keyHash ^ valHash);
+				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
 					assert checkHashCodeAndSize(hashCode, cachedSize);
 				}
-				return true;
-
+				return details.getReplacedValue();
 			}
 
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
-			return false;
+
+			return null;
 		}
 
-		@Override
-		public boolean __removeEquivalent(final K key, Comparator<Object> cmp) {
+		public java.lang.Integer __removeEquivalent(final K key, final Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
 
 			final int keyHash = key.hashCode();
-			final Result<K> details = Result.unchanged();
+			final MapResult<K> details = MapResult.unchanged();
 
 			final CompactMapNode<K> newRootNode = rootNode.removed(mutator, key, improve(keyHash),
 							0, details, cmp);
 
 			if (details.isModified()) {
-
 				assert details.hasReplacedValue();
 				final int valHash = (int) details.getReplacedValue();
 
 				rootNode = newRootNode;
-				hashCode -= keyHash ^ valHash;
-				cachedSize -= 1;
+				hashCode = hashCode - (keyHash ^ valHash);
+				cachedSize = cachedSize - 1;
 
 				if (DEBUG) {
 					assert checkHashCodeAndSize(hashCode, cachedSize);
 				}
-				return true;
-
+				return details.getReplacedValue();
 			}
 
 			if (DEBUG) {
 				assert checkHashCodeAndSize(hashCode, cachedSize);
 			}
-			return false;
+
+			return null;
 		}
 
-		@Override
 		public int size() {
 			return cachedSize;
 		}
 
-		@Override
 		public boolean isEmpty() {
 			return cachedSize == 0;
 		}
 
-		@Override
 		public Iterator<K> keyIterator() {
 			return new TransientMapKeyIterator<>(this);
 		}
 
-		@Override
 		public Iterator<java.lang.Integer> valueIterator() {
-			// return new TrieMapValueIterator<>(keyIterator());
-			return new MapValueIterator<>(rootNode); // TODO: iterator does not
-														// support removal
+			return new TransientMapValueIterator<>(this);
 		}
 
-		@Override
 		public Iterator<Map.Entry<K, java.lang.Integer>> entryIterator() {
-			// return new TrieMapEntryIterator<>(keyIterator());
-			return new MapEntryIterator<>(rootNode); // TODO: iterator does not
-														// support removal
+			return new TransientMapEntryIterator<>(this);
 		}
 
-		/**
-		 * Iterator that first iterates over inlined-values and then continues
-		 * depth first recursively.
-		 */
-		private static class TransientMapKeyIterator<K> extends AbstractMapIterator<K> implements
-						Iterator<K> {
-
-			final TransientTrieMap_5Bits_Spec0To8_IntValue<K> transientTrieMap_5Bits_Spec0To8_IntValue;
+		public static class TransientMapKeyIterator<K> extends MapKeyIterator<K> {
+			final TransientTrieMap_5Bits_Spec0To8_IntValue<K> collection;
 			K lastKey;
 
-			TransientMapKeyIterator(
-							TransientTrieMap_5Bits_Spec0To8_IntValue<K> transientTrieMap_5Bits_Spec0To8_IntValue) {
-				super(transientTrieMap_5Bits_Spec0To8_IntValue.rootNode);
-				this.transientTrieMap_5Bits_Spec0To8_IntValue = transientTrieMap_5Bits_Spec0To8_IntValue;
+			public TransientMapKeyIterator(
+							final TransientTrieMap_5Bits_Spec0To8_IntValue<K> collection) {
+				super(collection.rootNode);
+				this.collection = collection;
 			}
 
-			@Override
 			public K next() {
-				if (!hasNext()) {
-					throw new NoSuchElementException();
-				} else {
-					lastKey = currentValueNode.getKey(currentValueCursor++);
-					return lastKey;
-				}
+				return lastKey = super.next();
 			}
 
-			/*
-			 * TODO: test removal with iteration rigorously
-			 */
-			@Override
 			public void remove() {
-				boolean success = transientTrieMap_5Bits_Spec0To8_IntValue.__remove(lastKey);
+				// TODO: test removal at iteration rigorously
+				collection.__remove(lastKey);
+			}
+		}
 
-				if (!success) {
-					throw new IllegalStateException("Key from iteration couldn't be deleted.");
-				}
+		public static class TransientMapValueIterator<K> extends MapValueIterator<K> {
+			final TransientTrieMap_5Bits_Spec0To8_IntValue<K> collection;
+
+			public TransientMapValueIterator(
+							final TransientTrieMap_5Bits_Spec0To8_IntValue<K> collection) {
+				super(collection.rootNode);
+				this.collection = collection;
+			}
+
+			public java.lang.Integer next() {
+				return super.next();
+			}
+
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		}
+
+		public static class TransientMapEntryIterator<K> extends MapEntryIterator<K> {
+			final TransientTrieMap_5Bits_Spec0To8_IntValue<K> collection;
+
+			public TransientMapEntryIterator(
+							final TransientTrieMap_5Bits_Spec0To8_IntValue<K> collection) {
+				super(collection.rootNode);
+				this.collection = collection;
+			}
+
+			public Map.Entry<K, java.lang.Integer> next() {
+				return super.next();
+			}
+
+			public void remove() {
+				throw new UnsupportedOperationException();
 			}
 		}
 
@@ -4259,7 +4156,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (other == this) {
 				return true;
 			}
@@ -4349,7 +4246,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -4461,7 +4358,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -4501,7 +4398,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -4653,7 +4550,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -4708,7 +4605,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -4872,7 +4769,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -4932,7 +4829,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -5108,7 +5005,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -5174,7 +5071,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -5362,7 +5259,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -5433,7 +5330,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -5634,7 +5531,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -5711,7 +5608,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -5930,7 +5827,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6012,7 +5909,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -6251,7 +6148,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6339,7 +6236,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -6592,7 +6489,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6667,7 +6564,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -6839,7 +6736,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -6899,7 +6796,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -7111,7 +7008,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -7176,7 +7073,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -7404,7 +7301,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -7475,7 +7372,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -7719,7 +7616,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -7795,7 +7692,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -8065,7 +7962,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -8147,7 +8044,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -8447,7 +8344,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -8534,7 +8431,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -8854,7 +8751,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -8947,7 +8844,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -9288,7 +9185,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -9371,7 +9268,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -9564,7 +9461,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -9634,7 +9531,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -9871,7 +9768,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -9947,7 +9844,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -10213,7 +10110,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -10294,7 +10191,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -10583,7 +10480,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -10670,7 +10567,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -10998,7 +10895,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -11090,7 +10987,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -11446,7 +11343,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -11544,7 +11441,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -11926,7 +11823,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -12016,7 +11913,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -12234,7 +12131,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -12315,7 +12212,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -12585,7 +12482,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -12671,7 +12568,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -12983,7 +12880,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -13075,7 +12972,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -13422,7 +13319,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -13519,7 +13416,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -13898,7 +13795,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -14001,7 +13898,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -14412,7 +14309,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -14510,7 +14407,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -14758,7 +14655,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -14849,7 +14746,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -15159,7 +15056,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -15255,7 +15152,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -15607,7 +15504,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -15709,7 +15606,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -16099,7 +15996,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -16207,7 +16104,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -16635,7 +16532,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -16740,7 +16637,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -17017,7 +16914,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -17118,7 +17015,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -17463,7 +17360,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -17570,7 +17467,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -17959,7 +17856,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -18072,7 +17969,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -18505,7 +18402,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -18617,7 +18514,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -18919,7 +18816,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -19031,7 +18928,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -19407,7 +19304,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -19524,7 +19421,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -19950,7 +19847,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -20070,7 +19967,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -20397,7 +20294,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -20519,7 +20416,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -20926,7 +20823,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
@@ -21053,7 +20950,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		java.lang.Object getSlot(final int index) {
+		Object getSlot(final int index) {
 			final int boundary = TUPLE_LENGTH * payloadArity();
 
 			if (index < boundary) {
@@ -21405,7 +21302,7 @@ public class TrieMap_5Bits_Spec0To8_IntValue<K> implements ImmutableMap<K, java.
 		}
 
 		@Override
-		public boolean equals(final java.lang.Object other) {
+		public boolean equals(final Object other) {
 			if (null == other) {
 				return false;
 			}
