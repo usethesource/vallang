@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("rawtypes")
@@ -119,25 +120,26 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAll(ImmutableSet<? extends K> set) {
+	public ImmutableSet<K> __insertAll(Set<? extends K> set) {
 		return __insertAllEquivalent(set, equalityComparator());
 	}
 
 	@Override
-	public ImmutableSet<K> __insertAllEquivalent(ImmutableSet<? extends K> set,
-					Comparator<Object> cmp) {
+	public ImmutableSet<K> __insertAllEquivalent(Set<? extends K> set, Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		tmp.__insertAllEquivalent(set, cmp);
 		return tmp.freeze();
 	}
 
 	@Override
-	public ImmutableSet<K> __retainAll(ImmutableSet<? extends K> set) {
-		return __retainAllEquivalent(set, equalityComparator());
+	public ImmutableSet<K> __retainAll(Set<? extends K> set) {
+		TransientSet<K> tmp = asTransient();
+		tmp.__retainAll(set);
+		return tmp.freeze();
 	}
 
 	@Override
-	public ImmutableSet<K> __retainAllEquivalent(ImmutableSet<? extends K> set,
+	public ImmutableSet<K> __retainAllEquivalent(TransientSet<? extends K> set,
 					Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		tmp.__retainAllEquivalent(set, cmp);
@@ -166,14 +168,11 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		return this;
 	}
 
-	@Override
-	public ImmutableSet<K> __removeAll(ImmutableSet<? extends K> set) {
+	public ImmutableSet<K> __removeAll(Set<? extends K> set) {
 		return __removeAllEquivalent(set, equalityComparator());
 	}
 
-	@Override
-	public ImmutableSet<K> __removeAllEquivalent(ImmutableSet<? extends K> set,
-					Comparator<Object> cmp) {
+	public ImmutableSet<K> __removeAllEquivalent(Set<? extends K> set, Comparator<Object> cmp) {
 		TransientSet<K> tmp = asTransient();
 		tmp.__removeAllEquivalent(set, cmp);
 		return tmp.freeze();
@@ -436,12 +435,22 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean __retainAll(ImmutableSet<? extends K> set) {
-			return __retainAllEquivalent(set, equalityComparator());
+		public boolean __retainAll(Set<? extends K> set) {
+			boolean modified = false;
+
+			Iterator<K> thisIterator = iterator();
+			while (thisIterator.hasNext()) {
+				if (!set.contains(thisIterator.next())) {
+					thisIterator.remove();
+					modified = true;
+				}
+			}
+
+			return modified;
 		}
 
 		@Override
-		public boolean __retainAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp) {
+		public boolean __retainAllEquivalent(TransientSet<? extends K> set, Comparator<Object> cmp) {
 			boolean modified = false;
 
 			Iterator<K> thisIterator = iterator();
@@ -486,12 +495,11 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean __removeAll(ImmutableSet<? extends K> set) {
+		public boolean __removeAll(Set<? extends K> set) {
 			return __removeAllEquivalent(set, equalityComparator());
 		}
 
-		@Override
-		public boolean __removeAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp) {
+		public boolean __removeAllEquivalent(Set<? extends K> set, Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (K key : set) {
@@ -502,12 +510,12 @@ public class TrieSetGPCE0To4<K> extends AbstractImmutableSet<K> {
 		}
 
 		@Override
-		public boolean __insertAll(ImmutableSet<? extends K> set) {
+		public boolean __insertAll(Set<? extends K> set) {
 			return __insertAllEquivalent(set, equalityComparator());
 		}
 
 		@Override
-		public boolean __insertAllEquivalent(ImmutableSet<? extends K> set, Comparator<Object> cmp) {
+		public boolean __insertAllEquivalent(Set<? extends K> set, Comparator<Object> cmp) {
 			boolean modified = false;
 
 			for (K key : set) {

@@ -715,7 +715,7 @@ public class TrieMapGPCEDynamic<K, V> extends AbstractImmutableMap<K, V> {
 		}
 
 		@Override
-		public boolean __remove(K key) {
+		public V __remove(K key) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
@@ -735,14 +735,15 @@ public class TrieMapGPCEDynamic<K, V> extends AbstractImmutableMap<K, V> {
 				hashCode -= keyHash ^ valHash;
 				cachedSize -= 1;
 
-				return true;
+				// TODO: return replaced value if update occured
+				return null;
 			}
 
-			return false;
+			return null;
 		}
 
 		@Override
-		public boolean __removeEquivalent(K key, Comparator<Object> cmp) {
+		public V __removeEquivalent(K key, Comparator<Object> cmp) {
 			if (mutator.get() == null) {
 				throw new IllegalStateException("Transient already frozen.");
 			}
@@ -763,10 +764,11 @@ public class TrieMapGPCEDynamic<K, V> extends AbstractImmutableMap<K, V> {
 				hashCode -= keyHash ^ valHash;
 				cachedSize -= 1;
 
-				return true;
+				// TODO: return replaced value if update occured
+				return null;
 			}
 
-			return false;
+			return null;
 		}
 
 		@Override
