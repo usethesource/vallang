@@ -33,16 +33,20 @@ public class ValueFactory extends org.eclipse.imp.pdb.facts.impl.fast.ValueFacto
 		return InstanceKeeper.instance;
 	}
 
-	public ISetWriter setWriter(Type elementType) {
-		return new SetWriter(elementType);
+	public ISetWriter setWriter(Type upperBoundType) {
+		if ((upperBoundType.isTuple() && upperBoundType.getArity() == 2) == true) {
+			return new BinaryRelationWriter(upperBoundType);
+		} else {
+			return new SetWriter(upperBoundType);	
+		}
 	}
 
 	public ISetWriter setWriter() {
 		return new SetWriter();
 	}
 
-	public ISetWriter relationWriter(Type tupleType) {
-		return new SetWriter(tupleType);
+	public ISetWriter relationWriter(Type upperBoundType) {
+		return setWriter(upperBoundType);
 	}
 
 	public ISetWriter relationWriter() {
