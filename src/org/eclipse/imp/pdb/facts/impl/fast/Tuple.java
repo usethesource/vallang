@@ -25,13 +25,13 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  * 
  * @author Arnold Lankamp
  */
-/*package*/ class Tuple extends AbstractValue implements ITuple{
+/*package*/ public class Tuple extends AbstractValue implements ITuple{
 	protected final static TypeFactory typeFactory = TypeFactory.getInstance();
 	
 	protected final Type tupleType;
 	protected final IValue[] elements;
 	
-	/*package*/ static ITuple newTuple(Type tupleType, IValue[] elements) {
+	/*package*/ public static ITuple newTuple(Type tupleType, IValue[] elements) {
 		return new Tuple(tupleType, elements);
 	}
 	
@@ -43,7 +43,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.elements = elements;
 	}
 	
-	/*package*/ static ITuple newTuple(IValue... elements) {
+	/*package*/ public static ITuple newTuple(IValue... elements) {
 		return new Tuple(elements);
 	}
 	
