@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -35,7 +34,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private static final Comparator<Object> referenceEqualityComparator = EqualityUtils.getReferenceEqualityComparator();
 	
 	private Type cachedSetType;
@@ -143,7 +142,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other == null)
 			return false;
 
-		if (other instanceof PDBPersistentHashSet) {
+		if (other.getClass() == getClass()) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
 			if (this.getType() != that.getType())
@@ -181,7 +180,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 		if (other == null)
 			return false;
 
-		if (other instanceof PDBPersistentHashSet) {
+		if (other.getClass() == getClass()) {
 			PDBPersistentHashSet that = (PDBPersistentHashSet) other;
 
 			if (this.getType() != that.getType())
@@ -191,25 +190,9 @@ public final class PDBPersistentHashSet extends AbstractSet {
 				return false;
 
 			// TODO: support equivalent on ImmutableSet
-			return content.equivalent(that.content);
+			return content.equals(that.content);
 		}
-
-		if (other instanceof ISet) {
-			ISet that = (ISet) other;
-
-			if (this.getType() != that.getType())
-				return false;
-
-			if (this.size() != that.size())
-				return false;
-
-			for (IValue e : that)
-				if (!content.containsEquivalent(e, referenceEqualityComparator))
-					return false;
-
-			return true;
-		}
-
+		
 		return false;
 	}
 		
@@ -225,6 +208,8 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			
 			if (this.size() != that.size())
 				return false;
+			
+			// TODO: support structural equality with isEqual semantic on ImmutableSet
 			
 			for (IValue e : that)
 	            if (!content.containsEquivalent(e, equivalenceComparator))

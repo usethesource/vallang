@@ -41,7 +41,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final ShareableValuesHashSet data;
 	
 	/*package*/ static ISet newSet(Type elementType, ShareableValuesHashSet data) {
-		return new Set(elementType, data).intern();
+		return new Set(elementType, data.intern()).intern();
 	}
 		
 	private Set(Type elementType, ShareableValuesHashSet data) {
@@ -253,6 +253,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			}
 			
 			return data == otherSet.data;
+			// return data.equals(otherSet.data);
 		}
 
 		return false;

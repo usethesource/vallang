@@ -108,7 +108,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 	@Override
 	public ISet done(){
 		if (constructedSet == null) {
-			constructedSet = Set.newSet(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data);
+			constructedSet = Set.newSet(data.isEmpty() ? TypeFactory.getInstance().voidType() : elementType, data); // .intern();
 		}
 		
 		return constructedSet;

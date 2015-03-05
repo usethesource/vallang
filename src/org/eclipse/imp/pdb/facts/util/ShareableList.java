@@ -13,7 +13,6 @@ package org.eclipse.imp.pdb.facts.util;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 
 /**
@@ -130,9 +129,10 @@ public class ShareableList<E> implements Iterable<E>, IShareable {
 		}
 	}
 	
-	public ShareableList intern() {
-		return (ShareableList) IShareable.intern(this);
-	}			
+	@SuppressWarnings("unchecked")
+	public <T> ShareableList<T> intern() {
+		return (ShareableList<T>) IShareable.intern(this);
+	}
 	
 	private static int closestPowerOfTwo(int number){
 		int power = 0;
@@ -428,7 +428,7 @@ public class ShareableList<E> implements Iterable<E>, IShareable {
 		if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller then 0.");
 		if((offset + length) > size()) throw new IndexOutOfBoundsException("'offset + length' may not be larger then 'list.size()'");
 		
-		return new ShareableList<>(this, offset, length).intern();
+		return new ShareableList<>(this, offset, length); // .intern();
 	}
 	
 	/**
@@ -492,7 +492,7 @@ public class ShareableList<E> implements Iterable<E>, IShareable {
 		int hash = 0;
 		
 		Iterator<E> iterator = iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			E element = iterator.next();
 			hash = (hash << 1) ^ element.hashCode();
 		}
@@ -508,8 +508,8 @@ public class ShareableList<E> implements Iterable<E>, IShareable {
 	 * @see java.lang.Object#equals(Object)
 	 */
 	public boolean equals(Object o) {
-		if (IShareable.isSharingEnabled)
-			return o == this;
+		// if (IShareable.isSharingEnabled)
+		// return o == this;
 		
 		if (o == this)
 			return true;

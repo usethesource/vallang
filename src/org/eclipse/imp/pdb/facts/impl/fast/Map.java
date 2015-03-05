@@ -38,7 +38,7 @@ import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHas
 	protected final ShareableValuesHashMap data;
 	
 	/*package*/ static IMap newMap(Type mapType, ShareableValuesHashMap data) {
-		return new Map(mapType, data).intern();
+		return new Map(mapType, data.intern()).intern();
 	}
 	
 	private Map(Type mapType, ShareableValuesHashMap data) {

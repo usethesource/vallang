@@ -24,7 +24,7 @@ import org.eclipse.imp.pdb.facts.util.ShareableList;
 public class ShareableValuesList extends ShareableList<IValue>{
 
 	public static ShareableValuesList newShareableValuesList(){
-		return new ShareableValuesList().intern();
+		return new ShareableValuesList(); // .intern();
 	}		
 	
 	private ShareableValuesList(){
@@ -32,7 +32,7 @@ public class ShareableValuesList extends ShareableList<IValue>{
 	}
 
 	public static ShareableValuesList newShareableValuesList(ShareableValuesList shareableValuesList){
-		return new ShareableValuesList(shareableValuesList).intern();
+		return new ShareableValuesList(shareableValuesList); // .intern();
 	}	
 	
 	private ShareableValuesList(ShareableValuesList shareableValuesList){
@@ -40,16 +40,17 @@ public class ShareableValuesList extends ShareableList<IValue>{
 	}
 	
 	public static ShareableValuesList newShareableValuesList(ShareableValuesList shareableValuesList, int offset, int length){
-		return new ShareableValuesList(shareableValuesList, offset, length).intern();
+		return new ShareableValuesList(shareableValuesList, offset, length); // .intern();
 	}	
 	
 	private ShareableValuesList(ShareableValuesList shareableValuesList, int offset, int length){
 		super(shareableValuesList, offset, length);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ShareableValuesList intern() {
 		return (ShareableValuesList) IShareable.intern(this);
-	}		
+	}
 	
 	public boolean isEqual(ShareableValuesList otherShareableValuesList){
 		if(otherShareableValuesList == this) return true;

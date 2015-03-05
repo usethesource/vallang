@@ -151,8 +151,18 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 			
 		@Override
-		public boolean isEqual(IValue value){
-			return equals(value);
+		public boolean isEqual(IValue o){
+			if (this == o)
+				return true;
+			if (o == null)
+				return false;
+
+			if (o.getClass() == getClass()) {
+				FullUnicodeString otherString = (FullUnicodeString) o;
+				return value.equals(otherString.value);
+			}
+
+			return false;
 		}
 		
 		@Override

@@ -38,7 +38,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	private int currentHashCode;
 
 	public static ShareableValuesHashSet newShareableValuesHashSet(){
-		return new ShareableValuesHashSet().intern();
+		return new ShareableValuesHashSet(); // .intern();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -58,7 +58,7 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	}
 
 	public static ShareableValuesHashSet newShareableValuesHashSet(ShareableValuesHashSet shareableValuesHashSet) {
-		return new ShareableValuesHashSet(shareableValuesHashSet).intern();
+		return new ShareableValuesHashSet(shareableValuesHashSet); // .intern();
 	}
 	
 	private ShareableValuesHashSet(ShareableValuesHashSet shareableValuesHashSet) {
@@ -389,8 +389,8 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	}
 	
 	public boolean equals(Object o) {
-		if (IShareable.isSharingEnabled)
-			return o == this;
+		// if (IShareable.isSharingEnabled)
+		// return o == this;
 		
 		if (o == this)
 			return true;

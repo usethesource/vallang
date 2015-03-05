@@ -68,7 +68,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 
 		if (integerValue.length() < 10 || (integerValue.length() == 10 && integerValue.compareTo(INTEGER_MAX_STRING) <= 0)) {
-			return new IntegerValue(Integer.parseInt(integerValue));
+			return new IntegerValue(Integer.parseInt(integerValue)).intern();
 		}
 		return BigIntegerValue.newBigIntegerValue(new BigInteger(integerValue));
 	}
@@ -172,12 +172,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	public BigInteger toBigInteger(){
 		return new BigInteger(getTwosComplementRepresentation());
 	}
-	
-	@Override
-	public boolean isEqual(IValue other) {
-	  return equals(other);
-	}
-	
+		
 	@Override
 	public IInteger add(IInteger other){
 		if(value == 0)
@@ -546,6 +541,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		return false;
 	}
 	
+	@Override
+	public boolean isEqual(IValue o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+
+		if (o.getClass() == getClass()) {
+			IntegerValue otherInteger = (IntegerValue) o;
+			return (value == otherInteger.value);
+		}
+
+		return false;
+	}
+		
 	@Override
 	public String getStringRepresentation(){
 		return Integer.toString(value);

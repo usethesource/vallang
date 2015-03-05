@@ -24,7 +24,7 @@ public interface IShareable{
 	final static boolean isSharingEnabled = System.getProperties().containsKey(
 			"sharingEnabled");
 
-	final static ShareableValuesFactory<IShareable> objectPool = new ShareableValuesFactory<>();
+	final static ShareableValuesFactory<IShareable> objectPool = new ShareableValuesFactory<>(8);
 	
 	static IShareable intern(final IShareable prototype) {
 		if (isSharingEnabled) {

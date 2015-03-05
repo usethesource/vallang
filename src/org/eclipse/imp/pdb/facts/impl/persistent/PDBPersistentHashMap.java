@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractMap;
@@ -32,7 +31,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private static final Comparator<Object> referenceEqualityComparator = EqualityUtils.getReferenceEqualityComparator();
 	
 	private Type cachedMapType;
@@ -149,9 +148,12 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		if (other == null)
 			return false;
 
-		if (other instanceof PDBPersistentHashMap) {
+		if (other.getClass() == getClass()) {
 			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
 
+			if (this.getType() != that.getType())
+				return false;
+					
 			if (this.size() != that.size())
 				return false;
 
@@ -188,38 +190,17 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		if (other == null)
 			return false;
 
-		if (other instanceof PDBPersistentHashMap) {
+		if (other.getClass() == getClass()) {
 			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
 
+			if (this.getType() != that.getType())
+				return false;		
+			
 			if (this.size() != that.size())
 				return false;
 
 			// TODO: support equivalent on ImmutableMap
-			return content.equivalent(that.content);
-		}
-
-		if (other instanceof IMap) {
-			IMap that = (IMap) other;
-
-			if (this.getType() != that.getType())
-				return false;
-
-			if (this.size() != that.size())
-				return false;
-
-			for (IValue e : that) {
-				if (!content.containsKeyEquivalent(e, referenceEqualityComparator)) {
-					return false;
-				} else if (content
-						.getEquivalent(e, referenceEqualityComparator) != that
-						.get(e)) {
-					// NOTE: it is not possible to call get with reference
-					// equality semantics on 'that'.
-					return false;
-				}
-			}
-
-			return true;
+			return content.equals(that.content);
 		}
 
 		return false;
@@ -238,6 +219,8 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			if (this.size() != that.size())
 				return false;
 
+			// TODO: support structural equality with isEqual semantic on ImmutableMap			
+			
 			for (IValue e : that) {
 				if (!containsKey(e)) {
 					return false;

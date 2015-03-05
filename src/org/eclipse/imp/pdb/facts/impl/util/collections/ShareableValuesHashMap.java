@@ -39,7 +39,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 	private int currentHashCode;
 	
 	public static ShareableValuesHashMap newShareableValuesHashMap(){
-		return new ShareableValuesHashMap().intern();
+		return new ShareableValuesHashMap(); // .intern()
 	}	
 	
 	@SuppressWarnings("unchecked")
@@ -59,7 +59,7 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 	}
 	
 	public static ShareableValuesHashMap newShareableValuesHashMap(ShareableValuesHashMap shareableValuesHashMap) {
-		return new ShareableValuesHashMap(shareableValuesHashMap).intern();
+		return new ShareableValuesHashMap(shareableValuesHashMap); // .intern()
 	}	
 	
 	private ShareableValuesHashMap(ShareableValuesHashMap shareableValuesHashMap){
@@ -434,8 +434,8 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 	}	
 	
 	public boolean equals(Object o) {
-		if (IShareable.isSharingEnabled)
-			return o == this;
+		// if (IShareable.isSharingEnabled)
+		// return o == this;
 		
 		if (o == this)
 			return true;

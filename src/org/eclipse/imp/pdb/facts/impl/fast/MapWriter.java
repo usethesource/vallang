@@ -188,7 +188,7 @@ import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHas
 				Type voidType = TypeFactory.getInstance().voidType();
 				Type voidMapType = TypeFactory.getInstance().mapType(voidType, mapType.getKeyLabel(), voidType, mapType.getValueLabel());
 
-				constructedMap = Map.newMap(voidMapType, data);
+				constructedMap = Map.newMap(voidMapType, data); // .intern()
 			} else {
 				if (inferred && inferredTypeinvalidated) {
 					Type voidType = TypeFactory.getInstance().voidType();
@@ -206,7 +206,7 @@ import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHas
 					}
 				}
 				
-				constructedMap = Map.newMap(mapType, data);
+				constructedMap = Map.newMap(mapType, data); // .intern()
 			}
 		}
 
