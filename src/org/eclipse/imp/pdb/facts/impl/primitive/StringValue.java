@@ -133,9 +133,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		}
 		
 		public boolean equivalent(IShareable o) {
-			if (IShareable.isSharingEnabled)
-				return o == this;
-			
 			if (this == o)
 				return true;
 			if (o == null)
@@ -143,7 +140,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 			if (o.getClass() == getClass()) {
 				FullUnicodeString otherString = (FullUnicodeString) o;
-				// TODO: ensure that at construction String.intern() is called.
 				return value == otherString.value;
 			}
 
@@ -152,17 +148,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			
 		@Override
 		public boolean isEqual(IValue o){
-			if (this == o)
-				return true;
-			if (o == null)
-				return false;
-
-			if (o.getClass() == getClass()) {
-				FullUnicodeString otherString = (FullUnicodeString) o;
-				return value.equals(otherString.value);
-			}
-
-			return false;
+			/*
+			 * leaf class where 'isEqual' has the exact same semantic as
+			 * 'equals'.
+			 */
+			return equals(o);
 		}
 		
 		@Override

@@ -543,17 +543,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	@Override
 	public boolean isEqual(IValue o) {
-		if (o == this)
-			return true;
-		if (o == null)
-			return false;
-
-		if (o.getClass() == getClass()) {
-			IntegerValue otherInteger = (IntegerValue) o;
-			return (value == otherInteger.value);
-		}
-
-		return false;
+		/*
+		 * leaf class where 'isEqual' has the exact same semantic as
+		 * 'equals'.
+		 */
+		return equals(o);
 	}
 		
 	@Override

@@ -367,6 +367,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	@Override
 	public boolean isEqual(IValue other){
+		/*
+		 * leaf class where 'isEqual' has the exact same semantic as
+		 * 'equals'.
+		 */
 		return equals(other);
 	}
 	
