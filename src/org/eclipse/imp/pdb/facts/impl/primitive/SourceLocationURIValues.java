@@ -120,7 +120,7 @@ import java.util.regex.Pattern;
 
 		@Override
 		public String getAuthority() {
-			throw new UnsupportedOperationException();
+			return "";
 		}
 
 		@Override
