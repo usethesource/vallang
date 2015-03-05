@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet.newShareableValuesHashSet;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
@@ -39,7 +41,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final ShareableValuesHashSet data;
 	
 	/*package*/ static ISet newSet(Type elementType, ShareableValuesHashSet data) {
-		return new Set(elementType, data);
+		return new Set(elementType, data).intern();
 	}
 		
 	private Set(Type elementType, ShareableValuesHashSet data) {
@@ -54,6 +56,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				
 		this.data = data;
 	}
+	
+	public ISet intern() {
+		return (ISet) IShareable.intern(this);
+	}		
 	
 	public Type getType(){
 		return setType;
@@ -100,7 +106,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	public ISet insert(IValue value){
 		if(!contains(value)) {
-			ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
+			ShareableValuesHashSet newData = newShareableValuesHashSet(data);
 			newData.add(value);
 			
 			Type type = elementType.lub(value.getType());
@@ -112,7 +118,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	public ISet delete(IValue value){
 		if (contains(value)) {
-			ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
+			ShareableValuesHashSet newData = newShareableValuesHashSet(data);
 			newData.remove(value);
 			
 			Type newElementType = TypeFactory.getInstance().voidType();
@@ -126,7 +132,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public ISet intersect(ISet other){
-		ShareableValuesHashSet commonData = new ShareableValuesHashSet();
+		ShareableValuesHashSet commonData = newShareableValuesHashSet();
 		Iterator<IValue> setIterator;
 		
 		ISet theOtherSet;
@@ -152,7 +158,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public ISet subtract(ISet other){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet(data);
+		ShareableValuesHashSet newData = newShareableValuesHashSet(data);
 		
 		Iterator<IValue> setIterator = other.iterator();
 		while(setIterator.hasNext()){
@@ -171,10 +177,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		Set otherSet = (Set) other;
 		
 		if(otherSet.size() <= size()){
-			newData = new ShareableValuesHashSet(data);
+			newData = newShareableValuesHashSet(data);
 			setIterator = otherSet.iterator();
 		}else{
-			newData = new ShareableValuesHashSet(otherSet.data);
+			newData = newShareableValuesHashSet(otherSet.data);
 			setIterator = iterator();
 		}
 		
@@ -187,7 +193,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public ISet product(ISet other){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet();
+		ShareableValuesHashSet newData = newShareableValuesHashSet();
 		
 		Type tupleType = typeFactory.tupleType(elementType, other.getElementType());
 
@@ -246,9 +252,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				return false;
 			}
 			
-			// NOTE: we call equivalent() instead of == because
-			// ShareableValuesHashSet gets not shared, only its content.
-			return data.equivalent(otherSet.data);
+			return data == otherSet.data;
 		}
 
 		return false;

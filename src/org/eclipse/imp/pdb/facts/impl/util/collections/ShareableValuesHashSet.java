@@ -36,9 +36,13 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	private int load;
 	
 	private int currentHashCode;
+
+	public static ShareableValuesHashSet newShareableValuesHashSet(){
+		return new ShareableValuesHashSet().intern();
+	}
 	
 	@SuppressWarnings("unchecked")
-	public ShareableValuesHashSet(){
+	private ShareableValuesHashSet(){
 		super();
 		
 		modSize = INITIAL_LOG_SIZE;
@@ -52,8 +56,12 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		
 		currentHashCode = 0;
 	}
+
+	public static ShareableValuesHashSet newShareableValuesHashSet(ShareableValuesHashSet shareableValuesHashSet) {
+		return new ShareableValuesHashSet(shareableValuesHashSet).intern();
+	}
 	
-	public ShareableValuesHashSet(ShareableValuesHashSet shareableValuesHashSet){
+	private ShareableValuesHashSet(ShareableValuesHashSet shareableValuesHashSet) {
 		super();
 		
 		modSize = shareableValuesHashSet.modSize;
@@ -66,6 +74,10 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 		load = shareableValuesHashSet.load;
 		
 		currentHashCode = shareableValuesHashSet.currentHashCode;
+	}
+	
+	public ShareableValuesHashSet intern() {
+		return (ShareableValuesHashSet) IShareable.intern(this);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -377,8 +389,8 @@ public final class ShareableValuesHashSet implements Set<IValue>, Iterable<IValu
 	}
 	
 	public boolean equals(Object o) {
-		// if (IShareable.isSharingEnabled)
-		// return o == this;
+		if (IShareable.isSharingEnabled)
+			return o == this;
 		
 		if (o == this)
 			return true;

@@ -31,15 +31,24 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	private final static Type STRING_TYPE = TypeFactory.getInstance().stringType();
 
 	/*package*/ static IString newString(String value) {
-		if (value ==null) value = "";
+		if (value == null)
+			value = "";
+		else if (IShareable.isSharingEnabled)
+			value = value.intern();
+		
 		return newString(value, containsSurrogatePairs(value));
 	}
+	
 	/*package*/ static IString newString(String value, boolean fullUnicode) {
-		if (value ==null) value = "";
+		if (value == null)
+			value = "";
+		else if (IShareable.isSharingEnabled)
+			value = value.intern();
+				
 		if (fullUnicode) {
-			return new FullUnicodeString(value);
+			return new FullUnicodeString(value).intern();
 		}
-		return new SimpleUnicodeString(value);
+		return new SimpleUnicodeString(value).intern();
 	}
 
 	private static boolean containsSurrogatePairs(String str) {
@@ -57,13 +66,16 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	private static class FullUnicodeString  extends AbstractValue implements IString {
 		protected final String value;
-	
-	
+		
 		private FullUnicodeString(String value){
 			super();
 			
 			this.value = value;
 		}
+		
+		public IString intern() {
+			return (IString) IShareable.intern(this);
+		}			
 	
 		@Override
 		public Type getType(){
@@ -274,9 +286,14 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	private static class SimpleUnicodeString extends FullUnicodeString {
-		public SimpleUnicodeString(String value) {
+		private SimpleUnicodeString(String value) {
 			super(value);
 		}
+
+		public IString intern() {
+			return (IString) IShareable.intern(this);
+		}
+				
 		@Override
 		public boolean equals(Object o) {
 			if(o == null) return false;

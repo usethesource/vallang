@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet.newShareableValuesHashSet;
+
 import java.util.HashSet;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -119,7 +121,7 @@ public class RelationalFunctionsOnList {
 
 		int prevCount = 0;
 
-		ShareableValuesHashSet addedTuples = new ShareableValuesHashSet();
+		ShareableValuesHashSet addedTuples = newShareableValuesHashSet();
 		while (prevCount != tmp.length()) {
 			prevCount = tmp.length();
 			IList tcomp = compose(tmp, tmp);

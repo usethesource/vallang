@@ -36,14 +36,22 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	protected final BigInteger value;
 	
-	/*package*/ BigIntegerValue(BigInteger value){
+	protected static IInteger newBigIntegerValue(BigInteger value) {
+		return new BigIntegerValue(value).intern();
+	}
+
+	private BigIntegerValue(BigInteger value) {
 		super();
-		if(value.equals(BigInteger.ZERO))
+		if (value.equals(BigInteger.ZERO))
 			value = BigInteger.ZERO;
-		if(value.equals(BigInteger.ONE))
+		if (value.equals(BigInteger.ONE))
 			value = BigInteger.ONE;
 
 		this.value = value;
+	}
+		
+	public IInteger intern() {
+		return (IInteger) IShareable.intern(this);
 	}
 	
 	@Override

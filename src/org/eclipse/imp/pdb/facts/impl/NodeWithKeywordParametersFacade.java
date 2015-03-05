@@ -33,6 +33,10 @@ public class NodeWithKeywordParametersFacade implements INode {
 		this.content = content;
 		this.parameters = parameters;
 	}
+
+	public INode intern() {
+		return (INode) IShareable.intern(this);
+	}	
 	
 	public Type getType() {
 		return content.getType();
@@ -48,7 +52,8 @@ public class NodeWithKeywordParametersFacade implements INode {
 	
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		INode newContent = content.set(i, newChild);
-		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
+		// TODO: introduce wrap() here as well
+		return new NodeWithKeywordParametersFacade(newContent, parameters).intern();
 	}
 
 	public int arity() {
@@ -74,7 +79,8 @@ public class NodeWithKeywordParametersFacade implements INode {
 	public INode replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		INode newContent = content.replace(first, second, end, repl);
-		return new NodeWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
+		// TODO: introduce wrap() here as well
+		return new NodeWithKeywordParametersFacade(newContent, parameters).intern();
 	}
 
 	public boolean equals(Object o) {
@@ -155,7 +161,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 		return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
 			@Override
 			protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
-				return new NodeWithKeywordParametersFacade(content, parameters);
+				return new NodeWithKeywordParametersFacade(content, parameters).intern();
 			}
 		};
 	}

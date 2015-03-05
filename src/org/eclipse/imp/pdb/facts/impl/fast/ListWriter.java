@@ -10,6 +10,8 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList.newShareableValuesList;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -39,7 +41,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		this.elementType = elementType;
 		this.inferred = false;
 		
-		data = new ShareableValuesList();
+		data = newShareableValuesList();
 		
 		constructedList = null;
 	}
@@ -49,7 +51,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		
 		this.elementType = TypeFactory.getInstance().voidType();
 		this.inferred = true;
-		data = new ShareableValuesList();
+		data = newShareableValuesList();
 		
 		constructedList = null;
 	}

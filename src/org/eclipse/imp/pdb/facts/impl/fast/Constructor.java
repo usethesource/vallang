@@ -48,11 +48,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	private int hashCode = 0;
 
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children) {
-		return new Constructor(constructorType, children); 
+		return new Constructor(constructorType, children).intern(); 
 	}
 	
 	/*package*/ static IConstructor newConstructor(Type constructorType, IValue[] children, Map<String,IValue> kwParams) {
-	  IConstructor r = new Constructor(constructorType, children);
+	  IConstructor r = new Constructor(constructorType, children).intern();
 	  
 	  if (kwParams != null && !kwParams.isEmpty()) {
 	    return r.asWithKeywordParameters().setParameters(kwParams);
@@ -66,6 +66,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		this.constructorType = constructorType;
 		this.children = children;
+	}
+	
+	public IConstructor intern() {
+		return (IConstructor) IShareable.intern(this);
 	}
 	
 	@Override
@@ -305,7 +309,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
-				return new AnnotatedConstructorFacade(content, annotations);
+				return new AnnotatedConstructorFacade(content, annotations).intern();
 			}
 		};
 	}
@@ -320,7 +324,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 	    @Override
 	    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
-	      return new ConstructorWithKeywordParametersFacade(content, parameters);
+	      return new ConstructorWithKeywordParametersFacade(content, parameters).intern();
 	    }
 	    
 	    @Override

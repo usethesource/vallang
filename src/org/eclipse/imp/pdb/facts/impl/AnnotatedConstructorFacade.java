@@ -37,6 +37,10 @@ public class AnnotatedConstructorFacade implements IConstructor {
 		this.annotations = annotations;
 	}
 
+	public IConstructor intern() {
+		return (IConstructor) IShareable.intern(this);
+	}
+	
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return v.visitConstructor(this);
 	}
@@ -64,7 +68,8 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	public IConstructor set(String label, IValue newChild)
 			throws FactTypeUseException {
 		IConstructor newContent = content.set(label, newChild);
-		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well			
+		// TODO: introduce wrap() here as well
+		return new AnnotatedConstructorFacade(newContent, annotations).intern();			
 	}
 
 	public int arity() {
@@ -82,7 +87,8 @@ public class AnnotatedConstructorFacade implements IConstructor {
 	public IConstructor set(int index, IValue newChild)
 			throws FactTypeUseException {
 		IConstructor newContent = content.set(index, newChild);
-		return new AnnotatedConstructorFacade(newContent, annotations);	// TODO: introduce wrap() here as well		
+		// TODO: introduce wrap() here as well
+		return new AnnotatedConstructorFacade(newContent, annotations).intern();		
 	}
 
 	public String getName() {
@@ -168,7 +174,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
-				return new AnnotatedConstructorFacade(content, annotations);
+				return new AnnotatedConstructorFacade(content, annotations).intern();
 			}
 		};
 	}

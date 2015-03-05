@@ -10,6 +10,8 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet.newShareableValuesHashSet;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
@@ -39,7 +41,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		this.elementType = elementType;
 		this.inferred = false;
 		
-		data = new ShareableValuesHashSet();
+		data = newShareableValuesHashSet();
 		
 		constructedSet = null;
 	}
@@ -50,7 +52,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		this.elementType = TypeFactory.getInstance().voidType();
 		this.inferred = true;
 		
-		data = new ShareableValuesHashSet();
+		data = newShareableValuesHashSet();
 		
 		constructedSet = null;
 	}

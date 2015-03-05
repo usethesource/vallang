@@ -174,7 +174,7 @@ public class Constructor extends Node implements IConstructor {
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
-				return new AnnotatedConstructorFacade(content, annotations);
+				return new AnnotatedConstructorFacade(content, annotations).intern();
 			}
 		};
 	}
@@ -189,7 +189,7 @@ public class Constructor extends Node implements IConstructor {
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 		  @Override
 		  protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
-			  return new ConstructorWithKeywordParametersFacade(content, parameters);
+			  return new ConstructorWithKeywordParametersFacade(content, parameters).intern();
 		  }
 
 		  @Override

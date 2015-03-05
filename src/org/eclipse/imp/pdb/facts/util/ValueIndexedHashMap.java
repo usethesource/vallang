@@ -10,6 +10,8 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.util;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet.newShareableValuesHashSet;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -393,7 +395,7 @@ public final class ValueIndexedHashMap<V> implements Map<IValue, V>{
 	 * Constructs a set containing all keys from this map.
 	 */
 	public Set<IValue> keySet(){
-		ShareableValuesHashSet keysSet = new ShareableValuesHashSet();
+		ShareableValuesHashSet keysSet = newShareableValuesHashSet();
 		
 		Iterator<IValue> keysIterator = keysIterator();
 		while(keysIterator.hasNext()){

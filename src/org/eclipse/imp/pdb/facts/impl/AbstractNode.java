@@ -53,7 +53,7 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 		return new AbstractDefaultAnnotatable<INode>(this) {
 			@Override
 			protected INode wrap(INode content, ImmutableMap<String, IValue> annotations) {
-				return new AnnotatedNodeFacade(content, annotations);
+				return new AnnotatedNodeFacade(content, annotations).intern();
 			}
 		};
 	}
@@ -68,7 +68,7 @@ public abstract class AbstractNode extends AbstractValue implements INode {
 	  return new AbstractDefaultWithKeywordParameters<INode>(this, AbstractSpecialisedImmutableMap.<String, IValue>mapOf()) {
 	    @Override
 	    protected INode wrap(INode content, ImmutableMap<String, IValue> parameters) {
-	      return new NodeWithKeywordParametersFacade(content, parameters);
+	      return new NodeWithKeywordParametersFacade(content, parameters).intern();
 	    }
     };
 	}

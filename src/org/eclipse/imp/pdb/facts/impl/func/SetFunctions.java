@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.func;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet.newShareableValuesHashSet;
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList.newShareableValuesList;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
@@ -263,7 +266,7 @@ public final class SetFunctions {
 			IValue key = tuple.get(0);
 			ShareableValuesList values = rightSides.get(key);
 			if(values == null){
-				values = new ShareableValuesList();
+				values = newShareableValuesList();
 				rightSides.put(key, values);
 			}
 			
@@ -329,7 +332,7 @@ public final class SetFunctions {
 				iLefts.put(leftValues);
 				interestingLeftSides.put(key, leftValues);
 				
-				rightValues = new ShareableValuesHashSet();
+				rightValues = newShareableValuesHashSet();
 				potentialRightSides.put(key, rightValues);
 			}
 			leftValues.put(value);
@@ -340,7 +343,7 @@ public final class SetFunctions {
 		int nextSize = 0;
 		
 		// Compute
-		final ShareableValuesHashSet newTuples = new ShareableValuesHashSet();
+		final ShareableValuesHashSet newTuples = newShareableValuesHashSet();
 		do{
 			ValueIndexedHashMap<ShareableValuesHashSet> rightSides = potentialRightSides;
 			potentialRightSides = new ValueIndexedHashMap<>();
@@ -370,7 +373,7 @@ public final class SetFunctions {
 								
 								ShareableValuesHashSet potentialRightValues = potentialRightSides.get(rightKey);
 								if(potentialRightValues == null){
-									potentialRightValues = new ShareableValuesHashSet();
+									potentialRightValues = newShareableValuesHashSet();
 									potentialRightSides.put(rightKey, potentialRightValues);
 								}
 								potentialRightValues.add(rightValue);

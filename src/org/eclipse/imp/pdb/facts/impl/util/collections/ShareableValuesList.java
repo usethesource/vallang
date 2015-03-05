@@ -13,6 +13,7 @@ package org.eclipse.imp.pdb.facts.impl.util.collections;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.util.sharing.IShareable;
 import org.eclipse.imp.pdb.facts.util.ShareableList;
 
 /**
@@ -21,18 +22,34 @@ import org.eclipse.imp.pdb.facts.util.ShareableList;
  * @author Arnold Lankamp
  */
 public class ShareableValuesList extends ShareableList<IValue>{
+
+	public static ShareableValuesList newShareableValuesList(){
+		return new ShareableValuesList().intern();
+	}		
 	
-	public ShareableValuesList(){
+	private ShareableValuesList(){
 		super();
 	}
+
+	public static ShareableValuesList newShareableValuesList(ShareableValuesList shareableValuesList){
+		return new ShareableValuesList(shareableValuesList).intern();
+	}	
 	
-	public ShareableValuesList(ShareableValuesList shareableValuesList){
+	private ShareableValuesList(ShareableValuesList shareableValuesList){
 		super(shareableValuesList);
 	}
 	
-	public ShareableValuesList(ShareableValuesList shareableValuesList, int offset, int length){
+	public static ShareableValuesList newShareableValuesList(ShareableValuesList shareableValuesList, int offset, int length){
+		return new ShareableValuesList(shareableValuesList, offset, length).intern();
+	}	
+	
+	private ShareableValuesList(ShareableValuesList shareableValuesList, int offset, int length){
 		super(shareableValuesList, offset, length);
 	}
+	
+	public ShareableValuesList intern() {
+		return (ShareableValuesList) IShareable.intern(this);
+	}		
 	
 	public boolean isEqual(ShareableValuesList otherShareableValuesList){
 		if(otherShareableValuesList == this) return true;
@@ -87,6 +104,6 @@ public class ShareableValuesList extends ShareableList<IValue>{
 		if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller then 0.");
 		if((offset + length) > size()) throw new IndexOutOfBoundsException("'offset + length' may not be larger then 'list.size()'");
 		
-		return new ShareableValuesList(this, offset, length);
+		return newShareableValuesList(this, offset, length);
 	}
 }

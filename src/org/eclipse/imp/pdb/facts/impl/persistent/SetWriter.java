@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
+import static org.eclipse.imp.pdb.facts.impl.persistent.PDBPersistentHashSet.newPersistentHashSet;
+
 import java.util.Comparator;
 
 import org.eclipse.imp.pdb.facts.ISet;
@@ -93,7 +95,7 @@ class SetWriter implements ISetWriter {
 	@Override
 	public ISet done() {
 		if (constructedSet == null) {
-			constructedSet = new PDBPersistentHashSet(elementTypeBag, setContent.freeze());
+			constructedSet = newPersistentHashSet(elementTypeBag, setContent.freeze());
 		}
 
 		return constructedSet;

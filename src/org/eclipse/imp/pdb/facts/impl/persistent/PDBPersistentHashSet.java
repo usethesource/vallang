@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -29,7 +30,8 @@ import org.eclipse.imp.pdb.facts.util.TrieSet;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 	
-	private static final PDBPersistentHashSet EMPTY = new PDBPersistentHashSet();
+	private static final PDBPersistentHashSet EMPTY = (PDBPersistentHashSet) newPersistentHashSet(
+			AbstractTypeBag.of(), TrieSet.of());
 	
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
@@ -40,18 +42,26 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	private final AbstractTypeBag elementTypeBag;
 	private final ImmutableSet<IValue> content;
 
-	private PDBPersistentHashSet() {
-		this.elementTypeBag = AbstractTypeBag.of(); 
-		this.content = TrieSet.of();
+	/* 
+	 * Passing an pre-calulated map type is only allowed from inside this class.
+	 */
+	protected static ISet newPersistentHashSet(AbstractTypeBag elementTypeBag,
+			ImmutableSet<IValue> content) {
+		return new PDBPersistentHashSet(elementTypeBag, content).intern();
 	}
-
-	public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
+	
+	private PDBPersistentHashSet(AbstractTypeBag elementTypeBag,
+			ImmutableSet<IValue> content) {
 		Objects.requireNonNull(elementTypeBag);
 		Objects.requireNonNull(content);
 		this.elementTypeBag = elementTypeBag;
 		this.content = content;
 	}
 
+	public ISet intern() {
+		return (ISet) IShareable.intern(this);
+	}
+		
 	@Override
 	protected IValueFactory getValueFactory() {
 		return ValueFactory.getInstance();
@@ -87,7 +97,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 		final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
 		
-		return new PDBPersistentHashSet(bagNew, contentNew);
+		return newPersistentHashSet(bagNew, contentNew);
 	}
 
 	@Override
@@ -100,7 +110,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 		final AbstractTypeBag bagNew = elementTypeBag.decrease(value.getType());
 		
-		return new PDBPersistentHashSet(bagNew, contentNew);
+		return newPersistentHashSet(bagNew, contentNew);
 	}
 
 	@Override
@@ -264,7 +274,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			}
 			
 			if (modified) {
-				return new PDBPersistentHashSet(bag, tmp.freeze());
+				return newPersistentHashSet(bag, tmp.freeze());
 			}
 			return def;
 		} else {
@@ -312,7 +322,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			}
 			
 			if (modified) {
-				return new PDBPersistentHashSet(bag, tmp.freeze());
+				return newPersistentHashSet(bag, tmp.freeze());
 			}
 			return def;
 		} else {
@@ -351,7 +361,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 			}
 
 			if (modified) {
-				return new PDBPersistentHashSet(bag, tmp.freeze());
+				return newPersistentHashSet(bag, tmp.freeze());
 			}
 			return def;
 		} else {

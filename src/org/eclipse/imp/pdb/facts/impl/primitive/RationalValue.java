@@ -30,7 +30,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final IInteger denom;
 
 	/*package*/ static IRational newRational(IInteger a, IInteger b) {
-		return new RationalValue(a, b);
+		return new RationalValue(a, b).intern();
 	}
 
 	private RationalValue(IInteger num, IInteger denom) {
@@ -63,6 +63,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.denom = denom;
 	}
 
+	public IRational intern() {
+		return (IRational) IShareable.intern(this);
+	}
+	
 	@Override
 	public IRational add(IRational other) {
 		// (num*other.denom + denom*other.num) / denom*other.denom

@@ -38,8 +38,12 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 	
 	private int currentHashCode;
 	
+	public static ShareableValuesHashMap newShareableValuesHashMap(){
+		return new ShareableValuesHashMap().intern();
+	}	
+	
 	@SuppressWarnings("unchecked")
-	public ShareableValuesHashMap(){
+	private ShareableValuesHashMap(){
 		super();
 		
 		modSize = INITIAL_LOG_SIZE;
@@ -54,7 +58,11 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 		currentHashCode = 0;
 	}
 	
-	public ShareableValuesHashMap(ShareableValuesHashMap shareableValuesHashMap){
+	public static ShareableValuesHashMap newShareableValuesHashMap(ShareableValuesHashMap shareableValuesHashMap) {
+		return new ShareableValuesHashMap(shareableValuesHashMap).intern();
+	}	
+	
+	private ShareableValuesHashMap(ShareableValuesHashMap shareableValuesHashMap){
 		super();
 		
 		modSize = shareableValuesHashMap.modSize;
@@ -68,6 +76,10 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 		
 		currentHashCode = shareableValuesHashMap.currentHashCode;
 	}
+	
+	public ShareableValuesHashMap intern() {
+		return (ShareableValuesHashMap) IShareable.intern(this);
+	}	
 	
 	@SuppressWarnings("unchecked")
 	public void clear(){
@@ -422,8 +434,8 @@ public final class ShareableValuesHashMap implements Map<IValue, IValue>, IShare
 	}	
 	
 	public boolean equals(Object o) {
-		// if (IShareable.isSharingEnabled)
-		// return o == this;
+		if (IShareable.isSharingEnabled)
+			return o == this;
 		
 		if (o == this)
 			return true;

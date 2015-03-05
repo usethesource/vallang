@@ -45,14 +45,14 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
 
 		if (offset < Byte.MAX_VALUE && length < Byte.MAX_VALUE) {
-			return new SourceLocationValues.ByteByte(uri, (byte) offset, (byte) length);
+			return new SourceLocationValues.ByteByte(uri, (byte) offset, (byte) length).intern();
 		}
 
 		if (offset < Character.MAX_VALUE && length < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharChar(uri, (char) offset, (char) length);
+			return new SourceLocationValues.CharChar(uri, (char) offset, (char) length).intern();
 		}
 
-		return new SourceLocationValues.IntInt(uri, offset, length);
+		return new SourceLocationValues.IntInt(uri, offset, length).intern();
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
@@ -73,44 +73,47 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				&& endLine < Byte.MAX_VALUE
 				&& beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.CharCharByteByteByteByte(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.CharCharByteByteByteByte(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol).intern();
 		} else if (offset < Character.MAX_VALUE
 				&& length < Character.MAX_VALUE
 				&& beginLine < Character.MAX_VALUE
 				&& endLine < Character.MAX_VALUE
 				&& beginCol < Character.MAX_VALUE
 				&& endCol < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharCharCharCharCharChar(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
+			return new SourceLocationValues.CharCharCharCharCharChar(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol).intern();
 		} else if (beginLine < Character.MAX_VALUE
 				&& endLine < Character.MAX_VALUE
 				&& beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntCharCharByteByte(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.IntIntCharCharByteByte(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol).intern();
 		} else if (beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntIntIntByteByte(uri, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.IntIntIntIntByteByte(uri, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol).intern();
 		}
 
-		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol).intern();
 	}	
 	
 	private final static Lock locationCacheLock = new ReentrantLock(true);
 	@SuppressWarnings("serial")
-	private final static LinkedHashMap<URI,ISourceLocation>  locationCache = new LinkedHashMap<URI,ISourceLocation>(400*4/3, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<URI,ISourceLocation> eldest) {
-                return size() > 400;
-            }
-        };
-        
+	private final static LinkedHashMap<URI, ISourceLocation> locationCache = new LinkedHashMap<URI, ISourceLocation>(
+			400 * 4 / 3, 0.75f, true) {
+		@Override
+		protected boolean removeEldestEntry(
+				Map.Entry<URI, ISourceLocation> eldest) {
+			return size() > 400;
+		}
+	};
+
 	private final static Lock reverseLocationCacheLock = new ReentrantLock(true);
 	@SuppressWarnings("serial")
-	private final static LinkedHashMap<IURI,URI>  reverseLocationCache = new LinkedHashMap<IURI,URI>(400*4/3, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<IURI, URI> eldest) {
-                return size() > 400;
-            }
-        };
+	private final static LinkedHashMap<IURI, URI> reverseLocationCache = new LinkedHashMap<IURI, URI>(
+			400 * 4 / 3, 0.75f, true) {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<IURI, URI> eldest) {
+			return size() > 400;
+		}
+	};
 	
 	/*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
 		try {
@@ -137,7 +140,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
 			String path, String query, String fragment) throws URISyntaxException {
 		IURI u = SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
-		return new SourceLocationValues.OnlyURI(u);
+		return new SourceLocationValues.OnlyURI(u).intern();
 	}
 
 	
@@ -146,6 +149,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			super(uri);
 		}
 
+		public ISourceLocation intern() {
+			return (ISourceLocation) IShareable.intern(this);
+		}	
+	
 		@Override
 		public boolean hasOffsetLength() {
 			return true;
@@ -630,6 +637,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			super(uri);
 		}
 
+		public ISourceLocation intern() {
+			return (ISourceLocation) IShareable.intern(this);
+		}		
+		
 		@Override
 		public int hashCode(){
 			return uri.hashCode();
@@ -884,6 +895,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.length = length;
 		}
 		
+		public ISourceLocation intern() {
+			return (ISourceLocation) IShareable.intern(this);
+		}	
+		
 		@Override
 		public boolean hasOffsetLength() {
 			return true;
@@ -953,6 +968,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.length = length;
 		}
 		
+		public ISourceLocation intern() {
+			return (ISourceLocation) IShareable.intern(this);
+		}		
+		
 		@Override
 		public boolean hasOffsetLength() {
 			return true;
@@ -1021,6 +1040,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.offset = offset;
 			this.length = length;
 		}
+		
+		public ISourceLocation intern() {
+			return (ISourceLocation) IShareable.intern(this);
+		}		
 		
 		@Override
 		public boolean hasOffsetLength() {

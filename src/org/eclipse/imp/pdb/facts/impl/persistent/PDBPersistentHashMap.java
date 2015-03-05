@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.AbstractMap;
@@ -38,11 +39,16 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	private final AbstractTypeBag keyTypeBag; 
 	private final AbstractTypeBag valTypeBag;
 	private final ImmutableMap<IValue,IValue> content; 
-	
+
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
-	protected PDBPersistentHashMap(AbstractTypeBag keyTypeBag,
+	protected static final IMap newPersistentHashMap(AbstractTypeBag keyTypeBag,
+			AbstractTypeBag valTypeBag, ImmutableMap<IValue, IValue> content) {
+		return new PDBPersistentHashMap(keyTypeBag, valTypeBag, content).intern();
+	}
+	
+	private PDBPersistentHashMap(AbstractTypeBag keyTypeBag,
 			AbstractTypeBag valTypeBag, ImmutableMap<IValue, IValue> content) {
 		Objects.requireNonNull(content);
 		this.cachedMapType = null;
@@ -50,6 +56,10 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		this.valTypeBag = valTypeBag;
 		this.content = content;
 	}
+
+	public IMap intern() {
+		return (IMap) IShareable.intern(this);
+	}	
 	
 	@Override
 	protected IValueFactory getValueFactory() {
@@ -101,7 +111,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			valBagNew = valTypeBag.increase(value.getType());
 		}
 		
-		return new PDBPersistentHashMap(keyBagNew, valBagNew, contentNew);
+		return newPersistentHashMap(keyBagNew, valBagNew, contentNew);
 	}
 	
 	@Override
@@ -322,7 +332,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			}
 
 			if (isModified) {
-				return new PDBPersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
+				return newPersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
 			} else {
 				return this;
 			}

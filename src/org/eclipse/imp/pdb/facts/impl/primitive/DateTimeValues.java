@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
-
 /** A concrete instance of IDateTime, representing either a date,
  *  a time, or a date with time.
  *  
@@ -35,11 +34,11 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
  *
  */
 /*package*/ class DateTimeValues {
-
+		
 	private final static Type DATE_TIME_TYPE = TypeFactory.getInstance().dateTimeType();
 	
 	/*package*/ static IDateTime newDate(int year, int month, int day) {
-		return new DateTimeValues.DateValue(year, month, day);
+		return new DateTimeValues.DateValue(year, month, day).intern();
 	}
 	
 	private static class DateValue extends AbstractValue implements IDateTime {
@@ -74,6 +73,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			}
 		}
 
+		public IDateTime intern() {
+			return (IDateTime) IShareable.intern(this);
+		}	
+		
 		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;
@@ -271,12 +274,12 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond) {
-		return new DateTimeValues.TimeValue(hour, minute, second, millisecond);
+		return new DateTimeValues.TimeValue(hour, minute, second, millisecond).intern();
 	}
 
 	/*package*/ static IDateTime newTime(int hour, int minute, int second, int millisecond,
 						  int hourOffset, int minuteOffset) {
-		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset);
+		return new DateTimeValues.TimeValue(hour, minute, second, millisecond, hourOffset, minuteOffset).intern();
 	}
 	
 	private static class TimeValue extends AbstractValue implements IDateTime {
@@ -381,6 +384,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				throw new InvalidDateTimeException("Cannot create time with provided values."); 
 			}
 		}
+		
+		public IDateTime intern() {
+			return (IDateTime) IShareable.intern(this);
+		}	
 
 		@Override
 		public Type getType() {
@@ -595,21 +602,21 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
 	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond) {
-		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond);
+		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond).intern();
 	}
 
 	/*package*/ static IDateTime newDateTime(int year, int month, int day, int hour,
 							  int minute, int second, int millisecond, int hourOffset,
 							  int minuteOffset) {
-		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset);
+		return new DateTimeValues.DateTimeValue(year, month, day, hour, minute, second, millisecond, hourOffset, minuteOffset).intern();
 	}
 
 	/*package*/ static IDateTime newDateTime(long instant) {
-		return new DateTimeValues.DateTimeValue(instant, 0, 0);
+		return new DateTimeValues.DateTimeValue(instant, 0, 0).intern();
 	}
 	
 	/*package*/ static IDateTime newDateTime(long instant, int timezoneHours, int timezoneMinutes) {
-		return new DateTimeValues.DateTimeValue(instant, timezoneHours, timezoneMinutes);
+		return new DateTimeValues.DateTimeValue(instant, timezoneHours, timezoneMinutes).intern();
 	}
 	
 	private static class DateTimeValue extends AbstractValue implements IDateTime {
@@ -731,6 +738,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			this.timezoneMinutes = timezoneMinutes;
 		}
 
+		public IDateTime intern() {
+			return (IDateTime) IShareable.intern(this);
+		}			
+		
 		@Override
 		public Type getType() {
 			return DATE_TIME_TYPE;

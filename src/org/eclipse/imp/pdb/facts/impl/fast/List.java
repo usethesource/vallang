@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList.newShareableValuesList;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -44,7 +46,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected int hashCode = 0;
 
 	/*package*/ static IList newList(Type elementType, ShareableValuesList data) {
-		return new List(elementType, data);
+		return new List(elementType, data).intern();
 	}
 	
 	private List(Type elementType, ShareableValuesList data){
@@ -60,6 +62,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.data = data;
 		
 	}
+
+	public IList intern() {
+		return (IList) IShareable.intern(this);
+	}	
 	
 	/*package*/ static ListWriter createListWriter(Type eltType){
 		return new ListWriter(eltType);
@@ -102,7 +108,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public IList append(IValue element){
-		ShareableValuesList newData = new ShareableValuesList(data);
+		ShareableValuesList newData = newShareableValuesList(data);
 		newData.append(element);
 
 		Type newElementType = elementType.lub(element.getType());
@@ -110,7 +116,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public IList concat(IList other){
-		ShareableValuesList newData = new ShareableValuesList(data);
+		ShareableValuesList newData = newShareableValuesList(data);
 		Iterator<IValue> otherIterator = other.iterator();
 		while(otherIterator.hasNext()){
 			newData.append(otherIterator.next());
@@ -121,7 +127,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public IList insert(IValue element){
-		ShareableValuesList newData = new ShareableValuesList(data);
+		ShareableValuesList newData = newShareableValuesList(data);
 		newData.insert(element);
 
 		Type newElementType = elementType.lub(element.getType());
@@ -129,7 +135,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public IList put(int index, IValue element) throws IndexOutOfBoundsException{
-		ShareableValuesList newData = new ShareableValuesList(data);
+		ShareableValuesList newData = newShareableValuesList(data);
 		newData.set(index, element);
 
 		Type newElementType = elementType.lub(element.getType());
@@ -138,7 +144,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	
 	public IList replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
-		ShareableValuesList newData = new ShareableValuesList();
+		ShareableValuesList newData = newShareableValuesList();
 		int rlen = repl.length();
 		int increment = Math.abs(second - first);
 		if(first < end){
@@ -206,7 +212,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public IList delete(int index){
-		ShareableValuesList newData = new ShareableValuesList(data);
+		ShareableValuesList newData = newShareableValuesList(data);
 		newData.remove(index);
 		
 		Type newElementType = TypeFactory.getInstance().voidType();
@@ -217,7 +223,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public IList delete(IValue element){
-		ShareableValuesList newData = new ShareableValuesList(data);
+		ShareableValuesList newData = newShareableValuesList(data);
 		
 		if (newData.remove(element)) {
 		  Type newElementType = TypeFactory.getInstance().voidType();
@@ -233,7 +239,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	public IList reverse(){
-		ShareableValuesList newData = new ShareableValuesList(data);
+		ShareableValuesList newData = newShareableValuesList(data);
 		newData.reverse();
 		
 		return new ListWriter(elementType, newData).done();
@@ -304,9 +310,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			if (listType != otherList.listType)
 				return false;
 
-			// NOTE: we call equivalent() instead of == because
-			// ShareableValuesList gets not shared, only its content.
-			return data.equivalent(otherList.data);
+			return data == otherList.data;
 		}
 
 		return false;

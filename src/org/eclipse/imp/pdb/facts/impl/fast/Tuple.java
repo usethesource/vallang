@@ -45,15 +45,19 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	/*package*/ static ITuple newTuple(IValue... elements) {
-		return new Tuple(elements);
+		return new Tuple(elements).intern();
 	}
 	
 	private Tuple(IValue... elements) {
-	    super();
-	    this.tupleType = TypeFactory.getInstance().tupleType(elements);
-		this.elements= elements;
-	    }
+		super();
+		this.tupleType = TypeFactory.getInstance().tupleType(elements);
+		this.elements = elements;
+	}
 
+	public ITuple intern() {
+		return (ITuple) IShareable.intern(this);
+	}	
+	
 	public Type getType(){
 		return tupleType;
 	}

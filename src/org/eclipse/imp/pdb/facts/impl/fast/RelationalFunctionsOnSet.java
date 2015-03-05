@@ -11,6 +11,9 @@
 *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.fast;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashSet.newShareableValuesHashSet;
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList.newShareableValuesList;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
@@ -43,10 +46,10 @@ public class RelationalFunctionsOnSet {
 //		Set otherSet = (Set) rel2;
 //		
 //		if(otherSet.size() <= rel1.size()){
-//			newData = new ShareableValuesHashSet(thisSet.data);
+//			newData = newShareableValuesHashSet(thisSet.data);
 //			setIterator = otherSet.iterator();
 //		}else{
-//			newData = new ShareableValuesHashSet(otherSet.data);
+//			newData = newShareableValuesHashSet(otherSet.data);
 //			setIterator = rel1.iterator();
 //		}
 //		
@@ -60,7 +63,7 @@ public class RelationalFunctionsOnSet {
 
 //	// TODO: Currently untested in PDB.
 //	public static ISet intersect(ISet rel1, ISet rel2){
-//		ShareableValuesHashSet commonData = new ShareableValuesHashSet();
+//		ShareableValuesHashSet commonData = newShareableValuesHashSet();
 //		Iterator<IValue> setIterator;
 //		
 //		ISet theOtherSet;
@@ -87,7 +90,7 @@ public class RelationalFunctionsOnSet {
 
 //	// TODO: Currently untested in PDB.
 //	public static ISet subtract(ISet rel1, ISet rel2){
-//		ShareableValuesHashSet newData = new ShareableValuesHashSet(((Set)rel1).data);
+//		ShareableValuesHashSet newData = newShareableValuesHashSet(((Set)rel1).data);
 //		
 //		Iterator<IValue> setIterator = rel2.iterator();
 //		while(setIterator.hasNext()){
@@ -102,7 +105,7 @@ public class RelationalFunctionsOnSet {
 //	}
 	
 	private static ShareableValuesHashSet computeCarrier(ISet rel1) {
-		ShareableValuesHashSet newData = new ShareableValuesHashSet();
+		ShareableValuesHashSet newData = newShareableValuesHashSet();
 		
 		Iterator<IValue> relationIterator = ((Set)rel1).data.iterator();
 		while(relationIterator.hasNext()){
@@ -126,7 +129,7 @@ public class RelationalFunctionsOnSet {
 
 	// TODO: Currently untested in PDB.
 	public static ISet domain(ISet rel1){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet();
+		ShareableValuesHashSet newData = newShareableValuesHashSet();
 		
 		Iterator<IValue> relationIterator = ((Set)rel1).data.iterator();
 		while(relationIterator.hasNext()){
@@ -141,7 +144,7 @@ public class RelationalFunctionsOnSet {
 	
 	// TODO: Currently untested in PDB.
 	public static ISet range(ISet rel1){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet();
+		ShareableValuesHashSet newData = newShareableValuesHashSet();
 		
 		int last = rel1.getElementType().getArity() - 1;
 		
@@ -183,7 +186,7 @@ public class RelationalFunctionsOnSet {
 			IValue key = tuple.get(0);
 			ShareableValuesList values = rightSides.get(key);
 			if(values == null){
-				values = new ShareableValuesList();
+				values = newShareableValuesList();
 				rightSides.put(key, values);
 			}
 			
@@ -191,7 +194,7 @@ public class RelationalFunctionsOnSet {
 		}
 		
 		// Compute
-		ShareableValuesHashSet newData = new ShareableValuesHashSet();
+		ShareableValuesHashSet newData = newShareableValuesHashSet();
 		
 		Type[] newTupleFieldTypes = new Type[]{rel1.getElementType().getFieldType(0), otherTupleType.getFieldType(1)};
 		Type tupleType = typeFactory.tupleType(newTupleFieldTypes);
@@ -216,7 +219,7 @@ public class RelationalFunctionsOnSet {
 	}
 	
 	private static ShareableValuesHashSet computeClosure(ISet rel1, Type tupleType){
-		ShareableValuesHashSet allData = new ShareableValuesHashSet(((Set)rel1).data);
+		ShareableValuesHashSet allData = newShareableValuesHashSet(((Set)rel1).data);
 		
 		RotatingQueue<IValue> iLeftKeys = new RotatingQueue<>();
 		RotatingQueue<RotatingQueue<IValue>> iLefts = new RotatingQueue<>();
@@ -241,7 +244,7 @@ public class RelationalFunctionsOnSet {
 				iLefts.put(leftValues);
 				interestingLeftSides.put(key, leftValues);
 				
-				rightValues = new ShareableValuesHashSet();
+				rightValues = newShareableValuesHashSet();
 				potentialRightSides.put(key, rightValues);
 			}
 			leftValues.put(value);
@@ -281,7 +284,7 @@ public class RelationalFunctionsOnSet {
 								
 								ShareableValuesHashSet potentialRightValues = potentialRightSides.get(rightKey);
 								if(potentialRightValues == null){
-									potentialRightValues = new ShareableValuesHashSet();
+									potentialRightValues = newShareableValuesHashSet();
 									potentialRightSides.put(rightKey, potentialRightValues);
 								}
 								potentialRightValues.add(rightValue);
@@ -335,7 +338,7 @@ public class RelationalFunctionsOnSet {
 	
 	// TODO: Currently untested in PDB.
 	public static ISet project(ISet rel1, int... indexes){
-		ShareableValuesHashSet newData = new ShareableValuesHashSet();
+		ShareableValuesHashSet newData = newShareableValuesHashSet();
 		
 		Iterator<IValue> dataIterator = ((Set)rel1).data.iterator();
 		while(dataIterator.hasNext()){
@@ -352,7 +355,7 @@ public class RelationalFunctionsOnSet {
 	public static ISet projectByFieldNames(ISet rel1, String... fields){
 		if(!rel1.getElementType().hasFieldNames()) throw new IllegalOperationException("select with field names", rel1.getType());
 		
-		ShareableValuesHashSet newData = new ShareableValuesHashSet();
+		ShareableValuesHashSet newData = newShareableValuesHashSet();
 		
 		Iterator<IValue> dataIterator = ((Set)rel1).data.iterator();
 		while(dataIterator.hasNext()){

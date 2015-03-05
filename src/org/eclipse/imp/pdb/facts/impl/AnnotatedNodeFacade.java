@@ -34,6 +34,10 @@ public class AnnotatedNodeFacade implements INode {
 		this.content = content;
 		this.annotations = annotations;
 	}
+
+	public INode intern() {
+		return (INode) IShareable.intern(this);
+	}	
 	
 	public Type getType() {
 		return content.getType();
@@ -49,7 +53,8 @@ public class AnnotatedNodeFacade implements INode {
 	
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		INode newContent = content.set(i, newChild);
-		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
+		// TODO: introduce wrap() here as well
+		return new AnnotatedNodeFacade(newContent, annotations).intern();
 	}
 
 	public int arity() {
@@ -75,7 +80,8 @@ public class AnnotatedNodeFacade implements INode {
 	public INode replace(int first, int second, int end, IList repl)
 			throws FactTypeUseException, IndexOutOfBoundsException {
 		INode newContent = content.replace(first, second, end, repl);
-		return new AnnotatedNodeFacade(newContent, annotations); // TODO: introduce wrap() here as well
+		// TODO: introduce wrap() here as well
+		return new AnnotatedNodeFacade(newContent, annotations).intern();
 	}
 
 	public boolean equals(Object o) {
@@ -136,7 +142,7 @@ public class AnnotatedNodeFacade implements INode {
 			@Override
 			protected INode wrap(INode content,
 					ImmutableMap<String, IValue> annotations) {
-				return new AnnotatedNodeFacade(content, annotations);
+				return new AnnotatedNodeFacade(content, annotations).intern();
 			}
 		};
 	}

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.imp.pdb.facts.impl.persistent;
 
+import static org.eclipse.imp.pdb.facts.impl.persistent.PDBPersistentHashMap.newPersistentHashMap;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -160,7 +162,7 @@ final class MapWriter implements IMapWriter {
 	@Override
 	public IMap done() {
 		if (constructedMap == null) {
-			constructedMap = new PDBPersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
+			constructedMap = newPersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
 		}
 
 		return constructedMap;

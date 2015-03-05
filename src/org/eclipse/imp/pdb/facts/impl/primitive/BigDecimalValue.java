@@ -41,23 +41,23 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final BigDecimal value;
 
 	/*package*/ static IReal newReal(BigDecimal value) {
-		return new BigDecimalValue(value);
+		return new BigDecimalValue(value).intern();
 	}
 
 	/*package*/ static IReal newReal(String value) {
-		return new BigDecimalValue(new BigDecimal(value));
+		return new BigDecimalValue(new BigDecimal(value)).intern();
 	}
 
 	/*package*/ static IReal newReal(String value, int precision) throws NumberFormatException {
-		return new BigDecimalValue(new BigDecimal(value, new MathContext(precision)));
+		return new BigDecimalValue(new BigDecimal(value, new MathContext(precision))).intern();
 	}
 
 	/*package*/ static IReal newReal(double value) {
-		return new BigDecimalValue(BigDecimal.valueOf(value));
+		return new BigDecimalValue(BigDecimal.valueOf(value)).intern();
 	}
 
 	/*package*/ static IReal newReal(double value, int precision) {
-		return new BigDecimalValue(new BigDecimal(value, new MathContext(precision)));
+		return new BigDecimalValue(new BigDecimal(value, new MathContext(precision))).intern();
 	}
 
 	private BigDecimalValue(BigDecimal value){
@@ -65,13 +65,19 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		
 		this.value = value;
 	}
-	
+
+	/*
 	private BigDecimalValue(BigDecimal value, int precision){
 		super();
 		
 		this.value = new BigDecimal(value.toEngineeringString(), new MathContext(precision));
 	}
+	*/
 
+	public IReal intern() {
+		return (IReal) IShareable.intern(this);
+	}
+	
 	@Override
 	public IReal abs() {
 		return newReal(value.abs());

@@ -39,7 +39,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final IValue[] children;
 
 	/*package*/ static INode newNode(String name, IValue[] children) {
-		return new Node(name, children);
+		return new Node(name, children).intern();
 	}
 	
 	private Node(String name, IValue[] children) {
@@ -50,7 +50,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 
 	/*package*/ static INode newNode(String name, IList children) {
-		return new Node(name, children);
+		return new Node(name, children).intern();
 	}
 	
 	private Node(String name, IList children) {
@@ -64,7 +64,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	/*package*/ static INode newNode(String name, IValue[] children, Map<String, IValue> keyArgValues) {
-		INode node = new Node(name, children, keyArgValues);
+		INode node = new Node(name, children, keyArgValues).intern();
 		
 		if (keyArgValues != null && keyArgValues.size() > 0) {
 		  return node.asWithKeywordParameters().setParameters(keyArgValues);
@@ -79,6 +79,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.children = children;
 	}
 
+	public INode intern() {
+		return (INode) IShareable.intern(this);
+	}	
+	
 	@Override
 	public Type getType(){
 		return NODE_TYPE;

@@ -21,8 +21,18 @@ public interface IShareable{
 	 * Global property to enable maximal sharing for all IShareable
 	 * implementations.
 	 */
-	public final static boolean isSharingEnabled = System.getProperties()
-			.containsKey("sharingEnabled");
+	final static boolean isSharingEnabled = System.getProperties().containsKey(
+			"sharingEnabled");
+
+	final static ShareableValuesFactory<IShareable> objectPool = new ShareableValuesFactory<>();
+	
+	static IShareable intern(final IShareable prototype) {
+		if (isSharingEnabled) {
+			return objectPool.build(prototype);
+		} else {
+			return prototype;
+		}
+	}
 	
 	/**
 	 * Computes the hashcode for 'this' object.

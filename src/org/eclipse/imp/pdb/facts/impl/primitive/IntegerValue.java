@@ -50,27 +50,27 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	 */
 	/*package*/ static IInteger newInteger(BigInteger value) {
 		if (value.bitLength() > 31) {
-			return new BigIntegerValue(value);
+			return BigIntegerValue.newBigIntegerValue(value);
 		}
-		return new IntegerValue(value.intValue());
+		return new IntegerValue(value.intValue()).intern();
 	}
 
 	/*package*/ static IInteger newInteger(int value) {
-		return new IntegerValue(value);
+		return new IntegerValue(value).intern();
 	}
 
 	/*package*/ static IInteger newInteger(String integerValue) {
 		if (integerValue.startsWith("-")) {
 			if (integerValue.length() < 11 || (integerValue.length() == 11 && integerValue.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)) {
-				return new IntegerValue(Integer.parseInt(integerValue));
+				return new IntegerValue(Integer.parseInt(integerValue)).intern();
 			}
-			return new BigIntegerValue(new BigInteger(integerValue));
+			return BigIntegerValue.newBigIntegerValue(new BigInteger(integerValue));
 		}
 
 		if (integerValue.length() < 10 || (integerValue.length() == 10 && integerValue.compareTo(INTEGER_MAX_STRING) <= 0)) {
 			return new IntegerValue(Integer.parseInt(integerValue));
 		}
-		return new BigIntegerValue(new BigInteger(integerValue));
+		return BigIntegerValue.newBigIntegerValue(new BigInteger(integerValue));
 	}
 
 	/*package*/ static IInteger newInteger(long value) {
@@ -97,9 +97,9 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 				value |= ((integerData[i] & 0xff) << (j * 8));
 			}
 
-			return new IntegerValue(value);
+			return new IntegerValue(value).intern();
 		}
-		return new BigIntegerValue(new BigInteger(integerData));
+		return BigIntegerValue.newBigIntegerValue(new BigInteger(integerData));
 	}
 
 	private IntegerValue(int value){
@@ -107,6 +107,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.value = value;
 	}
 
+	public IInteger intern() {
+		return (IInteger) IShareable.intern(this);
+	}		
+	
 	@Override
 	public IInteger toInteger() {
 		return this;

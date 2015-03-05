@@ -23,6 +23,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap.newShareableValuesHashMap;
+
 /**
  * Implementation of IMap.
  * 
@@ -36,7 +38,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	protected final ShareableValuesHashMap data;
 	
 	/*package*/ static IMap newMap(Type mapType, ShareableValuesHashMap data) {
-		return new Map(mapType, data);
+		return new Map(mapType, data).intern();
 	}
 	
 	private Map(Type mapType, ShareableValuesHashMap data) {
@@ -47,6 +49,10 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		this.data = data;
 	}
 
+	public IMap intern() {
+		return (IMap) IShareable.intern(this);
+	}	
+	
 	public Type getType(){
 		return mapType;
 	}
@@ -122,7 +128,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public IMap put(IValue key, IValue value){
-		ShareableValuesHashMap newData = new ShareableValuesHashMap(data);
+		ShareableValuesHashMap newData = newShareableValuesHashMap(data);
 		IValue replaced = newData.put(key, value);
 		
 		if (replaced != null) {
@@ -161,7 +167,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public IMap common(IMap other){
-		ShareableValuesHashMap commonData = new ShareableValuesHashMap();
+		ShareableValuesHashMap commonData = newShareableValuesHashMap();
 		Iterator<Entry<IValue, IValue>> entryIterator;
 		
 		IMap theOtherMap;
@@ -191,7 +197,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public IMap compose(IMap other){
-		ShareableValuesHashMap newData = new ShareableValuesHashMap();
+		ShareableValuesHashMap newData = newShareableValuesHashMap();
 		
 		Map otherMap = (Map) other;
 		
@@ -220,7 +226,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 		Iterator<Entry<IValue, IValue>> entryIterator;
 		
 		Map otherMap = (Map) other;
-		newData = new ShareableValuesHashMap(data);
+		newData = newShareableValuesHashMap(data);
 		entryIterator = otherMap.entryIterator();
 		
 		while(entryIterator.hasNext()){
@@ -232,7 +238,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 	}
 	
 	public IMap remove(IMap other){
-		ShareableValuesHashMap newData = new ShareableValuesHashMap(data);
+		ShareableValuesHashMap newData = newShareableValuesHashMap(data);
 		
 		Iterator<IValue> keysIterator = other.iterator();
 		while(keysIterator.hasNext()){
@@ -288,9 +294,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 			if (getType() != otherMap.getType())
 				return false;
 
-			// NOTE: we call equivalent() instead of == because
-			// ShareableValuesHashMap gets not shared, only its content.
-			return data.equivalent(otherMap.data);
+			return data == otherMap.data;
 		}
 
 		return false;

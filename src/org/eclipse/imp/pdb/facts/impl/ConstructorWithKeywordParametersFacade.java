@@ -37,6 +37,10 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 		this.content = content;
 		this.parameters = parameters;
 	}
+
+	public IConstructor intern() {
+		return (IConstructor) IShareable.intern(this);
+	}	
 	
 	public Type getType() {
 		return content.getType();
@@ -52,7 +56,8 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	
 	public IConstructor set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		IConstructor newContent = content.set(i, newChild);
-		return new ConstructorWithKeywordParametersFacade(newContent, parameters); // TODO: introduce wrap() here as well
+		// TODO: introduce wrap() here as well
+		return new ConstructorWithKeywordParametersFacade(newContent, parameters).intern();
 	}
 
 	public int arity() {
@@ -166,7 +171,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
       @Override
       protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
-        return new ConstructorWithKeywordParametersFacade(content, parameters);
+        return new ConstructorWithKeywordParametersFacade(content, parameters).intern();
       }
       
       @Override
@@ -203,7 +208,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 
   @Override
   public IConstructor set(String label, IValue newChild) throws FactTypeUseException {
-    return new ConstructorWithKeywordParametersFacade(content.set(label, newChild), parameters);
+    return new ConstructorWithKeywordParametersFacade(content.set(label, newChild), parameters).intern();
   }
 
   @Override

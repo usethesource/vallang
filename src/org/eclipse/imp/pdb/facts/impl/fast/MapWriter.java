@@ -22,6 +22,8 @@ import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
+import static org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesHashMap.newShareableValuesHashMap;
+
 // TODO Add checking.
 /**
  * Implementation of IMapWriter.
@@ -47,7 +49,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		this.valueType =  TypeFactory.getInstance().voidType();
 		this.inferred = true;
 		
-		data = new ShareableValuesHashMap();
+		data = newShareableValuesHashMap();
 		
 		constructedMap = null;
 	}
@@ -65,7 +67,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 		this.valueType = mapType.getValueType();
 		this.inferred = false;
 		
-		data = new ShareableValuesHashMap();
+		data = newShareableValuesHashMap();
 		
 		constructedMap = null;
 	}
